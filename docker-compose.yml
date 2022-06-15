@@ -19,4 +19,4 @@ services:
       - "5030:5030"
     build:
       context: .
-      dockerfile: Profile/Dockerfile
+      dockerfile: Dockerfile

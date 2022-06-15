@@ -1,0 +1,19 @@
+version: 2
+updates:
+  ## Profile
+  - directory: "src/Profile"
+    package-ecosystem: "nuget"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      time: "07:00"
+      timezone: "Europe/Oslo"
+
+## Test
+  - directory: "test/Altinn.Platform.Profile.Tests"
+    package-ecosystem: "nuget"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      time: "07:00"
+      timezone: "Europe/Oslo"

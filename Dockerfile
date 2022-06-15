@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0.300-alpine3.15 AS build
 WORKDIR Profile/
 
-COPY Profile ./Profile
+COPY src/Profile ./Profile
 WORKDIR Profile/
 
 RUN dotnet build Altinn.Platform.Profile.csproj -c Release -o /app_output
