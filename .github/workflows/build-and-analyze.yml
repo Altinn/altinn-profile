@@ -9,7 +9,7 @@ on:
 jobs:
   build-and-test:
     name: Build and Test
-    if: github.repository_owner == 'Altinn' && github.actor != 'dependabot[bot]' && (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+    if: ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false) || github.event_name == 'push') && github.repository_owner == 'Altinn' && github.actor != 'dependabot[bot]' 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -23,7 +23,7 @@ jobs:
            dotnet build Altinn.Platform.Profile.sln -v m
            dotnet test Altinn.Platform.Profile.sln -v m
   analyze:
-    if: github.repository_owner == 'Altinn' && github.actor != 'dependabot[bot]' && (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+    if: ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false) || github.event_name == 'push') && github.repository_owner == 'Altinn' && github.actor != 'dependabot[bot]' 
     name: Analyze
     runs-on: windows-latest
     steps:
