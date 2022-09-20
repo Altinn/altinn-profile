@@ -1,11 +1,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0.401-alpine3.16 AS build
-WORKDIR Profile/
+WORKDIR Altinn.Profile/
 
-COPY src/Profile ./Profile
-WORKDIR Profile/
+COPY src/Altinn.Profile ./Altinn.Profile
+WORKDIR Altinn.Profile/
 
-RUN dotnet build Altinn.Platform.Profile.csproj -c Release -o /app_output
-RUN dotnet publish Altinn.Platform.Profile.csproj -c Release -o /app_output
+RUN dotnet build Altinn.Profile.csproj -c Release -o /app_output
+RUN dotnet publish Altinn.Profile.csproj -c Release -o /app_output
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0.9-alpine3.16 AS final
 EXPOSE 5030
@@ -18,4 +18,4 @@ RUN addgroup -g 3000 dotnet && adduser -u 1000 -G dotnet -D -s /bin/false dotnet
 USER dotnet
 RUN mkdir /tmp/logtelemetry
 
-ENTRYPOINT ["dotnet", "Altinn.Platform.Profile.dll"]
+ENTRYPOINT ["dotnet", "Altinn.Profile.dll"]
