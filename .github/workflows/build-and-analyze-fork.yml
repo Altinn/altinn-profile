@@ -19,10 +19,10 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
       - name: dotnet build
-        run: dotnet build Altinn.Platform.Profile.sln -v m
+        run: dotnet build Altinn.Profile.sln -v m
 
       - name: dotnet test
-        run: dotnet test Altinn.Platform.Profile.sln --results-directory TestResults/ --collect:"XPlat Code Coverage" -v m
+        run: dotnet test Altinn.Profile.sln --results-directory TestResults/ --collect:"XPlat Code Coverage" -v m
 
       - name: Generate coverage results
         run: |

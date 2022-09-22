@@ -1,7 +1,7 @@
 version: 2
 updates:
   ## Profile
-  - directory: "src/Profile"
+  - directory: "src/Altinn.Profile"
     package-ecosystem: "nuget"
     schedule:
       interval: "weekly"
@@ -9,14 +9,14 @@ updates:
       time: "07:00"
       timezone: "Europe/Oslo"
 ## Test
-  - directory: "test/Altinn.Platform.Profile.Tests"
+  - directory: "test/Altinn.Profile.Tests"
     package-ecosystem: "nuget"
     schedule:
       interval: "weekly"
       day: "thursday"
       time: "07:00"
       timezone: "Europe/Oslo"
-      
+
  ## Dockerfile
   - directory: "/"
     package-ecosystem: "docker"
@@ -25,7 +25,7 @@ updates:
       day: "thursday"
       time: "07:00"
       timezone: "Europe/Oslo"
-     
+
 ## Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
