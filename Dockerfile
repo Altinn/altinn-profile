@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0.402-alpine3.16 AS build
+FROM mcr.microsoft.com/dotnet/sdk:7.0.100-alpine3.16 AS build
 WORKDIR Altinn.Profile/
 
 COPY src/Altinn.Profile ./Altinn.Profile
