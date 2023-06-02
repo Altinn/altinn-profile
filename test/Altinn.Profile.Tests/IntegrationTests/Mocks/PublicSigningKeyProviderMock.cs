@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -10,13 +10,8 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Altinn.Profile.Tests.IntegrationTests.Mocks
 {
-    public class SigningKeyResolverMock : ISigningKeysResolver
+    public class PublicSigningKeyProviderMock : IPublicSigningKeyProvider
     {
-        public SigningCredentials GetSigningCredentials()
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<IEnumerable<SecurityKey>> GetSigningKeys(string issuer)
         {
             List<SecurityKey> signingKeys = new List<SecurityKey>();
