@@ -53,7 +53,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.Utils
                 builder.ConfigureTestServices(services =>
                 {
                     services.AddSingleton<IPostConfigureOptions<JwtCookieOptions>, JwtCookiePostConfigureOptionsStub>();
-                    services.AddSingleton<ISigningKeysResolver, SigningKeyResolverMock>();
+                    services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProviderMock>();
                     services.AddSingleton<IMemoryCache>(memoryCache);
 
                     // Using the real/actual implementation of IUserProfiles, but with a mocked message handler.

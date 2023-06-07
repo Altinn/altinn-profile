@@ -175,7 +175,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddSingleton(config);
     services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-    services.AddSingleton<ISigningKeysResolver, SigningKeysResolver>();
+    services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProvider>();
 
     services.AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
         .AddJwtCookie(JwtCookieDefaults.AuthenticationScheme, options =>
@@ -269,9 +269,6 @@ void Configure()
     app.UseAuthentication();
     app.UseAuthorization();
 
-    app.UseEndpoints(endpoints =>
-    {
-        endpoints.MapControllers();
-        endpoints.MapHealthChecks("/health");
-    });
+    app.MapControllers();
+    app.MapHealthChecks("/health");
 }
