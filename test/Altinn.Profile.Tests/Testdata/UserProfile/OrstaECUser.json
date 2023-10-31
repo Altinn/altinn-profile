@@ -13,7 +13,7 @@
     "Person": null,
     "Organization": {
       "OrgNumber": "910459880",
-      "Name": "ØRSTA OG HEGGEDAL",
+      "Name": "ORSTA OG HEGGEDAL",
       "UnitType": "AS",
       "TelephoneNumber": "12345678",
       "MobileNumber": "99999999",
@@ -30,7 +30,7 @@
     },
     "PartyId": 50005545,
     "UnitType": "AS",
-    "Name": "ØRSTA OG HEGGEDAL ",
+    "Name": "ORSTA OG HEGGEDAL ",
     "IsDeleted": false,
     "OnlyHierarchyElementWithNoAccess": false,
     "ChildParties": null

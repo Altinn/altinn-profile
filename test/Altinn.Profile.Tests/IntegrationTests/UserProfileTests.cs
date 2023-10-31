@@ -364,8 +364,8 @@ namespace Altinn.Profile.Tests.IntegrationTests
             Assert.Equal(UserId, actualUser.UserId);
             Assert.Equal(Username, actualUser.UserName);
             Assert.Equal(50005545, actualUser.Party.PartyId);
-            Assert.Equal("ØRSTA OG HEGGEDAL ", actualUser.Party.Name);
-            Assert.Equal("ØRSTA OG HEGGEDAL", actualUser.Party.Organization.Name);
+            Assert.Equal("ORSTA OG HEGGEDAL ", actualUser.Party.Name);
+            Assert.Equal("ORSTA OG HEGGEDAL", actualUser.Party.Organization.Name);
             Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
         }
 
