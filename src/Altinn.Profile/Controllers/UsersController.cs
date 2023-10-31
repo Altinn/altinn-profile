@@ -94,5 +94,25 @@ namespace Altinn.Profile.Controllers
 
             return Ok(result);
         }
+
+        /// <summary>
+        /// Gets the user profile for a given username
+        /// </summary>
+        /// <param name="username">The user's username</param>
+        /// <returns>User profile connected to given username</returns>
+        [HttpGet]
+        [Authorize(Policy = "PlatformAccess")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<UserProfile>> GetUserFromUsername([FromQuery] string username)
+        {
+            UserProfile result = await _userProfilesWrapper.GetUserByUsername(username);
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
+        }
     }
 }
