@@ -11,7 +11,7 @@ namespace Altinn.Profile.Controllers
     /// Controller for user profile API endpoints for internal consumption (e.g. Authorization) requiring neither authenticated user token nor access token authorization.
     /// </summary>
     [Route("profile/api/v1/internal/user")]
-    [ApiExplorerSettings(IgnoreApi = false)]
+    [ApiExplorerSettings(IgnoreApi = true)]
     [Consumes("application/json")]
     [Produces("application/json")]
     public class UserProfileInternalController : Controller
