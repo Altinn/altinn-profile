@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using Altinn.AccessManagement.Models;
 using Altinn.Platform.Profile.Models;
+using Altinn.Profile.Models;
 using Altinn.Profile.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Altinn.AccessManagement.Models
+﻿namespace Altinn.Profile.Models
 {
     /// <summary>
     /// Input model for internal UserProfile lookup requests, where one of the lookup identifiers available must be set for performing the lookup request:
