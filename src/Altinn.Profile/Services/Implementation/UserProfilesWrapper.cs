@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 using Altinn.Platform.Profile.Models;
 using Altinn.Profile.Configuration;
 using Altinn.Profile.Services.Interfaces;
-
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -81,6 +79,27 @@ namespace Altinn.Profile.Services.Implementation
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError("Getting user by SSN failed with statuscode {statusCode}", response.StatusCode);
+                return null;
+            }
+
+            string content = await response.Content.ReadAsStringAsync();
+            user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions);
+
+            return user;
+        }
+
+        /// <inheritdoc />
+        public async Task<UserProfile> GetUserByUsername(string username)
+        {
+            UserProfile user;
+
+            Uri endpointUrl = new Uri($"{_generalSettings.BridgeApiEndpoint}users/?username={username}");
+
+            HttpResponseMessage response = await _client.GetAsync(endpointUrl);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Getting user {username} failed with {statusCode}", username, response.StatusCode);
                 return null;
             }
 

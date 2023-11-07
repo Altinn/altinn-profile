@@ -166,5 +166,79 @@ namespace Altinn.Profile.Tests.UnitTests
             Assert.Null(actual);
             Assert.False(memoryCache.TryGetValue("User_UserId_2001607", out UserProfile _));
         }
+
+        /// <summary>
+        /// Tests that the userprofile available in the cache is returned to the caller without forwarding request to decorated service.
+        /// </summary>
+        [Fact]
+        public async Task GetUserByUsername_UserInCache_decoratedServiceNotCalled()
+        {
+            // Arrange
+            const string Username = "OrstaECUser";
+            const int UserId = 2001072;
+            MemoryCache memoryCache = new(new MemoryCacheOptions());
+
+            var userProfile = await TestDataLoader.Load<UserProfile>(Username);
+            memoryCache.Set("User_Username_OrstaECUser", userProfile);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+
+            // Act
+            UserProfile actual = await target.GetUserByUsername(Username);
+
+            // Assert
+            _decoratedServiceMock.Verify(service => service.GetUser(It.IsAny<int>()), Times.Never());
+            Assert.NotNull(actual);
+            Assert.Equal(UserId, actual.UserId);
+            Assert.Equal(Username, actual.UserName);
+        }
+
+        /// <summary>
+        /// Tests that when the userprofile is not available in the cache, the request is forwarded to the decorated service.
+        /// </summary>
+        [Fact]
+        public async Task GetUserByUsername_UserNotInCache_decoratedServiceCalledMockPopulated()
+        {
+            // Arrange
+            const string Username = "OrstaECUser";
+            const int UserId = 2001072;
+            MemoryCache memoryCache = new(new MemoryCacheOptions());
+
+            var userProfile = await TestDataLoader.Load<UserProfile>(Username);
+            _decoratedServiceMock.Setup(service => service.GetUserByUsername(Username)).ReturnsAsync(userProfile);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+
+            // Act
+            UserProfile actual = await target.GetUserByUsername(Username);
+
+            // Assert
+            _decoratedServiceMock.Verify(service => service.GetUserByUsername(Username), Times.Once());
+
+            Assert.NotNull(actual);
+            Assert.Equal(UserId, actual.UserId);
+            Assert.Equal(Username, actual.UserName);
+            Assert.True(memoryCache.TryGetValue("User_Username_OrstaECUser", out UserProfile _));
+        }
+
+        /// <summary>
+        /// Tests that if the result from decorated service is null, nothing is stored in cache and the null object returned to caller.
+        /// </summary>
+        [Fact]
+        public async Task GetUserByUsername_NullFromDecoratedService_CacheNotPopulated()
+        {
+            // Arrange
+            const string Username = "NonExistingUsername";
+            MemoryCache memoryCache = new(new MemoryCacheOptions());
+
+            _decoratedServiceMock.Setup(service => service.GetUserByUsername(Username)).ReturnsAsync((UserProfile)null);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+
+            // Act
+            UserProfile actual = await target.GetUserByUsername(Username);
+
+            // Assert
+            _decoratedServiceMock.Verify(service => service.GetUserByUsername(Username), Times.Once());
+            Assert.Null(actual);
+            Assert.False(memoryCache.TryGetValue("User_Username_NonExistingUsername", out UserProfile _));
+        }
     }
 }
