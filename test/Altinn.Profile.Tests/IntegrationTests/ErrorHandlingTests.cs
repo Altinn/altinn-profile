@@ -39,7 +39,7 @@ namespace Altinn.Profile.Tests.IntegrationTests
             string responseContent = await response.Content.ReadAsStringAsync();
             ProblemDetails problemDetails = JsonSerializer.Deserialize<ProblemDetails>(responseContent);
 
-            Assert.StartsWith("An error occurred", problemDetails.Title);
+            Assert.StartsWith("An error occurred", problemDetails.Extensions["title"].ToString());
         }
     }
 }
