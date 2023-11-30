@@ -78,5 +78,25 @@ namespace Altinn.Profile.Services.Decorators
 
             return user;
         }
+
+        /// <inheritdoc/>
+        public async Task<UserProfile> GetUserByUsername(string username)
+        {
+            string uniqueCacheKey = "User_Username_" + username;
+
+            if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile user))
+            {
+                return user;
+            }
+
+            user = await _decoratedService.GetUserByUsername(username);
+
+            if (user != null)
+            {
+                _memoryCache.Set(uniqueCacheKey, user, _cacheOptions);
+            }
+
+            return user;
+        }
     }
 }
