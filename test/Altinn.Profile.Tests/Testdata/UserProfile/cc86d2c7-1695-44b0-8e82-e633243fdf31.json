@@ -1,0 +1,48 @@
+{
+  "UserId": 20000009,
+  "UserUUID": "cc86d2c7-1695-44b0-8e82-e633243fdf31",
+  "UserType": 1,
+  "UserName": "",
+  "ExternalIdentity": "",
+  "PhoneNumber": null,
+  "Email": null,
+  "PartyId": 50002117,
+  "Party": {
+    "PartyTypeName": 1,
+    "SSN": "01032730090",
+    "OrgNumber": "",
+    "Person": {
+      "SSN": "01032730090",
+      "Name": "LEO WILHELMSEN",
+      "FirstName": "LEO",
+      "MiddleName": "",
+      "LastName": "WILHELMSEN",
+      "TelephoneNumber": "",
+      "MobileNumber": "",
+      "MailingAddress": " Farrisvegen 13 3948 PORSGRUNN",
+      "MailingPostalCode": "3948",
+      "MailingPostalCity": "PORSGRUNN",
+      "AddressMunicipalNumber": "",
+      "AddressMunicipalName": "",
+      "AddressStreetName": "",
+      "AddressHouseNumber": "",
+      "AddressHouseLetter": "",
+      "AddressPostalCode": "3948",
+      "AddressCity": "PORSGRUNN",
+      "DateOfDeath": null
+    },
+    "Organization": null,
+    "PartyId": 50002117,
+    "PartyUUID": "cc86d2c7-1695-44b0-8e82-e633243fdf31",
+    "UnitType": null,
+    "Name": "LEO WILHELMSEN",
+    "IsDeleted": false,
+    "OnlyHierarchyElementWithNoAccess": false,
+    "ChildParties": null
+  },
+  "ProfileSettingPreference": {
+    "Language": "nb",
+    "PreSelectedPartyId": 0,
+    "DoNotPromptForParty": false
+  }
+}

@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -15,7 +16,6 @@ using Altinn.Profile.Tests.Mocks;
 using Altinn.Profile.Tests.Testdata;
 
 using Microsoft.AspNetCore.Mvc.Testing;
-
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests
@@ -142,6 +142,102 @@ namespace Altinn.Profile.Tests.IntegrationTests
             Assert.Equal("Sophie Salt", actualUser.Party.Name);
             Assert.Equal("Sophie", actualUser.Party.Person.FirstName);
             Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
+        }
+
+        [Fact]
+        public async Task GetUsersByUuid_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+        {
+            // Arrange
+            const int userId = 20000009;
+            Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+
+            HttpRequestMessage sblRequest = null;
+            DelegatingHandlerStub messageHandler = new(async (request, token) =>
+            {
+                sblRequest = request;
+
+                UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
+                return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+            });
+            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
+
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userUuid}");
+
+            httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.NotNull(sblRequest);
+            Assert.Equal(HttpMethod.Get, sblRequest.Method);
+            Assert.EndsWith($"users?useruuid={userUuid}", sblRequest.RequestUri.ToString());
+
+            string responseContent = await response.Content.ReadAsStringAsync();
+
+            UserProfile actualUser = JsonSerializer.Deserialize<UserProfile>(
+                responseContent, serializerOptionsCamelCase);
+
+            // These asserts check that deserializing with camel casing was successful.
+            Assert.Equal(userId, actualUser.UserId);
+            Assert.Equal(userUuid, actualUser.UserUuid);
+            Assert.Equal("LEO WILHELMSEN", actualUser.Party.Name);
+            Assert.Equal(userUuid, actualUser.Party.PartyUuid);
+            Assert.Equal("LEO", actualUser.Party.Person.FirstName);
+            Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
+        }
+
+        [Fact]
+        public async Task GetUsersByUuid_SblBridgeFindsProfile_NotAuthorized_ReturnsForbidden()
+        {
+            // Arrange
+            const int userId = 20000009;
+            Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userUuid}");
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetUsersByUuid_SblBridgeReturnsNotFound_ResponseNotFound()
+        {
+            // Arrange
+            const int userId = 20000009;
+            Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+
+            HttpRequestMessage sblRequest = null;
+            DelegatingHandlerStub messageHandler = new(async (request, token) =>
+            {
+                sblRequest = request;
+
+                return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
+            });
+            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
+
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userUuid}");
+
+            httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+            Assert.NotNull(sblRequest);
+            Assert.Equal(HttpMethod.Get, sblRequest.Method);
+            Assert.EndsWith($"users?useruuid={userUuid}", sblRequest.RequestUri.ToString());
         }
 
         [Fact]
@@ -331,7 +427,7 @@ namespace Altinn.Profile.Tests.IntegrationTests
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return httpRequestMessage;
         }
-
+        
         private static HttpRequestMessage CreatePostRequest(int userId, string requestUri, StringContent content)
         {
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri);

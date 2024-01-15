@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 
 using Altinn.Platform.Profile.Models;
@@ -15,6 +16,13 @@ namespace Altinn.Profile.Services.Interfaces
         /// <param name="userId">The user id</param>
         /// <returns>User profile with given user id.</returns>
         Task<UserProfile> GetUser(int userId);
+
+        /// <summary>
+        /// Method that fetches a user based on a user uuid
+        /// </summary>
+        /// <param name="userUuid">The user uuid</param>
+        /// <returns>User profile with given user id.</returns>
+        Task<UserProfile> GetUserByUuid(Guid userUuid);
 
         /// <summary>
         /// Method that fetches a user based on ssn.

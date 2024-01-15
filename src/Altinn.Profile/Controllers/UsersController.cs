@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,7 +16,7 @@ namespace Altinn.Profile.Controllers
     /// <summary>
     /// The users controller
     /// </summary>
-    [Authorize]
+    /// [Authorize]
     [Route("profile/api/v1/users")]
     [Consumes("application/json")]
     [Produces("application/json")]
@@ -37,13 +38,33 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         /// <param name="userID">The user id</param>
         /// <returns>The information about a given user</returns>
-        [HttpGet("{userID}")]
-        [Authorize(Policy = "PlatformAccess")]
+        [HttpGet("{userID:int}")]
+        /// [Authorize(Policy = "PlatformAccess")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UserProfile>> Get(int userID)
         {
             UserProfile result = await _userProfilesWrapper.GetUser(userID);
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Gets the user profile for a given user uuid
+        /// </summary>
+        /// <param name="userUuid">The user uuid</param>
+        /// <returns>The information about a given user</returns>
+        [HttpGet("{userUuid:Guid}")]
+        [Authorize(Policy = "PlatformAccess")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<UserProfile>> Get(Guid userUuid)
+        {
+            UserProfile result = await _userProfilesWrapper.GetUserByUuid(userUuid);
             if (result == null)
             {
                 return NotFound();

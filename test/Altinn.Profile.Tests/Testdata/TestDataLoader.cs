@@ -10,7 +10,12 @@ namespace Altinn.Profile.Tests.Testdata
         {
             string path = $"../../../Testdata/{typeof(T).Name}/{id}.json";
             string fileContent = await File.ReadAllTextAsync(path);
-            T data = JsonSerializer.Deserialize<T>(fileContent);
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            T data = JsonSerializer.Deserialize<T>(fileContent, options);
             return data;
         }
     }
