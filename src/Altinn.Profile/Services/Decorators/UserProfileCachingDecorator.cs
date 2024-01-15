@@ -60,26 +60,6 @@ namespace Altinn.Profile.Services.Decorators
         }
 
         /// <inheritdoc/>
-        public async Task<UserProfile> GetUserByUuid(Guid userUuid)
-        {
-            string uniqueCacheKey = $"User:UserUuid:{userUuid}";
-
-            if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile user))
-            {
-                return user;
-            }
-
-            user = await _decoratedService.GetUserByUuid(userUuid);
-
-            if (user != null)
-            {
-                _memoryCache.Set(uniqueCacheKey, user, _cacheOptions);
-            }
-
-            return user;
-        }
-
-        /// <inheritdoc/>
         public async Task<UserProfile> GetUser(string ssn)
         {
             string uniqueCacheKey = "User_SSN_" + ssn;
@@ -90,6 +70,26 @@ namespace Altinn.Profile.Services.Decorators
             }
 
             user = await _decoratedService.GetUser(ssn);
+
+            if (user != null)
+            {
+                _memoryCache.Set(uniqueCacheKey, user, _cacheOptions);
+            }
+
+            return user;
+        }
+
+        /// <inheritdoc/>
+        public async Task<UserProfile> GetUserByUuid(Guid userUuid)
+        {
+            string uniqueCacheKey = $"User:UserUuid:{userUuid}";
+
+            if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile user))
+            {
+                return user;
+            }
+
+            user = await _decoratedService.GetUserByUuid(userUuid);
 
             if (user != null)
             {
