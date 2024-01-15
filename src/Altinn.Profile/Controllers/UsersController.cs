@@ -39,7 +39,7 @@ namespace Altinn.Profile.Controllers
         /// <param name="userID">The user id</param>
         /// <returns>The information about a given user</returns>
         [HttpGet("{userID:int}")]
-        /// [Authorize(Policy = "PlatformAccess")]
+        [Authorize(Policy = "PlatformAccess")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UserProfile>> Get(int userID)
