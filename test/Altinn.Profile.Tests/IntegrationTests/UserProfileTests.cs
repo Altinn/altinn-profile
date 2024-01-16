@@ -241,6 +241,44 @@ namespace Altinn.Profile.Tests.IntegrationTests
         }
 
         [Fact]
+        public async Task GetUsersByUuid_SblBridgeReturnsForbidden_NotAuthorized()
+        {
+            // Arrange
+            const int userId = 20000009;
+            Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userUuid}");
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetUsersByUuid_SblBridgeReturnsUnauthorized_NotAuthenticated()
+        {
+            // Arrange
+            const int userId = 20000009;
+            Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/{userUuid}");
+
+            httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
         public async Task GetUsersById_SblBridgeReturnsNotFound_ResponseNotFound()
         {
             // Arrange
