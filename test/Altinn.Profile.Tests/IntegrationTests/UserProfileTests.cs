@@ -262,7 +262,6 @@ namespace Altinn.Profile.Tests.IntegrationTests
         public async Task GetUsersByUuid_SblBridgeReturnsUnauthorized_NotAuthenticated()
         {
             // Arrange
-            const int userId = 20000009;
             Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
 
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/{userUuid}");
