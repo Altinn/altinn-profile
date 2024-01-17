@@ -91,8 +91,6 @@ namespace Altinn.Profile.Services.Implementation
         /// <inheritdoc />
         public async Task<UserProfile> GetUserByUuid(Guid userUuid)
         {
-            UserProfile user;
-
             Uri endpointUrl = new Uri($"{_generalSettings.BridgeApiEndpoint}users?useruuid={userUuid}");
 
             HttpResponseMessage response = await _client.GetAsync(endpointUrl);
@@ -104,7 +102,7 @@ namespace Altinn.Profile.Services.Implementation
             }
 
             string content = await response.Content.ReadAsStringAsync();
-            user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions);
+            UserProfile user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions);
 
             return user;
         }

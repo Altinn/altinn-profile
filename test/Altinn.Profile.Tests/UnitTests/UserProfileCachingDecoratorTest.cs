@@ -74,7 +74,7 @@ namespace Altinn.Profile.Tests.UnitTests
         }
 
         /// <summary>
-        /// Tests that the userprofile available in the cache is returned to the caller without forwarding request to decorated service.
+        /// Tests that the userprofile is not available in the cache call is forwarded to decorated service and cache is populated result returned to caller.
         /// </summary>
         [Fact]
         public async Task GetUserUserId_UserNotInCache_decoratedServiceCalledMockPopulated()
@@ -99,7 +99,7 @@ namespace Altinn.Profile.Tests.UnitTests
         }
 
         /// <summary>
-        /// Tests that the userprofile available in the cache is returned to the caller without forwarding request to decorated service.
+        /// Tests that the userprofile is not available in the cache call is forwarded to decorated service and cache is populated result returned to caller.
         /// </summary>
         [Fact]
         public async Task GetUserUserUuid_UserNotInCache_decoratedServiceCalledMockPopulated()
