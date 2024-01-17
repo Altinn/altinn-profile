@@ -6,11 +6,17 @@ namespace Altinn.Profile.Tests.Testdata
 {
     public static class TestDataLoader
     {
+        private static readonly JsonSerializerOptions _options = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
         public static async Task<T> Load<T>(string id)
         {
             string path = $"../../../Testdata/{typeof(T).Name}/{id}.json";
             string fileContent = await File.ReadAllTextAsync(path);
-            T data = JsonSerializer.Deserialize<T>(fileContent);
+            
+            T data = JsonSerializer.Deserialize<T>(fileContent, _options);
             return data;
         }
     }

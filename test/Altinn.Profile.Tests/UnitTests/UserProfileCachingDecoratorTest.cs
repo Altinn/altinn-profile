@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 
 using Altinn.Platform.Profile.Models;
@@ -53,6 +54,29 @@ namespace Altinn.Profile.Tests.UnitTests
         /// Tests that the userprofile available in the cache is returned to the caller without forwarding request to decorated service.
         /// </summary>
         [Fact]
+        public async Task GetUserUserUuid_UserInCache_decoratedServiceNotCalled()
+        {
+            // Arrange
+            Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+            MemoryCache memoryCache = new(new MemoryCacheOptions());
+
+            var userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
+            memoryCache.Set($"User:UserUuid:{userUuid}", userProfile);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+
+            // Act
+            UserProfile actual = await target.GetUserByUuid(userUuid);
+
+            // Assert
+            _decoratedServiceMock.Verify(service => service.GetUser(It.IsAny<int>()), Times.Never());
+            Assert.NotNull(actual);
+            Assert.Equal(userUuid, actual.UserUuid);
+        }
+
+        /// <summary>
+        /// Tests that the userprofile is not available in the cache call is forwarded to decorated service and cache is populated result returned to caller.
+        /// </summary>
+        [Fact]
         public async Task GetUserUserId_UserNotInCache_decoratedServiceCalledMockPopulated()
         {
             // Arrange
@@ -75,6 +99,31 @@ namespace Altinn.Profile.Tests.UnitTests
         }
 
         /// <summary>
+        /// Tests that the userprofile is not available in the cache call is forwarded to decorated service and cache is populated result returned to caller.
+        /// </summary>
+        [Fact]
+        public async Task GetUserUserUuid_UserNotInCache_decoratedServiceCalledMockPopulated()
+        {
+            // Arrange
+            Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+            MemoryCache memoryCache = new(new MemoryCacheOptions());
+
+            var userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
+            _decoratedServiceMock.Setup(service => service.GetUserByUuid(It.IsAny<Guid>())).ReturnsAsync(userProfile);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+
+            // Act
+            UserProfile actual = await target.GetUserByUuid(userUuid);
+
+            // Assert
+            _decoratedServiceMock.Verify(service => service.GetUserByUuid(It.IsAny<Guid>()), Times.Once());
+
+            Assert.NotNull(actual);
+            Assert.Equal(userUuid, actual.UserUuid);
+            Assert.True(memoryCache.TryGetValue($"User:UserUuid:{userUuid}", out UserProfile _));
+        }
+
+        /// <summary>
         /// Tests that if the result from decorated service is null, nothing is stored in cache and the null object returned to caller.
         /// </summary>
         [Fact]
@@ -94,6 +143,28 @@ namespace Altinn.Profile.Tests.UnitTests
             _decoratedServiceMock.Verify(service => service.GetUser(It.IsAny<int>()), Times.Once());
             Assert.Null(actual);
             Assert.False(memoryCache.TryGetValue("User_UserId_2001607", out UserProfile _));
+        }
+
+        /// <summary>
+        /// Tests that if the result from decorated service is null, nothing is stored in cache and the null object returned to caller.
+        /// </summary>
+        [Fact]
+        public async Task GetUserUserUserUuid_NullFromDecoratedService_CacheNotPopulated()
+        {
+            // Arrange
+            Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+            MemoryCache memoryCache = new(new MemoryCacheOptions());
+
+            _decoratedServiceMock.Setup(service => service.GetUserByUuid(It.IsAny<Guid>())).ReturnsAsync((UserProfile)null);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+
+            // Act
+            UserProfile actual = await target.GetUserByUuid(userUuid);
+
+            // Assert
+            _decoratedServiceMock.Verify(service => service.GetUserByUuid(It.IsAny<Guid>()), Times.Once());
+            Assert.Null(actual);
+            Assert.False(memoryCache.TryGetValue($"User:UserUuid:{userUuid}", out UserProfile _));
         }
 
         /// <summary>

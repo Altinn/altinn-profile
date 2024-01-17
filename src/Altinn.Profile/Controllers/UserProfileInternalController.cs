@@ -30,9 +30,9 @@ namespace Altinn.Profile.Controllers
         /// <summary>
         /// Gets the user profile for a given user identified by one of the available types of user identifiers:
         ///     UserId (from Altinn 2 Authn UserProfile)
+        ///     UserUuid (from Altinn 2 Authn UserProfile)
         ///     Username (from Altinn 2 Authn UserProfile)
         ///     SSN/Dnr (from Freg)
-        ///     Uuid (from Altinn 2 Party/UserProfile implementation will be added later)
         /// </summary>
         /// <param name="userProfileLookup">Input model for providing one of the supported lookup parameters</param>
         /// <returns>User profile of the given user</returns>
@@ -46,6 +46,10 @@ namespace Altinn.Profile.Controllers
             if (userProfileLookup != null && userProfileLookup.UserId != 0)
             {
                 result = await _userProfilesWrapper.GetUser(userProfileLookup.UserId);
+            }
+            else if (userProfileLookup?.UserUuid != null)
+            {
+                result = await _userProfilesWrapper.GetUserByUuid(userProfileLookup.UserUuid.Value);
             }
             else if (!string.IsNullOrWhiteSpace(userProfileLookup?.Username))
             {
