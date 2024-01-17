@@ -1,5 +1,6 @@
 {
   "UserId": 2001607,
+  "UserUUID": "db8eafc0-6056-43b5-b047-4adcd84f659c",
   "UserType": 1,
   "UserName": "",
   "PhoneNumber": null,
@@ -30,6 +31,7 @@
     },
     "Organization": null,
     "PartyId": 50002113,
+    "PartyUUID": "db8eafc0-6056-43b5-b047-4adcd84f659c",
     "UnitType": null,
     "Name": "TUVA LANDRO",
     "IsDeleted": false,

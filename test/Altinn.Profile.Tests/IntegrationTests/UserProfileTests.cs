@@ -190,7 +190,7 @@ namespace Altinn.Profile.Tests.IntegrationTests
         }
 
         [Fact]
-        public async Task GetUsersByUuid_SblBridgeFindsProfile_NotAuthorized_ReturnsForbidden()
+        public async Task GetUsersByUuid_UserAuthenticatedMissingPlatformAccesToken_ReturnsForbidden()
         {
             // Arrange
             const int userId = 20000009;
@@ -241,25 +241,7 @@ namespace Altinn.Profile.Tests.IntegrationTests
         }
 
         [Fact]
-        public async Task GetUsersByUuid_SblBridgeReturnsForbidden_NotAuthorized()
-        {
-            // Arrange
-            const int userId = 20000009;
-            Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
-
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userUuid}");
-
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
-        }
-
-        [Fact]
-        public async Task GetUsersByUuid_SblBridgeReturnsUnauthorized_NotAuthenticated()
+        public async Task GetUsersByUuid_MissingAuthentication_NotAuthorized()
         {
             // Arrange
             Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");

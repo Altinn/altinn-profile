@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -77,6 +78,46 @@ namespace Altinn.Profile.Tests.IntegrationTests
         }
 
         [Fact]
+        public async Task GetUserByUuid_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+        {
+            // Arrange
+            Guid userUuid = new ("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+
+            HttpRequestMessage sblRequest = null;
+            DelegatingHandlerStub messageHandler = new(async (request, token) =>
+            {
+                sblRequest = request;
+
+                UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
+                return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+            });
+            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
+
+            HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { UserUuid = userUuid });
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.NotNull(sblRequest);
+            Assert.Equal(HttpMethod.Get, sblRequest.Method);
+            Assert.EndsWith($"sblbridge/profile/api/users?useruuid={userUuid}", sblRequest.RequestUri.ToString());
+
+            string responseContent = await response.Content.ReadAsStringAsync();
+
+            UserProfile actualUser = JsonSerializer.Deserialize<UserProfile>(
+                responseContent, serializerOptionsCamelCase);
+
+            // These asserts check that deserializing with camel casing was successful.
+            Assert.Equal(userUuid, actualUser.UserUuid);
+            Assert.Equal("LEO WILHELMSEN", actualUser.Party.Name);
+            Assert.Equal("LEO", actualUser.Party.Person.FirstName);
+            Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
+        }
+
+        [Fact]
         public async Task GetUserById_SblBridgeReturnsNotFound_ResponseNotFound()
         {
             // Arrange
@@ -107,6 +148,36 @@ namespace Altinn.Profile.Tests.IntegrationTests
         }
 
         [Fact]
+        public async Task GetUserByUuid_SblBridgeReturnsNotFound_ResponseNotFound()
+        {
+            // Arrange
+            Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+
+            HttpRequestMessage sblRequest = null;
+            DelegatingHandlerStub messageHandler = new(async (request, token) =>
+            {
+                sblRequest = request;
+
+                return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
+            });
+            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
+
+            HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { UserUuid = userUuid });
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+            Assert.NotNull(sblRequest);
+            Assert.Equal(HttpMethod.Get, sblRequest.Method);
+            Assert.EndsWith($"sblbridge/profile/api/users?useruuid={userUuid}", sblRequest.RequestUri.ToString());
+        }
+
+        [Fact]
         public async Task GetUserById_SblBridgeReturnsUnavailable_ResponseNotFound()
         {
             // Arrange
@@ -134,6 +205,36 @@ namespace Altinn.Profile.Tests.IntegrationTests
             Assert.NotNull(sblRequest);
             Assert.Equal(HttpMethod.Get, sblRequest.Method);
             Assert.EndsWith($"sblbridge/profile/api/users/{UserId}", sblRequest.RequestUri.ToString());
+        }
+
+        [Fact]
+        public async Task GetUserByUuid_SblBridgeReturnsUnavailable_ResponseNotFound()
+        {
+            // Arrange
+            Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+
+            HttpRequestMessage sblRequest = null;
+            DelegatingHandlerStub messageHandler = new(async (request, token) =>
+            {
+                sblRequest = request;
+
+                return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable });
+            });
+            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
+
+            HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { UserUuid = userUuid });
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+            Assert.NotNull(sblRequest);
+            Assert.Equal(HttpMethod.Get, sblRequest.Method);
+            Assert.EndsWith($"sblbridge/profile/api/users?useruuid={userUuid}", sblRequest.RequestUri.ToString());
         }
 
         [Fact]
