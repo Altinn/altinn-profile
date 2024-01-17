@@ -81,7 +81,7 @@ namespace Altinn.Profile.Tests.IntegrationTests
         public async Task GetUserByUuid_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
         {
             // Arrange
-            Guid userUuid = new ("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+            Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
 
             HttpRequestMessage sblRequest = null;
             DelegatingHandlerStub messageHandler = new(async (request, token) =>
