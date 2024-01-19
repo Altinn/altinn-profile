@@ -1,5 +1,6 @@
 {
   "UserId": 2001072,
+  "UserUUID": "34b62493-84c6-4794-bf91-6cd23ead761c",
   "UserType": 3,
   "UserName": "OrstaECUser",
   "ExternalIdentity": "",
@@ -29,6 +30,7 @@
       "UnitStatus": "N"
     },
     "PartyId": 50005545,
+    "PartyUUID": "ec061efa-4c2a-4dbd-87f5-bcb59cdeaf91",
     "UnitType": "AS",
     "Name": "ORSTA OG HEGGEDAL ",
     "IsDeleted": false,
