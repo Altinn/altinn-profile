@@ -62,7 +62,7 @@ namespace Altinn.Profile.Controllers
         [Authorize(Policy = "PlatformAccess")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<UserProfile>> Get(Guid userUuid)
+        public async Task<ActionResult<UserProfile>> Get([FromRoute] Guid userUuid)
         {
             UserProfile result = await _userProfilesWrapper.GetUserByUuid(userUuid);
             if (result == null)
