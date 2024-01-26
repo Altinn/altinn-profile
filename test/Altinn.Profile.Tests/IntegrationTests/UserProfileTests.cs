@@ -161,7 +161,7 @@ namespace Altinn.Profile.Tests.IntegrationTests
             });
             _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userUuid}");
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users?userUuid={userUuid}");
 
             httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
@@ -196,7 +196,7 @@ namespace Altinn.Profile.Tests.IntegrationTests
             const int userId = 20000009;
             Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userUuid}");
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users?userUuid={userUuid}");
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
@@ -223,7 +223,7 @@ namespace Altinn.Profile.Tests.IntegrationTests
             });
             _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userUuid}");
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users?userUuid={userUuid}");
 
             httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
@@ -246,7 +246,7 @@ namespace Altinn.Profile.Tests.IntegrationTests
             // Arrange
             Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
 
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/{userUuid}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users?userUuid={userUuid}");
 
             httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
