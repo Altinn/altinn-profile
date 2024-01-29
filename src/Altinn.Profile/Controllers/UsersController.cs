@@ -58,11 +58,11 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         /// <param name="userUuid">The user uuid</param>
         /// <returns>The information about a given user</returns>
-        [HttpGet("{userUuid:Guid}")]
+        [HttpGet("byuuid/{userUuid:Guid}")]
         [Authorize(Policy = "PlatformAccess")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<UserProfile>> Get(Guid userUuid)
+        public async Task<ActionResult<UserProfile>> Get([FromRoute] Guid userUuid)
         {
             UserProfile result = await _userProfilesWrapper.GetUserByUuid(userUuid);
             if (result == null)
