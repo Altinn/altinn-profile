@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -105,6 +106,27 @@ namespace Altinn.Profile.Services.Implementation
             UserProfile user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions);
 
             return user;
+        }
+
+        /// <inheritdoc />
+        public async Task<List<UserProfile>> GetUserListByUuid(List<Guid> userUuidList)
+        {
+            Uri endpointUrl = new Uri($"{_generalSettings.BridgeApiEndpoint}users/byuuid");
+            StringContent requestBody = new StringContent(JsonSerializer.Serialize(userUuidList), Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = await _client.PostAsync(endpointUrl, requestBody);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string userUuidListString = string.Join(", ", userUuidList);
+                _logger.LogError("Getting users {userUuidListString} failed with {statusCode}", userUuidListString, response.StatusCode);
+                return new List<UserProfile>();
+            }
+
+            string content = await response.Content.ReadAsStringAsync();
+            List<UserProfile> users = JsonSerializer.Deserialize<List<UserProfile>>(content, _serializerOptions);
+
+            return users;
         }
 
         /// <inheritdoc />

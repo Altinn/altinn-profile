@@ -1,0 +1,48 @@
+{
+  "UserId": 20000006,
+  "UserUUID": "4c3b4909-eb17-45d5-bde1-256e065e196a",
+  "UserType": 1,
+  "UserName": "",
+  "ExternalIdentity": "",
+  "PhoneNumber": null,
+  "Email": null,
+  "PartyId": 50002114,
+  "Party": {
+    "PartyTypeName": 1,
+    "SSN": "01025161013",
+    "OrgNumber": "",
+    "Person": {
+      "SSN": "01025161013",
+      "Name": "ELENA FJÆR",
+      "FirstName": "ELENA",
+      "MiddleName": "",
+      "LastName": "FJÆR",
+      "TelephoneNumber": "",
+      "MobileNumber": "",
+      "MailingAddress": " Søreidåsen 3 5252 SØREIDGREND",
+      "MailingPostalCode": "5252",
+      "MailingPostalCity": "SØREIDGREND",
+      "AddressMunicipalNumber": "",
+      "AddressMunicipalName": "",
+      "AddressStreetName": "",
+      "AddressHouseNumber": "",
+      "AddressHouseLetter": "",
+      "AddressPostalCode": "5252",
+      "AddressCity": "SØREIDGREND",
+      "DateOfDeath": null
+    },
+    "Organization": null,
+    "PartyId": 50002114,
+    "PartyUUID": "4c3b4909-eb17-45d5-bde1-256e065e196a",
+    "UnitType": null,
+    "Name": "ELENA FJÆR",
+    "IsDeleted": false,
+    "OnlyHierarchyElementWithNoAccess": false,
+    "ChildParties": null
+  },
+  "ProfileSettingPreference": {
+    "Language": "nn",
+    "PreSelectedPartyId": 0,
+    "DoNotPromptForParty": false
+  }
+}

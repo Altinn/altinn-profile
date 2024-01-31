@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Altinn.Platform.Profile.Models;
 using Altinn.Profile.Models;
@@ -69,6 +71,28 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
+            return Ok(result);
+        }
+        
+        /// <summary>
+        /// Gets a list of user profiles for a list of of users identified by userUuid.
+        /// </summary>
+        /// <param name="userUuidList">List of uuid identifying the users profiles to return</param>
+        /// <returns>List of user profiles</returns>
+        [HttpPost]
+        [Route("listbyuuid")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        public async Task<ActionResult<List<UserProfile>>> GetList([FromBody] List<Guid> userUuidList)
+        {
+            if (userUuidList == null || userUuidList.Count == 0)
+            {
+                return BadRequest();
+            }
+
+            List<UserProfile> result = await _userProfilesWrapper.GetUserListByUuid(userUuidList);
             return Ok(result);
         }
     }
