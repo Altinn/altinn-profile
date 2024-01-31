@@ -118,8 +118,7 @@ namespace Altinn.Profile.Services.Implementation
 
             if (!response.IsSuccessStatusCode)
             {
-                string userUuidListString = string.Join(", ", userUuidList);
-                _logger.LogError("Getting users {userUuidListString} failed with {statusCode}", userUuidListString, response.StatusCode);
+                _logger.LogError("Getting users failed with {statusCode}", response.StatusCode);
                 return new List<UserProfile>();
             }
 
