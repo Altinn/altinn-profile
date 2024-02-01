@@ -123,17 +123,18 @@ namespace Altinn.Profile.Tests.IntegrationTests
             // Arrange
             List<Guid> userUuids = new List<Guid> { new("cc86d2c7-1695-44b0-8e82-e633243fdf31"), new("4c3b4909-eb17-45d5-bde1-256e065e196a") };
 
-            List<UserProfile> userProfiles = new()
-            {
-                await TestDataLoader.Load<UserProfile>(userUuids[0].ToString()),
-                await TestDataLoader.Load<UserProfile>(userUuids[1].ToString())
-            };
-
             HttpRequestMessage sblRequest = null;
-            DelegatingHandlerStub messageHandler = new((request, token) =>
+            DelegatingHandlerStub messageHandler = new(async (request, token) =>
             {
                 sblRequest = request;
-                return Task.FromResult(new HttpResponseMessage() { Content = JsonContent.Create(userProfiles) });
+
+                List<UserProfile> userProfiles = new()
+                {
+                    await TestDataLoader.Load<UserProfile>(userUuids[0].ToString()), 
+                    await TestDataLoader.Load<UserProfile>(userUuids[1].ToString())
+                };
+
+                return new HttpResponseMessage() { Content = JsonContent.Create(userProfiles) };
             });
             _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
@@ -155,15 +156,16 @@ namespace Altinn.Profile.Tests.IntegrationTests
                 responseContent, serializerOptionsCamelCase);
 
             // These asserts check that deserializing with camel casing was successful.
+            
             Assert.Equal(userUuids[0], actualUsers[0].UserUuid);
-            Assert.Equal(userProfiles[0].Party.Name, actualUsers[0].Party.Name);
-            Assert.Equal(userProfiles[0].Party.Person.FirstName, actualUsers[0].Party.Person.FirstName);
-            Assert.Equal(userProfiles[0].ProfileSettingPreference.Language, actualUsers[0].ProfileSettingPreference.Language);
+            Assert.Equal("LEO WILHELMSEN", actualUsers[0].Party.Name);
+            Assert.Equal("LEO", actualUsers[0].Party.Person.FirstName);
+            Assert.Equal("nb", actualUsers[0].ProfileSettingPreference.Language);
 
             Assert.Equal(userUuids[1], actualUsers[1].UserUuid);
-            Assert.Equal(userProfiles[1].Party.Name, actualUsers[1].Party.Name);
-            Assert.Equal(userProfiles[1].Party.Person.FirstName, actualUsers[1].Party.Person.FirstName);
-            Assert.Equal(userProfiles[1].ProfileSettingPreference.Language, actualUsers[1].ProfileSettingPreference.Language);
+            Assert.Equal("ELENA FJAR", actualUsers[1].Party.Name);
+            Assert.Equal("ELENA", actualUsers[1].Party.Person.FirstName);
+            Assert.Equal("nn", actualUsers[1].ProfileSettingPreference.Language);
         }
 
         [Fact]
