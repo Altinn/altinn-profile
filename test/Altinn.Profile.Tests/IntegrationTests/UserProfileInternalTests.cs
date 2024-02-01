@@ -156,7 +156,6 @@ namespace Altinn.Profile.Tests.IntegrationTests
                 responseContent, serializerOptionsCamelCase);
 
             // These asserts check that deserializing with camel casing was successful.
-            
             Assert.Equal(userUuids[0], actualUsers[0].UserUuid);
             Assert.Equal("LEO WILHELMSEN", actualUsers[0].Party.Name);
             Assert.Equal("LEO", actualUsers[0].Party.Person.FirstName);
