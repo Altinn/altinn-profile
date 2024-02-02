@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Altinn.Platform.Profile.Models;
@@ -28,8 +29,15 @@ namespace Altinn.Profile.Services.Interfaces
         /// Method that fetches a user based on a user uuid
         /// </summary>
         /// <param name="userUuid">The user uuid</param>
-        /// <returns>User profile with given user id.</returns>
+        /// <returns>User profile with given user uuid.</returns>
         Task<UserProfile> GetUserByUuid(Guid userUuid);
+
+        /// <summary>
+        /// Method that fetches a list of users based on a list of user uuid
+        /// </summary>
+        /// <param name="userUuidList">The list of user uuids</param>
+        /// <returns>List of User profiles with given user uuids</returns>
+        Task<List<UserProfile>> GetUserListByUuid(List<Guid> userUuidList);
 
         /// <summary>
         /// Method that fetches a user based on username.

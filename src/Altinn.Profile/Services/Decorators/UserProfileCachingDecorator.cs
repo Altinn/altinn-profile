@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Altinn.Platform.Profile.Models;
@@ -97,6 +98,39 @@ namespace Altinn.Profile.Services.Decorators
             }
 
             return user;
+        }
+
+        /// <inheritdoc /> 
+        public async Task<List<UserProfile>> GetUserListByUuid(List<Guid> userUuidList)
+        {
+            List<Guid> userUuidListNotInCache = new List<Guid>();
+            List<UserProfile> result = new List<UserProfile>();
+
+            foreach (Guid userUuid in userUuidList)
+            {
+                string uniqueCacheKey = $"User:UserUuid:{userUuid}";
+                if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile user))
+                {
+                    result.Add(user);
+                }
+                else
+                {
+                    userUuidListNotInCache.Add(userUuid);
+                }
+            }
+
+            if (userUuidListNotInCache.Count > 0)
+            {
+                List<UserProfile> usersToCache = await _decoratedService.GetUserListByUuid(userUuidListNotInCache);
+                foreach (UserProfile user in usersToCache)
+                {
+                    string uniqueCacheKey = $"User:UserUuid:{user.UserUuid}";
+                    _memoryCache.Set(uniqueCacheKey, user, _cacheOptions);
+                    result.Add(user);
+                }
+            }
+
+            return result;
         }
 
         /// <inheritdoc/>
