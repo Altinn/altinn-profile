@@ -267,7 +267,7 @@ namespace Altinn.Profile.Tests.UnitTests
         /// Tests that if the result from decorated service is an empty list, nothing is stored in cache and the empty list returned to caller.
         /// </summary>
         [Fact]
-        public async Task GetUserListUserUserUuid_NullFromDecoratedService_CacheNotPopulated()
+        public async Task GetUserListUserUserUuid_EmptyListFromDecoratedService_CacheNotPopulated()
         {
             // Arrange
             List<Guid> userUuids = new List<Guid> { new("cc86d2c7-1695-44b0-8e82-e633243fdf31"), new("4c3b4909-eb17-45d5-bde1-256e065e196a") };
