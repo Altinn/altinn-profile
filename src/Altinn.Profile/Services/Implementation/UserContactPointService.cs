@@ -8,7 +8,7 @@ using Altinn.Profile.Services.Interfaces;
 namespace Altinn.Profile.Services.Implementation
 {
     /// <summary>
-    /// An implementation of <cref="IUserContactPoints"/> that uses the <cref="IUserProfiles"/> to obtain contact point information.
+    /// An implementation of <see cref="IUserContactPoints"/> that uses the <see cref="IUserProfiles"/> to obtain contact point information.
     /// </summary>
     public class UserContactPointService : IUserContactPoints
     {

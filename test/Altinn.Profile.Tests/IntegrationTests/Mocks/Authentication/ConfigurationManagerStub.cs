@@ -17,9 +17,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.Mocks.Authentication
     public class ConfigurationManagerStub : IConfigurationManager<OpenIdConnectConfiguration>
     {
         /// <inheritdoc />
-        public async Task<OpenIdConnectConfiguration> GetConfigurationAsync(CancellationToken _)
+        public async Task<OpenIdConnectConfiguration> GetConfigurationAsync(CancellationToken cancel)
         {
-            ICollection<SecurityKey> signingKeys = await GetSigningKeys(string.Empty);
+            ICollection<SecurityKey> signingKeys = await GetSigningKeys();
 
             OpenIdConnectConfiguration configuration = new OpenIdConnectConfiguration();
             foreach (var securityKey in signingKeys)
@@ -36,7 +36,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.Mocks.Authentication
             throw new NotImplementedException();
         }
 
-        private static async Task<ICollection<SecurityKey>> GetSigningKeys(string _)
+        private static async Task<ICollection<SecurityKey>> GetSigningKeys()
         {
             X509Certificate2 cert = new X509Certificate2("JWTValidationCert.cer");
             SecurityKey key = new X509SecurityKey(cert);

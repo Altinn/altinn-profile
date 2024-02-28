@@ -90,14 +90,14 @@ namespace Altinn.Profile.Tests.UnitTests
             memoryCache.Set($"User:UserUuid:{userUuids[0]}", userProfile);
             List<UserProfile> userProfiles = new List<UserProfile>();
             userProfiles.Add(await TestDataLoader.Load<UserProfile>(userUuidNotInCache.ToString()));
-            _decoratedServiceMock.Setup(service => service.GetUserListByUuid(It.Is<List<Guid>>(g => g.All(g2 => g2 == userUuidNotInCache)))).ReturnsAsync(userProfiles);
+            _decoratedServiceMock.Setup(service => service.GetUserListByUuid(It.Is<List<Guid>>(g => g.TrueForAll(g2 => g2 == userUuidNotInCache)))).ReturnsAsync(userProfiles);
             UserProfileCachingDecorator target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
 
             // Act
             List<UserProfile> actual = await target.GetUserListByUuid(userUuids);
 
             // Assert
-            _decoratedServiceMock.Verify(service => service.GetUserListByUuid(It.Is<List<Guid>>(g => g.All(g2 => g2 == userUuidNotInCache))), Times.Once);
+            _decoratedServiceMock.Verify(service => service.GetUserListByUuid(It.Is<List<Guid>>(g => g.TrueForAll(g2 => g2 == userUuidNotInCache))), Times.Once);
             Assert.NotNull(actual);
             foreach (var userUuid in userUuids)
             {
