@@ -35,7 +35,7 @@ namespace Altinn.Profile.Tests.IntegrationTests
 
             _webApplicationFactorySetup.SblBridgeHttpMessageHandler = new DelegatingHandlerStub(async (request, token) =>
             {
-                string ssn = await request.Content.ReadAsStringAsync();
+                string ssn = await request.Content.ReadAsStringAsync(token);
                 return await GetSBlResponseForSsn(ssn);
             });
 
@@ -195,10 +195,10 @@ namespace Altinn.Profile.Tests.IntegrationTests
             switch (ssn)
             {
                 case "\"01025101037\"":
-                    userProfile = await TestDataLoader.Load<UserProfile?>("2001606");
+                    userProfile = await TestDataLoader.Load<UserProfile>("2001606");
                     return new HttpResponseMessage() { Content = JsonContent.Create(userProfile, options: _serializerOptions), StatusCode = HttpStatusCode.OK };
                 case "\"01025101038\"":
-                    userProfile = await TestDataLoader.Load<UserProfile?>("2001607");
+                    userProfile = await TestDataLoader.Load<UserProfile>("2001607");
                     return new HttpResponseMessage() { Content = JsonContent.Create(userProfile, options: _serializerOptions), StatusCode = HttpStatusCode.OK };
                 default:
                     return new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound };
