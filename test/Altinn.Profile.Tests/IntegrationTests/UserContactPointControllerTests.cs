@@ -86,7 +86,7 @@ namespace Altinn.Profile.Tests.IntegrationTests
             string responseContent = await response.Content.ReadAsStringAsync();
             var actual = JsonSerializer.Deserialize<UserContactPointAvailabilityList>(responseContent, _serializerOptions);
             Assert.Single(actual.AvailabilityList);
-            Assert.NotEmpty(actual.AvailabilityList[0].Email);
+            Assert.True(actual.AvailabilityList[0].EmailRegistered);
         }
 
         [Fact]
@@ -111,7 +111,7 @@ namespace Altinn.Profile.Tests.IntegrationTests
             string responseContent = await response.Content.ReadAsStringAsync();
             var actual = JsonSerializer.Deserialize<UserContactPointAvailabilityList>(responseContent, _serializerOptions);
             Assert.Single(actual.AvailabilityList);
-            Assert.NotEmpty(actual.AvailabilityList[0].Email);
+            Assert.True(actual.AvailabilityList[0].EmailRegistered);
         }
 
         [Fact]
