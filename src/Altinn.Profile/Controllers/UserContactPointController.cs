@@ -31,7 +31,7 @@ public class UserContactPointController : Controller
     /// Endpoint looking up the availability of contact points for the provideded national identity number in the request body
     /// </summary>
     /// <returns>Returns an overview of the availability of various contact points for the user</returns>
-    [HttpPost]
+    [HttpPost("availability")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<UserContactPointAvailabilityList>> PostAvailabilityLookup([FromBody] UserContactPointLookup userContactPointLookup)
     {
@@ -47,7 +47,7 @@ public class UserContactPointController : Controller
     /// Endpoint looking up the contact points for the user connected to the provideded national identity number in the request body
     /// </summary>
     /// <returns>Returns an overview of the contact points for the user</returns>
-    [HttpPost]
+    [HttpPost("lookup")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<UserContactPointsList>> PostLookup([FromBody] UserContactPointLookup userContactPointLookup)
     {

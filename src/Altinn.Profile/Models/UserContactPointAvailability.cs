@@ -41,6 +41,6 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// A list containing contact point availabiliy for users
         /// </summary>
-        public List<UserContactPointAvailability> List { get; set; } = [];
+        public List<UserContactPointAvailability> AvailabilityList { get; set; } = [];
     }
 }

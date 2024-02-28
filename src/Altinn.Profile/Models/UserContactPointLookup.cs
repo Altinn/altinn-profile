@@ -10,6 +10,6 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// A list of national identity numbers to look up contact points or contact point availability for
         /// </summary>
-        public List<string> NationalIdentityNumbers { get; set; }
+        public List<string> NationalIdentityNumbers { get; set; } = [];
     }
 }

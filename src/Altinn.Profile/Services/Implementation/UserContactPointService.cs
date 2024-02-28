@@ -36,7 +36,7 @@ namespace Altinn.Profile.Services.Implementation
                     continue;
                 }
 
-                result.List.Add(new UserContactPointAvailability()
+                result.AvailabilityList.Add(new UserContactPointAvailability()
                 {
                     UserId = profile.PartyId,
                     NationalIdentityNumber = profile.Party.SSN,
@@ -63,7 +63,7 @@ namespace Altinn.Profile.Services.Implementation
                     continue;
                 }
 
-                result.List.Add(
+                result.ContactPointList.Add(
                 new UserContactPoints()
                 {
                     UserId = profile.PartyId,

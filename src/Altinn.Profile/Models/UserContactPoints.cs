@@ -41,6 +41,6 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// A list containing contact points for users
         /// </summary>
-        public List<UserContactPoints> List { get; set; } = [];
+        public List<UserContactPoints> ContactPointList { get; set; } = [];
     }
 }
