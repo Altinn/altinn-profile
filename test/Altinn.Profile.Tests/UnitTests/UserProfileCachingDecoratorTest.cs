@@ -90,14 +90,14 @@ namespace Altinn.Profile.Tests.UnitTests
             memoryCache.Set($"User:UserUuid:{userUuids[0]}", userProfile);
             List<UserProfile> userProfiles = new List<UserProfile>();
             userProfiles.Add(await TestDataLoader.Load<UserProfile>(userUuidNotInCache.ToString()));
-            _decoratedServiceMock.Setup(service => service.GetUserListByUuid(It.Is<List<Guid>>(g => g.All(g2 => g2 == userUuidNotInCache)))).ReturnsAsync(userProfiles);
+            _decoratedServiceMock.Setup(service => service.GetUserListByUuid(It.Is<List<Guid>>(g => g.TrueForAll(g2 => g2 == userUuidNotInCache)))).ReturnsAsync(userProfiles);
             UserProfileCachingDecorator target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
 
             // Act
             List<UserProfile> actual = await target.GetUserListByUuid(userUuids);
 
             // Assert
-            _decoratedServiceMock.Verify(service => service.GetUserListByUuid(It.Is<List<Guid>>(g => g.All(g2 => g2 == userUuidNotInCache))), Times.Once);
+            _decoratedServiceMock.Verify(service => service.GetUserListByUuid(It.Is<List<Guid>>(g => g.TrueForAll(g2 => g2 == userUuidNotInCache))), Times.Once);
             Assert.NotNull(actual);
             foreach (var userUuid in userUuids)
             {
@@ -293,11 +293,11 @@ namespace Altinn.Profile.Tests.UnitTests
         public async Task GetUserUserSSN_UserInCache_decoratedServiceNotCalled()
         {
             // Arrange
-            const string Ssn = "01025101037";
+            const string Ssn = "01025101038";
             MemoryCache memoryCache = new(new MemoryCacheOptions());
 
             var userProfile = await TestDataLoader.Load<UserProfile>("2001607");
-            memoryCache.Set("User_SSN_01025101037", userProfile);
+            memoryCache.Set("User_SSN_01025101038", userProfile);
             var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
 
             // Act
@@ -316,7 +316,7 @@ namespace Altinn.Profile.Tests.UnitTests
         public async Task GetUserUserSSN_UserNotInCache_decoratedServiceCalledMockPopulated()
         {
             // Arrange
-            const string Ssn = "01025101037";
+            const string Ssn = "01025101038";
             MemoryCache memoryCache = new(new MemoryCacheOptions());
 
             var userProfile = await TestDataLoader.Load<UserProfile>("2001607");
@@ -331,7 +331,7 @@ namespace Altinn.Profile.Tests.UnitTests
             _decoratedServiceMock.Verify(service => service.GetUser(It.IsAny<string>()), Times.Once());
             Assert.NotNull(actual);
             Assert.Equal(Ssn, actual.Party.SSN);
-            Assert.True(memoryCache.TryGetValue("User_SSN_01025101037", out UserProfile _));
+            Assert.True(memoryCache.TryGetValue("User_SSN_01025101038", out UserProfile _));
         }
 
         /// <summary>

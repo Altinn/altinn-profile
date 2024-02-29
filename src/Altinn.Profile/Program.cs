@@ -205,6 +205,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     });
 
     services.AddHttpClient<IUserProfiles, UserProfilesWrapper>();
+    services.AddSingleton<IUserContactPoints, UserContactPointService>();
     services.Decorate<IUserProfiles, UserProfileCachingDecorator>();
 
     if (!string.IsNullOrEmpty(applicationInsightsConnectionString))

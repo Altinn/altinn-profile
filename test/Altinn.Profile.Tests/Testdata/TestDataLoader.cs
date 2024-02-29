@@ -14,6 +14,12 @@ namespace Altinn.Profile.Tests.Testdata
         public static async Task<T> Load<T>(string id)
         {
             string path = $"../../../Testdata/{typeof(T).Name}/{id}.json";
+
+            if (!File.Exists(path))
+            {
+                return default(T);
+            }
+
             string fileContent = await File.ReadAllTextAsync(path);
             
             T data = JsonSerializer.Deserialize<T>(fileContent, _options);
