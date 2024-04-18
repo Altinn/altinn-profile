@@ -39,9 +39,9 @@ namespace Altinn.Profile.Core.User
         {
             string uniqueCacheKey = "User_UserId_" + userId;
 
-            if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile user))
+            if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile? user))
             {
-                return user;
+                return user!;
             }
 
             user = await _decoratedService.GetUser(userId);
@@ -59,7 +59,7 @@ namespace Altinn.Profile.Core.User
         {
             string uniqueCacheKey = "User_SSN_" + ssn;
 
-            if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile user))
+            if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile? user))
             {
                 return user;
             }
@@ -79,7 +79,7 @@ namespace Altinn.Profile.Core.User
         {
             string uniqueCacheKey = $"User:UserUuid:{userUuid}";
 
-            if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile user))
+            if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile? user))
             {
                 return user;
             }
@@ -103,7 +103,7 @@ namespace Altinn.Profile.Core.User
             foreach (Guid userUuid in userUuidList)
             {
                 string uniqueCacheKey = $"User:UserUuid:{userUuid}";
-                if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile user))
+                if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile? user))
                 {
                     result.Add(user);
                 }
@@ -132,9 +132,9 @@ namespace Altinn.Profile.Core.User
         {
             string uniqueCacheKey = "User_Username_" + username;
 
-            if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile user))
+            if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile? user))
             {
-                return user;
+                return user!;
             }
 
             user = await _decoratedService.GetUserByUsername(username);
