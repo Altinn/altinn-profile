@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Configuration;
-using Altinn.Profile.Services.Decorators;
-using Altinn.Profile.Services.Interfaces;
+using Altinn.Profile.Core;
+using Altinn.Profile.Core.User;
 using Altinn.Profile.Tests.Testdata;
 
 using Microsoft.Extensions.Caching.Memory;
@@ -16,17 +14,17 @@ using Moq;
 
 using Xunit;
 
-namespace Altinn.Profile.Tests.UnitTests
+namespace Altinn.Profile.Tests.Core.User
 {
     public class UserProfileCachingDecoratorTest
     {
-        private readonly Mock<IUserProfiles> _decoratedServiceMock = new();
-        private readonly Mock<IOptions<GeneralSettings>> generalSettingsOptions;
+        private readonly Mock<IUserProfileService> _decoratedServiceMock = new();
+        private readonly Mock<IOptions<CoreSettings>> coreSettingsOptions;
 
         public UserProfileCachingDecoratorTest()
         {
-            generalSettingsOptions = new Mock<IOptions<GeneralSettings>>();
-            generalSettingsOptions.Setup(s => s.Value).Returns(new GeneralSettings { ProfileCacheLifetimeSeconds = 600 });
+            coreSettingsOptions = new Mock<IOptions<CoreSettings>>();
+            coreSettingsOptions.Setup(s => s.Value).Returns(new CoreSettings { ProfileCacheLifetimeSeconds = 600 });
         }
 
         /// <summary>
@@ -41,7 +39,7 @@ namespace Altinn.Profile.Tests.UnitTests
 
             var userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             memoryCache.Set("User_UserId_2001607", userProfile);
-            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
             UserProfile actual = await target.GetUser(UserId);
@@ -64,7 +62,7 @@ namespace Altinn.Profile.Tests.UnitTests
 
             var userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
             memoryCache.Set($"User:UserUuid:{userUuid}", userProfile);
-            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
             UserProfile actual = await target.GetUserByUuid(userUuid);
@@ -91,7 +89,7 @@ namespace Altinn.Profile.Tests.UnitTests
             List<UserProfile> userProfiles = new List<UserProfile>();
             userProfiles.Add(await TestDataLoader.Load<UserProfile>(userUuidNotInCache.ToString()));
             _decoratedServiceMock.Setup(service => service.GetUserListByUuid(It.Is<List<Guid>>(g => g.TrueForAll(g2 => g2 == userUuidNotInCache)))).ReturnsAsync(userProfiles);
-            UserProfileCachingDecorator target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+            UserProfileCachingDecorator target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
             List<UserProfile> actual = await target.GetUserListByUuid(userUuids);
@@ -124,7 +122,7 @@ namespace Altinn.Profile.Tests.UnitTests
                 memoryCache.Set($"User:UserUuid:{userUuid}", userProfile);
             }
 
-            UserProfileCachingDecorator target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+            UserProfileCachingDecorator target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
             List<UserProfile> actual = await target.GetUserListByUuid(userUuids);
@@ -151,7 +149,7 @@ namespace Altinn.Profile.Tests.UnitTests
 
             var userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             _decoratedServiceMock.Setup(service => service.GetUser(It.IsAny<int>())).ReturnsAsync(userProfile);
-            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
             UserProfile actual = await target.GetUser(UserId);
@@ -176,7 +174,7 @@ namespace Altinn.Profile.Tests.UnitTests
 
             var userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
             _decoratedServiceMock.Setup(service => service.GetUserByUuid(It.IsAny<Guid>())).ReturnsAsync(userProfile);
-            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
             UserProfile actual = await target.GetUserByUuid(userUuid);
@@ -204,7 +202,7 @@ namespace Altinn.Profile.Tests.UnitTests
             userProfiles.Add(await TestDataLoader.Load<UserProfile>(userUuids[1].ToString()));
 
             _decoratedServiceMock.Setup(service => service.GetUserListByUuid(It.IsAny<List<Guid>>())).ReturnsAsync(userProfiles);
-            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
             List<UserProfile> actual = await target.GetUserListByUuid(userUuids);
@@ -230,7 +228,7 @@ namespace Altinn.Profile.Tests.UnitTests
             MemoryCache memoryCache = new(new MemoryCacheOptions());
 
             _decoratedServiceMock.Setup(service => service.GetUser(It.IsAny<int>())).ReturnsAsync((UserProfile)null);
-            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
             UserProfile actual = await target.GetUser(UserId);
@@ -252,7 +250,7 @@ namespace Altinn.Profile.Tests.UnitTests
             MemoryCache memoryCache = new(new MemoryCacheOptions());
 
             _decoratedServiceMock.Setup(service => service.GetUserByUuid(It.IsAny<Guid>())).ReturnsAsync((UserProfile)null);
-            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
             UserProfile actual = await target.GetUserByUuid(userUuid);
@@ -274,7 +272,7 @@ namespace Altinn.Profile.Tests.UnitTests
             MemoryCache memoryCache = new(new MemoryCacheOptions());
 
             _decoratedServiceMock.Setup(service => service.GetUserListByUuid(It.IsAny<List<Guid>>())).ReturnsAsync(new List<UserProfile>());
-            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
             List<UserProfile> actual = await target.GetUserListByUuid(userUuids);
@@ -298,7 +296,7 @@ namespace Altinn.Profile.Tests.UnitTests
 
             var userProfile = await TestDataLoader.Load<UserProfile>("2001607");
             memoryCache.Set("User_SSN_01025101038", userProfile);
-            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
             UserProfile actual = await target.GetUser(Ssn);
@@ -322,7 +320,7 @@ namespace Altinn.Profile.Tests.UnitTests
             var userProfile = await TestDataLoader.Load<UserProfile>("2001607");
             _decoratedServiceMock.Setup(service => service.GetUser(It.IsAny<string>())).ReturnsAsync(userProfile);
 
-            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
             UserProfile actual = await target.GetUser(Ssn);
@@ -346,7 +344,7 @@ namespace Altinn.Profile.Tests.UnitTests
 
             _decoratedServiceMock.Setup(service => service.GetUser(It.IsAny<string>())).ReturnsAsync((UserProfile)null);
 
-            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
             UserProfile actual = await target.GetUser(Ssn);
@@ -370,7 +368,7 @@ namespace Altinn.Profile.Tests.UnitTests
 
             var userProfile = await TestDataLoader.Load<UserProfile>(Username);
             memoryCache.Set("User_Username_OrstaECUser", userProfile);
-            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
             UserProfile actual = await target.GetUserByUsername(Username);
@@ -395,7 +393,7 @@ namespace Altinn.Profile.Tests.UnitTests
 
             var userProfile = await TestDataLoader.Load<UserProfile>(Username);
             _decoratedServiceMock.Setup(service => service.GetUserByUsername(Username)).ReturnsAsync(userProfile);
-            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
             UserProfile actual = await target.GetUserByUsername(Username);
@@ -420,7 +418,7 @@ namespace Altinn.Profile.Tests.UnitTests
             MemoryCache memoryCache = new(new MemoryCacheOptions());
 
             _decoratedServiceMock.Setup(service => service.GetUserByUsername(Username)).ReturnsAsync((UserProfile)null);
-            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, generalSettingsOptions.Object);
+            var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
             UserProfile actual = await target.GetUserByUsername(Username);

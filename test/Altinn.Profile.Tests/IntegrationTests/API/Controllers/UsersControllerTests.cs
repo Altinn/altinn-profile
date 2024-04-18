@@ -7,20 +7,22 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Altinn.Platform.Profile.Models;
 using Altinn.Profile.Configuration;
 using Altinn.Profile.Controllers;
+using Altinn.Profile.Core;
+using Altinn.Profile.Integrations.SblBridge;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
-using Altinn.Profile.Tests.Mocks;
 using Altinn.Profile.Tests.Testdata;
 
 using Microsoft.AspNetCore.Mvc.Testing;
+
 using Xunit;
 
-namespace Altinn.Profile.Tests.IntegrationTests
+namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class UserProfileTests : IClassFixture<WebApplicationFactory<UsersController>>
+    public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersController>>
     {
         private readonly WebApplicationFactorySetup<UsersController> _webApplicationFactorySetup;
 
@@ -29,12 +31,12 @@ namespace Altinn.Profile.Tests.IntegrationTests
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public UserProfileTests(WebApplicationFactory<UsersController> factory)
+        public UsersControllerTests(WebApplicationFactory<UsersController> factory)
         {
             _webApplicationFactorySetup = new WebApplicationFactorySetup<UsersController>(factory);
 
-            GeneralSettings generalSettings = new() { BridgeApiEndpoint = "http://localhost/" };
-            _webApplicationFactorySetup.GeneralSettingsOptions.Setup(s => s.Value).Returns(generalSettings);
+            SblBridgeSettings sblBrideSettings = new() { ApiProfileEndpoint = "http://localhost/" };
+            _webApplicationFactorySetup.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);
         }
 
         [Fact]
@@ -446,7 +448,7 @@ namespace Altinn.Profile.Tests.IntegrationTests
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return httpRequestMessage;
         }
-        
+
         private static HttpRequestMessage CreatePostRequest(int userId, string requestUri, StringContent content)
         {
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri);

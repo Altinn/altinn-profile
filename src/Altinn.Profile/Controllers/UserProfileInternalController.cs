@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
 using Altinn.Platform.Profile.Models;
+using Altinn.Profile.Core.User;
 using Altinn.Profile.Models;
-using Altinn.Profile.Services.Interfaces;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,15 +20,15 @@ namespace Altinn.Profile.Controllers
     [Produces("application/json")]
     public class UserProfileInternalController : Controller
     {
-        private readonly IUserProfiles _userProfilesWrapper;
+        private readonly IUserProfileService _userProfileService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserProfileInternalController"/> class
         /// </summary>
-        /// <param name="userProfilesWrapper">The users wrapper</param>
-        public UserProfileInternalController(IUserProfiles userProfilesWrapper)
+        /// <param name="userProfileService">The user profile service</param>
+        public UserProfileInternalController(IUserProfileService userProfileService)
         {
-            _userProfilesWrapper = userProfilesWrapper;
+            _userProfileService = userProfileService;
         }
 
         /// <summary>
@@ -47,19 +49,19 @@ namespace Altinn.Profile.Controllers
             UserProfile result;
             if (userProfileLookup != null && userProfileLookup.UserId != 0)
             {
-                result = await _userProfilesWrapper.GetUser(userProfileLookup.UserId);
+                result = await _userProfileService.GetUser(userProfileLookup.UserId);
             }
             else if (userProfileLookup?.UserUuid != null)
             {
-                result = await _userProfilesWrapper.GetUserByUuid(userProfileLookup.UserUuid.Value);
+                result = await _userProfileService.GetUserByUuid(userProfileLookup.UserUuid.Value);
             }
             else if (!string.IsNullOrWhiteSpace(userProfileLookup?.Username))
             {
-                result = await _userProfilesWrapper.GetUserByUsername(userProfileLookup.Username);
+                result = await _userProfileService.GetUserByUsername(userProfileLookup.Username);
             }
             else if (!string.IsNullOrWhiteSpace(userProfileLookup?.Ssn))
             {
-                result = await _userProfilesWrapper.GetUser(userProfileLookup.Ssn);
+                result = await _userProfileService.GetUser(userProfileLookup.Ssn);
             }
             else
             {
@@ -92,7 +94,7 @@ namespace Altinn.Profile.Controllers
                 return BadRequest();
             }
 
-            List<UserProfile> result = await _userProfilesWrapper.GetUserListByUuid(userUuidList);
+            List<UserProfile> result = await _userProfileService.GetUserListByUuid(userUuidList);
             return Ok(result);
         }
     }

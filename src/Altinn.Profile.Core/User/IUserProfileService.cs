@@ -1,15 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using Altinn.Platform.Profile.Models;
 
-using Altinn.Platform.Profile.Models;
-
-namespace Altinn.Profile.Services.Interfaces
+namespace Altinn.Profile.Core.User
 {
     /// <summary>
-    /// Interface handling methods for operations related to users
+    /// Interface handling methods for operations related to user profiles
     /// </summary>
-    public interface IUserProfiles
+    public interface IUserProfileService
     {
         /// <summary>
         /// Method that fetches a user based on a user id

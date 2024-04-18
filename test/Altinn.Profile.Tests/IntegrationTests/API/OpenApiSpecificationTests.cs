@@ -1,15 +1,15 @@
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-
 using Altinn.Profile.Configuration;
+using Altinn.Profile.Core;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
 using Microsoft.AspNetCore.Mvc.Testing;
 
 using Xunit;
 
-namespace Altinn.Profile.Tests.IntegrationTests
+namespace Altinn.Profile.Tests.IntegrationTests.API
 {
     public class OpenApiSpecificationTests : IClassFixture<WebApplicationFactory<GeneralSettings>>
     {

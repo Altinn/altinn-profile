@@ -1,11 +1,14 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0.204-alpine3.18 AS build
 WORKDIR Altinn.Profile/
 
-COPY src/Altinn.Profile ./Altinn.Profile
-WORKDIR Altinn.Profile/
+COPY src/Altinn.Profile/*.csproj ./src/Altinn.Profile/
+COPY src/Altinn.Profile.Core/*.csproj ./src/Altinn.Profile.Core/
+COPY src/Altinn.Profile.Integrations/*.csproj ./src/Altinn.Profile.Integrations/
+RUN dotnet restore ./src/Altinn.Profile/Altinn.Profile.csproj
 
-RUN dotnet build Altinn.Profile.csproj -c Release -o /app_output
-RUN dotnet publish Altinn.Profile.csproj -c Release -o /app_output
+
+COPY src ./src
+RUN dotnet publish -c Release -o out ./src/Altinn.Profile/Altinn.Profile.csproj
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0.4-alpine3.18 AS final
 EXPOSE 5030

@@ -1,23 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Configuration;
-using Altinn.Profile.Services.Interfaces;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
-namespace Altinn.Profile.Services.Decorators
+namespace Altinn.Profile.Core.User
 {
     /// <summary>.
     /// Decorates an implementation of IUserProfiles by caching the userProfile object.
     /// If available, object is retrieved from cache without calling the service
     /// </summary>
-    public class UserProfileCachingDecorator : IUserProfiles
+    public class UserProfileCachingDecorator : IUserProfileService
     {
-        private readonly IUserProfiles _decoratedService;
+        private readonly IUserProfileService _decoratedService;
         private readonly IMemoryCache _memoryCache;
         private readonly MemoryCacheEntryOptions _cacheOptions;
 
@@ -26,17 +20,17 @@ namespace Altinn.Profile.Services.Decorators
         /// </summary>
         /// <param name="decoratedService">The decorated userProfiles service</param>
         /// <param name="memoryCache">The memory cache</param>
-        /// <param name="generalSettings">The general settings</param>
+        /// <param name="settings">The core settings</param>
         public UserProfileCachingDecorator(
-            IUserProfiles decoratedService,
+            IUserProfileService decoratedService,
             IMemoryCache memoryCache,
-            IOptions<GeneralSettings> generalSettings)
+            IOptions<CoreSettings> settings)
         {
             _decoratedService = decoratedService;
             _memoryCache = memoryCache;
             _cacheOptions = new()
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(generalSettings.Value.ProfileCacheLifetimeSeconds)
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(settings.Value.ProfileCacheLifetimeSeconds)
             };
         }
 

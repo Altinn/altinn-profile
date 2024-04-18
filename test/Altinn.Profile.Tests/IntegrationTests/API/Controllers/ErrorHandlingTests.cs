@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
-
 using Altinn.Profile.Controllers;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
@@ -11,7 +10,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 using Xunit;
 
-namespace Altinn.Profile.Tests.IntegrationTests
+namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
     public class ErrorHandlingTests : IClassFixture<WebApplicationFactory<ErrorController>>
     {

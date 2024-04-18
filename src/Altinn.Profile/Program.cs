@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.Common.AccessToken.Services;
+using Altinn.Notifications.Core.Extensions;
 using Altinn.Profile.Configuration;
 using Altinn.Profile.Filters;
 using Altinn.Profile.Health;
-using Altinn.Profile.Services.Decorators;
-using Altinn.Profile.Services.Implementation;
-using Altinn.Profile.Services.Interfaces;
+using Altinn.Profile.Integrations;
 
 using AltinnCore.Authentication.JwtCookie;
 
@@ -204,9 +203,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         options.AddPolicy("PlatformAccess", policy => policy.Requirements.Add(new AccessTokenRequirement()));
     });
 
-    services.AddHttpClient<IUserProfiles, UserProfilesWrapper>();
-    services.AddSingleton<IUserContactPoints, UserContactPointService>();
-    services.Decorate<IUserProfiles, UserProfileCachingDecorator>();
+    services.AddCoreServices(config);
+    services.AddSblBridgeClients(config);
 
     if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
     {

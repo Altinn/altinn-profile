@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Services.Interfaces;
+using Altinn.Profile.Core.User;
 
 using AltinnCore.Authentication.Constants;
 
@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Altinn.Profile.Controllers
 {
     /// <summary>
-    /// The users controller
+    /// Controller for all operations related to users
     /// </summary>
     [Authorize]
     [Route("profile/api/v1/users")]
@@ -22,15 +22,15 @@ namespace Altinn.Profile.Controllers
     [Produces("application/json")]
     public class UsersController : Controller
     {
-        private readonly IUserProfiles _userProfilesWrapper;
+        private readonly IUserProfileService _userProfileService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UsersController"/> class
         /// </summary>
-        /// <param name="userProfilesWrapper">The users wrapper</param>
-        public UsersController(IUserProfiles userProfilesWrapper)
+        /// <param name="userProfileService">The user profile service</param>
+        public UsersController(IUserProfileService userProfileService)
         {
-            _userProfilesWrapper = userProfilesWrapper;
+            _userProfileService = userProfileService;
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UserProfile>> Get(int userID)
         {
-            UserProfile result = await _userProfilesWrapper.GetUser(userID);
+            UserProfile result = await _userProfileService.GetUser(userID);
             if (result == null)
             {
                 return NotFound();
@@ -64,7 +64,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UserProfile>> Get([FromRoute] Guid userUuid)
         {
-            UserProfile result = await _userProfilesWrapper.GetUserByUuid(userUuid);
+            UserProfile result = await _userProfileService.GetUserByUuid(userUuid);
             if (result == null)
             {
                 return NotFound();
@@ -107,7 +107,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UserProfile>> GetUserFromSSN([FromBody] string ssn)
         {
-            UserProfile result = await _userProfilesWrapper.GetUser(ssn);
+            UserProfile result = await _userProfileService.GetUser(ssn);
             if (result == null)
             {
                 return NotFound();

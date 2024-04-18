@@ -1,13 +1,11 @@
 using System.Net.Http;
 
 using Altinn.Common.AccessToken.Services;
-using Altinn.Profile.Configuration;
-using Altinn.Profile.Services.Implementation;
-using Altinn.Profile.Services.Interfaces;
+using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.User;
+using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Mocks.Authentication;
-using Altinn.Profile.Tests.Mocks;
-
 using AltinnCore.Authentication.JwtCookie;
 
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -31,9 +29,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.Utils
             _webApplicationFactory = webApplicationFactory;
         }
 
-        public Mock<ILogger<UserProfilesWrapper>> UserProfilesWrapperLogger { get; set; } = new();
+        public Mock<ILogger<UserProfileClient>> UserProfileClientLogger { get; set; } = new();
 
-        public Mock<IOptions<GeneralSettings>> GeneralSettingsOptions { get; set; } = new();
+        public Mock<IOptions<SblBridgeSettings>> SblBridgeSettingsOptions { get; set; } = new();
 
         public HttpMessageHandler SblBridgeHttpMessageHandler { get; set; } = new DelegatingHandlerStub();
 
@@ -41,11 +39,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.Utils
         {
             MemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions());
 
-            GeneralSettingsOptions.Setup(gso => gso.Value).Returns(
-                new GeneralSettings
+            SblBridgeSettingsOptions.Setup(gso => gso.Value).Returns(
+                new SblBridgeSettings
                 {
-                    ProfileCacheLifetimeSeconds = 600,
-                    BridgeApiEndpoint = "https://at22.altinn.cloud/sblbridge/profile/api/"
+                    ApiProfileEndpoint = "https://at22.altinn.cloud/sblbridge/profile/api/"
                 });
 
             return _webApplicationFactory.WithWebHostBuilder(builder =>
@@ -56,13 +53,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.Utils
                     services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProviderMock>();
                     services.AddSingleton<IMemoryCache>(memoryCache);
 
-                    // Using the real/actual implementation of IUserProfiles, but with a mocked message handler.
+                    // Using the real/actual implementation of IUserProfileService, but with a mocked message handler.
                     // Haven't found any other ways of injecting a mocked message handler to simulate SBL Bridge.
-                    services.AddSingleton<IUserProfiles>(
-                        new UserProfilesWrapper(
+                    services.AddSingleton<IUserProfileClient>(
+                        new UserProfileClient(
                             new HttpClient(SblBridgeHttpMessageHandler),
-                            UserProfilesWrapperLogger.Object,
-                            GeneralSettingsOptions.Object));
+                            UserProfileClientLogger.Object,
+                            SblBridgeSettingsOptions.Object));
                 });
             }).CreateClient();
         }

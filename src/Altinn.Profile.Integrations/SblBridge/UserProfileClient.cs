@@ -1,43 +1,38 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Configuration;
-using Altinn.Profile.Services.Interfaces;
+using Altinn.Profile.Core.Integrations;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Altinn.Profile.Services.Implementation
+namespace Altinn.Profile.Integrations.SblBridge
 {
     /// <summary>
     /// Represents an implementation of <see cref="IUserProfiles"/> using SBLBridge to obtain profile information.
     /// </summary>
-    public class UserProfilesWrapper : IUserProfiles
+    public class UserProfileClient : IUserProfileClient
     {
-        private readonly ILogger _logger;
-        private readonly GeneralSettings _generalSettings;
+        private readonly ILogger<UserProfileClient> _logger;
         private readonly HttpClient _client;
         private readonly JsonSerializerOptions _serializerOptions;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UserProfilesWrapper"/> class
+        /// Initializes a new instance of the <see cref="UserProfileClient"/> class
         /// </summary>
         /// <param name="httpClient">HttpClient from default http client factory</param>
         /// <param name="logger">the logger</param>
-        /// <param name="generalSettings">the general settings</param>
-        public UserProfilesWrapper(
+        /// <param name="settings">the sbl bridge settings</param>
+        public UserProfileClient(
             HttpClient httpClient,
-            ILogger<UserProfilesWrapper> logger,
-            IOptions<GeneralSettings> generalSettings)
+            ILogger<UserProfileClient> logger,
+            IOptions<SblBridgeSettings> settings)
         {
             _logger = logger;
-            _generalSettings = generalSettings.Value;
             _client = httpClient;
+            _client.BaseAddress = new Uri(settings.Value.ApiProfileEndpoint);
 
             _serializerOptions = new JsonSerializerOptions
             {
@@ -52,9 +47,9 @@ namespace Altinn.Profile.Services.Implementation
         {
             UserProfile user;
 
-            Uri endpointUrl = new Uri($"{_generalSettings.BridgeApiEndpoint}users/{userId}");
+            string endpoint = $"users/{userId}";
 
-            HttpResponseMessage response = await _client.GetAsync(endpointUrl);
+            HttpResponseMessage response = await _client.GetAsync(endpoint);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -72,10 +67,10 @@ namespace Altinn.Profile.Services.Implementation
         public async Task<UserProfile> GetUser(string ssn)
         {
             UserProfile user;
-            Uri endpointUrl = new Uri($"{_generalSettings.BridgeApiEndpoint}users");
+            string endpoint = "users";
             StringContent requestBody = new StringContent(JsonSerializer.Serialize(ssn), Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await _client.PostAsync(endpointUrl, requestBody);
+            HttpResponseMessage response = await _client.PostAsync(endpoint, requestBody);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -92,9 +87,9 @@ namespace Altinn.Profile.Services.Implementation
         /// <inheritdoc />
         public async Task<UserProfile> GetUserByUuid(Guid userUuid)
         {
-            Uri endpointUrl = new Uri($"{_generalSettings.BridgeApiEndpoint}users?useruuid={userUuid}");
+            string endpoint = $"users?useruuid={userUuid}";
 
-            HttpResponseMessage response = await _client.GetAsync(endpointUrl);
+            HttpResponseMessage response = await _client.GetAsync(endpoint);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -111,10 +106,10 @@ namespace Altinn.Profile.Services.Implementation
         /// <inheritdoc />
         public async Task<List<UserProfile>> GetUserListByUuid(List<Guid> userUuidList)
         {
-            Uri endpointUrl = new Uri($"{_generalSettings.BridgeApiEndpoint}users/byuuid");
+            string endpoint = "users/byuuid";
             StringContent requestBody = new StringContent(JsonSerializer.Serialize(userUuidList), Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await _client.PostAsync(endpointUrl, requestBody);
+            HttpResponseMessage response = await _client.PostAsync(endpoint, requestBody);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -133,9 +128,9 @@ namespace Altinn.Profile.Services.Implementation
         {
             UserProfile user;
 
-            Uri endpointUrl = new Uri($"{_generalSettings.BridgeApiEndpoint}users/?username={username}");
+            string endpoint = $"users/?username={username}";
 
-            HttpResponseMessage response = await _client.GetAsync(endpointUrl);
+            HttpResponseMessage response = await _client.GetAsync(endpoint);
 
             if (!response.IsSuccessStatusCode)
             {

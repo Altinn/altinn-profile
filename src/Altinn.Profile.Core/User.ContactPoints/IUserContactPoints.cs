@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using Altinn.Profile.Models;
-
-namespace Altinn.Profile.Services.Interfaces
+﻿namespace Altinn.Profile.Core.User.ContactPoints
 {
     /// <summary>
     /// Class describing the methods required for user contact point service

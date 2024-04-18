@@ -9,17 +9,20 @@ using System.Threading.Tasks;
 using Altinn.Platform.Profile.Models;
 using Altinn.Profile.Configuration;
 using Altinn.Profile.Controllers;
+using Altinn.Profile.Core;
+using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Models;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
-using Altinn.Profile.Tests.Mocks;
 using Altinn.Profile.Tests.Testdata;
+
 using Microsoft.AspNetCore.Mvc.Testing;
 
 using Xunit;
 
-namespace Altinn.Profile.Tests.IntegrationTests
+namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class UserProfileInternalTests : IClassFixture<WebApplicationFactory<UserProfileInternalController>>
+    public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFactory<UserProfileInternalController>>
     {
         private readonly WebApplicationFactorySetup<UserProfileInternalController> _webApplicationFactorySetup;
 
@@ -28,12 +31,12 @@ namespace Altinn.Profile.Tests.IntegrationTests
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public UserProfileInternalTests(WebApplicationFactory<UserProfileInternalController> factory)
+        public UserProfileInternalControllerTests(WebApplicationFactory<UserProfileInternalController> factory)
         {
             _webApplicationFactorySetup = new WebApplicationFactorySetup<UserProfileInternalController>(factory);
 
-            GeneralSettings generalSettings = new() { BridgeApiEndpoint = "http://localhost/" };
-            _webApplicationFactorySetup.GeneralSettingsOptions.Setup(s => s.Value).Returns(generalSettings);
+            SblBridgeSettings sblBrideSettings = new() { ApiProfileEndpoint = "http://localhost/" };
+            _webApplicationFactorySetup.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);
         }
 
         [Fact]
@@ -130,7 +133,7 @@ namespace Altinn.Profile.Tests.IntegrationTests
 
                 List<UserProfile> userProfiles = new()
                 {
-                    await TestDataLoader.Load<UserProfile>(userUuids[0].ToString()), 
+                    await TestDataLoader.Load<UserProfile>(userUuids[0].ToString()),
                     await TestDataLoader.Load<UserProfile>(userUuids[1].ToString())
                 };
 

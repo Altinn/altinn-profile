@@ -1,7 +1,4 @@
 using System;
-
-using Altinn.Profile.Tests.IntegrationTests.Mocks.Authentication;
-
 using AltinnCore.Authentication.JwtCookie;
 
 using Microsoft.AspNetCore.Authentication.Cookies;

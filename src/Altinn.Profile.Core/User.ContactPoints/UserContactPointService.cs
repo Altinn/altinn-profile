@@ -1,25 +1,23 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-
 using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Models;
-using Altinn.Profile.Services.Interfaces;
+using Altinn.Profile.Core.User;
 
-namespace Altinn.Profile.Services.Implementation
+namespace Altinn.Profile.Core.User.ContactPoints
 {
     /// <summary>
-    /// An implementation of <see cref="IUserContactPoints"/> that uses the <see cref="IUserProfiles"/> to obtain contact point information.
+    /// An implementation of <see cref="IUserContactPoints"/> that uses the <see cref="IUserProfileService"/> to obtain contact point information.
     /// </summary>
     public class UserContactPointService : IUserContactPoints
     {
-        private readonly IUserProfiles _userProfiles;
+        private readonly IUserProfileService _userProfileService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserContactPointService"/> class.
         /// </summary>
-        public UserContactPointService(IUserProfiles userProfiles)
+        public UserContactPointService(IUserProfileService userProfiles)
         {
-            _userProfiles = userProfiles;
+            _userProfileService = userProfiles;
         }
 
         /// <inheritdoc/>
@@ -29,7 +27,7 @@ namespace Altinn.Profile.Services.Implementation
 
             foreach (var nationalIdentityNumber in nationalIdentityNumbers)
             {
-                UserProfile profile = await _userProfiles.GetUser(nationalIdentityNumber);
+                UserProfile profile = await _userProfileService.GetUser(nationalIdentityNumber);
 
                 if (profile == null)
                 {
@@ -56,7 +54,7 @@ namespace Altinn.Profile.Services.Implementation
 
             foreach (var nationalIdentityNumber in nationalIdentityNumbers)
             {
-                var profile = await _userProfiles.GetUser(nationalIdentityNumber);
+                var profile = await _userProfileService.GetUser(nationalIdentityNumber);
 
                 if (profile == null)
                 {

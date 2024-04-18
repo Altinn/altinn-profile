@@ -4,6 +4,32 @@
 [![Profile build status](https://dev.azure.com/brreg/altinn-studio/_apis/build/status/altinn-platform/profile-master?label=platform/profile)](https://dev.azure.com/brreg/altinn-studio/_build/latest?definitionId=35)
 
 
+## Project organization
+This is a backend WebAPI solution written in .NET / C# following the clean architecture principles.
+
+### Altinn.Profile
+The API layer that consumes services provided by _Altinn.Profile.Core_
+
+Relevant implementations:
+- Controllers
+- Program.cs
+
+
+### Altinn.Profile.Core
+The domain and application layer that implements the business logic of the system.
+
+Relevant implementations:
+- Interfaces for external dependencies implemented by infrastructure and repository layer
+- Domain models
+- Services
+
+### Altinn.Profile.Integrations
+The infrastructure layer that implements the interfaces defined in _Altinn.Profile.Core_ for integrations towards 3rd-party libraries and systems.
+
+Relevant implementations:
+- Clients for communicating with SBL Bridge in Altinn 2
+
+
 ## Getting Started
 
 These instructions will get you a copy of the profile component up and running on your machine for development and testing purposes.

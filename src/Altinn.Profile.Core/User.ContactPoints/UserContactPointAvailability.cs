@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Altinn.Profile.Models
+namespace Altinn.Profile.Core.User.ContactPoints
 {
     /// <summary>
     /// Class describing the contact points of a user
@@ -15,7 +15,7 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// Gets or sets the national identityt number of the user
         /// </summary>
-        public string NationalIdentityNumber { get; set; }
+        public string NationalIdentityNumber { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets a boolean indicating whether the user has reserved themselves from electronic communication

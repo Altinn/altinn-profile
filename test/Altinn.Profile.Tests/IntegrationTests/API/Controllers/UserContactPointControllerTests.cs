@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -7,18 +6,18 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Configuration;
 using Altinn.Profile.Controllers;
-using Altinn.Profile.Models;
+using Altinn.Profile.Core.User.ContactPoints;
+using Altinn.Profile.Integrations.SblBridge;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
-using Altinn.Profile.Tests.Mocks;
 using Altinn.Profile.Tests.Testdata;
 
 using Microsoft.AspNetCore.Mvc.Testing;
 
 using Xunit;
 
-namespace Altinn.Profile.Tests.IntegrationTests
+namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
     public class UserContactPointControllerTests : IClassFixture<WebApplicationFactory<UserContactPointController>>
     {
@@ -39,8 +38,8 @@ namespace Altinn.Profile.Tests.IntegrationTests
                 return await GetSBlResponseForSsn(ssn);
             });
 
-            GeneralSettings generalSettings = new() { BridgeApiEndpoint = "http://localhost/" };
-            _webApplicationFactorySetup.GeneralSettingsOptions.Setup(s => s.Value).Returns(generalSettings);
+            SblBridgeSettings sblBrideSettings = new() { ApiProfileEndpoint = "http://localhost/" };
+            _webApplicationFactorySetup.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);
         }
 
         [Fact]

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Altinn.Profile.Models
+namespace Altinn.Profile.Core.User.ContactPoints
 {
     /// <summary>
     /// A class respresenting a user contact point lookup object

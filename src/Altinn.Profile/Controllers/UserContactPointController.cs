@@ -1,7 +1,5 @@
 ﻿using System.Threading.Tasks;
-
-using Altinn.Profile.Models;
-using Altinn.Profile.Services.Interfaces;
+using Altinn.Profile.Core.User.ContactPoints;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
