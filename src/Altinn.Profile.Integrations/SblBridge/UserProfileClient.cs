@@ -57,9 +57,9 @@ namespace Altinn.Profile.Integrations.SblBridge
             }
 
             string content = await response.Content.ReadAsStringAsync();
-            UserProfile? user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions);
+            UserProfile user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions)!;
 
-            return user!;
+            return user;
         }
 
         /// <inheritdoc />
@@ -77,9 +77,9 @@ namespace Altinn.Profile.Integrations.SblBridge
             }
 
             string content = await response.Content.ReadAsStringAsync();
-            UserProfile? user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions);
+            UserProfile user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions)!;
 
-            return user!;
+            return user;
         }
 
         /// <inheritdoc />
@@ -96,9 +96,9 @@ namespace Altinn.Profile.Integrations.SblBridge
             }
 
             string content = await response.Content.ReadAsStringAsync();
-            UserProfile? user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions);
+            UserProfile user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions)!;
 
-            return user!;
+            return user;
         }
 
         /// <inheritdoc />
@@ -116,9 +116,9 @@ namespace Altinn.Profile.Integrations.SblBridge
             }
 
             string content = await response.Content.ReadAsStringAsync();
-            List<UserProfile> users = JsonSerializer.Deserialize<List<UserProfile>>(content, _serializerOptions);
+            List<UserProfile> users = JsonSerializer.Deserialize<List<UserProfile>>(content, _serializerOptions)!;
 
-            return users!;
+            return users;
         }
 
         /// <inheritdoc />
@@ -135,9 +135,9 @@ namespace Altinn.Profile.Integrations.SblBridge
             }
 
             string content = await response.Content.ReadAsStringAsync();
-            UserProfile? user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions);
+            UserProfile user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions)!;
 
-            return user!;
+            return user;
         }
     }
 }
