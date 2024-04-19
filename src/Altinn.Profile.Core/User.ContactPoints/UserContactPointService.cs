@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
+
 using Altinn.Platform.Profile.Models;
 using Altinn.Profile.Core.User;
 
@@ -23,56 +25,56 @@ namespace Altinn.Profile.Core.User.ContactPoints
         /// <inheritdoc/>
         public async Task<UserContactPointAvailabilityList> GetContactPointAvailability(List<string> nationalIdentityNumbers)
         {
-            UserContactPointAvailabilityList result = new();
+            UserContactPointAvailabilityList availabilityResult = new();
 
             foreach (var nationalIdentityNumber in nationalIdentityNumbers)
             {
-                UserProfile profile = await _userProfileService.GetUser(nationalIdentityNumber);
+                Result<UserProfile, bool> result = await _userProfileService.GetUser(nationalIdentityNumber);
 
-                if (profile == null)
-                {
-                    continue;
-                }
-
-                result.AvailabilityList.Add(new UserContactPointAvailability()
-                {
-                    UserId = profile.PartyId,
-                    NationalIdentityNumber = profile.Party.SSN,
-                    EmailRegistered = !string.IsNullOrEmpty(profile.Email),
-                    MobileNumberRegistered = !string.IsNullOrEmpty(profile.PhoneNumber),
-                    IsReserved = profile.IsReserved
-                });
+                result.Match(
+                    profile =>
+                    {
+                        availabilityResult.AvailabilityList.Add(new UserContactPointAvailability()
+                        {
+                            UserId = profile.PartyId,
+                            NationalIdentityNumber = profile.Party.SSN,
+                            EmailRegistered = !string.IsNullOrEmpty(profile.Email),
+                            MobileNumberRegistered = !string.IsNullOrEmpty(profile.PhoneNumber),
+                            IsReserved = profile.IsReserved
+                        });
+                    },
+                    _ => { });
             }
 
-            return result;
+            return availabilityResult;
         }
 
         /// <inheritdoc/>
         public async Task<UserContactPointsList> GetContactPoints(List<string> nationalIdentityNumbers)
         {
-            UserContactPointsList result = new();
+            UserContactPointsList resultList = new();
 
             foreach (var nationalIdentityNumber in nationalIdentityNumbers)
             {
-                var profile = await _userProfileService.GetUser(nationalIdentityNumber);
+                Result<UserProfile, bool> result = await _userProfileService.GetUser(nationalIdentityNumber);
 
-                if (profile == null)
-                {
-                    continue;
-                }
-
-                result.ContactPointList.Add(
-                new UserContactPoints()
-                {
-                    UserId = profile.PartyId,
-                    NationalIdentityNumber = profile.Party.SSN,
-                    Email = profile.Email,
-                    MobileNumber = profile.PhoneNumber,
-                    IsReserved = profile.IsReserved
-                });
+                result.Match(
+                  profile =>
+                  {
+                      resultList.ContactPointList.Add(
+                        new UserContactPoints()
+                        {
+                            UserId = profile.PartyId,
+                            NationalIdentityNumber = profile.Party.SSN,
+                            Email = profile.Email,
+                            MobileNumber = profile.PhoneNumber,
+                            IsReserved = profile.IsReserved
+                        });
+                  },
+                  _ => { });
             }
 
-            return result;
+            return resultList;
         }
     }
 }

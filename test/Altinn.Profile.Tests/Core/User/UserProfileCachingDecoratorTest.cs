@@ -42,12 +42,20 @@ namespace Altinn.Profile.Tests.Core.User
             var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
-            UserProfile actual = await target.GetUser(UserId);
+            Result<UserProfile, bool> result = await target.GetUser(UserId);
 
             // Assert
+            Assert.True(result.IsSuccess, "Expected a success result");
+
+            result.Match(
+                actual =>
+                {
+                    Assert.NotNull(actual);
+                    Assert.Equal(UserId, actual.UserId);
+                },
+                _ => { });
+
             _decoratedServiceMock.Verify(service => service.GetUser(It.IsAny<int>()), Times.Never());
-            Assert.NotNull(actual);
-            Assert.Equal(UserId, actual.UserId);
         }
 
         /// <summary>
@@ -65,12 +73,19 @@ namespace Altinn.Profile.Tests.Core.User
             var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
-            UserProfile actual = await target.GetUserByUuid(userUuid);
+            Result<UserProfile, bool> result = await target.GetUserByUuid(userUuid);
 
             // Assert
+            Assert.True(result.IsSuccess, "Expected a success result");
+            result.Match(
+                actual =>
+                {
+                    Assert.NotNull(actual);
+                    Assert.Equal(userUuid, actual.UserUuid);
+                },
+                _ => { });
+
             _decoratedServiceMock.Verify(service => service.GetUserByUuid(It.IsAny<Guid>()), Times.Never());
-            Assert.NotNull(actual);
-            Assert.Equal(userUuid, actual.UserUuid);
         }
 
         /// <summary>
@@ -152,14 +167,21 @@ namespace Altinn.Profile.Tests.Core.User
             var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
-            UserProfile actual = await target.GetUser(UserId);
+            Result<UserProfile, bool> result = await target.GetUser(UserId);
 
             // Assert
             _decoratedServiceMock.Verify(service => service.GetUser(It.IsAny<int>()), Times.Once());
+            Assert.True(result.IsSuccess, "Expected a success result");
 
-            Assert.NotNull(actual);
-            Assert.Equal(UserId, actual.UserId);
-            Assert.True(memoryCache.TryGetValue("User_UserId_2001607", out UserProfile _));
+            result.Match(
+               actual =>
+               {
+                   Assert.NotNull(actual);
+                   Assert.Equal(UserId, actual.UserId);
+               },
+               _ => { });
+
+            Assert.True(memoryCache.TryGetValue("User_UserId_2001607", out UserProfile _), "No data found in memory cache");
         }
 
         /// <summary>
@@ -177,14 +199,21 @@ namespace Altinn.Profile.Tests.Core.User
             var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
-            UserProfile actual = await target.GetUserByUuid(userUuid);
+            Result<UserProfile, bool> result = await target.GetUserByUuid(userUuid);
 
             // Assert
             _decoratedServiceMock.Verify(service => service.GetUserByUuid(It.IsAny<Guid>()), Times.Once());
+            Assert.True(result.IsSuccess, "Expected a success result");
+            
+            result.Match(
+                actual =>
+                {
+                    Assert.NotNull(actual);
+                    Assert.Equal(userUuid, actual.UserUuid);
+                },
+                _ => { });
 
-            Assert.NotNull(actual);
-            Assert.Equal(userUuid, actual.UserUuid);
-            Assert.True(memoryCache.TryGetValue($"User:UserUuid:{userUuid}", out UserProfile _));
+            Assert.True(memoryCache.TryGetValue($"User:UserUuid:{userUuid}", out UserProfile _), "No data found in memory cache");
         }
 
         /// <summary>
@@ -213,52 +242,53 @@ namespace Altinn.Profile.Tests.Core.User
             Assert.Equal(2, actual.Count);
             Assert.Equal(userUuids[0], actual[0].UserUuid);
             Assert.Equal(userUuids[1], actual[1].UserUuid);
-            Assert.True(memoryCache.TryGetValue($"User:UserUuid:{userUuids[0]}", out UserProfile _));
-            Assert.True(memoryCache.TryGetValue($"User:UserUuid:{userUuids[1]}", out UserProfile _));
+            Assert.True(memoryCache.TryGetValue($"User:UserUuid:{userUuids[0]}", out UserProfile _), "No data found in memory cache");
+            Assert.True(memoryCache.TryGetValue($"User:UserUuid:{userUuids[1]}", out UserProfile _), "No data found in memory cache");
         }
 
         /// <summary>
         /// Tests that if the result from decorated service is null, nothing is stored in cache and the null object returned to caller.
         /// </summary>
         [Fact]
-        public async Task GetUserUserUserId_NullFromDecoratedService_CacheNotPopulated()
+        public async Task GetUserUserUserId_ErrorResultFromDecoratedService_CacheNotPopulated()
         {
             // Arrange
             const int UserId = 2001607;
             MemoryCache memoryCache = new(new MemoryCacheOptions());
 
-            _decoratedServiceMock.Setup(service => service.GetUser(It.IsAny<int>())).ReturnsAsync((UserProfile)null);
+            _decoratedServiceMock.Setup(service => service.GetUser(It.IsAny<int>())).ReturnsAsync(false);
             var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
-            UserProfile actual = await target.GetUser(UserId);
+            Result<UserProfile, bool> result = await target.GetUser(UserId);
 
             // Assert
             _decoratedServiceMock.Verify(service => service.GetUser(It.IsAny<int>()), Times.Once());
-            Assert.Null(actual);
-            Assert.False(memoryCache.TryGetValue("User_UserId_2001607", out UserProfile _));
+            Assert.True(result.IsError, "Expected an error result");
+
+            Assert.False(memoryCache.TryGetValue("User_UserId_2001607", out UserProfile _), "Data unexpectedly found in memory cache");
         }
 
         /// <summary>
         /// Tests that if the result from decorated service is null, nothing is stored in cache and the null object returned to caller.
         /// </summary>
         [Fact]
-        public async Task GetUserUserUserUuid_NullFromDecoratedService_CacheNotPopulated()
+        public async Task GetUserUserUserUuid_ErrorResultFromDecoratedService_CacheNotPopulated()
         {
             // Arrange
             Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
             MemoryCache memoryCache = new(new MemoryCacheOptions());
 
-            _decoratedServiceMock.Setup(service => service.GetUserByUuid(It.IsAny<Guid>())).ReturnsAsync((UserProfile)null);
+            _decoratedServiceMock.Setup(service => service.GetUserByUuid(It.IsAny<Guid>())).ReturnsAsync(false);
             var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
-            UserProfile actual = await target.GetUserByUuid(userUuid);
+            Result<UserProfile, bool> result = await target.GetUserByUuid(userUuid);
 
             // Assert
             _decoratedServiceMock.Verify(service => service.GetUserByUuid(It.IsAny<Guid>()), Times.Once());
-            Assert.Null(actual);
-            Assert.False(memoryCache.TryGetValue($"User:UserUuid:{userUuid}", out UserProfile _));
+            Assert.True(result.IsError, "Expected an error result");
+            Assert.False(memoryCache.TryGetValue($"User:UserUuid:{userUuid}", out UserProfile _), "Data unexpectedly found in memory cache");
         }
 
         /// <summary>
@@ -299,12 +329,19 @@ namespace Altinn.Profile.Tests.Core.User
             var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
-            UserProfile actual = await target.GetUser(Ssn);
+            Result<UserProfile, bool> result = await target.GetUser(Ssn);
 
             // Assert
             _decoratedServiceMock.Verify(service => service.GetUser(It.IsAny<string>()), Times.Never());
-            Assert.NotNull(actual);
-            Assert.Equal(Ssn, actual.Party.SSN);
+            Assert.True(result.IsSuccess, "Expected a success result");
+            
+            result.Match(
+               actual =>
+               {
+                   Assert.NotNull(actual);
+                   Assert.Equal(Ssn, actual.Party.SSN);
+               },
+               _ => { });
         }
 
         /// <summary>
@@ -323,36 +360,44 @@ namespace Altinn.Profile.Tests.Core.User
             var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
-            UserProfile actual = await target.GetUser(Ssn);
+            Result<UserProfile, bool> result = await target.GetUser(Ssn);
 
             // Assert
             _decoratedServiceMock.Verify(service => service.GetUser(It.IsAny<string>()), Times.Once());
-            Assert.NotNull(actual);
-            Assert.Equal(Ssn, actual.Party.SSN);
-            Assert.True(memoryCache.TryGetValue("User_SSN_01025101038", out UserProfile _));
+            Assert.True(result.IsSuccess, "Expected a success result");
+
+            result.Match(
+               actual =>
+               {
+                   Assert.NotNull(actual);
+                   Assert.Equal(Ssn, actual.Party.SSN);
+               },
+               _ => { });
+
+            Assert.True(memoryCache.TryGetValue("User_SSN_01025101038", out UserProfile _), "No data found in memory cache");
         }
 
         /// <summary>
         /// Tests that if the result from decorated service is null, nothing is stored in cache and the null object returned to caller.
         /// </summary>
         [Fact]
-        public async Task GetUserUserSSN_NullFromDecoratedService_CacheNotPopulated()
+        public async Task GetUserUserSSN_ErrorResultFromDecoratedService_CacheNotPopulated()
         {
             // Arrange
             const string Ssn = "01025101037";
             MemoryCache memoryCache = new(new MemoryCacheOptions());
 
-            _decoratedServiceMock.Setup(service => service.GetUser(It.IsAny<string>())).ReturnsAsync((UserProfile)null);
+            _decoratedServiceMock.Setup(service => service.GetUser(It.IsAny<string>())).ReturnsAsync(false);
 
             var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
-            UserProfile actual = await target.GetUser(Ssn);
+            Result<UserProfile, bool> result = await target.GetUser(Ssn);
 
             // Assert
             _decoratedServiceMock.Verify(service => service.GetUser(It.IsAny<string>()), Times.Once());
-            Assert.Null(actual);
-            Assert.False(memoryCache.TryGetValue("User_UserId_2001607", out UserProfile _));
+            Assert.True(result.IsError, "Expected an error result");
+            Assert.False(memoryCache.TryGetValue("User_UserId_2001607", out UserProfile _), "Data unexpectedly found in memory cache");
         }
 
         /// <summary>
@@ -371,13 +416,20 @@ namespace Altinn.Profile.Tests.Core.User
             var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
-            UserProfile actual = await target.GetUserByUsername(Username);
+            Result<UserProfile, bool> result = await target.GetUserByUsername(Username);
 
             // Assert
-            _decoratedServiceMock.Verify(service => service.GetUser(It.IsAny<int>()), Times.Never());
-            Assert.NotNull(actual);
-            Assert.Equal(UserId, actual.UserId);
-            Assert.Equal(Username, actual.UserName);
+            _decoratedServiceMock.Verify(service => service.GetUser(It.IsAny<int>()), Times.Never());            
+            
+            Assert.True(result.IsSuccess, "Expected a success result");
+            result.Match(
+               actual =>
+               {
+                   Assert.NotNull(actual);
+                   Assert.Equal(UserId, actual.UserId);
+                   Assert.Equal(Username, actual.UserName);
+               },
+               _ => { });
         }
 
         /// <summary>
@@ -389,6 +441,7 @@ namespace Altinn.Profile.Tests.Core.User
             // Arrange
             const string Username = "OrstaECUser";
             const int UserId = 2001072;
+            
             MemoryCache memoryCache = new(new MemoryCacheOptions());
 
             var userProfile = await TestDataLoader.Load<UserProfile>(Username);
@@ -396,37 +449,43 @@ namespace Altinn.Profile.Tests.Core.User
             var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
-            UserProfile actual = await target.GetUserByUsername(Username);
+            Result<UserProfile, bool> result = await target.GetUserByUsername(Username);
 
             // Assert
             _decoratedServiceMock.Verify(service => service.GetUserByUsername(Username), Times.Once());
+            Assert.True(result.IsSuccess, "Expected a success result");
+            result.Match(
+               actual =>
+               {
+                   Assert.NotNull(actual);
+                   Assert.Equal(UserId, actual.UserId);
+                   Assert.Equal(Username, actual.UserName);
+               },
+               _ => { });
 
-            Assert.NotNull(actual);
-            Assert.Equal(UserId, actual.UserId);
-            Assert.Equal(Username, actual.UserName);
-            Assert.True(memoryCache.TryGetValue("User_Username_OrstaECUser", out UserProfile _));
+            Assert.True(memoryCache.TryGetValue("User_Username_OrstaECUser", out UserProfile _), "No data found in memory cache");
         }
 
         /// <summary>
         /// Tests that if the result from decorated service is null, nothing is stored in cache and the null object returned to caller.
         /// </summary>
         [Fact]
-        public async Task GetUserByUsername_NullFromDecoratedService_CacheNotPopulated()
+        public async Task GetUserByUsername_ErrorResultFromDecoratedService_CacheNotPopulated()
         {
             // Arrange
             const string Username = "NonExistingUsername";
             MemoryCache memoryCache = new(new MemoryCacheOptions());
 
-            _decoratedServiceMock.Setup(service => service.GetUserByUsername(Username)).ReturnsAsync((UserProfile)null);
+            _decoratedServiceMock.Setup(service => service.GetUserByUsername(Username)).ReturnsAsync(false);
             var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
             // Act
-            UserProfile actual = await target.GetUserByUsername(Username);
+            Result<UserProfile, bool> result = await target.GetUserByUsername(Username);
 
             // Assert
             _decoratedServiceMock.Verify(service => service.GetUserByUsername(Username), Times.Once());
-            Assert.Null(actual);
-            Assert.False(memoryCache.TryGetValue("User_Username_NonExistingUsername", out UserProfile _));
+            Assert.True(result.IsError, "Expected an error result");
+            Assert.False(memoryCache.TryGetValue("User_Username_NonExistingUsername", out UserProfile _), "Data unexpectedly found in memory cache");
         }
     }
 }

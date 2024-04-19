@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Altinn.Platform.Profile.Models;
+using Altinn.Profile.Core;
 using Altinn.Profile.Core.User;
 using Altinn.Profile.Models;
 
@@ -46,7 +47,8 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UserProfile>> Get([FromBody] UserProfileLookup userProfileLookup)
         {
-            UserProfile result;
+            Result<UserProfile, bool> result;
+
             if (userProfileLookup != null && userProfileLookup.UserId != 0)
             {
                 result = await _userProfileService.GetUser(userProfileLookup.UserId);
@@ -68,14 +70,11 @@ namespace Altinn.Profile.Controllers
                 return BadRequest();
             }
 
-            if (result == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(result);
+            return result.Match<ActionResult<UserProfile>>(
+                  userProfile => Ok(userProfile),
+                  _ => NotFound());
         }
-        
+
         /// <summary>
         /// Gets a list of user profiles for a list of of users identified by userUuid.
         /// </summary>

@@ -35,7 +35,7 @@ namespace Altinn.Profile.Core.User
         }
 
         /// <inheritdoc/>
-        public async Task<UserProfile> GetUser(int userId)
+        public async Task<Result<UserProfile, bool>> GetUser(int userId)
         {
             string uniqueCacheKey = "User_UserId_" + userId;
 
@@ -44,54 +44,50 @@ namespace Altinn.Profile.Core.User
                 return user!;
             }
 
-            user = await _decoratedService.GetUser(userId);
+            Result<UserProfile, bool> result = await _decoratedService.GetUser(userId);
 
-            if (user != null)
-            {
-                _memoryCache.Set(uniqueCacheKey, user, _cacheOptions);
-            }
+            result.Match(
+                userProfile => _memoryCache.Set(uniqueCacheKey, userProfile, _cacheOptions),
+                _ => { });
 
-            return user;
+            return result;
         }
 
         /// <inheritdoc/>
-        public async Task<UserProfile> GetUser(string ssn)
+        public async Task<Result<UserProfile, bool>> GetUser(string ssn)
         {
             string uniqueCacheKey = "User_SSN_" + ssn;
 
             if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile? user))
             {
-                return user;
+                return user!;
             }
 
-            user = await _decoratedService.GetUser(ssn);
+            Result<UserProfile, bool> result = await _decoratedService.GetUser(ssn);
 
-            if (user != null)
-            {
-                _memoryCache.Set(uniqueCacheKey, user, _cacheOptions);
-            }
+            result.Match(
+               userProfile => _memoryCache.Set(uniqueCacheKey, userProfile, _cacheOptions),
+               _ => { });
 
-            return user;
+            return result;
         }
 
         /// <inheritdoc/>
-        public async Task<UserProfile> GetUserByUuid(Guid userUuid)
+        public async Task<Result<UserProfile, bool>> GetUserByUuid(Guid userUuid)
         {
             string uniqueCacheKey = $"User:UserUuid:{userUuid}";
 
             if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile? user))
             {
-                return user;
+                return user!;
             }
 
-            user = await _decoratedService.GetUserByUuid(userUuid);
+            Result<UserProfile, bool> result = await _decoratedService.GetUserByUuid(userUuid);
 
-            if (user != null)
-            {
-                _memoryCache.Set(uniqueCacheKey, user, _cacheOptions);
-            }
-
-            return user;
+            result.Match(
+             userProfile => _memoryCache.Set(uniqueCacheKey, userProfile, _cacheOptions),
+             _ => { });
+            return result;
         }
 
         /// <inheritdoc /> 
@@ -105,7 +101,7 @@ namespace Altinn.Profile.Core.User
                 string uniqueCacheKey = $"User:UserUuid:{userUuid}";
                 if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile? user))
                 {
-                    result.Add(user);
+                    result.Add(user!);
                 }
                 else
                 {
@@ -128,7 +124,7 @@ namespace Altinn.Profile.Core.User
         }
 
         /// <inheritdoc/>
-        public async Task<UserProfile> GetUserByUsername(string username)
+        public async Task<Result<UserProfile, bool>> GetUserByUsername(string username)
         {
             string uniqueCacheKey = "User_Username_" + username;
 
@@ -137,14 +133,13 @@ namespace Altinn.Profile.Core.User
                 return user!;
             }
 
-            user = await _decoratedService.GetUserByUsername(username);
+            Result<UserProfile, bool> result = await _decoratedService.GetUserByUsername(username);
 
-            if (user != null)
-            {
-                _memoryCache.Set(uniqueCacheKey, user, _cacheOptions);
-            }
+            result.Match(
+             userProfile => _memoryCache.Set(uniqueCacheKey, userProfile, _cacheOptions),
+             _ => { });
 
-            return user;
+            return result;
         }
     }
 }

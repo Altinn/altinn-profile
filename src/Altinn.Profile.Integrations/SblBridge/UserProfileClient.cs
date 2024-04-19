@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using Altinn.Platform.Profile.Models;
+using Altinn.Profile.Core;
 using Altinn.Profile.Core.Integrations;
 
 using Microsoft.Extensions.Logging;
@@ -43,10 +44,8 @@ namespace Altinn.Profile.Integrations.SblBridge
         }
 
         /// <inheritdoc />
-        public async Task<UserProfile> GetUser(int userId)
+        public async Task<Result<UserProfile, bool>> GetUser(int userId)
         {
-            UserProfile user;
-
             string endpoint = $"users/{userId}";
 
             HttpResponseMessage response = await _client.GetAsync(endpoint);
@@ -54,19 +53,18 @@ namespace Altinn.Profile.Integrations.SblBridge
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError("Getting user {userId} failed with {statusCode}", userId, response.StatusCode);
-                return null;
+                return false;
             }
 
             string content = await response.Content.ReadAsStringAsync();
-            user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions);
+            UserProfile? user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions);
 
-            return user;
+            return user!;
         }
 
         /// <inheritdoc />
-        public async Task<UserProfile> GetUser(string ssn)
+        public async Task<Result<UserProfile, bool>> GetUser(string ssn)
         {
-            UserProfile user;
             string endpoint = "users";
             StringContent requestBody = new StringContent(JsonSerializer.Serialize(ssn), Encoding.UTF8, "application/json");
 
@@ -75,17 +73,17 @@ namespace Altinn.Profile.Integrations.SblBridge
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError("Getting user by SSN failed with statuscode {statusCode}", response.StatusCode);
-                return null;
+                return false;
             }
 
             string content = await response.Content.ReadAsStringAsync();
-            user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions);
+            UserProfile? user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions);
 
-            return user;
+            return user!;
         }
 
         /// <inheritdoc />
-        public async Task<UserProfile> GetUserByUuid(Guid userUuid)
+        public async Task<Result<UserProfile, bool>> GetUserByUuid(Guid userUuid)
         {
             string endpoint = $"users?useruuid={userUuid}";
 
@@ -94,17 +92,17 @@ namespace Altinn.Profile.Integrations.SblBridge
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError("Getting user {userUuid} failed with {statusCode}", userUuid, response.StatusCode);
-                return null;
+                return false;
             }
 
             string content = await response.Content.ReadAsStringAsync();
-            UserProfile user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions);
+            UserProfile? user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions);
 
-            return user;
+            return user!;
         }
 
         /// <inheritdoc />
-        public async Task<List<UserProfile>> GetUserListByUuid(List<Guid> userUuidList)
+        public async Task<Result<List<UserProfile>, bool>> GetUserListByUuid(List<Guid> userUuidList)
         {
             string endpoint = "users/byuuid";
             StringContent requestBody = new StringContent(JsonSerializer.Serialize(userUuidList), Encoding.UTF8, "application/json");
@@ -114,20 +112,18 @@ namespace Altinn.Profile.Integrations.SblBridge
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError("Getting users failed with {statusCode}", response.StatusCode);
-                return new List<UserProfile>();
+                return false;
             }
 
             string content = await response.Content.ReadAsStringAsync();
             List<UserProfile> users = JsonSerializer.Deserialize<List<UserProfile>>(content, _serializerOptions);
 
-            return users;
+            return users!;
         }
 
         /// <inheritdoc />
-        public async Task<UserProfile> GetUserByUsername(string username)
+        public async Task<Result<UserProfile, bool>> GetUserByUsername(string username)
         {
-            UserProfile user;
-
             string endpoint = $"users/?username={username}";
 
             HttpResponseMessage response = await _client.GetAsync(endpoint);
@@ -135,13 +131,13 @@ namespace Altinn.Profile.Integrations.SblBridge
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError("Getting user {username} failed with {statusCode}", username, response.StatusCode);
-                return null;
+                return false;
             }
 
             string content = await response.Content.ReadAsStringAsync();
-            user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions);
+            UserProfile? user = JsonSerializer.Deserialize<UserProfile>(content, _serializerOptions);
 
-            return user;
+            return user!;
         }
     }
 }

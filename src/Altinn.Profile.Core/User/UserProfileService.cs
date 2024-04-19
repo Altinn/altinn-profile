@@ -1,4 +1,5 @@
-﻿using Altinn.Profile.Core.Integrations;
+﻿using Altinn.Platform.Profile.Models;
+using Altinn.Profile.Core.Integrations;
 
 namespace Altinn.Profile.Core.User
 {
@@ -19,33 +20,36 @@ namespace Altinn.Profile.Core.User
         }
 
         /// <inheritdoc/>
-        public async Task<Platform.Profile.Models.UserProfile> GetUser(int userId)
+        public async Task<Result<UserProfile, bool>> GetUser(int userId)
         {
             return await _userProfileClient.GetUser(userId);
         }
 
         /// <inheritdoc/>
-        public async Task<Platform.Profile.Models.UserProfile> GetUser(string ssn)
+        public async Task<Result<UserProfile, bool>> GetUser(string ssn)
         {
             return await _userProfileClient.GetUser(ssn);
         }
 
         /// <inheritdoc/>
-        public async Task<Platform.Profile.Models.UserProfile> GetUserByUsername(string username)
+        public async Task<Result<UserProfile, bool>> GetUserByUsername(string username)
         {
             return await _userProfileClient.GetUserByUsername(username);
         }
 
         /// <inheritdoc/>
-        public async Task<Platform.Profile.Models.UserProfile> GetUserByUuid(Guid userUuid)
+        public async Task<Result<UserProfile, bool>> GetUserByUuid(Guid userUuid)
         {
             return await _userProfileClient.GetUserByUuid(userUuid);
         }
 
         /// <inheritdoc/>
-        public async Task<List<Platform.Profile.Models.UserProfile>> GetUserListByUuid(List<Guid> userUuidList)
+        public async Task<List<UserProfile>> GetUserListByUuid(List<Guid> userUuidList)
         {
-            return await _userProfileClient.GetUserListByUuid(userUuidList);
+            var result = await _userProfileClient.GetUserListByUuid(userUuidList);
+            return result.Match(
+                 userProfileList => { return userProfileList; },
+                 _ => { return new List<UserProfile>(); });
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Altinn.Platform.Profile.Models;
+using Altinn.Profile.Core;
 using Altinn.Profile.Core.User;
 
 using AltinnCore.Authentication.Constants;
@@ -44,13 +45,11 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UserProfile>> Get(int userID)
         {
-            UserProfile result = await _userProfileService.GetUser(userID);
-            if (result == null)
-            {
-                return NotFound();
-            }
+            Result<UserProfile, bool> result = await _userProfileService.GetUser(userID);
 
-            return Ok(result);
+            return result.Match<ActionResult<UserProfile>>(
+                userProfile => Ok(userProfile),
+                _ => NotFound());
         }
 
         /// <summary>
@@ -64,13 +63,11 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UserProfile>> Get([FromRoute] Guid userUuid)
         {
-            UserProfile result = await _userProfileService.GetUserByUuid(userUuid);
-            if (result == null)
-            {
-                return NotFound();
-            }
+            Result<UserProfile, bool> result = await _userProfileService.GetUserByUuid(userUuid);
 
-            return Ok(result);
+            return result.Match<ActionResult<UserProfile>>(
+                userProfile => Ok(userProfile),
+                _ => NotFound());
         }
 
         /// <summary>
@@ -107,13 +104,11 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UserProfile>> GetUserFromSSN([FromBody] string ssn)
         {
-            UserProfile result = await _userProfileService.GetUser(ssn);
-            if (result == null)
-            {
-                return NotFound();
-            }
+            Result<UserProfile, bool> result = await _userProfileService.GetUser(ssn);
 
-            return Ok(result);
+            return result.Match<ActionResult<UserProfile>>(
+                userProfile => Ok(userProfile),
+                _ => NotFound());
         }
     }
 }
