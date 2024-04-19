@@ -23,7 +23,7 @@ namespace Altinn.Profile.Core.User.ContactPoints
         }
 
         /// <inheritdoc/>
-        public async Task<UserContactPointAvailabilityList> GetContactPointAvailability(List<string> nationalIdentityNumbers)
+        public async Task<Result<UserContactPointAvailabilityList, bool>> GetContactPointAvailability(List<string> nationalIdentityNumbers)
         {
             UserContactPointAvailabilityList availabilityResult = new();
 
@@ -50,7 +50,7 @@ namespace Altinn.Profile.Core.User.ContactPoints
         }
 
         /// <inheritdoc/>
-        public async Task<UserContactPointsList> GetContactPoints(List<string> nationalIdentityNumbers)
+        public async Task<Result<UserContactPointsList, bool>> GetContactPoints(List<string> nationalIdentityNumbers)
         {
             UserContactPointsList resultList = new();
 

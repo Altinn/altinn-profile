@@ -1,4 +1,6 @@
 ﻿using System.Threading.Tasks;
+
+using Altinn.Profile.Core;
 using Altinn.Profile.Core.User.ContactPoints;
 
 using Microsoft.AspNetCore.Http;
@@ -13,7 +15,7 @@ namespace Altinn.Profile.Controllers;
 [ApiExplorerSettings(IgnoreApi = true)]
 [Consumes("application/json")]
 [Produces("application/json")]
-public class UserContactPointController : Controller
+public class UserContactPointController : ControllerBase
 {
     private readonly IUserContactPoints _contactPointService;
 
@@ -38,7 +40,11 @@ public class UserContactPointController : Controller
             return new UserContactPointAvailabilityList();
         }
 
-        return await _contactPointService.GetContactPointAvailability(userContactPointLookup.NationalIdentityNumbers);
+        Result<UserContactPointAvailabilityList, bool> result = await _contactPointService.GetContactPointAvailability(userContactPointLookup.NationalIdentityNumbers);
+
+        return result.Match<ActionResult<UserContactPointAvailabilityList>>(
+                       success => Ok(success),
+                       _ => Problem("Could not retrieve contact point availability"));
     }
 
     /// <summary>
@@ -49,6 +55,9 @@ public class UserContactPointController : Controller
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<UserContactPointsList>> PostLookup([FromBody] UserContactPointLookup userContactPointLookup)
     {
-        return await _contactPointService.GetContactPoints(userContactPointLookup.NationalIdentityNumbers);
+        Result<UserContactPointsList, bool> result = await _contactPointService.GetContactPoints(userContactPointLookup.NationalIdentityNumbers);
+        return result.Match<ActionResult<UserContactPointsList>>(
+                     success => Ok(success),
+                     _ => Problem("Could not retrieve contact points"));
     }
 }
