@@ -5,12 +5,9 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Configuration;
 using Altinn.Profile.Controllers;
-using Altinn.Profile.Core;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
@@ -20,442 +17,441 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 using Xunit;
 
-namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
+namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
+
+public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersController>>
 {
-    public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersController>>
+    private readonly WebApplicationFactorySetup<UsersController> _webApplicationFactorySetup;
+
+    private readonly JsonSerializerOptions serializerOptionsCamelCase = new()
     {
-        private readonly WebApplicationFactorySetup<UsersController> _webApplicationFactorySetup;
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
 
-        private readonly JsonSerializerOptions serializerOptionsCamelCase = new()
+    public UsersControllerTests(WebApplicationFactory<UsersController> factory)
+    {
+        _webApplicationFactorySetup = new WebApplicationFactorySetup<UsersController>(factory);
+
+        SblBridgeSettings sblBrideSettings = new() { ApiProfileEndpoint = "http://localhost/" };
+        _webApplicationFactorySetup.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);
+    }
+
+    [Fact]
+    public async Task GetUsersCurrent_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+    {
+        // Arrange
+        const int UserId = 2516356;
+
+        HttpRequestMessage sblRequest = null;
+        DelegatingHandlerStub messageHandler = new(async (request, token) =>
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
+            sblRequest = request;
 
-        public UsersControllerTests(WebApplicationFactory<UsersController> factory)
+            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
+            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+        });
+        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
+
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+        HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "/profile/api/v1/users/current");
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+        // Assert
+        Assert.NotNull(sblRequest);
+        Assert.Equal(HttpMethod.Get, sblRequest.Method);
+        Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri.ToString());
+
+        string responseContent = await response.Content.ReadAsStringAsync();
+
+        UserProfile actualUser = JsonSerializer.Deserialize<UserProfile>(
+            responseContent, serializerOptionsCamelCase);
+
+        // These asserts check that deserializing with camel casing was successful.
+        Assert.Equal(UserId, actualUser.UserId);
+        Assert.Equal("sophie", actualUser.UserName);
+        Assert.Equal("Sophie Salt", actualUser.Party.Name);
+        Assert.Equal("Sophie", actualUser.Party.Person.FirstName);
+        Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
+    }
+
+    [Fact]
+    public async Task GetUsersCurrent_AsOrg_ResponseBadRequest()
+    {
+        // Arrange
+        const int UserId = 2516356;
+
+        HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "/profile/api/v1/users/current");
+
+        string token = PrincipalUtil.GetOrgToken("ttd");
+        httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+        // Assert
+        string responseContent = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains("UserId must be provided in claims", responseContent);
+    }
+
+    [Fact]
+    public async Task GetUsersById_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+    {
+        // Arrange
+        const int UserId = 2516356;
+
+        HttpRequestMessage sblRequest = null;
+        DelegatingHandlerStub messageHandler = new(async (request, token) =>
         {
-            _webApplicationFactorySetup = new WebApplicationFactorySetup<UsersController>(factory);
+            sblRequest = request;
 
-            SblBridgeSettings sblBrideSettings = new() { ApiProfileEndpoint = "http://localhost/" };
-            _webApplicationFactorySetup.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);
-        }
+            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
+            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+        });
+        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
-        [Fact]
-        public async Task GetUsersCurrent_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+        HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
+
+        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
+
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+        // Assert
+        Assert.NotNull(sblRequest);
+        Assert.Equal(HttpMethod.Get, sblRequest.Method);
+        Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri.ToString());
+
+        string responseContent = await response.Content.ReadAsStringAsync();
+
+        UserProfile actualUser = JsonSerializer.Deserialize<UserProfile>(
+            responseContent, serializerOptionsCamelCase);
+
+        // These asserts check that deserializing with camel casing was successful.
+        Assert.Equal(UserId, actualUser.UserId);
+        Assert.Equal("sophie", actualUser.UserName);
+        Assert.Equal("Sophie Salt", actualUser.Party.Name);
+        Assert.Equal("Sophie", actualUser.Party.Person.FirstName);
+        Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
+    }
+
+    [Fact]
+    public async Task GetUsersByUuid_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+    {
+        // Arrange
+        const int userId = 20000009;
+        Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+
+        HttpRequestMessage sblRequest = null;
+        DelegatingHandlerStub messageHandler = new(async (request, token) =>
         {
-            // Arrange
-            const int UserId = 2516356;
+            sblRequest = request;
 
-            HttpRequestMessage sblRequest = null;
-            DelegatingHandlerStub messageHandler = new(async (request, token) =>
-            {
-                sblRequest = request;
+            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
+            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+        });
+        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
-                UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
-                return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-            });
-            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
+        HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/byuuid/{userUuid}");
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "/profile/api/v1/users/current");
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
 
-            // Assert
-            Assert.NotNull(sblRequest);
-            Assert.Equal(HttpMethod.Get, sblRequest.Method);
-            Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri.ToString());
+        // Assert
+        Assert.NotNull(sblRequest);
+        Assert.Equal(HttpMethod.Get, sblRequest.Method);
+        Assert.EndsWith($"users?useruuid={userUuid}", sblRequest.RequestUri.ToString());
 
-            string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync();
 
-            UserProfile actualUser = JsonSerializer.Deserialize<UserProfile>(
-                responseContent, serializerOptionsCamelCase);
+        UserProfile actualUser = JsonSerializer.Deserialize<UserProfile>(
+            responseContent, serializerOptionsCamelCase);
 
-            // These asserts check that deserializing with camel casing was successful.
-            Assert.Equal(UserId, actualUser.UserId);
-            Assert.Equal("sophie", actualUser.UserName);
-            Assert.Equal("Sophie Salt", actualUser.Party.Name);
-            Assert.Equal("Sophie", actualUser.Party.Person.FirstName);
-            Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
-        }
+        // These asserts check that deserializing with camel casing was successful.
+        Assert.Equal(userId, actualUser.UserId);
+        Assert.Equal(userUuid, actualUser.UserUuid);
+        Assert.Equal("LEO WILHELMSEN", actualUser.Party.Name);
+        Assert.Equal(userUuid, actualUser.Party.PartyUuid);
+        Assert.Equal("LEO", actualUser.Party.Person.FirstName);
+        Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
+    }
 
-        [Fact]
-        public async Task GetUsersCurrent_AsOrg_ResponseBadRequest()
+    [Fact]
+    public async Task GetUsersByUuid_UserAuthenticatedMissingPlatformAccesToken_ReturnsForbidden()
+    {
+        // Arrange
+        const int userId = 20000009;
+        Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+
+        HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/byuuid/{userUuid}");
+
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetUsersByUuid_SblBridgeReturnsNotFound_ResponseNotFound()
+    {
+        // Arrange
+        const int userId = 20000009;
+        Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+
+        HttpRequestMessage sblRequest = null;
+        DelegatingHandlerStub messageHandler = new(async (request, token) =>
         {
-            // Arrange
-            const int UserId = 2516356;
+            sblRequest = request;
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "/profile/api/v1/users/current");
+            return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
+        });
+        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
-            string token = PrincipalUtil.GetOrgToken("ttd");
-            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/byuuid/{userUuid}");
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            // Assert
-            string responseContent = await response.Content.ReadAsStringAsync();
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
 
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-            Assert.Contains("UserId must be provided in claims", responseContent);
-        }
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
-        [Fact]
-        public async Task GetUsersById_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+        Assert.NotNull(sblRequest);
+        Assert.Equal(HttpMethod.Get, sblRequest.Method);
+        Assert.EndsWith($"users?useruuid={userUuid}", sblRequest.RequestUri.ToString());
+    }
+
+    [Fact]
+    public async Task GetUsersByUuid_MissingAuthentication_NotAuthorized()
+    {
+        // Arrange
+        Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+
+        HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/byuuid/{userUuid}");
+
+        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
+
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetUsersById_SblBridgeReturnsNotFound_ResponseNotFound()
+    {
+        // Arrange
+        const int UserId = 2222222;
+
+        HttpRequestMessage sblRequest = null;
+        DelegatingHandlerStub messageHandler = new(async (request, token) =>
         {
-            // Arrange
-            const int UserId = 2516356;
+            sblRequest = request;
 
-            HttpRequestMessage sblRequest = null;
-            DelegatingHandlerStub messageHandler = new(async (request, token) =>
-            {
-                sblRequest = request;
+            return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
+        });
+        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
-                UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
-                return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-            });
-            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
+        HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
+        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-            httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
 
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
-            // Assert
-            Assert.NotNull(sblRequest);
-            Assert.Equal(HttpMethod.Get, sblRequest.Method);
-            Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri.ToString());
+        Assert.NotNull(sblRequest);
+        Assert.Equal(HttpMethod.Get, sblRequest.Method);
+        Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri.ToString());
+    }
 
-            string responseContent = await response.Content.ReadAsStringAsync();
+    [Fact]
+    public async Task GetUsersById_SblBridgeReturnsUnavailable_ResponseNotFound()
+    {
+        // Arrange
+        const int UserId = 2222222;
 
-            UserProfile actualUser = JsonSerializer.Deserialize<UserProfile>(
-                responseContent, serializerOptionsCamelCase);
-
-            // These asserts check that deserializing with camel casing was successful.
-            Assert.Equal(UserId, actualUser.UserId);
-            Assert.Equal("sophie", actualUser.UserName);
-            Assert.Equal("Sophie Salt", actualUser.Party.Name);
-            Assert.Equal("Sophie", actualUser.Party.Person.FirstName);
-            Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
-        }
-
-        [Fact]
-        public async Task GetUsersByUuid_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+        HttpRequestMessage sblRequest = null;
+        DelegatingHandlerStub messageHandler = new(async (request, token) =>
         {
-            // Arrange
-            const int userId = 20000009;
-            Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+            sblRequest = request;
 
-            HttpRequestMessage sblRequest = null;
-            DelegatingHandlerStub messageHandler = new(async (request, token) =>
-            {
-                sblRequest = request;
+            return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable });
+        });
+        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
-                UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
-                return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-            });
-            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
+        HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/byuuid/{userUuid}");
+        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-            httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
 
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
-            // Assert
-            Assert.NotNull(sblRequest);
-            Assert.Equal(HttpMethod.Get, sblRequest.Method);
-            Assert.EndsWith($"users?useruuid={userUuid}", sblRequest.RequestUri.ToString());
+        Assert.NotNull(sblRequest);
+        Assert.Equal(HttpMethod.Get, sblRequest.Method);
+        Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri.ToString());
+    }
 
-            string responseContent = await response.Content.ReadAsStringAsync();
-
-            UserProfile actualUser = JsonSerializer.Deserialize<UserProfile>(
-                responseContent, serializerOptionsCamelCase);
-
-            // These asserts check that deserializing with camel casing was successful.
-            Assert.Equal(userId, actualUser.UserId);
-            Assert.Equal(userUuid, actualUser.UserUuid);
-            Assert.Equal("LEO WILHELMSEN", actualUser.Party.Name);
-            Assert.Equal(userUuid, actualUser.Party.PartyUuid);
-            Assert.Equal("LEO", actualUser.Party.Person.FirstName);
-            Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
-        }
-
-        [Fact]
-        public async Task GetUsersByUuid_UserAuthenticatedMissingPlatformAccesToken_ReturnsForbidden()
+    [Fact]
+    public async Task GetUsersBySsn_SblBridgeFindsProfile_ReturnsUserProfile()
+    {
+        // Arrange
+        HttpRequestMessage sblRequest = null;
+        DelegatingHandlerStub messageHandler = new(async (request, token) =>
         {
-            // Arrange
-            const int userId = 20000009;
-            Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+            sblRequest = request;
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/byuuid/{userUuid}");
+            UserProfile userProfile = await TestDataLoader.Load<UserProfile>("2516356");
+            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+        });
+        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
+        HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
 
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-            // Assert
-            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
-        }
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-        [Fact]
-        public async Task GetUsersByUuid_SblBridgeReturnsNotFound_ResponseNotFound()
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+        // Assert
+        Assert.NotNull(sblRequest);
+        Assert.Equal(HttpMethod.Post, sblRequest.Method);
+        Assert.EndsWith($"users", sblRequest.RequestUri.ToString());
+
+        string requestContent = await sblRequest.Content.ReadAsStringAsync();
+
+        Assert.Equal("\"01017512345\"", requestContent);
+
+        string responseContent = await response.Content.ReadAsStringAsync();
+
+        UserProfile actualUser = JsonSerializer.Deserialize<UserProfile>(
+            responseContent, serializerOptionsCamelCase);
+
+        // These asserts check that deserializing with camel casing was successful.
+        Assert.Equal(2516356, actualUser.UserId);
+        Assert.Equal("sophie", actualUser.UserName);
+        Assert.Equal("Sophie Salt", actualUser.Party.Name);
+        Assert.Equal("Sophie", actualUser.Party.Person.FirstName);
+        Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
+    }
+
+    [Fact]
+    public async Task GetUsersBySsn_SblBridgeReturnsNotFound_RespondsNotFound()
+    {
+        // Arrange
+        HttpRequestMessage sblRequest = null;
+        DelegatingHandlerStub messageHandler = new(async (request, token) =>
         {
-            // Arrange
-            const int userId = 20000009;
-            Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+            sblRequest = request;
 
-            HttpRequestMessage sblRequest = null;
-            DelegatingHandlerStub messageHandler = new(async (request, token) =>
-            {
-                sblRequest = request;
+            return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
+        });
+        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
-                return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
-            });
-            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
+        StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
+        HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/byuuid/{userUuid}");
+        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-            httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
 
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
-            // Assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.NotNull(sblRequest);
+        Assert.Equal(HttpMethod.Post, sblRequest.Method);
+        Assert.EndsWith($"users", sblRequest.RequestUri.ToString());
 
-            Assert.NotNull(sblRequest);
-            Assert.Equal(HttpMethod.Get, sblRequest.Method);
-            Assert.EndsWith($"users?useruuid={userUuid}", sblRequest.RequestUri.ToString());
-        }
+        string requestContent = await sblRequest.Content.ReadAsStringAsync();
 
-        [Fact]
-        public async Task GetUsersByUuid_MissingAuthentication_NotAuthorized()
+        Assert.Equal("\"01017512345\"", requestContent);
+    }
+
+    [Fact]
+    public async Task GetUsersBySsn_SblBridgeReturnsUnavailable_RespondsNotFound()
+    {
+        // Arrange
+        HttpRequestMessage sblRequest = null;
+        DelegatingHandlerStub messageHandler = new(async (request, token) =>
         {
-            // Arrange
-            Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
+            sblRequest = request;
 
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/byuuid/{userUuid}");
+            return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable });
+        });
+        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
-            httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
+        StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
+        HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            // Assert
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-        }
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
 
-        [Fact]
-        public async Task GetUsersById_SblBridgeReturnsNotFound_ResponseNotFound()
-        {
-            // Arrange
-            const int UserId = 2222222;
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
-            HttpRequestMessage sblRequest = null;
-            DelegatingHandlerStub messageHandler = new(async (request, token) =>
-            {
-                sblRequest = request;
+        Assert.NotNull(sblRequest);
+        Assert.Equal(HttpMethod.Post, sblRequest.Method);
+        Assert.EndsWith($"users", sblRequest.RequestUri.ToString());
 
-                return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
-            });
-            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
+        string requestContent = await sblRequest.Content.ReadAsStringAsync();
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
+        Assert.Equal("\"01017512345\"", requestContent);
+    }
 
-            httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
+    private static HttpRequestMessage CreateGetRequest(int userId, string requestUri)
+    {
+        HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, requestUri);
+        string token = PrincipalUtil.GetToken(userId);
+        httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        return httpRequestMessage;
+    }
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-
-            Assert.NotNull(sblRequest);
-            Assert.Equal(HttpMethod.Get, sblRequest.Method);
-            Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri.ToString());
-        }
-
-        [Fact]
-        public async Task GetUsersById_SblBridgeReturnsUnavailable_ResponseNotFound()
-        {
-            // Arrange
-            const int UserId = 2222222;
-
-            HttpRequestMessage sblRequest = null;
-            DelegatingHandlerStub messageHandler = new(async (request, token) =>
-            {
-                sblRequest = request;
-
-                return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable });
-            });
-            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
-
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
-
-            httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
-
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-
-            Assert.NotNull(sblRequest);
-            Assert.Equal(HttpMethod.Get, sblRequest.Method);
-            Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri.ToString());
-        }
-
-        [Fact]
-        public async Task GetUsersBySsn_SblBridgeFindsProfile_ReturnsUserProfile()
-        {
-            // Arrange
-            HttpRequestMessage sblRequest = null;
-            DelegatingHandlerStub messageHandler = new(async (request, token) =>
-            {
-                sblRequest = request;
-
-                UserProfile userProfile = await TestDataLoader.Load<UserProfile>("2516356");
-                return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-            });
-            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
-
-            StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
-            HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
-
-            httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
-
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-
-            // Assert
-            Assert.NotNull(sblRequest);
-            Assert.Equal(HttpMethod.Post, sblRequest.Method);
-            Assert.EndsWith($"users", sblRequest.RequestUri.ToString());
-
-            string requestContent = await sblRequest.Content.ReadAsStringAsync();
-
-            Assert.Equal("\"01017512345\"", requestContent);
-
-            string responseContent = await response.Content.ReadAsStringAsync();
-
-            UserProfile actualUser = JsonSerializer.Deserialize<UserProfile>(
-                responseContent, serializerOptionsCamelCase);
-
-            // These asserts check that deserializing with camel casing was successful.
-            Assert.Equal(2516356, actualUser.UserId);
-            Assert.Equal("sophie", actualUser.UserName);
-            Assert.Equal("Sophie Salt", actualUser.Party.Name);
-            Assert.Equal("Sophie", actualUser.Party.Person.FirstName);
-            Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
-        }
-
-        [Fact]
-        public async Task GetUsersBySsn_SblBridgeReturnsNotFound_RespondsNotFound()
-        {
-            // Arrange
-            HttpRequestMessage sblRequest = null;
-            DelegatingHandlerStub messageHandler = new(async (request, token) =>
-            {
-                sblRequest = request;
-
-                return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
-            });
-            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
-
-            StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
-            HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
-
-            httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
-
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-
-            Assert.NotNull(sblRequest);
-            Assert.Equal(HttpMethod.Post, sblRequest.Method);
-            Assert.EndsWith($"users", sblRequest.RequestUri.ToString());
-
-            string requestContent = await sblRequest.Content.ReadAsStringAsync();
-
-            Assert.Equal("\"01017512345\"", requestContent);
-        }
-
-        [Fact]
-        public async Task GetUsersBySsn_SblBridgeReturnsUnavailable_RespondsNotFound()
-        {
-            // Arrange
-            HttpRequestMessage sblRequest = null;
-            DelegatingHandlerStub messageHandler = new(async (request, token) =>
-            {
-                sblRequest = request;
-
-                return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable });
-            });
-            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
-
-            StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
-            HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
-
-            httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
-
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-
-            Assert.NotNull(sblRequest);
-            Assert.Equal(HttpMethod.Post, sblRequest.Method);
-            Assert.EndsWith($"users", sblRequest.RequestUri.ToString());
-
-            string requestContent = await sblRequest.Content.ReadAsStringAsync();
-
-            Assert.Equal("\"01017512345\"", requestContent);
-        }
-
-        private static HttpRequestMessage CreateGetRequest(int userId, string requestUri)
-        {
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, requestUri);
-            string token = PrincipalUtil.GetToken(userId);
-            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            return httpRequestMessage;
-        }
-
-        private static HttpRequestMessage CreatePostRequest(int userId, string requestUri, StringContent content)
-        {
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri);
-            string token = PrincipalUtil.GetToken(userId);
-            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            httpRequestMessage.Content = content;
-            return httpRequestMessage;
-        }
+    private static HttpRequestMessage CreatePostRequest(int userId, string requestUri, StringContent content)
+    {
+        HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri);
+        string token = PrincipalUtil.GetToken(userId);
+        httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        httpRequestMessage.Content = content;
+        return httpRequestMessage;
     }
 }
