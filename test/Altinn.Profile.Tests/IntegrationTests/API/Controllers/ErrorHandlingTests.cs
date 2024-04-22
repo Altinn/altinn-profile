@@ -11,34 +11,33 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 using Xunit;
 
-namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
+namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
+
+public class ErrorHandlingTests : IClassFixture<WebApplicationFactory<ErrorController>>
 {
-    public class ErrorHandlingTests : IClassFixture<WebApplicationFactory<ErrorController>>
+    private readonly WebApplicationFactorySetup<ErrorController> _webApplicationFactorySetup;
+
+    public ErrorHandlingTests(WebApplicationFactory<ErrorController> factory)
     {
-        private readonly WebApplicationFactorySetup<ErrorController> _webApplicationFactorySetup;
+        _webApplicationFactorySetup = new WebApplicationFactorySetup<ErrorController>(factory);
+    }
 
-        public ErrorHandlingTests(WebApplicationFactory<ErrorController> factory)
-        {
-            _webApplicationFactorySetup = new WebApplicationFactorySetup<ErrorController>(factory);
-        }
+    [Fact]
+    public async Task GetError_ReturnsInternalServerError()
+    {
+        // Arrange
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-        [Fact]
-        public async Task GetError_ReturnsInternalServerError()
-        {
-            // Arrange
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, "/profile/api/v1/error");
 
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, "/profile/api/v1/error");
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
 
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        // Assert
+        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
-            // Assert
-            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        ProblemDetails problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
 
-            ProblemDetails problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-
-            Assert.StartsWith("An error occurred", problemDetails.Title);
-        }
+        Assert.StartsWith("An error occurred", problemDetails.Title);
     }
 }

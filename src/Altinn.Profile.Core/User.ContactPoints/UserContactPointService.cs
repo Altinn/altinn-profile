@@ -1,80 +1,74 @@
-﻿using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
-using System.Threading.Tasks;
+﻿using Altinn.Platform.Profile.Models;
 
-using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Core.User;
+namespace Altinn.Profile.Core.User.ContactPoints;
 
-namespace Altinn.Profile.Core.User.ContactPoints
+/// <summary>
+/// An implementation of <see cref="IUserContactPoints"/> that uses the <see cref="IUserProfileService"/> to obtain contact point information.
+/// </summary>
+public class UserContactPointService : IUserContactPoints
 {
+    private readonly IUserProfileService _userProfileService;
+
     /// <summary>
-    /// An implementation of <see cref="IUserContactPoints"/> that uses the <see cref="IUserProfileService"/> to obtain contact point information.
+    /// Initializes a new instance of the <see cref="UserContactPointService"/> class.
     /// </summary>
-    public class UserContactPointService : IUserContactPoints
+    public UserContactPointService(IUserProfileService userProfiles)
     {
-        private readonly IUserProfileService _userProfileService;
+        _userProfileService = userProfiles;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UserContactPointService"/> class.
-        /// </summary>
-        public UserContactPointService(IUserProfileService userProfiles)
+    /// <inheritdoc/>
+    public async Task<Result<UserContactPointAvailabilityList, bool>> GetContactPointAvailability(List<string> nationalIdentityNumbers)
+    {
+        UserContactPointAvailabilityList availabilityResult = new();
+
+        foreach (var nationalIdentityNumber in nationalIdentityNumbers)
         {
-            _userProfileService = userProfiles;
-        }
+            Result<UserProfile, bool> result = await _userProfileService.GetUser(nationalIdentityNumber);
 
-        /// <inheritdoc/>
-        public async Task<Result<UserContactPointAvailabilityList, bool>> GetContactPointAvailability(List<string> nationalIdentityNumbers)
-        {
-            UserContactPointAvailabilityList availabilityResult = new();
-
-            foreach (var nationalIdentityNumber in nationalIdentityNumbers)
-            {
-                Result<UserProfile, bool> result = await _userProfileService.GetUser(nationalIdentityNumber);
-
-                result.Match(
-                    profile =>
+            result.Match(
+                profile =>
+                {
+                    availabilityResult.AvailabilityList.Add(new UserContactPointAvailability()
                     {
-                        availabilityResult.AvailabilityList.Add(new UserContactPointAvailability()
-                        {
-                            UserId = profile.PartyId,
-                            NationalIdentityNumber = profile.Party.SSN,
-                            EmailRegistered = !string.IsNullOrEmpty(profile.Email),
-                            MobileNumberRegistered = !string.IsNullOrEmpty(profile.PhoneNumber),
-                            IsReserved = profile.IsReserved
-                        });
-                    },
-                    _ => { });
-            }
-
-            return availabilityResult;
+                        UserId = profile.PartyId,
+                        NationalIdentityNumber = profile.Party.SSN,
+                        EmailRegistered = !string.IsNullOrEmpty(profile.Email),
+                        MobileNumberRegistered = !string.IsNullOrEmpty(profile.PhoneNumber),
+                        IsReserved = profile.IsReserved
+                    });
+                },
+                _ => { });
         }
 
-        /// <inheritdoc/>
-        public async Task<Result<UserContactPointsList, bool>> GetContactPoints(List<string> nationalIdentityNumbers)
+        return availabilityResult;
+    }
+
+    /// <inheritdoc/>
+    public async Task<Result<UserContactPointsList, bool>> GetContactPoints(List<string> nationalIdentityNumbers)
+    {
+        UserContactPointsList resultList = new();
+
+        foreach (var nationalIdentityNumber in nationalIdentityNumbers)
         {
-            UserContactPointsList resultList = new();
+            Result<UserProfile, bool> result = await _userProfileService.GetUser(nationalIdentityNumber);
 
-            foreach (var nationalIdentityNumber in nationalIdentityNumbers)
-            {
-                Result<UserProfile, bool> result = await _userProfileService.GetUser(nationalIdentityNumber);
-
-                result.Match(
-                  profile =>
-                  {
-                      resultList.ContactPointList.Add(
-                        new UserContactPoints()
-                        {
-                            UserId = profile.PartyId,
-                            NationalIdentityNumber = profile.Party.SSN,
-                            Email = profile.Email,
-                            MobileNumber = profile.PhoneNumber,
-                            IsReserved = profile.IsReserved
-                        });
-                  },
-                  _ => { });
-            }
-
-            return resultList;
+            result.Match(
+              profile =>
+              {
+                  resultList.ContactPointList.Add(
+                    new UserContactPoints()
+                    {
+                        UserId = profile.PartyId,
+                        NationalIdentityNumber = profile.Party.SSN,
+                        Email = profile.Email,
+                        MobileNumber = profile.PhoneNumber,
+                        IsReserved = profile.IsReserved
+                    });
+              },
+              _ => { });
         }
+
+        return resultList;
     }
 }
