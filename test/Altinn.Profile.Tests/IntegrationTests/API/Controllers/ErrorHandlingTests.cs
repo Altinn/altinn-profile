@@ -1,7 +1,8 @@
 using System.Net;
 using System.Net.Http;
-using System.Text.Json;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Controllers;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
@@ -35,10 +36,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
-            string responseContent = await response.Content.ReadAsStringAsync();
-            ProblemDetails problemDetails = JsonSerializer.Deserialize<ProblemDetails>(responseContent);
+            ProblemDetails problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
 
-            Assert.StartsWith("An error occurred", problemDetails.Extensions["title"].ToString());
+            Assert.StartsWith("An error occurred", problemDetails.Title);
         }
     }
 }
