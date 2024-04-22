@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Web;
 
 using Altinn.Platform.Profile.Models;
 using Altinn.Profile.Core;
@@ -130,7 +131,7 @@ namespace Altinn.Profile.Integrations.SblBridge
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogError("Getting user {username} failed with {statusCode}", username, response.StatusCode);
+                _logger.LogError("Getting user {username} failed with {statusCode}", HttpUtility.HtmlEncode(username), response.StatusCode);
                 return false;
             }
 
