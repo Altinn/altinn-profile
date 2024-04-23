@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Altinn.Profile.Integrations\Altinn.Profile.Integrations.csproj" />
     <ProjectReference Include="..\..\src\Altinn.Profile\Altinn.Profile.csproj" />
   </ItemGroup>
 

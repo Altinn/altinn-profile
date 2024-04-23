@@ -5,6 +5,10 @@ VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Altinn.Profile", "src\Altinn.Profile\Altinn.Profile.csproj", "{D32C4EE9-E827-467A-B116-8EF0BA08A11F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Altinn.Profile.Integrations", "src\Altinn.Profile.Integrations\Altinn.Profile.Integrations.csproj", "{46B6764A-0DCF-47E6-86B8-09A1CFC3CF80}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Altinn.Profile.Core", "src\Altinn.Profile.Core\Altinn.Profile.Core.csproj", "{8DF9A6F4-AF02-4B36-B199-78883FC51631}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Altinn.Profile.Tests", "test\Altinn.Profile.Tests\Altinn.Profile.Tests.csproj", "{85BF7FD9-90C1-4A4E-BDCC-F89F0BA65218}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution items", "{132B1657-0A2D-4047-8F3F-28C0004C011E}"
@@ -13,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +32,14 @@ Global
 		{85BF7FD9-90C1-4A4E-BDCC-F89F0BA65218}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{85BF7FD9-90C1-4A4E-BDCC-F89F0BA65218}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{85BF7FD9-90C1-4A4E-BDCC-F89F0BA65218}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46B6764A-0DCF-47E6-86B8-09A1CFC3CF80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46B6764A-0DCF-47E6-86B8-09A1CFC3CF80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46B6764A-0DCF-47E6-86B8-09A1CFC3CF80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46B6764A-0DCF-47E6-86B8-09A1CFC3CF80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DF9A6F4-AF02-4B36-B199-78883FC51631}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DF9A6F4-AF02-4B36-B199-78883FC51631}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DF9A6F4-AF02-4B36-B199-78883FC51631}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DF9A6F4-AF02-4B36-B199-78883FC51631}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

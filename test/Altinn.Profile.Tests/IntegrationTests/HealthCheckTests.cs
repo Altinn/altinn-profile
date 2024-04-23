@@ -9,30 +9,29 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 using Xunit;
 
-namespace Altinn.Profile.Tests.IntegrationTests
+namespace Altinn.Profile.Tests.IntegrationTests;
+
+public class HealthCheckTests : IClassFixture<WebApplicationFactory<HealthCheck>>
 {
-    public class HealthCheckTests : IClassFixture<WebApplicationFactory<HealthCheck>>
+    private readonly WebApplicationFactorySetup<HealthCheck> _webApplicationFactorySetup;
+
+    public HealthCheckTests(WebApplicationFactory<HealthCheck> factory)
     {
-        private readonly WebApplicationFactorySetup<HealthCheck> _webApplicationFactorySetup;
+        _webApplicationFactorySetup = new WebApplicationFactorySetup<HealthCheck>(factory);
+    }
 
-        public HealthCheckTests(WebApplicationFactory<HealthCheck> factory)
-        {
-            _webApplicationFactorySetup = new WebApplicationFactorySetup<HealthCheck>(factory);
-        }
+    [Fact]
+    public async Task GetHealth_ReturnsOk()
+    {
+        // Arrange
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-        [Fact]
-        public async Task GetHealth_ReturnsOk()
-        {
-            // Arrange
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "/health");
 
-            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "/health");
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
 
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 }

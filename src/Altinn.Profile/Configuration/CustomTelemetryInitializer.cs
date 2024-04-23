@@ -1,22 +1,21 @@
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
 
-namespace Altinn.Profile.Configuration
+namespace Altinn.Profile.Configuration;
+
+/// <summary>
+/// Set up custom telemetry for Application Insights
+/// </summary>
+public class CustomTelemetryInitializer : ITelemetryInitializer
 {
     /// <summary>
-    /// Set up custom telemetry for Application Insights
+    /// Custom TelemetryInitializer that sets some specific values for the component
     /// </summary>
-    public class CustomTelemetryInitializer : ITelemetryInitializer
+    public void Initialize(ITelemetry telemetry)
     {
-        /// <summary>
-        /// Custom TelemetryInitializer that sets some specific values for the component
-        /// </summary>
-        public void Initialize(ITelemetry telemetry)
+        if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleName))
         {
-            if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleName))
-            {
-                telemetry.Context.Cloud.RoleName = "platform-profile";
-            }
+            telemetry.Context.Cloud.RoleName = "platform-profile";
         }
     }
 }
