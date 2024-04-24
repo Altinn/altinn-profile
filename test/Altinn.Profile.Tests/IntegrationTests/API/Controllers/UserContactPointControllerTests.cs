@@ -134,7 +134,7 @@ public class UserContactPointControllerTests : IClassFixture<WebApplicationFacto
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         string responseContent = await response.Content.ReadAsStringAsync();
         var actual = JsonSerializer.Deserialize<UserContactPointsList>(responseContent, _serializerOptions);
-        Assert.Empty(actual.ContactPointList);
+        Assert.Empty(actual.ContactPointsList);
     }
 
     [Fact]
@@ -158,8 +158,8 @@ public class UserContactPointControllerTests : IClassFixture<WebApplicationFacto
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         string responseContent = await response.Content.ReadAsStringAsync();
         var actual = JsonSerializer.Deserialize<UserContactPointsList>(responseContent, _serializerOptions);
-        Assert.Single(actual.ContactPointList);
-        Assert.NotEmpty(actual.ContactPointList[0].Email);
+        Assert.Single(actual.ContactPointsList);
+        Assert.NotEmpty(actual.ContactPointsList[0].Email);
     }
 
     [Fact]
@@ -183,8 +183,8 @@ public class UserContactPointControllerTests : IClassFixture<WebApplicationFacto
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         string responseContent = await response.Content.ReadAsStringAsync();
         var actual = JsonSerializer.Deserialize<UserContactPointsList>(responseContent, _serializerOptions);
-        Assert.Single(actual.ContactPointList);
-        Assert.NotEmpty(actual.ContactPointList[0].Email);
+        Assert.Single(actual.ContactPointsList);
+        Assert.NotEmpty(actual.ContactPointsList[0].Email);
     }
 
     private async Task<HttpResponseMessage> GetSBlResponseForSsn(string ssn)

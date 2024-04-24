@@ -56,7 +56,7 @@ public class UserContactPointService : IUserContactPoints
             result.Match(
               profile =>
               {
-                  resultList.ContactPointList.Add(
+                  resultList.ContactPointsList.Add(
                     new UserContactPoints()
                     {
                         UserId = profile.PartyId,
