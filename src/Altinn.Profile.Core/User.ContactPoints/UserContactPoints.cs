@@ -1,7 +1,7 @@
 ﻿namespace Altinn.Profile.Core.User.ContactPoints;
 
 /// <summary>
-/// Class describing the availability of contact points for a user
+/// Class describing the contact points for a user
 /// </summary>
 public class UserContactPoints
 {

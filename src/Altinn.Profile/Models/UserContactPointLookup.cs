@@ -1,4 +1,6 @@
-﻿namespace Altinn.Profile.Core.User.ContactPoints;
+﻿using System.Collections.Generic;
+
+namespace Altinn.Profile.Models;
 
 /// <summary>
 /// A class respresenting a user contact point lookup object
