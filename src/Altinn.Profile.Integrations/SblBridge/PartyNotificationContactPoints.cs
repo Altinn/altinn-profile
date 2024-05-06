@@ -1,4 +1,7 @@
-﻿namespace Altinn.Profile.Integrations.SblBridge
+﻿using Altinn.Profile.Core.Unit.ContactPoints;
+using Altinn.Profile.Core.User.ContactPoints;
+
+namespace Altinn.Profile.Integrations.SblBridge
 {
     /// <summary>
     /// Model describing a container for a list of contact points.
@@ -24,6 +27,26 @@
         /// Gets or sets a list of multiple contanct points associated with the organisation.
         /// </summary>
         public List<UserRegisteredContactPoint> ContactPoints { get; set; } = new List<UserRegisteredContactPoint>();
+
+        /// <summary>
+        /// Maps a list of <see cref="PartyNotificationContactPoints"/> to a list of <see cref="UnitContactPoints"/>.
+        /// </summary>
+        public static UnitContactPointsList MapToUnitContactPoints(List<PartyNotificationContactPoints> source)
+        {
+            var contactPoints = source.Select(partyNotificationEndpoint => new UnitContactPoints
+            {
+                OrganizationNumber = partyNotificationEndpoint.OrganizationNumber,
+                PartyId = partyNotificationEndpoint.LegacyPartyId,
+                UserContactPoints = partyNotificationEndpoint.ContactPoints.Select(contactPoint => new UserContactPoints
+                {
+                    UserId = contactPoint.LegacyUserId,
+                    Email = contactPoint.Email,
+                    MobileNumber = contactPoint.MobileNumber
+                }).ToList()
+            }).ToList();
+
+            return new UnitContactPointsList() { ContactPointsList = contactPoints };
+        }
     }
 
     /// <summary>

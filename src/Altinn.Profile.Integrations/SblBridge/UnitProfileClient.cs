@@ -5,7 +5,6 @@ using System.Text.Json.Serialization;
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Unit.ContactPoints;
-using Altinn.Profile.Core.User.ContactPoints;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -55,25 +54,17 @@ public class UnitProfileClient : IUnitProfileClient
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("// UnitClient // GetUserRegisteredContactPoints // An error occured when retrieving unit contact points. Failed with {statusCode}", response.StatusCode);
+            _logger.LogError(
+                "// UnitClient // GetUserRegisteredContactPoints // Unexpected response. Failed with {statusCode} and message {message}",
+                response.StatusCode,
+                await response.Content.ReadAsStringAsync());
+
             return false;
         }
 
         string content = await response.Content.ReadAsStringAsync();
         List<PartyNotificationContactPoints> partyNotificationEndpoints = JsonSerializer.Deserialize<List<PartyNotificationContactPoints>>(content, _serializerOptions)!;
 
-        List<UnitContactPoints> contactPoints = partyNotificationEndpoints.Select(partyNotificationEndpoint => new UnitContactPoints
-        {
-            OrganizationNumber = partyNotificationEndpoint.OrganizationNumber,
-            PartyId = partyNotificationEndpoint.LegacyPartyId,
-            UserContactPoints = partyNotificationEndpoint.ContactPoints.Select(contactPoint => new UserContactPoints
-            {
-                UserId = contactPoint.LegacyUserId,
-                Email = contactPoint.Email,
-                MobileNumber = contactPoint.MobileNumber
-            }).ToList()
-        }).ToList();
-
-        return new UnitContactPointsList() { ContactPointsList = contactPoints };
+        return PartyNotificationContactPoints.MapToUnitContactPoints(partyNotificationEndpoints);
     }
 }
