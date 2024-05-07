@@ -38,11 +38,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge
                     var contentData = new List<PartyNotificationContactPoints>();
                     JsonContent content = JsonContent.Create(contentData);
 
-                    return new HttpResponseMessage()
+                    return await Task.FromResult(new HttpResponseMessage()
                     {
                         StatusCode = HttpStatusCode.OK,
                         Content = content
-                    };
+                    });
                 }
 
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
