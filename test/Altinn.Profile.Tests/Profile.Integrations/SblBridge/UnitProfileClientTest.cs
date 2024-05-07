@@ -81,14 +81,14 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge
                 ResourceId = "app_ttd_apps-test"
             };
 
-            var sblBridgeHttpMessageHandler = new DelegatingHandlerStub(async (request, token) =>
+            var sblBridgeHttpMessageHandler = new DelegatingHandlerStub((request, token) =>
             {
                 if (request!.RequestUri!.AbsolutePath.EndsWith("units/contactpointslookup"))
                 {
-                    return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
+                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
                 }
 
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
             });
 
             SblBridgeSettings settings = new()
@@ -107,7 +107,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge
             // Assert            
             result.Match(
                 success => throw new Exception("No success value should be returned if SBL client respons with 5xx."),
-                error => 
+                error =>
                 {
                     Assert.IsType<bool>(error);
                     Assert.False(error);
