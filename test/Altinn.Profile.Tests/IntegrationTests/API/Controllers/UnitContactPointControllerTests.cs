@@ -34,7 +34,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _webApplicationFactorySetup.SblBridgeHttpMessageHandler = new DelegatingHandlerStub(async (request, token) =>
                 {
-                    string requestString = await request.Content.ReadAsStringAsync(token);
+                    string requestString = await request.Content.ReadAsStringAsync();
                     UnitContactPointLookup lookup = JsonSerializer.Deserialize<UnitContactPointLookup>(requestString, _serializerOptions);
                     return GetSBlResponseFromSBL(lookup.OrganizationNumbers[0]);
                 });
