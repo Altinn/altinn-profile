@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -6,7 +8,6 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Controllers;
 using Altinn.Profile.Core.Unit.ContactPoints;
-using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
@@ -23,19 +24,20 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         private readonly JsonSerializerOptions _serializerOptions = new()
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNameCaseInsensitive = true
         };
 
         public UnitContactPointControllerTests(WebApplicationFactory<UnitContactPointController> factory)
         {
-            _webApplicationFactorySetup = new WebApplicationFactorySetup<UnitContactPointController>(factory)
-            {
-                SblBridgeHttpMessageHandler = new DelegatingHandlerStub(async (request, token) =>
+            _webApplicationFactorySetup = new WebApplicationFactorySetup<UnitContactPointController>(factory);
+
+            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = new DelegatingHandlerStub(async (request, token) =>
                 {
-                    string orgNo = await request.Content.ReadAsStringAsync(token);
-                    return GetSBlResponseFromSBL(orgNo);
-                })
-            };
+                    string requestString = await request.Content.ReadAsStringAsync(token);
+                    UnitContactPointLookup lookup = JsonSerializer.Deserialize<UnitContactPointLookup>(requestString, _serializerOptions);
+                    return GetSBlResponseFromSBL(lookup.OrganizationNumbers[0]);
+                });
 
             SblBridgeSettings sblBrideSettings = new() { ApiProfileEndpoint = "http://localhost/" };
             _webApplicationFactorySetup.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);
@@ -47,11 +49,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             UnitContactPointLookup input = new()
             {
-                OrganizationNumbers = ["123456789"]
+                OrganizationNumbers = ["123456789"],
+                ResourceId = "app_ttd_apps-test"
             };
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint")
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
             };
@@ -63,7 +66,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             string responseContent = await response.Content.ReadAsStringAsync();
             var actual = JsonSerializer.Deserialize<UnitContactPointsList>(responseContent, _serializerOptions);
-            Assert.Empty(actual.ContactPointsList);
+            Assert.Single(actual.ContactPointsList);
         }
 
         [Fact]
@@ -72,11 +75,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             UnitContactPointLookup input = new()
             {
-                OrganizationNumbers = ["error-org"]
+                OrganizationNumbers = ["error-org"],
+                ResourceId = "app_ttd_apps-test"
             };
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint")
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
             };
@@ -92,22 +96,24 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             switch (orgNo)
             {
-                case "\"123456789\"":
-                    UnitContactPointsList contactPoints = new()
+                case "123456789":
+                    var input = new List<PartyNotificationContactPoints>()
                     {
-                        ContactPointsList = [new UnitContactPoints
+                        new PartyNotificationContactPoints()
                         {
-                            OrganizationNumber = "123456789",
-                            UserContactPoints = [new UserContactPoints()
+                            ContactPoints = [new UserRegisteredContactPoint()
                             {
-                                NationalIdentityNumber = "16069412345"
+                                LegacyUserId = 20001,
+                                Email = "user@email.com"
                             }
-                            ]
+                             ],
+                            LegacyPartyId = 50001,
+                            OrganizationNumber = "123456789",
+                            PartyId = Guid.NewGuid()
                         }
-                        ]
                     };
 
-                    return new HttpResponseMessage() { Content = JsonContent.Create(contactPoints, options: _serializerOptions), StatusCode = HttpStatusCode.OK };
+                    return new HttpResponseMessage() { Content = JsonContent.Create(input, options: _serializerOptions), StatusCode = HttpStatusCode.OK };
                 default:
                     return new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable };
             }

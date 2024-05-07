@@ -30,6 +30,8 @@ public class WebApplicationFactorySetup<T>
 
     public Mock<ILogger<UserProfileClient>> UserProfileClientLogger { get; set; } = new();
 
+    public Mock<ILogger<UnitProfileClient>> UnitProfileClientLogger { get; set; } = new();
+
     public Mock<IOptions<SblBridgeSettings>> SblBridgeSettingsOptions { get; set; } = new();
 
     public HttpMessageHandler SblBridgeHttpMessageHandler { get; set; } = new DelegatingHandlerStub();
@@ -59,6 +61,12 @@ public class WebApplicationFactorySetup<T>
                         new HttpClient(SblBridgeHttpMessageHandler),
                         UserProfileClientLogger.Object,
                         SblBridgeSettingsOptions.Object));
+
+                services.AddSingleton<IUnitProfileClient>(
+                    new UnitProfileClient(
+                       new HttpClient(SblBridgeHttpMessageHandler),
+                       UnitProfileClientLogger.Object,
+                       SblBridgeSettingsOptions.Object));
             });
         }).CreateClient();
     }

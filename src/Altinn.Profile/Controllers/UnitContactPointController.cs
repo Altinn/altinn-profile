@@ -35,7 +35,7 @@ namespace Altinn.Profile.Controllers
         [HttpPost("lookup")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<UnitContactPointsList>> PostLookup([FromBody] UnitContactPointLookup unitContactPointLookup)
-        {
+        {     
             Result<UnitContactPointsList, bool> result = await _contactPointService.GetUserRegisteredContactPoints(unitContactPointLookup);
             return result.Match<ActionResult<UnitContactPointsList>>(
                          success => Ok(success),
