@@ -55,7 +55,7 @@ public class UnitProfileClient : IUnitProfileClient
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogError(
-                "// UnitClient // GetUserRegisteredContactPoints // Unexpected response. Failed with {statusCode} and message {message}",
+                "// UnitClient // GetUserRegisteredContactPoints // Unexpected response. Failed with {StatusCode} and message {Message}",
                 response.StatusCode,
                 await response.Content.ReadAsStringAsync());
 
