@@ -24,7 +24,7 @@ namespace Altinn.Profile.Core.Unit.ContactPoints
     }
 
     /// <summary>
-    /// A list representation of <see cref="UserContactPoints"/>
+    /// A list representation of <see cref="UnitContactPoints"/>
     /// </summary>
     public class UnitContactPointsList
     {

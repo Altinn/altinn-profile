@@ -1,7 +1,8 @@
 ﻿namespace Altinn.Profile.Core.Unit.ContactPoints
-{ /// <summary>
-  /// A class describing the query model for contact points for units
-  /// </summary>
+{
+    /// <summary>
+    /// A class describing the query model for contact points for units
+    /// </summary>
     public class UnitContactPointLookup
     {
         /// <summary>

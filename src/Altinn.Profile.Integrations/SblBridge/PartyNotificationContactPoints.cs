@@ -33,7 +33,7 @@ namespace Altinn.Profile.Integrations.SblBridge
         /// </summary>
         public static UnitContactPointsList MapToUnitContactPoints(List<PartyNotificationContactPoints> source)
         {
-            var contactPoints = source.Select(partyNotificationEndpoint => new UnitContactPoints
+            List<UnitContactPoints> contactPoints = source.Select(partyNotificationEndpoint => new UnitContactPoints
             {
                 OrganizationNumber = partyNotificationEndpoint.OrganizationNumber,
                 PartyId = partyNotificationEndpoint.LegacyPartyId,
