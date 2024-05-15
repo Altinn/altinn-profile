@@ -9,6 +9,7 @@ using Altinn.Platform.Profile.Models;
 using Altinn.Profile.Controllers;
 using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Integrations.SblBridge;
+using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Altinn.Profile.Tests.Testdata;

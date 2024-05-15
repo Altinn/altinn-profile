@@ -1,4 +1,5 @@
 ﻿using Altinn.Profile.Core;
+using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Core.User;
 using Altinn.Profile.Core.User.ContactPoints;
 
@@ -24,6 +25,7 @@ public static class ServiceCollectionExtensions
             .AddMemoryCache()
             .AddSingleton<IUserProfileService, UserProfileService>()
             .AddSingleton<IUserContactPoints, UserContactPointService>()
-            .Decorate<IUserProfileService, UserProfileCachingDecorator>();
+            .Decorate<IUserProfileService, UserProfileCachingDecorator>()
+            .AddSingleton<IUnitContactPoints, UnitContactPointService>();
     }
 }
