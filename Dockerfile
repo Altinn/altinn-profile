@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0.204-alpine3.18 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0.300-alpine3.18 AS build
 WORKDIR Altinn.Profile/
 
 COPY src/Altinn.Profile/*.csproj ./src/Altinn.Profile/
@@ -10,7 +10,7 @@ RUN dotnet restore ./src/Altinn.Profile/Altinn.Profile.csproj
 COPY src ./src
 RUN dotnet publish -c Release -o /app_output ./src/Altinn.Profile/Altinn.Profile.csproj
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0.4-alpine3.18 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0.5-alpine3.18 AS final
 EXPOSE 5030
 WORKDIR /app
 COPY --from=build /app_output .
