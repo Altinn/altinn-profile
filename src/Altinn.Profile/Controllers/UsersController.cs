@@ -45,6 +45,11 @@ public class UsersController : Controller
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserProfile>> Get(int userID)
     {
+        if (userID == 0)
+        {
+            return NotFound();
+        }
+
         Result<UserProfile, bool> result = await _userProfileService.GetUser(userID);
 
         return result.Match<ActionResult<UserProfile>>(
