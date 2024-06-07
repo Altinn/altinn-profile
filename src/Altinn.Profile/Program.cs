@@ -256,13 +256,11 @@ void Configure()
         app.UseExceptionHandler("/profile/api/v1/error");
     }
 
-    app.UseSwagger(o => o.RouteTemplate = "profile/swagger/{documentName}/swagger.json");
-
-    app.UseSwaggerUI(c =>
+    if (app.Environment.IsDevelopment())
     {
-        c.SwaggerEndpoint("/profile/swagger/v1/swagger.json", "Altinn Profile API");
-        c.RoutePrefix = "profile/swagger";
-    });
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 
     app.UseRouting();
     app.UseAuthentication();

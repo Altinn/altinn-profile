@@ -1,4 +1,4 @@
-# Altinn Platform Profile
+# Altinn Profile
 
 ## Build status
 [![Profile build status](https://dev.azure.com/brreg/altinn-studio/_apis/build/status/altinn-platform/profile-master?label=platform/profile)](https://dev.azure.com/brreg/altinn-studio/_build/latest?definitionId=35)
@@ -36,37 +36,47 @@ These instructions will get you a copy of the profile component up and running o
 
 ### Prerequisites
 
-1. [.NET 6.0 SDK](https://dotnet.microsoft.com/download/dotnet/6.0)
-2. Code editor of your choice
-3. Newest [Git](https://git-scm.com/downloads)
-4. [Docker CE](https://www.docker.com/get-docker)
-5. Solution is cloned
+1. [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+2. Newest [Git](https://git-scm.com/downloads)
+3. A code editor - we like [Visual Studio Code](https://code.visualstudio.com/download)
+   - Also install [recommended extensions](https://code.visualstudio.com/docs/editor/extension-marketplace#_workspace-recommended-extensions) (e.g. [C#](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp))
+4. [Podman](https://podman.io/) or another container tool such as Docker Desktop
 
 
-## Running the profile component
+### Cloning the application
 
-### In a docker container
+Clone [Altinn Profile repo](https://github.com/Altinn/altinn-profile) and navigate to the folder.
 
-Clone [Altinn Platform Profile repo](https://github.com/Altinn/altinn-profile) and navigate to the root folder.
-
-```cmd
-docker-compose up -d --build
+```bash
+git clone https://github.com/Altinn/altinn-profile
+cd altinn-profile
 ```
 
-### With .NET
+### Running the application in a docker container
+
+- Start Altinn Profile docker container run the command
+
+  ```cmd
+  podman compose up -d --build
+  ```
+
+- To stop the container running Altinn Profile run the command
+
+  ```cmd
+  podman stop altinn-profile
+  ```
+
+
+### Running the application with .NET
 
 The Profile components can be run locally when developing/debugging. Follow the install steps above if this has not already been done.
 
-Stop the container running Profile
+- Navigate to _src/Profile, and build and run the code from there, or run the solution using you selected code editor
 
-```cmd
-docker stop altinn-profile
-```
+  ```cmd
+  cd src/Profile
+  dotnet run
+  ```
 
-Navigate to the src/Profile, and build and run the code from there, or run the solution using you selected code editor
-
-```cmd
-dotnet run
-```
-
-The profile solution is now available locally at http://localhost:5030/api/v1
+The profile solution is now available locally at http://localhost:5030/.
+To access swagger use http://localhost:5030/swagger.
