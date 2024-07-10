@@ -113,7 +113,7 @@ async Task ConnectToKeyVaultAndSetApplicationInsights(ConfigurationManager confi
         }
         catch (Exception vaultException)
         {
-            logger.LogError(vaultException, $"Unable to read application insights key.");
+            logger.LogError(vaultException, "Unable to read application insights key.");
         }
     }
 }
