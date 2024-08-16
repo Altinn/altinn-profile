@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 namespace Altinn.Profile.Integrations.SblBridge;
 
 /// <summary>
-/// Represents an implementation of <see cref="IUnitContactPointClient"/> using SBLBridge to obtain unit profile information.
+/// Represents an implementation of <see cref="IUnitProfileClient"/> using SBLBridge to obtain unit profile information.
 /// </summary>
 public class UnitProfileClient : IUnitProfileClient
 {

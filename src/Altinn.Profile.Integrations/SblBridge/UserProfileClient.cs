@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 namespace Altinn.Profile.Integrations.SblBridge;
 
 /// <summary>
-/// Represents an implementation of <see cref="IUserProfiles"/> using SBLBridge to obtain profile information.
+/// Represents an implementation of <see cref="IUserProfileClient"/> using SBLBridge to obtain profile information.
 /// </summary>
 public class UserProfileClient : IUserProfileClient
 {
