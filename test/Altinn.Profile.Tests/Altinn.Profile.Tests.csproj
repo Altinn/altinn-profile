@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <NoWarn>$(NoWarn);CS1591;SA0001</NoWarn>
+    <NoWarn>$(NoWarn);SA0001;CS1591;SA1600</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
