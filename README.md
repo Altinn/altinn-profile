@@ -56,15 +56,15 @@ cd altinn-profile
 
 - Start Altinn Profile docker container run the command
 
-  ```cmd
-  podman compose up -d --build
-  ```
+```cmd
+podman compose up -d --build
+```
 
 - To stop the container running Altinn Profile run the command
 
-  ```cmd
-  podman stop altinn-profile
-  ```
+```cmd
+podman stop altinn-profile
+```
 
 
 ### Running the application with .NET
@@ -73,10 +73,10 @@ The Profile components can be run locally when developing/debugging. Follow the 
 
 - Navigate to _src/Profile, and build and run the code from there, or run the solution using you selected code editor
 
-  ```cmd
-  cd src/Profile
-  dotnet run
-  ```
+```cmd
+cd src/Profile
+dotnet run
+```
 
 The profile solution is now available locally at http://localhost:5030/.
 To access swagger use http://localhost:5030/swagger.

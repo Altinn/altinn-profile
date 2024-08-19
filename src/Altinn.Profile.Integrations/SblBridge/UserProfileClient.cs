@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 namespace Altinn.Profile.Integrations.SblBridge;
 
 /// <summary>
-/// Represents an implementation of <see cref="IUserProfiles"/> using SBLBridge to obtain profile information.
+/// Represents an implementation of <see cref="IUserProfileClient"/> using SBLBridge to obtain profile information.
 /// </summary>
 public class UserProfileClient : IUserProfileClient
 {
@@ -73,7 +73,7 @@ public class UserProfileClient : IUserProfileClient
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("Getting user by SSN failed with statuscode {statusCode}", response.StatusCode);
+            _logger.LogError("Getting user by SSN failed with statuscode {StatusCode}", response.StatusCode);
             return false;
         }
 
@@ -92,7 +92,7 @@ public class UserProfileClient : IUserProfileClient
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("Getting user {userUuid} failed with {statusCode}", userUuid, response.StatusCode);
+            _logger.LogError("Getting user {userUuid} failed with {StatusCode}", userUuid, response.StatusCode);
             return false;
         }
 
@@ -112,7 +112,7 @@ public class UserProfileClient : IUserProfileClient
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("Getting users failed with {statusCode}", response.StatusCode);
+            _logger.LogError("Getting users failed with {StatusCode}", response.StatusCode);
             return false;
         }
 
@@ -131,7 +131,7 @@ public class UserProfileClient : IUserProfileClient
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("Getting user {username} failed with {statusCode}", HttpUtility.HtmlEncode(username), response.StatusCode);
+            _logger.LogError("Getting user {Username} failed with {StatusCode}", HttpUtility.HtmlEncode(username), response.StatusCode);
             return false;
         }
 

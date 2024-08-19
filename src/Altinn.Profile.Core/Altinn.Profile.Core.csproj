@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ProjectGuid>{7BA8E238-C930-45C0-BB5D-28AE4D89669B}</ProjectGuid>
   </PropertyGroup>
 
