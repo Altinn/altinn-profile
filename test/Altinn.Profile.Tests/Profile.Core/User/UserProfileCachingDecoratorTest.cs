@@ -107,18 +107,24 @@ public class UserProfileCachingDecoratorTest
         UserProfileCachingDecorator target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
         // Act
-        List<UserProfile> actual = await target.GetUserListByUuid(userUuids);
+        Result<List<UserProfile>, bool> result = await target.GetUserListByUuid(userUuids);
 
         // Assert
+        Assert.True(result.IsSuccess, "Expected a success result");
         _decoratedServiceMock.Verify(service => service.GetUserListByUuid(It.Is<List<Guid>>(g => g.TrueForAll(g2 => g2 == userUuidNotInCache))), Times.Once);
-        Assert.NotNull(actual);
-        foreach (var userUuid in userUuids)
-        {
-            UserProfile currentProfileFromResult = actual.Find(p => p.UserUuid == userUuid);
-            UserProfile currentProfileFromCache = memoryCache.Get<UserProfile>($"User:UserUuid:{userUuid}");
-            Assert.NotNull(currentProfileFromResult);
-            Assert.NotNull(currentProfileFromCache);
-        }
+        result.Match(
+            actual =>
+            {
+                Assert.NotNull(actual);
+                foreach (var userUuid in userUuids)
+                {
+                    UserProfile currentProfileFromResult = actual.Find(p => p.UserUuid == userUuid);
+                    UserProfile currentProfileFromCache = memoryCache.Get<UserProfile>($"User:UserUuid:{userUuid}");
+                    Assert.NotNull(currentProfileFromResult);
+                    Assert.NotNull(currentProfileFromCache);
+                }
+            },
+            _ => { });
     }
 
     /// <summary>
@@ -140,16 +146,22 @@ public class UserProfileCachingDecoratorTest
         UserProfileCachingDecorator target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
         // Act
-        List<UserProfile> actual = await target.GetUserListByUuid(userUuids);
+        Result<List<UserProfile>, bool> result = await target.GetUserListByUuid(userUuids);
 
         // Assert
         _decoratedServiceMock.Verify(service => service.GetUserListByUuid(It.IsAny<List<Guid>>()), Times.Never());
-        Assert.NotNull(actual);
-        foreach (var userUuid in userUuids)
-        {
-            UserProfile currentProfileFromResult = actual.Find(p => p.UserUuid == userUuid);
-            Assert.NotNull(currentProfileFromResult);
-        }
+        Assert.True(result.IsSuccess, "Expected a success result");
+        result.Match(
+            actual =>
+            {
+                Assert.NotNull(actual);
+                foreach (var userUuid in userUuids)
+                {
+                    UserProfile currentProfileFromResult = actual.Find(p => p.UserUuid == userUuid);
+                    Assert.NotNull(currentProfileFromResult);
+                }
+            },
+            _ => { });
     }
 
     /// <summary>
@@ -234,14 +246,19 @@ public class UserProfileCachingDecoratorTest
         var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
         // Act
-        List<UserProfile> actual = await target.GetUserListByUuid(userUuids);
+        Result<List<UserProfile>, bool> result = await target.GetUserListByUuid(userUuids);
 
         // Assert
         _decoratedServiceMock.Verify(service => service.GetUserListByUuid(It.IsAny<List<Guid>>()), Times.Once());
+        result.Match(
+            actual => 
+            {
+                Assert.Equal(2, actual.Count);
+                Assert.Equal(userUuids[0], actual[0].UserUuid);
+                Assert.Equal(userUuids[1], actual[1].UserUuid);
+            }, 
+            _ => { });
 
-        Assert.Equal(2, actual.Count);
-        Assert.Equal(userUuids[0], actual[0].UserUuid);
-        Assert.Equal(userUuids[1], actual[1].UserUuid);
         Assert.True(memoryCache.TryGetValue($"User:UserUuid:{userUuids[0]}", out UserProfile _), "No data found in memory cache");
         Assert.True(memoryCache.TryGetValue($"User:UserUuid:{userUuids[1]}", out UserProfile _), "No data found in memory cache");
     }
@@ -305,11 +322,13 @@ public class UserProfileCachingDecoratorTest
         var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
         // Act
-        List<UserProfile> actual = await target.GetUserListByUuid(userUuids);
+        Result<List<UserProfile>, bool> result = await target.GetUserListByUuid(userUuids);
 
         // Assert
         _decoratedServiceMock.Verify(service => service.GetUserListByUuid(It.IsAny<List<Guid>>()), Times.Once);
-        Assert.Empty(actual);
+        result.Match(
+            Assert.Empty, 
+            _ => { });
         Assert.False(memoryCache.TryGetValue($"User:UserUuid:{userUuids[0]}", out UserProfile _));
         Assert.False(memoryCache.TryGetValue($"User:UserUuid:{userUuids[1]}", out UserProfile _));
     }
