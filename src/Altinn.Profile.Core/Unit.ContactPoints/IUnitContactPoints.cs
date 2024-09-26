@@ -8,7 +8,7 @@ namespace Altinn.Profile.Core.User.ContactPoints;
 public interface IUnitContactPoints
 {
     /// <summary>
-    /// Method for retriveing user registered contact points for a unit
+    /// Method for retrieving user registered contact points for a unit
     /// </summary>
     /// <param name="lookup">A lookup object containing a list of organisation numbers and the resource to lookup contact points for</param>
     /// <returns>The users' contact points and reservation status or a boolean if failure.</returns>
