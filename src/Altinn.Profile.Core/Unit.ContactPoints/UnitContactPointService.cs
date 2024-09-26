@@ -19,10 +19,6 @@ namespace Altinn.Profile.Core.Unit.ContactPoints
         }
 
         /// <inheritdoc/>
-        public async Task<Result<UnitContactPointsList, bool>> GetUserRegisteredContactPoints(UnitContactPointLookup lookup)
-        {
-            Result<UnitContactPointsList, bool> result = await _unitClient.GetUserRegisteredContactPoints(lookup);
-            return result;
-        }
+        public async Task<Result<UnitContactPointsList, bool>> GetUserRegisteredContactPoints(UnitContactPointLookup lookup) => await _unitClient.GetUserRegisteredContactPoints(lookup);
     }
 }
