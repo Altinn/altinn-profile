@@ -1,6 +1,4 @@
-﻿using Altinn.Profile.Core.Unit.ContactPoints;
-
-namespace Altinn.Profile.Core.User.ContactPoints;
+﻿namespace Altinn.Profile.Core.Unit.ContactPoints;
 
 /// <summary>
 /// Class describing the methods required for user contact point service

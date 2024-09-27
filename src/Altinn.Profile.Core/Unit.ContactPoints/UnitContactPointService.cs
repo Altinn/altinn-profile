@@ -1,5 +1,4 @@
 ﻿using Altinn.Profile.Core.Integrations;
-using Altinn.Profile.Core.User.ContactPoints;
 
 namespace Altinn.Profile.Core.Unit.ContactPoints
 {

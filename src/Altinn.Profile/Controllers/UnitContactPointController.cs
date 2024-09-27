@@ -2,7 +2,6 @@
 
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.Unit.ContactPoints;
-using Altinn.Profile.Core.User.ContactPoints;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
