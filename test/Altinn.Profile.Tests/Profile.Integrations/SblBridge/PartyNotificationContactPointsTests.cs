@@ -25,24 +25,24 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge
         public void MapToUnitContactPoints_LegacyPartyIdMappedToPartyId()
         {
             // Arrange
-            List<PartyNotificationContactPoints> input = new List<PartyNotificationContactPoints>
-            {
+            List<PartyNotificationContactPoints> input =
+            [
                 new PartyNotificationContactPoints
                 {
                     PartyId = Guid.NewGuid(),
                     LegacyPartyId = 512345,
                     OrganizationNumber = "123456789",
-                    ContactPoints = new List<UserRegisteredContactPoint>
-                    {
+                    ContactPoints =
+                    [
                         new UserRegisteredContactPoint
                         {
                             LegacyUserId = 212345,
                             Email = "user@domain.com",
                             MobileNumber = "12345678"
                         }
-                    }
+                    ]
                 }
-            };
+            ];
 
             UnitContactPointsList expected = new()
             {
