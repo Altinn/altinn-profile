@@ -25,6 +25,6 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IUserProfileService, UserProfileService>()
             .AddSingleton<IUserContactPoints, UserContactPointService>()
             .Decorate<IUserProfileService, UserProfileCachingDecorator>()
-            .AddSingleton<IUnitContactPoints, UnitContactPointService>();
+            .AddSingleton<IUnitContactPointsService, UnitContactPointService>();
     }
 }

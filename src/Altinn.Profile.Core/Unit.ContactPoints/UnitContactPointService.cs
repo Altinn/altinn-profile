@@ -4,9 +4,9 @@ using Altinn.Profile.Core.User.ContactPoints;
 namespace Altinn.Profile.Core.Unit.ContactPoints
 {
     /// <summary>
-    /// Implementation of the <see cref="IUnitContactPoints"/> interface using a REST client to retrieve profile data "/>
+    /// Implementation of the <see cref="IUnitContactPointsService"/> interface using a REST client to retrieve profile data "/>
     /// </summary>
-    public class UnitContactPointService : IUnitContactPoints
+    public class UnitContactPointService : IUnitContactPointsService
     {
         private readonly IUnitProfileClient _unitClient;
 

@@ -5,7 +5,7 @@ namespace Altinn.Profile.Core.User.ContactPoints;
 /// <summary>
 /// Class describing the methods required for user contact point service
 /// </summary>
-public interface IUnitContactPoints
+public interface IUnitContactPointsService
 {
     /// <summary>
     /// Method for retrieving user registered contact points for a unit
