@@ -7,13 +7,13 @@ namespace Altinn.Profile.Models
     /// <summary>
     /// Represents the database context for the profile database.
     /// </summary>
-    public partial class ProfiledbContext : DbContext
+    public partial class ProfileDbContext : DbContext
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProfiledbContext"/> class.
+        /// Initializes a new instance of the <see cref="ProfileDbContext"/> class.
         /// </summary>
         /// <param name="options">The options to be used by a <see cref="DbContext"/>.</param>
-        public ProfiledbContext(DbContextOptions<ProfiledbContext> options)
+        public ProfileDbContext(DbContextOptions<ProfileDbContext> options)
             : base(options)
         {
         }
