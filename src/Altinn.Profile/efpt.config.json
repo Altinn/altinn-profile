@@ -1,6 +1,6 @@
 ﻿{
   "CodeGenerationMode": 4,
-  "ContextClassName": "ProfiledbContext",
+  "ContextClassName": "ProfileDbContext",
   "ContextNamespace": null,
   "FilterSchemas": false,
   "IncludeConnectionString": false,
