@@ -4,17 +4,17 @@ using Altinn.Profile.Core.Integrations;
 namespace Altinn.Profile.Core.User;
 
 /// <summary>
-/// Implementation of <see cref="IUserProfileService"/> that uses <see cref="IUserProfileClient"/> to fetch user profiles."/>
+/// Implementation of <see cref="IUserProfileService"/> that uses <see cref="IUserProfileRepository"/> to fetch user profiles."/>
 /// </summary>
 public class UserProfileService : IUserProfileService
 {
-    private readonly IUserProfileClient _userProfileClient;
+    private readonly IUserProfileRepository _userProfileClient;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserProfileService"/> class.
     /// </summary>
     /// <param name="userProfileClient">The user profile client available through DI</param>
-    public UserProfileService(IUserProfileClient userProfileClient)
+    public UserProfileService(IUserProfileRepository userProfileClient)
     {
         _userProfileClient = userProfileClient;
     }

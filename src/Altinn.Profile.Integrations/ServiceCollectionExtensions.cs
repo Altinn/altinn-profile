@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
             ?? throw new ArgumentNullException(nameof(config), "Required SblBridgeSettings is missing from application configuration");
 
         services.Configure<SblBridgeSettings>(config.GetSection(nameof(SblBridgeSettings)));
-        services.AddHttpClient<IUserProfileClient, UserProfileClient>();
+        services.AddHttpClient<IUserProfileRepository, UserProfileRepository>();
         services.AddHttpClient<IUnitProfileClient, UnitProfileClient>();
     }
 }
