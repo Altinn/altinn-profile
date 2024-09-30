@@ -1,15 +1,13 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Unit.ContactPoints;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Altinn.Profile.Integrations.SblBridge;
+namespace Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 
 /// <summary>
 /// Represents an implementation of <see cref="IUnitProfileRepository"/> using SBLBridge to obtain unit profile information.

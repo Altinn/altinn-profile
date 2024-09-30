@@ -1,7 +1,7 @@
 ﻿using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Core.User.ContactPoints;
 
-namespace Altinn.Profile.Integrations.SblBridge
+namespace Altinn.Profile.Integrations.SblBridge.Unit.Profile
 {
     /// <summary>
     /// Model describing a container for a list of contact points.
@@ -26,7 +26,7 @@ namespace Altinn.Profile.Integrations.SblBridge
         /// <summary>
         /// Gets or sets a list of multiple contanct points associated with the organisation.
         /// </summary>
-        public List<UserRegisteredContactPoint> ContactPoints { get; set; } = new List<UserRegisteredContactPoint>();
+        public List<UserRegisteredContactPoint> ContactPoints { get; set; } = [];
 
         /// <summary>
         /// Maps a list of <see cref="PartyNotificationContactPoints"/> to a list of <see cref="UnitContactPoints"/>.
@@ -48,7 +48,7 @@ namespace Altinn.Profile.Integrations.SblBridge
             return new UnitContactPointsList() { ContactPointsList = contactPoints };
         }
     }
-
+    
     /// <summary>
     /// Model describing the contact information that a user has associated with a party they can represent.
     /// </summary>

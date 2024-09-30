@@ -3,8 +3,7 @@ using System.Collections.Generic;
 
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Core.User.ContactPoints;
-using Altinn.Profile.Integrations.SblBridge;
-
+using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge

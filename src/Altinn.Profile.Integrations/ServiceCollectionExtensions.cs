@@ -1,6 +1,7 @@
 ﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.SblBridge;
-
+using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
+using Altinn.Profile.Integrations.SblBridge.User.Profile;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

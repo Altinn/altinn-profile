@@ -3,6 +3,8 @@ using System.Net.Http;
 using Altinn.Common.AccessToken.Services;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.SblBridge;
+using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
+using Altinn.Profile.Integrations.SblBridge.User.Profile;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Mocks.Authentication;
 using AltinnCore.Authentication.JwtCookie;
