@@ -91,10 +91,10 @@ public class UserProfileCachingDecorator : IUserProfileService
     }
 
     /// <inheritdoc /> 
-    public async Task<List<UserProfile>> GetUserListByUuid(List<Guid> userUuidList)
+    public async Task<Result<List<UserProfile>, bool>> GetUserListByUuid(List<Guid> userUuidList)
     {
-        List<Guid> userUuidListNotInCache = new List<Guid>();
-        List<UserProfile> result = new List<UserProfile>();
+        List<Guid> userUuidListNotInCache = [];
+        List<UserProfile> result = [];
 
         foreach (Guid userUuid in userUuidList)
         {
@@ -111,7 +111,11 @@ public class UserProfileCachingDecorator : IUserProfileService
 
         if (userUuidListNotInCache.Count > 0)
         {
-            List<UserProfile> usersToCache = await _decoratedService.GetUserListByUuid(userUuidListNotInCache);
+            Result<List<UserProfile>, bool> fetchedUserProfiles = await _decoratedService.GetUserListByUuid(userUuidListNotInCache);
+            List<UserProfile> usersToCache = fetchedUserProfiles.Match(
+             userProfileList => userProfileList,
+             _ => []);
+
             foreach (UserProfile user in usersToCache)
             {
                 string uniqueCacheKey = $"User:UserUuid:{user.UserUuid}";

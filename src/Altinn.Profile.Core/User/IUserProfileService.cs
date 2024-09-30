@@ -33,7 +33,7 @@ public interface IUserProfileService
     /// </summary>
     /// <param name="userUuidList">The list of user uuids</param>
     /// <returns>List of User profiles with given user uuids or a boolean if failure.</returns>
-    Task<List<UserProfile>> GetUserListByUuid(List<Guid> userUuidList);
+    Task<Result<List<UserProfile>, bool>> GetUserListByUuid(List<Guid> userUuidList);
 
     /// <summary>
     /// Method that fetches a user based on username.

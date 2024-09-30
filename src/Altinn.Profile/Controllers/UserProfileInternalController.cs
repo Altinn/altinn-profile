@@ -93,7 +93,11 @@ public class UserProfileInternalController : Controller
             return BadRequest();
         }
 
-        List<UserProfile> result = await _userProfileService.GetUserListByUuid(userUuidList);
-        return Ok(result);
+        Result<List<UserProfile>, bool> result = await _userProfileService.GetUserListByUuid(userUuidList);
+        List<UserProfile> userProfiles = result.Match(
+             userProfileList => userProfileList,
+             _ => []);
+             
+        return Ok(userProfiles);
     }
 }

@@ -44,11 +44,8 @@ public class UserProfileService : IUserProfileService
     }
 
     /// <inheritdoc/>
-    public async Task<List<UserProfile>> GetUserListByUuid(List<Guid> userUuidList)
+    public async Task<Result<List<UserProfile>, bool>> GetUserListByUuid(List<Guid> userUuidList)
     {
-        var result = await _userProfileClient.GetUserListByUuid(userUuidList);
-        return result.Match(
-             userProfileList => { return userProfileList; },
-             _ => { return new List<UserProfile>(); });
+        return await _userProfileClient.GetUserListByUuid(userUuidList);
     }
 }
