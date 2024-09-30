@@ -24,6 +24,6 @@ public static class ServiceCollectionExtensions
 
         services.Configure<SblBridgeSettings>(config.GetSection(nameof(SblBridgeSettings)));
         services.AddHttpClient<IUserProfileRepository, UserProfileRepository>();
-        services.AddHttpClient<IUnitProfileClient, UnitProfileClient>();
+        services.AddHttpClient<IUnitProfileRepository, UnitProfileRepository>();
     }
 }

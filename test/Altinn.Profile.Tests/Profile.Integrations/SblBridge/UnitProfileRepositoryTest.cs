@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -19,7 +19,7 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge
 {
-    public class UnitProfileClientTest
+    public class UnitProfileRepositoryTest
     {
         [Fact]
         public async Task GetUserRegisteredContactPoints_BridgeRespondsWithOk_UnitContactPointsListReturned()
@@ -53,9 +53,9 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge
                 ApiProfileEndpoint = "https://platform.at22.altinn.cloud/profile/api/v1/"
             };
 
-            var sut = new UnitProfileClient(
+            var sut = new UnitProfileRepository(
                                     new HttpClient(sblBridgeHttpMessageHandler),
-                                    Mock.Of<ILogger<UnitProfileClient>>(),
+                                    Mock.Of<ILogger<UnitProfileRepository>>(),
                                     Options.Create(settings));
 
             // Act
@@ -96,9 +96,9 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge
                 ApiProfileEndpoint = "https://platform.at22.altinn.cloud/profile/api/v1/"
             };
 
-            var sut = new UnitProfileClient(
+            var sut = new UnitProfileRepository(
                                     new HttpClient(sblBridgeHttpMessageHandler),
-                                    Mock.Of<ILogger<UnitProfileClient>>(),
+                                    Mock.Of<ILogger<UnitProfileRepository>>(),
                                     Options.Create(settings));
 
             // Act
