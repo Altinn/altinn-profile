@@ -54,7 +54,7 @@ cd altinn-profile
 
 ### Running the application in a docker container
 
-- Start Altinn Profile docker container run the command
+- Start Altinn Profile docker container by running the command
 
 ```cmd
 podman compose up -d --build
