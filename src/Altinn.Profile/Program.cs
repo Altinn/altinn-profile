@@ -7,10 +7,13 @@ using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.Common.AccessToken.Services;
 using Altinn.Profile.Configuration;
+using Altinn.Profile.Context;
 using Altinn.Profile.Core;
 using Altinn.Profile.Filters;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
+using Altinn.Profile.Repositories;
+using Altinn.Profile.Services;
 
 using AltinnCore.Authentication.JwtCookie;
 
@@ -25,7 +28,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -39,7 +42,10 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 ILogger logger;
 
+const string ProfileDbAdminUserNameKey = "PostgreSqlSettings--ProfileDbAdminUserName";
+const string ProfileDbAdminPasswordKey = "PostgreSqlSettings--ProfileDbAdminPassword";
 const string VaultApplicationInsightsKey = "ApplicationInsights--InstrumentationKey";
+const string ProfileDbConnectionStringKey = "PostgreSqlSettings--ProfileDbConnectionString";
 
 string applicationInsightsConnectionString = string.Empty;
 
@@ -170,6 +176,12 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
     services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProvider>();
+
+    services.AddScoped<IRegisterService, RegisterService>();
+    services.AddScoped<IRegisterRepository, RegisterRepository>();
+
+    string profileDbConnectionString = string.Format(config[ProfileDbConnectionStringKey], config[ProfileDbAdminUserNameKey], config[ProfileDbAdminPasswordKey]);
+    services.AddDbContext<ProfileDbContext>(options => options.UseNpgsql(profileDbConnectionString));
 
     services.AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
         .AddJwtCookie(JwtCookieDefaults.AuthenticationScheme, options =>
