@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+
+using Altinn.Profile.Integrations.Services;
 using Altinn.Profile.Models;
-using Altinn.Profile.Services;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

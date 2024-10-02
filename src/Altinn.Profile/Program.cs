@@ -7,13 +7,13 @@ using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.Common.AccessToken.Services;
 using Altinn.Profile.Configuration;
-using Altinn.Profile.Context;
 using Altinn.Profile.Core;
 using Altinn.Profile.Filters;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
-using Altinn.Profile.Repositories;
-using Altinn.Profile.Services;
+using Altinn.Profile.Integrations.Persistence;
+using Altinn.Profile.Integrations.Repositories;
+using Altinn.Profile.Integrations.Services;
 
 using AltinnCore.Authentication.JwtCookie;
 

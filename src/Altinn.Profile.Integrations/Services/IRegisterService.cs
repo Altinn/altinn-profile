@@ -1,21 +1,20 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿#nullable enable
 
-using Altinn.Profile.Models;
+using Altinn.Profile.Integrations.Entities;
 
-namespace Altinn.Profile.Repositories;
+namespace Altinn.Profile.Integrations.Services;
 
 /// <summary>
-/// Repository for handling register data
+/// Register service for handling register data
 /// </summary>
-public interface IRegisterRepository : IRepository<Register>
+public interface IRegisterService
 {
     /// <summary>
     /// Gets the by national identity number asynchronous.
     /// </summary>
     /// <param name="nationalIdentityNumber">The national identity number.</param>
     /// <returns></returns>
-    Task<Register> GetUserContactPointAsync(string nationalIdentityNumber);
+    Task<Register?> GetUserContactPointAsync(string nationalIdentityNumber);
 
     /// <summary>
     /// Gets the by national identity number asynchronous.
