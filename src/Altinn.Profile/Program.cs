@@ -42,10 +42,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 ILogger logger;
 
-const string ProfileDbAdminUserNameKey = "PostgreSqlSettings--ProfileDbAdminUserName";
-const string ProfileDbAdminPasswordKey = "PostgreSqlSettings--ProfileDbAdminPassword";
 const string VaultApplicationInsightsKey = "ApplicationInsights--InstrumentationKey";
-const string ProfileDbConnectionStringKey = "PostgreSqlSettings--ProfileDbConnectionString";
 
 string applicationInsightsConnectionString = string.Empty;
 
@@ -177,11 +174,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
     services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProvider>();
 
-    services.AddScoped<IRegisterService, RegisterService>();
     services.AddScoped<IRegisterRepository, RegisterRepository>();
-
-    string profileDbConnectionString = string.Format(config[ProfileDbConnectionStringKey], config[ProfileDbAdminUserNameKey], config[ProfileDbAdminPasswordKey]);
-    services.AddDbContext<ProfileDbContext>(options => options.UseNpgsql(profileDbConnectionString));
 
     services.AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
         .AddJwtCookie(JwtCookieDefaults.AuthenticationScheme, options =>
@@ -211,6 +204,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     });
 
     services.AddCoreServices(config);
+    services.AddRegisterService(config);
     services.AddSblBridgeClients(config);
 
     if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
