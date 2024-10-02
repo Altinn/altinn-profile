@@ -5,21 +5,21 @@ using Altinn.Profile.Integrations.Entities;
 namespace Altinn.Profile.Integrations.Services;
 
 /// <summary>
-/// Register service for handling register data
+/// Interface for a service that handles operations related to user register data.
 /// </summary>
 public interface IRegisterService
 {
     /// <summary>
-    /// Gets the by national identity number asynchronous.
+    /// Asynchronously retrieves the contact point information for a user based on their national identity number.
     /// </summary>
-    /// <param name="nationalIdentityNumber">The national identity number.</param>
-    /// <returns></returns>
+    /// <param name="nationalIdentityNumber">The national identity number of the user.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the user's register information, or null if not found.</returns>
     Task<Register?> GetUserContactPointAsync(string nationalIdentityNumber);
 
     /// <summary>
-    /// Gets the by national identity number asynchronous.
+    /// Asynchronously retrieves the contact point information for multiple users based on their national identity numbers.
     /// </summary>
-    /// <param name="nationalIdentityNumber">The national identity number.</param>
-    /// <returns></returns>
-    Task<IEnumerable<Register>> GetUserContactPointAsync(IEnumerable<string> nationalIdentityNumber);
+    /// <param name="nationalIdentityNumbers">A collection of national identity numbers.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a collection of user register information, or null if none are found.</returns>
+    Task<IEnumerable<Register>> GetUserContactPointAsync(IEnumerable<string> nationalIdentityNumbers);
 }
