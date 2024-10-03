@@ -55,6 +55,7 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddDbContext<ProfileDbContext>(options => options.UseNpgsql(connectionString));
+        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         services.AddScoped<IRegisterService, RegisterService>();
         services.AddScoped<IRegisterRepository, RegisterRepository>();
     }

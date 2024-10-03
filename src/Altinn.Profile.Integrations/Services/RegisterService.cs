@@ -2,6 +2,8 @@
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Repositories;
 
+using AutoMapper;
+
 namespace Altinn.Profile.Integrations.Services;
 
 /// <summary>
@@ -9,15 +11,18 @@ namespace Altinn.Profile.Integrations.Services;
 /// </summary>
 public class RegisterService : IRegisterService
 {
+    private readonly IMapper _mapper;
     private readonly IRegisterRepository _registerRepository;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RegisterService"/> class.
     /// </summary>
+    /// <param name="mapper">The repository used for.</param>
     /// <param name="registerRepository">The repository used for accessing register data.</param>
-    /// <exception cref="ArgumentException">Thrown when the <paramref name="registerRepository"/> object is null.</exception>
-    public RegisterService(IRegisterRepository registerRepository)
+    /// <exception cref="ArgumentException">Thrown when the <paramref name="mapper"/> or <paramref name="registerRepository"/> object is null.</exception>
+    public RegisterService(IMapper mapper, IRegisterRepository registerRepository)
     {
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _registerRepository = registerRepository ?? throw new ArgumentNullException(nameof(registerRepository));
     }
 
@@ -36,7 +41,7 @@ public class RegisterService : IRegisterService
         }
 
         var userContactInfo = await _registerRepository.GetUserContactInfoAsync(nationalIdentityNumber);
-        return MapToUserContactInfo(userContactInfo);
+        return _mapper.Map<IUserContactInfo>(userContactInfo);
     }
 
     /// <summary>
@@ -44,70 +49,27 @@ public class RegisterService : IRegisterService
     /// </summary>
     /// <param name="nationalIdentityNumbers">A collection of national identity numbers.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a collection of user register information, or an empty collection if none are found.
+    /// A task that represents the asynchronous operation. The task result contains a collection of user contact information, or an empty collection if none are found.
     /// </returns>
     public async Task<IEnumerable<IUserContactInfo>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers)
     {
+        // Check if the input collection is null or empty
         if (nationalIdentityNumbers == null || !nationalIdentityNumbers.Any())
         {
-            return [];
+            return Enumerable.Empty<IUserContactInfo>(); // Return an empty collection
         }
 
+        // Validate that all national identity numbers are valid
         if (!nationalIdentityNumbers.All(IsValidNationalIdentityNumber))
         {
-            return [];
+            return Enumerable.Empty<IUserContactInfo>(); // Return an empty collection for invalid numbers
         }
 
+        // Retrieve user contact information from the repository
         var userContactInfo = await _registerRepository.GetUserContactInfoAsync(nationalIdentityNumbers);
-        return MapToUserContactInfo(userContactInfo);
-    }
 
-    /// <summary>
-    /// Maps a <see cref="Register"/> entity to a <see cref="UserContactInfo"/> object.
-    /// </summary>
-    /// <param name="userContactInfo">The <see cref="Register"/> entity containing user contact information.</param>
-    /// <returns>
-    /// A <see cref="UserContactInfo"/> object containing the mapped contact information, or <c>null</c> if the input is <c>null</c>.
-    /// </returns>
-    private static UserContactInfo? MapToUserContactInfo(Register? userContactInfo)
-    {
-        if (userContactInfo is null)
-        {
-            return null;
-        }
-
-        return new UserContactInfo()
-        {
-            IsReserved = userContactInfo.Reservation,
-            EmailAddress = userContactInfo.EmailAddress,
-            LanguageCode = userContactInfo.LanguageCode,
-            NationalIdentityNumber = userContactInfo.FnumberAk,
-            MobilePhoneNumber = userContactInfo.MobilePhoneNumber,
-        };
-    }
-
-    /// <summary>
-    /// Maps a collection of <see cref="Register"/> entities to a collection of <see cref="UserContactInfo"/> objects.
-    /// </summary>
-    /// <param name="userContactInfos">The collection of <see cref="Register"/> entities containing user contact information.</param>
-    /// <returns>
-    /// A collection of <see cref="UserContactInfo"/> objects containing the mapped contact information, or an empty collection if the input is <c>null</c>.
-    /// </returns>
-    private static IEnumerable<UserContactInfo> MapToUserContactInfo(IEnumerable<Register>? userContactInfos)
-    {
-        if (userContactInfos is null)
-        {
-            return [];
-        }
-
-        return userContactInfos.Select(userContactInfo => new UserContactInfo()
-        {
-            IsReserved = userContactInfo.Reservation,
-            EmailAddress = userContactInfo.EmailAddress,
-            LanguageCode = userContactInfo.LanguageCode,
-            NationalIdentityNumber = userContactInfo.FnumberAk,
-            MobilePhoneNumber = userContactInfo.MobilePhoneNumber,
-        });
+        // Map the retrieved data to the desired interface type
+        return _mapper.Map<IEnumerable<UserContactInfo>>(userContactInfo);
     }
 
     /// <summary>

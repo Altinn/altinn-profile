@@ -33,11 +33,6 @@ internal class RegisterRepository : ProfileRepository<Register>, IRegisterReposi
     /// <exception cref="ArgumentException">Thrown when the provided national identity number is null or empty.</exception>
     public async Task<Register?> GetUserContactInfoAsync(string nationalIdentityNumber)
     {
-        if (string.IsNullOrWhiteSpace(nationalIdentityNumber))
-        {
-            throw new ArgumentException("National identity number cannot be null or empty.", nameof(nationalIdentityNumber));
-        }
-
         return await _context.Registers.SingleOrDefaultAsync(k => k.FnumberAk == nationalIdentityNumber);
     }
 
@@ -48,11 +43,6 @@ internal class RegisterRepository : ProfileRepository<Register>, IRegisterReposi
     /// <returns>A task that represents the asynchronous operation. The task result contains a collection of user contact points.</returns>
     public async Task<IEnumerable<Register>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers)
     {
-        if (nationalIdentityNumbers == null || !nationalIdentityNumbers.Any())
-        {
-            throw new ArgumentException("National identity numbers collection cannot be null or empty.", nameof(nationalIdentityNumbers));
-        }
-
         return await _context.Registers.Where(k => nationalIdentityNumbers.Contains(k.FnumberAk)).ToListAsync();
     }
 }
