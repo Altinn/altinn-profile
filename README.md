@@ -63,7 +63,7 @@ podman compose up -d --build
 - To stop the container running Altinn Profile run the command
 
 ```cmd
-podman stop altinn-profile
+podman stop altinn-platform-profile
 ```
 
 
@@ -71,10 +71,10 @@ podman stop altinn-profile
 
 The Profile components can be run locally when developing/debugging. Follow the install steps above if this has not already been done.
 
-- Navigate to _src/Profile, and build and run the code from there, or run the solution using you selected code editor
+- Navigate to _src/Altinn.Profile, and build and run the code from there, or run the solution using you selected code editor
 
 ```cmd
-cd src/Profile
+cd src/Altinn.Profile
 dotnet run
 ```
 

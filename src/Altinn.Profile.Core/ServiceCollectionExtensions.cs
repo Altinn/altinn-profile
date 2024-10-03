@@ -1,12 +1,11 @@
-﻿using Altinn.Profile.Core;
-using Altinn.Profile.Core.Unit.ContactPoints;
+﻿using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Core.User;
 using Altinn.Profile.Core.User.ContactPoints;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Altinn.Notifications.Core.Extensions;
+namespace Altinn.Profile.Core;
 
 /// <summary>
 /// Extension class for <see cref="IServiceCollection"/>
@@ -26,6 +25,6 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IUserProfileService, UserProfileService>()
             .AddSingleton<IUserContactPoints, UserContactPointService>()
             .Decorate<IUserProfileService, UserProfileCachingDecorator>()
-            .AddSingleton<IUnitContactPoints, UnitContactPointService>();
+            .AddSingleton<IUnitContactPointsService, UnitContactPointService>();
     }
 }

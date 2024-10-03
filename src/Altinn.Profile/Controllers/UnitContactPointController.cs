@@ -2,7 +2,6 @@
 
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.Unit.ContactPoints;
-using Altinn.Profile.Core.User.ContactPoints;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +17,12 @@ namespace Altinn.Profile.Controllers
     [Produces("application/json")]
     public class UnitContactPointController : ControllerBase
     {
-        private readonly IUnitContactPoints _contactPointService;
+        private readonly IUnitContactPointsService _contactPointService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UnitContactPointController"/> class.
         /// </summary>
-        public UnitContactPointController(IUnitContactPoints contactPointsService)
+        public UnitContactPointController(IUnitContactPointsService contactPointsService)
         {
             _contactPointService = contactPointsService;
         }
