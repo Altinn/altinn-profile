@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Altinn.Profile.Core\Altinn.Profile.Core.csproj" />
+	<InternalsVisibleTo Include="Altinn.Profile.Tests" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(Configuration)'=='Debug'">
