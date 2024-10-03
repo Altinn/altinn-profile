@@ -15,6 +15,7 @@ public class RegisterService : IRegisterService
     /// Initializes a new instance of the <see cref="RegisterService"/> class.
     /// </summary>
     /// <param name="registerRepository">The repository used for accessing register data.</param>
+    /// <exception cref="ArgumentException">Thrown when the <paramref name="registerRepository"/> object is null.</exception>
     public RegisterService(IRegisterRepository registerRepository)
     {
         _registerRepository = registerRepository ?? throw new ArgumentNullException(nameof(registerRepository));

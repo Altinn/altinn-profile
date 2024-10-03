@@ -25,5 +25,5 @@ public interface IRegisterService
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a collection of user register information, or an empty collection if none are found.
     /// </returns>
-    Task<IEnumerable<IUserContactInfo>>? GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers);
+    Task<IEnumerable<IUserContactInfo>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers);
 }

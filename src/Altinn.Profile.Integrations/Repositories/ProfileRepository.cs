@@ -12,17 +12,18 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// </summary>
 /// <typeparam name="T">The type of the entity.</typeparam>
 /// <seealso cref="IRepository{T}" />
-internal class Repository<T> : IRepository<T>
+internal class ProfileRepository<T> : IRepository<T>
     where T : class
 {
     private readonly ProfileDbContext _context;
     private readonly DbSet<T> _dbSet;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Repository{T}"/> class.
+    /// Initializes a new instance of the <see cref="ProfileRepository{T}"/> class.
     /// </summary>
     /// <param name="context">The database context.</param>
-    internal Repository(ProfileDbContext context)
+    /// <exception cref="ArgumentException">Thrown when the <paramref name="context"/> object is null.</exception>
+    internal ProfileRepository(ProfileDbContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _dbSet = _context.Set<T>();
