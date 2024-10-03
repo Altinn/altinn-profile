@@ -11,7 +11,7 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// Repository for handling register data.
 /// </summary>
 /// <seealso cref="IRegisterRepository" />
-public class RegisterRepository : Repository<Register>, IRegisterRepository
+internal class RegisterRepository : Repository<Register>, IRegisterRepository
 {
     private readonly ProfileDbContext _context;
 
@@ -30,7 +30,7 @@ public class RegisterRepository : Repository<Register>, IRegisterRepository
     /// <param name="nationalIdentityNumber">The national identity number to filter the user contact point.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the user contact point, or null if not found.</returns>
     /// <exception cref="ArgumentException">Thrown when the provided national identity number is null or empty.</exception>
-    public async Task<Register?> GetUserContactPointAsync(string nationalIdentityNumber)
+    public async Task<Register?> GetUserContactInfoAsync(string nationalIdentityNumber)
     {
         if (string.IsNullOrWhiteSpace(nationalIdentityNumber))
         {
@@ -45,9 +45,9 @@ public class RegisterRepository : Repository<Register>, IRegisterRepository
     /// </summary>
     /// <param name="nationalIdentityNumbers">A collection of national identity numbers to filter the user contact points.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a collection of user contact points.</returns>
-    public async Task<IEnumerable<Register>> GetUserContactPointAsync(IEnumerable<string> nationalIdentityNumbers)
+    public async Task<IEnumerable<Register>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers)
     {
-        if (nationalIdentityNumbers == null || nationalIdentityNumbers.Count() == 0)
+        if (nationalIdentityNumbers == null || !nationalIdentityNumbers.Any())
         {
             throw new ArgumentException("National identity numbers collection cannot be null or empty.", nameof(nationalIdentityNumbers));
         }

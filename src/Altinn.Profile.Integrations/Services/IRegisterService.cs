@@ -13,13 +13,17 @@ public interface IRegisterService
     /// Asynchronously retrieves the contact point information for a user based on their national identity number.
     /// </summary>
     /// <param name="nationalIdentityNumber">The national identity number of the user.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the user's register information, or null if not found.</returns>
-    Task<Register?> GetUserContactPointAsync(string nationalIdentityNumber);
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains the user's register information, or <c>null</c> if not found.
+    /// </returns>
+    Task<IUserContactInfo?> GetUserContactInfoAsync(string nationalIdentityNumber);
 
     /// <summary>
     /// Asynchronously retrieves the contact point information for multiple users based on their national identity numbers.
     /// </summary>
     /// <param name="nationalIdentityNumbers">A collection of national identity numbers.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains a collection of user register information, or null if none are found.</returns>
-    Task<IEnumerable<Register>> GetUserContactPointAsync(IEnumerable<string> nationalIdentityNumbers);
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains a collection of user register information, or an empty collection if none are found.
+    /// </returns>
+    Task<IEnumerable<IUserContactInfo>>? GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers);
 }

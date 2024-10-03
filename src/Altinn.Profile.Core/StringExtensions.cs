@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Altinn.Profile.Integrations.Extensions;
+namespace Altinn.Profile.Core;
 
 /// <summary>
 /// Extension class for <see cref="string"/> to add more members.

@@ -42,7 +42,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<UserContactPoint>>> GetByNationalIdentityNumbersAsync([FromBody] IEnumerable<string> nationalIdentityNumbers)
         {
-            var data = await _registerService.GetUserContactPointAsync(nationalIdentityNumbers);
+            var data = await _registerService.GetUserContactInfoAsync(nationalIdentityNumbers);
             if (data == null || data.Count() == 0)
             {
                 return NotFound();
@@ -53,11 +53,11 @@ namespace Altinn.Profile.Controllers
             {
                 result.Add(new UserContactPoint
                 {
-                    Reservation = item.Reservation,
+                    Reservation = item.IsReserved,
                     EmailAddress = item.EmailAddress,
                     LanguageCode = item.LanguageCode,
-                    NationalIdentityNumber = item.FnumberAk,
-                    MobilePhoneNumber = item.MobilePhoneNumber
+                    MobilePhoneNumber = item.MobilePhoneNumber,
+                    NationalIdentityNumber = item.NationalIdentityNumber,
                 });
             }
 

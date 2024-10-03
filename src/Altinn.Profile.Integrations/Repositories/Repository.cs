@@ -12,7 +12,7 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// </summary>
 /// <typeparam name="T">The type of the entity.</typeparam>
 /// <seealso cref="IRepository{T}" />
-public class Repository<T> : IRepository<T>
+internal class Repository<T> : IRepository<T>
     where T : class
 {
     private readonly ProfileDbContext _context;
@@ -22,7 +22,7 @@ public class Repository<T> : IRepository<T>
     /// Initializes a new instance of the <see cref="Repository{T}"/> class.
     /// </summary>
     /// <param name="context">The database context.</param>
-    public Repository(ProfileDbContext context)
+    internal Repository(ProfileDbContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _dbSet = _context.Set<T>();
@@ -97,11 +97,7 @@ public class Repository<T> : IRepository<T>
     /// <param name="skip">Number of entities to skip for pagination.</param>
     /// <param name="take">Number of entities to take for pagination.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a collection of entities matching the criteria.</returns>
-    public Task<IEnumerable<T>> GetAsync(
-        Func<T, bool>? filter = null,
-        Func<IEnumerable<T>, IOrderedEnumerable<T>>? orderBy = null,
-        int? skip = null,
-        int? take = null)
+    public Task<IEnumerable<T>> GetAsync(Func<T, bool>? filter, Func<IEnumerable<T>, IOrderedEnumerable<T>>? orderBy, int? skip, int? take)
     {
         throw new NotImplementedException();
     }

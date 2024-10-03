@@ -171,8 +171,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
     services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProvider>();
 
-    services.AddScoped<IRegisterRepository, RegisterRepository>();
-
     services.AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
         .AddJwtCookie(JwtCookieDefaults.AuthenticationScheme, options =>
         {

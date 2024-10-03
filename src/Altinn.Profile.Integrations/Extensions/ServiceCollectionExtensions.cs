@@ -1,5 +1,6 @@
 ﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Persistence;
+using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.Services;
 
@@ -47,8 +48,6 @@ public static class ServiceCollectionExtensions
             throw new ArgumentNullException(nameof(config), "Configuration cannot be null.");
         }
 
-        services.AddScoped<IRegisterService, RegisterService>();
-
         var connectionString = config.GetDatabaseConnectionString();
         if (string.IsNullOrEmpty(connectionString))
         {
@@ -56,5 +55,7 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddDbContext<ProfileDbContext>(options => options.UseNpgsql(connectionString));
+        services.AddScoped<IRegisterService, RegisterService>();
+        services.AddScoped<IRegisterRepository, RegisterRepository>();
     }
 }

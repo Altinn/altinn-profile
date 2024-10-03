@@ -15,12 +15,12 @@ public interface IRegisterRepository : IRepository<Register>
     /// </summary>
     /// <param name="nationalIdentityNumber">The national identity number.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the register data for the user.</returns>
-    Task<Register?> GetUserContactPointAsync(string nationalIdentityNumber);
+    Task<Register?> GetUserContactInfoAsync(string nationalIdentityNumber);
 
     /// <summary>
     /// Gets the contact info for multiple users by their national identity numbers asynchronously.
     /// </summary>
     /// <param name="nationalIdentityNumbers">The collection of national identity numbers.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a collection of register data for the users.</returns>
-    Task<IEnumerable<Register>> GetUserContactPointAsync(IEnumerable<string> nationalIdentityNumbers);
+    Task<IEnumerable<Register>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers);
 }
