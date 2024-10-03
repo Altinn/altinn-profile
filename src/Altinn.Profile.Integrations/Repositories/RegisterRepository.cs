@@ -26,17 +26,6 @@ internal class RegisterRepository : ProfileRepository<Register>, IRegisterReposi
     }
 
     /// <summary>
-    /// Asynchronously retrieves the contact info for a single user based on the provided national identity number.
-    /// </summary>
-    /// <param name="nationalIdentityNumber">The national identity number to filter the user contact point.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the user contact point, or null if not found.</returns>
-    /// <exception cref="ArgumentException">Thrown when the provided national identity number is null or empty.</exception>
-    public async Task<Register?> GetUserContactInfoAsync(string nationalIdentityNumber)
-    {
-        return await _context.Registers.SingleOrDefaultAsync(k => k.FnumberAk == nationalIdentityNumber);
-    }
-
-    /// <summary>
     /// Asynchronously retrieves the contact info for multiple users based on the provided national identity numbers.
     /// </summary>
     /// <param name="nationalIdentityNumbers">A collection of national identity numbers to filter the user contact points.</param>

@@ -17,9 +17,9 @@ public class RegisterService : IRegisterService
     /// <summary>
     /// Initializes a new instance of the <see cref="RegisterService"/> class.
     /// </summary>
-    /// <param name="mapper">The repository used for.</param>
+    /// <param name="mapper">The mapper used for object mapping.</param>
     /// <param name="registerRepository">The repository used for accessing register data.</param>
-    /// <exception cref="ArgumentException">Thrown when the <paramref name="mapper"/> or <paramref name="registerRepository"/> object is null.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="mapper"/> or <paramref name="registerRepository"/> object is null.</exception>
     public RegisterService(IMapper mapper, IRegisterRepository registerRepository)
     {
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -40,7 +40,7 @@ public class RegisterService : IRegisterService
             return null;
         }
 
-        var userContactInfo = await _registerRepository.GetUserContactInfoAsync(nationalIdentityNumber);
+        var userContactInfo = await _registerRepository.GetUserContactInfoAsync([nationalIdentityNumber]);
         return _mapper.Map<IUserContactInfo>(userContactInfo);
     }
 
@@ -53,23 +53,22 @@ public class RegisterService : IRegisterService
     /// </returns>
     public async Task<IEnumerable<IUserContactInfo>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers)
     {
-        // Check if the input collection is null or empty
         if (nationalIdentityNumbers == null || !nationalIdentityNumbers.Any())
         {
-            return Enumerable.Empty<IUserContactInfo>(); // Return an empty collection
+            return [];
         }
 
-        // Validate that all national identity numbers are valid
-        if (!nationalIdentityNumbers.All(IsValidNationalIdentityNumber))
+        // Filter out invalid national identity numbers
+        var validNationalIdentityNumbers = nationalIdentityNumbers.Where(IsValidNationalIdentityNumber).ToList();
+
+        if (!validNationalIdentityNumbers.Any())
         {
-            return Enumerable.Empty<IUserContactInfo>(); // Return an empty collection for invalid numbers
+            return [];
         }
 
-        // Retrieve user contact information from the repository
-        var userContactInfo = await _registerRepository.GetUserContactInfoAsync(nationalIdentityNumbers);
+        var userContactInfo = await _registerRepository.GetUserContactInfoAsync(validNationalIdentityNumbers);
 
-        // Map the retrieved data to the desired interface type
-        return _mapper.Map<IEnumerable<UserContactInfo>>(userContactInfo);
+        return _mapper.Map<IEnumerable<IUserContactInfo>>(userContactInfo);
     }
 
     /// <summary>
