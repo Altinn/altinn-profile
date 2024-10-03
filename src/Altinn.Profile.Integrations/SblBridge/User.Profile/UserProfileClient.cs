@@ -13,21 +13,21 @@ namespace Altinn.Profile.Integrations.SblBridge.User.Profile;
 /// <summary>
 /// Represents an implementation of <see cref="IUserProfileRepository"/> using SBLBridge to obtain profile information.
 /// </summary>
-public class UserProfileRepository : IUserProfileRepository
+public class UserProfileClient : IUserProfileRepository
 {
-    private readonly ILogger<UserProfileRepository> _logger;
+    private readonly ILogger<UserProfileClient> _logger;
     private readonly HttpClient _client;
     private readonly JsonSerializerOptions _serializerOptions;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="UserProfileRepository"/> class
+    /// Initializes a new instance of the <see cref="UserProfileClient"/> class
     /// </summary>
     /// <param name="httpClient">HttpClient from default http client factory</param>
     /// <param name="logger">the logger</param>
     /// <param name="settings">the sbl bridge settings</param>
-    public UserProfileRepository(
+    public UserProfileClient(
         HttpClient httpClient,
-        ILogger<UserProfileRepository> logger,
+        ILogger<UserProfileClient> logger,
         IOptions<SblBridgeSettings> settings)
     {
         _logger = logger;

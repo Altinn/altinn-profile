@@ -54,9 +54,9 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge
                 ApiProfileEndpoint = "https://platform.at22.altinn.cloud/profile/api/v1/"
             };
 
-            var sut = new UnitProfileRepository(
+            var sut = new UnitProfileClient(
                                     new HttpClient(sblBridgeHttpMessageHandler),
-                                    Mock.Of<ILogger<UnitProfileRepository>>(),
+                                    Mock.Of<ILogger<UnitProfileClient>>(),
                                     Options.Create(settings));
 
             // Act
@@ -97,9 +97,9 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge
                 ApiProfileEndpoint = "https://platform.at22.altinn.cloud/profile/api/v1/"
             };
 
-            var sut = new UnitProfileRepository(
+            var sut = new UnitProfileClient(
                                     new HttpClient(sblBridgeHttpMessageHandler),
-                                    Mock.Of<ILogger<UnitProfileRepository>>(),
+                                    Mock.Of<ILogger<UnitProfileClient>>(),
                                     Options.Create(settings));
 
             // Act
