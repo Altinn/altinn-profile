@@ -37,7 +37,6 @@ public class RegisterRepository : Repository<Register>, IRegisterRepository
             throw new ArgumentException("National identity number cannot be null or empty.", nameof(nationalIdentityNumber));
         }
 
-        // Asynchronously retrieve the user contact point
         return await _context.Registers.SingleOrDefaultAsync(k => k.FnumberAk == nationalIdentityNumber);
     }
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Integrations.Services;
@@ -14,6 +15,8 @@ namespace Altinn.Profile.Controllers
     /// </summary>
     [ApiController]
     [Route("profile/api/v1/user")]
+    [Consumes("application/json")]
+    [Produces("application/json")]
     public class RegisterController : ControllerBase
     {
         private readonly IRegisterService _registerService;
@@ -40,7 +43,7 @@ namespace Altinn.Profile.Controllers
         public async Task<ActionResult<IEnumerable<UserContactPoint>>> GetByNationalIdentityNumbersAsync([FromBody] IEnumerable<string> nationalIdentityNumbers)
         {
             var data = await _registerService.GetUserContactPointAsync(nationalIdentityNumbers);
-            if (data == null)
+            if (data == null || data.Count() == 0)
             {
                 return NotFound();
             }
