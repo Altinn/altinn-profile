@@ -27,15 +27,15 @@ public class RegisterService : IRegisterService
     }
 
     /// <summary>
-    /// Asynchronously retrieves the contact point information for a user based on their national identity number.
+    /// Asynchronously retrieves the contact information for a user based on their national identity number.
     /// </summary>
     /// <param name="nationalIdentityNumber">The national identity number of the user.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains the user's register information, or <c>null</c> if not found.
+    /// A task that represents the asynchronous operation. The task result contains the user's contact information, or <c>null</c> if not found.
     /// </returns>
     public async Task<IUserContactInfo?> GetUserContactInfoAsync(string nationalIdentityNumber)
     {
-        if (!IsValidNationalIdentityNumber(nationalIdentityNumber))
+        if (!nationalIdentityNumber.IsValidSocialSecurityNumber())
         {
             return null;
         }
@@ -45,7 +45,7 @@ public class RegisterService : IRegisterService
     }
 
     /// <summary>
-    /// Asynchronously retrieves the contact point information for multiple users based on their national identity numbers.
+    /// Asynchronously retrieves the contact information for multiple users based on their national identity numbers.
     /// </summary>
     /// <param name="nationalIdentityNumbers">A collection of national identity numbers.</param>
     /// <returns>
@@ -59,8 +59,7 @@ public class RegisterService : IRegisterService
         }
 
         // Filter out invalid national identity numbers
-        var validNationalIdentityNumbers = nationalIdentityNumbers.Where(IsValidNationalIdentityNumber).ToList();
-
+        var validNationalIdentityNumbers = nationalIdentityNumbers.Where(e => e.IsValidSocialSecurityNumber());
         if (!validNationalIdentityNumbers.Any())
         {
             return [];
@@ -68,16 +67,6 @@ public class RegisterService : IRegisterService
 
         var userContactInfo = await _registerRepository.GetUserContactInfoAsync(validNationalIdentityNumbers);
 
-        return _mapper.Map<IEnumerable<UserContactInfo>>(userContactInfo);
-    }
-
-    /// <summary>
-    /// Validates the national identity number.
-    /// </summary>
-    /// <param name="nationalIdentityNumber">The national identity number to validate.</param>
-    /// <returns>True if the national identity number is valid; otherwise, false.</returns>
-    private bool IsValidNationalIdentityNumber(string? nationalIdentityNumber)
-    {
-        return !string.IsNullOrWhiteSpace(nationalIdentityNumber) && nationalIdentityNumber.IsDigitsOnly();
+        return _mapper.Map<IEnumerable<IUserContactInfo>>(userContactInfo);
     }
 }
