@@ -3,7 +3,7 @@
 namespace Altinn.Profile.Models;
 
 /// <summary>
-/// A class respresenting a user contact point lookup object
+/// A class representing a user contact point lookup object
 /// </summary>
 public class UserContactPointLookup
 {
