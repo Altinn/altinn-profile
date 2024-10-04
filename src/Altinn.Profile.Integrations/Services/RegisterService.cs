@@ -68,7 +68,7 @@ public class RegisterService : IRegisterService
 
         var userContactInfo = await _registerRepository.GetUserContactInfoAsync(validNationalIdentityNumbers);
 
-        return _mapper.Map<IEnumerable<IUserContactInfo>>(userContactInfo);
+        return _mapper.Map<IEnumerable<UserContactInfo>>(userContactInfo);
     }
 
     /// <summary>

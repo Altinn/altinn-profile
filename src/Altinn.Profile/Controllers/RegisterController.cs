@@ -37,9 +37,9 @@ namespace Altinn.Profile.Controllers
         /// <param name="nationalIdentityNumbers">A collection of national identity numbers.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a collection of user contact points.</returns>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(IEnumerable<UserContactPoint>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<UserContactPoint>>> GetByNationalIdentityNumbersAsync([FromBody] IEnumerable<string> nationalIdentityNumbers)
         {
             var data = await _registerService.GetUserContactInfoAsync(nationalIdentityNumbers);

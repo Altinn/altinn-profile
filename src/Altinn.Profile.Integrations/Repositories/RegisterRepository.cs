@@ -26,10 +26,12 @@ internal class RegisterRepository : ProfileRepository<Register>, IRegisterReposi
     }
 
     /// <summary>
-    /// Asynchronously retrieves the contact info for multiple users based on the provided national identity numbers.
+    /// Asynchronously retrieves the register data for multiple users by their national identity numbers.
     /// </summary>
-    /// <param name="nationalIdentityNumbers">A collection of national identity numbers to filter the user contact points.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains a collection of user contact points.</returns>
+    /// <param name="nationalIdentityNumbers">The collection of national identity numbers.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains a collection of register data for the users.
+    /// </returns>
     public async Task<IEnumerable<Register>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers)
     {
         return await _context.Registers.Where(k => nationalIdentityNumbers.Contains(k.FnumberAk)).ToListAsync();
