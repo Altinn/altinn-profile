@@ -1,4 +1,4 @@
-﻿using Altinn.Profile.Core;
+﻿using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Repositories;
 

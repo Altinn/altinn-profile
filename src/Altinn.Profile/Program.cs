@@ -7,11 +7,10 @@ using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.Common.AccessToken.Services;
 using Altinn.Profile.Configuration;
-using Altinn.Profile.Core;
+using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Filters;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations.Extensions;
-using Altinn.Profile.Integrations.Repositories;
 
 using AltinnCore.Authentication.JwtCookie;
 

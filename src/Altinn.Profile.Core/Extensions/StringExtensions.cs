@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace Altinn.Profile.Core;
+namespace Altinn.Profile.Core.Extensions;
 
 /// <summary>
 /// Extension class for <see cref="string"/> to add more members.
@@ -110,7 +110,6 @@ public static partial class StringExtensions
 
         return isValidSocialSecurityNumber;
     }
-
 
     /// <summary>
     ///     Calculates the control digits used to validate a Norwegian Social Security Number.
