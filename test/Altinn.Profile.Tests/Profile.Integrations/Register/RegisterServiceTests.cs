@@ -64,7 +64,7 @@ public class RegisterServiceTests
 
         // Act
         var registerService = new RegisterService(_mockMapper.Object, _mockRegisterRepository.Object);
-        var result = await registerService.GetUserContactInfoAsync(ids);
+        var result = await registerService.GetUserContactAsync(ids);
 
         // Assert
         Assert.NotNull(result);
@@ -84,7 +84,7 @@ public class RegisterServiceTests
 
         // Act
         var registerService = new RegisterService(_mockMapper.Object, _mockRegisterRepository.Object);
-        var result = await registerService.GetUserContactInfoAsync(nationalIdentityNumbers);
+        var result = await registerService.GetUserContactAsync(nationalIdentityNumbers);
 
         // Assert
         Assert.NotNull(result);
@@ -116,7 +116,7 @@ public class RegisterServiceTests
 
         // Act
         var registerService = new RegisterService(_mockMapper.Object, _mockRegisterRepository.Object);
-        var result = await registerService.GetUserContactInfoAsync(nationalIdentityNumbers);
+        var result = await registerService.GetUserContactAsync(nationalIdentityNumbers);
 
         // Assert
         Assert.NotNull(result);
@@ -129,9 +129,9 @@ public class RegisterServiceTests
         _mockRegisterRepository.Setup(repo => repo.GetUserContactInfoAsync(It.IsAny<IEnumerable<string>>())).ReturnsAsync(registers.AsEnumerable());
     }
 
-    private static Mock<IUserContactInfo> SetupUserContactInfo(Register register)
+    private static Mock<IUserContact> SetupUserContactInfo(Register register)
     {
-        var mockUserContactInfo = new Mock<IUserContactInfo>();
+        var mockUserContactInfo = new Mock<IUserContact>();
         mockUserContactInfo.SetupGet(u => u.IsReserved).Returns(register.Reservation);
         mockUserContactInfo.SetupGet(u => u.LanguageCode).Returns(register.LanguageCode);
         mockUserContactInfo.SetupGet(u => u.EmailAddress).Returns(register.EmailAddress);
@@ -140,17 +140,17 @@ public class RegisterServiceTests
         return mockUserContactInfo;
     }
 
-    private void SetupMapper(params (Register Register, Mock<IUserContactInfo> UserContactInfo)[] mappings)
+    private void SetupMapper(params (Register Register, Mock<IUserContact> UserContactInfo)[] mappings)
     {
-        _mockMapper.Setup(m => m.Map<IEnumerable<IUserContactInfo>>(It.IsAny<IEnumerable<Register>>()))
+        _mockMapper.Setup(m => m.Map<IEnumerable<IUserContact>>(It.IsAny<IEnumerable<Register>>()))
             .Returns((IEnumerable<Register> registers) =>
                 registers.Select(r =>
                     mappings.FirstOrDefault(m => m.Register.FnumberAk == r.FnumberAk).UserContactInfo.Object)
                     .Where(u => u != null)
-                    .Cast<IUserContactInfo>());
+                    .Cast<IUserContact>());
     }
 
-    private static void AssertUserContactInfoMatches(Register expectedRegister, IUserContactInfo actualContactInfo)
+    private static void AssertUserContactInfoMatches(Register expectedRegister, IUserContact actualContactInfo)
     {
         Assert.Equal(expectedRegister.Reservation, actualContactInfo.IsReserved);
         Assert.Equal(expectedRegister.EmailAddress, actualContactInfo.EmailAddress);

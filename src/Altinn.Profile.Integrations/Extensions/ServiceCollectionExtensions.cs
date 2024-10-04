@@ -15,10 +15,6 @@ namespace Altinn.Profile.Integrations.Extensions;
 /// </summary>
 public static class ServiceCollectionExtensions
 {
-    private const string _profileDbAdminUserNameKey = "PostgreSqlSettings--ProfileDbAdminUserName";
-    private const string _profileDbAdminPasswordKey = "PostgreSqlSettings--ProfileDbAdminPassword";
-    private const string _profileDbConnectionStringKey = "PostgreSqlSettings--ProfileDbConnectionString";
-
     /// <summary>
     /// Adds SBL Bridge clients and configurations to the DI container.
     /// </summary>
@@ -55,8 +51,12 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddDbContext<ProfileDbContext>(options => options.UseNpgsql(connectionString));
+
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
         services.AddScoped<IRegisterService, RegisterService>();
         services.AddScoped<IRegisterRepository, RegisterRepository>();
+
+        services.AddSingleton<INationalIdentityNumberChecker, NationalIdentityNumberChecker>();
     }
 }

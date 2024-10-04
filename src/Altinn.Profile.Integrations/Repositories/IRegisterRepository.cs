@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using System.Collections.Immutable;
+
 using Altinn.Profile.Core.Domain;
 using Altinn.Profile.Integrations.Entities;
 
@@ -17,5 +19,5 @@ public interface IRegisterRepository : IRepository<Register>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a collection of register data for the users.
     /// </returns>
-    Task<IEnumerable<Register>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers);
+    Task<ImmutableList<Register>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers);
 }

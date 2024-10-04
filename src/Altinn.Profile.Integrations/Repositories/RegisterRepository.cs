@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using System.Collections.Immutable;
+
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Persistence;
 
@@ -32,8 +34,10 @@ internal class RegisterRepository : ProfileRepository<Register>, IRegisterReposi
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a collection of register data for the users.
     /// </returns>
-    public async Task<IEnumerable<Register>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers)
+    public async Task<ImmutableList<Register>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers)
     {
-        return await _context.Registers.Where(k => nationalIdentityNumbers.Contains(k.FnumberAk)).ToListAsync();
+        var registers = await _context.Registers.Where(k => nationalIdentityNumbers.Contains(k.FnumberAk)).ToListAsync();
+
+        return registers.ToImmutableList();
     }
 }

@@ -5,7 +5,7 @@ namespace Altinn.Profile.Integrations.Entities;
 /// <summary>
 /// Represents a user's contact information.
 /// </summary>
-public interface IUserContactInfo
+public record UserContact : IUserContact
 {
     /// <summary>
     /// Gets the national identity number of the user.
@@ -13,7 +13,7 @@ public interface IUserContactInfo
     /// <remarks>
     /// This is a unique identifier for the user.
     /// </remarks>
-    string NationalIdentityNumber { get; }
+    public required string NationalIdentityNumber { get; init; }
 
     /// <summary>
     /// Gets a value indicating whether the user opts out of being contacted.
@@ -21,7 +21,7 @@ public interface IUserContactInfo
     /// <remarks>
     /// If <c>true</c>, the user has opted out of being contacted. If <c>false</c>, the user has not opted out.
     /// </remarks>
-    bool? IsReserved { get; }
+    public bool? IsReserved { get; init; }
 
     /// <summary>
     /// Gets the mobile phone number of the user.
@@ -29,7 +29,7 @@ public interface IUserContactInfo
     /// <remarks>
     /// This is the user's primary contact number.
     /// </remarks>
-    string? MobilePhoneNumber { get; }
+    public string? MobilePhoneNumber { get; init; }
 
     /// <summary>
     /// Gets the email address of the user.
@@ -37,7 +37,7 @@ public interface IUserContactInfo
     /// <remarks>
     /// This is the user's primary email address.
     /// </remarks>
-    string? EmailAddress { get; }
+    public string? EmailAddress { get; init; }
 
     /// <summary>
     /// Gets the language code of the user.
@@ -45,5 +45,5 @@ public interface IUserContactInfo
     /// <remarks>
     /// This is the preferred language of the user, represented as an ISO 639-1 code.
     /// </remarks>
-    string? LanguageCode { get; }
+    public string? LanguageCode { get; init; }
 }
