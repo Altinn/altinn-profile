@@ -22,7 +22,6 @@ public class NationalIdentityNumberChecker : INationalIdentityNumberChecker
     /// </returns>
     public (IImmutableList<string> Valid, IImmutableList<string> Invalid) Categorize(IEnumerable<string> nationalIdentityNumbers)
     {
-        // Filter valid and invalid national identity numbers
         var validSocialSecurityNumbers = nationalIdentityNumbers.Where(e => e.IsValidSocialSecurityNumber()).ToImmutableList();
         var invalidSocialSecurityNumbers = nationalIdentityNumbers.Except(validSocialSecurityNumbers).ToImmutableList();
 

@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using Altinn.Profile.Core;
 using Altinn.Profile.Integrations.Entities;
 
 namespace Altinn.Profile.Integrations.Services;
@@ -25,5 +26,5 @@ public interface IRegisterService
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a collection of user contact information, or an empty collection if none are found.
     /// </returns>
-    Task<IUserContactResult> GetUserContactAsync(IEnumerable<string> nationalIdentityNumbers);
+    Task<Result<IUserContactResult, bool>> GetUserContactAsync(IEnumerable<string> nationalIdentityNumbers);
 }

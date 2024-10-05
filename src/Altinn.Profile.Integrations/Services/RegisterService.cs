@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 
+using Altinn.Profile.Core;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Repositories;
 
@@ -55,7 +56,7 @@ public class RegisterService : IRegisterService
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a collection of user contact information, or an empty collection if none are found.
     /// </returns>
-    public async Task<IUserContactResult> GetUserContactAsync(IEnumerable<string> nationalIdentityNumbers)
+    public async Task<Result<IUserContactResult, bool>> GetUserContactAsync(IEnumerable<string> nationalIdentityNumbers)
     {
         var (validSocialSecurityNumbers, invalidSocialSecurityNumbers) = _nationalIdentityNumberChecker.Categorize(nationalIdentityNumbers);
 
@@ -70,8 +71,8 @@ public class RegisterService : IRegisterService
 
         return new UserContactResult
         {
-            MatchedUserContact = matchedUserContact.ToImmutableList<IUserContact>(),
-            UnmatchedUserContact = unmatchedUserContact.ToImmutableList<IUserContact>(),
+            MatchedUserContact = matchedUserContact?.ToImmutableList<IUserContact>(),
+            UnmatchedUserContact = unmatchedUserContact?.ToImmutableList<IUserContact>(),
         };
     }
 }
