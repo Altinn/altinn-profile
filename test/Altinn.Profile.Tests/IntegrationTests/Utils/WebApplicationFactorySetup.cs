@@ -3,6 +3,8 @@ using System.Net.Http;
 using Altinn.Common.AccessToken.Services;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.SblBridge;
+using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
+using Altinn.Profile.Integrations.SblBridge.User.Profile;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Mocks.Authentication;
 using AltinnCore.Authentication.JwtCookie;
@@ -56,13 +58,13 @@ public class WebApplicationFactorySetup<T>
 
                 // Using the real/actual implementation of IUserProfileService, but with a mocked message handler.
                 // Haven't found any other ways of injecting a mocked message handler to simulate SBL Bridge.
-                services.AddSingleton<IUserProfileClient>(
+                services.AddSingleton<IUserProfileRepository>(
                     new UserProfileClient(
                         new HttpClient(SblBridgeHttpMessageHandler),
                         UserProfileClientLogger.Object,
                         SblBridgeSettingsOptions.Object));
 
-                services.AddSingleton<IUnitProfileClient>(
+                services.AddSingleton<IUnitProfileRepository>(
                     new UnitProfileClient(
                        new HttpClient(SblBridgeHttpMessageHandler),
                        UnitProfileClientLogger.Object,

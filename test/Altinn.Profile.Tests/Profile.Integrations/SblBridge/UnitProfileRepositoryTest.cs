@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Integrations.SblBridge;
+using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 
 using Microsoft.Extensions.Logging;
@@ -19,7 +20,7 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge
 {
-    public class UnitProfileClientTest
+    public class UnitProfileRepositoryTest
     {
         [Fact]
         public async Task GetUserRegisteredContactPoints_BridgeRespondsWithOk_UnitContactPointsListReturned()

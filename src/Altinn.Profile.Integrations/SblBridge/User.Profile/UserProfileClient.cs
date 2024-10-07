@@ -2,20 +2,18 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Web;
-
 using Altinn.Platform.Profile.Models;
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.Integrations;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Altinn.Profile.Integrations.SblBridge;
+namespace Altinn.Profile.Integrations.SblBridge.User.Profile;
 
 /// <summary>
-/// Represents an implementation of <see cref="IUserProfileClient"/> using SBLBridge to obtain profile information.
+/// Represents an implementation of <see cref="IUserProfileRepository"/> using SBLBridge to obtain profile information.
 /// </summary>
-public class UserProfileClient : IUserProfileClient
+public class UserProfileClient : IUserProfileRepository
 {
     private readonly ILogger<UserProfileClient> _logger;
     private readonly HttpClient _client;
