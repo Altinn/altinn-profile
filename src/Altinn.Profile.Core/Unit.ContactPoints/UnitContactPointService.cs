@@ -3,21 +3,21 @@
 namespace Altinn.Profile.Core.Unit.ContactPoints
 {
     /// <summary>
-    /// Implementation of the <see cref="IUnitContactPointsService"/> interface using a REST client to retrieve profile data "/>
+    /// Implementation of the <see cref="IUnitContactPointsService"/> interface using an <see cref="IUnitProfileRepository"/> retrieve profile data "/>
     /// </summary>
     public class UnitContactPointService : IUnitContactPointsService
     {
-        private readonly IUnitProfileClient _unitClient;
+        private readonly IUnitProfileRepository _unitRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UnitContactPointService"/> class.
         /// </summary>
-        public UnitContactPointService(IUnitProfileClient unitClient)
+        public UnitContactPointService(IUnitProfileRepository unitRepository)
         {
-            _unitClient = unitClient;
+            _unitRepository = unitRepository;
         }
 
         /// <inheritdoc/>
-        public async Task<Result<UnitContactPointsList, bool>> GetUserRegisteredContactPoints(UnitContactPointLookup lookup) => await _unitClient.GetUserRegisteredContactPoints(lookup);
+        public async Task<Result<UnitContactPointsList, bool>> GetUserRegisteredContactPoints(UnitContactPointLookup lookup) => await _unitRepository.GetUserRegisteredContactPoints(lookup);
     }
 }

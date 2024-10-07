@@ -1,11 +1,11 @@
-﻿using Altinn.Profile.Core.Unit.ContactPoints;
+using Altinn.Profile.Core.Unit.ContactPoints;
 
 namespace Altinn.Profile.Core.Integrations
 {
     /// <summary>
     /// Interface describing a client for the user profile service
     /// </summary>
-    public interface IUnitProfileClient
+    public interface IUnitProfileRepository
     {
         /// <summary>
         /// Provides a list of user registered contact points based on the lookup criteria

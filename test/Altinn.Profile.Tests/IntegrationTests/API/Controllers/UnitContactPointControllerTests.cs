@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Altinn.Profile.Controllers;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Integrations.SblBridge;
+using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
