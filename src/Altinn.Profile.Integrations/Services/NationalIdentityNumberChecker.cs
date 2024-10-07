@@ -22,10 +22,10 @@ public class NationalIdentityNumberChecker : INationalIdentityNumberChecker
     /// </returns>
     public (IImmutableList<string> Valid, IImmutableList<string> Invalid) Categorize(IEnumerable<string> nationalIdentityNumbers)
     {
-        var validSocialSecurityNumbers = nationalIdentityNumbers.Where(e => e.IsValidSocialSecurityNumber()).ToImmutableList();
-        var invalidSocialSecurityNumbers = nationalIdentityNumbers.Except(validSocialSecurityNumbers).ToImmutableList();
+        var validNnationalIdentityNumbers = nationalIdentityNumbers.Where(e => e.IsValidSocialSecurityNumber()).ToImmutableList();
+        var invalidNnationalIdentityNumbers = nationalIdentityNumbers.Except(validNnationalIdentityNumbers).ToImmutableList();
 
-        return (validSocialSecurityNumbers, invalidSocialSecurityNumbers);
+        return (validNnationalIdentityNumbers, invalidNnationalIdentityNumbers);
     }
 
     /// <summary>

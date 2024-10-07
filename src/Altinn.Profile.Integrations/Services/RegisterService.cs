@@ -38,7 +38,7 @@ public class RegisterService : IRegisterService
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains the user's contact information, or <c>null</c> if not found.
     /// </returns>
-    public async Task<IUserContactInfo?> GetUserContactAsync(string nationalIdentityNumber)
+    public async Task<IUserContactInfo?> GetUserContactInfoAsync(string nationalIdentityNumber)
     {
         if (!_nationalIdentityNumberChecker.IsValid(nationalIdentityNumber))
         {

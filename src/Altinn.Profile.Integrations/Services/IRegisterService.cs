@@ -6,7 +6,7 @@ using Altinn.Profile.Integrations.Entities;
 namespace Altinn.Profile.Integrations.Services;
 
 /// <summary>
-/// Defines a service for handling operations related to user register data.
+/// Defines a service for handling operations related to user contact information.
 /// </summary>
 public interface IRegisterService
 {
@@ -17,7 +17,7 @@ public interface IRegisterService
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains the user's contact information, or <c>null</c> if not found.
     /// </returns>
-    Task<IUserContactInfo?> GetUserContactAsync(string nationalIdentityNumber);
+    Task<IUserContactInfo?> GetUserContactInfoAsync(string nationalIdentityNumber);
 
     /// <summary>
     /// Asynchronously retrieves the contact information for multiple users based on their national identity numbers.
