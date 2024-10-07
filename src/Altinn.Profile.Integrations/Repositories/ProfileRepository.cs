@@ -1,9 +1,6 @@
 ﻿#nullable enable
 
 using Altinn.Profile.Core.Domain;
-using Altinn.Profile.Integrations.Persistence;
-
-using Microsoft.EntityFrameworkCore;
 
 namespace Altinn.Profile.Integrations.Repositories;
 
@@ -15,18 +12,11 @@ namespace Altinn.Profile.Integrations.Repositories;
 internal class ProfileRepository<T> : IRepository<T>
     where T : class
 {
-    private readonly ProfileDbContext _context;
-    private readonly DbSet<T> _dbSet;
-
     /// <summary>
     /// Initializes a new instance of the <see cref="ProfileRepository{T}"/> class.
     /// </summary>
-    /// <param name="context">The database context.</param>
-    /// <exception cref="ArgumentException">Thrown when the <paramref name="context"/> object is null.</exception>
-    internal ProfileRepository(ProfileDbContext context)
+    internal ProfileRepository()
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _dbSet = _context.Set<T>();
     }
 
     /// <summary>

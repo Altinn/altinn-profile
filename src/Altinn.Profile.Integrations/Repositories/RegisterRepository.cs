@@ -22,7 +22,7 @@ internal class RegisterRepository : ProfileRepository<Register>, IRegisterReposi
     /// </summary>
     /// <param name="context">The context.</param>
     /// <exception cref="ArgumentException">Thrown when the <paramref name="context"/> object is null.</exception>
-    public RegisterRepository(ProfileDbContext context) : base(context)
+    public RegisterRepository(ProfileDbContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
@@ -37,7 +37,7 @@ internal class RegisterRepository : ProfileRepository<Register>, IRegisterReposi
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="nationalIdentityNumbers"/> is null.</exception>
     public async Task<ImmutableList<Register>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers)
     {
-        ArgumentNullException.ThrowIfNull(nationalIdentityNumbers, nameof(nationalIdentityNumbers));
+        ArgumentNullException.ThrowIfNull(nationalIdentityNumbers);
 
         var registers = await _context.Registers.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync();
 
