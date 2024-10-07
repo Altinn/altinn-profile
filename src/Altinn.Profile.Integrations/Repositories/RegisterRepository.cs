@@ -34,9 +34,12 @@ internal class RegisterRepository : ProfileRepository<Register>, IRegisterReposi
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a collection of register data for the users.
     /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="nationalIdentityNumbers"/> is null.</exception>
     public async Task<ImmutableList<Register>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers)
     {
-        var registers = await _context.Registers.Where(k => nationalIdentityNumbers.Contains(k.FnumberAk)).ToListAsync();
+        ArgumentNullException.ThrowIfNull(nationalIdentityNumbers, nameof(nationalIdentityNumbers));
+
+        var registers = await _context.Registers.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync();
 
         return registers.ToImmutableList();
     }

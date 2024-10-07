@@ -104,7 +104,7 @@ public static partial class StringExtensions
             return false;
         }
 
-        var isValidSocialSecurityNumber = !controlDigits || CalculateControlDigits(socialSecurityNumberSpan.Slice(0, 9).ToString()) == controlDigitsPart.ToString();
+        var isValidSocialSecurityNumber = !controlDigits || CalculateControlDigits(socialSecurityNumberSpan[..9].ToString()) == controlDigitsPart.ToString();
 
         CachedSocialSecurityNumber.TryAdd(socialSecurityNumber, isValidSocialSecurityNumber);
 

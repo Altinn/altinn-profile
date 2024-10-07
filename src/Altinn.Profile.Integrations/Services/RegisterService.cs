@@ -38,7 +38,7 @@ public class RegisterService : IRegisterService
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains the user's contact information, or <c>null</c> if not found.
     /// </returns>
-    public async Task<IUserContact?> GetUserContactAsync(string nationalIdentityNumber)
+    public async Task<IUserContactInfo?> GetUserContactAsync(string nationalIdentityNumber)
     {
         if (!_nationalIdentityNumberChecker.IsValid(nationalIdentityNumber))
         {
@@ -46,7 +46,7 @@ public class RegisterService : IRegisterService
         }
 
         var userContactInfoEntity = await _registerRepository.GetUserContactInfoAsync([nationalIdentityNumber]);
-        return _mapper.Map<IUserContact>(userContactInfoEntity);
+        return _mapper.Map<IUserContactInfo>(userContactInfoEntity);
     }
 
     /// <summary>
@@ -56,23 +56,24 @@ public class RegisterService : IRegisterService
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a collection of user contact information, or an empty collection if none are found.
     /// </returns>
-    public async Task<Result<IUserContactResult, bool>> GetUserContactAsync(IEnumerable<string> nationalIdentityNumbers)
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="nationalIdentityNumbers"/> is <c>null</c>.</exception>
+    public async Task<Result<IUserContactInfoLookupResult, bool>> GetUserContactAsync(IEnumerable<string> nationalIdentityNumbers)
     {
-        var (validSocialSecurityNumbers, invalidSocialSecurityNumbers) = _nationalIdentityNumberChecker.Categorize(nationalIdentityNumbers);
+        ArgumentNullException.ThrowIfNull(nationalIdentityNumbers, nameof(nationalIdentityNumbers));
 
-        var userContactInfoEntities = await _registerRepository.GetUserContactInfoAsync(validSocialSecurityNumbers);
+        var (validnNtionalIdentityNumbers, invalidNationalIdentityNumbers) = _nationalIdentityNumberChecker.Categorize(nationalIdentityNumbers);
 
-        var matchedUserContact = userContactInfoEntities.Select(_mapper.Map<UserContact>);
+        var usersContactInfo = await _registerRepository.GetUserContactInfoAsync(validnNtionalIdentityNumbers);
 
-        var unmatchedUserContact = nationalIdentityNumbers
-            .Except(userContactInfoEntities.Select(e => e.FnumberAk))
-            .Select(e => new UserContact { NationalIdentityNumber = e })
-            .Select(_mapper.Map<UserContact>);
+        var matchedUserContact = usersContactInfo.Select(_mapper.Map<UserContactInfo>);
 
-        return new UserContactResult
+        var matchedNationalIdentityNumbers = new HashSet<string>(usersContactInfo.Select(e => e.FnumberAk));
+        var unmatchedNationalIdentityNumbers = nationalIdentityNumbers.Where(e => !matchedNationalIdentityNumbers.Contains(e));
+
+        return new UserContactInfoLookupResult
         {
-            MatchedUserContact = matchedUserContact?.ToImmutableList<IUserContact>(),
-            UnmatchedUserContact = unmatchedUserContact?.ToImmutableList<IUserContact>(),
+            MatchedUserContact = matchedUserContact?.ToImmutableList<IUserContactInfo>(),
+            UnmatchedNationalIdentityNumbers = unmatchedNationalIdentityNumbers.ToImmutableList()
         };
     }
 }

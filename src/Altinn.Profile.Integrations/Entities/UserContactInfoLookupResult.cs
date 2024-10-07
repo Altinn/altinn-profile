@@ -7,15 +7,15 @@ namespace Altinn.Profile.Integrations.Entities;
 /// <summary>
 /// Represents the result of a user contact information lookup, containing matched and unmatched entries.
 /// </summary>
-public record UserContactResult : IUserContactResult
+public record UserContactInfoLookupResult : IUserContactInfoLookupResult
 {
     /// <summary>
     /// Gets a list of user contact information that was successfully matched during the lookup.
     /// </summary>
-    public ImmutableList<IUserContact>? MatchedUserContact { get; init; }
+    public ImmutableList<IUserContactInfo>? MatchedUserContact { get; init; }
 
     /// <summary>
-    /// Gets a list of national identity numbers that could not be matched with user contact details.
+    /// Gets a list of national identity numbers that could not be matched with any user contact details.
     /// </summary>
     public ImmutableList<string>? UnmatchedNationalIdentityNumbers { get; init; }
 }

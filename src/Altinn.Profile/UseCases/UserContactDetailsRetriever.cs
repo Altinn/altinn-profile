@@ -50,12 +50,12 @@ public class UserContactDetailsRetriever : IUserContactDetailsRetriever
     }
 
     /// <summary>
-    /// Maps an <see cref="IUserContact"/> to a <see cref="UserContactDetails"/>.
+    /// Maps an <see cref="IUserContactInfo"/> to a <see cref="UserContactDetails"/>.
     /// </summary>
     /// <param name="userContactDetails">The user contact details to map.</param>
     /// <returns>The mapped <see cref="UserContactDetails"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="userContactDetails"/> is null.</exception>
-    private UserContactDetails MapToUserContactDetails(IUserContact userContactDetails)
+    private UserContactDetails MapToUserContactDetails(IUserContactInfo userContactDetails)
     {
         ArgumentNullException.ThrowIfNull(userContactDetails, nameof(userContactDetails));
 
@@ -74,7 +74,7 @@ public class UserContactDetailsRetriever : IUserContactDetailsRetriever
     /// </summary>
     /// <param name="userContactResult">The user contact details lookup result.</param>
     /// <returns>A <see cref="Result{TValue, TError}"/> containing the mapped user contact details.</returns>
-    private Result<UserContactDetailsLookupResult, bool> MapToUserContactDetailsResult(IUserContactResult userContactResult)
+    private Result<UserContactDetailsLookupResult, bool> MapToUserContactDetailsResult(IUserContactInfoLookupResult userContactResult)
     {
         var unmatchedNationalIdentityNumbers = userContactResult?.UnmatchedNationalIdentityNumbers ?? null;
         var matchedUserContactDetails = userContactResult?.MatchedUserContact?.Select(MapToUserContactDetails).ToImmutableList();

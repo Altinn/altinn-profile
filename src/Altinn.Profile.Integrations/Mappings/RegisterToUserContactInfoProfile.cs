@@ -3,20 +3,20 @@
 namespace Altinn.Profile.Integrations.Mappings;
 
 /// <summary>
-/// AutoMapper profile for mapping between <see cref="Register"/> and <see cref="UserContact"/>.
+/// AutoMapper profile for mapping between <see cref="Register"/> and <see cref="UserContactInfo"/>.
 /// </summary>
 /// <remarks>
-/// This profile defines the mapping rules to convert a <see cref="Register"/> object into a <see cref="UserContact"/> instance.
+/// This profile defines the mapping rules to convert a <see cref="Register"/> object into a <see cref="UserContactInfo"/> instance.
 /// </remarks>
-public class RegisterToUserContactProfile : AutoMapper.Profile
+public class RegisterToUserContactInfoProfile : AutoMapper.Profile
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="RegisterToUserContactProfile"/> class
+    /// Initializes a new instance of the <see cref="RegisterToUserContactInfoProfile"/> class
     /// and configures the mappings.
     /// </summary>
-    public RegisterToUserContactProfile()
+    public RegisterToUserContactInfoProfile()
     {
-        CreateMap<Register, UserContact>()
+        CreateMap<Register, UserContactInfo>()
             .ForMember(dest => dest.IsReserved, opt => opt.MapFrom(src => src.Reservation))
             .ForMember(dest => dest.EmailAddress, opt => opt.MapFrom(src => src.EmailAddress))
             .ForMember(dest => dest.LanguageCode, opt => opt.MapFrom(src => src.LanguageCode))
