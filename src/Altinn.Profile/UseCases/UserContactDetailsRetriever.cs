@@ -35,8 +35,11 @@ public class UserContactDetailsRetriever : IUserContactDetailsRetriever
     /// A task representing the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> 
     /// where the value is <see cref="UserContactDetailsLookupResult"/> and the error is <see cref="bool"/>.
     /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="lookupCriteria"/> is null.</exception>
     public async Task<Result<UserContactDetailsLookupResult, bool>> RetrieveAsync(UserContactPointLookup lookupCriteria)
     {
+        ArgumentNullException.ThrowIfNull(lookupCriteria);
+
         if (lookupCriteria?.NationalIdentityNumbers == null || lookupCriteria.NationalIdentityNumbers.Count == 0)
         {
             return false;
@@ -45,7 +48,7 @@ public class UserContactDetailsRetriever : IUserContactDetailsRetriever
         var userContactDetails = await _registerService.GetUserContactAsync(lookupCriteria.NationalIdentityNumbers);
 
         return userContactDetails.Match(
-            MapToUserContactDetailsResult,
+            MapToUserContactDetailsLookupResult,
             _ => false);
     }
 
@@ -74,9 +77,12 @@ public class UserContactDetailsRetriever : IUserContactDetailsRetriever
     /// </summary>
     /// <param name="userContactResult">The user contact details lookup result.</param>
     /// <returns>A <see cref="Result{TValue, TError}"/> containing the mapped user contact details.</returns>
-    private Result<UserContactDetailsLookupResult, bool> MapToUserContactDetailsResult(IUserContactInfoLookupResult userContactResult)
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="userContactResult"/> is null.</exception>
+    private Result<UserContactDetailsLookupResult, bool> MapToUserContactDetailsLookupResult(IUserContactInfoLookupResult userContactResult)
     {
-        var unmatchedNationalIdentityNumbers = userContactResult?.UnmatchedNationalIdentityNumbers ?? null;
+        ArgumentNullException.ThrowIfNull(userContactResult);
+
+        var unmatchedNationalIdentityNumbers = userContactResult?.UnmatchedNationalIdentityNumbers;
         var matchedUserContactDetails = userContactResult?.MatchedUserContact?.Select(MapToUserContactDetails).ToImmutableList();
 
         return new UserContactDetailsLookupResult(matchedUserContactDetails, unmatchedNationalIdentityNumbers);
