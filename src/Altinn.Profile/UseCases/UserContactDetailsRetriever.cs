@@ -57,7 +57,7 @@ public class UserContactDetailsRetriever : IUserContactDetailsRetriever
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="userContactDetails"/> is null.</exception>
     private UserContactDetails MapToUserContactDetails(IUserContactInfo userContactDetails)
     {
-        ArgumentNullException.ThrowIfNull(userContactDetails, nameof(userContactDetails));
+        ArgumentNullException.ThrowIfNull(userContactDetails);
 
         return new UserContactDetails
         {
