@@ -11,20 +11,20 @@ namespace Altinn.Profile.Integrations.Services;
 /// <summary>
 /// Service for handling operations related to user registration and contact points.
 /// </summary>
-public class RegisterService : IRegisterService
+public class PersonService : IPersonService
 {
     private readonly IMapper _mapper;
     private readonly IPersonRepository _registerRepository;
     private readonly INationalIdentityNumberChecker _nationalIdentityNumberChecker;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="RegisterService"/> class.
+    /// Initializes a new instance of the <see cref="PersonService"/> class.
     /// </summary>
     /// <param name="mapper">The mapper used for object mapping.</param>
     /// <param name="registerRepository">The repository used for accessing register data.</param>
     /// <param name="nationalIdentityNumberChecker">The service used for checking the validity of national identity numbers.</param>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="mapper"/>, <paramref name="registerRepository"/>, or <paramref name="nationalIdentityNumberChecker"/> is <c>null</c>.</exception>
-    public RegisterService(IMapper mapper, IPersonRepository registerRepository, INationalIdentityNumberChecker nationalIdentityNumberChecker)
+    public PersonService(IMapper mapper, IPersonRepository registerRepository, INationalIdentityNumberChecker nationalIdentityNumberChecker)
     {
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _registerRepository = registerRepository ?? throw new ArgumentNullException(nameof(registerRepository));

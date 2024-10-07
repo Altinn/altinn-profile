@@ -8,7 +8,7 @@ namespace Altinn.Profile.Integrations.Services;
 /// <summary>
 /// Defines a service for handling operations related to user contact information.
 /// </summary>
-public interface IRegisterService
+public interface IPersonService
 {
     /// <summary>
     /// Asynchronously retrieves the contact information for a user based on their national identity number.

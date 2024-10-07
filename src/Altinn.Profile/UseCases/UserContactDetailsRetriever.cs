@@ -15,14 +15,14 @@ namespace Altinn.Profile.UseCases;
 /// </summary>
 public class UserContactDetailsRetriever : IUserContactDetailsRetriever
 {
-    private readonly IRegisterService _registerService;
+    private readonly IPersonService _registerService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserContactDetailsRetriever"/> class.
     /// </summary>
     /// <param name="registerService">The register service for retrieving user contact details.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="registerService"/> is null.</exception>
-    public UserContactDetailsRetriever(IRegisterService registerService)
+    public UserContactDetailsRetriever(IPersonService registerService)
     {
         _registerService = registerService ?? throw new ArgumentNullException(nameof(registerService));
     }
