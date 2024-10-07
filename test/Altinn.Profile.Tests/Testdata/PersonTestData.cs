@@ -5,7 +5,7 @@ using Altinn.Profile.Integrations.Entities;
 namespace Altinn.Profile.Tests.Testdata;
 
 /// <summary>
-/// Provides test data for person contact information.
+/// Provides test data for person contact and reservation information.
 /// </summary>
 public static class PersonTestData
 {
