@@ -59,7 +59,7 @@ public static class ServiceCollectionExtensions
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
         services.AddScoped<IRegisterService, RegisterService>();
-        services.AddScoped<IRegisterRepository, RegisterRepository>();
+        services.AddScoped<IPersonRepository, PersonRepository>();
 
         services.AddSingleton<INationalIdentityNumberChecker, NationalIdentityNumberChecker>();
     }

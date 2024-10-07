@@ -12,17 +12,17 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// <summary>
 /// Repository for handling register data.
 /// </summary>
-/// <seealso cref="IRegisterRepository" />
-internal class RegisterRepository : ProfileRepository<Register>, IRegisterRepository
+/// <seealso cref="IPersonRepository" />
+internal class PersonRepository : ProfileRepository<Register>, IPersonRepository
 {
     private readonly ProfileDbContext _context;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="RegisterRepository"/> class.
+    /// Initializes a new instance of the <see cref="PersonRepository"/> class.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <exception cref="ArgumentException">Thrown when the <paramref name="context"/> object is null.</exception>
-    public RegisterRepository(ProfileDbContext context)
+    public PersonRepository(ProfileDbContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }

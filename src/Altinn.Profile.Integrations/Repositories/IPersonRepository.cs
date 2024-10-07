@@ -10,7 +10,7 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// <summary>
 /// Repository for handling register data.
 /// </summary>
-public interface IRegisterRepository : IRepository<Register>
+public interface IPersonRepository : IRepository<Register>
 {
     /// <summary>
     /// Asynchronously retrieves the register data for multiple users by their national identity numbers.

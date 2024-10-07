@@ -15,12 +15,12 @@ using Xunit;
 namespace Altinn.Profile.Tests.Profile.Integrations;
 
 /// <summary>
-/// Contains unit tests for the <see cref="RegisterRepository"/> class.
+/// Contains unit tests for the <see cref="PersonRepository"/> class.
 /// </summary>
 public class RegisterRepositoryTests : IDisposable
 {
     private readonly ProfileDbContext _context;
-    private readonly RegisterRepository _registerRepository;
+    private readonly PersonRepository _registerRepository;
     private readonly List<Register> _personContactAndReservationTestData;
     
     public RegisterRepositoryTests()
@@ -30,7 +30,7 @@ public class RegisterRepositoryTests : IDisposable
             .Options;
 
         _context = new ProfileDbContext(options);
-        _registerRepository = new RegisterRepository(_context);
+        _registerRepository = new PersonRepository(_context);
 
         _personContactAndReservationTestData = [.. PersonTestData.GetContactAndReservationTestData()];
 
