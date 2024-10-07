@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
+using Altinn.Profile.Tests.Testdata;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -20,12 +21,21 @@ public class RegisterRepositoryTests : IDisposable
 {
     private readonly ProfileDbContext _context;
     private readonly RegisterRepository _registerRepository;
-
+    private readonly List<Register> _personContactAndReservationTestData;
+    
     public RegisterRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<ProfileDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<ProfileDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
         _context = new ProfileDbContext(options);
         _registerRepository = new RegisterRepository(_context);
+
+        _personContactAndReservationTestData = [.. PersonTestData.GetContactAndReservationTestData()];
+
+        _context.Registers.AddRange(_personContactAndReservationTestData);
+        _context.SaveChanges();
     }
 
     public void Dispose()
@@ -38,34 +48,27 @@ public class RegisterRepositoryTests : IDisposable
     [Fact]
     public async Task GetUserContactInfoAsync_ReturnsContactInfo_WhenFound()
     {
-        // Arrange
-        var register = CreateRegister("21102709516", "Test Description", "test@example.com", "Test Mailbox Address");
-
-        await AddRegisterToContext(register);
-
         // Act
-        var result = await _registerRepository.GetUserContactInfoAsync(["21102709516"]);
+        var result = await _registerRepository.GetUserContactInfoAsync(new[] { "17111933790" });
+
+        var actual = result.FirstOrDefault(e => e.FnumberAk == "17111933790");
+        var expected = _personContactAndReservationTestData.FirstOrDefault(e => e.FnumberAk == "17111933790");
 
         // Assert
-        AssertSingleRegister(register, result.First());
+        Assert.NotNull(actual);
+        AssertRegisterProperties(expected, actual);
     }
 
     [Fact]
     public async Task GetUserContactInfoAsync_ReturnsCorrectResults_WhenValidAndInvalidNumbers()
     {
-        // Arrange
-        var validRegister = CreateRegister("21102709516", "Valid Test Description", "valid@example.com", "Valid Mailbox Address");
-
-        await AddRegisterToContext(validRegister);
-
         // Act
-        var result = await _registerRepository.GetUserContactInfoAsync(["21102709516", "nonexistent2"]);
-
-        // Assert valid result
-        AssertSingleRegister(validRegister, result.FirstOrDefault(r => r.FnumberAk == "21102709516"));
+        var result = _personContactAndReservationTestData.Where(e => e.FnumberAk == "28026698350");
+        var expected = await _registerRepository.GetUserContactInfoAsync(["28026698350", "nonexistent2"]);
 
         // Assert invalid result
-        Assert.Null(result.FirstOrDefault(r => r.FnumberAk == "nonexistent2"));
+        Assert.Single(result);
+        AssertRegisterProperties(expected.FirstOrDefault(), result.FirstOrDefault());
     }
 
     [Fact]
@@ -81,25 +84,16 @@ public class RegisterRepositoryTests : IDisposable
     [Fact]
     public async Task GetUserContactInfoAsync_ReturnsMultipleContacts_WhenFound()
     {
-        // Arrange
-        var registers = new List<Register>
-        {
-            CreateRegister("03062701187", "Test Description 1", "test1@example.com", "Test Mailbox Address 1", false),
-            CreateRegister("02024333593", "Test Description 2", "test2@example.com", "Test Mailbox Address 2", true)
-        };
-
-        await _context.Registers.AddRangeAsync(registers);
-        await _context.SaveChangesAsync();
-
         // Act
-        var result = await _registerRepository.GetUserContactInfoAsync(["03062701187", "02024333593"]);
+        var result = await _registerRepository.GetUserContactInfoAsync(["24064316776", "11044314101"]);
+        var expected = _personContactAndReservationTestData.Where(e => e.FnumberAk == "24064316776" || e.FnumberAk == "11044314101");
 
         // Assert
         Assert.Equal(2, result.Count());
 
-        foreach (var register in registers)
+        foreach (var register in result)
         {
-            var foundRegister = result.FirstOrDefault(r => r.FnumberAk == register.FnumberAk);
+            var foundRegister = expected.FirstOrDefault(r => r.FnumberAk == register.FnumberAk);
             Assert.NotNull(foundRegister);
             AssertRegisterProperties(register, foundRegister);
         }
@@ -109,22 +103,10 @@ public class RegisterRepositoryTests : IDisposable
     public async Task GetUserContactInfoAsync_ReturnsEmpty_WhenNotFound()
     {
         // Act
-        var result = await _registerRepository.GetUserContactInfoAsync(["nonexistent"]);
+        var result = await _registerRepository.GetUserContactInfoAsync(["nonexistent", "11044314120"]);
 
         // Assert
         Assert.Empty(result);
-    }
-
-    private async Task AddRegisterToContext(Register register)
-    {
-        await _context.Registers.AddAsync(register);
-        await _context.SaveChangesAsync();
-    }
-
-    private static void AssertSingleRegister(Register expected, Register actual)
-    {
-        Assert.NotNull(actual);
-        AssertRegisterProperties(expected, actual);
     }
 
     private static void AssertRegisterProperties(Register expected, Register actual)
@@ -136,19 +118,5 @@ public class RegisterRepositoryTests : IDisposable
         Assert.Equal(expected.EmailAddress, actual.EmailAddress);
         Assert.Equal(expected.MailboxAddress, actual.MailboxAddress);
         Assert.Equal(expected.MobilePhoneNumber, actual.MobilePhoneNumber);
-    }
-
-    private static Register CreateRegister(string fnumberAk, string description, string emailAddress, string mailboxAddress, bool reservation = true)
-    {
-        return new Register
-        {
-            LanguageCode = "EN",
-            FnumberAk = fnumberAk,
-            Reservation = reservation,
-            Description = description,
-            EmailAddress = emailAddress,
-            MailboxAddress = mailboxAddress,
-            MobilePhoneNumber = "1234567890",
-        };
     }
 }
