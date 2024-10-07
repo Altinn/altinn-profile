@@ -39,12 +39,13 @@ public class UserContactDetailsInternalController : ControllerBase
     [HttpPost("lookup")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(UserContactDetailsResult), StatusCodes.Status200OK)]
-    public async Task<ActionResult<UserContactDetailsResult>> PostLookup([FromBody] UserContactPointLookup request)
+    [ProducesResponseType(typeof(UserContactDetailsLookupResult), StatusCodes.Status200OK)]
+    public async Task<ActionResult<UserContactDetailsLookupResult>> PostLookup([FromBody] UserContactPointLookup request)
     {
         var result = await _contactDetailsRetriever.RetrieveAsync(request);
-        return result.Match<ActionResult<UserContactDetailsResult>>(
+
+        return result.Match<ActionResult<UserContactDetailsLookupResult>>(
             success => Ok(success),
-            failure => Problem("Failed to retrieve contact details. Please check the provided national identity numbers and try again."));
+            failure => Problem("Unable to retrieve contact details. Please verify the provided national identity numbers and try again."));
     }
 }

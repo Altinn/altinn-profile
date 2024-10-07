@@ -11,7 +11,7 @@ using Altinn.Profile.Models;
 namespace Altinn.Profile.UseCases;
 
 /// <summary>
-/// Implementation of the use case for retrieving user contact details.
+/// Provides an implementation for retrieving user contact details based on specified lookup criteria.
 /// </summary>
 public class UserContactDetailsRetriever : IUserContactDetailsRetriever
 {
@@ -31,8 +31,11 @@ public class UserContactDetailsRetriever : IUserContactDetailsRetriever
     /// Asynchronously retrieves the contact details for one or more users based on the specified lookup criteria.
     /// </summary>
     /// <param name="lookupCriteria">The user contact point lookup criteria, which includes national identity numbers.</param>
-    /// <returns>A task representing the asynchronous operation. The task result contains the outcome of the user contact details retrieval.</returns>
-    public async Task<Result<UserContactDetailsResult, bool>> RetrieveAsync(UserContactPointLookup lookupCriteria)
+    /// <returns>
+    /// A task representing the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> 
+    /// where the value is <see cref="UserContactDetailsLookupResult"/> and the error is <see cref="bool"/>.
+    /// </returns>
+    public async Task<Result<UserContactDetailsLookupResult, bool>> RetrieveAsync(UserContactPointLookup lookupCriteria)
     {
         if (lookupCriteria?.NationalIdentityNumbers == null || lookupCriteria.NationalIdentityNumbers.Count == 0)
         {
@@ -40,6 +43,7 @@ public class UserContactDetailsRetriever : IUserContactDetailsRetriever
         }
 
         var userContactDetails = await _registerService.GetUserContactAsync(lookupCriteria.NationalIdentityNumbers);
+
         return userContactDetails.Match(
             MapToUserContactDetailsResult,
             _ => false);
@@ -49,9 +53,12 @@ public class UserContactDetailsRetriever : IUserContactDetailsRetriever
     /// Maps an <see cref="IUserContact"/> to a <see cref="UserContactDetails"/>.
     /// </summary>
     /// <param name="userContactDetails">The user contact details to map.</param>
-    /// <returns>The mapped user contact details.</returns>
+    /// <returns>The mapped <see cref="UserContactDetails"/>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="userContactDetails"/> is null.</exception>
     private UserContactDetails MapToUserContactDetails(IUserContact userContactDetails)
     {
+        ArgumentNullException.ThrowIfNull(userContactDetails, nameof(userContactDetails));
+
         return new UserContactDetails
         {
             Reservation = userContactDetails.IsReserved,
@@ -63,15 +70,15 @@ public class UserContactDetailsRetriever : IUserContactDetailsRetriever
     }
 
     /// <summary>
-    /// Maps the user contact details lookup result to a <see cref="UserContactDetailsResult"/>.
+    /// Maps the user contact details lookup result to a <see cref="UserContactDetailsLookupResult"/>.
     /// </summary>
     /// <param name="userContactResult">The user contact details lookup result.</param>
-    /// <returns>A result containing the mapped user contact details.</returns>
-    private Result<UserContactDetailsResult, bool> MapToUserContactDetailsResult(IUserContactResult userContactResult)
+    /// <returns>A <see cref="Result{TValue, TError}"/> containing the mapped user contact details.</returns>
+    private Result<UserContactDetailsLookupResult, bool> MapToUserContactDetailsResult(IUserContactResult userContactResult)
     {
-        var matchedContacts = userContactResult?.MatchedUserContact?.Select(MapToUserContactDetails).ToImmutableList();
-        var unmatchedContacts = userContactResult?.UnmatchedUserContact?.Select(MapToUserContactDetails).ToImmutableList();
+        var unmatchedNationalIdentityNumbers = userContactResult?.UnmatchedNationalIdentityNumbers ?? null;
+        var matchedUserContactDetails = userContactResult?.MatchedUserContact?.Select(MapToUserContactDetails).ToImmutableList();
 
-        return new UserContactDetailsResult(matchedContacts, unmatchedContacts);
+        return new UserContactDetailsLookupResult(matchedUserContactDetails, unmatchedNationalIdentityNumbers);
     }
 }

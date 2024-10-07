@@ -8,7 +8,7 @@ namespace Altinn.Profile.Models;
 public class UserContactPointLookup
 {
     /// <summary>
-    /// A collection of national identity numbers used to retrieve contact points or check contact point availability.
+    /// A collection of national identity numbers used to retrieve contact points, obtain contact details, or check the availability of contact points.
     /// </summary>
     public List<string> NationalIdentityNumbers { get; set; } = [];
 }

@@ -15,5 +15,5 @@ public interface IUserContactDetailsRetriever
     /// </summary>
     /// <param name="lookupCriteria">The user contact point lookup criteria, which includes national identity numbers.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains the outcome of the user contact details retrieval.</returns>
-    Task<Result<UserContactDetailsResult, bool>> RetrieveAsync(UserContactPointLookup lookupCriteria);
+    Task<Result<UserContactDetailsLookupResult, bool>> RetrieveAsync(UserContactPointLookup lookupCriteria);
 }

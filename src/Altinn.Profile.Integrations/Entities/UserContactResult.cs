@@ -15,7 +15,7 @@ public record UserContactResult : IUserContactResult
     public ImmutableList<IUserContact>? MatchedUserContact { get; init; }
 
     /// <summary>
-    /// Gets a list of user contact information that was not matched during the lookup.
+    /// Gets a list of national identity numbers that could not be matched with user contact details.
     /// </summary>
-    public ImmutableList<IUserContact>? UnmatchedUserContact { get; init; }
+    public ImmutableList<string>? UnmatchedNationalIdentityNumbers { get; init; }
 }
