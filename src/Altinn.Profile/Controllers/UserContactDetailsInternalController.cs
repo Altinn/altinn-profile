@@ -16,7 +16,7 @@ namespace Altinn.Profile.Controllers;
 [Consumes("application/json")]
 [Produces("application/json")]
 [ApiExplorerSettings(IgnoreApi = true)]
-[Route("profile/api/v1/contact/details/internal")]
+[Route("profile/api/v1/internal/contact/details")]
 public class UserContactDetailsInternalController : ControllerBase
 {
     private readonly IUserContactDetailsRetriever _contactDetailsRetriever;
