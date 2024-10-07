@@ -88,7 +88,7 @@ internal class ProfileRepository<T> : IRepository<T>
     /// <param name="skip">Number of entities to skip for pagination.</param>
     /// <param name="take">Number of entities to take for pagination.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a collection of entities matching the criteria.</returns>
-    public Task<IEnumerable<T>> GetAsync(Func<T, bool>? filter, Func<IEnumerable<T>, IOrderedEnumerable<T>>? orderBy, int? skip, int? take)
+    public Task<IEnumerable<T>> GetAsync(Func<T, bool>? filter = null, Func<IEnumerable<T>, IOrderedEnumerable<T>>? orderBy = null, int? skip = null, int? take = null)
     {
         throw new NotImplementedException();
     }
