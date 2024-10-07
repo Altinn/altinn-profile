@@ -61,7 +61,7 @@ public class RegisterService : IRegisterService
     {
         ArgumentNullException.ThrowIfNull(nationalIdentityNumbers);
 
-        var (validnNtionalIdentityNumbers, invalidNationalIdentityNumbers) = _nationalIdentityNumberChecker.Categorize(nationalIdentityNumbers);
+        var (validnNtionalIdentityNumbers, _) = _nationalIdentityNumberChecker.Categorize(nationalIdentityNumbers);
 
         var usersContactInfo = await _registerRepository.GetUserContactInfoAsync(validnNtionalIdentityNumbers);
 
@@ -72,7 +72,7 @@ public class RegisterService : IRegisterService
 
         return new UserContactInfoLookupResult
         {
-            MatchedUserContact = matchedUserContact?.ToImmutableList<IUserContactInfo>(),
+            MatchedUserContact = matchedUserContact.ToImmutableList<IUserContactInfo>(),
             UnmatchedNationalIdentityNumbers = unmatchedNationalIdentityNumbers.ToImmutableList()
         };
     }
