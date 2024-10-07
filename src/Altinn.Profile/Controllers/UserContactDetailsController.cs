@@ -47,6 +47,6 @@ public class UserContactDetailsController : ControllerBase
 
         return result.Match<ActionResult<UserContactDetailsLookupResult>>(
             success => Ok(success),
-            failure => Problem("Unable to retrieve contact details. Please verify the provided national identity numbers and try again."));
+            failure => Problem("Unable to retrieve contact details."));
     }
 }
