@@ -10,7 +10,7 @@ using Altinn.Profile.Configuration;
 using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Filters;
 using Altinn.Profile.Health;
-using Altinn.Profile.Integrations.Extensions;
+using Altinn.Profile.Integrations;
 using Altinn.Profile.UseCases;
 
 using AltinnCore.Authentication.JwtCookie;

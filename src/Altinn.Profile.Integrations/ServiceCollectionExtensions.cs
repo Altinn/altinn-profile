@@ -1,33 +1,37 @@
 ﻿using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.SblBridge;
+using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
+using Altinn.Profile.Integrations.SblBridge.User.Profile;
 using Altinn.Profile.Integrations.Services;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Altinn.Profile.Integrations.Extensions;
+namespace Altinn.Profile.Integrations;
 
 /// <summary>
-/// Extension class for <see cref="IServiceCollection"/> to add services and configurations.
+/// Extension class for <see cref="IServiceCollection"/>
 /// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds SBL Bridge clients and configurations to the DI container.
+    /// Adds Altinn clients and configurations to DI container.
     /// </summary>
-    /// <param name="services">The service collection.</param>
-    /// <param name="config">The configuration collection.</param>
-    /// <exception cref="ArgumentNullException">Thrown when the required SblBridgeSettings are missing from the configuration.</exception>
+    /// <param name="services">service collection.</param>
+    /// <param name="config">the configuration collection</param>
     public static void AddSblBridgeClients(this IServiceCollection services, IConfiguration config)
     {
-        var sblBridgeSettings = config.GetSection(nameof(SblBridgeSettings)).Get<SblBridgeSettings>() ?? throw new ArgumentNullException(nameof(config), "Required SblBridgeSettings is missing from application configuration");
-        services.Configure<SblBridgeSettings>(config.GetSection(nameof(SblBridgeSettings)));
+        _ = config.GetSection(nameof(SblBridgeSettings))
+            .Get<SblBridgeSettings>()
+            ?? throw new ArgumentNullException(nameof(config), "Required SblBridgeSettings is missing from application configuration");
 
-        services.AddHttpClient<IUserProfileClient, UserProfileClient>();
-        services.AddHttpClient<IUnitProfileClient, UnitProfileClient>();
+        services.Configure<SblBridgeSettings>(config.GetSection(nameof(SblBridgeSettings)));
+        services.AddHttpClient<IUserProfileRepository, UserProfileClient>();
+        services.AddHttpClient<IUnitProfileRepository, UnitProfileClient>();
     }
 
     /// <summary>
