@@ -49,7 +49,7 @@ public class RegisterRepositoryTests : IDisposable
     public async Task GetUserContactInfoAsync_ReturnsContactInfo_WhenFound()
     {
         // Act
-        var result = await _registerRepository.GetUserContactInfoAsync(new[] { "17111933790" });
+        var result = await _registerRepository.GetUserContactInfoAsync(["17111933790"]);
 
         var actual = result.FirstOrDefault(e => e.FnumberAk == "17111933790");
         var expected = _personContactAndReservationTestData.FirstOrDefault(e => e.FnumberAk == "17111933790");
@@ -89,7 +89,7 @@ public class RegisterRepositoryTests : IDisposable
         var expected = _personContactAndReservationTestData.Where(e => e.FnumberAk == "24064316776" || e.FnumberAk == "11044314101");
 
         // Assert
-        Assert.Equal(2, result.Count());
+        Assert.Equal(2, result.Count);
 
         foreach (var register in result)
         {
