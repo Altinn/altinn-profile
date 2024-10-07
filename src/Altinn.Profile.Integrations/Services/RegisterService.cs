@@ -59,7 +59,7 @@ public class RegisterService : IRegisterService
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="nationalIdentityNumbers"/> is <c>null</c>.</exception>
     public async Task<Result<IUserContactInfoLookupResult, bool>> GetUserContactAsync(IEnumerable<string> nationalIdentityNumbers)
     {
-        ArgumentNullException.ThrowIfNull(nationalIdentityNumbers, nameof(nationalIdentityNumbers));
+        ArgumentNullException.ThrowIfNull(nationalIdentityNumbers);
 
         var (validnNtionalIdentityNumbers, invalidNationalIdentityNumbers) = _nationalIdentityNumberChecker.Categorize(nationalIdentityNumbers);
 
