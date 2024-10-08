@@ -68,7 +68,7 @@ public class ContactDetailsInternalControllerTests
         // Arrange
         var request = new UserContactPointLookup
         {
-            NationalIdentityNumbers = ["10060339738", "16051327393"]
+            NationalIdentityNumbers = ["05025308508", "08110270527"]
         };
 
         var contactDetails = new ContactDetails
@@ -77,12 +77,12 @@ public class ContactDetailsInternalControllerTests
             Reservation = false,
             MobilePhoneNumber = "12345678",
             EmailAddress = "test@example.com",
-            NationalIdentityNumber = "10060339738"
+            NationalIdentityNumber = "05025308508"
         };
 
         var lookupResult = new ContactDetailsLookupResult(
             matchedContactDetails: [contactDetails],
-            unmatchedNationalIdentityNumbers: ["16051327393"]);
+            unmatchedNationalIdentityNumbers: ["08110270527"]);
 
         _mockContactDetailsRetriever.Setup(x => x.RetrieveAsync(request))
             .ReturnsAsync(lookupResult);
