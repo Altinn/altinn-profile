@@ -4,48 +4,48 @@ using Altinn.Profile.Core.Integrations;
 namespace Altinn.Profile.Core.User;
 
 /// <summary>
-/// Implementation of <see cref="IUserProfileService"/> that uses <see cref="IUserProfileClient"/> to fetch user profiles."/>
+/// Implementation of <see cref="IUserProfileService"/> that uses <see cref="IUserProfileRepository"/> to fetch user profiles."/>
 /// </summary>
 public class UserProfileService : IUserProfileService
 {
-    private readonly IUserProfileClient _userProfileClient;
+    private readonly IUserProfileRepository _userProfileRepo;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserProfileService"/> class.
     /// </summary>
-    /// <param name="userProfileClient">The user profile client available through DI</param>
-    public UserProfileService(IUserProfileClient userProfileClient)
+    /// <param name="userProfileRepo">The user profile client available through DI</param>
+    public UserProfileService(IUserProfileRepository userProfileRepo)
     {
-        _userProfileClient = userProfileClient;
+        _userProfileRepo = userProfileRepo;
     }
 
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUser(int userId)
     {
-        return await _userProfileClient.GetUser(userId);
+        return await _userProfileRepo.GetUser(userId);
     }
 
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUser(string ssn)
     {
-        return await _userProfileClient.GetUser(ssn);
+        return await _userProfileRepo.GetUser(ssn);
     }
 
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUserByUsername(string username)
     {
-        return await _userProfileClient.GetUserByUsername(username);
+        return await _userProfileRepo.GetUserByUsername(username);
     }
 
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUserByUuid(Guid userUuid)
     {
-        return await _userProfileClient.GetUserByUuid(userUuid);
+        return await _userProfileRepo.GetUserByUuid(userUuid);
     }
 
     /// <inheritdoc/>
     public async Task<Result<List<UserProfile>, bool>> GetUserListByUuid(List<Guid> userUuidList)
     {
-        return await _userProfileClient.GetUserListByUuid(userUuidList);
+        return await _userProfileRepo.GetUserListByUuid(userUuidList);
     }
 }

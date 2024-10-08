@@ -5,7 +5,7 @@ namespace Altinn.Profile.Core.Integrations;
 /// <summary>
 /// Interface describing a client for the user profile service
 /// </summary>
-public interface IUserProfileClient
+public interface IUserProfileRepository
 {
     /// <summary>
     /// Method that fetches a user based on a user id

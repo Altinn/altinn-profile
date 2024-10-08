@@ -1,20 +1,18 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Unit.ContactPoints;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Altinn.Profile.Integrations.SblBridge;
+namespace Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 
 /// <summary>
-/// Represents an implementation of <see cref="IUnitProfileClient"/> using SBLBridge to obtain unit profile information.
+/// Represents an implementation of <see cref="IUnitProfileRepository"/> using SBLBridge to obtain unit profile information.
 /// </summary>
-public class UnitProfileClient : IUnitProfileClient
+public class UnitProfileClient : IUnitProfileRepository
 {
     private readonly ILogger<UnitProfileClient> _logger;
     private readonly HttpClient _client;
