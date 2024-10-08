@@ -1,9 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
 
 using Altinn.Profile.Controllers;
 using Altinn.Profile.Models;
 using Altinn.Profile.UseCases;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
@@ -14,8 +17,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
 public class ContactDetailsControllerTests
 {
-    private readonly Mock<IContactDetailsRetriever> _mockContactDetailsRetriever;
     private readonly ContactDetailsController _controller;
+    private readonly Mock<IContactDetailsRetriever> _mockContactDetailsRetriever;
 
     public ContactDetailsControllerTests()
     {
@@ -24,7 +27,106 @@ public class ContactDetailsControllerTests
     }
 
     [Fact]
-    public async Task PostLookup_ReturnsOkResult_WhenSuccessful()
+    public async Task PostLookup_ReturnsBadRequestResult_WhenRequestIsInvalid()
+    {
+        // Arrange
+        var invalidRequest = new UserContactPointLookup
+        {
+            NationalIdentityNumbers = []
+        };
+
+        // Act
+        var response = await _controller.PostLookup(invalidRequest);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestResult>(response.Result);
+        Assert.Equal(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task PostLookup_ReturnsInternalServerErrorResult_WhenExceptionOccurs()
+    {
+        // Arrange
+        var request = new UserContactPointLookup
+        {
+            NationalIdentityNumbers = ["27038893837"]
+        };
+
+        _mockContactDetailsRetriever.Setup(x => x.RetrieveAsync(request))
+            .ThrowsAsync(new System.Exception("Test exception"));
+
+        // Act
+        var response = await _controller.PostLookup(request);
+
+        // Assert
+        var problemResult = Assert.IsType<ObjectResult>(response.Result);
+        Assert.Equal(StatusCodes.Status500InternalServerError, problemResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task PostLookup_ReturnsMixedResults_WhenOneNumberMatchesAndOneDoesNot()
+    {
+        // Arrange
+        var request = new UserContactPointLookup
+        {
+            NationalIdentityNumbers = ["10060339738", "16051327393"]
+        };
+
+        var contactDetails = new ContactDetails
+        {
+            LanguageCode = "nb",
+            Reservation = false,
+            MobilePhoneNumber = "12345678",
+            EmailAddress = "test@example.com",
+            NationalIdentityNumber = "10060339738"
+        };
+
+        var lookupResult = new ContactDetailsLookupResult(
+            matchedContactDetails: [contactDetails],
+            unmatchedNationalIdentityNumbers: ["16051327393"]);
+
+        _mockContactDetailsRetriever.Setup(x => x.RetrieveAsync(request))
+            .ReturnsAsync(lookupResult);
+
+        // Act
+        var response = await _controller.PostLookup(request);
+
+        // Assert
+        var result = Assert.IsType<OkObjectResult>(response.Result);
+        Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
+
+        var returnValue = Assert.IsType<ContactDetailsLookupResult>(result.Value);
+        Assert.Equal(lookupResult, returnValue);
+        Assert.Single(returnValue.MatchedContactDetails);
+        Assert.Single(returnValue.UnmatchedNationalIdentityNumbers);
+    }
+
+    [Fact]
+    public async Task PostLookup_ReturnsNotFoundResult_WhenNoContactDetailsFound()
+    {
+        // Arrange
+        var request = new UserContactPointLookup
+        {
+            NationalIdentityNumbers = ["30083542175"]
+        };
+
+        var lookupResult = new ContactDetailsLookupResult(
+            matchedContactDetails: [],
+            unmatchedNationalIdentityNumbers: [request.NationalIdentityNumbers[0]]);
+
+        _mockContactDetailsRetriever.Setup(x => x.RetrieveAsync(request))
+            .ReturnsAsync(lookupResult);
+
+        // Act
+        var response = await _controller.PostLookup(request);
+
+        // Assert
+        var notFoundResult = Assert.IsType<NotFoundResult>(response.Result);
+        Assert.Equal(StatusCodes.Status404NotFound, notFoundResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task PostLookup_ReturnsOkResult_WhenRequestIsValid()
     {
         // Arrange
         var request = new UserContactPointLookup
@@ -38,19 +140,24 @@ public class ContactDetailsControllerTests
             Reservation = false,
             MobilePhoneNumber = "12345678",
             EmailAddress = "test@example.com",
-            NationalIdentityNumber = "27038893837",
+            NationalIdentityNumber = "27038893837"
         };
 
-        var result = new ContactDetailsLookupResult(matchedContactDetails: [contactDetails], unmatchedNationalIdentityNumbers: null);
+        var lookupResult = new ContactDetailsLookupResult(
+            matchedContactDetails: [contactDetails],
+            unmatchedNationalIdentityNumbers: []);
 
-        _mockContactDetailsRetriever.Setup(x => x.RetrieveAsync(request)).ReturnsAsync(result);
+        _mockContactDetailsRetriever.Setup(x => x.RetrieveAsync(request))
+            .ReturnsAsync(lookupResult);
 
         // Act
         var response = await _controller.PostLookup(request);
 
         // Assert
-        var resultOk = Assert.IsType<OkObjectResult>(response.Result);
-        var returnValue = Assert.IsType<ContactDetailsLookupResult>(resultOk.Value);
-        Assert.Equal(result, returnValue);
+        var result = Assert.IsType<OkObjectResult>(response.Result);
+        Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
+
+        var returnValue = Assert.IsType<ContactDetailsLookupResult>(result.Value);
+        Assert.Equal(lookupResult, returnValue);
     }
 }

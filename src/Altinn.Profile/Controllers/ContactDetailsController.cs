@@ -46,10 +46,40 @@ public class ContactDetailsController : ControllerBase
     [ProducesResponseType(typeof(ContactDetailsLookupResult), StatusCodes.Status200OK)]
     public async Task<ActionResult<ContactDetailsLookupResult>> PostLookup([FromBody] UserContactPointLookup request)
     {
-        var result = await _contactDetailsRetriever.RetrieveAsync(request);
+        try
+        {
+            if (request == null)
+            {
+                return BadRequest();
+            }
 
-        return result.Match<ActionResult<ContactDetailsLookupResult>>(
-            success => Ok(success),
-            failure => Problem("Unable to retrieve contact details."));
+            if (request.NationalIdentityNumbers == null)
+            {
+                return BadRequest();
+            }
+
+            if (request.NationalIdentityNumbers.Count == 0)
+            {
+                return BadRequest();
+            }
+
+            var result = await _contactDetailsRetriever.RetrieveAsync(request);
+
+            return result.Match<ActionResult<ContactDetailsLookupResult>>(
+                success =>
+                {
+                    if (success.MatchedContactDetails.Count != 0)
+                    {
+                        return Ok(success);
+                    }
+
+                    return NotFound();
+                },
+                noMatch => NotFound());
+        }
+        catch
+        {
+            return Problem("An unexpected error occurred.");
+        }
     }
 }
