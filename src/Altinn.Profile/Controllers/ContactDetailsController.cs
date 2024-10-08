@@ -7,6 +7,7 @@ using Altinn.Profile.UseCases;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Altinn.Profile.Controllers;
 
@@ -20,15 +21,20 @@ namespace Altinn.Profile.Controllers;
 [Route("profile/api/v1/contact/details")]
 public class ContactDetailsController : ControllerBase
 {
+    private readonly ILogger<ContactDetailsController> _logger;
     private readonly IContactDetailsRetriever _contactDetailsRetriever;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ContactDetailsController"/> class.
     /// </summary>
+    /// <param name="logger">The logger instance used for logging.</param>
     /// <param name="contactDetailsRetriever">The use case for retrieving the contact details.</param>
-    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="contactDetailsRetriever"/> is null.</exception>
-    public ContactDetailsController(IContactDetailsRetriever contactDetailsRetriever)
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when the <paramref name="logger"/> or <paramref name="contactDetailsRetriever"/> is null.
+    /// </exception>
+    public ContactDetailsController(ILogger<ContactDetailsController> logger, IContactDetailsRetriever contactDetailsRetriever)
     {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _contactDetailsRetriever = contactDetailsRetriever ?? throw new ArgumentNullException(nameof(contactDetailsRetriever));
     }
 
@@ -46,39 +52,26 @@ public class ContactDetailsController : ControllerBase
     [ProducesResponseType(typeof(ContactDetailsLookupResult), StatusCodes.Status200OK)]
     public async Task<ActionResult<ContactDetailsLookupResult>> PostLookup([FromBody] UserContactPointLookup request)
     {
+        if (request?.NationalIdentityNumbers == null || request.NationalIdentityNumbers.Count == 0)
+        {
+            return BadRequest("National identity numbers cannot be null or empty.");
+        }
+
         try
         {
-            if (request == null)
-            {
-                return BadRequest();
-            }
-
-            if (request.NationalIdentityNumbers == null)
-            {
-                return BadRequest();
-            }
-
-            if (request.NationalIdentityNumbers.Count == 0)
-            {
-                return BadRequest();
-            }
-
             var result = await _contactDetailsRetriever.RetrieveAsync(request);
 
             return result.Match<ActionResult<ContactDetailsLookupResult>>(
                 success =>
                 {
-                    if (success.MatchedContactDetails.Count != 0)
-                    {
-                        return Ok(success);
-                    }
-
-                    return NotFound();
+                    return success.MatchedContactDetails.Count > 0 ? Ok(success) : NotFound();
                 },
                 noMatch => NotFound());
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "An error occurred while retrieving contact details.");
+
             return Problem("An unexpected error occurred.");
         }
     }
