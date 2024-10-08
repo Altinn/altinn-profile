@@ -29,7 +29,24 @@ public class ContactDetailsControllerTests
     }
 
     [Fact]
-    public async Task PostLookup_ReturnsBadRequestResult_WhenRequestIsInvalid()
+    public async Task PostLookup_ReturnsBadRequest_WhenNationalIdentityNumbersContainInvalidFormat()
+    {
+        // Arrange
+        var invalidRequest = new UserContactPointLookup
+        {
+            NationalIdentityNumbers = ["invalid_format"]
+        };
+
+        // Act
+        var response = await _controller.PostLookup(invalidRequest);
+
+        // Assert
+        var notFoundResult = Assert.IsType<NotFoundResult>(response.Result);
+        Assert.Equal(StatusCodes.Status404NotFound, notFoundResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task PostLookup_ReturnsBadRequest_WhenRequestIsInvalid()
     {
         // Arrange
         var invalidRequest = new UserContactPointLookup
@@ -41,12 +58,12 @@ public class ContactDetailsControllerTests
         var response = await _controller.PostLookup(invalidRequest);
 
         // Assert
-        var badRequestResult = Assert.IsType<BadRequestResult>(response.Result);
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(response.Result);
         Assert.Equal(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
     }
 
     [Fact]
-    public async Task PostLookup_ReturnsInternalServerErrorResult_LogError_WhenExceptionOccurs()
+    public async Task PostLookup_ReturnsInternalServerError_AndLogsError_WhenExceptionOccurs()
     {
         // Arrange
         var request = new UserContactPointLookup
@@ -114,7 +131,7 @@ public class ContactDetailsControllerTests
     }
 
     [Fact]
-    public async Task PostLookup_ReturnsNotFoundResult_WhenNoContactDetailsFound()
+    public async Task PostLookup_ReturnsNotFound_WhenNoContactDetailsFound()
     {
         // Arrange
         var request = new UserContactPointLookup
@@ -138,7 +155,7 @@ public class ContactDetailsControllerTests
     }
 
     [Fact]
-    public async Task PostLookup_ReturnsOkResult_WhenRequestIsValid()
+    public async Task PostLookup_ReturnsOk_WhenRequestIsValid()
     {
         // Arrange
         var request = new UserContactPointLookup

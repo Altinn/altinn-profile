@@ -64,7 +64,7 @@ public class ContactDetailsController : ControllerBase
             return result.Match<ActionResult<ContactDetailsLookupResult>>(
                 success =>
                 {
-                    return success.MatchedContactDetails.Count > 0 ? Ok(success) : NotFound();
+                    return success?.MatchedContactDetails?.Count > 0 ? Ok(success) : NotFound();
                 },
                 noMatch => NotFound());
         }
