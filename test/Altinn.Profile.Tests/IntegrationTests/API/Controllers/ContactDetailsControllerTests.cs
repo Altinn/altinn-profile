@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Controllers;
@@ -26,6 +27,46 @@ public class ContactDetailsControllerTests
         _loggerMock = new Mock<ILogger<ContactDetailsController>>();
         _mockContactDetailsRetriever = new Mock<IContactDetailsRetriever>();
         _controller = new ContactDetailsController(_loggerMock.Object, _mockContactDetailsRetriever.Object);
+    }
+
+    [Fact]
+    public async Task PostLookup_DoesNotBlock_WhenServiceCallIsLongRunning()
+    {
+        // Arrange
+        var request = new UserContactPointLookup
+        {
+            NationalIdentityNumbers = ["02038112735"]
+        };
+
+        var contactDetails = new ContactDetails
+        {
+            LanguageCode = "nb",
+            Reservation = false,
+            MobilePhoneNumber = "12345678",
+            EmailAddress = "test@example.com",
+            NationalIdentityNumber = "02038112735"
+        };
+
+        var lookupResult = new ContactDetailsLookupResult(
+            matchedContactDetails: [contactDetails],
+            unmatchedNationalIdentityNumbers: []);
+
+        _mockContactDetailsRetriever.Setup(x => x.RetrieveAsync(request))
+            .ReturnsAsync(() =>
+            {
+                Task.Delay(5000).Wait(); // Simulate long-running task
+                return lookupResult;
+            });
+
+        // Act
+        var response = await _controller.PostLookup(request);
+
+        // Assert
+        var result = Assert.IsType<OkObjectResult>(response.Result);
+        Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
+
+        var returnValue = Assert.IsType<ContactDetailsLookupResult>(result.Value);
+        Assert.Equal(lookupResult, returnValue);
     }
 
     [Fact]
