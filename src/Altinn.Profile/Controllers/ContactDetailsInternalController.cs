@@ -21,7 +21,7 @@ namespace Altinn.Profile.Controllers;
 [Route("profile/api/v1/internal/contact/details")]
 public class ContactDetailsInternalController : ControllerBase
 {
-    private readonly ILogger<ContactDetailsController> _logger;
+    private readonly ILogger<ContactDetailsInternalController> _logger;
     private readonly IContactDetailsRetriever _contactDetailsRetriever;
 
     /// <summary>
@@ -30,7 +30,7 @@ public class ContactDetailsInternalController : ControllerBase
     /// <param name="logger">The logger instance used for logging.</param>
     /// <param name="contactDetailsRetriever">The use case for retrieving the contact details.</param>
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="contactDetailsRetriever"/> is null.</exception>
-    public ContactDetailsInternalController(ILogger<ContactDetailsController> logger, IContactDetailsRetriever contactDetailsRetriever)
+    public ContactDetailsInternalController(ILogger<ContactDetailsInternalController> logger, IContactDetailsRetriever contactDetailsRetriever)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _contactDetailsRetriever = contactDetailsRetriever ?? throw new ArgumentNullException(nameof(contactDetailsRetriever));
