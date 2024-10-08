@@ -43,6 +43,7 @@ public class ContactDetailsControllerTests
         // Assert
         var notFoundResult = Assert.IsType<NotFoundResult>(response.Result);
         Assert.Equal(StatusCodes.Status404NotFound, notFoundResult.StatusCode);
+        Assert.Null(response.Value);
     }
 
     [Fact]
@@ -60,6 +61,8 @@ public class ContactDetailsControllerTests
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(response.Result);
         Assert.Equal(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
+        Assert.Equal("National identity numbers cannot be null or empty.", badRequestResult.Value);
+        Assert.Null(response.Value);
     }
 
     [Fact]
