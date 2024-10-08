@@ -40,7 +40,7 @@ public class ContactDetailsRetriever : IContactDetailsRetriever
     {
         ArgumentNullException.ThrowIfNull(lookupCriteria);
 
-        if (lookupCriteria?.NationalIdentityNumbers == null || lookupCriteria.NationalIdentityNumbers.Count == 0)
+        if (lookupCriteria.NationalIdentityNumbers == null || lookupCriteria.NationalIdentityNumbers.Count == 0)
         {
             return false;
         }
