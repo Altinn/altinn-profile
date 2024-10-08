@@ -10,7 +10,7 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// <summary>
 /// Repository for handling register data.
 /// </summary>
-public interface IPersonRepository : IRepository<Register>
+public interface IPersonRepository : IRepository<Person>
 {
     /// <summary>
     /// Asynchronously retrieves the register data for multiple users by their national identity numbers.
@@ -19,5 +19,5 @@ public interface IPersonRepository : IRepository<Register>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a collection of register data for the users.
     /// </returns>
-    Task<ImmutableList<Register>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers);
+    Task<ImmutableList<Person>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers);
 }

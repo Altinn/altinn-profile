@@ -13,7 +13,7 @@ public static class PersonTestData
     /// Gets a list of test registers with predefined contact and reservation data.
     /// </summary>
     /// <returns>A list of <see cref="Register"/> objects containing test data.</returns>
-    public static List<Register> GetContactAndReservationTestData()
+    public static List<Person> GetContactAndReservationTestData()
     {
         return
         [

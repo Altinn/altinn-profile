@@ -32,9 +32,9 @@ public partial class ProfileDbContext : DbContext
     public virtual DbSet<Metadata> Metadata { get; set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="DbSet{Register}"/> representing the registers.
+    /// Gets or sets the <see cref="DbSet{Person}"/> representing the people.
     /// </summary>
-    public virtual DbSet<Register> Registers { get; set; }
+    public virtual DbSet<Person> People { get; set; }
 
     /// <summary>
     /// Configures the schema needed for the context.
@@ -57,16 +57,16 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.LatestChangeNumber).ValueGeneratedNever();
         });
 
-        modelBuilder.Entity<Register>(entity =>
+        modelBuilder.Entity<Person>(entity =>
         {
-            entity.HasKey(e => e.ContactAndReservationUserId).HasName("register_pkey");
+            entity.HasKey(e => e.ContactAndReservationUserId).HasName("person_pkey");
 
             entity.Property(e => e.ContactAndReservationUserId).UseIdentityAlwaysColumn();
             entity.Property(e => e.FnumberAk).IsFixedLength();
             entity.Property(e => e.LanguageCode).IsFixedLength();
 
             entity.HasOne(d => d.MailboxSupplierIdFkNavigation)
-                  .WithMany(p => p.Registers)
+                  .WithMany(p => p.People)
                   .HasConstraintName("fk_mailbox_supplier");
         });
 

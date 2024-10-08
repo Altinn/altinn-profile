@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Altinn.Profile.Integrations.Entities;
 
 /// <summary>
-/// Represents a metadata entity.
+/// Represents metadata in the contact and reservation schema.
 /// </summary>
 [Table("metadata", Schema = "contact_and_reservation")]
 public partial class Metadata

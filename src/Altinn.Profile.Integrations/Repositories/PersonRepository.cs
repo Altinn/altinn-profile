@@ -13,7 +13,7 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// Repository for handling register data.
 /// </summary>
 /// <seealso cref="IPersonRepository" />
-internal class PersonRepository : ProfileRepository<Register>, IPersonRepository
+internal class PersonRepository : ProfileRepository<Person>, IPersonRepository
 {
     private readonly ProfileDbContext _context;
 
@@ -35,11 +35,11 @@ internal class PersonRepository : ProfileRepository<Register>, IPersonRepository
     /// A task that represents the asynchronous operation. The task result contains a collection of register data for the users.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="nationalIdentityNumbers"/> is null.</exception>
-    public async Task<ImmutableList<Register>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers)
+    public async Task<ImmutableList<Person>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers)
     {
         ArgumentNullException.ThrowIfNull(nationalIdentityNumbers);
 
-        var registers = await _context.Registers.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync();
+        var registers = await _context.People.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync();
 
         return registers.ToImmutableList();
     }

@@ -21,7 +21,7 @@ public class RegisterRepositoryTests : IDisposable
 {
     private readonly ProfileDbContext _context;
     private readonly PersonRepository _registerRepository;
-    private readonly List<Register> _personContactAndReservationTestData;
+    private readonly List<Person> _personContactAndReservationTestData;
     
     public RegisterRepositoryTests()
     {
@@ -34,7 +34,7 @@ public class RegisterRepositoryTests : IDisposable
 
         _personContactAndReservationTestData = [.. PersonTestData.GetContactAndReservationTestData()];
 
-        _context.Registers.AddRange(_personContactAndReservationTestData);
+        _context.People.AddRange(_personContactAndReservationTestData);
         _context.SaveChanges();
     }
 
@@ -109,7 +109,7 @@ public class RegisterRepositoryTests : IDisposable
         Assert.Empty(result);
     }
 
-    private static void AssertRegisterProperties(Register expected, Register actual)
+    private static void AssertRegisterProperties(Person expected, Person actual)
     {
         Assert.Equal(expected.FnumberAk, actual.FnumberAk);
         Assert.Equal(expected.Description, actual.Description);

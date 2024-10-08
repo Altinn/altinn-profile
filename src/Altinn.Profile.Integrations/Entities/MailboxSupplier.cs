@@ -4,12 +4,15 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace Altinn.Profile.Integrations.Entities;
 
 /// <summary>
-/// Represents a mailbox supplier entity.
+/// Represents a mailbox supplier in the contact and reservation schema.
 /// </summary>
 [Table("mailbox_supplier", Schema = "contact_and_reservation")]
+[Index("OrgNumberAk", Name = "unique_org_number_ak", IsUnique = true)]
 public partial class MailboxSupplier
 {
     /// <summary>
@@ -20,7 +23,7 @@ public partial class MailboxSupplier
     public int MailboxSupplierId { get; set; }
 
     /// <summary>
-    /// Gets or sets the organization number.
+    /// Gets or sets the organization number of the mailbox supplier.
     /// </summary>
     [Required]
     [Column("org_number_ak")]
@@ -28,8 +31,8 @@ public partial class MailboxSupplier
     public string OrgNumberAk { get; set; }
 
     /// <summary>
-    /// Gets or sets the collection of registers associated with the mailbox supplier.
+    /// Gets or sets the collection of people associated with the mailbox supplier.
     /// </summary>
     [InverseProperty("MailboxSupplierIdFkNavigation")]
-    public virtual ICollection<Register> Registers { get; set; } = new List<Register>();
+    public virtual ICollection<Person> People { get; set; } = new List<Person>();
 }
