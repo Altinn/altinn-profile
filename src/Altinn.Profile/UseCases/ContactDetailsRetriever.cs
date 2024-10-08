@@ -86,6 +86,6 @@ public class ContactDetailsRetriever : IContactDetailsRetriever
 
         var matchedContactDetails = lookupResult.MatchedPersonContactDetails?.Select(MapToContactDetails).ToImmutableList();
 
-        return new ContactDetailsLookupResult(matchedContactDetails, lookupResult?.UnmatchedNationalIdentityNumbers);
+        return new ContactDetailsLookupResult(matchedContactDetails, lookupResult.UnmatchedNationalIdentityNumbers);
     }
 }
