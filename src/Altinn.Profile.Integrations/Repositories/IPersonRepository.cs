@@ -8,16 +8,16 @@ using Altinn.Profile.Integrations.Entities;
 namespace Altinn.Profile.Integrations.Repositories;
 
 /// <summary>
-/// Repository for handling register data.
+/// Defines a repository for handling person data operations.
 /// </summary>
 public interface IPersonRepository : IRepository<Person>
 {
     /// <summary>
-    /// Asynchronously retrieves the register data for multiple users by their national identity numbers.
+    /// Asynchronously retrieves the contact details for multiple persons by their national identity numbers.
     /// </summary>
-    /// <param name="nationalIdentityNumbers">The collection of national identity numbers.</param>
+    /// <param name="nationalIdentityNumbers">A collection of national identity numbers to look up for.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a collection of register data for the users.
+    /// A task that represents the asynchronous operation. The task result contains an <see cref="ImmutableList{T}"/> of <see cref="Person"/> objects representing the contact details of the persons.
     /// </returns>
-    Task<ImmutableList<Person>> GetUserContactInfoAsync(IEnumerable<string> nationalIdentityNumbers);
+    Task<ImmutableList<Person>> GetContactDetailsAsync(IEnumerable<string> nationalIdentityNumbers);
 }

@@ -45,7 +45,7 @@ public class PersonService : IPersonService
             return null;
         }
 
-        var userContactInfoEntity = await _registerRepository.GetUserContactInfoAsync([nationalIdentityNumber]);
+        var userContactInfoEntity = await _registerRepository.GetContactDetailsAsync([nationalIdentityNumber]);
         return _mapper.Map<IPersonContactDetails>(userContactInfoEntity);
     }
 
@@ -63,7 +63,7 @@ public class PersonService : IPersonService
 
         var (validnNtionalIdentityNumbers, _) = _nationalIdentityNumberChecker.Categorize(nationalIdentityNumbers);
 
-        var usersContactInfo = await _registerRepository.GetUserContactInfoAsync(validnNtionalIdentityNumbers);
+        var usersContactInfo = await _registerRepository.GetContactDetailsAsync(validnNtionalIdentityNumbers);
 
         var matchedUserContact = usersContactInfo.Select(_mapper.Map<PersonContactDetails>);
 

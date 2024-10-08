@@ -49,7 +49,7 @@ public class RegisterRepositoryTests : IDisposable
     public async Task GetUserContactInfoAsync_ReturnsContactInfo_WhenFound()
     {
         // Act
-        var result = await _registerRepository.GetUserContactInfoAsync(["17111933790"]);
+        var result = await _registerRepository.GetContactDetailsAsync(["17111933790"]);
 
         var actual = result.FirstOrDefault(e => e.FnumberAk == "17111933790");
         var expected = _personContactAndReservationTestData.FirstOrDefault(e => e.FnumberAk == "17111933790");
@@ -64,7 +64,7 @@ public class RegisterRepositoryTests : IDisposable
     {
         // Act
         var result = _personContactAndReservationTestData.Where(e => e.FnumberAk == "28026698350");
-        var expected = await _registerRepository.GetUserContactInfoAsync(["28026698350", "nonexistent2"]);
+        var expected = await _registerRepository.GetContactDetailsAsync(["28026698350", "nonexistent2"]);
 
         // Assert invalid result
         Assert.Single(result);
@@ -75,7 +75,7 @@ public class RegisterRepositoryTests : IDisposable
     public async Task GetUserContactInfoAsync_ReturnsEmpty_WhenNoneFound()
     {
         // Act
-        var result = await _registerRepository.GetUserContactInfoAsync(["nonexistent1", "nonexistent2"]);
+        var result = await _registerRepository.GetContactDetailsAsync(["nonexistent1", "nonexistent2"]);
 
         // Assert
         Assert.Empty(result);
@@ -85,7 +85,7 @@ public class RegisterRepositoryTests : IDisposable
     public async Task GetUserContactInfoAsync_ReturnsMultipleContacts_WhenFound()
     {
         // Act
-        var result = await _registerRepository.GetUserContactInfoAsync(["24064316776", "11044314101"]);
+        var result = await _registerRepository.GetContactDetailsAsync(["24064316776", "11044314101"]);
         var expected = _personContactAndReservationTestData.Where(e => e.FnumberAk == "24064316776" || e.FnumberAk == "11044314101");
 
         // Assert
@@ -103,7 +103,7 @@ public class RegisterRepositoryTests : IDisposable
     public async Task GetUserContactInfoAsync_ReturnsEmpty_WhenNotFound()
     {
         // Act
-        var result = await _registerRepository.GetUserContactInfoAsync(["nonexistent", "11044314120"]);
+        var result = await _registerRepository.GetContactDetailsAsync(["nonexistent", "11044314120"]);
 
         // Assert
         Assert.Empty(result);
