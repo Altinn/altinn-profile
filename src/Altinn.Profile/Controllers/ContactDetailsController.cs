@@ -41,7 +41,7 @@ public class ContactDetailsController : ControllerBase
     /// <summary>
     /// Retrieves the contact details for persons based on their national identity numbers.
     /// </summary>
-    /// <param name="request">A collection of national identity numbers.</param>
+    /// <param name="lookupCriteria">A collection of national identity numbers.</param>
     /// <returns>
     /// A task that represents the asynchronous operation, containing a response with persons' contact details.
     /// Returns a <see cref="ContactDetailsLookupResult"/> with status 200 OK if successful.
@@ -50,23 +50,23 @@ public class ContactDetailsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ContactDetailsLookupResult), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ContactDetailsLookupResult>> PostLookup([FromBody] UserContactPointLookup request)
+    public async Task<ActionResult<ContactDetailsLookupResult>> PostLookup([FromBody] UserContactPointLookup lookupCriteria)
     {
-        if (request?.NationalIdentityNumbers == null || request.NationalIdentityNumbers.Count == 0)
+        if (lookupCriteria?.NationalIdentityNumbers == null || lookupCriteria.NationalIdentityNumbers.Count == 0)
         {
             return BadRequest("National identity numbers cannot be null or empty.");
         }
 
         try
         {
-            var result = await _contactDetailsRetriever.RetrieveAsync(request);
+            var lookupResult = await _contactDetailsRetriever.RetrieveAsync(lookupCriteria);
 
-            return result.Match<ActionResult<ContactDetailsLookupResult>>(
-                success =>
+            return lookupResult.Match<ActionResult<ContactDetailsLookupResult>>(
+                successResponse =>
                 {
-                    return success?.MatchedContactDetails?.Count > 0 ? Ok(success) : NotFound();
+                    return successResponse?.MatchedContactDetails?.Count > 0 ? Ok(successResponse) : NotFound();
                 },
-                noMatch => NotFound());
+                failedResponse => NotFound());
         }
         catch (Exception ex)
         {
