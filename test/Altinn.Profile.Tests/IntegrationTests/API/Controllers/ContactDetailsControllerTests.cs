@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Controllers;
@@ -27,6 +26,40 @@ public class ContactDetailsControllerTests
         _loggerMock = new Mock<ILogger<ContactDetailsController>>();
         _mockContactDetailsRetriever = new Mock<IContactDetailsRetriever>();
         _controller = new ContactDetailsController(_loggerMock.Object, _mockContactDetailsRetriever.Object);
+    }
+
+    [Fact]
+    public void Constructor_NullLogger_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var contactDetailsRetrieverMock = new Mock<IContactDetailsRetriever>();
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new ContactDetailsController(null, contactDetailsRetrieverMock.Object));
+    }
+
+    [Fact]
+    public void Constructor_NullContactDetailsRetriever_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var loggerMock = new Mock<ILogger<ContactDetailsController>>();
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new ContactDetailsController(loggerMock.Object, null));
+    }
+
+    [Fact]
+    public void Constructor_ValidParameters_InitializesCorrectly()
+    {
+        // Arrange
+        var loggerMock = new Mock<ILogger<ContactDetailsController>>();
+        var contactDetailsRetrieverMock = new Mock<IContactDetailsRetriever>();
+
+        // Act
+        var controller = new ContactDetailsController(loggerMock.Object, contactDetailsRetrieverMock.Object);
+
+        // Assert
+        Assert.NotNull(controller);
     }
 
     [Fact]
