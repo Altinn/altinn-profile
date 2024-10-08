@@ -20,12 +20,30 @@ public class NationalIdentityNumberChecker : INationalIdentityNumberChecker
     /// <item><description><c>Invalid</c>: An immutable list of invalid national identity numbers.</description></item>
     /// </list>
     /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="nationalIdentityNumbers"/> is null.</exception>
     public (IImmutableList<string> Valid, IImmutableList<string> Invalid) Categorize(IEnumerable<string> nationalIdentityNumbers)
     {
-        var validNnationalIdentityNumbers = nationalIdentityNumbers.Where(e => e.IsValidSocialSecurityNumber()).ToImmutableList();
-        var invalidNnationalIdentityNumbers = nationalIdentityNumbers.Except(validNnationalIdentityNumbers).ToImmutableList();
+        ArgumentNullException.ThrowIfNull(nationalIdentityNumbers);
 
-        return (validNnationalIdentityNumbers, invalidNnationalIdentityNumbers);
+        var validNationalIdentityNumbers = nationalIdentityNumbers.Where(IsValid).ToImmutableList();
+        var invalidNationalIdentityNumbers = nationalIdentityNumbers.Except(validNationalIdentityNumbers).ToImmutableList();
+
+        return (validNationalIdentityNumbers, invalidNationalIdentityNumbers);
+    }
+
+    /// <summary>
+    /// Validates a collection of national identity numbers and returns the valid ones only.
+    /// </summary>
+    /// <param name="nationalIdentityNumbers">A collection of national identity numbers.</param>
+    /// <returns>
+    /// An immutable list of valid national identity numbers.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="nationalIdentityNumbers"/> is null.</exception>
+    public IImmutableList<string> GetValid(IEnumerable<string> nationalIdentityNumbers)
+    {
+        ArgumentNullException.ThrowIfNull(nationalIdentityNumbers);
+
+        return nationalIdentityNumbers.Where(IsValid).ToImmutableList();
     }
 
     /// <summary>

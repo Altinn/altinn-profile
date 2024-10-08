@@ -55,7 +55,7 @@ public class UserContactDetailsRetrieverTests
             NationalIdentityNumbers = new List<string> { "08119043698" }
         };
 
-        _mockRegisterService.Setup(s => s.GetUserContactAsync(lookupCriteria.NationalIdentityNumbers)).ReturnsAsync(false);
+        _mockRegisterService.Setup(s => s.GetContactDetailsAsync(lookupCriteria.NationalIdentityNumbers)).ReturnsAsync(false);
 
         // Act
         var result = await _retriever.RetrieveAsync(lookupCriteria);

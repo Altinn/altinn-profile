@@ -6,25 +6,25 @@ using Altinn.Profile.Integrations.Entities;
 namespace Altinn.Profile.Integrations.Services;
 
 /// <summary>
-/// Defines a service for handling operations related to user contact information.
+/// Defines a service for handling operations related to person data.
 /// </summary>
 public interface IPersonService
 {
     /// <summary>
-    /// Asynchronously retrieves the contact information for a user based on their national identity number.
+    /// Asynchronously retrieves the contact details for a single person based on their national identity number.
     /// </summary>
-    /// <param name="nationalIdentityNumber">The national identity number of the user.</param>
+    /// <param name="nationalIdentityNumber">The national identity number of the person.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains the user's contact information, or <c>null</c> if not found.
+    /// A task that represents the asynchronous operation. The task result contains the person's contact details, or <c>null</c> if not found.
     /// </returns>
-    Task<IPersonContactDetails?> GetUserContactInfoAsync(string nationalIdentityNumber);
+    Task<IPersonContactDetails?> GetContactDetailsAsync(string nationalIdentityNumber);
 
     /// <summary>
-    /// Asynchronously retrieves the contact information for multiple users based on their national identity numbers.
+    /// Asynchronously retrieves the contact details for multiple persons based on their national identity numbers.
     /// </summary>
     /// <param name="nationalIdentityNumbers">A collection of national identity numbers.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a collection of user contact information, or an empty collection if none are found.
+    /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object, where <see cref="IPersonContactDetailsLookupResult"/> represents the successful lookup result and <see cref="bool"/> indicates a failure.
     /// </returns>
-    Task<Result<IPersonContactDetailsLookupResult, bool>> GetUserContactAsync(IEnumerable<string> nationalIdentityNumbers);
+    Task<Result<IPersonContactDetailsLookupResult, bool>> GetContactDetailsAsync(IEnumerable<string> nationalIdentityNumbers);
 }

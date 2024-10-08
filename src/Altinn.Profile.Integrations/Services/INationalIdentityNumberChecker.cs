@@ -21,6 +21,15 @@ public interface INationalIdentityNumberChecker
     (IImmutableList<string> Valid, IImmutableList<string> Invalid) Categorize(IEnumerable<string> nationalIdentityNumbers);
 
     /// <summary>
+    /// Validates a collection of national identity numbers and returns the valid ones only.
+    /// </summary>
+    /// <param name="nationalIdentityNumbers">A collection of national identity numbers.</param>
+    /// <returns>
+    /// An immutable list of valid national identity numbers.
+    /// </returns>
+    IImmutableList<string> GetValid(IEnumerable<string> nationalIdentityNumbers);
+
+    /// <summary>
     /// Checks the validity of a single national identity number.
     /// </summary>
     /// <param name="nationalIdentityNumber">The national identity number.</param>

@@ -1,4 +1,6 @@
-﻿using System.Collections.Immutable;
+﻿#nullable enable
+
+using System.Collections.Immutable;
 
 using Altinn.Profile.Core;
 using Altinn.Profile.Integrations.Entities;
@@ -9,70 +11,73 @@ using AutoMapper;
 namespace Altinn.Profile.Integrations.Services;
 
 /// <summary>
-/// Service for handling operations related to user registration and contact points.
+/// Provides a service for handling operations related to person data.
 /// </summary>
 public class PersonService : IPersonService
 {
     private readonly IMapper _mapper;
-    private readonly IPersonRepository _registerRepository;
+    private readonly IPersonRepository _personRepository;
     private readonly INationalIdentityNumberChecker _nationalIdentityNumberChecker;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PersonService"/> class.
     /// </summary>
     /// <param name="mapper">The mapper used for object mapping.</param>
-    /// <param name="registerRepository">The repository used for accessing register data.</param>
+    /// <param name="personRepository">The repository used for accessing the person data.</param>
     /// <param name="nationalIdentityNumberChecker">The service used for checking the validity of national identity numbers.</param>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="mapper"/>, <paramref name="registerRepository"/>, or <paramref name="nationalIdentityNumberChecker"/> is <c>null</c>.</exception>
-    public PersonService(IMapper mapper, IPersonRepository registerRepository, INationalIdentityNumberChecker nationalIdentityNumberChecker)
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if <paramref name="mapper"/>, <paramref name="personRepository"/>, or <paramref name="nationalIdentityNumberChecker"/> is <c>null</c>.
+    /// </exception>
+    public PersonService(IMapper mapper, IPersonRepository personRepository, INationalIdentityNumberChecker nationalIdentityNumberChecker)
     {
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _registerRepository = registerRepository ?? throw new ArgumentNullException(nameof(registerRepository));
+        _personRepository = personRepository ?? throw new ArgumentNullException(nameof(personRepository));
         _nationalIdentityNumberChecker = nationalIdentityNumberChecker ?? throw new ArgumentNullException(nameof(nationalIdentityNumberChecker));
     }
 
     /// <summary>
-    /// Asynchronously retrieves the contact information for a user based on their national identity number.
+    /// Asynchronously retrieves the contact details for a single person based on their national identity number.
     /// </summary>
-    /// <param name="nationalIdentityNumber">The national identity number of the user.</param>
+    /// <param name="nationalIdentityNumber">The national identity number of the person.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains the user's contact information, or <c>null</c> if not found.
+    /// A task that represents the asynchronous operation. The task result contains the person's contact details, or <c>null</c> if not found.
     /// </returns>
-    public async Task<IPersonContactDetails?> GetUserContactInfoAsync(string nationalIdentityNumber)
+    public async Task<IPersonContactDetails?> GetContactDetailsAsync(string nationalIdentityNumber)
     {
         if (!_nationalIdentityNumberChecker.IsValid(nationalIdentityNumber))
         {
             return null;
         }
 
-        var userContactInfoEntity = await _registerRepository.GetContactDetailsAsync([nationalIdentityNumber]);
-        return _mapper.Map<IPersonContactDetails>(userContactInfoEntity);
+        var personContactDetails = await _personRepository.GetContactDetailsAsync([nationalIdentityNumber]);
+        return _mapper.Map<IPersonContactDetails>(personContactDetails.FirstOrDefault());
     }
 
     /// <summary>
-    /// Asynchronously retrieves the contact information for multiple users based on their national identity numbers.
+    /// Asynchronously retrieves the contact details for multiple persons based on their national identity numbers.
     /// </summary>
     /// <param name="nationalIdentityNumbers">A collection of national identity numbers.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a collection of user contact information, or an empty collection if none are found.
+    /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object, where <see cref="IPersonContactDetailsLookupResult"/> represents the successful lookup result and <see cref="bool"/> indicates a failure.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="nationalIdentityNumbers"/> is <c>null</c>.</exception>
-    public async Task<Result<IPersonContactDetailsLookupResult, bool>> GetUserContactAsync(IEnumerable<string> nationalIdentityNumbers)
+    public async Task<Result<IPersonContactDetailsLookupResult, bool>> GetContactDetailsAsync(IEnumerable<string> nationalIdentityNumbers)
     {
         ArgumentNullException.ThrowIfNull(nationalIdentityNumbers);
 
-        var (validnNtionalIdentityNumbers, _) = _nationalIdentityNumberChecker.Categorize(nationalIdentityNumbers);
+        var validNationalIdentityNumbers = _nationalIdentityNumberChecker.GetValid(nationalIdentityNumbers);
 
-        var usersContactInfo = await _registerRepository.GetContactDetailsAsync(validnNtionalIdentityNumbers);
+        var matchedContactDetails = await _personRepository.GetContactDetailsAsync(validNationalIdentityNumbers);
 
-        var matchedUserContact = usersContactInfo.Select(_mapper.Map<PersonContactDetails>);
+        var matchedNationalIdentityNumbers = new HashSet<string>(matchedContactDetails.Select(e => e.FnumberAk));
 
-        var matchedNationalIdentityNumbers = new HashSet<string>(usersContactInfo.Select(e => e.FnumberAk));
-        var unmatchedNationalIdentityNumbers = nationalIdentityNumbers.Where(e => !matchedNationalIdentityNumbers.Contains(e));
+        var unmatchedNationalIdentityNumbers = matchedNationalIdentityNumbers.Where(e => !nationalIdentityNumbers.Contains(e));
+
+        var matchedPersonContactDetails = matchedContactDetails.Select(_mapper.Map<IPersonContactDetails>);
 
         return new PersonContactDetailsLookupResult
         {
-            MatchedPersonContactDetails = matchedUserContact.ToImmutableList<IPersonContactDetails>(),
+            MatchedPersonContactDetails = matchedPersonContactDetails.ToImmutableList(),
             UnmatchedNationalIdentityNumbers = unmatchedNationalIdentityNumbers.ToImmutableList()
         };
     }

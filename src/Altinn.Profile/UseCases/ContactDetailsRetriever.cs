@@ -45,7 +45,7 @@ public class ContactDetailsRetriever : IContactDetailsRetriever
             return false;
         }
 
-        var contactDetails = await _personService.GetUserContactAsync(lookupCriteria.NationalIdentityNumbers);
+        var contactDetails = await _personService.GetContactDetailsAsync(lookupCriteria.NationalIdentityNumbers);
 
         return contactDetails.Match(
             MapToContactDetailsLookupResult,
