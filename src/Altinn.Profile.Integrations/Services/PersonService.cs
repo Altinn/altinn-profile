@@ -38,7 +38,7 @@ public class PersonService : IPersonService
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains the user's contact information, or <c>null</c> if not found.
     /// </returns>
-    public async Task<IUserContactInfo?> GetUserContactInfoAsync(string nationalIdentityNumber)
+    public async Task<IPersonContactDetails?> GetUserContactInfoAsync(string nationalIdentityNumber)
     {
         if (!_nationalIdentityNumberChecker.IsValid(nationalIdentityNumber))
         {
@@ -46,7 +46,7 @@ public class PersonService : IPersonService
         }
 
         var userContactInfoEntity = await _registerRepository.GetUserContactInfoAsync([nationalIdentityNumber]);
-        return _mapper.Map<IUserContactInfo>(userContactInfoEntity);
+        return _mapper.Map<IPersonContactDetails>(userContactInfoEntity);
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ public class PersonService : IPersonService
     /// A task that represents the asynchronous operation. The task result contains a collection of user contact information, or an empty collection if none are found.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="nationalIdentityNumbers"/> is <c>null</c>.</exception>
-    public async Task<Result<IContactInfoLookupResult, bool>> GetUserContactAsync(IEnumerable<string> nationalIdentityNumbers)
+    public async Task<Result<IPersonContactDetailsLookupResult, bool>> GetUserContactAsync(IEnumerable<string> nationalIdentityNumbers)
     {
         ArgumentNullException.ThrowIfNull(nationalIdentityNumbers);
 
@@ -65,14 +65,14 @@ public class PersonService : IPersonService
 
         var usersContactInfo = await _registerRepository.GetUserContactInfoAsync(validnNtionalIdentityNumbers);
 
-        var matchedUserContact = usersContactInfo.Select(_mapper.Map<UserContactInfo>);
+        var matchedUserContact = usersContactInfo.Select(_mapper.Map<PersonContactDetails>);
 
         var matchedNationalIdentityNumbers = new HashSet<string>(usersContactInfo.Select(e => e.FnumberAk));
         var unmatchedNationalIdentityNumbers = nationalIdentityNumbers.Where(e => !matchedNationalIdentityNumbers.Contains(e));
 
-        return new UserContactInfoLookupResult
+        return new PersonContactDetailsLookupResult
         {
-            MatchedUserContact = matchedUserContact.ToImmutableList<IUserContactInfo>(),
+            MatchedPersonContactDetails = matchedUserContact.ToImmutableList<IPersonContactDetails>(),
             UnmatchedNationalIdentityNumbers = unmatchedNationalIdentityNumbers.ToImmutableList()
         };
     }

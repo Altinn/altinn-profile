@@ -17,7 +17,7 @@ public interface IPersonService
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains the user's contact information, or <c>null</c> if not found.
     /// </returns>
-    Task<IUserContactInfo?> GetUserContactInfoAsync(string nationalIdentityNumber);
+    Task<IPersonContactDetails?> GetUserContactInfoAsync(string nationalIdentityNumber);
 
     /// <summary>
     /// Asynchronously retrieves the contact information for multiple users based on their national identity numbers.
@@ -26,5 +26,5 @@ public interface IPersonService
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a collection of user contact information, or an empty collection if none are found.
     /// </returns>
-    Task<Result<IContactInfoLookupResult, bool>> GetUserContactAsync(IEnumerable<string> nationalIdentityNumbers);
+    Task<Result<IPersonContactDetailsLookupResult, bool>> GetUserContactAsync(IEnumerable<string> nationalIdentityNumbers);
 }

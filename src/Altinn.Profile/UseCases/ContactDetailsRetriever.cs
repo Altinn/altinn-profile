@@ -55,37 +55,37 @@ public class ContactDetailsRetriever : IContactDetailsRetriever
     /// <summary>
     /// Maps the person contact details to a <see cref="ContactDetails"/>.
     /// </summary>
-    /// <param name="personContactDetails">The person contact details to map.</param>
+    /// <param name="contactDetails">The person contact details to map.</param>
     /// <returns>The mapped <see cref="ContactDetails"/>.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="personContactDetails"/> is null.</exception>
-    private ContactDetails MapToContactDetails(IUserContactInfo personContactDetails)
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="contactDetails"/> is null.</exception>
+    private ContactDetails MapToContactDetails(IPersonContactDetails contactDetails)
     {
-        ArgumentNullException.ThrowIfNull(personContactDetails);
+        ArgumentNullException.ThrowIfNull(contactDetails);
 
         return new ContactDetails
         {
-            Reservation = personContactDetails.IsReserved,
-            EmailAddress = personContactDetails.EmailAddress,
-            LanguageCode = personContactDetails.LanguageCode,
-            MobilePhoneNumber = personContactDetails.MobilePhoneNumber,
-            NationalIdentityNumber = personContactDetails.NationalIdentityNumber
+            Reservation = contactDetails.IsReserved,
+            EmailAddress = contactDetails.EmailAddress,
+            LanguageCode = contactDetails.LanguageCode,
+            MobilePhoneNumber = contactDetails.MobilePhoneNumber,
+            NationalIdentityNumber = contactDetails.NationalIdentityNumber
         };
     }
 
     /// <summary>
     /// Maps the person contact details lookup result to a <see cref="ContactDetailsLookupResult"/>.
     /// </summary>
-    /// <param name="personContactDetailsLookupResult">The lookup result containing the person contact details.</param>
+    /// <param name="lookupResult">The lookup result containing the person contact details.</param>
     /// <returns>
     /// A <see cref="Result{TValue, TError}"/> containing a <see cref="ContactDetailsLookupResult"/> if the mapping is successful, or <c>false</c> if the mapping fails.
     /// </returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="personContactDetailsLookupResult"/> is null.</exception>
-    private Result<ContactDetailsLookupResult, bool> MapToContactDetailsLookupResult(IContactInfoLookupResult personContactDetailsLookupResult)
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="lookupResult"/> is null.</exception>
+    private Result<ContactDetailsLookupResult, bool> MapToContactDetailsLookupResult(IPersonContactDetailsLookupResult lookupResult)
     {
-        ArgumentNullException.ThrowIfNull(personContactDetailsLookupResult);
+        ArgumentNullException.ThrowIfNull(lookupResult);
 
-        var matchedContactDetails = personContactDetailsLookupResult.MatchedUserContact?.Select(MapToContactDetails).ToImmutableList();
+        var matchedContactDetails = lookupResult.MatchedPersonContactDetails?.Select(MapToContactDetails).ToImmutableList();
 
-        return new ContactDetailsLookupResult(matchedContactDetails, personContactDetailsLookupResult?.UnmatchedNationalIdentityNumbers);
+        return new ContactDetailsLookupResult(matchedContactDetails, lookupResult?.UnmatchedNationalIdentityNumbers);
     }
 }
