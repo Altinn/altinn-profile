@@ -7,7 +7,7 @@ namespace Altinn.Profile.Integrations.Entities;
 /// <summary>
 /// Defines the result of a user contact information lookup.
 /// </summary>
-public interface IUserContactInfoLookupResult
+public interface IContactInfoLookupResult
 {
     /// <summary>
     /// Gets a list of user contact information that was successfully matched during the lookup.

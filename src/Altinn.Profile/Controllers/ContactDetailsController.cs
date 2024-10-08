@@ -11,41 +11,44 @@ using Microsoft.AspNetCore.Mvc;
 namespace Altinn.Profile.Controllers;
 
 /// <summary>
-/// Controller to retrieve users contact details.
+/// Controller to retrieve the contact details for one or more persons.
 /// </summary>
 [Authorize]
 [ApiController]
 [Consumes("application/json")]
 [Produces("application/json")]
 [Route("profile/api/v1/contact/details")]
-public class UserContactDetailsController : ControllerBase
+public class ContactDetailsController : ControllerBase
 {
-    private readonly IUserContactDetailsRetriever _contactDetailsRetriever;
+    private readonly IContactDetailsRetriever _contactDetailsRetriever;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="UserContactDetailsController"/> class.
+    /// Initializes a new instance of the <see cref="ContactDetailsController"/> class.
     /// </summary>
-    /// <param name="contactDetailsRetriever">The use case for retrieving user contact details.</param>
+    /// <param name="contactDetailsRetriever">The use case for retrieving the contact details.</param>
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="contactDetailsRetriever"/> is null.</exception>
-    public UserContactDetailsController(IUserContactDetailsRetriever contactDetailsRetriever)
+    public ContactDetailsController(IContactDetailsRetriever contactDetailsRetriever)
     {
         _contactDetailsRetriever = contactDetailsRetriever ?? throw new ArgumentNullException(nameof(contactDetailsRetriever));
     }
 
     /// <summary>
-    /// Retrieves the contact details for users based on their national identity numbers.
+    /// Retrieves the contact details for persons based on their national identity numbers.
     /// </summary>
     /// <param name="request">A collection of national identity numbers.</param>
-    /// <returns>A task that represents the asynchronous operation, containing a response with users' contact details.</returns>
+    /// <returns>
+    /// A task that represents the asynchronous operation, containing a response with persons' contact details.
+    /// Returns a <see cref="ContactDetailsLookupResult"/> with status 200 OK if successful.
+    /// </returns>
     [HttpPost("lookup")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(UserContactDetailsLookupResult), StatusCodes.Status200OK)]
-    public async Task<ActionResult<UserContactDetailsLookupResult>> PostLookup([FromBody] UserContactPointLookup request)
+    [ProducesResponseType(typeof(ContactDetailsLookupResult), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ContactDetailsLookupResult>> PostLookup([FromBody] UserContactPointLookup request)
     {
         var result = await _contactDetailsRetriever.RetrieveAsync(request);
 
-        return result.Match<ActionResult<UserContactDetailsLookupResult>>(
+        return result.Match<ActionResult<ContactDetailsLookupResult>>(
             success => Ok(success),
             failure => Problem("Unable to retrieve contact details."));
     }

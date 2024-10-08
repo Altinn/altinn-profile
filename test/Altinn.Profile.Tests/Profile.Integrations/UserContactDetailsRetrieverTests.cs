@@ -18,12 +18,12 @@ namespace Altinn.Profile.Tests.Profile.Integrations;
 public class UserContactDetailsRetrieverTests
 {
     private readonly Mock<IPersonService> _mockRegisterService;
-    private readonly UserContactDetailsRetriever _retriever;
+    private readonly ContactDetailsRetriever _retriever;
 
     public UserContactDetailsRetrieverTests()
     {
         _mockRegisterService = new Mock<IPersonService>();
-        _retriever = new UserContactDetailsRetriever(_mockRegisterService.Object);
+        _retriever = new ContactDetailsRetriever(_mockRegisterService.Object);
     }
 
     [Fact]
