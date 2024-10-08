@@ -52,6 +52,11 @@ public class ContactDetailsController : ControllerBase
     [ProducesResponseType(typeof(ContactDetailsLookupResult), StatusCodes.Status200OK)]
     public async Task<ActionResult<ContactDetailsLookupResult>> PostLookup([FromBody] UserContactPointLookup lookupCriteria)
     {
+        if (ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         if (lookupCriteria?.NationalIdentityNumbers == null || lookupCriteria.NationalIdentityNumbers.Count == 0)
         {
             return BadRequest("National identity numbers cannot be null or empty.");
