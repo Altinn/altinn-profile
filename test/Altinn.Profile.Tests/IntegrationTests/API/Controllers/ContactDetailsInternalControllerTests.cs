@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Controllers;
@@ -117,5 +118,16 @@ public class ContactDetailsInternalControllerTests
         Assert.Equal(lookupResult, returnValue);
         Assert.Single(returnValue.MatchedContactDetails);
         Assert.Single(returnValue.UnmatchedNationalIdentityNumbers);
+
+        var matchedContactDetails = returnValue.MatchedContactDetails.FirstOrDefault();
+        Assert.NotNull(matchedContactDetails);
+        Assert.Equal(contactDetails.Reservation, matchedContactDetails.Reservation);
+        Assert.Equal(contactDetails.EmailAddress, matchedContactDetails.EmailAddress);
+        Assert.Equal(contactDetails.LanguageCode, matchedContactDetails.LanguageCode);
+        Assert.Equal(contactDetails.MobilePhoneNumber, matchedContactDetails.MobilePhoneNumber);
+        Assert.Equal(contactDetails.NationalIdentityNumber, matchedContactDetails.NationalIdentityNumber);
+
+        var unmatchedNationalIdentityNumber = returnValue.UnmatchedNationalIdentityNumbers.FirstOrDefault();
+        Assert.Equal("08110270527", unmatchedNationalIdentityNumber);
     }
 }

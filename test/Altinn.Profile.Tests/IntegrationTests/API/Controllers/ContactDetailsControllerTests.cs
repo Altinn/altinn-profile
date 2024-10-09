@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Controllers;
@@ -154,6 +155,15 @@ public class ContactDetailsControllerTests
 
         var returnValue = Assert.IsType<ContactDetailsLookupResult>(result.Value);
         Assert.Equal(lookupResult, returnValue);
+        Assert.Single(returnValue.MatchedContactDetails);
+
+        var matchedContactDetails = returnValue.MatchedContactDetails.FirstOrDefault();
+        Assert.NotNull(matchedContactDetails);
+        Assert.Equal(contactDetails.Reservation, matchedContactDetails.Reservation);
+        Assert.Equal(contactDetails.EmailAddress, matchedContactDetails.EmailAddress);
+        Assert.Equal(contactDetails.LanguageCode, matchedContactDetails.LanguageCode);
+        Assert.Equal(contactDetails.MobilePhoneNumber, matchedContactDetails.MobilePhoneNumber);
+        Assert.Equal(contactDetails.NationalIdentityNumber, matchedContactDetails.NationalIdentityNumber);
     }
 
     [Fact]
@@ -248,6 +258,17 @@ public class ContactDetailsControllerTests
         Assert.Equal(lookupResult, returnValue);
         Assert.Single(returnValue.MatchedContactDetails);
         Assert.Single(returnValue.UnmatchedNationalIdentityNumbers);
+
+        var matchedContactDetails = returnValue.MatchedContactDetails.FirstOrDefault();
+        Assert.NotNull(matchedContactDetails);
+        Assert.Equal(contactDetails.Reservation, matchedContactDetails.Reservation);
+        Assert.Equal(contactDetails.EmailAddress, matchedContactDetails.EmailAddress);
+        Assert.Equal(contactDetails.LanguageCode, matchedContactDetails.LanguageCode);
+        Assert.Equal(contactDetails.MobilePhoneNumber, matchedContactDetails.MobilePhoneNumber);
+        Assert.Equal(contactDetails.NationalIdentityNumber, matchedContactDetails.NationalIdentityNumber);
+
+        var unmatchedNationalIdentityNumber = returnValue.UnmatchedNationalIdentityNumbers.FirstOrDefault();
+        Assert.Equal("16051327393", unmatchedNationalIdentityNumber);
     }
 
     [Fact]
@@ -284,5 +305,14 @@ public class ContactDetailsControllerTests
 
         var returnValue = Assert.IsType<ContactDetailsLookupResult>(result.Value);
         Assert.Equal(lookupResult, returnValue);
+        Assert.Single(returnValue.MatchedContactDetails);
+
+        var matchedContactDetails = returnValue.MatchedContactDetails.FirstOrDefault();
+        Assert.NotNull(matchedContactDetails);
+        Assert.Equal(contactDetails.Reservation, matchedContactDetails.Reservation);
+        Assert.Equal(contactDetails.EmailAddress, matchedContactDetails.EmailAddress);
+        Assert.Equal(contactDetails.LanguageCode, matchedContactDetails.LanguageCode);
+        Assert.Equal(contactDetails.MobilePhoneNumber, matchedContactDetails.MobilePhoneNumber);
+        Assert.Equal(contactDetails.NationalIdentityNumber, matchedContactDetails.NationalIdentityNumber);
     }
 }
