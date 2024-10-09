@@ -17,13 +17,13 @@ namespace Altinn.Profile.Tests.Profile.Integrations;
 /// <summary>
 /// Contains unit tests for the <see cref="PersonRepository"/> class.
 /// </summary>
-public class RegisterRepositoryTests : IDisposable
+public class PersonRepositoryTests : IDisposable
 {
     private readonly ProfileDbContext _context;
     private readonly PersonRepository _registerRepository;
     private readonly List<Person> _personContactAndReservationTestData;
     
-    public RegisterRepositoryTests()
+    public PersonRepositoryTests()
     {
         var options = new DbContextOptionsBuilder<ProfileDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
