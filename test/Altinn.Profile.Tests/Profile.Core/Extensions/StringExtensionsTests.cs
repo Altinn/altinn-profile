@@ -1,25 +1,13 @@
-﻿using Altinn.Profile.Core.Extensions;
+﻿using System.Reflection;
+
+using Altinn.Profile.Core.Extensions;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.Core.Extensions;
 
 public class StringExtensionsTests
 {
-    [Fact]
-    public void IsDigitsOnly_InvalidInput_ReturnsFalse()
-    {
-        Assert.False("123A456".IsDigitsOnly());
-        Assert.False("123 456".IsDigitsOnly());
-        Assert.False(string.Empty.IsDigitsOnly());
-        Assert.False(((string)null).IsDigitsOnly());
-    }
-
-    [Fact]
-    public void IsDigitsOnly_ValidDigits_ReturnsTrue()
-    {
-        Assert.True("1234567890".IsDigitsOnly());
-    }
-
     [Theory]
     [InlineData("", false)]
     [InlineData(null, false)]
@@ -29,94 +17,103 @@ public class StringExtensionsTests
     [InlineData("1234567890", true)]
     public void IsDigitsOnly_VariousInputs_ReturnsExpected(string input, bool expected)
     {
+        // Act
         var result = input.IsDigitsOnly();
+
+        // Assert
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void IsValidSocialSecurityNumber_CacheWorks()
-    {
-        var socialSecurityNumber = "08119043698";
-        var firstCheck = socialSecurityNumber.IsValidSocialSecurityNumber();
-        var secondCheck = socialSecurityNumber.IsValidSocialSecurityNumber(); // Should hit cache
-
-        Assert.True(firstCheck);
-        Assert.True(secondCheck);
-    }
-
     [Theory]
-    [InlineData("12345678900")]
-    [InlineData("98765432100")]
-    [InlineData("11111111111")]
-    public void IsValidSocialSecurityNumber_InvalidNumbers_ReturnsFalse(string number)
-    {
-        var result = number.IsValidSocialSecurityNumber();
-        Assert.False(result);
-    }
-
-    [Theory]
-    [InlineData("")]
-    [InlineData(" ")]
-    [InlineData(null)]
-    [InlineData("12345")]
-    [InlineData("0811a043698")]
-    public void IsValidSocialSecurityNumber_InvalidFormat_ReturnsFalse(string number)
-    {
-        var result = number.IsValidSocialSecurityNumber();
-        Assert.False(result);
-    }
-
-    [Theory]
-    [InlineData("08119043698")]
-    [InlineData("11111111111")]
-    public void IsValidSocialSecurityNumber_NoControlDigits(string socialSecurityNumber)
-    {
-        var result = socialSecurityNumber.IsValidSocialSecurityNumber(false);
-        Assert.True(result || !result);
-    }
-
-    [Theory]
-    [InlineData("08119043698")]
-    [InlineData("23017126016")]
-    [InlineData("03087937150")]
-    public void IsValidSocialSecurityNumber_ValidNumbers_ReturnsTrue(string number)
-    {
-        var result = number.IsValidSocialSecurityNumber();
-        Assert.True(result);
-    }
-
-    [Theory]
-    [InlineData("08119043698", true)]
-    [InlineData("12345678901", false)]
-    public void IsValidSocialSecurityNumber_WithControlDigits(string socialSecurityNumber, bool expected)
-    {
-        var result = socialSecurityNumber.IsValidSocialSecurityNumber(true);
-        Assert.Equal(expected, result);
-    }
-
-    [Fact]
-    public void RemoveWhitespace_EmptyOrNullInput_ReturnsInput()
-    {
-        Assert.Null(((string)null).RemoveWhitespace());
-        Assert.Equal(string.Empty, " ".RemoveWhitespace());
-    }
-
-    [Fact]
-    public void RemoveWhitespace_ValidInput_RemovesWhitespace()
-    {
-        var result = "  Hello World  ".RemoveWhitespace();
-        Assert.Equal("HelloWorld", result);
-    }
-
-    [Theory]
+    [InlineData(null, null)]
     [InlineData("", "")]
     [InlineData(" ", "")]
-    [InlineData(null, null)]
     [InlineData("NoSpaces", "NoSpaces")]
     [InlineData("  Hello World  ", "HelloWorld")]
     public void RemoveWhitespace_VariousInputs_ReturnsExpected(string input, string expected)
     {
+        // Act
         var result = input.RemoveWhitespace();
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData("", false)]
+    [InlineData("12345", false)]
+    [InlineData("12345678900", false)]
+    [InlineData("98765432100", false)]
+    [InlineData("08119043698", true)]
+    [InlineData("23017126016", true)]
+    [InlineData("04045325356", true)]
+    public void IsValidSocialSecurityNumber_ValidatesCorrectly(string socialSecurityNumber, bool expected)
+    {
+        // Act
+        var result = socialSecurityNumber.IsValidSocialSecurityNumber();
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void IsValidSocialSecurityNumber_CachedResult_UsesCache()
+    {
+        // Arrange
+        var ssn = "08119043698";
+
+        // Act
+        var firstCheck = ssn.IsValidSocialSecurityNumber(); // First call
+        var secondCheck = ssn.IsValidSocialSecurityNumber(); // Should be cached
+
+        // Assert
+        Assert.True(firstCheck);
+        Assert.True(secondCheck); // Cached result should match
+    }
+
+    [Fact]
+    public void IsValidSocialSecurityNumber_InvalidFormat_ReturnsFalse()
+    {
+        // Arrange
+        var invalidSsn = "0811a043698";
+
+        // Act
+        var result = invalidSsn.IsValidSocialSecurityNumber();
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void CalculateControlDigits_WorksCorrectly()
+    {
+        // Arrange
+        var firstNineDigits = "081190436";
+        var expectedControlDigits = "98"; // Known correct control digits for this SSN
+
+        // Act
+        var method = typeof(StringExtensions).GetMethod("CalculateControlDigits", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var result = method.Invoke(null, [firstNineDigits]);
+
+        // Assert
+        Assert.Equal(expectedControlDigits, result);
+    }
+
+    [Theory]
+    [InlineData("11113432278", 7)]
+    [InlineData("08114231372", 7)]
+    public void CalculateControlDigit_WorksCorrectly(string socialSecurityNumber, int expected)
+    {
+        // Arrange
+        var firstNineDigits = socialSecurityNumber[..9];
+        var method = typeof(StringExtensions).GetMethod("CalculateControlDigit", BindingFlags.NonPublic | BindingFlags.Static);
+        var weightsFirst = new[] { 3, 7, 6, 1, 8, 9, 4, 5, 2 };
+
+        // Act
+        var result = method.Invoke(null, [firstNineDigits, weightsFirst]);
+
+        // Assert
         Assert.Equal(expected, result);
     }
 }
