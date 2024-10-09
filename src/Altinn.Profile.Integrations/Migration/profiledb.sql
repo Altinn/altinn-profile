@@ -47,5 +47,4 @@ CREATE TABLE IF NOT EXISTS contact_and_reservation.person (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_mailbox_supplier_id_fk ON contact_and_reservation.person (mailbox_supplier_id_fk);
 CREATE INDEX idx_fnumber_ak ON contact_and_reservation.person (fnumber_ak);
