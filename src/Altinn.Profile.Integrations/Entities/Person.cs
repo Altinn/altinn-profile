@@ -12,7 +12,6 @@ namespace Altinn.Profile.Integrations.Entities;
 /// </summary>
 [Table("person", Schema = "contact_and_reservation")]
 [Index("FnumberAk", Name = "idx_fnumber_ak")]
-[Index("MailboxSupplierIdFk", Name = "idx_mailbox_supplier_id_fk")]
 [Index("FnumberAk", Name = "person_fnumber_ak_key", IsUnique = true)]
 public partial class Person
 {

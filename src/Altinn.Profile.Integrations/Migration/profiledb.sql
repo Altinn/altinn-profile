@@ -1,20 +1,9 @@
-﻿-- Drop the database if it exists
-DROP DATABASE IF EXISTS profiledb;
-
--- Create the database
-CREATE DATABASE profiledb
-    WITH
-    OWNER = postgres
-    ENCODING = 'UTF8'
-    LC_COLLATE = 'Norwegian_Norway.1252'
-    LC_CTYPE = 'Norwegian_Norway.1252'
-    LOCALE_PROVIDER = 'libc'
-    TABLESPACE = pg_default
-    CONNECTION LIMIT = -1
-    IS_TEMPLATE = False;
-
--- Create schema if it doesn't exist
+﻿-- Create schema if it doesn't exist
 CREATE SCHEMA IF NOT EXISTS contact_and_reservation;
+
+-- Grant access to the schema
+GRANT ALL ON SCHEMA contact_and_reservation TO platform_profile_admin;
+GRANT USAGE ON SCHEMA contact_and_reservation TO platform_profile;
 
 -- Create table MailboxSupplier
 CREATE TABLE IF NOT EXISTS contact_and_reservation.mailbox_supplier (
@@ -50,5 +39,4 @@ CREATE TABLE IF NOT EXISTS contact_and_reservation.person (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_mailbox_supplier_id_fk ON contact_and_reservation.person (mailbox_supplier_id_fk);
 CREATE INDEX idx_fnumber_ak ON contact_and_reservation.person (fnumber_ak);
