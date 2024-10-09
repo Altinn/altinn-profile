@@ -161,14 +161,14 @@ public class PersonServiceTests
 
         var personList = new List<Person> { firstRandomPerson, secondRandomPerson }.ToImmutableList();
 
-        var firstMappedContactDetails = new Mock<PersonContactDetails>();
+        var firstMappedContactDetails = new Mock<IPersonContactDetails>();
         firstMappedContactDetails.SetupGet(x => x.IsReserved).Returns(firstRandomPerson.Reservation);
         firstMappedContactDetails.SetupGet(x => x.EmailAddress).Returns(firstRandomPerson.EmailAddress);
         firstMappedContactDetails.SetupGet(x => x.LanguageCode).Returns(firstRandomPerson.LanguageCode);
         firstMappedContactDetails.SetupGet(x => x.NationalIdentityNumber).Returns(firstRandomPerson.FnumberAk);
         firstMappedContactDetails.SetupGet(x => x.MobilePhoneNumber).Returns(firstRandomPerson.MobilePhoneNumber);
 
-        _mapperMock.Setup(x => x.Map<PersonContactDetails>(firstRandomPerson))
+        _mapperMock.Setup(x => x.Map<IPersonContactDetails>(firstRandomPerson))
             .Returns(firstMappedContactDetails.Object);
 
         var secondMappedContactDetails = new Mock<IPersonContactDetails>();
@@ -265,7 +265,7 @@ public class PersonServiceTests
         };
         var randomPersons = new List<Person> { randomPerson }.ToImmutableList();
 
-        var personContactDetails = new Mock<PersonContactDetails>();
+        var personContactDetails = new Mock<IPersonContactDetails>();
         personContactDetails.SetupGet(x => x.IsReserved).Returns(randomPerson.Reservation);
         personContactDetails.SetupGet(x => x.EmailAddress).Returns(randomPerson.EmailAddress);
         personContactDetails.SetupGet(x => x.LanguageCode).Returns(randomPerson.LanguageCode);
@@ -273,7 +273,7 @@ public class PersonServiceTests
         personContactDetails.SetupGet(x => x.MobilePhoneNumber).Returns(randomPerson.MobilePhoneNumber);
 
         _mapperMock
-            .Setup(x => x.Map<PersonContactDetails>(randomPerson))
+            .Setup(x => x.Map<IPersonContactDetails>(randomPerson))
             .Returns(personContactDetails.Object);
 
         _personRepositoryMock
