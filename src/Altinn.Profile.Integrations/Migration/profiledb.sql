@@ -1,16 +1,4 @@
-﻿-- Create the database
-CREATE DATABASE profiledb
-    WITH
-    OWNER = postgres
-    ENCODING = 'UTF8'
-    LC_COLLATE = 'Norwegian_Norway.1252'
-    LC_CTYPE = 'Norwegian_Norway.1252'
-    LOCALE_PROVIDER = 'libc'
-    TABLESPACE = pg_default
-    CONNECTION LIMIT = -1
-    IS_TEMPLATE = False;
-
--- Create schema if it doesn't exist
+﻿-- Create schema if it doesn't exist
 CREATE SCHEMA IF NOT EXISTS contact_and_reservation;
 
 -- Grant access to the schema
