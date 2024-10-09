@@ -29,17 +29,7 @@ public class ContactDetailsControllerTests
     }
 
     [Fact]
-    public void Constructor_NullLogger_ThrowsArgumentNullException()
-    {
-        // Arrange
-        var contactDetailsRetrieverMock = new Mock<IContactDetailsRetriever>();
-
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new ContactDetailsController(null, contactDetailsRetrieverMock.Object));
-    }
-
-    [Fact]
-    public void Constructor_NullContactDetailsRetriever_ThrowsArgumentNullException()
+    public void Constructor_WithNullContactDetailsRetriever_ThrowsArgumentNullException()
     {
         // Arrange
         var loggerMock = new Mock<ILogger<ContactDetailsController>>();
@@ -49,7 +39,17 @@ public class ContactDetailsControllerTests
     }
 
     [Fact]
-    public void Constructor_ValidParameters_InitializesCorrectly()
+    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var contactDetailsRetrieverMock = new Mock<IContactDetailsRetriever>();
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new ContactDetailsController(null, contactDetailsRetrieverMock.Object));
+    }
+
+    [Fact]
+    public void Constructor_WithValidParameters_InitializesCorrectly()
     {
         // Arrange
         var loggerMock = new Mock<ILogger<ContactDetailsController>>();
@@ -63,7 +63,61 @@ public class ContactDetailsControllerTests
     }
 
     [Fact]
-    public async Task PostLookup_DoesNotBlock_WhenServiceCallIsLongRunning()
+    public async Task PostLookup_WhenExceptionOccurs_ReturnsInternalServerError_And_LogsError()
+    {
+        // Arrange
+        var request = new UserContactPointLookup
+        {
+            NationalIdentityNumbers = ["27038893837"]
+        };
+
+        _mockContactDetailsRetriever.Setup(x => x.RetrieveAsync(request))
+            .ThrowsAsync(new Exception("Test exception"));
+
+        // Act
+        var response = await _controller.PostLookup(request);
+
+        // Assert
+        var problemResult = Assert.IsType<ObjectResult>(response.Result);
+
+        Assert.Equal(StatusCodes.Status500InternalServerError, problemResult.StatusCode);
+
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("An error occurred while retrieving contact details.")),
+                It.IsAny<Exception>(),
+                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task PostLookup_WhenNoContactDetailsFound_ReturnsNotFound()
+    {
+        // Arrange
+        var request = new UserContactPointLookup
+        {
+            NationalIdentityNumbers = ["30083542175"]
+        };
+
+        var lookupResult = new ContactDetailsLookupResult(
+            matchedContactDetails: [],
+            unmatchedNationalIdentityNumbers: [request.NationalIdentityNumbers[0]]);
+
+        _mockContactDetailsRetriever.Setup(x => x.RetrieveAsync(request))
+            .ReturnsAsync(lookupResult);
+
+        // Act
+        var response = await _controller.PostLookup(request);
+
+        // Assert
+        var notFoundResult = Assert.IsType<NotFoundResult>(response.Result);
+        Assert.Equal(StatusCodes.Status404NotFound, notFoundResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task PostLookup_WhenServiceCallIsLongRunning_DoesNotBlock()
     {
         // Arrange
         var request = new UserContactPointLookup
@@ -103,7 +157,7 @@ public class ContactDetailsControllerTests
     }
 
     [Fact]
-    public async Task PostLookup_ReturnsBadRequest_WhenModelStateIsInvalid()
+    public async Task PostLookup_WithInvalidModelState_ReturnsBadRequest()
     {
         // Arrange
         var invalidRequest = new UserContactPointLookup
@@ -122,7 +176,7 @@ public class ContactDetailsControllerTests
     }
 
     [Fact]
-    public async Task PostLookup_ReturnsBadRequest_WhenNationalIdentityNumbersContainInvalidFormat()
+    public async Task PostLookup_WithInvalidSingleNationalIdentityNumber_ReturnsBadRequest()
     {
         // Arrange
         var invalidRequest = new UserContactPointLookup
@@ -140,7 +194,7 @@ public class ContactDetailsControllerTests
     }
 
     [Fact]
-    public async Task PostLookup_ReturnsBadRequest_WhenRequestIsInvalid()
+    public async Task PostLookup_WithNoNationalIdentityNumbers_ReturnsBadRequest()
     {
         // Arrange
         var invalidRequest = new UserContactPointLookup
@@ -159,37 +213,7 @@ public class ContactDetailsControllerTests
     }
 
     [Fact]
-    public async Task PostLookup_ReturnsInternalServerError_AndLogsError_WhenExceptionOccurs()
-    {
-        // Arrange
-        var request = new UserContactPointLookup
-        {
-            NationalIdentityNumbers = ["27038893837"]
-        };
-
-        _mockContactDetailsRetriever.Setup(x => x.RetrieveAsync(request))
-            .ThrowsAsync(new Exception("Test exception"));
-
-        // Act
-        var response = await _controller.PostLookup(request);
-
-        // Assert
-        var problemResult = Assert.IsType<ObjectResult>(response.Result);
-
-        Assert.Equal(StatusCodes.Status500InternalServerError, problemResult.StatusCode);
-
-        _loggerMock.Verify(
-            x => x.Log(
-                LogLevel.Error,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("An error occurred while retrieving contact details.")),
-                It.IsAny<Exception>(),
-                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),
-            Times.Once);
-    }
-
-    [Fact]
-    public async Task PostLookup_ReturnsMixedResults_WhenOneNumberMatchesAndOneDoesNot()
+    public async Task PostLookup_WithMixedNationalIdentityNumbers_ReturnsMixedResults()
     {
         // Arrange
         var request = new UserContactPointLookup
@@ -227,31 +251,7 @@ public class ContactDetailsControllerTests
     }
 
     [Fact]
-    public async Task PostLookup_ReturnsNotFound_WhenNoContactDetailsFound()
-    {
-        // Arrange
-        var request = new UserContactPointLookup
-        {
-            NationalIdentityNumbers = ["30083542175"]
-        };
-
-        var lookupResult = new ContactDetailsLookupResult(
-            matchedContactDetails: [],
-            unmatchedNationalIdentityNumbers: [request.NationalIdentityNumbers[0]]);
-
-        _mockContactDetailsRetriever.Setup(x => x.RetrieveAsync(request))
-            .ReturnsAsync(lookupResult);
-
-        // Act
-        var response = await _controller.PostLookup(request);
-
-        // Assert
-        var notFoundResult = Assert.IsType<NotFoundResult>(response.Result);
-        Assert.Equal(StatusCodes.Status404NotFound, notFoundResult.StatusCode);
-    }
-
-    [Fact]
-    public async Task PostLookup_ReturnsOk_WhenRequestIsValid()
+    public async Task PostLookup_WithValidRequest_ReturnsOk()
     {
         // Arrange
         var request = new UserContactPointLookup

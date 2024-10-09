@@ -29,17 +29,7 @@ public class ContactDetailsInternalControllerTests
     }
 
     [Fact]
-    public void Constructor_NullLogger_ThrowsArgumentNullException()
-    {
-        // Arrange
-        var contactDetailsRetrieverMock = new Mock<IContactDetailsRetriever>();
-
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new ContactDetailsInternalController(null, contactDetailsRetrieverMock.Object));
-    }
-
-    [Fact]
-    public void Constructor_NullContactDetailsRetriever_ThrowsArgumentNullException()
+    public void Constructor_WithNullContactDetailsRetriever_ThrowsArgumentNullException()
     {
         // Arrange
         var loggerMock = new Mock<ILogger<ContactDetailsInternalController>>();
@@ -49,7 +39,17 @@ public class ContactDetailsInternalControllerTests
     }
 
     [Fact]
-    public void Constructor_ValidParameters_InitializesCorrectly()
+    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var contactDetailsRetrieverMock = new Mock<IContactDetailsRetriever>();
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new ContactDetailsInternalController(null, contactDetailsRetrieverMock.Object));
+    }
+
+    [Fact]
+    public void Constructor_WithValidParameters_InitializesCorrectly()
     {
         // Arrange
         var loggerMock = new Mock<ILogger<ContactDetailsInternalController>>();
@@ -63,7 +63,7 @@ public class ContactDetailsInternalControllerTests
     }
 
     [Fact]
-    public async Task PostLookup_ReturnsBadRequest_WhenModelStateIsInvalid()
+    public async Task PostLookup_WithInvalidModelState_ReturnsBadRequest()
     {
         // Arrange
         var request = new UserContactPointLookup
@@ -71,7 +71,7 @@ public class ContactDetailsInternalControllerTests
             NationalIdentityNumbers = ["17092037169"]
         };
 
-        _controller.ModelState.AddModelError("TestError", "Invalid model!");
+        _controller.ModelState.AddModelError("TestError", "Invalid data model");
 
         // Act
         var response = await _controller.PostLookup(request);
@@ -82,7 +82,7 @@ public class ContactDetailsInternalControllerTests
     }
 
     [Fact]
-    public async Task PostLookup_ReturnsMixedResults_WhenOneNumberMatchesAndOneDoesNot()
+    public async Task PostLookup_WithMixedNationalIdentityNumbers_ReturnsMixedResults()
     {
         // Arrange
         var request = new UserContactPointLookup
