@@ -1,7 +1,4 @@
-﻿-- Drop the database if it exists
-DROP DATABASE IF EXISTS profiledb;
-
--- Create the database
+﻿-- Create the database
 CREATE DATABASE profiledb
     WITH
     OWNER = postgres
