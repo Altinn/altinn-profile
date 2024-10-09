@@ -42,6 +42,7 @@ public class PersonServiceTests
 
         var firstRandomPerson = new Person
         {
+            Reservation = false,
             LanguageCode = "nb",
             FnumberAk = "17092037169",
             MailboxAddress = "1234 Test St",
@@ -52,6 +53,7 @@ public class PersonServiceTests
 
         var secondRandomPerson = new Person
         {
+            Reservation = true,
             LanguageCode = "nb",
             FnumberAk = "17033112912",
             MailboxAddress = "1234 Test St",
@@ -141,6 +143,7 @@ public class PersonServiceTests
 
         var firstRandomPerson = new Person
         {
+            Reservation = false,
             LanguageCode = "nb",
             FnumberAk = "12028193007",
             MailboxAddress = "1234 Test St",
@@ -151,6 +154,7 @@ public class PersonServiceTests
 
         var secondRandomPerson = new Person
         {
+            Reservation = true,
             LanguageCode = "nb",
             FnumberAk = "01091235338",
             MailboxAddress = "1234 Test St",
@@ -256,6 +260,7 @@ public class PersonServiceTests
         var nationalIdentityNumber = "23080188641";
         var randomPerson = new Person
         {
+            Reservation = false,
             LanguageCode = "nb",
             MailboxAddress = "1234 Test St",
             MobilePhoneNumber = "+4791234567",
