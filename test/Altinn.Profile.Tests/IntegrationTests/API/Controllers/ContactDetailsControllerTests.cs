@@ -103,6 +103,25 @@ public class ContactDetailsControllerTests
     }
 
     [Fact]
+    public async Task PostLookup_ReturnsBadRequest_WhenModelStateIsInvalid()
+    {
+        // Arrange
+        var invalidRequest = new UserContactPointLookup
+        {
+            NationalIdentityNumbers = ["14078112078"]
+        };
+
+        _controller.ModelState.AddModelError("InvalidKey", "Invalid error message");
+
+        // Act
+        var response = await _controller.PostLookup(invalidRequest);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(response.Result);
+        Assert.Equal(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
+    }
+
+    [Fact]
     public async Task PostLookup_ReturnsBadRequest_WhenNationalIdentityNumbersContainInvalidFormat()
     {
         // Arrange

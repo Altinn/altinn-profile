@@ -63,6 +63,25 @@ public class ContactDetailsInternalControllerTests
     }
 
     [Fact]
+    public async Task PostLookup_ReturnsBadRequest_WhenModelStateIsInvalid()
+    {
+        // Arrange
+        var request = new UserContactPointLookup
+        {
+            NationalIdentityNumbers = ["17092037169"]
+        };
+
+        _controller.ModelState.AddModelError("TestError", "Invalid model!");
+
+        // Act
+        var response = await _controller.PostLookup(request);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(response.Result);
+        Assert.Equal(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
+    }
+
+    [Fact]
     public async Task PostLookup_ReturnsMixedResults_WhenOneNumberMatchesAndOneDoesNot()
     {
         // Arrange

@@ -52,7 +52,7 @@ public class ContactDetailsController : ControllerBase
     [ProducesResponseType(typeof(ContactDetailsLookupResult), StatusCodes.Status200OK)]
     public async Task<ActionResult<ContactDetailsLookupResult>> PostLookup([FromBody] UserContactPointLookup lookupCriteria)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }

@@ -51,7 +51,7 @@ public class ContactDetailsInternalController : ControllerBase
     [ProducesResponseType(typeof(ContactDetailsLookupResult), StatusCodes.Status200OK)]
     public async Task<ActionResult<ContactDetailsLookupResult>> PostLookup([FromBody] UserContactPointLookup request)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
