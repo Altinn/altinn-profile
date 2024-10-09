@@ -22,7 +22,7 @@ public class PersonRepositoryTests : IDisposable
     private readonly ProfileDbContext _context;
     private readonly PersonRepository _registerRepository;
     private readonly List<Person> _personContactAndReservationTestData;
-    
+
     public PersonRepositoryTests()
     {
         var options = new DbContextOptionsBuilder<ProfileDbContext>()
@@ -32,7 +32,7 @@ public class PersonRepositoryTests : IDisposable
         _context = new ProfileDbContext(options);
         _registerRepository = new PersonRepository(_context);
 
-        _personContactAndReservationTestData = [.. PersonTestData.GetContactAndReservationTestData()];
+        _personContactAndReservationTestData = new List<Person>(PersonTestData.GetContactAndReservationTestData());
 
         _context.People.AddRange(_personContactAndReservationTestData);
         _context.SaveChanges();
@@ -82,11 +82,22 @@ public class PersonRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task GetUserContactInfoAsync_ReturnsEmpty_WhenNotFound()
+    {
+        // Act
+        var result = await _registerRepository.GetContactDetailsAsync(["nonexistent", "11044314120"]);
+
+        // Assert
+        Assert.Empty(result);
+    }
+
+    [Fact]
     public async Task GetUserContactInfoAsync_ReturnsMultipleContacts_WhenFound()
     {
         // Act
         var result = await _registerRepository.GetContactDetailsAsync(["24064316776", "11044314101"]);
-        var expected = _personContactAndReservationTestData.Where(e => e.FnumberAk == "24064316776" || e.FnumberAk == "11044314101");
+        var expected = _personContactAndReservationTestData
+            .Where(e => e.FnumberAk == "24064316776" || e.FnumberAk == "11044314101");
 
         // Assert
         Assert.Equal(2, result.Count);
@@ -100,10 +111,10 @@ public class PersonRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task GetUserContactInfoAsync_ReturnsEmpty_WhenNotFound()
+    public async Task GetUserContactInfoAsync_ReturnsEmpty_WhenNoNationalIdentityNumbersProvided()
     {
         // Act
-        var result = await _registerRepository.GetContactDetailsAsync(["nonexistent", "11044314120"]);
+        var result = await _registerRepository.GetContactDetailsAsync([]);
 
         // Assert
         Assert.Empty(result);
