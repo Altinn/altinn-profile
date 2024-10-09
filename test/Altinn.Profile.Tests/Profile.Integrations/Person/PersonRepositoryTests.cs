@@ -46,7 +46,7 @@ public class PersonRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task GetUserContactInfoAsync_ReturnsContactInfo_WhenFound()
+    public async Task GetContactDetailsAsync_WhenFound_ReturnsContactInfo()
     {
         // Act
         var result = await _registerRepository.GetContactDetailsAsync(["17111933790"]);
@@ -60,39 +60,7 @@ public class PersonRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task GetUserContactInfoAsync_ReturnsCorrectResults_WhenValidAndInvalidNumbers()
-    {
-        // Act
-        var result = _personContactAndReservationTestData.Where(e => e.FnumberAk == "28026698350");
-        var expected = await _registerRepository.GetContactDetailsAsync(["28026698350", "nonexistent2"]);
-
-        // Assert invalid result
-        Assert.Single(result);
-        AssertRegisterProperties(expected.FirstOrDefault(), result.FirstOrDefault());
-    }
-
-    [Fact]
-    public async Task GetUserContactInfoAsync_ReturnsEmpty_WhenNoneFound()
-    {
-        // Act
-        var result = await _registerRepository.GetContactDetailsAsync(["nonexistent1", "nonexistent2"]);
-
-        // Assert
-        Assert.Empty(result);
-    }
-
-    [Fact]
-    public async Task GetUserContactInfoAsync_ReturnsEmpty_WhenNotFound()
-    {
-        // Act
-        var result = await _registerRepository.GetContactDetailsAsync(["nonexistent", "11044314120"]);
-
-        // Assert
-        Assert.Empty(result);
-    }
-
-    [Fact]
-    public async Task GetUserContactInfoAsync_ReturnsMultipleContacts_WhenFound()
+    public async Task GetContactDetailsAsync_WhenMultipleContactsFound_ReturnsMultipleContacts()
     {
         // Act
         var result = await _registerRepository.GetContactDetailsAsync(["24064316776", "11044314101"]);
@@ -111,13 +79,45 @@ public class PersonRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task GetUserContactInfoAsync_ReturnsEmpty_WhenNoNationalIdentityNumbersProvided()
+    public async Task GetContactDetailsAsync_WhenNoNationalIdentityNumbersProvided_ReturnsEmpty()
     {
         // Act
         var result = await _registerRepository.GetContactDetailsAsync([]);
 
         // Assert
         Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetContactDetailsAsync_WhenNoneFound_ReturnsEmpty()
+    {
+        // Act
+        var result = await _registerRepository.GetContactDetailsAsync(["nonexistent1", "nonexistent2"]);
+
+        // Assert
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetContactDetailsAsync_WhenNotFound_ReturnsEmpty()
+    {
+        // Act
+        var result = await _registerRepository.GetContactDetailsAsync(["nonexistent", "11044314120"]);
+
+        // Assert
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetContactDetailsAsync_WhenValidAndInvalidNumbers_ReturnsCorrectResults()
+    {
+        // Act
+        var result = _personContactAndReservationTestData.Where(e => e.FnumberAk == "28026698350");
+        var expected = await _registerRepository.GetContactDetailsAsync(["28026698350", "nonexistent2"]);
+
+        // Assert invalid result
+        Assert.Single(result);
+        AssertRegisterProperties(expected.FirstOrDefault(), result.FirstOrDefault());
     }
 
     private static void AssertRegisterProperties(Person expected, Person actual)
