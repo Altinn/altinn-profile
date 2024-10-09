@@ -69,11 +69,11 @@ public class PersonService : IPersonService
 
         var matchedContactDetails = await _personRepository.GetContactDetailsAsync(validNationalIdentityNumbers);
 
-        var matchedNationalIdentityNumbers = new HashSet<string>(matchedContactDetails.Select(e => e.FnumberAk));
+        var matchedNationalIdentityNumbers = matchedContactDetails != null ? new HashSet<string>(matchedContactDetails.Select(e => e.FnumberAk)) : [];
 
-        var unmatchedNationalIdentityNumbers = matchedNationalIdentityNumbers.Where(e => !nationalIdentityNumbers.Contains(e));
+        var unmatchedNationalIdentityNumbers = nationalIdentityNumbers.Where(e => !matchedNationalIdentityNumbers.Contains(e));
 
-        var matchedPersonContactDetails = matchedContactDetails.Select(_mapper.Map<IPersonContactDetails>);
+        var matchedPersonContactDetails = matchedContactDetails != null ? matchedContactDetails.Select(_mapper.Map<IPersonContactDetails>) : [];
 
         return new PersonContactDetailsLookupResult
         {
