@@ -74,7 +74,7 @@ public class ContactDetailsInternalControllerTests
 
         var problemResult = Assert.IsType<ObjectResult>(response.Result);
         Assert.Equal(StatusCodes.Status500InternalServerError, problemResult.StatusCode);
-        Assert.Equal("An unexpected error occurred", Convert.ToString(((ProblemDetails)problemResult.Value).Detail));
+        Assert.Equal("An unexpected error occurred.", Convert.ToString(((ProblemDetails)problemResult.Value).Detail));
     }
 
     [Fact]
