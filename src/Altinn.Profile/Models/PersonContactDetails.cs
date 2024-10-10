@@ -5,9 +5,9 @@ using System.Text.Json.Serialization;
 namespace Altinn.Profile.Models;
 
 /// <summary>
-/// Represents the contact information for a single person, including national identity number, contact methods, language preference, and opt-out status.
+/// Represents the contact details for a single person, including the national identity number, mobile phone number, email address, language preference, and an opt-out status for being contacted.
 /// </summary>
-public record ContactDetails
+public record PersonContactDetails
 {
     /// <summary>
     /// Gets the national identity number of the person.
@@ -19,7 +19,7 @@ public record ContactDetails
     /// Gets a value indicating whether the person has opted out of being contacted.
     /// </summary>
     [JsonPropertyName("reservation")]
-    public bool? Reservation { get; init; }
+    public bool? IsReserved { get; init; }
 
     /// <summary>
     /// Gets the mobile phone number of the person.

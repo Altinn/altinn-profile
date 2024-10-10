@@ -16,44 +16,44 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
-public class ContactDetailsInternalControllerTests
+public class PersonContactDetailsInternalControllerTests
 {
-    private readonly ContactDetailsInternalController _controller;
-    private readonly Mock<ILogger<ContactDetailsInternalController>> _loggerMock;
-    private readonly Mock<IContactDetailsRetriever> _mockContactDetailsRetriever;
+    private readonly PersonContactDetailsInternalController _controller;
+    private readonly Mock<ILogger<PersonContactDetailsInternalController>> _loggerMock;
+    private readonly Mock<IPersonContactDetailsRetriever> _mockContactDetailsRetriever;
 
-    public ContactDetailsInternalControllerTests()
+    public PersonContactDetailsInternalControllerTests()
     {
-        _loggerMock = new Mock<ILogger<ContactDetailsInternalController>>();
-        _mockContactDetailsRetriever = new Mock<IContactDetailsRetriever>();
-        _controller = new ContactDetailsInternalController(_loggerMock.Object, _mockContactDetailsRetriever.Object);
+        _loggerMock = new Mock<ILogger<PersonContactDetailsInternalController>>();
+        _mockContactDetailsRetriever = new Mock<IPersonContactDetailsRetriever>();
+        _controller = new PersonContactDetailsInternalController(_loggerMock.Object, _mockContactDetailsRetriever.Object);
     }
 
     [Fact]
     public void Constructor_WithNullContactDetailsRetriever_ThrowsArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>(() => new ContactDetailsInternalController(_loggerMock.Object, null));
+        Assert.Throws<ArgumentNullException>(() => new PersonContactDetailsInternalController(_loggerMock.Object, null));
     }
 
     [Fact]
     public void Constructor_WithNullLogger_ThrowsArgumentNullException()
     {
-        var contactDetailsRetrieverMock = new Mock<IContactDetailsRetriever>();
-        Assert.Throws<ArgumentNullException>(() => new ContactDetailsInternalController(null, contactDetailsRetrieverMock.Object));
+        var contactDetailsRetrieverMock = new Mock<IPersonContactDetailsRetriever>();
+        Assert.Throws<ArgumentNullException>(() => new PersonContactDetailsInternalController(null, contactDetailsRetrieverMock.Object));
     }
 
     [Fact]
     public void Constructor_WithValidParameters_InitializesCorrectly()
     {
-        var contactDetailsRetrieverMock = new Mock<IContactDetailsRetriever>();
-        var controller = new ContactDetailsInternalController(_loggerMock.Object, contactDetailsRetrieverMock.Object);
+        var contactDetailsRetrieverMock = new Mock<IPersonContactDetailsRetriever>();
+        var controller = new PersonContactDetailsInternalController(_loggerMock.Object, contactDetailsRetrieverMock.Object);
         Assert.NotNull(controller);
     }
 
     [Fact]
     public async Task PostLookup_WhenRetrievalThrowsException_LogsErrorAndReturnsProblemResult()
     {
-        var request = new UserContactPointLookup
+        var request = new PersonContactDetailsLookupCriteria
         {
             NationalIdentityNumbers = ["05025308508"]
         };
@@ -80,7 +80,7 @@ public class ContactDetailsInternalControllerTests
     [Fact]
     public async Task PostLookup_WithEmptyNationalIdentityNumbers_ReturnsBadRequest()
     {
-        var request = new UserContactPointLookup { NationalIdentityNumbers = [] };
+        var request = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = [] };
         var response = await _controller.PostLookup(request);
         AssertBadRequest(response, "National identity numbers cannot be null or empty.");
     }
@@ -88,7 +88,7 @@ public class ContactDetailsInternalControllerTests
     [Fact]
     public async Task PostLookup_WithInvalidModelState_ReturnsBadRequest()
     {
-        var request = new UserContactPointLookup
+        var request = new PersonContactDetailsLookupCriteria
         {
             NationalIdentityNumbers = ["17092037169"]
         };
@@ -101,22 +101,22 @@ public class ContactDetailsInternalControllerTests
     [Fact]
     public async Task PostLookup_WithMixedNationalIdentityNumbers_ReturnsMixedResults()
     {
-        var request = new UserContactPointLookup
+        var request = new PersonContactDetailsLookupCriteria
         {
             NationalIdentityNumbers = ["05025308508", "08110270527"]
         };
 
-        var contactDetails = new ContactDetails
+        var contactDetails = new PersonContactDetails
         {
             LanguageCode = "nb",
-            Reservation = false,
+            IsReserved = false,
             MobilePhoneNumber = "12345678",
             EmailAddress = "test@example.com",
             NationalIdentityNumber = "05025308508"
         };
 
-        var lookupResult = new ContactDetailsLookupResult(
-            matchedContactDetails: [contactDetails],
+        var lookupResult = new PersonContactDetailsLookupResult(
+            matchedPersonContactDetails: [contactDetails],
             unmatchedNationalIdentityNumbers: ["08110270527"]);
 
         _mockContactDetailsRetriever.Setup(x => x.RetrieveAsync(request))
@@ -127,19 +127,19 @@ public class ContactDetailsInternalControllerTests
         var result = Assert.IsType<OkObjectResult>(response.Result);
         Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
 
-        var returnValue = Assert.IsType<ContactDetailsLookupResult>(result.Value);
+        var returnValue = Assert.IsType<PersonContactDetailsLookupResult>(result.Value);
         AssertContactDetailsLookupResult(lookupResult, returnValue);
     }
 
     [Fact]
     public async Task PostLookup_WithNullNationalIdentityNumbers_ReturnsBadRequest()
     {
-        var request = new UserContactPointLookup { NationalIdentityNumbers = null };
+        var request = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = null };
         var response = await _controller.PostLookup(request);
         AssertBadRequest(response, "National identity numbers cannot be null or empty.");
     }
 
-    private static void AssertBadRequest(ActionResult<ContactDetailsLookupResult> response, string expectedMessage = null)
+    private static void AssertBadRequest(ActionResult<PersonContactDetailsLookupResult> response, string expectedMessage = null)
     {
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(response.Result);
         Assert.Equal(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
@@ -149,19 +149,19 @@ public class ContactDetailsInternalControllerTests
         }
     }
 
-    private static void AssertContactDetailsLookupResult(ContactDetailsLookupResult expected, ContactDetailsLookupResult actual)
+    private static void AssertContactDetailsLookupResult(PersonContactDetailsLookupResult expected, PersonContactDetailsLookupResult actual)
     {
         Assert.Equal(expected, actual);
-        Assert.Single(actual.MatchedContactDetails);
+        Assert.Single(actual.MatchedPersonContactDetails);
         Assert.Single(actual.UnmatchedNationalIdentityNumbers);
 
-        var matchedContactDetails = actual.MatchedContactDetails.FirstOrDefault();
+        var matchedContactDetails = actual.MatchedPersonContactDetails.FirstOrDefault();
         Assert.NotNull(matchedContactDetails);
-        Assert.Equal(expected.MatchedContactDetails.First().Reservation, matchedContactDetails.Reservation);
-        Assert.Equal(expected.MatchedContactDetails.First().EmailAddress, matchedContactDetails.EmailAddress);
-        Assert.Equal(expected.MatchedContactDetails.First().LanguageCode, matchedContactDetails.LanguageCode);
-        Assert.Equal(expected.MatchedContactDetails.First().MobilePhoneNumber, matchedContactDetails.MobilePhoneNumber);
-        Assert.Equal(expected.MatchedContactDetails.First().NationalIdentityNumber, matchedContactDetails.NationalIdentityNumber);
+        Assert.Equal(expected.MatchedPersonContactDetails.First().IsReserved, matchedContactDetails.IsReserved);
+        Assert.Equal(expected.MatchedPersonContactDetails.First().EmailAddress, matchedContactDetails.EmailAddress);
+        Assert.Equal(expected.MatchedPersonContactDetails.First().LanguageCode, matchedContactDetails.LanguageCode);
+        Assert.Equal(expected.MatchedPersonContactDetails.First().MobilePhoneNumber, matchedContactDetails.MobilePhoneNumber);
+        Assert.Equal(expected.MatchedPersonContactDetails.First().NationalIdentityNumber, matchedContactDetails.NationalIdentityNumber);
 
         var unmatchedNationalIdentityNumber = actual.UnmatchedNationalIdentityNumbers.FirstOrDefault();
         Assert.Equal(expected.UnmatchedNationalIdentityNumbers.First(), unmatchedNationalIdentityNumber);

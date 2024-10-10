@@ -18,13 +18,13 @@ namespace Altinn.Profile.Tests.Profile.Integrations;
 
 public class UserContactDetailsRetrieverTests
 {
-    private readonly ContactDetailsRetriever _retriever;
+    private readonly PersonContactDetailsRetriever _retriever;
     private readonly Mock<IPersonService> _mockPersonService;
 
     public UserContactDetailsRetrieverTests()
     {
         _mockPersonService = new Mock<IPersonService>();
-        _retriever = new ContactDetailsRetriever(_mockPersonService.Object);
+        _retriever = new PersonContactDetailsRetriever(_mockPersonService.Object);
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class UserContactDetailsRetrieverTests
     public async Task RetrieveAsync_WhenNationalIdentityNumbersIsEmpty_ReturnsFalse()
     {
         // Arrange
-        var lookupCriteria = new UserContactPointLookup { NationalIdentityNumbers = [] };
+        var lookupCriteria = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = [] };
 
         // Act
         var result = await _retriever.RetrieveAsync(lookupCriteria);
@@ -52,7 +52,7 @@ public class UserContactDetailsRetrieverTests
     public async Task RetrieveAsync_WhenNoContactDetailsFound_ReturnsFalse()
     {
         // Arrange
-        var lookupCriteria = new UserContactPointLookup
+        var lookupCriteria = new PersonContactDetailsLookupCriteria
         {
             NationalIdentityNumbers = ["08119043698"]
         };
@@ -71,12 +71,12 @@ public class UserContactDetailsRetrieverTests
     public async Task RetrieveAsync_WhenValidNationalIdentityNumbers_ReturnsExpectedContactDetailsLookupResult()
     {
         // Arrange
-        var lookupCriteria = new UserContactPointLookup
+        var lookupCriteria = new PersonContactDetailsLookupCriteria
         {
             NationalIdentityNumbers = ["08053414843"]
         };
 
-        var personContactDetails = new PersonContactDetails
+        var personContactDetails = new Altinn.Profile.Integrations.Entities.PersonContactDetails
         {
             IsReserved = false,
             LanguageCode = "en",
@@ -85,7 +85,7 @@ public class UserContactDetailsRetrieverTests
             NationalIdentityNumber = "08053414843"
         };
 
-        var lookupResult = new PersonContactDetailsLookupResult
+        var lookupResult = new Altinn.Profile.Integrations.Entities.PersonContactDetailsLookupResult
         {
             UnmatchedNationalIdentityNumbers = [],
             MatchedPersonContactDetails = [personContactDetails]
@@ -101,12 +101,12 @@ public class UserContactDetailsRetrieverTests
         // Assert
         Assert.True(result.IsSuccess);
         IEnumerable<string>? unmatchedNationalIdentityNumbers = [];
-        IEnumerable<ContactDetails>? matchedPersonContactDetails = [];
+        IEnumerable<Models.PersonContactDetails>? matchedPersonContactDetails = [];
 
         result.Match(
             success =>
             {
-                matchedPersonContactDetails = success.MatchedContactDetails;
+                matchedPersonContactDetails = success.MatchedPersonContactDetails;
                 unmatchedNationalIdentityNumbers = success.UnmatchedNationalIdentityNumbers;
             },
             failure =>
@@ -119,7 +119,7 @@ public class UserContactDetailsRetrieverTests
 
         var matchPersonContactDetails = matchedPersonContactDetails.FirstOrDefault();
         Assert.NotNull(matchPersonContactDetails);
-        Assert.Equal(personContactDetails.IsReserved, matchPersonContactDetails.Reservation);
+        Assert.Equal(personContactDetails.IsReserved, matchPersonContactDetails.IsReserved);
         Assert.Equal(personContactDetails.LanguageCode, matchPersonContactDetails.LanguageCode);
         Assert.Equal(personContactDetails.MobilePhoneNumber, matchPersonContactDetails.MobilePhoneNumber);
         Assert.Equal(personContactDetails.EmailAddress, matchPersonContactDetails.EmailAddress);
