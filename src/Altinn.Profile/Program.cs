@@ -7,10 +7,11 @@ using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.Common.AccessToken.Services;
 using Altinn.Profile.Configuration;
-using Altinn.Profile.Core;
+using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Filters;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
+using Altinn.Profile.UseCases;
 
 using AltinnCore.Authentication.JwtCookie;
 
@@ -25,7 +26,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -170,6 +170,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
     services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProvider>();
+    services.AddScoped<IContactDetailsRetriever, ContactDetailsRetriever>();
 
     services.AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
         .AddJwtCookie(JwtCookieDefaults.AuthenticationScheme, options =>
@@ -199,6 +200,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     });
 
     services.AddCoreServices(config);
+    services.AddRegisterService(config);
     services.AddSblBridgeClients(config);
 
     if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
