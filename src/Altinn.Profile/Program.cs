@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -263,4 +264,15 @@ void Configure()
 
     app.MapControllers();
     app.MapHealthChecks("/health");
+}
+
+/// <summary>
+/// Startup class.
+/// </summary>
+[ExcludeFromCodeCoverage]
+public sealed partial class Program
+{
+    private Program()
+    {
+    }
 }
