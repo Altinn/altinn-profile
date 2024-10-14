@@ -2,8 +2,8 @@
 CREATE SCHEMA IF NOT EXISTS contact_and_reservation;
 
 -- Grant access to the schema
-GRANT ALL ON SCHEMA contact_and_reservation TO platform_profile_admin;
-GRANT USAGE ON SCHEMA contact_and_reservation TO platform_profile;
+--- GRANT ALL ON SCHEMA contact_and_reservation TO platform_profile_admin;
+--- GRANT USAGE ON SCHEMA contact_and_reservation TO platform_profile;
 
 -- Create table MailboxSupplier
 CREATE TABLE IF NOT EXISTS contact_and_reservation.mailbox_supplier (
