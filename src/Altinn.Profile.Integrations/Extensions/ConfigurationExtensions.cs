@@ -7,9 +7,9 @@ namespace Altinn.Profile.Integrations.Extensions;
 /// </summary>
 public static class ConfigurationExtensions
 {
-    private const string ProfileDbAdminUserNameKey = "PostgreSqlSettings--ProfileDbAdminUserName";
-    private const string ProfileDbAdminPasswordKey = "PostgreSqlSettings--ProfileDbAdminPassword";
-    private const string ProfileDbConnectionStringKey = "PostgreSqlSettings--ProfileDbConnectionString";
+    private const string ProfileDbAdminUserNameKey = "PostgreSqlSettings:ProfileDbAdminUserName";
+    private const string ProfileDbAdminPasswordKey = "PostgreSqlSettings:ProfileDbAdminPassword";
+    private const string ProfileDbConnectionStringKey = "PostgreSqlSettings:ProfileDbConnectionString";
 
     /// <summary>
     /// Retrieves the database connection string from the configuration.
