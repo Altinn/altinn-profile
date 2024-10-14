@@ -81,13 +81,14 @@ public static class ServiceCollectionExtensions
             throw new ArgumentNullException(nameof(config), "Configuration cannot be null.");
         }
 
-        var maskinportenSettings = new ContactAndReservationSettings();
-        config.GetSection("ContactAndReservationSettings").Bind(maskinportenSettings);
-        if (maskinportenSettings == null)
+        var contactRegisterSettings = new ContactRegisterSettings();
+        config.GetSection("ContactAndReservationSettings").Bind(contactRegisterSettings);
+        if (contactRegisterSettings == null || contactRegisterSettings.Maskinporten == null)
         {
             throw new InvalidOperationException("Contact and reservation settings are not properly configured.");
         }
 
-        services.AddMaskinportenHttpClient<SettingsJwkClientDefinition, IContactDetailsHttpClient, ContactDetailsHttpClient>(maskinportenSettings.Maskinporten);
+        services.AddSingleton<IContactRegisterSettings>(contactRegisterSettings);
+        services.AddMaskinportenHttpClient<SettingsJwkClientDefinition, IContactDetailsHttpClient, ContactDetailsHttpClient>(contactRegisterSettings.Maskinporten);
     }
 }
