@@ -203,6 +203,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddCoreServices(config);
     services.AddRegisterService(config);
     services.AddSblBridgeClients(config);
+    services.AddMaskinportenClient(config);
 
     if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
     {

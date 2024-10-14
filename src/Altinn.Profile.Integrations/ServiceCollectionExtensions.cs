@@ -1,4 +1,7 @@
-﻿using Altinn.Profile.Core.Integrations;
+﻿using Altinn.ApiClients.Maskinporten.Extensions;
+using Altinn.ApiClients.Maskinporten.Services;
+using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
@@ -62,5 +65,29 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPersonRepository, PersonRepository>();
 
         services.AddSingleton<INationalIdentityNumberChecker, NationalIdentityNumberChecker>();
+    }
+
+    /// <summary>
+    /// Adds the Maskinporten client to the DI container.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="config">The configuration collection.</param>
+    /// <exception cref="ArgumentNullException">Thrown when the configuration is null.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when any of the required configuration values are missing or empty.</exception>
+    public static void AddMaskinportenClient(this IServiceCollection services, IConfiguration config)
+    {
+        if (config == null)
+        {
+            throw new ArgumentNullException(nameof(config), "Configuration cannot be null.");
+        }
+
+        var maskinportenSettings = new ContactAndReservationSettings();
+        config.GetSection("ContactAndReservationSettings").Bind(maskinportenSettings);
+        if (maskinportenSettings == null)
+        {
+            throw new InvalidOperationException("Contact and reservation settings are not properly configured.");
+        }
+
+        services.AddMaskinportenHttpClient<SettingsJwkClientDefinition, IContactDetailsHttpClient, ContactDetailsHttpClient>(maskinportenSettings.Maskinporten);
     }
 }

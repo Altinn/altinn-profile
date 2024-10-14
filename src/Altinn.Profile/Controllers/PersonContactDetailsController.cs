@@ -14,7 +14,7 @@ namespace Altinn.Profile.Controllers;
 /// <summary>
 /// Controller to retrieve the contact details for one or more persons.
 /// </summary>
-[Authorize]
+///[Authorize]
 [ApiController]
 [Consumes("application/json")]
 [Produces("application/json")]
