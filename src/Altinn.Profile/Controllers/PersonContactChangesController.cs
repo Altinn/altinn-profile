@@ -1,0 +1,76 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Altinn.Profile.Integrations.Entities;
+using Altinn.Profile.Integrations.Services;
+using Altinn.Profile.Models;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+
+namespace Altinn.Profile.Controllers;
+
+/// <summary>
+/// Controller to retrieve the contact changes for one or more persons.
+/// </summary>
+///[Authorize]
+[ApiController]
+[Consumes("application/json")]
+[Produces("application/json")]
+[Route("profile/api/v1/person/changes")]
+public class PersonContactChangesController : ControllerBase
+{
+    private readonly ILogger<PersonContactChangesController> _logger;
+    private readonly IChangesLogService _changesLogService;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PersonContactChangesController"/> class.
+    /// </summary>
+    /// <param name="logger">The logger.</param>
+    /// <param name="changesLogService">The changes log service.</param>
+    /// <exception cref="System.ArgumentNullException">
+    /// logger
+    /// or
+    /// changesLogService
+    /// </exception>
+    public PersonContactChangesController(ILogger<PersonContactChangesController> logger, IChangesLogService changesLogService)
+    {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _changesLogService = changesLogService ?? throw new ArgumentNullException(nameof(changesLogService));
+    }
+
+    /// <summary>
+    /// Retrieves the contact details for persons based on their national identity numbers.
+    /// </summary>
+    /// <param name="startIndex">A collection of national identity numbers.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation, containing a response with persons' contact details.
+    /// Returns a <see cref="PersonContactDetailsLookupResult"/> with status 200 OK if successful.
+    /// </returns>
+    [HttpPost("lookup")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(IEnumerable<PersonNotificationStatusChangeLog>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<PersonNotificationStatusChangeLog>>> PostLookup(string startIndex)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            var lookupResult = await _changesLogService.GetPersonNotificationStatusAsync(startIndex);
+
+            return Ok(lookupResult);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while retrieving contact details.");
+
+            return Problem("An unexpected error occurred.");
+        }
+    }
+}

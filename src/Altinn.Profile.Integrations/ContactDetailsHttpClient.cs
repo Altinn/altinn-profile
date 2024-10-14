@@ -48,7 +48,7 @@ public class ContactDetailsHttpClient : IContactDetailsHttpClient
 
         var request = new HttpRequestMessage(HttpMethod.Post, endpointUrl)
         {
-            Content = new StringContent($"{{\"fraEndringsId\": {startIndex}}}", Encoding.UTF8, "application/json")
+            Content = new StringContent($"{{\"fraEndringsId\": {startIndexAt}}}", Encoding.UTF8, "application/json")
         };
 
         try
@@ -93,7 +93,7 @@ public class ContactDetailsHttpClient : IContactDetailsHttpClient
 
             return contactDetails;
         }
-        catch
+        catch (Exception ex)
         {
             throw;
         }

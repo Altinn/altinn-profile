@@ -4,11 +4,11 @@ namespace Altinn.Profile.Integrations.Entities;
 
 public interface IPersonContactDetailsListFromChangeLog
 {
-    IEnumerable<IPersonNotificationStatusChangeLog>? ContactDetailsList { get; }
+    IEnumerable<PersonNotificationStatusChangeLog>? ContactDetailsList { get; }
 }
 
 public class PersonContactDetailsListFromChangeLog : IPersonContactDetailsListFromChangeLog
 {
     [JsonPropertyName("list")]
-    public IEnumerable<IPersonNotificationStatusChangeLog>? ContactDetailsList { get; init; }
+    public IEnumerable<PersonNotificationStatusChangeLog>? ContactDetailsList { get; init; }
 }

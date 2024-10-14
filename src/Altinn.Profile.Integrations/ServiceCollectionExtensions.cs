@@ -87,10 +87,13 @@ public static class ServiceCollectionExtensions
         {
             throw new InvalidOperationException("Contact and reservation settings are not properly configured.");
         }
+        
+        services.AddScoped<IChangesLogService, ChangesLogService>();
+        services.AddScoped<IPersonNotificationStatusChangeLog, PersonNotificationStatusChangeLog>();
+        services.AddScoped<IPersonContactDetailsFromChangeLog, PersonContactDetailsFromChangeLog>();
+        services.AddScoped<IPersonContactDetailsListFromChangeLog, PersonContactDetailsListFromChangeLog>();
 
         services.AddSingleton<IContactRegisterSettings>(contactRegisterSettings);
-        services.AddSingleton<IPersonContactDetailsFromChangeLog, PersonContactDetailsFromChangeLog>();
-        services.AddSingleton<IPersonNotificationStatusChangeLog, PersonNotificationStatusChangeLog>();
         services.AddMaskinportenHttpClient<SettingsJwkClientDefinition, IContactDetailsHttpClient, ContactDetailsHttpClient>(contactRegisterSettings.Maskinporten);
     }
 }

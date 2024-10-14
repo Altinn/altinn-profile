@@ -35,7 +35,7 @@ public class PersonNotificationStatusChangeLog : IPersonNotificationStatusChange
     /// Gets the contact information change log of the person.
     /// </summary>
     [JsonPropertyName("kontaktinformasjon")]
-    public IPersonContactDetailsFromChangeLog? ContactInfoChangeLog { get; init; }
+    public PersonContactDetailsFromChangeLog? ContactInfoChangeLog { get; init; }
 
     /// <summary>
     /// Gets the language preference of the person.

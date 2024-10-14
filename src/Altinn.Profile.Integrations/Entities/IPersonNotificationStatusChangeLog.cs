@@ -8,7 +8,7 @@ public interface IPersonNotificationStatusChangeLog
     /// <summary>
     /// Gets the contact information change log of the person.
     /// </summary>
-    IPersonContactDetailsFromChangeLog? ContactInfoChangeLog { get; }
+    PersonContactDetailsFromChangeLog? ContactInfoChangeLog { get; }
 
     /// <summary>
     /// Gets the language preference of the person.
