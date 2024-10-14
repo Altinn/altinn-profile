@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace Altinn.Profile.Controllers;
 
 /// <summary>
-/// Controller to retrieve the contact details for one or more persons.
+/// Controller responsible for managing contact details for one or more persons.
 /// </summary>
 [Authorize]
 [ApiController]
@@ -21,14 +21,14 @@ namespace Altinn.Profile.Controllers;
 [Route("profile/api/v1/person/contact/details")]
 public class PersonContactDetailsController : ControllerBase
 {
-    private readonly ILogger<PersonContactDetailsController> _logger;
     private readonly IPersonContactDetailsRetriever _contactDetailsRetriever;
+    private readonly ILogger<PersonContactDetailsController> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PersonContactDetailsController"/> class.
     /// </summary>
     /// <param name="logger">The logger instance used for logging.</param>
-    /// <param name="contactDetailsRetriever">The use case for retrieving the contact details.</param>
+    /// <param name="contactDetailsRetriever">The service for retrieving the contact details.</param>
     /// <exception cref="ArgumentNullException">
     /// Thrown when the <paramref name="logger"/> or <paramref name="contactDetailsRetriever"/> is null.
     /// </exception>

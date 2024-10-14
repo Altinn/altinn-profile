@@ -21,8 +21,8 @@ namespace Altinn.Profile.Controllers;
 [Route("profile/api/v1/internal/person/contact/details")]
 public class PersonContactDetailsInternalController : ControllerBase
 {
-    private readonly ILogger<PersonContactDetailsInternalController> _logger;
     private readonly IPersonContactDetailsRetriever _contactDetailsRetriever;
+    private readonly ILogger<PersonContactDetailsInternalController> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PersonContactDetailsInternalController"/> class.

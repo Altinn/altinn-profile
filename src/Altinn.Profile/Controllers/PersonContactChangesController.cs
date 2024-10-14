@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Services;
-using Altinn.Profile.Models;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -13,27 +13,25 @@ using Microsoft.Extensions.Logging;
 namespace Altinn.Profile.Controllers;
 
 /// <summary>
-/// Controller to retrieve the contact changes for one or more persons.
+/// Controller responsible for managing changes in contact preferences for one or more persons.
 /// </summary>
-///[Authorize]
+[Authorize]
 [ApiController]
 [Consumes("application/json")]
 [Produces("application/json")]
 [Route("profile/api/v1/person/changes")]
 public class PersonContactChangesController : ControllerBase
 {
-    private readonly ILogger<PersonContactChangesController> _logger;
     private readonly IChangesLogService _changesLogService;
+    private readonly ILogger<PersonContactChangesController> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PersonContactChangesController"/> class.
     /// </summary>
-    /// <param name="logger">The logger.</param>
-    /// <param name="changesLogService">The changes log service.</param>
-    /// <exception cref="System.ArgumentNullException">
-    /// logger
-    /// or
-    /// changesLogService
+    /// <param name="logger">The logger instance used for logging.</param>
+    /// <param name="changesLogService">The service for retrieving the contact details.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when the <paramref name="logger"/> or <paramref name="changesLogService"/> is null.
     /// </exception>
     public PersonContactChangesController(ILogger<PersonContactChangesController> logger, IChangesLogService changesLogService)
     {
@@ -44,10 +42,10 @@ public class PersonContactChangesController : ControllerBase
     /// <summary>
     /// Retrieves the contact details for persons based on their national identity numbers.
     /// </summary>
-    /// <param name="startIndex">A collection of national identity numbers.</param>
+    /// <param name="startIndex">The starting index for retrieving the contact details.</param>
     /// <returns>
     /// A task that represents the asynchronous operation, containing a response with persons' contact details.
-    /// Returns a <see cref="PersonContactDetailsLookupResult"/> with status 200 OK if successful.
+    /// Returns a <see cref="PersonNotificationStatusChangeLog"/> with status 200 OK if successful.
     /// </returns>
     [HttpPost("lookup")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

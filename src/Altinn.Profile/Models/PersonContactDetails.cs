@@ -10,10 +10,10 @@ namespace Altinn.Profile.Models;
 public record PersonContactDetails
 {
     /// <summary>
-    /// Gets the national identity number of the person.
+    /// Gets the email address of the person.
     /// </summary>
-    [JsonPropertyName("nationalIdentityNumber")]
-    public required string NationalIdentityNumber { get; init; }
+    [JsonPropertyName("emailAddress")]
+    public string? EmailAddress { get; init; }
 
     /// <summary>
     /// Gets a value indicating whether the person has opted out of being contacted.
@@ -22,20 +22,20 @@ public record PersonContactDetails
     public bool? IsReserved { get; init; }
 
     /// <summary>
+    /// Gets the language code preferred by the person for communication.
+    /// </summary>
+    [JsonPropertyName("languageCode")]
+    public string? LanguageCode { get; init; }
+
+    /// <summary>
     /// Gets the mobile phone number of the person.
     /// </summary>
     [JsonPropertyName("mobilePhoneNumber")]
     public string? MobilePhoneNumber { get; init; }
 
     /// <summary>
-    /// Gets the email address of the person.
+    /// Gets the national identity number of the person.
     /// </summary>
-    [JsonPropertyName("emailAddress")]
-    public string? EmailAddress { get; init; }
-
-    /// <summary>
-    /// Gets the language code preferred by the person for communication.
-    /// </summary>
-    [JsonPropertyName("languageCode")]
-    public string? LanguageCode { get; init; }
+    [JsonPropertyName("nationalIdentityNumber")]
+    public required string NationalIdentityNumber { get; init; }
 }
