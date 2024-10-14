@@ -5,7 +5,7 @@ using Altinn.Profile.Core.User.ContactPoints;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Altinn.Profile.Core;
+namespace Altinn.Profile.Core.Extensions;
 
 /// <summary>
 /// Extension class for <see cref="IServiceCollection"/>

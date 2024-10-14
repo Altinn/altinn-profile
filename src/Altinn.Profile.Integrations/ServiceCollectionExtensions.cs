@@ -1,7 +1,13 @@
 ﻿using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Integrations.Extensions;
+using Altinn.Profile.Integrations.Persistence;
+using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 using Altinn.Profile.Integrations.SblBridge.User.Profile;
+using Altinn.Profile.Integrations.Services;
+
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,5 +32,35 @@ public static class ServiceCollectionExtensions
         services.Configure<SblBridgeSettings>(config.GetSection(nameof(SblBridgeSettings)));
         services.AddHttpClient<IUserProfileRepository, UserProfileClient>();
         services.AddHttpClient<IUnitProfileRepository, UnitProfileClient>();
+    }
+
+    /// <summary>
+    /// Adds the register service and database context to the DI container.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="config">The configuration collection.</param>
+    /// <exception cref="ArgumentNullException">Thrown when the configuration is null.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when any of the required configuration values are missing or empty.</exception>
+    public static void AddRegisterService(this IServiceCollection services, IConfiguration config)
+    {
+        if (config == null)
+        {
+            throw new ArgumentNullException(nameof(config), "Configuration cannot be null.");
+        }
+
+        var connectionString = config.GetDatabaseConnectionString();
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException("Database connection string is not properly configured.");
+        }
+
+        services.AddDbContext<ProfileDbContext>(options => options.UseNpgsql(connectionString));
+
+        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+        services.AddScoped<IPersonService, PersonService>();
+        services.AddScoped<IPersonRepository, PersonRepository>();
+
+        services.AddSingleton<INationalIdentityNumberChecker, NationalIdentityNumberChecker>();
     }
 }
