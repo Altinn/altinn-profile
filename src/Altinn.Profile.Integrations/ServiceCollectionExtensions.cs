@@ -89,6 +89,8 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddSingleton<IContactRegisterSettings>(contactRegisterSettings);
+        services.AddSingleton<IPersonContactDetailsFromChangeLog, PersonContactDetailsFromChangeLog>();
+        services.AddSingleton<IPersonNotificationStatusChangeLog, PersonNotificationStatusChangeLog>();
         services.AddMaskinportenHttpClient<SettingsJwkClientDefinition, IContactDetailsHttpClient, ContactDetailsHttpClient>(contactRegisterSettings.Maskinporten);
     }
 }

@@ -8,35 +8,35 @@ public interface IPersonNotificationStatusChangeLog
     /// <summary>
     /// Gets the contact information change log of the person.
     /// </summary>
-    PersonContactDetailsFromChangeLog ContactInfoChangeLog { get; }
+    IPersonContactDetailsFromChangeLog? ContactInfoChangeLog { get; }
 
     /// <summary>
     /// Gets the language preference of the person.
     /// </summary>
-    string Language { get; }
+    string? Language { get; }
 
     /// <summary>
     /// Gets the date and time when the person's language preference was updated.
     /// </summary>
-    DateTime LanguageUpdated { get; }
+    DateTime? LanguageUpdated { get; }
 
     /// <summary>
     /// Gets the notification status of the person.
     /// </summary>
-    string NotificationStatus { get; }
+    string? NotificationStatus { get; }
 
     /// <summary>
     /// Gets the identifier of the person.
     /// </summary>
-    string PersonIdentifier { get; }
+    string? PersonIdentifier { get; }
 
     /// <summary>
     /// Gets the reservation details of the person.
     /// </summary>
-    string Reservation { get; }
+    string? Reservation { get; }
 
     /// <summary>
     /// Gets the status of the person.
     /// </summary>
-    string Status { get; }
+    string? Status { get; }
 }
