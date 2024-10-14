@@ -7,11 +7,11 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations;
 
-public class PersonContactDetailsProfileTests
+public class PersonContactPreferencesProfileTests
 {
     private readonly IMapper _mapper;
 
-    public PersonContactDetailsProfileTests()
+    public PersonContactPreferencesProfileTests()
     {
         var config = new MapperConfiguration(cfg => cfg.AddProfile<PersonContactPreferencesProfile>());
         _mapper = config.CreateMapper();

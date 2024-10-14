@@ -16,12 +16,12 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations;
 
-public class UserContactDetailsRetrieverTests
+public class PersonContactDetailsRetrieverTests
 {
     private readonly PersonContactDetailsRetriever _retriever;
     private readonly Mock<IPersonService> _mockPersonService;
 
-    public UserContactDetailsRetrieverTests()
+    public PersonContactDetailsRetrieverTests()
     {
         _mockPersonService = new Mock<IPersonService>();
         _retriever = new PersonContactDetailsRetriever(_mockPersonService.Object);
@@ -85,7 +85,7 @@ public class UserContactDetailsRetrieverTests
             NationalIdentityNumber = "08053414843"
         };
 
-        var lookupResult = new Altinn.Profile.Integrations.Entities.PersonContactPreferencesLookupResult
+        var lookupResult = new PersonContactPreferencesLookupResult
         {
             UnmatchedNationalIdentityNumbers = [],
             MatchedPersonContactPreferences = [personContactDetails]
