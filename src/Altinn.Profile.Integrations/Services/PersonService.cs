@@ -36,13 +36,13 @@ public class PersonService : IPersonService
     }
 
     /// <summary>
-    /// Asynchronously retrieves the contact details for a single person based on their national identity number.
+    /// Asynchronously retrieves the contact preferences for a single person based on their national identity number.
     /// </summary>
     /// <param name="nationalIdentityNumber">The national identity number of the person.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains the person's contact details, or <c>null</c> if not found.
+    /// A task that represents the asynchronous operation. The task result contains the person's contact preferences, or <c>null</c> if not found.
     /// </returns>
-    public async Task<IPersonContactDetails?> GetContactDetailsAsync(string nationalIdentityNumber)
+    public async Task<IPersonContactPreferences?> GetContactPreferencesAsync(string nationalIdentityNumber)
     {
         if (!_nationalIdentityNumberChecker.IsValid(nationalIdentityNumber))
         {
@@ -50,18 +50,18 @@ public class PersonService : IPersonService
         }
 
         var personContactDetails = await _personRepository.GetContactDetailsAsync([nationalIdentityNumber]);
-        return _mapper.Map<IPersonContactDetails>(personContactDetails.FirstOrDefault());
+        return _mapper.Map<IPersonContactPreferences>(personContactDetails.FirstOrDefault());
     }
 
     /// <summary>
-    /// Asynchronously retrieves the contact details for multiple persons based on their national identity numbers.
+    /// Asynchronously retrieves the contact preferences for multiple persons based on their national identity numbers.
     /// </summary>
     /// <param name="nationalIdentityNumbers">A collection of national identity numbers.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object, where <see cref="IPersonContactDetailsLookupResult"/> represents the successful lookup result and <see cref="bool"/> indicates a failure.
+    /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object, where <see cref="IPersonContactPreferencesLookupResult"/> represents the successful lookup result and <see cref="bool"/> indicates a failure.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="nationalIdentityNumbers"/> is <c>null</c>.</exception>
-    public async Task<Result<IPersonContactDetailsLookupResult, bool>> GetContactDetailsAsync(IEnumerable<string> nationalIdentityNumbers)
+    public async Task<Result<IPersonContactPreferencesLookupResult, bool>> GetContactPreferencesAsync(IEnumerable<string> nationalIdentityNumbers)
     {
         ArgumentNullException.ThrowIfNull(nationalIdentityNumbers);
 
@@ -71,14 +71,14 @@ public class PersonService : IPersonService
 
         var matchedNationalIdentityNumbers = matchedContactDetails != null ? new HashSet<string>(matchedContactDetails.Select(e => e.FnumberAk)) : [];
 
-        var unmatchedNationalIdentityNumbers = nationalIdentityNumbers.Where(e => !matchedNationalIdentityNumbers.Contains(e));
+        var unmatchedNationalIdentityNumbers = nationalIdentityNumbers.Where(e => !matchedNationalIdentityNumbers.Contains(e)).ToImmutableList();
 
-        var matchedPersonContactDetails = matchedContactDetails != null ? matchedContactDetails.Select(_mapper.Map<IPersonContactDetails>) : [];
+        var matchedPersonContactDetails = matchedContactDetails != null ? matchedContactDetails.Select(_mapper.Map<IPersonContactPreferences>).ToImmutableList() : [];
 
-        return new PersonContactDetailsLookupResult
+        return new PersonContactPreferencesLookupResult
         {
-            MatchedPersonContactDetails = matchedPersonContactDetails.ToImmutableList(),
-            UnmatchedNationalIdentityNumbers = unmatchedNationalIdentityNumbers.ToImmutableList()
+            MatchedPersonContactPreferences = matchedPersonContactDetails,
+            UnmatchedNationalIdentityNumbers = unmatchedNationalIdentityNumbers
         };
     }
 }

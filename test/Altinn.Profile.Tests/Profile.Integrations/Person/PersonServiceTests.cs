@@ -64,24 +64,24 @@ public class PersonServiceTests
 
         var personList = new List<Person> { firstRandomPerson, secondRandomPerson }.ToImmutableList();
 
-        var firstMappedContactDetails = new Mock<IPersonContactDetails>();
+        var firstMappedContactDetails = new Mock<IPersonContactPreferences>();
         firstMappedContactDetails.SetupGet(x => x.IsReserved).Returns(firstRandomPerson.Reservation);
         firstMappedContactDetails.SetupGet(x => x.EmailAddress).Returns(firstRandomPerson.EmailAddress);
         firstMappedContactDetails.SetupGet(x => x.LanguageCode).Returns(firstRandomPerson.LanguageCode);
         firstMappedContactDetails.SetupGet(x => x.NationalIdentityNumber).Returns(firstRandomPerson.FnumberAk);
         firstMappedContactDetails.SetupGet(x => x.MobilePhoneNumber).Returns(firstRandomPerson.MobilePhoneNumber);
 
-        _mapperMock.Setup(x => x.Map<IPersonContactDetails>(firstRandomPerson))
+        _mapperMock.Setup(x => x.Map<IPersonContactPreferences>(firstRandomPerson))
             .Returns(firstMappedContactDetails.Object);
 
-        var secondMappedContactDetails = new Mock<IPersonContactDetails>();
+        var secondMappedContactDetails = new Mock<IPersonContactPreferences>();
         secondMappedContactDetails.SetupGet(x => x.IsReserved).Returns(secondRandomPerson.Reservation);
         secondMappedContactDetails.SetupGet(x => x.EmailAddress).Returns(secondRandomPerson.EmailAddress);
         secondMappedContactDetails.SetupGet(x => x.LanguageCode).Returns(secondRandomPerson.LanguageCode);
         secondMappedContactDetails.SetupGet(x => x.NationalIdentityNumber).Returns(secondRandomPerson.FnumberAk);
         secondMappedContactDetails.SetupGet(x => x.MobilePhoneNumber).Returns(secondRandomPerson.MobilePhoneNumber);
 
-        _mapperMock.Setup(x => x.Map<IPersonContactDetails>(secondRandomPerson))
+        _mapperMock.Setup(x => x.Map<IPersonContactPreferences>(secondRandomPerson))
             .Returns(secondMappedContactDetails.Object);
 
         _personRepositoryMock
@@ -93,16 +93,16 @@ public class PersonServiceTests
             .Returns(nationalIdentityNumbers.ToImmutableList());
 
         // Act
-        var result = await _personService.GetContactDetailsAsync(nationalIdentityNumbers);
+        var result = await _personService.GetContactPreferencesAsync(nationalIdentityNumbers);
 
         // Assert
         IEnumerable<string>? unmatchedNationalIdentityNumbers = [];
-        IEnumerable<IPersonContactDetails>? matchedPersonContactDetails = [];
+        IEnumerable<IPersonContactPreferences>? matchedPersonContactDetails = [];
 
         result.Match(
             success =>
             {
-                matchedPersonContactDetails = success.MatchedPersonContactDetails;
+                matchedPersonContactDetails = success.MatchedPersonContactPreferences;
                 unmatchedNationalIdentityNumbers = success.UnmatchedNationalIdentityNumbers;
             },
             failure =>
@@ -165,24 +165,24 @@ public class PersonServiceTests
 
         var personList = new List<Person> { firstRandomPerson, secondRandomPerson }.ToImmutableList();
 
-        var firstMappedContactDetails = new Mock<IPersonContactDetails>();
+        var firstMappedContactDetails = new Mock<IPersonContactPreferences>();
         firstMappedContactDetails.SetupGet(x => x.IsReserved).Returns(firstRandomPerson.Reservation);
         firstMappedContactDetails.SetupGet(x => x.EmailAddress).Returns(firstRandomPerson.EmailAddress);
         firstMappedContactDetails.SetupGet(x => x.LanguageCode).Returns(firstRandomPerson.LanguageCode);
         firstMappedContactDetails.SetupGet(x => x.NationalIdentityNumber).Returns(firstRandomPerson.FnumberAk);
         firstMappedContactDetails.SetupGet(x => x.MobilePhoneNumber).Returns(firstRandomPerson.MobilePhoneNumber);
 
-        _mapperMock.Setup(x => x.Map<IPersonContactDetails>(firstRandomPerson))
+        _mapperMock.Setup(x => x.Map<IPersonContactPreferences>(firstRandomPerson))
             .Returns(firstMappedContactDetails.Object);
 
-        var secondMappedContactDetails = new Mock<IPersonContactDetails>();
+        var secondMappedContactDetails = new Mock<IPersonContactPreferences>();
         secondMappedContactDetails.SetupGet(x => x.IsReserved).Returns(secondRandomPerson.Reservation);
         secondMappedContactDetails.SetupGet(x => x.EmailAddress).Returns(secondRandomPerson.EmailAddress);
         secondMappedContactDetails.SetupGet(x => x.LanguageCode).Returns(secondRandomPerson.LanguageCode);
         secondMappedContactDetails.SetupGet(x => x.NationalIdentityNumber).Returns(secondRandomPerson.FnumberAk);
         secondMappedContactDetails.SetupGet(x => x.MobilePhoneNumber).Returns(secondRandomPerson.MobilePhoneNumber);
 
-        _mapperMock.Setup(x => x.Map<IPersonContactDetails>(secondRandomPerson))
+        _mapperMock.Setup(x => x.Map<IPersonContactPreferences>(secondRandomPerson))
             .Returns(secondMappedContactDetails.Object);
 
         _personRepositoryMock
@@ -194,16 +194,16 @@ public class PersonServiceTests
             .Returns(validNationalIdentityNumbers.ToImmutableList());
 
         // Act
-        var result = await _personService.GetContactDetailsAsync(nationalIdentityNumbers);
+        var result = await _personService.GetContactPreferencesAsync(nationalIdentityNumbers);
 
         // Assert
         IEnumerable<string>? unmatchedNationalIdentityNumbers = [];
-        IEnumerable<IPersonContactDetails>? matchedPersonContactDetails = [];
+        IEnumerable<IPersonContactPreferences>? matchedPersonContactDetails = [];
 
         result.Match(
             success =>
             {
-                matchedPersonContactDetails = success.MatchedPersonContactDetails;
+                matchedPersonContactDetails = success.MatchedPersonContactPreferences;
                 unmatchedNationalIdentityNumbers = success.UnmatchedNationalIdentityNumbers;
             },
             failure =>
@@ -246,7 +246,7 @@ public class PersonServiceTests
             .Returns(false);
 
         // Act
-        var result = await _personService.GetContactDetailsAsync(nationalIdentityNumber);
+        var result = await _personService.GetContactPreferencesAsync(nationalIdentityNumber);
 
         // Assert
         Assert.Null(result);
@@ -270,7 +270,7 @@ public class PersonServiceTests
         };
         var randomPersons = new List<Person> { randomPerson }.ToImmutableList();
 
-        var personContactDetails = new Mock<IPersonContactDetails>();
+        var personContactDetails = new Mock<IPersonContactPreferences>();
         personContactDetails.SetupGet(x => x.IsReserved).Returns(randomPerson.Reservation);
         personContactDetails.SetupGet(x => x.EmailAddress).Returns(randomPerson.EmailAddress);
         personContactDetails.SetupGet(x => x.LanguageCode).Returns(randomPerson.LanguageCode);
@@ -278,7 +278,7 @@ public class PersonServiceTests
         personContactDetails.SetupGet(x => x.MobilePhoneNumber).Returns(randomPerson.MobilePhoneNumber);
 
         _mapperMock
-            .Setup(x => x.Map<IPersonContactDetails>(randomPerson))
+            .Setup(x => x.Map<IPersonContactPreferences>(randomPerson))
             .Returns(personContactDetails.Object);
 
         _personRepositoryMock
@@ -290,7 +290,7 @@ public class PersonServiceTests
             .Returns(true);
 
         // Act
-        var result = await _personService.GetContactDetailsAsync(nationalIdentityNumber);
+        var result = await _personService.GetContactPreferencesAsync(nationalIdentityNumber);
 
         // Assert
         Assert.NotNull(result);
@@ -316,7 +316,7 @@ public class PersonServiceTests
             .ReturnsAsync([]);
 
         // Act
-        var result = await _personService.GetContactDetailsAsync(nationalIdentityNumber);
+        var result = await _personService.GetContactPreferencesAsync(nationalIdentityNumber);
 
         // Assert
         Assert.Null(result);
@@ -333,16 +333,16 @@ public class PersonServiceTests
             .Returns(nationalIdentityNumbers.ToImmutableList());
 
         // Act
-        var result = await _personService.GetContactDetailsAsync(nationalIdentityNumbers);
+        var result = await _personService.GetContactPreferencesAsync(nationalIdentityNumbers);
 
         // Assert
         IEnumerable<string>? unmatchedNationalIdentityNumbers = [];
-        IEnumerable<IPersonContactDetails>? matchedPersonContactDetails = [];
+        IEnumerable<IPersonContactPreferences>? matchedPersonContactDetails = [];
 
         result.Match(
             success =>
             {
-                matchedPersonContactDetails = success.MatchedPersonContactDetails;
+                matchedPersonContactDetails = success.MatchedPersonContactPreferences;
                 unmatchedNationalIdentityNumbers = success.UnmatchedNationalIdentityNumbers;
             },
             failure =>
@@ -367,7 +367,7 @@ public class PersonServiceTests
             .ThrowsAsync(new Exception("Repository failure"));
 
         // Act
-        var result = await _personService.GetContactDetailsAsync(nationalIdentityNumber);
+        var result = await _personService.GetContactPreferencesAsync(nationalIdentityNumber);
 
         // Assert
         Assert.Null(result);

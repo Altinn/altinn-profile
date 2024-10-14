@@ -57,7 +57,7 @@ public class UserContactDetailsRetrieverTests
             NationalIdentityNumbers = ["08119043698"]
         };
 
-        _mockPersonService.Setup(s => s.GetContactDetailsAsync(lookupCriteria.NationalIdentityNumbers)).ReturnsAsync(false);
+        _mockPersonService.Setup(s => s.GetContactPreferencesAsync(lookupCriteria.NationalIdentityNumbers)).ReturnsAsync(false);
 
         // Act
         var result = await _retriever.RetrieveAsync(lookupCriteria);
@@ -76,7 +76,7 @@ public class UserContactDetailsRetrieverTests
             NationalIdentityNumbers = ["08053414843"]
         };
 
-        var personContactDetails = new Altinn.Profile.Integrations.Entities.PersonContactDetails
+        var personContactDetails = new PersonContactPreferences
         {
             IsReserved = false,
             LanguageCode = "en",
@@ -85,14 +85,14 @@ public class UserContactDetailsRetrieverTests
             NationalIdentityNumber = "08053414843"
         };
 
-        var lookupResult = new Altinn.Profile.Integrations.Entities.PersonContactDetailsLookupResult
+        var lookupResult = new Altinn.Profile.Integrations.Entities.PersonContactPreferencesLookupResult
         {
             UnmatchedNationalIdentityNumbers = [],
-            MatchedPersonContactDetails = [personContactDetails]
+            MatchedPersonContactPreferences = [personContactDetails]
         };
 
         _mockPersonService
-            .Setup(e => e.GetContactDetailsAsync(lookupCriteria.NationalIdentityNumbers))
+            .Setup(e => e.GetContactPreferencesAsync(lookupCriteria.NationalIdentityNumbers))
             .ReturnsAsync(lookupResult);
 
         // Act

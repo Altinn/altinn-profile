@@ -11,6 +11,19 @@ namespace Altinn.Profile.Models;
 public record PersonContactDetailsLookupResult
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="PersonContactDetailsLookupResult"/> record.
+    /// </summary>
+    /// <param name="matchedPersonContactDetails">The list of person contact details that were successfully matched based on the national identity number.</param>
+    /// <param name="unmatchedNationalIdentityNumbers">The list of national identity numbers that could not be matched with any contact details.</param>
+    public PersonContactDetailsLookupResult(
+        ImmutableList<PersonContactDetails> matchedPersonContactDetails,
+        ImmutableList<string> unmatchedNationalIdentityNumbers)
+    {
+        MatchedPersonContactDetails = matchedPersonContactDetails;
+        UnmatchedNationalIdentityNumbers = unmatchedNationalIdentityNumbers;
+    }
+
+    /// <summary>
     /// Gets a list of person contact details that were successfully matched based on the national identity number.
     /// </summary>
     [JsonPropertyName("matchedPersonContactDetails")]
@@ -23,17 +36,4 @@ public record PersonContactDetailsLookupResult
     [JsonPropertyName("unmatchedNationalIdentityNumbers")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ImmutableList<string>? UnmatchedNationalIdentityNumbers { get; init; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="PersonContactDetailsLookupResult"/> record.
-    /// </summary>
-    /// <param name="matchedPersonContactDetails">The list of person contact details that were successfully matched based on the national identity number.</param>
-    /// <param name="unmatchedNationalIdentityNumbers">The list of national identity numbers that could not be matched with any contact details.</param>
-    public PersonContactDetailsLookupResult(
-        ImmutableList<PersonContactDetails> matchedPersonContactDetails,
-        ImmutableList<string> unmatchedNationalIdentityNumbers)
-    {
-        MatchedPersonContactDetails = matchedPersonContactDetails;
-        UnmatchedNationalIdentityNumbers = unmatchedNationalIdentityNumbers;
-    }
 }

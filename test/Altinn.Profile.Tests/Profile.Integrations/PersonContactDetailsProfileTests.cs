@@ -13,7 +13,7 @@ public class PersonContactDetailsProfileTests
 
     public PersonContactDetailsProfileTests()
     {
-        var config = new MapperConfiguration(cfg => cfg.AddProfile<PersonContactDetailsProfile>());
+        var config = new MapperConfiguration(cfg => cfg.AddProfile<PersonContactPreferencesProfile>());
         _mapper = config.CreateMapper();
     }
 
@@ -31,7 +31,7 @@ public class PersonContactDetailsProfileTests
         };
 
         // Act
-        var result = _mapper.Map<PersonContactDetails>(person);
+        var result = _mapper.Map<PersonContactPreferences>(person);
 
         // Assert
         Assert.True(result.IsReserved);
@@ -48,7 +48,7 @@ public class PersonContactDetailsProfileTests
         Person person = null;
 
         // Act
-        var result = _mapper.Map<PersonContactDetails>(person);
+        var result = _mapper.Map<PersonContactPreferences>(person);
 
         // Assert
         Assert.Null(result);
@@ -65,7 +65,7 @@ public class PersonContactDetailsProfileTests
         };
 
         // Act
-        var result = _mapper.Map<PersonContactDetails>(person);
+        var result = _mapper.Map<PersonContactPreferences>(person);
 
         // Assert
         Assert.Null(result.LanguageCode);
@@ -81,7 +81,7 @@ public class PersonContactDetailsProfileTests
         var person = new Person { Reservation = false };
 
         // Act
-        var result = _mapper.Map<PersonContactDetails>(person);
+        var result = _mapper.Map<PersonContactPreferences>(person);
 
         // Assert
         Assert.False(result.IsReserved);
@@ -94,7 +94,7 @@ public class PersonContactDetailsProfileTests
         var person = new Person { Reservation = true };
 
         // Act
-        var result = _mapper.Map<PersonContactDetails>(person);
+        var result = _mapper.Map<PersonContactPreferences>(person);
 
         // Assert
         Assert.True(result.IsReserved);
@@ -114,7 +114,7 @@ public class PersonContactDetailsProfileTests
         };
 
         // Act
-        var result = _mapper.Map<PersonContactDetails>(person);
+        var result = _mapper.Map<PersonContactPreferences>(person);
 
         // Assert
         Assert.NotNull(result);
