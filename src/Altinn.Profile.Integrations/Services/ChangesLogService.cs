@@ -8,6 +8,7 @@ namespace Altinn.Profile.Integrations.Services;
 internal class ChangesLogService : IChangesLogService
 {
     private readonly IContactDetailsHttpClient _contactDetailsHttpClient;
+    private readonly IContactRegisterSettings _contactRegisterSettings;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ChangesLogService"/> class.
@@ -15,22 +16,27 @@ internal class ChangesLogService : IChangesLogService
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="contactDetailsHttpClient"/> is <c>null</c>.
     /// </exception>
-    public ChangesLogService(IContactDetailsHttpClient contactDetailsHttpClient)
+    public ChangesLogService(IContactDetailsHttpClient contactDetailsHttpClient, IContactRegisterSettings contactRegisterSettings)
     {
+        _contactRegisterSettings = contactRegisterSettings ?? throw new ArgumentNullException(nameof(contactRegisterSettings));
         _contactDetailsHttpClient = contactDetailsHttpClient ?? throw new ArgumentNullException(nameof(contactDetailsHttpClient));
     }
 
     /// <summary>
-    /// Asynchronously gets the notification status change log for a person.
+    /// Asynchronously retrieves the notification status change log for a specified person starting from a given index.
     /// </summary>
-    /// <param name="personIdentifier">The identifier of the person.</param>
+    /// <param name="margin">The index from which to start retrieving the data.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains the person's notification status change log.
+    /// A task that represents the asynchronous operation. 
+    /// The task result contains the notification status change log of the person.
     /// </returns>
-    public async Task<IPersonNotificationStatusChangeLog> GetPersonNotificationStatusAsync(string personIdentifier)
+    public async Task<IPersonNotificationStatusChangeLog> GetPersonNotificationStatusAsync(string margin)
     {
-        var changes = await _contactDetailsHttpClient.GetContactDetailsChangesAsync("https://test.kontaktregisteret.no/rest/v2/krr/hentEndringer", 0);
+        if (string.IsNullOrWhiteSpace(_contactRegisterSettings.ContactDetailsChangesEndpoint))
+        {
+            throw new ArgumentNullException();
+        }
 
-        return null;
+        return await _contactDetailsHttpClient.GetContactDetailsChangesAsync(_contactRegisterSettings.ContactDetailsChangesEndpoint, margin);
     }
 }

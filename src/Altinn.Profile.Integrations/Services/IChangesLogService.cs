@@ -8,9 +8,12 @@ namespace Altinn.Profile.Integrations.Services;
 public interface IChangesLogService
 {
     /// <summary>
-    /// Asynchronously gets the notification status change log for a person.
+    /// Asynchronously retrieves the notification status change log for a specified person starting from a given index.
     /// </summary>
-    /// <param name="personIdentifier">The identifier of the person.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the person's notification status change log.</returns>
-    Task<IPersonNotificationStatusChangeLog> GetPersonNotificationStatusAsync(string personIdentifier);
+    /// <param name="margin">The index from which to start retrieving the data.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. 
+    /// The task result contains the notification status change log of the person.
+    /// </returns>
+    Task<IPersonNotificationStatusChangeLog> GetPersonNotificationStatusAsync(string margin);
 }
