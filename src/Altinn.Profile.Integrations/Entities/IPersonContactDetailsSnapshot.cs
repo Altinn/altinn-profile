@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents the contact details of a person from the changes log.
 /// </summary>
-public interface IPersonContactDetailsFromChangeLog
+public interface IPersonContactDetailsSnapshot
 {
     /// <summary>
     /// Gets the email address.

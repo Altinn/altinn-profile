@@ -6,7 +6,7 @@ namespace Altinn.Profile.Integrations.Entities;
 /// <summary>
 /// Represents the contact details of a person from the change log.
 /// </summary>
-public class PersonContactDetailsFromChangeLog : IPersonContactDetailsFromChangeLog
+public class PersonContactDetailsSnapshot : IPersonContactDetailsSnapshot
 {
     /// <summary>
     /// Gets the email address of the person.

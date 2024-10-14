@@ -3,12 +3,12 @@
 /// <summary>
 /// Represents the notification status change log of a person.
 /// </summary>
-public interface IPersonNotificationStatusChangeLog
+public interface IPersonChangeLog
 {
     /// <summary>
     /// Gets the contact information change log of the person.
     /// </summary>
-    PersonContactDetailsFromChangeLog? ContactInfoChangeLog { get; }
+    PersonContactDetailsSnapshot? ContactInfoChangeLog { get; }
 
     /// <summary>
     /// Gets the language preference of the person.

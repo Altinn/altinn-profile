@@ -29,7 +29,7 @@ public class ContactDetailsHttpClient : IContactDetailsHttpClient
     /// <param name="startIndex">The starting index for retrieving contact details changes.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
     /// <exception cref="ArgumentException">Thrown when the <paramref name="startIndex"/> is less than zero.</exception>
-    public async Task<IEnumerable<IPersonNotificationStatusChangeLog>?> GetContactDetailsChangesAsync(string endpointUrl, string startIndex)
+    public async Task<IEnumerable<IPersonChangeLog>?> GetContactDetailsChangesAsync(string endpointUrl, string startIndex)
     {
         if (string.IsNullOrWhiteSpace(endpointUrl))
         {
@@ -65,12 +65,12 @@ public class ContactDetailsHttpClient : IContactDetailsHttpClient
                 return null;
             }
 
-            var contactDetails = new List<IPersonNotificationStatusChangeLog>();
+            var contactDetails = new List<IPersonChangeLog>();
             foreach (var person in responseObject.ContactDetailsList)
             {
-                contactDetails.Add(new PersonNotificationStatusChangeLog
+                contactDetails.Add(new PersonChangeLog
                 {
-                    ContactInfoChangeLog = new PersonContactDetailsFromChangeLog
+                    ContactInfoChangeLog = new PersonContactDetailsSnapshot
                     {
                         EmailAddress = person.ContactInfoChangeLog?.EmailAddress,
                         MobilePhoneNumber = person.ContactInfoChangeLog?.MobilePhoneNumber,

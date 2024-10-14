@@ -89,8 +89,8 @@ public static class ServiceCollectionExtensions
         }
         
         services.AddScoped<IChangesLogService, ChangesLogService>();
-        services.AddScoped<IPersonNotificationStatusChangeLog, PersonNotificationStatusChangeLog>();
-        services.AddScoped<IPersonContactDetailsFromChangeLog, PersonContactDetailsFromChangeLog>();
+        services.AddScoped<IPersonChangeLog, PersonChangeLog>();
+        services.AddScoped<IPersonContactDetailsSnapshot, PersonContactDetailsSnapshot>();
         services.AddScoped<IPersonContactDetailsListFromChangeLog, PersonContactDetailsListFromChangeLog>();
 
         services.AddSingleton<IContactRegisterSettings>(contactRegisterSettings);

@@ -45,13 +45,13 @@ public class PersonContactChangesController : ControllerBase
     /// <param name="startIndex">The starting index for retrieving the contact details.</param>
     /// <returns>
     /// A task that represents the asynchronous operation, containing a response with persons' contact details.
-    /// Returns a <see cref="PersonNotificationStatusChangeLog"/> with status 200 OK if successful.
+    /// Returns a <see cref="PersonChangeLog"/> with status 200 OK if successful.
     /// </returns>
     [HttpPost("lookup")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(IEnumerable<PersonNotificationStatusChangeLog>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<PersonNotificationStatusChangeLog>>> PostLookup(string startIndex)
+    [ProducesResponseType(typeof(IEnumerable<PersonChangeLog>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<PersonChangeLog>>> PostLookup(string startIndex)
     {
         if (!ModelState.IsValid)
         {

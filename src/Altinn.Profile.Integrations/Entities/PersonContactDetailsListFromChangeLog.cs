@@ -10,9 +10,9 @@ public class PersonContactDetailsListFromChangeLog : IPersonContactDetailsListFr
     /// <summary>
     /// Gets the list of contact details for the person.
     /// </summary>
-    /// <value>A collection of <see cref="PersonNotificationStatusChangeLog"/> objects.</value>
+    /// <value>A collection of <see cref="PersonChangeLog"/> objects.</value>
     [JsonPropertyName("list")]
-    public IEnumerable<PersonNotificationStatusChangeLog>? ContactDetailsList { get; init; }
+    public IEnumerable<PersonChangeLog>? ContactDetailsList { get; init; }
 }
 
 /// <summary>
@@ -23,6 +23,6 @@ public interface IPersonContactDetailsListFromChangeLog
     /// <summary>
     /// Gets the list of contact details for the person.
     /// </summary>
-    /// <value>A collection of <see cref="PersonNotificationStatusChangeLog"/> objects.</value>
-    IEnumerable<PersonNotificationStatusChangeLog>? ContactDetailsList { get; }
+    /// <value>A collection of <see cref="PersonChangeLog"/> objects.</value>
+    IEnumerable<PersonChangeLog>? ContactDetailsList { get; }
 }

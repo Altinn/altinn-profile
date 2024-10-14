@@ -5,7 +5,7 @@ namespace Altinn.Profile.Integrations.Entities;
 /// <summary>
 /// Represents the notification status change log of a person.
 /// </summary>
-public class PersonNotificationStatusChangeLog : IPersonNotificationStatusChangeLog
+public class PersonChangeLog : IPersonChangeLog
 {
     /// <summary>
     /// Gets the identifier of the person.
@@ -35,7 +35,7 @@ public class PersonNotificationStatusChangeLog : IPersonNotificationStatusChange
     /// Gets the contact information change log of the person.
     /// </summary>
     [JsonPropertyName("kontaktinformasjon")]
-    public PersonContactDetailsFromChangeLog? ContactInfoChangeLog { get; init; }
+    public PersonContactDetailsSnapshot? ContactInfoChangeLog { get; init; }
 
     /// <summary>
     /// Gets the language preference of the person.
