@@ -15,5 +15,5 @@ public interface IChangesLogService
     /// A task that represents the asynchronous operation. 
     /// The task result contains the notification status change log of the person.
     /// </returns>
-    Task<IPersonNotificationStatusChangeLog> GetPersonNotificationStatusAsync(string margin);
+    Task<IEnumerable<IPersonNotificationStatusChangeLog>> GetPersonNotificationStatusAsync(string margin);
 }
