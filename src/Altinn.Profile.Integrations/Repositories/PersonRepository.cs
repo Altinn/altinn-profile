@@ -6,6 +6,7 @@ using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;
+
 using Npgsql;
 
 namespace Altinn.Profile.Integrations.Repositories;
@@ -31,7 +32,7 @@ internal class PersonRepository : ProfileRepository<Person>, IPersonRepository
     /// <summary>
     /// Asynchronously retrieves the contact details for multiple persons by their national identity numbers.
     /// </summary>
-    /// <param name="nationalIdentityNumbers">A collection of national identity numbers to look up for.</param>
+    /// <param name="nationalIdentityNumbers">A collection of national identity numbers to look up.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains an <see cref="ImmutableList{T}"/> of <see cref="Person"/> objects representing the contact details of the persons.
     /// </returns>
@@ -42,37 +43,30 @@ internal class PersonRepository : ProfileRepository<Person>, IPersonRepository
 
         if (!nationalIdentityNumbers.Any())
         {
-            return ImmutableList<Person>.Empty;
+            return [];
         }
 
         var people = await _context.People.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync();
 
-        return people.ToImmutableList();
+        return [.. people];
     }
 
     /// <summary>
-    /// Gets the last c hanged number.
+    /// Asynchronously retrieves the latest change number.
     /// </summary>
-    /// <returns></returns>
-    public async Task<long> GetLastCHangedNumber()
+    /// <returns>A task that represents the asynchronous operation. The task result contains the latest change number.</returns>
+    public async Task<long> GetLatestChangeNumberAsync()
     {
         var metaData = await _context.Metadata.FirstOrDefaultAsync();
 
-        if (metaData != null)
-        {
-            return metaData.LatestChangeNumber;
-        }
-        else
-        {
-            return 0;
-        }
+        return metaData != null ? metaData.LatestChangeNumber : 0;
     }
 
     /// <summary>
-    /// Synchronizes the person contact preferences asynchronous.
+    /// Asynchronously synchronizes the person contact preferences.
     /// </summary>
     /// <param name="personContactPreferencesSnapshots">The person contact preferences snapshots.</param>
-    /// <returns></returns>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a boolean indicating success or failure.</returns>
     public async Task<bool> SyncPersonContactPreferencesAsync(IPersonContactPreferencesChangesLog personContactPreferencesSnapshots)
     {
         ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots);

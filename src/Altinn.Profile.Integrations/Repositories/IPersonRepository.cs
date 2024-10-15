@@ -15,22 +15,22 @@ public interface IPersonRepository : IRepository<Person>
     /// <summary>
     /// Asynchronously retrieves the contact details for multiple persons by their national identity numbers.
     /// </summary>
-    /// <param name="nationalIdentityNumbers">A collection of national identity numbers to look up for.</param>
+    /// <param name="nationalIdentityNumbers">A collection of national identity numbers to look up.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains an <see cref="ImmutableList{T}"/> of <see cref="Person"/> objects representing the contact details of the persons.
     /// </returns>
     Task<ImmutableList<Person>> GetContactDetailsAsync(IEnumerable<string> nationalIdentityNumbers);
 
     /// <summary>
-    /// Gets the last c hanged number.
+    /// Asynchronously retrieves the latest change number.
     /// </summary>
-    /// <returns></returns>
-    Task<long> GetLastCHangedNumber();
+    /// <returns>A task that represents the asynchronous operation. The task result contains the latest change number.</returns>
+    Task<long> GetLatestChangeNumberAsync();
 
     /// <summary>
-    /// Synchronizes the person contact preferences asynchronous.
+    /// Asynchronously synchronizes the changes in person contact preferences.
     /// </summary>
     /// <param name="personContactPreferencesSnapshots">The person contact preferences snapshots.</param>
-    /// <returns></returns>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a boolean indicating success or failure.</returns>
     Task<bool> SyncPersonContactPreferencesAsync(IPersonContactPreferencesChangesLog personContactPreferencesSnapshots);
 }
