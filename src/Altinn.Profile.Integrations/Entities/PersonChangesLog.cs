@@ -10,7 +10,7 @@ public class PersonChangesLog : IPersonChangesLog
     /// <summary>
     /// Gets the list of contact details for the person.
     /// </summary>
-    /// <value>A collection of <see cref="PersonChangeLog"/> objects.</value>
+    /// <value>A collection of <see cref="PersonContactPreferencesSnapshot"/> objects.</value>
     [JsonPropertyName("list")]
-    public IEnumerable<PersonChangeLog>? ContactDetailsList { get; init; }
+    public IEnumerable<PersonContactPreferencesSnapshot>? ContactDetailsList { get; init; }
 }

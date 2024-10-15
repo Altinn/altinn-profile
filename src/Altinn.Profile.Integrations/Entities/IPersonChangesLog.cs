@@ -8,6 +8,6 @@ public interface IPersonChangesLog
     /// <summary>
     /// Gets the list of contact details for the person.
     /// </summary>
-    /// <value>A collection of <see cref="PersonChangeLog"/> objects.</value>
-    IEnumerable<PersonChangeLog>? ContactDetailsList { get; }
+    /// <value>A collection of <see cref="PersonContactPreferencesSnapshot"/> objects.</value>
+    IEnumerable<PersonContactPreferencesSnapshot>? ContactDetailsList { get; }
 }

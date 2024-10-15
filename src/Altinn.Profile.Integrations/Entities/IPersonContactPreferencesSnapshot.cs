@@ -1,14 +1,14 @@
 ﻿namespace Altinn.Profile.Integrations.Entities;
 
 /// <summary>
-/// Represents the notification status change log of a person.
+/// Represents a snapshot of a person's contact preferences, including contact information, language preference, notification status, and other details.
 /// </summary>
-public interface IPersonChangeLog
+public interface IPersonContactPreferencesSnapshot
 {
     /// <summary>
-    /// Gets the contact information change log of the person.
+    /// Gets the contact information details of the person.
     /// </summary>
-    PersonContactDetailsSnapshot? ContactInfoChangeLog { get; }
+    PersonContactDetailsSnapshot? PersonContactDetailsSnapshot { get; }
 
     /// <summary>
     /// Gets the language preference of the person.
@@ -16,7 +16,7 @@ public interface IPersonChangeLog
     string? Language { get; }
 
     /// <summary>
-    /// Gets the date and time when the person's language preference was updated.
+    /// Gets the date and time when the person's language preference was last updated.
     /// </summary>
     DateTime? LanguageUpdated { get; }
 
@@ -26,17 +26,17 @@ public interface IPersonChangeLog
     string? NotificationStatus { get; }
 
     /// <summary>
-    /// Gets the identifier of the person.
+    /// Gets the unique identifier of the person.
     /// </summary>
     string? PersonIdentifier { get; }
 
     /// <summary>
-    /// Gets the reservation details of the person.
+    /// Gets the reservation status of the person.
     /// </summary>
     string? Reservation { get; }
 
     /// <summary>
-    /// Gets the status of the person.
+    /// Gets the current status of the person.
     /// </summary>
     string? Status { get; }
 }

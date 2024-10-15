@@ -36,7 +36,7 @@ public class ContactDetailsHttpClient : IContactDetailsHttpClient
     /// <param name="margin">The starting index for retrieving contact details changes.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
     /// <exception cref="ArgumentException">Thrown when the <paramref name="margin"/> is less than zero.</exception>
-    public async Task<IEnumerable<IPersonChangeLog>?> GetContactDetailsChangesAsync(string endpointUrl, string margin)
+    public async Task<IEnumerable<IPersonContactPreferencesSnapshot>?> GetContactDetailsChangesAsync(string endpointUrl, string margin)
     {
         if (IsValidUrl(endpointUrl))
         {
@@ -67,21 +67,21 @@ public class ContactDetailsHttpClient : IContactDetailsHttpClient
                 return null;
             }
 
-            var contactDetails = new List<IPersonChangeLog>();
+            var contactDetails = new List<IPersonContactPreferencesSnapshot>();
             foreach (var person in responseObject.ContactDetailsList)
             {
-                contactDetails.Add(new PersonChangeLog
+                contactDetails.Add(new PersonContactPreferencesSnapshot
                 {
-                    ContactInfoChangeLog = new PersonContactDetailsSnapshot
+                    PersonContactDetailsSnapshot = new PersonContactDetailsSnapshot
                     {
-                        EmailAddress = person.ContactInfoChangeLog?.EmailAddress,
-                        MobilePhoneNumber = person.ContactInfoChangeLog?.MobilePhoneNumber,
-                        EmailAddressUpdated = person.ContactInfoChangeLog?.EmailAddressUpdated,
-                        MobilePhoneNumberUpdated = person.ContactInfoChangeLog?.MobilePhoneNumberUpdated,
-                        IsEmailAddressDuplicated = person.ContactInfoChangeLog?.IsEmailAddressDuplicated,
-                        EmailAddressLastVerified = person.ContactInfoChangeLog?.EmailAddressLastVerified,
-                        MobilePhoneNumberLastVerified = person.ContactInfoChangeLog?.MobilePhoneNumberLastVerified,
-                        IsMobilePhoneNumberDuplicated = person.ContactInfoChangeLog?.IsMobilePhoneNumberDuplicated
+                        EmailAddress = person.PersonContactDetailsSnapshot?.EmailAddress,
+                        MobilePhoneNumber = person.PersonContactDetailsSnapshot?.MobilePhoneNumber,
+                        EmailAddressUpdated = person.PersonContactDetailsSnapshot?.EmailAddressUpdated,
+                        MobilePhoneNumberUpdated = person.PersonContactDetailsSnapshot?.MobilePhoneNumberUpdated,
+                        IsEmailAddressDuplicated = person.PersonContactDetailsSnapshot?.IsEmailAddressDuplicated,
+                        EmailAddressLastVerified = person.PersonContactDetailsSnapshot?.EmailAddressLastVerified,
+                        MobilePhoneNumberLastVerified = person.PersonContactDetailsSnapshot?.MobilePhoneNumberLastVerified,
+                        IsMobilePhoneNumberDuplicated = person.PersonContactDetailsSnapshot?.IsMobilePhoneNumberDuplicated
                     },
 
                     Status = person.Status,

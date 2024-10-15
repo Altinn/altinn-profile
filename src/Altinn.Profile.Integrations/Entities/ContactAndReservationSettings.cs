@@ -7,7 +7,7 @@ namespace Altinn.Profile.Integrations.Entities;
 /// <summary>
 /// Represents the settings for managing contact details and reservation information for individuals.
 /// </summary>
-public class ContactRegisterSettings : IContactRegisterSettings
+public class ContactAndReservationSettings : IContactAndReservationSettings
 {
     /// <summary>
     /// Gets the endpoint URL used to retrieve updates in the contact information for one or more individuals.

@@ -8,7 +8,7 @@ namespace Altinn.Profile.Integrations.Services;
 internal class ChangesLogService : IChangesLogService
 {
     private readonly IContactDetailsHttpClient _contactDetailsHttpClient;
-    private readonly IContactRegisterSettings _contactRegisterSettings;
+    private readonly IContactAndReservationSettings _contactRegisterSettings;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ChangesLogService"/> class.
@@ -16,7 +16,7 @@ internal class ChangesLogService : IChangesLogService
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="contactDetailsHttpClient"/> is <c>null</c>.
     /// </exception>
-    public ChangesLogService(IContactDetailsHttpClient contactDetailsHttpClient, IContactRegisterSettings contactRegisterSettings)
+    public ChangesLogService(IContactDetailsHttpClient contactDetailsHttpClient, IContactAndReservationSettings contactRegisterSettings)
     {
         _contactRegisterSettings = contactRegisterSettings ?? throw new ArgumentNullException(nameof(contactRegisterSettings));
         _contactDetailsHttpClient = contactDetailsHttpClient ?? throw new ArgumentNullException(nameof(contactDetailsHttpClient));
@@ -30,7 +30,7 @@ internal class ChangesLogService : IChangesLogService
     /// A task that represents the asynchronous operation. 
     /// The task result contains the notification status change log of the person.
     /// </returns>
-    public async Task<IEnumerable<IPersonChangeLog>> GetPersonNotificationStatusAsync(string margin)
+    public async Task<IEnumerable<IPersonContactPreferencesSnapshot>> GetPersonNotificationStatusAsync(string margin)
     {
         if (string.IsNullOrWhiteSpace(_contactRegisterSettings.ContactDetailsChangesEndpoint))
         {

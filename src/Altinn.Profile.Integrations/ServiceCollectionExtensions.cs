@@ -81,7 +81,7 @@ public static class ServiceCollectionExtensions
             throw new ArgumentNullException(nameof(config), "Configuration cannot be null.");
         }
 
-        var contactRegisterSettings = new ContactRegisterSettings();
+        var contactRegisterSettings = new ContactAndReservationSettings();
         config.GetSection("ContactAndReservationSettings").Bind(contactRegisterSettings);
         if (contactRegisterSettings == null || contactRegisterSettings.Maskinporten == null)
         {
@@ -89,11 +89,11 @@ public static class ServiceCollectionExtensions
         }
         
         services.AddScoped<IChangesLogService, ChangesLogService>();
-        services.AddScoped<IPersonChangeLog, PersonChangeLog>();
+        services.AddScoped<IPersonContactPreferencesSnapshot, PersonContactPreferencesSnapshot>();
         services.AddScoped<IPersonContactDetailsSnapshot, PersonContactDetailsSnapshot>();
         services.AddScoped<IPersonChangesLog, PersonChangesLog>();
 
-        services.AddSingleton<IContactRegisterSettings>(contactRegisterSettings);
+        services.AddSingleton<IContactAndReservationSettings>(contactRegisterSettings);
         services.AddMaskinportenHttpClient<SettingsJwkClientDefinition, IContactDetailsHttpClient, ContactDetailsHttpClient>(contactRegisterSettings.Maskinporten);
     }
 }

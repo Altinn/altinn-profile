@@ -28,6 +28,31 @@ public class PersonContactDetailsRetriever : IPersonContactDetailsRetriever
     }
 
     /// <summary>
+    /// Asynchronously retrieves the contact details for one or more persons based on the specified lookup criteria.
+    /// </summary>
+    /// <param name="lookupCriteria">The criteria used to look up contact details.</param>
+    /// <returns>
+    /// A task representing the asynchronous operation. 
+    /// The task result contains a <see cref="Result{TValue, TError}"/> object, where <see cref="PersonContactDetailsLookupResult"/> represents the successful outcome and <see cref="bool"/> indicates a failure.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="lookupCriteria"/> is null.</exception>
+    public async Task<Result<PersonContactDetailsLookupResult, bool>> RetrieveAsync(PersonContactDetailsLookupCriteria lookupCriteria)
+    {
+        ArgumentNullException.ThrowIfNull(lookupCriteria);
+
+        if (lookupCriteria.NationalIdentityNumbers == null || lookupCriteria.NationalIdentityNumbers.Count == 0)
+        {
+            return false;
+        }
+
+        var contactDetails = await _personService.GetContactPreferencesAsync(lookupCriteria.NationalIdentityNumbers);
+
+        return contactDetails.Match(
+            MapToContactDetailsLookupResult,
+            _ => false);
+    }
+
+    /// <summary>
     /// Maps the person contact details to a <see cref="PersonContactDetails"/>.
     /// </summary>
     /// <param name="contactPreferences">The person contact details to map.</param>
@@ -62,30 +87,5 @@ public class PersonContactDetailsRetriever : IPersonContactDetailsRetriever
         var matchedContactDetails = lookupResult.MatchedPersonContactPreferences?.Select(MapToContactDetails).ToImmutableList();
 
         return new PersonContactDetailsLookupResult(matchedContactDetails, lookupResult.UnmatchedNationalIdentityNumbers);
-    }
-
-    /// <summary>
-    /// Asynchronously retrieves the contact details for one or more persons based on the specified lookup criteria.
-    /// </summary>
-    /// <param name="lookupCriteria">The criteria used to look up contact details.</param>
-    /// <returns>
-    /// A task representing the asynchronous operation. 
-    /// The task result contains a <see cref="Result{TValue, TError}"/> object, where <see cref="PersonContactDetailsLookupResult"/> represents the successful outcome and <see cref="bool"/> indicates a failure.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="lookupCriteria"/> is null.</exception>
-    public async Task<Result<PersonContactDetailsLookupResult, bool>> RetrieveAsync(PersonContactDetailsLookupCriteria lookupCriteria)
-    {
-        ArgumentNullException.ThrowIfNull(lookupCriteria);
-
-        if (lookupCriteria.NationalIdentityNumbers == null || lookupCriteria.NationalIdentityNumbers.Count == 0)
-        {
-            return false;
-        }
-
-        var contactDetails = await _personService.GetContactPreferencesAsync(lookupCriteria.NationalIdentityNumbers);
-
-        return contactDetails.Match(
-            MapToContactDetailsLookupResult,
-            _ => false);
     }
 }
