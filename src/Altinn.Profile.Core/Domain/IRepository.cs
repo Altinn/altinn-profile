@@ -10,6 +10,41 @@ public interface IRepository<T>
     where T : class
 {
     /// <summary>
+    /// Asynchronously adds a new entity.
+    /// </summary>
+    /// <param name="entity">The entity to add.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the added entity.</returns>
+    Task<T> AddAsync(T entity);
+
+    /// <summary>
+    /// Asynchronously adds multiple entities.
+    /// </summary>
+    /// <param name="entities">The entities to add.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task AddRangeAsync(IEnumerable<T> entities);
+
+    /// <summary>
+    /// Asynchronously deletes an entity by its identifier.
+    /// </summary>
+    /// <param name="id">The identifier of the entity to delete.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task DeleteAsync(string id);
+
+    /// <summary>
+    /// Asynchronously deletes multiple entities by their identifiers.
+    /// </summary>
+    /// <param name="ids">The identifiers of the entities to delete.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task DeleteRangeAsync(IEnumerable<string> ids);
+
+    /// <summary>
+    /// Asynchronously checks if an entity exists by its identifier.
+    /// </summary>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a boolean indicating the existence of the entity.</returns>
+    Task<bool> ExistsAsync(string id);
+
+    /// <summary>
     /// Asynchronously retrieves all entities.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation. The task result contains a collection of entities.</returns>
@@ -37,25 +72,10 @@ public interface IRepository<T>
     Task<T?> GetByIdAsync(string id);
 
     /// <summary>
-    /// Asynchronously checks if an entity exists by its identifier.
+    /// Saves changes to the data source asynchronously.
     /// </summary>
-    /// <param name="id">The identifier of the entity.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains a boolean indicating the existence of the entity.</returns>
-    Task<bool> ExistsAsync(string id);
-
-    /// <summary>
-    /// Asynchronously adds a new entity.
-    /// </summary>
-    /// <param name="entity">The entity to add.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the added entity.</returns>
-    Task<T> AddAsync(T entity);
-
-    /// <summary>
-    /// Asynchronously adds multiple entities.
-    /// </summary>
-    /// <param name="entities">The entities to add.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    Task AddRangeAsync(IEnumerable<T> entities);
+    /// <returns>A task that represents the asynchronous save operation. The task result contains the number of state entries written to the data source.</returns>
+    Task<int> SaveChangesAsync();
 
     /// <summary>
     /// Asynchronously updates an existing entity.
@@ -70,24 +90,4 @@ public interface IRepository<T>
     /// <param name="entities">The entities to update.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     Task UpdateRangeAsync(IEnumerable<T> entities);
-
-    /// <summary>
-    /// Asynchronously deletes an entity by its identifier.
-    /// </summary>
-    /// <param name="id">The identifier of the entity to delete.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    Task DeleteAsync(string id);
-
-    /// <summary>
-    /// Asynchronously deletes multiple entities by their identifiers.
-    /// </summary>
-    /// <param name="ids">The identifiers of the entities to delete.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    Task DeleteRangeAsync(IEnumerable<string> ids);
-
-    /// <summary>
-    /// Saves changes to the data source asynchronously.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous save operation. The task result contains the number of state entries written to the data source.</returns>
-    Task<int> SaveChangesAsync();
 }
