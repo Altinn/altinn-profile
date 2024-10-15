@@ -30,7 +30,7 @@ internal class ChangesLogService : IChangesLogService
     /// A task that represents the asynchronous operation. 
     /// The task result contains the notification status change log of the person.
     /// </returns>
-    public async Task<IEnumerable<IPersonContactPreferencesSnapshot>> GetPersonNotificationStatusAsync(string margin)
+    public async Task<IEnumerable<IPersonContactPreferencesSnapshot>?> GetPersonNotificationStatusAsync(string margin)
     {
         if (string.IsNullOrWhiteSpace(_contactRegisterSettings.ContactDetailsChangesEndpoint))
         {

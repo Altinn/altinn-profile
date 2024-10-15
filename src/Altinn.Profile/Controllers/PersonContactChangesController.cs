@@ -22,21 +22,21 @@ namespace Altinn.Profile.Controllers;
 [Route("profile/api/v1/person/changes")]
 public class PersonContactChangesController : ControllerBase
 {
-    private readonly IChangesLogService _changesLogService;
+    private readonly IPersonService _personService;
     private readonly ILogger<PersonContactChangesController> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PersonContactChangesController"/> class.
     /// </summary>
     /// <param name="logger">The logger instance used for logging.</param>
-    /// <param name="changesLogService">The service for retrieving the contact details.</param>
+    /// <param name="personService">The service for retrieving the contact details.</param>
     /// <exception cref="ArgumentNullException">
-    /// Thrown when the <paramref name="logger"/> or <paramref name="changesLogService"/> is null.
+    /// Thrown when the <paramref name="logger"/> or <paramref name="personService"/> is null.
     /// </exception>
-    public PersonContactChangesController(ILogger<PersonContactChangesController> logger, IChangesLogService changesLogService)
+    public PersonContactChangesController(ILogger<PersonContactChangesController> logger, IPersonService personService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _changesLogService = changesLogService ?? throw new ArgumentNullException(nameof(changesLogService));
+        _personService = personService ?? throw new ArgumentNullException(nameof(personService));
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ public class PersonContactChangesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(IEnumerable<PersonContactPreferencesSnapshot>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<PersonContactPreferencesSnapshot>>> PostLookup(string startIndex)
+    public async Task<ActionResult<IEnumerable<PersonContactPreferencesSnapshot>>> PostLookup()
     {
         if (!ModelState.IsValid)
         {
@@ -60,7 +60,7 @@ public class PersonContactChangesController : ControllerBase
 
         try
         {
-            var lookupResult = await _changesLogService.GetPersonNotificationStatusAsync(startIndex);
+            var lookupResult = await _personService.SyncPersonContactPreferencesAsync();
 
             return Ok(lookupResult);
         }

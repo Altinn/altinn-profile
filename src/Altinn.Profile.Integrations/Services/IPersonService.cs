@@ -27,4 +27,10 @@ public interface IPersonService
     /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object, where <see cref="IPersonContactPreferencesLookupResult"/> represents the successful lookup result and <see cref="bool"/> indicates a failure.
     /// </returns>
     Task<Result<IPersonContactPreferencesLookupResult, bool>> GetContactPreferencesAsync(IEnumerable<string> nationalIdentityNumbers);
+
+    /// <summary>
+    /// Asynchronously synchronizes the person contact preferences.
+    /// </summary>
+    /// <returns></returns>
+    Task<bool> SyncPersonContactPreferencesAsync();
 }

@@ -17,6 +17,7 @@ public class PersonService : IPersonService
 {
     private readonly IMapper _mapper;
     private readonly IPersonRepository _personRepository;
+    private readonly IChangesLogService _changesLogService;
     private readonly INationalIdentityNumberChecker _nationalIdentityNumberChecker;
 
     /// <summary>
@@ -28,10 +29,11 @@ public class PersonService : IPersonService
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="mapper"/>, <paramref name="personRepository"/>, or <paramref name="nationalIdentityNumberChecker"/> is <c>null</c>.
     /// </exception>
-    public PersonService(IMapper mapper, IPersonRepository personRepository, INationalIdentityNumberChecker nationalIdentityNumberChecker)
+    public PersonService(IMapper mapper, IPersonRepository personRepository, INationalIdentityNumberChecker nationalIdentityNumberChecker, IChangesLogService changesLogService)
     {
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _personRepository = personRepository ?? throw new ArgumentNullException(nameof(personRepository));
+        _changesLogService = changesLogService ?? throw new ArgumentNullException(nameof(changesLogService));
         _nationalIdentityNumberChecker = nationalIdentityNumberChecker ?? throw new ArgumentNullException(nameof(nationalIdentityNumberChecker));
     }
 
@@ -80,5 +82,25 @@ public class PersonService : IPersonService
             MatchedPersonContactPreferences = matchedPersonContactDetails,
             UnmatchedNationalIdentityNumbers = unmatchedNationalIdentityNumbers
         };
+    }
+
+    /// <summary>
+    /// Asynchronously synchronizes the person contact preferences.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<bool> SyncPersonContactPreferencesAsync()
+    {
+        var mmm = await _personRepository.GetLastCHangedNumber();
+
+        var changes = await _changesLogService.GetPersonNotificationStatusAsync(Convert.ToString(mmm));
+
+        if (changes == null)
+        {
+            return false;
+        }
+
+        var changesGood = await _personRepository.SyncPersonContactPreferencesAsync(changes);
+
+        return changesGood;
     }
 }
