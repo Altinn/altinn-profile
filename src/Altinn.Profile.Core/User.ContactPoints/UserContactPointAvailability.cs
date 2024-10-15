@@ -11,7 +11,7 @@ public class UserContactPointAvailability
     public int UserId { get; set; }
 
     /// <summary>
-    /// Gets or sets the national identityt number of the user
+    /// Gets or sets the national identity number of the user
     /// </summary>
     public string NationalIdentityNumber { get; set; } = string.Empty;
 
@@ -37,7 +37,7 @@ public class UserContactPointAvailability
 public class UserContactPointAvailabilityList
 {
     /// <summary>
-    /// A list containing contact point availabiliy for users
+    /// A list containing contact point availability for users
     /// </summary>
     public List<UserContactPointAvailability> AvailabilityList { get; set; } = [];
 }

@@ -3,12 +3,12 @@
 namespace Altinn.Profile.Models;
 
 /// <summary>
-/// A class respresenting a user contact point lookup object
+/// A class representing a user contact point lookup object.
 /// </summary>
 public class UserContactPointLookup
 {
     /// <summary>
-    /// A list of national identity numbers to look up contact points or contact point availability for
+    /// A collection of national identity numbers used to retrieve contact points, obtain contact details, or check the availability of contact points.
     /// </summary>
     public List<string> NationalIdentityNumbers { get; set; } = [];
 }
