@@ -31,7 +31,7 @@ public class PersonServiceTests
         _mapperMock = new Mock<IMapper>();
         _personRepositoryMock = new Mock<IPersonRepository>();
         _nationalIdentityNumberCheckerMock = new Mock<INationalIdentityNumberChecker>();
-        _personService = new PersonService(_mapperMock.Object, _personRepositoryMock.Object, _nationalIdentityNumberCheckerMock.Object);
+        ///_personService = new PersonService(_mapperMock.Object, _personRepositoryMock.Object, _nationalIdentityNumberCheckerMock.Object);
     }
 
     [Fact]

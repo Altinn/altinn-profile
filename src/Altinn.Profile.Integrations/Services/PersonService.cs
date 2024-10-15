@@ -75,7 +75,7 @@ public class PersonService : IPersonService
 
         var unmatchedNationalIdentityNumbers = nationalIdentityNumbers.Where(e => !matchedNationalIdentityNumbers.Contains(e)).ToImmutableList();
 
-        var matchedPersonContactDetails = matchedContactDetails != null ? matchedContactDetails.Select(_mapper.Map<IPersonContactPreferences>).ToImmutableList() : [];
+        var matchedPersonContactDetails = matchedContactDetails != null ? matchedContactDetails.Select(_mapper.Map<PersonContactPreferences>).ToImmutableList() : [];
 
         return new PersonContactPreferencesLookupResult
         {

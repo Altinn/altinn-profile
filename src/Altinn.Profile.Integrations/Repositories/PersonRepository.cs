@@ -6,6 +6,7 @@ using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Altinn.Profile.Integrations.Repositories;
 
@@ -41,12 +42,12 @@ internal class PersonRepository : ProfileRepository<Person>, IPersonRepository
 
         if (!nationalIdentityNumbers.Any())
         {
-            return [];
+            return ImmutableList<Person>.Empty;
         }
 
         var people = await _context.People.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync();
 
-        return [.. people];
+        return people.ToImmutableList();
     }
 
     /// <summary>
@@ -72,12 +73,44 @@ internal class PersonRepository : ProfileRepository<Person>, IPersonRepository
     /// </summary>
     /// <param name="personContactPreferencesSnapshots">The person contact preferences snapshots.</param>
     /// <returns></returns>
-    public async Task<bool> SyncPersonContactPreferencesAsync(IEnumerable<IPersonContactPreferencesSnapshot> personContactPreferencesSnapshots)
+    public async Task<bool> SyncPersonContactPreferencesAsync(IPersonContactPreferencesChangesLog personContactPreferencesSnapshots)
     {
         ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots);
+        ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots.PersonContactPreferencesSnapshots);
 
-        // Convert the personContactPreferencesSnapshots to list of Persons
-        var people = personContactPreferencesSnapshots.Select(p => new Person
+        var people = personContactPreferencesSnapshots.PersonContactPreferencesSnapshots.Select(e => new PersonContactPreferencesSnapshot
+        {
+            PersonContactDetailsSnapshot = new PersonContactDetailsSnapshot
+            {
+                EmailAddress = e.PersonContactDetailsSnapshot?.EmailAddress,
+                MobilePhoneNumber = e.PersonContactDetailsSnapshot?.MobilePhoneNumber,
+                EmailAddressUpdated = e.PersonContactDetailsSnapshot?.EmailAddressUpdated,
+                MobilePhoneNumberUpdated = e.PersonContactDetailsSnapshot?.MobilePhoneNumberUpdated,
+                IsEmailAddressDuplicated = e.PersonContactDetailsSnapshot?.IsEmailAddressDuplicated,
+                EmailAddressLastVerified = e.PersonContactDetailsSnapshot?.EmailAddressLastVerified,
+                MobilePhoneNumberLastVerified = e.PersonContactDetailsSnapshot?.MobilePhoneNumberLastVerified,
+                IsMobilePhoneNumberDuplicated = e.PersonContactDetailsSnapshot?.IsMobilePhoneNumberDuplicated
+            },
+            Status = e.Status,
+            Language = e.Language,
+            Reservation = e.Reservation,
+            LanguageUpdated = e.LanguageUpdated,
+            PersonIdentifier = e.PersonIdentifier,
+            NotificationStatus = e.NotificationStatus
+        }).ToList();
+
+        // Find duplicates and select the item with the largest values for the specified properties
+        var distinctPeople = people.GroupBy(p => p.PersonIdentifier)
+                                   .Select(g => g.OrderByDescending(p => p.PersonContactDetailsSnapshot?.EmailAddressUpdated)
+                                                 .ThenByDescending(p => p.PersonContactDetailsSnapshot?.MobilePhoneNumberUpdated)
+                                                 .ThenByDescending(p => p.PersonContactDetailsSnapshot?.EmailAddressLastVerified)
+                                                 .ThenByDescending(p => p.PersonContactDetailsSnapshot?.MobilePhoneNumberLastVerified)
+                                                 .ThenByDescending(p => p.LanguageUpdated)
+                                                 .First())
+                                   .ToList();
+
+        // Add or update the people in the database
+        foreach (Person? person in distinctPeople.Select(p => new Person
         {
             LanguageCode = p.Language,
             FnumberAk = p.PersonIdentifier,
@@ -88,17 +121,11 @@ internal class PersonRepository : ProfileRepository<Person>, IPersonRepository
             EmailAddressLastVerified = p.PersonContactDetailsSnapshot?.EmailAddressLastVerified?.ToUniversalTime(),
             MobilePhoneNumberLastUpdated = p.PersonContactDetailsSnapshot?.MobilePhoneNumberUpdated?.ToUniversalTime(),
             MobilePhoneNumberLastVerified = p.PersonContactDetailsSnapshot?.MobilePhoneNumberLastVerified?.ToUniversalTime(),
-        }).ToList();
-
-        // Add or update the people in the database
-        var lastIdentifier = string.Empty;
-        for (int i = 0; i < people.Count; i++)
+        }))
         {
-            Person? person = people[i];
             try
             {
-                var existingPerson = await _context.People
-                    .FirstOrDefaultAsync(e => e.FnumberAk == person.FnumberAk);
+                var existingPerson = await _context.People.FirstOrDefaultAsync(e => e.FnumberAk == person.FnumberAk);
 
                 if (existingPerson != null)
                 {
@@ -110,42 +137,35 @@ internal class PersonRepository : ProfileRepository<Person>, IPersonRepository
                 {
                     await _context.People.AddAsync(person);
                 }
-
-                if (i == 999)
-                {
-                    lastIdentifier = person.FnumberAk;
-                }
-
             }
-            catch (Exception ex)
+            catch (DbUpdateException dbEx) when (dbEx.InnerException is PostgresException pgEx && pgEx.SqlState == "23505")
             {
-                throw;
+                // Handle duplicate key exception
+                // Log the exception or take appropriate action
             }
         }
 
         try
         {
-            var metaData = _context.Metadata.FirstOrDefault();
+            var existingMetadata = await _context.Metadata.FirstOrDefaultAsync();
 
-            if (metaData != null)
+            if (existingMetadata != null)
             {
-                //metaData.LatestChangeNumber = Convert.ToInt64(lastIdentifier);
-                _context.Metadata.Update(metaData);
+                _context.Metadata.Remove(existingMetadata);
             }
-            else
+
+            var metaData = new Metadata
             {
-                metaData = new Metadata
-                {
-                    Exported = DateTime.Now.ToUniversalTime(),
-                    LatestChangeNumber = Convert.ToInt64(lastIdentifier)
-                };
-                await _context.Metadata.AddAsync(metaData);
-            }
+                Exported = DateTime.Now.ToUniversalTime(),
+                LatestChangeNumber = personContactPreferencesSnapshots.ToChangeId ?? existingMetadata?.LatestChangeNumber ?? 0
+            };
+            await _context.Metadata.AddAsync(metaData);
 
             await _context.SaveChangesAsync();
         }
         catch (Exception ex)
         {
+            // Log the exception or take appropriate action
             throw;
         }
 

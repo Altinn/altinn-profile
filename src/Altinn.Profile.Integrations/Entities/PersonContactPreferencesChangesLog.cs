@@ -13,4 +13,22 @@ public class PersonContactPreferencesChangesLog : IPersonContactPreferencesChang
     /// <value>A collection of <see cref="PersonContactPreferencesSnapshot"/> objects.</value>
     [JsonPropertyName("list")]
     public IEnumerable<PersonContactPreferencesSnapshot>? PersonContactPreferencesSnapshots { get; init; }
+
+    /// <summary>
+    /// Gets the starting change ID.
+    /// </summary>
+    [JsonPropertyName("fraEndringsId")]
+    public long? FromChangeId { get; init; }
+
+    /// <summary>
+    /// Gets the ending change ID.
+    /// </summary>
+    [JsonPropertyName("tilEndringsId")]
+    public long? ToChangeId { get; init; }
+
+    /// <summary>
+    /// Gets the latest change ID.
+    /// </summary>
+    [JsonPropertyName("sisteEndringsId")]
+    public long? LatestChangeId { get; init; }
 }

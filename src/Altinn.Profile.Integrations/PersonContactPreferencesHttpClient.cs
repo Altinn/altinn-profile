@@ -37,7 +37,7 @@ public class PersonContactPreferencesHttpClient : IPersonContactPreferencesHttpC
     /// <param name="margin">The starting index for retrieving contact details changes.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
     /// <exception cref="ArgumentException">Thrown when the <paramref name="margin"/> is less than zero.</exception>
-    public async Task<IEnumerable<IPersonContactPreferencesSnapshot>?> GetContactDetailsChangesAsync(string endpointUrl, string margin)
+    public async Task<IPersonContactPreferencesChangesLog?> GetContactDetailsChangesAsync(string endpointUrl, string margin)
     {
         if (!endpointUrl.IsValidUrl())
         {
@@ -66,28 +66,7 @@ public class PersonContactPreferencesHttpClient : IPersonContactPreferencesHttpC
                 return null;
             }
 
-            var contactPreferencesSnapshots = responseObject.PersonContactPreferencesSnapshots?.Select(e => new PersonContactPreferencesSnapshot
-            {
-                PersonContactDetailsSnapshot = new PersonContactDetailsSnapshot
-                {
-                    EmailAddress = e.PersonContactDetailsSnapshot?.EmailAddress,
-                    MobilePhoneNumber = e.PersonContactDetailsSnapshot?.MobilePhoneNumber,
-                    EmailAddressUpdated = e.PersonContactDetailsSnapshot?.EmailAddressUpdated,
-                    MobilePhoneNumberUpdated = e.PersonContactDetailsSnapshot?.MobilePhoneNumberUpdated,
-                    IsEmailAddressDuplicated = e.PersonContactDetailsSnapshot?.IsEmailAddressDuplicated,
-                    EmailAddressLastVerified = e.PersonContactDetailsSnapshot?.EmailAddressLastVerified,
-                    MobilePhoneNumberLastVerified = e.PersonContactDetailsSnapshot?.MobilePhoneNumberLastVerified,
-                    IsMobilePhoneNumberDuplicated = e.PersonContactDetailsSnapshot?.IsMobilePhoneNumberDuplicated
-                },
-                Status = e.Status,
-                Language = e.Language,
-                Reservation = e.Reservation,
-                LanguageUpdated = e.LanguageUpdated,
-                PersonIdentifier = e.PersonIdentifier,
-                NotificationStatus = e.NotificationStatus
-            }).ToList();
-
-            return contactPreferencesSnapshots;
+            return responseObject;
         }
         catch (Exception ex)
         {

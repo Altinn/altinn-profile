@@ -15,7 +15,7 @@ public record PersonContactPreferencesLookupResult : IPersonContactPreferencesLo
     /// <value>
     /// An <see cref="ImmutableList{T}"/> of <see cref="IPersonContactPreferences"/> containing the matched person contact preferences.
     /// </value>
-    public ImmutableList<IPersonContactPreferences>? MatchedPersonContactPreferences { get; init; }
+    public ImmutableList<PersonContactPreferences>? MatchedPersonContactPreferences { get; init; }
 
     /// <summary>
     /// Gets a list of national identity numbers that could not be matched with any person contact preferences.

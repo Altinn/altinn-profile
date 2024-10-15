@@ -32,5 +32,5 @@ public interface IPersonRepository : IRepository<Person>
     /// </summary>
     /// <param name="personContactPreferencesSnapshots">The person contact preferences snapshots.</param>
     /// <returns></returns>
-    Task<bool> SyncPersonContactPreferencesAsync(IEnumerable<IPersonContactPreferencesSnapshot> personContactPreferencesSnapshots);
+    Task<bool> SyncPersonContactPreferencesAsync(IPersonContactPreferencesChangesLog personContactPreferencesSnapshots);
 }
