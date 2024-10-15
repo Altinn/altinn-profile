@@ -5,7 +5,7 @@ namespace Altinn.Profile.Integrations.Entities;
 /// <summary>
 /// Represents a list of contact details for a person from the change log.
 /// </summary>
-public class PersonChangesLog : IPersonChangesLog
+public class PersonContactPreferencesChangesLog : IPersonContactPreferencesChangesLog
 {
     /// <summary>
     /// Gets the list of contact details for the person.

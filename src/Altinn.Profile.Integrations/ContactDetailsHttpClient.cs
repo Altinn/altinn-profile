@@ -61,7 +61,7 @@ public class ContactDetailsHttpClient : IContactDetailsHttpClient
 
             var responseData = await response.Content.ReadAsStringAsync();
 
-            var responseObject = JsonSerializer.Deserialize<PersonChangesLog>(responseData);
+            var responseObject = JsonSerializer.Deserialize<PersonContactPreferencesChangesLog>(responseData);
             if (responseObject == null || responseObject.ContactDetailsList == null)
             {
                 return null;

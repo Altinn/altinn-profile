@@ -3,7 +3,7 @@
 /// <summary>
 /// Defines a list of contact details for a person from the change log.
 /// </summary>
-public interface IPersonChangesLog
+public interface IPersonContactPreferencesChangesLog
 {
     /// <summary>
     /// Gets the list of contact details for the person.
