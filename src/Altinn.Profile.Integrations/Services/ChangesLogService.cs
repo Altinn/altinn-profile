@@ -7,7 +7,7 @@ namespace Altinn.Profile.Integrations.Services;
 /// </summary>
 internal class ChangesLogService : IChangesLogService
 {
-    private readonly IContactDetailsHttpClient _contactDetailsHttpClient;
+    private readonly IPersonContactPreferencesHttpClient _contactDetailsHttpClient;
     private readonly IContactAndReservationSettings _contactRegisterSettings;
 
     /// <summary>
@@ -16,7 +16,7 @@ internal class ChangesLogService : IChangesLogService
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="contactDetailsHttpClient"/> is <c>null</c>.
     /// </exception>
-    public ChangesLogService(IContactDetailsHttpClient contactDetailsHttpClient, IContactAndReservationSettings contactRegisterSettings)
+    public ChangesLogService(IPersonContactPreferencesHttpClient contactDetailsHttpClient, IContactAndReservationSettings contactRegisterSettings)
     {
         _contactRegisterSettings = contactRegisterSettings ?? throw new ArgumentNullException(nameof(contactRegisterSettings));
         _contactDetailsHttpClient = contactDetailsHttpClient ?? throw new ArgumentNullException(nameof(contactDetailsHttpClient));

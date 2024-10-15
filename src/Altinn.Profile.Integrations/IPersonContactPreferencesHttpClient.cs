@@ -5,7 +5,7 @@ namespace Altinn.Profile.Integrations;
 /// <summary>
 /// Interface for HTTP client to handle contact details.
 /// </summary>
-public interface IContactDetailsHttpClient
+public interface IPersonContactPreferencesHttpClient
 {
     /// <summary>
     /// Retrieves contact details changes from the specified endpoint.

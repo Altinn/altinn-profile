@@ -10,6 +10,28 @@ namespace Altinn.Profile.Core.Extensions;
 public static partial class StringExtensions
 {
     /// <summary>
+    /// Validates the given URL.
+    /// </summary>
+    /// <param name="url">The URL to validate.</param>
+    /// <returns>True if the URL is valid; otherwise, false.</returns>
+    public static bool IsValidUrl(this string url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            return false;
+        }
+
+        try
+        {
+            return Uri.TryCreate(url, UriKind.Absolute, out Uri? uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+        }
+        catch (UriFormatException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
     ///     Determines whether a given string consists of only digits.
     /// </summary>
     /// <param name="input">The string to check.</param>

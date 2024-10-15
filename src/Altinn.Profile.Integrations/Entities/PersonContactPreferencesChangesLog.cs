@@ -3,14 +3,14 @@
 namespace Altinn.Profile.Integrations.Entities;
 
 /// <summary>
-/// Represents a list of contact details for a person from the change log.
+/// Represents a log of changes to a person's contact preferences.
 /// </summary>
 public class PersonContactPreferencesChangesLog : IPersonContactPreferencesChangesLog
 {
     /// <summary>
-    /// Gets the list of contact details for the person.
+    /// Gets the list of snapshots representing the changes to the person's contact preferences.
     /// </summary>
     /// <value>A collection of <see cref="PersonContactPreferencesSnapshot"/> objects.</value>
     [JsonPropertyName("list")]
-    public IEnumerable<PersonContactPreferencesSnapshot>? ContactDetailsList { get; init; }
+    public IEnumerable<PersonContactPreferencesSnapshot>? PersonContactPreferencesSnapshots { get; init; }
 }

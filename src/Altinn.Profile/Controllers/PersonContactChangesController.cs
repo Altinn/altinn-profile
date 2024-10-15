@@ -15,7 +15,7 @@ namespace Altinn.Profile.Controllers;
 /// <summary>
 /// Controller responsible for managing changes in contact preferences for one or more persons.
 /// </summary>
-[Authorize]
+///[Authorize]
 [ApiController]
 [Consumes("application/json")]
 [Produces("application/json")]
