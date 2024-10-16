@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Services;
 
@@ -15,7 +15,7 @@ namespace Altinn.Profile.Controllers;
 /// <summary>
 /// Controller responsible for managing changes in contact preferences for one or more persons.
 /// </summary>
-[Authorize]
+///[Authorize]
 [ApiController]
 [Consumes("application/json")]
 [Produces("application/json")]

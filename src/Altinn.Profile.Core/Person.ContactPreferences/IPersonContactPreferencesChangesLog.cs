@@ -9,7 +9,7 @@ public interface IPersonContactPreferencesChangesLog
     /// Gets the list of snapshots representing the changes to the person's contact preferences.
     /// </summary>
     /// <value>A collection of <see cref="IPersonContactPreferencesSnapshot"/> objects.</value>
-    IEnumerable<IPersonContactPreferencesSnapshot>? ContactPreferencesSnapshots { get; }
+    IEnumerable<PersonContactPreferencesSnapshot>? ContactPreferencesSnapshots { get; }
 
     /// <summary>
     /// Gets the starting change ID.

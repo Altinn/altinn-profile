@@ -1,7 +1,6 @@
 ﻿using System.Text.Json.Serialization;
-using Altinn.Profile.Core.Person.ContactPreferences;
 
-namespace Altinn.Profile.Integrations.Entities;
+namespace Altinn.Profile.Core.Person.ContactPreferences;
 
 /// <summary>
 /// Represents a log of changes to a person's contact preferences.
@@ -13,7 +12,7 @@ public class PersonContactPreferencesChangesLog : IPersonContactPreferencesChang
     /// </summary>
     /// <value>A collection of <see cref="IPersonContactPreferencesSnapshot"/> objects.</value>
     [JsonPropertyName("list")]
-    public IEnumerable<IPersonContactPreferencesSnapshot>? ContactPreferencesSnapshots { get; init; }
+    public IEnumerable<PersonContactPreferencesSnapshot>? ContactPreferencesSnapshots { get; init; }
 
     /// <summary>
     /// Gets the starting change ID.

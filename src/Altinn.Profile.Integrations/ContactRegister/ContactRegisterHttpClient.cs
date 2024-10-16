@@ -1,31 +1,32 @@
 ﻿using System.Text;
 using System.Text.Json;
 
+using Altinn.Profile.Core;
 using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 
 using Microsoft.Extensions.Logging;
 
-namespace Altinn.Profile.Integrations;
+namespace Altinn.Profile.Integrations.ContactRegister;
 
 /// <summary>
-/// Implementation of <see cref="IPersonContactPreferencesHttpClient"/> to handle contact details via HTTP.
+/// Implementation of <see cref="IContactRegisterHttpClient"/> to handle contact details via HTTP.
 /// </summary>
-public class PersonContactPreferencesHttpClient : IPersonContactPreferencesHttpClient
+public class ContactRegisterHttpClient : IContactRegisterHttpClient
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<PersonContactPreferencesHttpClient> _logger;
+    private readonly ILogger<ContactRegisterHttpClient> _logger;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="PersonContactPreferencesHttpClient"/> class.
+    /// Initializes a new instance of the <see cref="ContactRegisterHttpClient"/> class.
     /// </summary>
     /// <param name="logger">The logger instance used for logging.</param>
     /// <param name="httpClient">The service for retrieving the contact details.</param>
     /// <exception cref="ArgumentNullException">
     /// Thrown when the <paramref name="logger"/> or <paramref name="httpClient"/> is null.
     /// </exception>
-    public PersonContactPreferencesHttpClient(ILogger<PersonContactPreferencesHttpClient> logger, HttpClient httpClient)
+    public ContactRegisterHttpClient(ILogger<ContactRegisterHttpClient> logger, HttpClient httpClient)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -38,7 +39,7 @@ public class PersonContactPreferencesHttpClient : IPersonContactPreferencesHttpC
     /// <param name="latestChangeNumber">The starting index for retrieving contact details changes.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
     /// <exception cref="ArgumentException">Thrown when the <paramref name="margin"/> is less than zero.</exception>
-    public async Task<IPersonContactPreferencesChangesLog?> GetContactDetailsChangesAsync(string endpointUrl, long latestChangeNumber)
+    public async Task<Result<IPersonContactPreferencesChangesLog, bool>> GetContactDetailsChangesAsync(string endpointUrl, long latestChangeNumber)
     {
         if (!endpointUrl.IsValidUrl())
         {
@@ -59,7 +60,7 @@ public class PersonContactPreferencesHttpClient : IPersonContactPreferencesHttpC
             var responseObject = JsonSerializer.Deserialize<PersonContactPreferencesChangesLog>(responseData);
             if (responseObject == null || responseObject.ContactPreferencesSnapshots == null)
             {
-                return null;
+                return false;
             }
 
             return responseObject;

@@ -8,7 +8,7 @@ public interface IPersonContactPreferencesSnapshot
     /// <summary>
     /// Gets the contact information details of the person.
     /// </summary>
-    IPersonContactDetailsSnapshot? ContactDetailsSnapshot { get; }
+    PersonContactDetailsSnapshot? ContactDetailsSnapshot { get; }
 
     /// <summary>
     /// Gets the language preference of the person.

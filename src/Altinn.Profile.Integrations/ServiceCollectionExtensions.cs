@@ -91,12 +91,12 @@ public static class ServiceCollectionExtensions
             throw new InvalidOperationException("Contact and reservation settings are not properly configured.");
         }
         
-        services.AddScoped<IContactRegisterService, ChangesLogService>();
+        services.AddScoped<IContactRegisterService, ContactRegisterService>();
         services.AddScoped<IPersonContactPreferencesSnapshot, PersonContactPreferencesSnapshot>();
         services.AddScoped<IPersonContactDetailsSnapshot, PersonContactDetailsSnapshot>();
         services.AddScoped<IPersonContactPreferencesChangesLog, PersonContactPreferencesChangesLog>();
 
         services.AddSingleton<IContactRegisterSettings>(contactRegisterSettings);
-        services.AddMaskinportenHttpClient<SettingsJwkClientDefinition, IPersonContactPreferencesHttpClient, PersonContactPreferencesHttpClient>(contactRegisterSettings.MaskinportenSettings);
+        services.AddMaskinportenHttpClient<SettingsJwkClientDefinition, IContactRegisterHttpClient, ContactRegisterHttpClient>(contactRegisterSettings.MaskinportenSettings);
     }
 }

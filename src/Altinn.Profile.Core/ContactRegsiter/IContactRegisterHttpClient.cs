@@ -1,12 +1,12 @@
-﻿using Altinn.Profile.Core.Person.ContactPreferences;
-using Altinn.Profile.Integrations.Entities;
+﻿using Altinn.Profile.Core;
+using Altinn.Profile.Core.Person.ContactPreferences;
 
-namespace Altinn.Profile.Integrations;
+namespace Altinn.Profile.Integrations.ContactRegister;
 
 /// <summary>
 /// Interface for HTTP client to handle contact details.
 /// </summary>
-public interface IPersonContactPreferencesHttpClient
+public interface IContactRegisterHttpClient
 {
     /// <summary>
     /// Retrieves contact details changes from the specified endpoint.
@@ -14,5 +14,5 @@ public interface IPersonContactPreferencesHttpClient
     /// <param name="endpointUrl">The URL of the endpoint to retrieve contact details changes from.</param>
     /// <param name="latestChangeNumber">The starting index for retrieving contact details changes.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
-    Task<IPersonContactPreferencesChangesLog?> GetContactDetailsChangesAsync(string endpointUrl, long latestChangeNumber);
+    Task<Result<IPersonContactPreferencesChangesLog, bool>> GetContactDetailsChangesAsync(string endpointUrl, long latestChangeNumber);
 }

@@ -1,8 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-using Altinn.Profile.Core.Person.ContactPreferences;
-
-namespace Altinn.Profile.Integrations.Entities;
+namespace Altinn.Profile.Core.Person.ContactPreferences;
 
 /// <summary>
 /// Represents a log of changes to a person's contact preferences, including contact information, language preference, notification status, and other details.
@@ -13,7 +11,7 @@ public class PersonContactPreferencesSnapshot : IPersonContactPreferencesSnapsho
     /// Gets the contact information details of the person.
     /// </summary>
     [JsonPropertyName("kontaktinformasjon")]
-    public IPersonContactDetailsSnapshot? ContactDetailsSnapshot { get; init; }
+    public PersonContactDetailsSnapshot? ContactDetailsSnapshot { get; init; }
 
     /// <summary>
     /// Gets the language preference of the person.
