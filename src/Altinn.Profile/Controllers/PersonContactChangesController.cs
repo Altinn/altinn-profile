@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 using Altinn.Profile.Core.Person.ContactPreferences;
-using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Services;
 
 using Microsoft.AspNetCore.Authorization;
@@ -15,7 +13,7 @@ namespace Altinn.Profile.Controllers;
 /// <summary>
 /// Controller responsible for managing changes in contact preferences for one or more persons.
 /// </summary>
-///[Authorize]
+[Authorize]
 [ApiController]
 [Consumes("application/json")]
 [Produces("application/json")]
@@ -42,16 +40,13 @@ public class PersonContactChangesController : ControllerBase
     /// <summary>
     /// Retrieves the contact details for persons based on their national identity numbers.
     /// </summary>
-    /// <param name="startIndex">The starting index for retrieving the contact details.</param>
     /// <returns>
     /// A task that represents the asynchronous operation, containing a response with persons' contact details.
     /// Returns a <see cref="PersonContactPreferencesSnapshot"/> with status 200 OK if successful.
     /// </returns>
-    [HttpPost("lookup")]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(IEnumerable<PersonContactPreferencesSnapshot>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<PersonContactPreferencesSnapshot>>> PostLookup()
+    [HttpPost("SyncContentChanges")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public IActionResult SyncContentChanges()
     {
         if (!ModelState.IsValid)
         {
@@ -60,9 +55,9 @@ public class PersonContactChangesController : ControllerBase
 
         try
         {
-            var lookupResult = await _personService.SyncPersonContactPreferencesAsync();
+            _personService.SyncPersonContactPreferencesAsync();
 
-            return Ok(lookupResult);
+            return Ok();
         }
         catch (Exception ex)
         {

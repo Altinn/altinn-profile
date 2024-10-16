@@ -32,6 +32,5 @@ public interface IPersonService
     /// <summary>
     /// Asynchronously synchronizes the person contact preferences.
     /// </summary>
-    /// <returns></returns>
-    Task<bool> SyncPersonContactPreferencesAsync();
+    void SyncPersonContactPreferencesAsync();
 }

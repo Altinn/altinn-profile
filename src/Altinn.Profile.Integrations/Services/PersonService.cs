@@ -119,8 +119,7 @@ public class PersonService : IPersonService
     /// <summary>
     /// Asynchronously synchronizes the person contact preferences.
     /// </summary>
-    /// <returns></returns>
-    public async Task<bool> SyncPersonContactPreferencesAsync()
+    public async void SyncPersonContactPreferencesAsync()
     {
         long latestChangeNumber = 0;
         var latestChangeNumberGetter = await _metadataRepository.GetLatestChangeNumberAsync();
@@ -136,7 +135,5 @@ public class PersonService : IPersonService
             _ =>
             {
             });
-
-        return false;
     }
 }
