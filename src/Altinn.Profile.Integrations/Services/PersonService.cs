@@ -42,40 +42,6 @@ public class PersonService : IPersonService
     }
 
     /// <summary>
-    /// Asynchronously retrieves the contact preferences for a single person based on their national identity number.
-    /// </summary>
-    /// <param name="nationalIdentityNumber">The national identity number of the person.</param>
-    /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains the person's contact preferences, or <c>null</c> if not found.
-    /// </returns>
-    public async Task<Result<IPersonContactPreferences, bool>> GetContactPreferencesAsync(string nationalIdentityNumber)
-    {
-        if (!_nationalIdentityNumberChecker.IsValid(nationalIdentityNumber))
-        {
-            return false;
-        }
-
-        PersonContactPreferences? personContactPreferences = null;
-        var personContactDetails = await _personRepository.GetContactDetailsAsync([nationalIdentityNumber]);
-        personContactDetails.Match(
-            e =>
-            {
-                personContactPreferences = _mapper.Map<PersonContactPreferences>(e.FirstOrDefault());
-            },
-            _ =>
-            {
-                personContactPreferences = null;
-            });
-
-        if (personContactPreferences == null)
-        {
-            return false;
-        }
-
-        return personContactPreferences;
-    }
-
-    /// <summary>
     /// Asynchronously retrieves the contact preferences for multiple persons based on their national identity numbers.
     /// </summary>
     /// <param name="nationalIdentityNumbers">A collection of national identity numbers.</param>
