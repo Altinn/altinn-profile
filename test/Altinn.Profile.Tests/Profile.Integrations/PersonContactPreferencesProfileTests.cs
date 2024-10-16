@@ -35,10 +35,10 @@ public class PersonContactPreferencesProfileTests
 
         // Assert
         Assert.True(result.IsReserved);
-        Assert.Equal(person.EmailAddress, result.EmailAddress);
+        Assert.Equal(person.EmailAddress, result.Email);
         Assert.Equal(person.LanguageCode, result.LanguageCode);
         Assert.Equal(person.FnumberAk, result.NationalIdentityNumber);
-        Assert.Equal(person.MobilePhoneNumber, result.MobilePhoneNumber);
+        Assert.Equal(person.MobilePhoneNumber, result.MobileNumber);
     }
 
     [Fact]
@@ -69,8 +69,8 @@ public class PersonContactPreferencesProfileTests
 
         // Assert
         Assert.Null(result.LanguageCode);
-        Assert.Null(result.EmailAddress);
-        Assert.Null(result.MobilePhoneNumber);
+        Assert.Null(result.Email);
+        Assert.Null(result.MobileNumber);
         Assert.Equal("06082705358", result.NationalIdentityNumber);
     }
 
@@ -119,9 +119,9 @@ public class PersonContactPreferencesProfileTests
         // Assert
         Assert.NotNull(result);
         Assert.False(result.IsReserved);
-        Assert.Equal(person.EmailAddress, result.EmailAddress);
+        Assert.Equal(person.EmailAddress, result.Email);
         Assert.Equal(person.LanguageCode, result.LanguageCode);
         Assert.Equal(person.FnumberAk, result.NationalIdentityNumber);
-        Assert.Equal(person.MobilePhoneNumber, result.MobilePhoneNumber);
+        Assert.Equal(person.MobilePhoneNumber, result.MobileNumber);
     }
 }

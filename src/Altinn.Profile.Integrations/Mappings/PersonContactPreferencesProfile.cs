@@ -16,10 +16,10 @@ public class PersonContactPreferencesProfile : AutoMapper.Profile
     public PersonContactPreferencesProfile()
     {
         CreateMap<Person, PersonContactPreferences>()
-            .ForMember(dest => dest.EmailAddress, opt => opt.MapFrom(src => src.EmailAddress))
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.EmailAddress))
             .ForMember(dest => dest.IsReserved, opt => opt.MapFrom(src => src.Reservation))
             .ForMember(dest => dest.LanguageCode, opt => opt.MapFrom(src => src.LanguageCode))
-            .ForMember(dest => dest.MobilePhoneNumber, opt => opt.MapFrom(src => src.MobilePhoneNumber))
+            .ForMember(dest => dest.MobileNumber, opt => opt.MapFrom(src => src.MobilePhoneNumber))
             .ForMember(dest => dest.NationalIdentityNumber, opt => opt.MapFrom(src => src.FnumberAk));
     }
 }

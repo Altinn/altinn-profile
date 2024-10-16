@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
-
+using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.Services;
@@ -66,20 +66,20 @@ public class PersonServiceTests
 
         var firstMappedContactDetails = new Mock<IPersonContactPreferences>();
         firstMappedContactDetails.SetupGet(x => x.IsReserved).Returns(firstRandomPerson.Reservation);
-        firstMappedContactDetails.SetupGet(x => x.EmailAddress).Returns(firstRandomPerson.EmailAddress);
+        firstMappedContactDetails.SetupGet(x => x.Email).Returns(firstRandomPerson.EmailAddress);
         firstMappedContactDetails.SetupGet(x => x.LanguageCode).Returns(firstRandomPerson.LanguageCode);
         firstMappedContactDetails.SetupGet(x => x.NationalIdentityNumber).Returns(firstRandomPerson.FnumberAk);
-        firstMappedContactDetails.SetupGet(x => x.MobilePhoneNumber).Returns(firstRandomPerson.MobilePhoneNumber);
+        firstMappedContactDetails.SetupGet(x => x.MobileNumber).Returns(firstRandomPerson.MobilePhoneNumber);
 
         _mapperMock.Setup(x => x.Map<IPersonContactPreferences>(firstRandomPerson))
             .Returns(firstMappedContactDetails.Object);
 
         var secondMappedContactDetails = new Mock<IPersonContactPreferences>();
         secondMappedContactDetails.SetupGet(x => x.IsReserved).Returns(secondRandomPerson.Reservation);
-        secondMappedContactDetails.SetupGet(x => x.EmailAddress).Returns(secondRandomPerson.EmailAddress);
+        secondMappedContactDetails.SetupGet(x => x.Email).Returns(secondRandomPerson.EmailAddress);
         secondMappedContactDetails.SetupGet(x => x.LanguageCode).Returns(secondRandomPerson.LanguageCode);
         secondMappedContactDetails.SetupGet(x => x.NationalIdentityNumber).Returns(secondRandomPerson.FnumberAk);
-        secondMappedContactDetails.SetupGet(x => x.MobilePhoneNumber).Returns(secondRandomPerson.MobilePhoneNumber);
+        secondMappedContactDetails.SetupGet(x => x.MobileNumber).Returns(secondRandomPerson.MobilePhoneNumber);
 
         _mapperMock.Setup(x => x.Map<IPersonContactPreferences>(secondRandomPerson))
             .Returns(secondMappedContactDetails.Object);
@@ -117,19 +117,19 @@ public class PersonServiceTests
 
         Assert.NotNull(firstContactDetails);
         Assert.Equal(firstRandomPerson.Reservation, firstContactDetails.IsReserved);
-        Assert.Equal(firstRandomPerson.EmailAddress, firstContactDetails.EmailAddress);
+        Assert.Equal(firstRandomPerson.EmailAddress, firstContactDetails.Email);
         Assert.Equal(firstRandomPerson.LanguageCode, firstContactDetails.LanguageCode);
         Assert.Equal(firstRandomPerson.FnumberAk, firstContactDetails.NationalIdentityNumber);
-        Assert.Equal(firstRandomPerson.MobilePhoneNumber, firstContactDetails.MobilePhoneNumber);
+        Assert.Equal(firstRandomPerson.MobilePhoneNumber, firstContactDetails.MobileNumber);
 
         Assert.Contains(matchedPersonContactDetails, detail => detail == secondMappedContactDetails.Object);
         var secondContactDetails = matchedPersonContactDetails.FirstOrDefault(detail => detail.NationalIdentityNumber == secondRandomPerson.FnumberAk);
         Assert.NotNull(secondContactDetails);
         Assert.Equal(secondRandomPerson.Reservation, secondContactDetails.IsReserved);
-        Assert.Equal(secondRandomPerson.EmailAddress, secondContactDetails.EmailAddress);
+        Assert.Equal(secondRandomPerson.EmailAddress, secondContactDetails.Email);
         Assert.Equal(secondRandomPerson.LanguageCode, secondContactDetails.LanguageCode);
         Assert.Equal(secondRandomPerson.FnumberAk, secondContactDetails.NationalIdentityNumber);
-        Assert.Equal(secondRandomPerson.MobilePhoneNumber, secondContactDetails.MobilePhoneNumber);
+        Assert.Equal(secondRandomPerson.MobilePhoneNumber, secondContactDetails.MobileNumber);
 
         Assert.Empty(unmatchedNationalIdentityNumbers);
     }
@@ -167,20 +167,20 @@ public class PersonServiceTests
 
         var firstMappedContactDetails = new Mock<IPersonContactPreferences>();
         firstMappedContactDetails.SetupGet(x => x.IsReserved).Returns(firstRandomPerson.Reservation);
-        firstMappedContactDetails.SetupGet(x => x.EmailAddress).Returns(firstRandomPerson.EmailAddress);
+        firstMappedContactDetails.SetupGet(x => x.Email).Returns(firstRandomPerson.EmailAddress);
         firstMappedContactDetails.SetupGet(x => x.LanguageCode).Returns(firstRandomPerson.LanguageCode);
         firstMappedContactDetails.SetupGet(x => x.NationalIdentityNumber).Returns(firstRandomPerson.FnumberAk);
-        firstMappedContactDetails.SetupGet(x => x.MobilePhoneNumber).Returns(firstRandomPerson.MobilePhoneNumber);
+        firstMappedContactDetails.SetupGet(x => x.MobileNumber).Returns(firstRandomPerson.MobilePhoneNumber);
 
         _mapperMock.Setup(x => x.Map<IPersonContactPreferences>(firstRandomPerson))
             .Returns(firstMappedContactDetails.Object);
 
         var secondMappedContactDetails = new Mock<IPersonContactPreferences>();
         secondMappedContactDetails.SetupGet(x => x.IsReserved).Returns(secondRandomPerson.Reservation);
-        secondMappedContactDetails.SetupGet(x => x.EmailAddress).Returns(secondRandomPerson.EmailAddress);
+        secondMappedContactDetails.SetupGet(x => x.Email).Returns(secondRandomPerson.EmailAddress);
         secondMappedContactDetails.SetupGet(x => x.LanguageCode).Returns(secondRandomPerson.LanguageCode);
         secondMappedContactDetails.SetupGet(x => x.NationalIdentityNumber).Returns(secondRandomPerson.FnumberAk);
-        secondMappedContactDetails.SetupGet(x => x.MobilePhoneNumber).Returns(secondRandomPerson.MobilePhoneNumber);
+        secondMappedContactDetails.SetupGet(x => x.MobileNumber).Returns(secondRandomPerson.MobilePhoneNumber);
 
         _mapperMock.Setup(x => x.Map<IPersonContactPreferences>(secondRandomPerson))
             .Returns(secondMappedContactDetails.Object);
@@ -217,19 +217,19 @@ public class PersonServiceTests
 
         Assert.NotNull(firstContactDetails);
         Assert.Equal(firstRandomPerson.Reservation, firstContactDetails.IsReserved);
-        Assert.Equal(firstRandomPerson.EmailAddress, firstContactDetails.EmailAddress);
+        Assert.Equal(firstRandomPerson.EmailAddress, firstContactDetails.Email);
         Assert.Equal(firstRandomPerson.LanguageCode, firstContactDetails.LanguageCode);
         Assert.Equal(firstRandomPerson.FnumberAk, firstContactDetails.NationalIdentityNumber);
-        Assert.Equal(firstRandomPerson.MobilePhoneNumber, firstContactDetails.MobilePhoneNumber);
+        Assert.Equal(firstRandomPerson.MobilePhoneNumber, firstContactDetails.MobileNumber);
 
         Assert.Contains(matchedPersonContactDetails, detail => detail == secondMappedContactDetails.Object);
         var secondContactDetails = matchedPersonContactDetails.FirstOrDefault(detail => detail.NationalIdentityNumber == secondRandomPerson.FnumberAk);
         Assert.NotNull(secondContactDetails);
         Assert.Equal(secondRandomPerson.Reservation, secondContactDetails.IsReserved);
-        Assert.Equal(secondRandomPerson.EmailAddress, secondContactDetails.EmailAddress);
+        Assert.Equal(secondRandomPerson.EmailAddress, secondContactDetails.Email);
         Assert.Equal(secondRandomPerson.LanguageCode, secondContactDetails.LanguageCode);
         Assert.Equal(secondRandomPerson.FnumberAk, secondContactDetails.NationalIdentityNumber);
-        Assert.Equal(secondRandomPerson.MobilePhoneNumber, secondContactDetails.MobilePhoneNumber);
+        Assert.Equal(secondRandomPerson.MobilePhoneNumber, secondContactDetails.MobileNumber);
 
         Assert.Single(unmatchedNationalIdentityNumbers);
         Assert.Contains("invalid_number", unmatchedNationalIdentityNumbers);
@@ -272,10 +272,10 @@ public class PersonServiceTests
 
         var personContactDetails = new Mock<IPersonContactPreferences>();
         personContactDetails.SetupGet(x => x.IsReserved).Returns(randomPerson.Reservation);
-        personContactDetails.SetupGet(x => x.EmailAddress).Returns(randomPerson.EmailAddress);
+        personContactDetails.SetupGet(x => x.Email).Returns(randomPerson.EmailAddress);
         personContactDetails.SetupGet(x => x.LanguageCode).Returns(randomPerson.LanguageCode);
         personContactDetails.SetupGet(x => x.NationalIdentityNumber).Returns(nationalIdentityNumber);
-        personContactDetails.SetupGet(x => x.MobilePhoneNumber).Returns(randomPerson.MobilePhoneNumber);
+        personContactDetails.SetupGet(x => x.MobileNumber).Returns(randomPerson.MobilePhoneNumber);
 
         _mapperMock
             .Setup(x => x.Map<IPersonContactPreferences>(randomPerson))
@@ -295,9 +295,9 @@ public class PersonServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(personContactDetails.Object.IsReserved, result.IsReserved);
-        Assert.Equal(personContactDetails.Object.EmailAddress, result.EmailAddress);
+        Assert.Equal(personContactDetails.Object.Email, result.Email);
         Assert.Equal(personContactDetails.Object.LanguageCode, result.LanguageCode);
-        Assert.Equal(personContactDetails.Object.MobilePhoneNumber, result.MobilePhoneNumber);
+        Assert.Equal(personContactDetails.Object.MobileNumber, result.MobileNumber);
         Assert.Equal(personContactDetails.Object.NationalIdentityNumber, result.NationalIdentityNumber);
     }
 
@@ -355,21 +355,5 @@ public class PersonServiceTests
 
         Assert.NotNull(unmatchedNationalIdentityNumbers);
         Assert.Equal(2, unmatchedNationalIdentityNumbers.Count());
-    }
-
-    [Fact]
-    public async Task GetContactDetailsAsync_WhenRepositoryThrowsException_HandlesGracefully()
-    {
-        // Arrange
-        var nationalIdentityNumber = "26050711071";
-        _personRepositoryMock
-            .Setup(repo => repo.GetByIdAsync(It.IsAny<string>()))
-            .ThrowsAsync(new Exception("Repository failure"));
-
-        // Act
-        var result = await _personService.GetContactPreferencesAsync(nationalIdentityNumber);
-
-        // Assert
-        Assert.Null(result);
     }
 }

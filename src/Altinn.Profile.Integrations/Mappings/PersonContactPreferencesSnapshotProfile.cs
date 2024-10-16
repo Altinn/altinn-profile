@@ -1,4 +1,5 @@
-﻿using Altinn.Profile.Integrations.Entities;
+﻿using Altinn.Profile.Core.Person.ContactPreferences;
+using Altinn.Profile.Integrations.Entities;
 
 using AutoMapper;
 
@@ -18,13 +19,13 @@ public class PersonContactPreferencesSnapshotProfile : AutoMapper.Profile
             .ForMember(dest => dest.NotificationStatus, opt => opt.MapFrom(src => src.NotificationStatus));
 
         CreateMap<IPersonContactDetailsSnapshot, PersonContactDetailsSnapshot>()
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.EmailAddress))
-            .ForMember(dest => dest.MobileNumber, opt => opt.MapFrom(src => src.MobilePhoneNumber))
-            .ForMember(dest => dest.EmailLastUpdated, opt => opt.MapFrom(src => src.EmailAddressUpdated))
-            .ForMember(dest => dest.MobileNumberLastUpdated, opt => opt.MapFrom(src => src.MobilePhoneNumberUpdated))
-            .ForMember(dest => dest.IsEmailDuplicated, opt => opt.MapFrom(src => src.IsEmailAddressDuplicated))
-            .ForMember(dest => dest.EmailLastVerified, opt => opt.MapFrom(src => src.EmailAddressLastVerified))
-            .ForMember(dest => dest.MobileNumberLastVerified, opt => opt.MapFrom(src => src.MobilePhoneNumberLastVerified))
-            .ForMember(dest => dest.IsMobileNumberDuplicated, opt => opt.MapFrom(src => src.IsMobilePhoneNumberDuplicated));
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+            .ForMember(dest => dest.MobileNumber, opt => opt.MapFrom(src => src.MobileNumber))
+            .ForMember(dest => dest.EmailLastUpdated, opt => opt.MapFrom(src => src.EmailLastUpdated))
+            .ForMember(dest => dest.MobileNumberLastUpdated, opt => opt.MapFrom(src => src.MobileNumberLastUpdated))
+            .ForMember(dest => dest.IsEmailDuplicated, opt => opt.MapFrom(src => src.IsEmailDuplicated))
+            .ForMember(dest => dest.EmailLastVerified, opt => opt.MapFrom(src => src.EmailLastVerified))
+            .ForMember(dest => dest.MobileNumberLastVerified, opt => opt.MapFrom(src => src.MobileNumberLastVerified))
+            .ForMember(dest => dest.IsMobileNumberDuplicated, opt => opt.MapFrom(src => src.IsMobileNumberDuplicated));
     }
 }

@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using Altinn.Profile.Core.Person.ContactPreferences;
+
 namespace Altinn.Profile.Integrations.Entities;
 
 /// <summary>
@@ -10,7 +12,7 @@ public record PersonContactPreferences : IPersonContactPreferences
     /// <summary>
     /// Gets the email address of the person.
     /// </summary>
-    public string? EmailAddress { get; init; }
+    public string? Email { get; init; }
 
     /// <summary>
     /// Gets a value indicating whether the person opts out of being contacted.
@@ -25,7 +27,7 @@ public record PersonContactPreferences : IPersonContactPreferences
     /// <summary>
     /// Gets the mobile phone number of the person.
     /// </summary>
-    public string? MobilePhoneNumber { get; init; }
+    public string? MobileNumber { get; init; }
 
     /// <summary>
     /// Gets the national identity number of the person.

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core;
+using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Services;
 using Altinn.Profile.Models;
@@ -65,9 +66,9 @@ public class PersonContactDetailsRetriever : IPersonContactDetailsRetriever
         return new PersonContactDetails
         {
             IsReserved = contactPreferences.IsReserved,
-            EmailAddress = contactPreferences.EmailAddress,
+            EmailAddress = contactPreferences.Email,
             LanguageCode = contactPreferences.LanguageCode,
-            MobilePhoneNumber = contactPreferences.MobilePhoneNumber,
+            MobilePhoneNumber = contactPreferences.MobileNumber,
             NationalIdentityNumber = contactPreferences.NationalIdentityNumber
         };
     }

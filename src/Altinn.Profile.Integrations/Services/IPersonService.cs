@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using Altinn.Profile.Core;
+using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 
 namespace Altinn.Profile.Integrations.Services;

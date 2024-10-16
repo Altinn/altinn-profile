@@ -80,8 +80,8 @@ public class PersonContactDetailsRetrieverTests
         {
             IsReserved = false,
             LanguageCode = "en",
-            MobilePhoneNumber = "1234567890",
-            EmailAddress = "test@example.com",
+            MobileNumber = "1234567890",
+            Email = "test@example.com",
             NationalIdentityNumber = "08053414843"
         };
 
@@ -121,8 +121,8 @@ public class PersonContactDetailsRetrieverTests
         Assert.NotNull(matchPersonContactDetails);
         Assert.Equal(personContactDetails.IsReserved, matchPersonContactDetails.IsReserved);
         Assert.Equal(personContactDetails.LanguageCode, matchPersonContactDetails.LanguageCode);
-        Assert.Equal(personContactDetails.MobilePhoneNumber, matchPersonContactDetails.MobilePhoneNumber);
-        Assert.Equal(personContactDetails.EmailAddress, matchPersonContactDetails.EmailAddress);
+        Assert.Equal(personContactDetails.MobileNumber, matchPersonContactDetails.MobilePhoneNumber);
+        Assert.Equal(personContactDetails.Email, matchPersonContactDetails.EmailAddress);
         Assert.Equal(personContactDetails.NationalIdentityNumber, matchPersonContactDetails.NationalIdentityNumber);
 
         Assert.Empty(unmatchedNationalIdentityNumbers);
