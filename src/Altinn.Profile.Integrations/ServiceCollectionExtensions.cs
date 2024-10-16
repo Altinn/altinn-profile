@@ -1,6 +1,8 @@
 ﻿using Altinn.ApiClients.Maskinporten.Extensions;
 using Altinn.ApiClients.Maskinporten.Services;
+using Altinn.Profile.Core.ContactRegsiter;
 using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Persistence;
