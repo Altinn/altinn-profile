@@ -3,17 +3,17 @@
 namespace Altinn.Profile.Core.ContactRegsiter;
 
 /// <summary>
-/// Interface for handling change logs.
+/// Interface for handling changes in a person's contact preferences.
 /// </summary>
 public interface IContactRegisterService
 {
     /// <summary>
-    /// Asynchronously retrieves the notification status change log for a specified person starting from a given index.
+    /// Asynchronously retrieves the changes in contact preferences for all persons starting from a given number.
     /// </summary>
-    /// <param name="latestChangeNumber">The index from which to start retrieving the data.</param>
+    /// <param name="latestChangeNumber">The number from which to start retrieving the data.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. 
-    /// The task result contains the notification status change log of the person.
+    /// The task result contains a <see cref="Result{TValue, TError}"/> object with the contact preferences change log of the person and a boolean indicating success or failure.
     /// </returns>
-    Task<IPersonContactPreferencesChangesLog?> GetPersonNotificationStatusAsync(long latestChangeNumber);
+    Task<Result<IPersonContactPreferencesChangesLog, bool>> RetrievePersonContactPreferencesChanges(long latestChangeNumber);
 }

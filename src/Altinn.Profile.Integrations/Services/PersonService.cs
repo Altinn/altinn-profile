@@ -92,17 +92,19 @@ public class PersonService : IPersonService
     /// <returns></returns>
     public async Task<bool> SyncPersonContactPreferencesAsync()
     {
-        var latestChangeNumber = await _personRepository.GetLatestChangeNumberAsync();
+        //var latestChangeNumber = await _personRepository.GetLatestChangeNumberAsync();
 
-        var changes = await _changesLogService.GetPersonNotificationStatusAsync(latestChangeNumber);
+        //var changes = await _changesLogService.RetrievePersonContactPreferencesChanges(latestChangeNumber);
 
-        if (changes == null)
-        {
-            return false;
-        }
+        //if (changes == null)
+        //{
+        //    return false;
+        //}
 
-        var changesGood = await _personRepository.SyncPersonContactPreferencesAsync(changes);
+        //var changesGood = await _personRepository.SyncPersonContactPreferencesAsync(changes);
 
-        return changesGood;
+        //return changesGood;
+
+        return false;
     }
 }

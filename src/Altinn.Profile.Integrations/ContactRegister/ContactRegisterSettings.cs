@@ -3,12 +3,12 @@
 using Altinn.ApiClients.Maskinporten.Config;
 using Altinn.Profile.Core.ContactRegsiter;
 
-namespace Altinn.Profile.Integrations.Entities;
+namespace Altinn.Profile.Integrations.ContactRegister;
 
 /// <summary>
 /// Represents the settings for managing contact details and reservation information for individuals.
 /// </summary>
-public class ContactAndReservationSettings : IContactRegisterSettings
+public class ContactRegisterSettings : IContactRegisterSettings
 {
     /// <summary>
     /// Gets the endpoint URL used to retrieve updates in the contact information for one or more individuals.

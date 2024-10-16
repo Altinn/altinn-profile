@@ -1,4 +1,5 @@
-﻿using Altinn.Profile.Core.ContactRegsiter;
+﻿using Altinn.Profile.Core;
+using Altinn.Profile.Core.ContactRegsiter;
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 
@@ -32,7 +33,7 @@ internal class ChangesLogService : IContactRegisterService
     /// A task that represents the asynchronous operation. 
     /// The task result contains the notification status change log of the person.
     /// </returns>
-    public async Task<IPersonContactPreferencesChangesLog?> GetPersonNotificationStatusAsync(long latestChangeNumber)
+    public async Task<IPersonContactPreferencesChangesLog?> RetrievePersonContactPreferencesChanges(long latestChangeNumber)
     {
         if (string.IsNullOrWhiteSpace(_contactRegisterSettings.ChangesLogEndpoint))
         {
@@ -40,5 +41,10 @@ internal class ChangesLogService : IContactRegisterService
         }
 
         return await _contactDetailsHttpClient.GetContactDetailsChangesAsync(_contactRegisterSettings.ChangesLogEndpoint, latestChangeNumber);
+    }
+
+    Task<Result<IPersonContactPreferencesChangesLog, bool>> IContactRegisterService.RetrievePersonContactPreferencesChanges(long latestChangeNumber)
+    {
+        throw new NotImplementedException();
     }
 }

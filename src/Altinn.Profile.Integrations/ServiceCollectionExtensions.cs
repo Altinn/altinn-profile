@@ -3,6 +3,7 @@ using Altinn.ApiClients.Maskinporten.Services;
 using Altinn.Profile.Core.ContactRegsiter;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Person.ContactPreferences;
+using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Persistence;
@@ -83,7 +84,7 @@ public static class ServiceCollectionExtensions
             throw new ArgumentNullException(nameof(config), "Configuration cannot be null.");
         }
 
-        var contactRegisterSettings = new ContactAndReservationSettings();
+        var contactRegisterSettings = new ContactRegisterSettings();
         config.GetSection("ContactAndReservationSettings").Bind(contactRegisterSettings);
         if (contactRegisterSettings == null || contactRegisterSettings.MaskinportenSettings == null)
         {

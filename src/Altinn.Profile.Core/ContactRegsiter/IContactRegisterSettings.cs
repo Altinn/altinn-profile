@@ -3,7 +3,7 @@
 namespace Altinn.Profile.Core.ContactRegsiter;
 
 /// <summary>
-/// Interface for managing details used to communicate with the contact register.
+/// Interface for managing details used to communicate with the contact details register.
 /// </summary>
 public interface IContactRegisterSettings
 {
