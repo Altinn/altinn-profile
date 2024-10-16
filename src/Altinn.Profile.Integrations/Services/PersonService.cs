@@ -94,7 +94,7 @@ public class PersonService : IPersonService
     {
         var latestChangeNumber = await _personRepository.GetLatestChangeNumberAsync();
 
-        var changes = await _changesLogService.RetrievePersonContactPreferencesChanges(latestChangeNumber);
+        var changes = await _changesLogService.RetrieveContactDetailsChangesAsync(latestChangeNumber);
 
         changes.Match(
             async e =>
