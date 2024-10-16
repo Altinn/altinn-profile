@@ -2,6 +2,7 @@
 using System.Text.Json;
 
 using Altinn.Profile.Core;
+using Altinn.Profile.Core.ContactRegsiter;
 using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
@@ -39,7 +40,7 @@ public class ContactRegisterHttpClient : IContactRegisterHttpClient
     /// <param name="latestChangeNumber">The starting index for retrieving contact details changes.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
     /// <exception cref="ArgumentException">Thrown when the <paramref name="margin"/> is less than zero.</exception>
-    public async Task<Result<IPersonContactPreferencesChangesLog, bool>> GetContactDetailsChangesAsync(string endpointUrl, long latestChangeNumber)
+    public async Task<Result<IContactRegisterChangesLog, bool>> GetContactDetailsChangesAsync(string endpointUrl, long latestChangeNumber)
     {
         if (!endpointUrl.IsValidUrl())
         {
@@ -57,7 +58,7 @@ public class ContactRegisterHttpClient : IContactRegisterHttpClient
 
             var responseData = await response.Content.ReadAsStringAsync();
 
-            var responseObject = JsonSerializer.Deserialize<PersonContactPreferencesChangesLog>(responseData);
+            var responseObject = JsonSerializer.Deserialize<ContactRegisterChangesLog>(responseData);
             if (responseObject == null || responseObject.ContactPreferencesSnapshots == null)
             {
                 return false;

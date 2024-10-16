@@ -1,6 +1,4 @@
-﻿using Altinn.Profile.Core.Person.ContactPreferences;
-
-namespace Altinn.Profile.Core.ContactRegsiter;
+﻿namespace Altinn.Profile.Core.ContactRegsiter;
 
 /// <summary>
 /// Interface for handling changes in a person's contact preferences.
@@ -15,5 +13,5 @@ public interface IContactRegisterService
     /// A task that represents the asynchronous operation. 
     /// The task result contains a <see cref="Result{TValue, TError}"/> object with the contact preferences change log of the person and a boolean indicating success or failure.
     /// </returns>
-    Task<Result<IPersonContactPreferencesChangesLog, bool>> RetrievePersonContactPreferencesChanges(long latestChangeNumber);
+    Task<Result<IContactRegisterChangesLog, bool>> RetrievePersonContactPreferencesChanges(long latestChangeNumber);
 }

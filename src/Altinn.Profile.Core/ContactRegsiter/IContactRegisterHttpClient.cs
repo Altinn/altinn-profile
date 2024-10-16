@@ -1,5 +1,5 @@
 ﻿using Altinn.Profile.Core;
-using Altinn.Profile.Core.Person.ContactPreferences;
+using Altinn.Profile.Core.ContactRegsiter;
 
 namespace Altinn.Profile.Integrations.ContactRegister;
 
@@ -14,5 +14,5 @@ public interface IContactRegisterHttpClient
     /// <param name="endpointUrl">The URL of the endpoint to retrieve contact details changes from.</param>
     /// <param name="latestChangeNumber">The starting index for retrieving contact details changes.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
-    Task<Result<IPersonContactPreferencesChangesLog, bool>> GetContactDetailsChangesAsync(string endpointUrl, long latestChangeNumber);
+    Task<Result<IContactRegisterChangesLog, bool>> GetContactDetailsChangesAsync(string endpointUrl, long latestChangeNumber);
 }

@@ -1,9 +1,11 @@
-﻿namespace Altinn.Profile.Core.Person.ContactPreferences;
+﻿using Altinn.Profile.Core.Person.ContactPreferences;
+
+namespace Altinn.Profile.Core.ContactRegsiter;
 
 /// <summary>
 /// Represents a log of changes to a person's contact preferences.
 /// </summary>
-public interface IPersonContactPreferencesChangesLog
+public interface IContactRegisterChangesLog
 {
     /// <summary>
     /// Gets the list of snapshots representing the changes to the person's contact preferences.

@@ -94,7 +94,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IContactRegisterService, ContactRegisterService>();
         services.AddScoped<IPersonContactPreferencesSnapshot, PersonContactPreferencesSnapshot>();
         services.AddScoped<IPersonContactDetailsSnapshot, PersonContactDetailsSnapshot>();
-        services.AddScoped<IPersonContactPreferencesChangesLog, PersonContactPreferencesChangesLog>();
+        services.AddScoped<IContactRegisterChangesLog, ContactRegisterChangesLog>();
 
         services.AddSingleton<IContactRegisterSettings>(contactRegisterSettings);
         services.AddMaskinportenHttpClient<SettingsJwkClientDefinition, IContactRegisterHttpClient, ContactRegisterHttpClient>(contactRegisterSettings.MaskinportenSettings);

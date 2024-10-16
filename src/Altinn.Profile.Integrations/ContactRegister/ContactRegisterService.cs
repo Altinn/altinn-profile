@@ -1,6 +1,5 @@
 ﻿using Altinn.Profile.Core;
 using Altinn.Profile.Core.ContactRegsiter;
-using Altinn.Profile.Core.Person.ContactPreferences;
 
 namespace Altinn.Profile.Integrations.ContactRegister;
 
@@ -35,7 +34,7 @@ internal class ContactRegisterService : IContactRegisterService
     /// The task result contains a <see cref="Result{TValue, TError}"/> object with the contact preferences change log of the person and a boolean indicating success or failure.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown if the <see cref="IContactRegisterSettings.ChangesLogEndpoint"/> is <c>null</c> or empty.</exception>
-    public async Task<Result<IPersonContactPreferencesChangesLog, bool>> RetrievePersonContactPreferencesChanges(long latestChangeNumber = 0)
+    public async Task<Result<IContactRegisterChangesLog, bool>> RetrievePersonContactPreferencesChanges(long latestChangeNumber = 0)
     {
         if (string.IsNullOrWhiteSpace(_contactRegisterSettings.ChangesLogEndpoint))
         {

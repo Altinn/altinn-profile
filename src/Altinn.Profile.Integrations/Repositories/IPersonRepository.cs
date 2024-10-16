@@ -1,9 +1,8 @@
 ﻿#nullable enable
 
 using System.Collections.Immutable;
-
+using Altinn.Profile.Core.ContactRegsiter;
 using Altinn.Profile.Core.Integrations;
-using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 
 namespace Altinn.Profile.Integrations.Repositories;
@@ -33,5 +32,5 @@ public interface IPersonRepository
     /// </summary>
     /// <param name="personContactPreferencesSnapshots">The person contact preferences snapshots.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a boolean indicating success or failure.</returns>
-    Task<bool> SyncPersonContactPreferencesAsync(IPersonContactPreferencesChangesLog personContactPreferencesSnapshots);
+    Task<bool> SyncPersonContactPreferencesAsync(IContactRegisterChangesLog personContactPreferencesSnapshots);
 }
