@@ -16,9 +16,9 @@ public interface IPersonService
     /// </summary>
     /// <param name="nationalIdentityNumber">The national identity number of the person.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains the person's contact preferences, or <c>null</c> if not found.
+    /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object, where <see cref="IPersonContactPreferences"/> represents the successful lookup result and <see cref="bool"/> indicates a failure.
     /// </returns>
-    Task<IPersonContactPreferences?> GetContactPreferencesAsync(string nationalIdentityNumber);
+    Task<Result<IPersonContactPreferences, bool>> GetContactPreferencesAsync(string nationalIdentityNumber);
 
     /// <summary>
     /// Asynchronously retrieves the contact preferences for multiple persons based on their national identity numbers.

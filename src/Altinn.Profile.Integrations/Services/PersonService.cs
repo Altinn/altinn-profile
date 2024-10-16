@@ -19,6 +19,7 @@ public class PersonService : IPersonService
 {
     private readonly IMapper _mapper;
     private readonly IPersonRepository _personRepository;
+    private readonly IMetadataRepository _metadataRepository;
     private readonly IContactRegisterService _changesLogService;
     private readonly INationalIdentityNumberChecker _nationalIdentityNumberChecker;
 
@@ -31,10 +32,11 @@ public class PersonService : IPersonService
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="mapper"/>, <paramref name="personRepository"/>, or <paramref name="nationalIdentityNumberChecker"/> is <c>null</c>.
     /// </exception>
-    public PersonService(IMapper mapper, IPersonRepository personRepository, INationalIdentityNumberChecker nationalIdentityNumberChecker, IContactRegisterService changesLogService)
+    public PersonService(IMapper mapper, IPersonRepository personRepository, IMetadataRepository metadataRepository, INationalIdentityNumberChecker nationalIdentityNumberChecker, IContactRegisterService changesLogService)
     {
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _personRepository = personRepository ?? throw new ArgumentNullException(nameof(personRepository));
+        _metadataRepository = metadataRepository ?? throw new ArgumentNullException(nameof(metadataRepository));
         _changesLogService = changesLogService ?? throw new ArgumentNullException(nameof(changesLogService));
         _nationalIdentityNumberChecker = nationalIdentityNumberChecker ?? throw new ArgumentNullException(nameof(nationalIdentityNumberChecker));
     }
@@ -46,15 +48,31 @@ public class PersonService : IPersonService
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains the person's contact preferences, or <c>null</c> if not found.
     /// </returns>
-    public async Task<IPersonContactPreferences?> GetContactPreferencesAsync(string nationalIdentityNumber)
+    public async Task<Result<IPersonContactPreferences, bool>> GetContactPreferencesAsync(string nationalIdentityNumber)
     {
         if (!_nationalIdentityNumberChecker.IsValid(nationalIdentityNumber))
         {
-            return null;
+            return false;
         }
 
+        PersonContactPreferences? personContactPreferences = null;
         var personContactDetails = await _personRepository.GetContactDetailsAsync([nationalIdentityNumber]);
-        return _mapper.Map<IPersonContactPreferences>(personContactDetails.FirstOrDefault());
+        personContactDetails.Match(
+            e =>
+            {
+                personContactPreferences = _mapper.Map<PersonContactPreferences>(e.FirstOrDefault());
+            },
+            _ =>
+            {
+                personContactPreferences = null;
+            });
+
+        if (personContactPreferences == null)
+        {
+            return false;
+        }
+
+        return personContactPreferences;
     }
 
     /// <summary>
@@ -73,16 +91,28 @@ public class PersonService : IPersonService
 
         var matchedContactDetails = await _personRepository.GetContactDetailsAsync(validNationalIdentityNumbers);
 
-        var matchedNationalIdentityNumbers = matchedContactDetails != null ? new HashSet<string>(matchedContactDetails.Select(e => e.FnumberAk)) : [];
+        HashSet<string>? matchedNationalIdentityNumbers;
+        IEnumerable<string>? unmatchedNationalIdentityNumbers = null;
+        IEnumerable<PersonContactPreferences>? matchedPersonContactDetails = null;
 
-        var unmatchedNationalIdentityNumbers = nationalIdentityNumbers.Where(e => !matchedNationalIdentityNumbers.Contains(e)).ToImmutableList();
-
-        var matchedPersonContactDetails = matchedContactDetails != null ? matchedContactDetails.Select(_mapper.Map<PersonContactPreferences>).ToImmutableList() : [];
+        matchedContactDetails.Match(
+            e =>
+            {
+                matchedNationalIdentityNumbers = new HashSet<string>(e.Select(e => e.FnumberAk));
+                matchedPersonContactDetails = e.Select(_mapper.Map<PersonContactPreferences>).ToImmutableList();
+                unmatchedNationalIdentityNumbers = nationalIdentityNumbers.Where(e => !matchedNationalIdentityNumbers.Contains(e));
+            },
+            _ =>
+            {
+                matchedPersonContactDetails = [];
+                matchedNationalIdentityNumbers = [];
+                unmatchedNationalIdentityNumbers = [];
+            });
 
         return new PersonContactPreferencesLookupResult
         {
-            MatchedPersonContactPreferences = matchedPersonContactDetails,
-            UnmatchedNationalIdentityNumbers = unmatchedNationalIdentityNumbers
+            MatchedPersonContactPreferences = matchedPersonContactDetails?.ToImmutableList(),
+            UnmatchedNationalIdentityNumbers = unmatchedNationalIdentityNumbers?.ToImmutableList()
         };
     }
 
@@ -92,7 +122,9 @@ public class PersonService : IPersonService
     /// <returns></returns>
     public async Task<bool> SyncPersonContactPreferencesAsync()
     {
-        var latestChangeNumber = await _personRepository.GetLatestChangeNumberAsync();
+        long latestChangeNumber = 0;
+        var latestChangeNumberGetter = await _metadataRepository.GetLatestChangeNumberAsync();
+        latestChangeNumberGetter.Match(e => latestChangeNumber = e, x => latestChangeNumber = 0);
 
         var changes = await _changesLogService.RetrieveContactDetailsChangesAsync(latestChangeNumber);
 

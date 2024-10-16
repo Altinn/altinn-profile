@@ -60,14 +60,15 @@ public static class ServiceCollectionExtensions
             throw new InvalidOperationException("Database connection string is not properly configured.");
         }
 
-        services.AddDbContext<ProfileDbContext>(options => options.UseNpgsql(connectionString));
+        services.AddScoped<IPersonService, PersonService>();
+        services.AddScoped<IPersonRepository, PersonRepository>();
+        services.AddScoped<IMetadataRepository, MetadataRepository>();
 
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-        services.AddScoped<IPersonService, PersonService>();
-        services.AddScoped<IPersonRepository, PersonRepository>();
-
         services.AddSingleton<INationalIdentityNumberChecker, NationalIdentityNumberChecker>();
+        
+        services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString));
     }
 
     /// <summary>
@@ -90,7 +91,7 @@ public static class ServiceCollectionExtensions
         {
             throw new InvalidOperationException("Contact and reservation settings are not properly configured.");
         }
-        
+
         services.AddScoped<IContactRegisterService, ContactRegisterService>();
         services.AddScoped<IPersonContactPreferencesSnapshot, PersonContactPreferencesSnapshot>();
         services.AddScoped<IPersonContactDetailsSnapshot, PersonContactDetailsSnapshot>();

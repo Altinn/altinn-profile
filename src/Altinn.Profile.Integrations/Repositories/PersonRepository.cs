@@ -1,6 +1,8 @@
 ﻿#nullable enable
 
 using System.Collections.Immutable;
+
+using Altinn.Profile.Core;
 using Altinn.Profile.Core.ContactRegister;
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
@@ -9,6 +11,8 @@ using Altinn.Profile.Integrations.Persistence;
 using AutoMapper;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Logging;
 
 using Npgsql;
 
@@ -20,18 +24,22 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// <seealso cref="IPersonRepository" />
 internal class PersonRepository : IPersonRepository
 {
-    private readonly ProfileDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IDbContextFactory<ProfileDbContext> _dbContextFactory;
+    private readonly ILogger<PersonRepository> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PersonRepository"/> class.
     /// </summary>
-    /// <param name="context">The context.</param>
-    /// <exception cref="ArgumentException">Thrown when the <paramref name="context"/> object is null.</exception>
-    public PersonRepository(ProfileDbContext context, IMapper mapper)
+    /// <param name="logger">The logger instance used for logging operations.</param>
+    /// <param name="mapper">The mapper instance used for object-object mapping.</param>
+    /// <param name="dbContextFactory">The database context for accessing profile data.</param>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="logger"/>, <paramref name="mapper"/>, or <paramref name="dbContextFactory"/> is null.</exception>
+    public PersonRepository(ILogger<PersonRepository> logger, IMapper mapper, IDbContextFactory<ProfileDbContext> dbContextFactory)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
     }
 
     /// <summary>
@@ -42,29 +50,27 @@ internal class PersonRepository : IPersonRepository
     /// A task that represents the asynchronous operation. The task result contains an <see cref="ImmutableList{T}"/> of <see cref="Person"/> objects representing the contact details of the persons.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="nationalIdentityNumbers"/> is null.</exception>
-    public async Task<ImmutableList<Person>> GetContactDetailsAsync(IEnumerable<string> nationalIdentityNumbers)
+    public async Task<Result<ImmutableList<Person>, bool>> GetContactDetailsAsync(IEnumerable<string> nationalIdentityNumbers)
     {
         ArgumentNullException.ThrowIfNull(nationalIdentityNumbers);
 
-        if (!nationalIdentityNumbers.Any())
+        try
         {
-            return [];
+            if (!nationalIdentityNumbers.Any())
+            {
+                return ImmutableList<Person>.Empty;
+            }
+
+            using var context = _dbContextFactory.CreateDbContext();
+            var people = await context.People.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync();
+            return people.ToImmutableList();
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while retrieving contact details for the provided national identity numbers.");
 
-        var people = await _context.People.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync();
-
-        return [.. people];
-    }
-
-    /// <summary>
-    /// Asynchronously retrieves the latest change number.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the latest change number.</returns>
-    public async Task<long> GetLatestChangeNumberAsync()
-    {
-        var metaData = await _context.Metadata.FirstOrDefaultAsync();
-
-        return metaData != null ? metaData.LatestChangeNumber : 0;
+            throw;
+        }
     }
 
     /// <summary>
@@ -72,41 +78,32 @@ internal class PersonRepository : IPersonRepository
     /// </summary>
     /// <param name="personContactPreferencesSnapshots">The person contact preferences snapshots.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a boolean indicating success or failure.</returns>
-    public async Task<bool> SyncPersonContactPreferencesAsync(IContactRegisterChangesLog personContactPreferencesSnapshots)
+    public async Task<Result<int, bool>> SyncPersonContactPreferencesAsync(IContactRegisterChangesLog personContactPreferencesSnapshots)
     {
         ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots);
         ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots.ContactPreferencesSnapshots);
 
-        var people = _mapper.Map<List<PersonContactPreferencesSnapshot>>(personContactPreferencesSnapshots.ContactPreferencesSnapshots);
-
-        // Find duplicates and select the item with the largest values for the specified properties
-        var distinctPeople = people.GroupBy(p => p.PersonIdentifier)
-                                   .Select(g => g.OrderByDescending(p => p.ContactDetailsSnapshot?.EmailLastUpdated)
-                                                 .ThenByDescending(p => p.ContactDetailsSnapshot?.MobileNumberLastUpdated)
-                                                 .ThenByDescending(p => p.ContactDetailsSnapshot?.EmailLastVerified)
-                                                 .ThenByDescending(p => p.ContactDetailsSnapshot?.MobileNumberLastVerified)
-                                                 .ThenByDescending(p => p.LanguageLastUpdated)
-                                                 .First())
-                                   .ToList();
+        var distinctContactPreferences = GetDistinctContactPreferences(personContactPreferencesSnapshots.ContactPreferencesSnapshots);
 
         // Add or update the people in the database
-        foreach (var snapshot in distinctPeople)
+        using var context = _dbContextFactory.CreateDbContext();
+        foreach (var contactPreference in distinctContactPreferences)
         {
-            var person = _mapper.Map<Person>(snapshot);
+            var person = _mapper.Map<Person>(contactPreference);
 
             try
             {
-                var existingPerson = await _context.People.FirstOrDefaultAsync(e => e.FnumberAk == person.FnumberAk);
+                var existingPerson = await context.People.FirstOrDefaultAsync(e => e.FnumberAk == person.FnumberAk);
 
                 if (existingPerson != null)
                 {
                     existingPerson.EmailAddress = person.EmailAddress;
                     existingPerson.MobilePhoneNumber = person.MobilePhoneNumber;
-                    _context.People.Update(existingPerson);
+                    context.People.Update(existingPerson);
                 }
                 else
                 {
-                    await _context.People.AddAsync(person);
+                    await context.People.AddAsync(person);
                 }
             }
             catch (DbUpdateException dbEx) when (dbEx.InnerException is PostgresException pgEx && pgEx.SqlState == "23505")
@@ -118,11 +115,11 @@ internal class PersonRepository : IPersonRepository
 
         try
         {
-            var existingMetadata = await _context.Metadata.FirstOrDefaultAsync();
+            var existingMetadata = await context.Metadata.FirstOrDefaultAsync();
 
             if (existingMetadata != null)
             {
-                _context.Metadata.Remove(existingMetadata);
+                context.Metadata.Remove(existingMetadata);
             }
 
             var metaData = new Metadata
@@ -130,9 +127,9 @@ internal class PersonRepository : IPersonRepository
                 Exported = DateTime.Now.ToUniversalTime(),
                 LatestChangeNumber = personContactPreferencesSnapshots.EndingIdentifier ?? existingMetadata?.LatestChangeNumber ?? 0
             };
-            await _context.Metadata.AddAsync(metaData);
+            await context.Metadata.AddAsync(metaData);
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
         catch (Exception ex)
         {
@@ -140,6 +137,23 @@ internal class PersonRepository : IPersonRepository
             throw;
         }
 
-        return true;
+        return 0;
+    }
+
+    /// <summary>
+    /// Finds distinct contact preferences by selecting the item with the largest values for the specified properties.
+    /// </summary>
+    /// <param name="contactPreferencesSnapshots">The collection of contact preferences snapshots.</param>
+    /// <returns>A list of distinct contact preferences.</returns>
+    private static List<PersonContactPreferencesSnapshot> GetDistinctContactPreferences(IEnumerable<PersonContactPreferencesSnapshot> contactPreferencesSnapshots)
+    {
+        return contactPreferencesSnapshots.GroupBy(p => p.PersonIdentifier)
+                                          .Select(g => g.OrderByDescending(p => p.ContactDetailsSnapshot?.EmailLastUpdated)
+                                                        .ThenByDescending(p => p.ContactDetailsSnapshot?.MobileNumberLastUpdated)
+                                                        .ThenByDescending(p => p.ContactDetailsSnapshot?.EmailLastVerified)
+                                                        .ThenByDescending(p => p.ContactDetailsSnapshot?.MobileNumberLastVerified)
+                                                        .ThenByDescending(p => p.LanguageLastUpdated)
+                                                        .First())
+                                          .ToList();
     }
 }

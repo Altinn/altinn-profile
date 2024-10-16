@@ -13,7 +13,7 @@ public interface IPersonContactPreferencesLookupResult
     /// Gets a list of person contact preferences that were successfully matched during the lookup.
     /// </summary>
     /// <value>
-    /// An <see cref="ImmutableList{T}"/> of <see cref="IPersonContactPreferences"/> containing the matched person contact preferences.
+    /// An <see cref="ImmutableList{T}"/> of <see cref="PersonContactPreferences"/> containing the matched person contact preferences.
     /// </value>
     ImmutableList<PersonContactPreferences>? MatchedPersonContactPreferences { get; }
 

@@ -1,8 +1,7 @@
-﻿#nullable enable
+﻿using System.Collections.Immutable;
 
-using System.Collections.Immutable;
+using Altinn.Profile.Core;
 using Altinn.Profile.Core.ContactRegister;
-using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Entities;
 
 namespace Altinn.Profile.Integrations.Repositories;
@@ -17,20 +16,19 @@ public interface IPersonRepository
     /// </summary>
     /// <param name="nationalIdentityNumbers">A collection of national identity numbers to look up.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains an <see cref="ImmutableList{T}"/> of <see cref="Person"/> objects representing the contact details of the persons.
+    /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object 
+    /// with an <see cref="ImmutableList{T}"/> of <see cref="Person"/> objects representing the contact details of the persons on success, 
+    /// or a <see cref="bool"/> indicating failure.
     /// </returns>
-    Task<ImmutableList<Person>> GetContactDetailsAsync(IEnumerable<string> nationalIdentityNumbers);
-
-    /// <summary>
-    /// Asynchronously retrieves the latest change number.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the latest change number.</returns>
-    Task<long> GetLatestChangeNumberAsync();
+    Task<Result<ImmutableList<Person>, bool>> GetContactDetailsAsync(IEnumerable<string> nationalIdentityNumbers);
 
     /// <summary>
     /// Asynchronously synchronizes the changes in person contact preferences.
     /// </summary>
-    /// <param name="personContactPreferencesSnapshots">The person contact preferences snapshots.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains a boolean indicating success or failure.</returns>
-    Task<bool> SyncPersonContactPreferencesAsync(IContactRegisterChangesLog personContactPreferencesSnapshots);
+    /// <param name="personContactPreferencesSnapshots">The snapshots of person contact preferences to be synchronized.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object 
+    /// with a <see cref="bool"/> indicating success or failure.
+    /// </returns>
+    Task<Result<int, bool>> SyncPersonContactPreferencesAsync(IContactRegisterChangesLog personContactPreferencesSnapshots);
 }
