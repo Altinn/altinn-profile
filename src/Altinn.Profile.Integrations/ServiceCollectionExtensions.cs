@@ -83,7 +83,7 @@ public static class ServiceCollectionExtensions
 
         var contactRegisterSettings = new ContactAndReservationSettings();
         config.GetSection("ContactAndReservationSettings").Bind(contactRegisterSettings);
-        if (contactRegisterSettings == null || contactRegisterSettings.Maskinporten == null)
+        if (contactRegisterSettings == null || contactRegisterSettings.MaskinportenSettings == null)
         {
             throw new InvalidOperationException("Contact and reservation settings are not properly configured.");
         }
@@ -93,7 +93,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPersonContactDetailsSnapshot, PersonContactDetailsSnapshot>();
         services.AddScoped<IPersonContactPreferencesChangesLog, PersonContactPreferencesChangesLog>();
 
-        services.AddSingleton<IContactAndReservationSettings>(contactRegisterSettings);
-        services.AddMaskinportenHttpClient<SettingsJwkClientDefinition, IPersonContactPreferencesHttpClient, PersonContactPreferencesHttpClient>(contactRegisterSettings.Maskinporten);
+        services.AddSingleton<IContactReservation>(contactRegisterSettings);
+        services.AddMaskinportenHttpClient<SettingsJwkClientDefinition, IPersonContactPreferencesHttpClient, PersonContactPreferencesHttpClient>(contactRegisterSettings.MaskinportenSettings);
     }
 }

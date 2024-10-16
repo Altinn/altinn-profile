@@ -92,11 +92,6 @@ public class PersonService : IPersonService
     {
         var latestChangeNumber = await _personRepository.GetLatestChangeNumberAsync();
 
-
-
-
-
-
         var changes = await _changesLogService.GetPersonNotificationStatusAsync(latestChangeNumber);
 
         if (changes == null)
