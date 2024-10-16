@@ -5,6 +5,8 @@ using System.Collections.Immutable;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Persistence;
 
+using AutoMapper;
+
 using Microsoft.EntityFrameworkCore;
 
 using Npgsql;
@@ -18,15 +20,17 @@ namespace Altinn.Profile.Integrations.Repositories;
 internal class PersonRepository : ProfileRepository<Person>, IPersonRepository
 {
     private readonly ProfileDbContext _context;
+    private readonly IMapper _mapper;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PersonRepository"/> class.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <exception cref="ArgumentException">Thrown when the <paramref name="context"/> object is null.</exception>
-    public PersonRepository(ProfileDbContext context)
+    public PersonRepository(ProfileDbContext context, IMapper mapper)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
     /// <summary>
@@ -72,26 +76,7 @@ internal class PersonRepository : ProfileRepository<Person>, IPersonRepository
         ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots);
         ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots.PersonContactPreferencesSnapshots);
 
-        var people = personContactPreferencesSnapshots.PersonContactPreferencesSnapshots.Select(e => new PersonContactPreferencesSnapshot
-        {
-            PersonContactDetailsSnapshot = new PersonContactDetailsSnapshot
-            {
-                EmailAddress = e.PersonContactDetailsSnapshot?.EmailAddress,
-                MobilePhoneNumber = e.PersonContactDetailsSnapshot?.MobilePhoneNumber,
-                EmailAddressUpdated = e.PersonContactDetailsSnapshot?.EmailAddressUpdated,
-                MobilePhoneNumberUpdated = e.PersonContactDetailsSnapshot?.MobilePhoneNumberUpdated,
-                IsEmailAddressDuplicated = e.PersonContactDetailsSnapshot?.IsEmailAddressDuplicated,
-                EmailAddressLastVerified = e.PersonContactDetailsSnapshot?.EmailAddressLastVerified,
-                MobilePhoneNumberLastVerified = e.PersonContactDetailsSnapshot?.MobilePhoneNumberLastVerified,
-                IsMobilePhoneNumberDuplicated = e.PersonContactDetailsSnapshot?.IsMobilePhoneNumberDuplicated
-            },
-            Status = e.Status,
-            Language = e.Language,
-            Reservation = e.Reservation,
-            LanguageUpdated = e.LanguageUpdated,
-            PersonIdentifier = e.PersonIdentifier,
-            NotificationStatus = e.NotificationStatus
-        }).ToList();
+        var people = _mapper.Map<List<PersonContactPreferencesSnapshot>>(personContactPreferencesSnapshots.PersonContactPreferencesSnapshots);
 
         // Find duplicates and select the item with the largest values for the specified properties
         var distinctPeople = people.GroupBy(p => p.PersonIdentifier)
@@ -104,19 +89,10 @@ internal class PersonRepository : ProfileRepository<Person>, IPersonRepository
                                    .ToList();
 
         // Add or update the people in the database
-        foreach (Person? person in distinctPeople.Select(p => new Person
+        foreach (var snapshot in distinctPeople)
         {
-            LanguageCode = p.Language,
-            FnumberAk = p.PersonIdentifier,
-            Reservation = p.Reservation == "JA" ? true : false,
-            EmailAddress = p.PersonContactDetailsSnapshot?.EmailAddress,
-            MobilePhoneNumber = p.PersonContactDetailsSnapshot?.MobilePhoneNumber,
-            EmailAddressLastUpdated = p.PersonContactDetailsSnapshot?.EmailAddressUpdated?.ToUniversalTime(),
-            EmailAddressLastVerified = p.PersonContactDetailsSnapshot?.EmailAddressLastVerified?.ToUniversalTime(),
-            MobilePhoneNumberLastUpdated = p.PersonContactDetailsSnapshot?.MobilePhoneNumberUpdated?.ToUniversalTime(),
-            MobilePhoneNumberLastVerified = p.PersonContactDetailsSnapshot?.MobilePhoneNumberLastVerified?.ToUniversalTime(),
-        }))
-        {
+            var person = _mapper.Map<Person>(snapshot);
+
             try
             {
                 var existingPerson = await _context.People.FirstOrDefaultAsync(e => e.FnumberAk == person.FnumberAk);

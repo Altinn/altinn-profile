@@ -25,18 +25,18 @@ internal class ChangesLogService : IChangesLogService
     /// <summary>
     /// Asynchronously retrieves the notification status change log for a specified person starting from a given index.
     /// </summary>
-    /// <param name="margin">The index from which to start retrieving the data.</param>
+    /// <param name="latestChangeNumber">The index from which to start retrieving the data.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. 
     /// The task result contains the notification status change log of the person.
     /// </returns>
-    public async Task<IPersonContactPreferencesChangesLog?> GetPersonNotificationStatusAsync(string margin)
+    public async Task<IPersonContactPreferencesChangesLog?> GetPersonNotificationStatusAsync(long latestChangeNumber)
     {
         if (string.IsNullOrWhiteSpace(_contactRegisterSettings.ContactDetailsChangesEndpoint))
         {
             throw new ArgumentNullException();
         }
 
-        return await _contactDetailsHttpClient.GetContactDetailsChangesAsync(_contactRegisterSettings.ContactDetailsChangesEndpoint, margin);
+        return await _contactDetailsHttpClient.GetContactDetailsChangesAsync(_contactRegisterSettings.ContactDetailsChangesEndpoint, latestChangeNumber);
     }
 }

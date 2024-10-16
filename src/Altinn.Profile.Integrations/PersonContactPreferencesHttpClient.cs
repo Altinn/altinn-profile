@@ -34,24 +34,19 @@ public class PersonContactPreferencesHttpClient : IPersonContactPreferencesHttpC
     /// Retrieves contact details changes from the specified endpoint.
     /// </summary>
     /// <param name="endpointUrl">The URL of the endpoint to retrieve contact details changes from.</param>
-    /// <param name="margin">The starting index for retrieving contact details changes.</param>
+    /// <param name="latestChangeNumber">The starting index for retrieving contact details changes.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the HTTP response message.</returns>
     /// <exception cref="ArgumentException">Thrown when the <paramref name="margin"/> is less than zero.</exception>
-    public async Task<IPersonContactPreferencesChangesLog?> GetContactDetailsChangesAsync(string endpointUrl, string margin)
+    public async Task<IPersonContactPreferencesChangesLog?> GetContactDetailsChangesAsync(string endpointUrl, long latestChangeNumber)
     {
         if (!endpointUrl.IsValidUrl())
         {
             throw new ArgumentException("The URL is invalid.", nameof(endpointUrl));
         }
 
-        if (string.IsNullOrWhiteSpace(margin))
-        {
-            margin = string.Empty;
-        }
-
         var request = new HttpRequestMessage(HttpMethod.Post, endpointUrl)
         {
-            Content = new StringContent(string.IsNullOrWhiteSpace(margin) ? $"{{\"fraEndringsId\": {0}}}" : $"{{\"fraEndringsId\": {margin}}}", Encoding.UTF8, "application/json")
+            Content = new StringContent($"{{\"fraEndringsId\": {latestChangeNumber}}}", Encoding.UTF8, "application/json")
         };
 
         try
