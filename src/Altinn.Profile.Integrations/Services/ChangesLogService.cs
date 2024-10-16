@@ -1,4 +1,4 @@
-﻿using Altinn.Profile.Core.Integrations;
+﻿using Altinn.Profile.Core.ContactRegsiter;
 using Altinn.Profile.Integrations.Entities;
 
 namespace Altinn.Profile.Integrations.Services;

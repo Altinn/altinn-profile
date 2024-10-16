@@ -1,7 +1,7 @@
 ﻿#nullable enable
 
 using Altinn.ApiClients.Maskinporten.Config;
-using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.ContactRegsiter;
 
 namespace Altinn.Profile.Integrations.Entities;
 

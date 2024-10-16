@@ -1,6 +1,6 @@
 ﻿using Altinn.ApiClients.Maskinporten.Config;
 
-namespace Altinn.Profile.Core.Integrations;
+namespace Altinn.Profile.Core.ContactRegsiter;
 
 /// <summary>
 /// Interface for managing details used to communicate with the contact register.
