@@ -7,7 +7,7 @@ namespace Altinn.Profile.Integrations.Services;
 /// <summary>
 /// Implementation of the change log service.
 /// </summary>
-internal class ChangesLogService : IChangesLogService
+internal class ChangesLogService : IContactRegisterService
 {
     private readonly IPersonContactPreferencesHttpClient _contactDetailsHttpClient;
     private readonly IContactRegisterSettings _contactRegisterSettings;

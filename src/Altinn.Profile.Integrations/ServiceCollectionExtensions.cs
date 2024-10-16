@@ -90,7 +90,7 @@ public static class ServiceCollectionExtensions
             throw new InvalidOperationException("Contact and reservation settings are not properly configured.");
         }
         
-        services.AddScoped<IChangesLogService, ChangesLogService>();
+        services.AddScoped<IContactRegisterService, ChangesLogService>();
         services.AddScoped<IPersonContactPreferencesSnapshot, PersonContactPreferencesSnapshot>();
         services.AddScoped<IPersonContactDetailsSnapshot, PersonContactDetailsSnapshot>();
         services.AddScoped<IPersonContactPreferencesChangesLog, PersonContactPreferencesChangesLog>();

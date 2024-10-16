@@ -3,6 +3,7 @@
 using System.Collections.Immutable;
 
 using Altinn.Profile.Core;
+using Altinn.Profile.Core.ContactRegsiter;
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Repositories;
@@ -18,7 +19,7 @@ public class PersonService : IPersonService
 {
     private readonly IMapper _mapper;
     private readonly IPersonRepository _personRepository;
-    private readonly IChangesLogService _changesLogService;
+    private readonly IContactRegisterService _changesLogService;
     private readonly INationalIdentityNumberChecker _nationalIdentityNumberChecker;
 
     /// <summary>
@@ -30,7 +31,7 @@ public class PersonService : IPersonService
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="mapper"/>, <paramref name="personRepository"/>, or <paramref name="nationalIdentityNumberChecker"/> is <c>null</c>.
     /// </exception>
-    public PersonService(IMapper mapper, IPersonRepository personRepository, INationalIdentityNumberChecker nationalIdentityNumberChecker, IChangesLogService changesLogService)
+    public PersonService(IMapper mapper, IPersonRepository personRepository, INationalIdentityNumberChecker nationalIdentityNumberChecker, IContactRegisterService changesLogService)
     {
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _personRepository = personRepository ?? throw new ArgumentNullException(nameof(personRepository));

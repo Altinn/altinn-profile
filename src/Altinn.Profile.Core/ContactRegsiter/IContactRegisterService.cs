@@ -1,12 +1,11 @@
 ﻿using Altinn.Profile.Core.Person.ContactPreferences;
-using Altinn.Profile.Integrations.Entities;
 
-namespace Altinn.Profile.Integrations.Services;
+namespace Altinn.Profile.Core.ContactRegsiter;
 
 /// <summary>
 /// Interface for handling change logs.
 /// </summary>
-public interface IChangesLogService
+public interface IContactRegisterService
 {
     /// <summary>
     /// Asynchronously retrieves the notification status change log for a specified person starting from a given index.
