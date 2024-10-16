@@ -1,4 +1,5 @@
-﻿using Altinn.Profile.Integrations.Entities;
+﻿using Altinn.Profile.Core.Domain;
+using Altinn.Profile.Integrations.Entities;
 
 namespace Altinn.Profile.Integrations.Services;
 
