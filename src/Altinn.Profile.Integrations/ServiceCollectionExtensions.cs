@@ -1,6 +1,5 @@
 ﻿using Altinn.ApiClients.Maskinporten.Extensions;
 using Altinn.ApiClients.Maskinporten.Services;
-using Altinn.Profile.Core.Domain;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Extensions;

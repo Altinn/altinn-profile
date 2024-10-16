@@ -1,7 +1,7 @@
 ﻿#nullable enable
 
 using Altinn.ApiClients.Maskinporten.Config;
-using Altinn.Profile.Core.Domain;
+using Altinn.Profile.Core.Integrations;
 
 namespace Altinn.Profile.Integrations.Entities;
 

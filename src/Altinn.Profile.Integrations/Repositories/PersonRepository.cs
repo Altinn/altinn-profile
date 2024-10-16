@@ -17,7 +17,7 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// Defines a repository for handling person data operations.
 /// </summary>
 /// <seealso cref="IPersonRepository" />
-internal class PersonRepository : ProfileRepository<Person>, IPersonRepository
+internal class PersonRepository : IPersonRepository
 {
     private readonly ProfileDbContext _context;
     private readonly IMapper _mapper;

@@ -2,7 +2,7 @@
 
 using System.Collections.Immutable;
 
-using Altinn.Profile.Core.Domain;
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Entities;
 
 namespace Altinn.Profile.Integrations.Repositories;
@@ -10,7 +10,7 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// <summary>
 /// Defines a repository for handling person data operations.
 /// </summary>
-public interface IPersonRepository : IRepository<Person>
+public interface IPersonRepository
 {
     /// <summary>
     /// Asynchronously retrieves the contact details for multiple persons by their national identity numbers.

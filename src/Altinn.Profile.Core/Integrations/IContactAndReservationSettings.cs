@@ -1,6 +1,6 @@
 ﻿using Altinn.ApiClients.Maskinporten.Config;
 
-namespace Altinn.Profile.Core.Domain;
+namespace Altinn.Profile.Core.Integrations;
 
 /// <summary>
 /// Represents the settings for managing contact details and reservation information for individuals.
