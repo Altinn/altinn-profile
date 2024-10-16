@@ -67,7 +67,8 @@ public static class ServiceCollectionExtensions
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
         services.AddSingleton<INationalIdentityNumberChecker, NationalIdentityNumberChecker>();
-        
+
+        //services.AddDbContext<ProfileDbContext>(options => options.UseNpgsql(connectionString));
         services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString));
     }
 

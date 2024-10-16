@@ -11,7 +11,6 @@ using Altinn.Profile.Integrations.Persistence;
 using AutoMapper;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 
 using Npgsql;
@@ -25,21 +24,26 @@ namespace Altinn.Profile.Integrations.Repositories;
 internal class PersonRepository : IPersonRepository
 {
     private readonly IMapper _mapper;
-    private readonly IDbContextFactory<ProfileDbContext> _dbContextFactory;
+    private readonly ProfileDbContext _context;
     private readonly ILogger<PersonRepository> _logger;
+    private readonly IDbContextFactory<ProfileDbContext> _contextFactory;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PersonRepository"/> class.
     /// </summary>
     /// <param name="logger">The logger instance used for logging operations.</param>
     /// <param name="mapper">The mapper instance used for object-object mapping.</param>
-    /// <param name="dbContextFactory">The database context for accessing profile data.</param>
-    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="logger"/>, <paramref name="mapper"/>, or <paramref name="dbContextFactory"/> is null.</exception>
-    public PersonRepository(ILogger<PersonRepository> logger, IMapper mapper, IDbContextFactory<ProfileDbContext> dbContextFactory)
+    /// <param name="context">The database context for accessing profile data.</param>
+    /// <param name="contextFactory">The factory for creating database context instances.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when the <paramref name="logger"/>, <paramref name="mapper"/>, <paramref name="context"/>, or <paramref name="contextFactory"/> is null.
+    /// </exception>
+    public PersonRepository(ILogger<PersonRepository> logger, IMapper mapper, ProfileDbContext context, IDbContextFactory<ProfileDbContext> contextFactory)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
     }
 
     /// <summary>
@@ -61,8 +65,7 @@ internal class PersonRepository : IPersonRepository
                 return ImmutableList<Person>.Empty;
             }
 
-            using var context = _dbContextFactory.CreateDbContext();
-            var people = await context.People.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync();
+            var people = await _context.People.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync();
             return people.ToImmutableList();
         }
         catch (Exception ex)
@@ -86,7 +89,7 @@ internal class PersonRepository : IPersonRepository
         var distinctContactPreferences = GetDistinctContactPreferences(personContactPreferencesSnapshots.ContactPreferencesSnapshots);
 
         // Add or update the people in the database
-        using var context = _dbContextFactory.CreateDbContext();
+        using var context = _contextFactory.CreateDbContext();
         foreach (var contactPreference in distinctContactPreferences)
         {
             var person = _mapper.Map<Person>(contactPreference);
@@ -106,34 +109,35 @@ internal class PersonRepository : IPersonRepository
                     await context.People.AddAsync(person);
                 }
             }
-            catch (DbUpdateException dbEx) when (dbEx.InnerException is PostgresException pgEx && pgEx.SqlState == "23505")
+            catch (DbUpdateException updateException) when (updateException.InnerException is PostgresException postgresException && postgresException.SqlState == "23505")
             {
-                // Handle duplicate key exception
-                // Log the exception or take appropriate action
+                _logger.LogError(updateException, "An error occurred while synchronizing person contact preferences.");
+
+                throw;
             }
         }
 
         try
         {
             var existingMetadata = await context.Metadata.FirstOrDefaultAsync();
-
             if (existingMetadata != null)
             {
                 context.Metadata.Remove(existingMetadata);
             }
 
-            var metaData = new Metadata
+            var metadata = new Metadata
             {
                 Exported = DateTime.Now.ToUniversalTime(),
-                LatestChangeNumber = personContactPreferencesSnapshots.EndingIdentifier ?? existingMetadata?.LatestChangeNumber ?? 0
+                LatestChangeNumber = personContactPreferencesSnapshots.EndingIdentifier ?? 0
             };
-            await context.Metadata.AddAsync(metaData);
+            await context.Metadata.AddAsync(metadata);
 
             await context.SaveChangesAsync();
         }
         catch (Exception ex)
         {
-            // Log the exception or take appropriate action
+            _logger.LogError(ex, "An error occurred while synchronizing person contact preferences.");
+
             throw;
         }
 
