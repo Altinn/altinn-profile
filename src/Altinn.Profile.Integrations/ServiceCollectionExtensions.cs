@@ -93,7 +93,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPersonContactDetailsSnapshot, PersonContactDetailsSnapshot>();
         services.AddScoped<IPersonContactPreferencesChangesLog, PersonContactPreferencesChangesLog>();
 
-        services.AddSingleton<IContactReservation>(contactRegisterSettings);
+        services.AddSingleton<IContactRegisterSettings>(contactRegisterSettings);
         services.AddMaskinportenHttpClient<SettingsJwkClientDefinition, IPersonContactPreferencesHttpClient, PersonContactPreferencesHttpClient>(contactRegisterSettings.MaskinportenSettings);
     }
 }

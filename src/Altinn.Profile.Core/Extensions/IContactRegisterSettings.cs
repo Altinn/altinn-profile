@@ -3,9 +3,9 @@
 namespace Altinn.Profile.Core.Integrations;
 
 /// <summary>
-/// Represents the information used for managing contact details and reservation information for individuals.
+/// Interface for managing details used to communicate with the contact register.
 /// </summary>
-public interface IContactReservation
+public interface IContactRegisterSettings
 {
     /// <summary>
     /// Gets the endpoint URL used to retrieve updates in the contact information for one or more individuals.
