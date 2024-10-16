@@ -59,6 +59,16 @@ public class ContactRegisterHttpClient : IContactRegisterHttpClient
         {
             var response = await _httpClient.SendAsync(request);
 
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError(
+                    "// ContactRegisterHttpClient // GetContactDetailsChangesAsync // Unexpected response. Failed with {StatusCode} and message {Message}",
+                    response.StatusCode,
+                    await response.Content.ReadAsStringAsync());
+
+                return false;
+            }
+
             var responseData = await response.Content.ReadAsStringAsync();
 
             var responseObject = JsonSerializer.Deserialize<ContactRegisterChangesLog>(responseData);
