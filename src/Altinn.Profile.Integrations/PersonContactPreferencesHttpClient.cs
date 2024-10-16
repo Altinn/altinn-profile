@@ -2,6 +2,7 @@
 using System.Text.Json;
 
 using Altinn.Profile.Core.Extensions;
+using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 
 using Microsoft.Extensions.Logging;
@@ -56,7 +57,7 @@ public class PersonContactPreferencesHttpClient : IPersonContactPreferencesHttpC
             var responseData = await response.Content.ReadAsStringAsync();
 
             var responseObject = JsonSerializer.Deserialize<PersonContactPreferencesChangesLog>(responseData);
-            if (responseObject == null || responseObject.PersonContactPreferencesSnapshots == null)
+            if (responseObject == null || responseObject.ContactPreferencesSnapshots == null)
             {
                 return null;
             }

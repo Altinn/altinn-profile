@@ -1,7 +1,7 @@
 ﻿#nullable enable
 
 using System.Collections.Immutable;
-
+using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Persistence;
 
@@ -74,9 +74,9 @@ internal class PersonRepository : IPersonRepository
     public async Task<bool> SyncPersonContactPreferencesAsync(IPersonContactPreferencesChangesLog personContactPreferencesSnapshots)
     {
         ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots);
-        ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots.PersonContactPreferencesSnapshots);
+        ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots.ContactPreferencesSnapshots);
 
-        var people = _mapper.Map<List<PersonContactPreferencesSnapshot>>(personContactPreferencesSnapshots.PersonContactPreferencesSnapshots);
+        var people = _mapper.Map<List<PersonContactPreferencesSnapshot>>(personContactPreferencesSnapshots.ContactPreferencesSnapshots);
 
         // Find duplicates and select the item with the largest values for the specified properties
         var distinctPeople = people.GroupBy(p => p.PersonIdentifier)

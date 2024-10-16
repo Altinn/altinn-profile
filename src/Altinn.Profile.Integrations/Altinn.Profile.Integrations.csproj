@@ -28,9 +28,5 @@
       <Link>stylecop.json</Link>
     </AdditionalFiles>
   </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="ChangesLog\" />
-  </ItemGroup>
 
 </Project>

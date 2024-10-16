@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Integrations.Entities;
+﻿namespace Altinn.Profile.Core.Person.ContactPreferences;
 
 /// <summary>
 /// Represents a log of changes to a person's contact preferences.
@@ -8,8 +8,8 @@ public interface IPersonContactPreferencesChangesLog
     /// <summary>
     /// Gets the list of snapshots representing the changes to the person's contact preferences.
     /// </summary>
-    /// <value>A collection of <see cref="PersonContactPreferencesSnapshot"/> objects.</value>
-    IEnumerable<PersonContactPreferencesSnapshot>? PersonContactPreferencesSnapshots { get; }
+    /// <value>A collection of <see cref="IPersonContactPreferencesSnapshot"/> objects.</value>
+    IEnumerable<IPersonContactPreferencesSnapshot>? ContactPreferencesSnapshots { get; }
 
     /// <summary>
     /// Gets the starting change ID.
@@ -17,12 +17,12 @@ public interface IPersonContactPreferencesChangesLog
     long? FromChangeId { get; }
 
     /// <summary>
-    /// Gets the ending change ID.
-    /// </summary>
-    long? ToChangeId { get; }
-
-    /// <summary>
     /// Gets the latest change ID.
     /// </summary>
     long? LatestChangeId { get; }
+
+    /// <summary>
+    /// Gets the ending change ID.
+    /// </summary>
+    long? ToChangeId { get; }
 }
