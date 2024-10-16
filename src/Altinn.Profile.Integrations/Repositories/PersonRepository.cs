@@ -1,7 +1,7 @@
 ﻿#nullable enable
 
 using System.Collections.Immutable;
-using Altinn.Profile.Core.ContactRegsiter;
+using Altinn.Profile.Core.ContactRegister;
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Persistence;
@@ -128,7 +128,7 @@ internal class PersonRepository : IPersonRepository
             var metaData = new Metadata
             {
                 Exported = DateTime.Now.ToUniversalTime(),
-                LatestChangeNumber = personContactPreferencesSnapshots.ToChangeId ?? existingMetadata?.LatestChangeNumber ?? 0
+                LatestChangeNumber = personContactPreferencesSnapshots.EndingIdentifier ?? existingMetadata?.LatestChangeNumber ?? 0
             };
             await _context.Metadata.AddAsync(metaData);
 

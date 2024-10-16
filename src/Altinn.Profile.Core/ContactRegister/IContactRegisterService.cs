@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Core.ContactRegsiter;
+﻿namespace Altinn.Profile.Core.ContactRegister;
 
 /// <summary>
 /// Interface for handling changes in a person's contact preferences.

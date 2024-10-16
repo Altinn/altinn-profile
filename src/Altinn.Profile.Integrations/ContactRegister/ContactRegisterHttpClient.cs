@@ -2,10 +2,8 @@
 using System.Text.Json;
 
 using Altinn.Profile.Core;
-using Altinn.Profile.Core.ContactRegsiter;
+using Altinn.Profile.Core.ContactRegister;
 using Altinn.Profile.Core.Extensions;
-using Altinn.Profile.Core.Person.ContactPreferences;
-using Altinn.Profile.Integrations.Entities;
 
 using Microsoft.Extensions.Logging;
 

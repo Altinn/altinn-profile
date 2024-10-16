@@ -1,36 +1,36 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 
 using Altinn.Profile.Core.Person.ContactPreferences;
 
-namespace Altinn.Profile.Core.ContactRegsiter;
+namespace Altinn.Profile.Core.ContactRegister;
 
 /// <summary>
-/// Represents a log of changes to a person's contact preferences.
+/// Represents the changes to a person's contact preferences from the contact register.
 /// </summary>
-public class ContactRegisterChangesLog : IContactRegisterChangesLog
+public record ContactRegisterChangesLog : IContactRegisterChangesLog
 {
     /// <summary>
-    /// Gets the list of snapshots representing the changes to the person's contact preferences.
+    /// Gets the collection of snapshots representing the changes to a person's contact preferences.
     /// </summary>
-    /// <value>A collection of <see cref="IPersonContactPreferencesSnapshot"/> objects.</value>
     [JsonPropertyName("list")]
-    public IEnumerable<PersonContactPreferencesSnapshot>? ContactPreferencesSnapshots { get; init; }
+    public IImmutableList<PersonContactPreferencesSnapshot>? ContactPreferencesSnapshots { get; init; }
 
     /// <summary>
-    /// Gets the starting change ID.
-    /// </summary>
-    [JsonPropertyName("fraEndringsId")]
-    public long? FromChangeId { get; init; }
-
-    /// <summary>
-    /// Gets the ending change ID.
+    /// Gets the ending change identifier, which indicates the point at which the system should stop retrieving changes.
     /// </summary>
     [JsonPropertyName("tilEndringsId")]
-    public long? ToChangeId { get; init; }
+    public long? EndingIdentifier { get; init; }
 
     /// <summary>
-    /// Gets the latest change ID.
+    /// Gets the most recent change identifier, which represents the last change that was processed by the system.
     /// </summary>
     [JsonPropertyName("sisteEndringsId")]
-    public long? LatestChangeId { get; init; }
+    public long? LatestChangeIdentifier { get; init; }
+
+    /// <summary>
+    /// Gets the starting change identifier indicating the point from which the system begins retrieving changes.
+    /// </summary>
+    [JsonPropertyName("fraEndringsId")]
+    public long? StartingIdentifier { get; init; }
 }

@@ -1,30 +1,31 @@
-﻿using Altinn.Profile.Core.Person.ContactPreferences;
+﻿using System.Collections.Immutable;
 
-namespace Altinn.Profile.Core.ContactRegsiter;
+using Altinn.Profile.Core.Person.ContactPreferences;
+
+namespace Altinn.Profile.Core.ContactRegister;
 
 /// <summary>
-/// Represents a log of changes to a person's contact preferences.
+/// Represents the changes to a person's contact preferences from the contact register.
 /// </summary>
 public interface IContactRegisterChangesLog
 {
     /// <summary>
-    /// Gets the list of snapshots representing the changes to the person's contact preferences.
+    /// Gets the collection of snapshots representing the changes to a person's contact preferences.
     /// </summary>
-    /// <value>A collection of <see cref="IPersonContactPreferencesSnapshot"/> objects.</value>
-    IEnumerable<PersonContactPreferencesSnapshot>? ContactPreferencesSnapshots { get; }
+    IImmutableList<PersonContactPreferencesSnapshot>? ContactPreferencesSnapshots { get; }
 
     /// <summary>
-    /// Gets the starting change ID.
+    /// Gets the ending change identifier, which indicates the point at which the system should stop retrieving changes.
     /// </summary>
-    long? FromChangeId { get; }
+    long? EndingIdentifier { get; }
 
     /// <summary>
-    /// Gets the latest change ID.
+    /// Gets the most recent change identifier, which represents the last change that was processed by the system.
     /// </summary>
-    long? LatestChangeId { get; }
+    long? LatestChangeIdentifier { get; }
 
     /// <summary>
-    /// Gets the ending change ID.
+    /// Gets the starting change identifier indicating the point from which the system begins retrieving changes.
     /// </summary>
-    long? ToChangeId { get; }
+    long? StartingIdentifier { get; }
 }

@@ -1,7 +1,7 @@
 ﻿#nullable enable
 
 using System.Collections.Immutable;
-using Altinn.Profile.Core.ContactRegsiter;
+using Altinn.Profile.Core.ContactRegister;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Entities;
 

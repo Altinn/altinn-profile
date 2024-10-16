@@ -1,9 +1,9 @@
 ﻿using Altinn.ApiClients.Maskinporten.Config;
 
-namespace Altinn.Profile.Core.ContactRegsiter;
+namespace Altinn.Profile.Core.ContactRegister;
 
 /// <summary>
-/// Interface for managing details used to communicate with the contact details register.
+/// Represents settings used to communicate with the contact details register.
 /// </summary>
 public interface IContactRegisterSettings
 {
