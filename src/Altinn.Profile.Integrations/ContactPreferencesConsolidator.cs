@@ -17,11 +17,11 @@ public class ContactPreferencesConsolidator
         return snapshots == null
             ? throw new ArgumentNullException(nameof(snapshots))
             : snapshots.GroupBy(e => e.PersonIdentifier)
-                        .Select(d => d.OrderByDescending(p => p.PersonContactDetailsSnapshot?.EmailLastUpdated)
-                                      .ThenByDescending(p => p.PersonContactDetailsSnapshot?.EmailLastVerified)
-                                      .ThenByDescending(p => p.PersonContactDetailsSnapshot?.MobileNumberLastUpdated)
-                                      .ThenByDescending(p => p.PersonContactDetailsSnapshot?.MobileNumberLastVerified)
-                                      .ThenByDescending(p => p.LanguageUpdated)
+                        .Select(d => d.OrderByDescending(p => p.ContactDetailsSnapshot?.EmailLastUpdated)
+                                      .ThenByDescending(p => p.ContactDetailsSnapshot?.EmailLastVerified)
+                                      .ThenByDescending(p => p.ContactDetailsSnapshot?.MobileNumberLastUpdated)
+                                      .ThenByDescending(p => p.ContactDetailsSnapshot?.MobileNumberLastVerified)
+                                      .ThenByDescending(p => p.LanguageLastUpdated)
                                       .First())
                         .ToList();
     }

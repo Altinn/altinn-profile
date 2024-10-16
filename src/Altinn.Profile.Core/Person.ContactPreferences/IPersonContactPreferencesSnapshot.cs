@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Integrations.Entities;
+﻿namespace Altinn.Profile.Core.Person.ContactPreferences;
 
 /// <summary>
 /// Represents a snapshot of a person's contact preferences, including contact information, language preference, notification status, and other details.
@@ -8,7 +8,7 @@ public interface IPersonContactPreferencesSnapshot
     /// <summary>
     /// Gets the contact information details of the person.
     /// </summary>
-    PersonContactDetailsSnapshot? PersonContactDetailsSnapshot { get; }
+    IPersonContactDetailsSnapshot? ContactDetailsSnapshot { get; }
 
     /// <summary>
     /// Gets the language preference of the person.
@@ -18,7 +18,7 @@ public interface IPersonContactPreferencesSnapshot
     /// <summary>
     /// Gets the date and time when the person's language preference was last updated.
     /// </summary>
-    DateTime? LanguageUpdated { get; }
+    DateTime? LanguageLastUpdated { get; }
 
     /// <summary>
     /// Gets the notification status of the person.

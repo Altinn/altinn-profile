@@ -1,5 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
+using Altinn.Profile.Core.Person.ContactPreferences;
+
 namespace Altinn.Profile.Integrations.Entities;
 
 /// <summary>
@@ -11,7 +13,7 @@ public class PersonContactPreferencesSnapshot : IPersonContactPreferencesSnapsho
     /// Gets the contact information details of the person.
     /// </summary>
     [JsonPropertyName("kontaktinformasjon")]
-    public PersonContactDetailsSnapshot? PersonContactDetailsSnapshot { get; init; }
+    public IPersonContactDetailsSnapshot? ContactDetailsSnapshot { get; init; }
 
     /// <summary>
     /// Gets the language preference of the person.
@@ -23,7 +25,7 @@ public class PersonContactPreferencesSnapshot : IPersonContactPreferencesSnapsho
     /// Gets the date and time when the person's language preference was last updated.
     /// </summary>
     [JsonPropertyName("spraak_oppdatert")]
-    public DateTime? LanguageUpdated { get; init; }
+    public DateTime? LanguageLastUpdated { get; init; }
 
     /// <summary>
     /// Gets the notification status of the person.

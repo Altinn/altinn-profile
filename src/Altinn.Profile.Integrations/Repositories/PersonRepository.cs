@@ -80,11 +80,11 @@ internal class PersonRepository : IPersonRepository
 
         // Find duplicates and select the item with the largest values for the specified properties
         var distinctPeople = people.GroupBy(p => p.PersonIdentifier)
-                                   .Select(g => g.OrderByDescending(p => p.PersonContactDetailsSnapshot?.EmailLastUpdated)
-                                                 .ThenByDescending(p => p.PersonContactDetailsSnapshot?.MobileNumberLastUpdated)
-                                                 .ThenByDescending(p => p.PersonContactDetailsSnapshot?.EmailLastVerified)
-                                                 .ThenByDescending(p => p.PersonContactDetailsSnapshot?.MobileNumberLastVerified)
-                                                 .ThenByDescending(p => p.LanguageUpdated)
+                                   .Select(g => g.OrderByDescending(p => p.ContactDetailsSnapshot?.EmailLastUpdated)
+                                                 .ThenByDescending(p => p.ContactDetailsSnapshot?.MobileNumberLastUpdated)
+                                                 .ThenByDescending(p => p.ContactDetailsSnapshot?.EmailLastVerified)
+                                                 .ThenByDescending(p => p.ContactDetailsSnapshot?.MobileNumberLastVerified)
+                                                 .ThenByDescending(p => p.LanguageLastUpdated)
                                                  .First())
                                    .ToList();
 

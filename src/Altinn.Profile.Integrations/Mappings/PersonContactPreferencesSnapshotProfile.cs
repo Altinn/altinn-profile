@@ -10,11 +10,11 @@ public class PersonContactPreferencesSnapshotProfile : AutoMapper.Profile
     public PersonContactPreferencesSnapshotProfile()
     {
         CreateMap<IPersonContactPreferencesSnapshot, PersonContactPreferencesSnapshot>()
-            .ForMember(dest => dest.PersonContactDetailsSnapshot, opt => opt.MapFrom(src => src.PersonContactDetailsSnapshot))
+            .ForMember(dest => dest.ContactDetailsSnapshot, opt => opt.MapFrom(src => src.ContactDetailsSnapshot))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
             .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.Language))
             .ForMember(dest => dest.Reservation, opt => opt.MapFrom(src => src.Reservation))
-            .ForMember(dest => dest.LanguageUpdated, opt => opt.MapFrom(src => src.LanguageUpdated))
+            .ForMember(dest => dest.LanguageLastUpdated, opt => opt.MapFrom(src => src.LanguageLastUpdated))
             .ForMember(dest => dest.PersonIdentifier, opt => opt.MapFrom(src => src.PersonIdentifier))
             .ForMember(dest => dest.NotificationStatus, opt => opt.MapFrom(src => src.NotificationStatus));
 
