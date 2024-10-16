@@ -1,24 +1,30 @@
 ﻿using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 
-using AutoMapper;
+namespace Altinn.Profile.Integrations.Mappings;
 
-namespace Altinn.Profile.Integrations.Mappings
+/// <summary>
+/// AutoMapper profile for mapping between <see cref="PersonContactPreferencesSnapshot"/> and <see cref="Person"/>.
+/// </summary>
+/// <remarks>
+/// This profile defines the mapping rules to convert a <see cref="PersonContactPreferencesSnapshot"/> object into a <see cref="Person"/> instance.
+/// </remarks>
+public class PersonMappingProfile : AutoMapper.Profile
 {
-    public class PersonMappingProfile : AutoMapper.Profile
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PersonMappingProfile"/> class and configures the mappings.
+    /// </summary>
+    public PersonMappingProfile()
     {
-        public PersonMappingProfile()
-        {
-            CreateMap<PersonContactPreferencesSnapshot, Person>()
-                .ForMember(dest => dest.LanguageCode, opt => opt.MapFrom(src => src.Language))
-                .ForMember(dest => dest.FnumberAk, opt => opt.MapFrom(src => src.PersonIdentifier))
-                .ForMember(dest => dest.Reservation, opt => opt.MapFrom(src => src.Reservation == "JA"))
-                .ForMember(dest => dest.EmailAddress, opt => opt.MapFrom(src => src.ContactDetailsSnapshot.Email))
-                .ForMember(dest => dest.MobilePhoneNumber, opt => opt.MapFrom(src => src.ContactDetailsSnapshot.MobileNumber))
-                .ForMember(dest => dest.EmailAddressLastUpdated, opt => opt.MapFrom(src => src.ContactDetailsSnapshot.EmailLastUpdated.HasValue ? src.ContactDetailsSnapshot.EmailLastUpdated.Value.ToUniversalTime() : (DateTime?)null))
-                .ForMember(dest => dest.EmailAddressLastVerified, opt => opt.MapFrom(src => src.ContactDetailsSnapshot.EmailLastVerified.HasValue ? src.ContactDetailsSnapshot.EmailLastVerified.Value.ToUniversalTime() : (DateTime?)null))
-                .ForMember(dest => dest.MobilePhoneNumberLastUpdated, opt => opt.MapFrom(src => src.ContactDetailsSnapshot.MobileNumberLastUpdated.HasValue ? src.ContactDetailsSnapshot.MobileNumberLastUpdated.Value.ToUniversalTime() : (DateTime?)null))
-                .ForMember(dest => dest.MobilePhoneNumberLastVerified, opt => opt.MapFrom(src => src.ContactDetailsSnapshot.MobileNumberLastVerified.HasValue ? src.ContactDetailsSnapshot.MobileNumberLastVerified.Value.ToUniversalTime() : (DateTime?)null));
-        }
+        CreateMap<PersonContactPreferencesSnapshot, Person>()
+            .ForMember(dest => dest.LanguageCode, opt => opt.MapFrom(src => src.Language))
+            .ForMember(dest => dest.FnumberAk, opt => opt.MapFrom(src => src.PersonIdentifier))
+            .ForMember(dest => dest.Reservation, opt => opt.MapFrom(src => src.Reservation == "JA"))
+            .ForMember(dest => dest.EmailAddress, opt => opt.MapFrom(src => src.ContactDetailsSnapshot != null ? src.ContactDetailsSnapshot.Email : null))
+            .ForMember(dest => dest.MobilePhoneNumber, opt => opt.MapFrom(src => src.ContactDetailsSnapshot != null ? src.ContactDetailsSnapshot.MobileNumber : null))
+            .ForMember(dest => dest.EmailAddressLastUpdated, opt => opt.MapFrom(src => src.ContactDetailsSnapshot != null && src.ContactDetailsSnapshot.EmailLastUpdated.HasValue ? src.ContactDetailsSnapshot.EmailLastUpdated.Value.ToUniversalTime() : (DateTime?)null))
+            .ForMember(dest => dest.EmailAddressLastVerified, opt => opt.MapFrom(src => src.ContactDetailsSnapshot != null && src.ContactDetailsSnapshot.EmailLastVerified.HasValue ? src.ContactDetailsSnapshot.EmailLastVerified.Value.ToUniversalTime() : (DateTime?)null))
+            .ForMember(dest => dest.MobilePhoneNumberLastUpdated, opt => opt.MapFrom(src => src.ContactDetailsSnapshot != null && src.ContactDetailsSnapshot.MobileNumberLastUpdated.HasValue ? src.ContactDetailsSnapshot.MobileNumberLastUpdated.Value.ToUniversalTime() : (DateTime?)null))
+            .ForMember(dest => dest.MobilePhoneNumberLastVerified, opt => opt.MapFrom(src => src.ContactDetailsSnapshot != null && src.ContactDetailsSnapshot.MobileNumberLastVerified.HasValue ? src.ContactDetailsSnapshot.MobileNumberLastVerified.Value.ToUniversalTime() : (DateTime?)null));
     }
 }
