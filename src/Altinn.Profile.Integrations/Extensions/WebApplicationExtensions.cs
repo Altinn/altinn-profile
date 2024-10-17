@@ -1,4 +1,6 @@
-﻿using Altinn.Profile.Integrations.Persistence;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +13,7 @@ namespace Altinn.Profile.Integrations.Extensions;
 /// <summary>
 /// Extension class for web application
 /// </summary>
+[ExcludeFromCodeCoverage]
 public static class WebApplicationExtensions
 {
     /// <summary>

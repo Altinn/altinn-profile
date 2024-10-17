@@ -29,7 +29,7 @@ public class ConsoleTraceService : ITraceService
 
     /// <summary>
     /// Info
-    /// </summary>      
+    /// </summary>
     public void Info(string message, object? payload = null)
     {
         var traceMessage = $"INF   {DateTime.UtcNow:o}   {message}{Environment.NewLine}";
