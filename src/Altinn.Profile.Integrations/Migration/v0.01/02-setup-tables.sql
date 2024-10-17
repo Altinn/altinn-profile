@@ -1,10 +1,3 @@
-﻿-- Create schema if it doesn't exist
-CREATE SCHEMA IF NOT EXISTS contact_and_reservation;
-
--- Grant access to the schema
-GRANT ALL ON SCHEMA contact_and_reservation TO platform_profile_admin;
-GRANT USAGE ON SCHEMA contact_and_reservation TO platform_profile;
-
 -- Create table MailboxSupplier
 CREATE TABLE IF NOT EXISTS contact_and_reservation.mailbox_supplier (
     mailbox_supplier_id INT GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) PRIMARY KEY,
@@ -37,6 +30,3 @@ CREATE TABLE IF NOT EXISTS contact_and_reservation.person (
     CONSTRAINT fk_mailbox_supplier FOREIGN KEY (mailbox_supplier_id_fk) REFERENCES contact_and_reservation.mailbox_supplier (mailbox_supplier_id),
     CONSTRAINT chk_language_code CHECK (language_code ~* '^[a-z]{2}$')
 );
-
--- Indexes for performance
-CREATE INDEX idx_fnumber_ak ON contact_and_reservation.person (fnumber_ak);
