@@ -88,27 +88,17 @@ public class StringExtensionsTests
     }
 
     [Theory]
-    [InlineData("08119", false)]
-    [InlineData("081190A3698", false)]
-    [InlineData("081190 3698", false)]
-    public void IsValidSocialSecurityNumber_InvalidIndividualNumberPart_ReturnsFalse(string socialSecurityNumber, bool expected)
-    {
-        // Act
-        var result = socialSecurityNumber.IsValidSocialSecurityNumber();
-
-        // Assert
-        Assert.Equal(expected, result);
-    }
-
-    [Theory]
-    [InlineData(null, false)]
     [InlineData("", false)]
+    [InlineData(null, false)]
     [InlineData("12345", false)]
-    [InlineData("12345678900", false)]
-    [InlineData("98765432100", false)]
+    [InlineData("08119", false)]
     [InlineData("08119043698", true)]
     [InlineData("23017126016", true)]
     [InlineData("04045325356", true)]
+    [InlineData("081190A3698", false)]
+    [InlineData("081190 3698", false)]
+    [InlineData("12345678900", false)]
+    [InlineData("98765432100", false)]
     public void IsValidSocialSecurityNumber_ValidatesCorrectly(string socialSecurityNumber, bool expected)
     {
         // Act
