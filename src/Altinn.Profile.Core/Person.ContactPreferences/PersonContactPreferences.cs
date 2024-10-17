@@ -1,8 +1,6 @@
 ﻿#nullable enable
 
-using Altinn.Profile.Core.Person.ContactPreferences;
-
-namespace Altinn.Profile.Integrations.Entities;
+namespace Altinn.Profile.Core.Person.ContactPreferences;
 
 /// <summary>
 /// Represents a person's contact details.

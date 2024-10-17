@@ -1,7 +1,6 @@
 ﻿#nullable enable
 
 using Altinn.Profile.Core;
-using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 
 namespace Altinn.Profile.Integrations.Services;
@@ -23,5 +22,6 @@ public interface IPersonService
     /// <summary>
     /// Asynchronously synchronizes the person contact preferences.
     /// </summary>
-    void SyncPersonContactPreferencesAsync();
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task SyncPersonContactPreferencesAsync();
 }

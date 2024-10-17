@@ -38,15 +38,19 @@ public class PersonContactChangesController : ControllerBase
     }
 
     /// <summary>
-    /// Retrieves the contact details for persons based on their national identity numbers.
+    /// Synchronizes the changes in the contact details for persons.
     /// </summary>
     /// <returns>
-    /// A task that represents the asynchronous operation, containing a response with persons' contact details.
-    /// Returns a <see cref="PersonContactPreferencesSnapshot"/> with status 200 OK if successful.
+    /// A task that represents the asynchronous operation. If successful, returns a status 200 OK.
     /// </returns>
-    [HttpPost("SyncContentChanges")]
+    /// <response code="200">Returns a <see cref="PersonContactPreferencesSnapshot"/> if the synchronization is successful.</response>
+    /// <response code="400">Returns a bad request if the model state is invalid.</response>
+    /// <response code="500">Returns a problem detail if an unexpected error occurs.</response>
+    [HttpPost("SyncContactChanges")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public IActionResult SyncContentChanges()
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public IActionResult SyncContactChanges()
     {
         if (!ModelState.IsValid)
         {

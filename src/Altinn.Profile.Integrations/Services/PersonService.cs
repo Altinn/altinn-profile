@@ -26,18 +26,20 @@ public class PersonService : IPersonService
     /// <summary>
     /// Initializes a new instance of the <see cref="PersonService"/> class.
     /// </summary>
-    /// <param name="mapper">The mapper used for object mapping.</param>
+    /// <param name="mapper">The objects mapper.</param>
     /// <param name="personRepository">The repository used for accessing the person data.</param>
+    /// <param name="changesLogService">The service used for logging changes in contact preferences.</param>
+    /// <param name="metadataRepository">The repository used for accessing metadata.</param>
     /// <param name="nationalIdentityNumberChecker">The service used for checking the validity of national identity numbers.</param>
     /// <exception cref="ArgumentNullException">
-    /// Thrown if <paramref name="mapper"/>, <paramref name="personRepository"/>, or <paramref name="nationalIdentityNumberChecker"/> is <c>null</c>.
+    /// Thrown if <paramref name="mapper"/>, <paramref name="personRepository"/>, <paramref name="changesLogService"/>, <paramref name="metadataRepository"/>, or <paramref name="nationalIdentityNumberChecker"/> is <c>null</c>.
     /// </exception>
-    public PersonService(IMapper mapper, IPersonRepository personRepository, IMetadataRepository metadataRepository, INationalIdentityNumberChecker nationalIdentityNumberChecker, IContactRegisterService changesLogService)
+    public PersonService(IMapper mapper, IPersonRepository personRepository, IContactRegisterService changesLogService, IMetadataRepository metadataRepository, INationalIdentityNumberChecker nationalIdentityNumberChecker)
     {
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _personRepository = personRepository ?? throw new ArgumentNullException(nameof(personRepository));
-        _metadataRepository = metadataRepository ?? throw new ArgumentNullException(nameof(metadataRepository));
         _changesLogService = changesLogService ?? throw new ArgumentNullException(nameof(changesLogService));
+        _metadataRepository = metadataRepository ?? throw new ArgumentNullException(nameof(metadataRepository));
         _nationalIdentityNumberChecker = nationalIdentityNumberChecker ?? throw new ArgumentNullException(nameof(nationalIdentityNumberChecker));
     }
 
@@ -54,52 +56,63 @@ public class PersonService : IPersonService
         ArgumentNullException.ThrowIfNull(nationalIdentityNumbers);
 
         var validNationalIdentityNumbers = _nationalIdentityNumberChecker.GetValid(nationalIdentityNumbers);
+        if (validNationalIdentityNumbers == null || validNationalIdentityNumbers.Count == 0)
+        {
+            return false;
+        }
 
         var matchedContactDetails = await _personRepository.GetContactDetailsAsync(validNationalIdentityNumbers);
 
-        HashSet<string>? matchedNationalIdentityNumbers;
-        IEnumerable<string>? unmatchedNationalIdentityNumbers = null;
-        IEnumerable<PersonContactPreferences>? matchedPersonContactDetails = null;
+        HashSet<string> matchedNationalIdentityNumbers = [];
+        IEnumerable<string> unmatchedNationalIdentityNumbers = [];
+        IEnumerable<PersonContactPreferences> matchedPersonContactDetails = [];
 
         matchedContactDetails.Match(
             e =>
             {
-                matchedNationalIdentityNumbers = new HashSet<string>(e.Select(e => e.FnumberAk));
-                matchedPersonContactDetails = e.Select(_mapper.Map<PersonContactPreferences>).ToImmutableList();
-                unmatchedNationalIdentityNumbers = nationalIdentityNumbers.Where(e => !matchedNationalIdentityNumbers.Contains(e));
+                if (e.Count > 0)
+                {
+                    matchedNationalIdentityNumbers = new HashSet<string>(e.Select(e => e.FnumberAk));
+                    matchedPersonContactDetails = e.Select(_mapper.Map<PersonContactPreferences>).ToImmutableList();
+                    unmatchedNationalIdentityNumbers = nationalIdentityNumbers.Where(e => !matchedNationalIdentityNumbers.Contains(e));
+                }
             },
-            _ =>
-            {
-                matchedPersonContactDetails = [];
-                matchedNationalIdentityNumbers = [];
-                unmatchedNationalIdentityNumbers = [];
-            });
+            _ => { });
 
         return new PersonContactPreferencesLookupResult
         {
-            MatchedPersonContactPreferences = matchedPersonContactDetails?.ToImmutableList(),
-            UnmatchedNationalIdentityNumbers = unmatchedNationalIdentityNumbers?.ToImmutableList()
+            MatchedPersonContactPreferences = matchedPersonContactDetails.Any() ? matchedPersonContactDetails.ToImmutableList() : null,
+            UnmatchedNationalIdentityNumbers = unmatchedNationalIdentityNumbers.Any() ? unmatchedNationalIdentityNumbers.ToImmutableList() : null
         };
     }
 
     /// <summary>
     /// Asynchronously synchronizes the person contact preferences.
     /// </summary>
-    public async void SyncPersonContactPreferencesAsync()
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public async Task SyncPersonContactPreferencesAsync()
     {
+        // Get the latest change number.
         long latestChangeNumber = 0;
         var latestChangeNumberGetter = await _metadataRepository.GetLatestChangeNumberAsync();
-        latestChangeNumberGetter.Match(e => latestChangeNumber = e, x => latestChangeNumber = 0);
+        latestChangeNumberGetter.Match(e => latestChangeNumber = e, _ => latestChangeNumber = 0);
 
-        var changes = await _changesLogService.RetrieveContactDetailsChangesAsync(latestChangeNumber);
-
-        changes.Match(
+        // Retrieve the changes in contact preferences from the changes log.
+        var contactDetailsChangesGetter = await _changesLogService.RetrieveContactDetailsChangesAsync(latestChangeNumber);
+        contactDetailsChangesGetter.Match(
             async e =>
             {
-                await _personRepository.SyncPersonContactPreferencesAsync(e);
+                var synchronizationResult = await _personRepository.SyncPersonContactPreferencesAsync(e);
+                synchronizationResult.Match(
+                    async synchornizedRowsCount =>
+                    {
+                        if (synchornizedRowsCount > 0 && e.EndingIdentifier.HasValue)
+                        {
+                            await _metadataRepository.UpdateLatestChangeNumberAsync(e.EndingIdentifier.Value);
+                        }
+                    },
+                    _ => { });
             },
-            _ =>
-            {
-            });
+            _ => { });
     }
 }

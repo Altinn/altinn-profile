@@ -32,12 +32,12 @@ internal class ContactRegisterService : IContactRegisterService
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object, where <see cref="IContactRegisterChangesLog"/> represents the successful result and <see cref="bool"/> indicates a failure.
     /// </returns>
-    /// <exception cref="ArgumentNullException">Thrown if the <see cref="IContactRegisterSettings.ChangesLogEndpoint"/> is <c>null</c> or empty.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the <see cref="IContactRegisterSettings.ChangesLogEndpoint"/> is <c>null</c> or empty.</exception>
     public async Task<Result<IContactRegisterChangesLog, bool>> RetrieveContactDetailsChangesAsync(long startingIdentifier = 0)
     {
         if (string.IsNullOrWhiteSpace(_contactRegisterSettings.ChangesLogEndpoint))
         {
-            throw new ArgumentNullException(nameof(_contactRegisterSettings.ChangesLogEndpoint));
+            throw new InvalidOperationException("The endpoint URL must not be null or empty.");
         }
 
         return await _contactRegisterHttpClient.GetContactDetailsChangesAsync(_contactRegisterSettings.ChangesLogEndpoint, startingIdentifier);

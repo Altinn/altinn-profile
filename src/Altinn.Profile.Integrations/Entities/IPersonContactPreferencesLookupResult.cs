@@ -1,6 +1,7 @@
 ﻿#nullable enable
-
 using System.Collections.Immutable;
+
+using Altinn.Profile.Core.Person.ContactPreferences;
 
 namespace Altinn.Profile.Integrations.Entities;
 

@@ -55,35 +55,27 @@ public class ContactRegisterHttpClient : IContactRegisterHttpClient
             Content = new StringContent($"{{\"fraEndringsId\": {startingIdentifier}}}", Encoding.UTF8, "application/json")
         };
 
-        try
+        var response = await _httpClient.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var response = await _httpClient.SendAsync(request);
+            _logger.LogError(
+                "// ContactRegisterHttpClient // GetContactDetailsChangesAsync // Unexpected response. Failed with {StatusCode} and message {Message}",
+                response.StatusCode,
+                await response.Content.ReadAsStringAsync());
 
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.LogError(
-                    "// ContactRegisterHttpClient // GetContactDetailsChangesAsync // Unexpected response. Failed with {StatusCode} and message {Message}",
-                    response.StatusCode,
-                    await response.Content.ReadAsStringAsync());
-
-                return false;
-            }
-
-            var responseData = await response.Content.ReadAsStringAsync();
-
-            var responseObject = JsonSerializer.Deserialize<ContactRegisterChangesLog>(responseData);
-            if (responseObject == null || responseObject.ContactPreferencesSnapshots == null)
-            {
-                return false;
-            }
-
-            return responseObject;
+            return false;
         }
-        catch (Exception ex)
+
+        var responseData = await response.Content.ReadAsStringAsync();
+
+        var responseObject = JsonSerializer.Deserialize<ContactRegisterChangesLog>(responseData);
+
+        if (responseObject == null || responseObject.ContactPreferencesSnapshots == null)
         {
-            _logger.LogError(ex, "An error occurred while retrieving changes from the contact register.");
-
-            throw;
+            return false;
         }
+
+        return responseObject;
     }
 }
