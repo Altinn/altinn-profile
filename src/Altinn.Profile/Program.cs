@@ -12,6 +12,7 @@ using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Filters;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
+using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.UseCases;
 
 using AltinnCore.Authentication.JwtCookie;
@@ -56,6 +57,8 @@ ConfigureServices(builder.Services, builder.Configuration);
 
 WebApplication app = builder.Build();
 
+app.SetUpPostgreSql(builder.Environment.IsDevelopment(), builder.Configuration);
+
 Configure();
 
 app.Run();
@@ -76,21 +79,9 @@ async Task SetConfigurationProviders(ConfigurationManager config)
 {
     string basePath = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
     config.SetBasePath(basePath);
-    string configJsonFile1 = $"{basePath}/altinn-appsettings/altinn-dbsettings-secret.json";
-    string configJsonFile2 = Directory.GetCurrentDirectory() + "/appsettings.json";
-
-    if (basePath == "/")
-    {
-        configJsonFile2 = "/app/appsettings.json";
-    }
-
-    config.AddJsonFile(configJsonFile1, optional: true, reloadOnChange: true);
-    config.AddJsonFile(configJsonFile2, optional: false, reloadOnChange: true);
+    config.AddJsonFile(basePath + "altinn-appsettings/altinn-dbsettings-secret.json", optional: true, reloadOnChange: true);
 
     await ConnectToKeyVaultAndSetApplicationInsights(config);
-
-    config.AddEnvironmentVariables();
-    config.AddCommandLine(args);
 }
 
 async Task ConnectToKeyVaultAndSetApplicationInsights(ConfigurationManager config)
