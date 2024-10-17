@@ -394,7 +394,7 @@ public class PersonContactDetailsControllerTests
         HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
         var lookupCriteria = new PersonContactDetailsLookupCriteria
         {
-            NationalIdentityNumbers = ["02018090573", "no found", "03074500217"]
+            NationalIdentityNumbers = ["02018090573", "none", "03074500217"]
         };
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/person/contact/details/lookup");
