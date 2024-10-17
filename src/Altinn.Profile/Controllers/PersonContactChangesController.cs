@@ -46,11 +46,11 @@ public class PersonContactChangesController : ControllerBase
     /// <response code="200">Returns a <see cref="PersonContactPreferencesSnapshot"/> if the synchronization is successful.</response>
     /// <response code="400">Returns a bad request if the model state is invalid.</response>
     /// <response code="500">Returns a problem detail if an unexpected error occurs.</response>
-    [HttpPost("SyncContactChanges")]
+    [HttpPost("syncchanges")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public IActionResult SyncContactChanges()
+    public IActionResult SyncChanges()
     {
         if (!ModelState.IsValid)
         {
