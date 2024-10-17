@@ -3,42 +3,42 @@ using Altinn.Platform.Profile.Models;
 namespace Altinn.Profile.Core.Integrations;
 
 /// <summary>
-/// Interface describing a client for the user profile service
+/// Interface for accessing user profile services.
 /// </summary>
 public interface IUserProfileRepository
 {
     /// <summary>
-    /// Method that fetches a user based on a user id
+    /// Retrieves a user profile based on the user's social security number (SSN).
     /// </summary>
-    /// <param name="userId">The user id</param>
-    /// <returns>User profile with given user id or a boolean if failure.</returns>
-    Task<Result<UserProfile, bool>> GetUser(int userId);
-
-    /// <summary>
-    /// Method that fetches a user based on ssn.
-    /// </summary>
-    /// <param name="ssn">The user's ssn.</param>
-    /// <returns>User profile connected to given ssn or a boolean if failure.</returns>
+    /// <param name="ssn">The user's social security number.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object with a <see cref="UserProfile"/> on success, or a boolean indicating failure.</returns>
     Task<Result<UserProfile, bool>> GetUser(string ssn);
 
     /// <summary>
-    /// Method that fetches a user based on a user uuid
+    /// Retrieves a user profile based on the user's ID.
     /// </summary>
-    /// <param name="userUuid">The user uuid</param>
-    /// <returns>User profile with given user uuid or a boolean if failure.</returns>
+    /// <param name="userId">The user ID.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object with a <see cref="UserProfile"/> on success, or a boolean indicating failure.</returns>
+    Task<Result<UserProfile, bool>> GetUser(int userId);
+
+    /// <summary>
+    /// Retrieves a user profile based on the user's username.
+    /// </summary>
+    /// <param name="username">The user's username.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object with a <see cref="UserProfile"/> on success, or a boolean indicating failure.</returns>
+    Task<Result<UserProfile, bool>> GetUserByUsername(string username);
+
+    /// <summary>
+    /// Retrieves a user profile based on the user's UUID.
+    /// </summary>
+    /// <param name="userUuid">The user UUID.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object with a <see cref="UserProfile"/> on success, or a boolean indicating failure.</returns>
     Task<Result<UserProfile, bool>> GetUserByUuid(Guid userUuid);
 
     /// <summary>
-    /// Method that fetches a list of users based on a list of user uuid
+    /// Retrieves a list of user profiles based on a list of user UUIDs.
     /// </summary>
-    /// <param name="userUuidList">The list of user uuids</param>
-    /// <returns>List of User profiles with given user uuids or a boolean if failure.</returns>
+    /// <param name="userUuidList">The list of user UUIDs.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object with a list of <see cref="UserProfile"/> on success, or a boolean indicating failure.</returns>
     Task<Result<List<UserProfile>, bool>> GetUserListByUuid(List<Guid> userUuidList);
-
-    /// <summary>
-    /// Method that fetches a user based on username.
-    /// </summary>
-    /// <param name="username">The user's username.</param>
-    /// <returns>User profile connected to given username or a boolean if failure.</returns>
-    Task<Result<UserProfile, bool>> GetUserByUsername(string username);
 }

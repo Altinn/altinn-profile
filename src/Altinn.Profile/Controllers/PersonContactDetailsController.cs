@@ -12,27 +12,27 @@ using Microsoft.Extensions.Logging;
 namespace Altinn.Profile.Controllers;
 
 /// <summary>
-/// Controller to retrieve the contact details for one or more persons.
+/// Controller responsible for managing contact details for one or more persons.
 /// </summary>
 [Authorize]
 [ApiController]
 [Consumes("application/json")]
 [Produces("application/json")]
-[Route("profile/api/v1/contact/details")]
-public class ContactDetailsController : ControllerBase
+[Route("profile/api/v1/person/contact/details")]
+public class PersonContactDetailsController : ControllerBase
 {
-    private readonly ILogger<ContactDetailsController> _logger;
-    private readonly IContactDetailsRetriever _contactDetailsRetriever;
+    private readonly IPersonContactDetailsRetriever _contactDetailsRetriever;
+    private readonly ILogger<PersonContactDetailsController> _logger;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ContactDetailsController"/> class.
+    /// Initializes a new instance of the <see cref="PersonContactDetailsController"/> class.
     /// </summary>
     /// <param name="logger">The logger instance used for logging.</param>
-    /// <param name="contactDetailsRetriever">The use case for retrieving the contact details.</param>
+    /// <param name="contactDetailsRetriever">The service for retrieving the contact details.</param>
     /// <exception cref="ArgumentNullException">
     /// Thrown when the <paramref name="logger"/> or <paramref name="contactDetailsRetriever"/> is null.
     /// </exception>
-    public ContactDetailsController(ILogger<ContactDetailsController> logger, IContactDetailsRetriever contactDetailsRetriever)
+    public PersonContactDetailsController(ILogger<PersonContactDetailsController> logger, IPersonContactDetailsRetriever contactDetailsRetriever)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _contactDetailsRetriever = contactDetailsRetriever ?? throw new ArgumentNullException(nameof(contactDetailsRetriever));
@@ -44,13 +44,13 @@ public class ContactDetailsController : ControllerBase
     /// <param name="lookupCriteria">A collection of national identity numbers.</param>
     /// <returns>
     /// A task that represents the asynchronous operation, containing a response with persons' contact details.
-    /// Returns a <see cref="ContactDetailsLookupResult"/> with status 200 OK if successful.
+    /// Returns a <see cref="PersonContactDetailsLookupResult"/> with status 200 OK if successful.
     /// </returns>
     [HttpPost("lookup")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ContactDetailsLookupResult), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ContactDetailsLookupResult>> PostLookup([FromBody] UserContactPointLookup lookupCriteria)
+    [ProducesResponseType(typeof(PersonContactDetailsLookupResult), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PersonContactDetailsLookupResult>> PostLookup([FromBody] PersonContactDetailsLookupCriteria lookupCriteria)
     {
         if (!ModelState.IsValid)
         {
@@ -66,10 +66,10 @@ public class ContactDetailsController : ControllerBase
         {
             var lookupResult = await _contactDetailsRetriever.RetrieveAsync(lookupCriteria);
 
-            return lookupResult.Match<ActionResult<ContactDetailsLookupResult>>(
+            return lookupResult.Match<ActionResult<PersonContactDetailsLookupResult>>(
                 successResponse =>
                 {
-                    return successResponse?.MatchedContactDetails?.Count > 0 ? Ok(successResponse) : NotFound();
+                    return successResponse?.MatchedPersonContactDetails?.Count > 0 ? Ok(successResponse) : NotFound();
                 },
                 failedResponse => NotFound());
         }

@@ -3,9 +3,9 @@
 namespace Altinn.Profile.Models;
 
 /// <summary>
-/// A class representing a user contact point lookup object.
+/// Represents the lookup criteria to retrieve the contact details for one or more persons.
 /// </summary>
-public class UserContactPointLookup
+public class PersonContactDetailsLookupCriteria
 {
     /// <summary>
     /// A collection of national identity numbers used to retrieve contact points, obtain contact details, or check the availability of contact points.
