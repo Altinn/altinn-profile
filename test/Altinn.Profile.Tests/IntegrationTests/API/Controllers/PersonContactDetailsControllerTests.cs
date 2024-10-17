@@ -1,12 +1,19 @@
 ﻿using System;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Controllers;
 using Altinn.Profile.Models;
+using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Altinn.Profile.UseCases;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Logging;
 
 using Moq;
@@ -17,15 +24,19 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
 public class PersonContactDetailsControllerTests
 {
+    private readonly JsonSerializerOptions _serializerOptions;
     private readonly PersonContactDetailsController _controller;
     private readonly Mock<ILogger<PersonContactDetailsController>> _loggerMock;
     private readonly Mock<IPersonContactDetailsRetriever> _mockContactDetailsRetriever;
+    private readonly WebApplicationFactorySetup<PersonContactDetailsController> _webApplicationFactorySetup;
 
     public PersonContactDetailsControllerTests()
     {
         _loggerMock = new Mock<ILogger<PersonContactDetailsController>>();
         _mockContactDetailsRetriever = new Mock<IPersonContactDetailsRetriever>();
+        _serializerOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         _controller = new PersonContactDetailsController(_loggerMock.Object, _mockContactDetailsRetriever.Object);
+        _webApplicationFactorySetup = new WebApplicationFactorySetup<PersonContactDetailsController>(new WebApplicationFactory<PersonContactDetailsController>());
     }
 
     [Fact]
@@ -308,5 +319,109 @@ public class PersonContactDetailsControllerTests
         Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
         var returnValue = Assert.IsType<PersonContactDetailsLookupResult>(result.Value);
         Assert.Equal(lookupResult, returnValue);
+    }
+
+    [Fact]
+    public async Task PostLookup_WithValidNationalIdentityNumbers_ReturnsValidResults_IntegrationTest()
+    {
+        // Arrange
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        var lookupCriteria = new PersonContactDetailsLookupCriteria
+        {
+            NationalIdentityNumbers = ["02018090573", "03070100664", "03074500217"]
+        };
+
+        HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/person/contact/details/lookup");
+        httpRequestMessage.Content = JsonContent.Create(lookupCriteria);
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        string responseContent = await response.Content.ReadAsStringAsync();
+        PersonContactDetailsLookupResult lookupResult = JsonSerializer.Deserialize<PersonContactDetailsLookupResult>(responseContent, _serializerOptions);
+
+        Assert.NotNull(lookupResult);
+        Assert.NotNull(lookupResult.MatchedPersonContactDetails);
+        Assert.Null(lookupResult.UnmatchedNationalIdentityNumbers);
+        Assert.Equal(3, lookupResult.MatchedPersonContactDetails.Count);
+    }
+
+    [Fact]
+    public async Task PostLookup_WhenNationalIdentityNumbersIsNull_ReturnsBadRequest_IntegrationTest()
+    {
+        // Arrange
+        var client = _webApplicationFactorySetup.GetTestServerClient();
+        var lookupCriteria = new PersonContactDetailsLookupCriteria
+        {
+            NationalIdentityNumbers = null
+        };
+        HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/person/contact/details/lookup");
+        httpRequestMessage.Content = JsonContent.Create(lookupCriteria);
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PostLookup_WhenNoContactDetailsFound_ReturnsNotFound_IntegrationTest()
+    {
+        // Arrange
+        var client = _webApplicationFactorySetup.GetTestServerClient();
+        var lookupCriteria = new PersonContactDetailsLookupCriteria
+        {
+            NationalIdentityNumbers = ["false"]
+        };
+        HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/person/contact/details/lookup");
+        httpRequestMessage.Content = JsonContent.Create(lookupCriteria);
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PostLookup_WithMixedNationalIdentityNumbers_ReturnsMixedResults_IntegrationTest()
+    {
+        // Arrange
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        var lookupCriteria = new PersonContactDetailsLookupCriteria
+        {
+            NationalIdentityNumbers = ["02018090573", "no found", "03074500217"]
+        };
+
+        HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/person/contact/details/lookup");
+        httpRequestMessage.Content = JsonContent.Create(lookupCriteria);
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        string responseContent = await response.Content.ReadAsStringAsync();
+        PersonContactDetailsLookupResult lookupResult = JsonSerializer.Deserialize<PersonContactDetailsLookupResult>(responseContent, _serializerOptions);
+
+        Assert.NotNull(lookupResult);
+        Assert.NotNull(lookupResult.MatchedPersonContactDetails);
+        Assert.Single(lookupResult.UnmatchedNationalIdentityNumbers);
+        Assert.NotNull(lookupResult.UnmatchedNationalIdentityNumbers);
+        Assert.Equal(2, lookupResult.MatchedPersonContactDetails.Count);
+    }
+
+    private static HttpRequestMessage CreatePostRequest(string requestUri)
+    {
+        int userId = 2516356;
+        HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri);
+        string token = PrincipalUtil.GetToken(userId);
+        httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        return httpRequestMessage;
     }
 }
