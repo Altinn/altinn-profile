@@ -70,7 +70,7 @@ public class PersonService : IPersonService
         matchedContactDetails.Match(
             e =>
             {
-                if (e.Count > 0)
+                if (e is not null && e.Count > 0)
                 {
                     matchedNationalIdentityNumbers = new HashSet<string>(e.Select(e => e.FnumberAk));
                     matchedPersonContactDetails = e.Select(_mapper.Map<PersonContactPreferences>).ToImmutableList();
