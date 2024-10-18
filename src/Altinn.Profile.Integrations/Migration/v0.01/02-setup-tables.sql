@@ -30,3 +30,6 @@ CREATE TABLE IF NOT EXISTS contact_and_reservation.person (
     CONSTRAINT fk_mailbox_supplier FOREIGN KEY (mailbox_supplier_id_fk) REFERENCES contact_and_reservation.mailbox_supplier (mailbox_supplier_id),
     CONSTRAINT chk_language_code CHECK (language_code ~* '^[a-z]{2}$')
 );
+
+-- Indexes for performance
+CREATE INDEX idx_fnumber_ak ON contact_and_reservation.person (fnumber_ak);
