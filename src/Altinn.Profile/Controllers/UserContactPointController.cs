@@ -34,7 +34,7 @@ public class UserContactPointController : ControllerBase
     /// <returns>Returns an overview of the availability of various contact points for the user</returns>
     [HttpPost("availability")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<UserContactPointAvailabilityList>> PostAvailabilityLookup([FromBody] UserContactPointLookup userContactPointLookup)
+    public async Task<ActionResult<UserContactPointAvailabilityList>> PostAvailabilityLookup([FromBody] PersonContactDetailsLookupCriteria userContactPointLookup)
     {
         if (userContactPointLookup.NationalIdentityNumbers.Count == 0)
         {
@@ -54,7 +54,7 @@ public class UserContactPointController : ControllerBase
     /// <returns>Returns an overview of the contact points for the user</returns>
     [HttpPost("lookup")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<UserContactPointsList>> PostLookup([FromBody] UserContactPointLookup userContactPointLookup)
+    public async Task<ActionResult<UserContactPointsList>> PostLookup([FromBody] PersonContactDetailsLookupCriteria userContactPointLookup)
     {
         Result<UserContactPointsList, bool> result = await _contactPointService.GetContactPoints(userContactPointLookup.NationalIdentityNumbers);
         return result.Match<ActionResult<UserContactPointsList>>(

@@ -1,4 +1,9 @@
-﻿using Altinn.Profile.Core.Integrations;
+﻿using Altinn.ApiClients.Maskinporten.Extensions;
+using Altinn.ApiClients.Maskinporten.Services;
+using Altinn.Profile.Core.ContactRegister;
+using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.Person.ContactPreferences;
+using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
@@ -54,13 +59,44 @@ public static class ServiceCollectionExtensions
             throw new InvalidOperationException("Database connection string is not properly configured.");
         }
 
-        services.AddDbContext<ProfileDbContext>(options => options.UseNpgsql(connectionString));
+        services.AddScoped<IPersonService, PersonService>();
+        services.AddScoped<IPersonRepository, PersonRepository>();
+        services.AddScoped<IMetadataRepository, MetadataRepository>();
 
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-        services.AddScoped<IPersonService, PersonService>();
-        services.AddScoped<IPersonRepository, PersonRepository>();
-
         services.AddSingleton<INationalIdentityNumberChecker, NationalIdentityNumberChecker>();
+
+        services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString));
+    }
+
+    /// <summary>
+    /// Adds the Maskinporten client to the DI container.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="config">The configuration collection.</param>
+    /// <exception cref="ArgumentNullException">Thrown when the configuration is null.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when any of the required configuration values are missing or empty.</exception>
+    public static void AddMaskinportenClient(this IServiceCollection services, IConfiguration config)
+    {
+        if (config == null)
+        {
+            throw new ArgumentNullException(nameof(config), "Configuration cannot be null.");
+        }
+
+        var contactRegisterSettings = new ContactRegisterSettings();
+        config.GetSection("ContactAndReservationSettings").Bind(contactRegisterSettings);
+        if (contactRegisterSettings.MaskinportenSettings == null)
+        {
+            throw new InvalidOperationException("Contact and reservation settings are not properly configured.");
+        }
+
+        services.AddScoped<IContactRegisterService, ContactRegisterService>();
+        services.AddScoped<IPersonContactPreferencesSnapshot, PersonContactPreferencesSnapshot>();
+        services.AddScoped<IPersonContactDetailsSnapshot, PersonContactDetailsSnapshot>();
+        services.AddScoped<IContactRegisterChangesLog, ContactRegisterChangesLog>();
+
+        services.AddSingleton<IContactRegisterSettings>(contactRegisterSettings);
+        services.AddMaskinportenHttpClient<SettingsJwkClientDefinition, IContactRegisterHttpClient, ContactRegisterHttpClient>(contactRegisterSettings.MaskinportenSettings);
     }
 }
