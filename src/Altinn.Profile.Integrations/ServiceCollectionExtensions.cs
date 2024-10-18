@@ -1,4 +1,6 @@
-﻿using Altinn.Profile.Core.Integrations;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Mappings;
 using Altinn.Profile.Integrations.Persistence;
@@ -17,6 +19,7 @@ namespace Altinn.Profile.Integrations;
 /// <summary>
 /// Extension class for <see cref="IServiceCollection"/>
 /// </summary>
+[ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions
 {
     /// <summary>

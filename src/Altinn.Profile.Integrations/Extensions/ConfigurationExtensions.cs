@@ -1,10 +1,13 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using Microsoft.Extensions.Configuration;
 
 namespace Altinn.Profile.Integrations.Extensions;
 
 /// <summary>
 /// Extension class for <see cref="IConfiguration"/> to add more members.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public static class ConfigurationExtensions
 {
     private const string ConnectionStringKey = "PostgreSqlSettings:ConnectionString";
