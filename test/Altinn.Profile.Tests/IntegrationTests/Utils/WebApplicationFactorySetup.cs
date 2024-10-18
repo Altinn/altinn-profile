@@ -1,3 +1,4 @@
+using System.IO;
 using System.Net.Http;
 
 using Altinn.Common.AccessToken.Services;
@@ -7,11 +8,13 @@ using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 using Altinn.Profile.Integrations.SblBridge.User.Profile;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Mocks.Authentication;
+
 using AltinnCore.Authentication.JwtCookie;
 
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -50,6 +53,11 @@ public class WebApplicationFactorySetup<T>
 
         return _webApplicationFactory.WithWebHostBuilder(builder =>
         {
+            builder.ConfigureAppConfiguration((context, config) =>
+            {
+                config.SetBasePath(Directory.GetCurrentDirectory());
+                config.AddJsonFile("appsettings.test.json");
+            });
             builder.ConfigureTestServices(services =>
             {
                 services.AddSingleton<IPostConfigureOptions<JwtCookieOptions>, JwtCookiePostConfigureOptionsStub>();
