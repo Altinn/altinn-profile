@@ -1,133 +1,177 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
-//using Altinn.Profile.Integrations.Entities;
-//using Altinn.Profile.Integrations.Persistence;
-//using Altinn.Profile.Integrations.Repositories;
-//using Altinn.Profile.Tests.Testdata;
+using Altinn.Profile.Integrations.Entities;
+using Altinn.Profile.Integrations.Persistence;
+using Altinn.Profile.Integrations.Repositories;
+using Altinn.Profile.Tests.Testdata;
 
-//using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
-//using Xunit;
+using Microsoft.EntityFrameworkCore;
 
-//namespace Altinn.Profile.Tests.Profile.Integrations;
+using Moq;
 
-///// <summary>
-///// Contains unit tests for the <see cref="PersonRepository"/> class.
-///// </summary>
-//public class PersonRepositoryTests : IDisposable
-//{
-//    private readonly ProfileDbContext _context;
-//    private readonly PersonRepository _registerRepository;
-//    private readonly List<Person> _personContactAndReservationTestData;
+using Xunit;
 
-//    public PersonRepositoryTests()
-//    {
-//        var options = new DbContextOptionsBuilder<ProfileDbContext>()
-//            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-//            .Options;
+namespace Altinn.Profile.Tests.Profile.Integrations;
 
-//        _context = new ProfileDbContext(options);
-//        _registerRepository = new PersonRepository(_context);
+/// <summary>
+/// Contains unit tests for the <see cref="PersonRepository"/> class.
+/// </summary>
+public class PersonRepositoryTests : IDisposable
+{
+    private bool _isDisposed;
+    private readonly Mock<IMapper> _mapperMock;
+    private readonly ProfileDbContext _databaseContext;
+    private readonly PersonRepository _personRepository;
+    private readonly List<Person> _personContactAndReservationTestData;
+    private readonly Mock<IDbContextFactory<ProfileDbContext>> _databaseContextFactory;
 
-//        _personContactAndReservationTestData = new List<Person>(PersonTestData.GetContactAndReservationTestData());
+    public PersonRepositoryTests()
+    {
+        _mapperMock = new Mock<IMapper>();
 
-//        _context.People.AddRange(_personContactAndReservationTestData);
-//        _context.SaveChanges();
-//    }
+        var databaseContextOptions = new DbContextOptionsBuilder<ProfileDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
 
-//    public void Dispose()
-//    {
-//        _context.Database.EnsureDeleted();
-//        _context.Dispose();
-//        GC.SuppressFinalize(this);
-//    }
+        _databaseContextFactory = new Mock<IDbContextFactory<ProfileDbContext>>();
 
-//    [Fact]
-//    public async Task GetContactDetailsAsync_WhenFound_ReturnsContactInfo()
-//    {
-//        // Act
-//        var result = await _registerRepository.GetContactDetailsAsync(["17111933790"]);
+        _databaseContextFactory.Setup(f => f.CreateDbContext())
+            .Returns(new ProfileDbContext(databaseContextOptions));
 
-//        var actual = result.FirstOrDefault(e => e.FnumberAk == "17111933790");
-//        var expected = _personContactAndReservationTestData.FirstOrDefault(e => e.FnumberAk == "17111933790");
+        _databaseContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new ProfileDbContext(databaseContextOptions));
 
-//        // Assert
-//        Assert.NotNull(actual);
-//        AssertRegisterProperties(expected, actual);
-//    }
+        _personRepository = new PersonRepository(_mapperMock.Object, _databaseContextFactory.Object);
 
-//    [Fact]
-//    public async Task GetContactDetailsAsync_WhenMultipleContactsFound_ReturnsMultipleContacts()
-//    {
-//        // Act
-//        var result = await _registerRepository.GetContactDetailsAsync(["24064316776", "11044314101"]);
-//        var expected = _personContactAndReservationTestData
-//            .Where(e => e.FnumberAk == "24064316776" || e.FnumberAk == "11044314101");
+        _personContactAndReservationTestData = new List<Person>(PersonTestData.GetContactAndReservationTestData());
 
-//        // Assert
-//        Assert.Equal(2, result.Count);
+        _databaseContext = _databaseContextFactory.Object.CreateDbContext();
+        _databaseContext.People.AddRange(_personContactAndReservationTestData);
+        _databaseContext.SaveChanges();
+    }
 
-//        foreach (var register in result)
-//        {
-//            var foundRegister = expected.FirstOrDefault(r => r.FnumberAk == register.FnumberAk);
-//            Assert.NotNull(foundRegister);
-//            AssertRegisterProperties(register, foundRegister);
-//        }
-//    }
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
-//    [Fact]
-//    public async Task GetContactDetailsAsync_WhenNoNationalIdentityNumbersProvided_ReturnsEmpty()
-//    {
-//        // Act
-//        var result = await _registerRepository.GetContactDetailsAsync([]);
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_isDisposed)
+        {
+            if (disposing)
+            {
+                _databaseContext.Database.EnsureDeleted();
+                _databaseContext.Dispose();
+            }
 
-//        // Assert
-//        Assert.Empty(result);
-//    }
+            _isDisposed = true;
+        }
+    }
 
-//    [Fact]
-//    public async Task GetContactDetailsAsync_WhenNoneFound_ReturnsEmpty()
-//    {
-//        // Act
-//        var result = await _registerRepository.GetContactDetailsAsync(["nonexistent1", "nonexistent2"]);
+    [Fact]
+    public async Task GetContactDetailsAsync_WhenFound_ReturnsContactInfo()
+    {
+        // Act
+        var matchedPerson = (await _personRepository.GetContactDetailsAsync(["17111933790"]))
+            .Match(
+                e => e.Find(p => p.FnumberAk == "17111933790"),
+                _ => null);
 
-//        // Assert
-//        Assert.Empty(result);
-//    }
+        var expectedPerson = _personContactAndReservationTestData
+            .Find(e => e.FnumberAk == "17111933790");
 
-//    [Fact]
-//    public async Task GetContactDetailsAsync_WhenNotFound_ReturnsEmpty()
-//    {
-//        // Act
-//        var result = await _registerRepository.GetContactDetailsAsync(["nonexistent", "11044314120"]);
+        // Assert
+        Assert.NotNull(matchedPerson);
+        AssertRegisterProperties(expectedPerson, matchedPerson);
+    }
 
-//        // Assert
-//        Assert.Empty(result);
-//    }
+    [Fact]
+    public async Task GetContactDetailsAsync_WhenMultipleContactsFound_ReturnsMultipleContacts()
+    {
+        // Act
+        var contactDetailsGetter = await _personRepository.GetContactDetailsAsync(["24064316776", "11044314101"]);
 
-//    [Fact]
-//    public async Task GetContactDetailsAsync_WhenValidAndInvalidNumbers_ReturnsCorrectResults()
-//    {
-//        // Act
-//        var result = _personContactAndReservationTestData.Where(e => e.FnumberAk == "28026698350");
-//        var expected = await _registerRepository.GetContactDetailsAsync(["28026698350", "nonexistent2"]);
+        var matchedPersons = contactDetailsGetter.Match(
+            e => e,
+            _ => Enumerable.Empty<Person>());
 
-//        // Assert invalid result
-//        Assert.Single(result);
-//        AssertRegisterProperties(expected.FirstOrDefault(), result.FirstOrDefault());
-//    }
+        var expectedPersons = _personContactAndReservationTestData
+            .Where(e => e.FnumberAk == "24064316776" || e.FnumberAk == "11044314101")
+            .ToList();
 
-//    private static void AssertRegisterProperties(Person expected, Person actual)
-//    {
-//        Assert.Equal(expected.FnumberAk, actual.FnumberAk);
-//        Assert.Equal(expected.Description, actual.Description);
-//        Assert.Equal(expected.Reservation, actual.Reservation);
-//        Assert.Equal(expected.LanguageCode, actual.LanguageCode);
-//        Assert.Equal(expected.EmailAddress, actual.EmailAddress);
-//        Assert.Equal(expected.MailboxAddress, actual.MailboxAddress);
-//        Assert.Equal(expected.MobilePhoneNumber, actual.MobilePhoneNumber);
-//    }
-//}
+        // Assert
+        Assert.Equal(2, matchedPersons.Count());
+
+        foreach (var person in matchedPersons)
+        {
+            var expectedPerson = expectedPersons.Find(r => r.FnumberAk == person.FnumberAk);
+
+            Assert.NotNull(expectedPerson);
+            AssertRegisterProperties(expectedPerson, person);
+        }
+    }
+
+    [Fact]
+    public async Task GetContactDetailsAsync_WhenNoNationalIdentityNumbersProvided_ReturnsEmpty()
+    {
+        // Act
+        var contactDetailsGetter = await _personRepository.GetContactDetailsAsync([]);
+
+        var matchedPersons = contactDetailsGetter.Match(
+            e => e,
+            _ => Enumerable.Empty<Person>());
+
+        // Assert
+        Assert.Empty(matchedPersons);
+    }
+
+    [Fact]
+    public async Task GetContactDetailsAsync_WhenNoneFound_ReturnsEmpty()
+    {
+        // Act
+        var contactDetailsGetter = await _personRepository.GetContactDetailsAsync(["nonexistent1", "nonexistent2"]);
+
+        var matchedPersons = contactDetailsGetter.Match(
+            e => e,
+            _ => Enumerable.Empty<Person>());
+
+        // Assert
+        Assert.Empty(matchedPersons);
+    }
+
+    [Fact]
+    public async Task GetContactDetailsAsync_WhenValidAndInvalidNumbers_ReturnsCorrectResults()
+    {
+        // Act
+        var result = _personContactAndReservationTestData.Find(e => e.FnumberAk == "28026698350");
+
+        var contactDetailsGetter = await _personRepository.GetContactDetailsAsync(["28026698350", "nonexistent2"]);
+
+        var matchedPersons = contactDetailsGetter.Match(
+            e => e,
+            _ => Enumerable.Empty<Person>());
+
+        // Assert invalid result
+        Assert.Single(matchedPersons);
+        AssertRegisterProperties(matchedPersons.FirstOrDefault(), result);
+    }
+
+    private static void AssertRegisterProperties(Person expected, Person actual)
+    {
+        Assert.Equal(expected.FnumberAk, actual.FnumberAk);
+        Assert.Equal(expected.Description, actual.Description);
+        Assert.Equal(expected.Reservation, actual.Reservation);
+        Assert.Equal(expected.LanguageCode, actual.LanguageCode);
+        Assert.Equal(expected.EmailAddress, actual.EmailAddress);
+        Assert.Equal(expected.MailboxAddress, actual.MailboxAddress);
+        Assert.Equal(expected.MobilePhoneNumber, actual.MobilePhoneNumber);
+    }
+}

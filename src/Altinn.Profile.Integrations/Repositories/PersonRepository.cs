@@ -54,7 +54,7 @@ internal class PersonRepository : IPersonRepository
             return ImmutableList<Person>.Empty;
         }
 
-        using var databaseContext = _contextFactory.CreateDbContext();
+        using var databaseContext = await _contextFactory.CreateDbContextAsync();
 
         var people = await databaseContext.People.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync();
 
@@ -75,7 +75,7 @@ internal class PersonRepository : IPersonRepository
 
         var distinctContactPreferences = GetDistinctContactPreferences(personContactPreferencesSnapshots.ContactPreferencesSnapshots);
 
-        using var databaseContext = _contextFactory.CreateDbContext();
+        using var databaseContext = await _contextFactory.CreateDbContextAsync();
 
         foreach (var contactPreference in distinctContactPreferences)
         {
