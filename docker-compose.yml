@@ -12,9 +12,10 @@ services:
     networks:
       - altinnplatform_network
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_URLS=http://+:5030
-      - GeneralSettings:BridgeApiEndpoint=https://at22.altinn.cloud/sblbridge/profile/api
+      - PostgreSqlSettings__AdminConnectionString=Host=host.docker.internal;Port=5432;Username=platform_profile_admin;Password={0};Database=profiledb
+      - PostgreSqlSettings__ConnectionString=Host=host.docker.internal;Port=5432;Username=platform_profile;Password={0};Database=profiledb
     ports:
       - "5030:5030"
     build:
