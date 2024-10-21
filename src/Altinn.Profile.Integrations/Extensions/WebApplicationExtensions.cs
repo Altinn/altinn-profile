@@ -20,12 +20,10 @@ public static class WebApplicationExtensions
     /// Configure and set up db
     /// </summary>
     /// <param name="app">app</param>
-    /// <param name="isDevelopment">is environment dev</param>
     /// <param name="config">the configuration collection</param>
-    public static void SetUpPostgreSql(this IApplicationBuilder app, bool isDevelopment, IConfiguration config)
+    public static void SetUpPostgreSql(this IApplicationBuilder app, IConfiguration config)
     {
-        PostgreSqlSettings? settings = config.GetSection("PostgreSQLSettings")
-            .Get<PostgreSqlSettings>()
+        PostgreSqlSettings? settings = config.GetSection("PostgreSQLSettings").Get<PostgreSqlSettings>()
             ?? throw new ArgumentNullException(nameof(config), "Required PostgreSQLSettings is missing from application configuration");
 
         if (settings.EnableDBConnection)
@@ -34,9 +32,7 @@ public static class WebApplicationExtensions
 
             string connectionString = string.Format(settings.AdminConnectionString, settings.ProfileDbAdminPwd);
 
-            string fullWorkspacePath = isDevelopment ?
-                Path.Combine(Directory.GetParent(Environment.CurrentDirectory)!.FullName, settings.MigrationScriptPath) :
-                Path.Combine(Environment.CurrentDirectory, settings.MigrationScriptPath);
+            string fullWorkspacePath = Path.Combine(Environment.CurrentDirectory, settings.MigrationScriptPath);
 
             app.UseYuniql(
                 new PostgreSqlDataService(traceService),

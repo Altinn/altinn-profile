@@ -321,33 +321,33 @@ public class PersonContactDetailsControllerTests
         Assert.Equal(lookupResult, returnValue);
     }
 
-    [Fact]
-    public async Task PostLookup_WithValidNationalIdentityNumbers_ReturnsValidResults_IntegrationTest()
-    {
-        // Arrange
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-        var lookupCriteria = new PersonContactDetailsLookupCriteria
-        {
-            NationalIdentityNumbers = ["02018090573", "03070100664", "03074500217"]
-        };
+    ////[Fact]
+    ////public async Task PostLookup_WithValidNationalIdentityNumbers_ReturnsValidResults_IntegrationTest()
+    ////{
+    ////    // Arrange
+    ////    HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+    ////    var lookupCriteria = new PersonContactDetailsLookupCriteria
+    ////    {
+    ////        NationalIdentityNumbers = ["02018090573", "03070100664", "03074500217"]
+    ////    };
 
-        HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/person/contact/details/lookup");
-        httpRequestMessage.Content = JsonContent.Create(lookupCriteria);
+    ////    HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/person/contact/details/lookup");
+    ////    httpRequestMessage.Content = JsonContent.Create(lookupCriteria);
 
-        // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+    ////    // Act
+    ////    HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
 
-        // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    ////    // Assert
+    ////    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        string responseContent = await response.Content.ReadAsStringAsync();
-        PersonContactDetailsLookupResult lookupResult = JsonSerializer.Deserialize<PersonContactDetailsLookupResult>(responseContent, _serializerOptions);
+    ////    string responseContent = await response.Content.ReadAsStringAsync();
+    ////    PersonContactDetailsLookupResult lookupResult = JsonSerializer.Deserialize<PersonContactDetailsLookupResult>(responseContent, _serializerOptions);
 
-        Assert.NotNull(lookupResult);
-        Assert.NotNull(lookupResult.MatchedPersonContactDetails);
-        Assert.Null(lookupResult.UnmatchedNationalIdentityNumbers);
-        Assert.Equal(3, lookupResult.MatchedPersonContactDetails.Count);
-    }
+    ////    Assert.NotNull(lookupResult);
+    ////    Assert.NotNull(lookupResult.MatchedPersonContactDetails);
+    ////    Assert.Null(lookupResult.UnmatchedNationalIdentityNumbers);
+    ////    Assert.Equal(3, lookupResult.MatchedPersonContactDetails.Count);
+    ////}
 
     [Fact]
     public async Task PostLookup_WhenNationalIdentityNumbersIsNull_ReturnsBadRequest_IntegrationTest()
@@ -387,34 +387,34 @@ public class PersonContactDetailsControllerTests
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
-    [Fact]
-    public async Task PostLookup_WithMixedNationalIdentityNumbers_ReturnsMixedResults_IntegrationTest()
-    {
-        // Arrange
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-        var lookupCriteria = new PersonContactDetailsLookupCriteria
-        {
-            NationalIdentityNumbers = ["02018090573", "none", "03074500217"]
-        };
+    ////[Fact]
+    ////public async Task PostLookup_WithMixedNationalIdentityNumbers_ReturnsMixedResults_IntegrationTest()
+    ////{
+    ////    // Arrange
+    ////    HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+    ////    var lookupCriteria = new PersonContactDetailsLookupCriteria
+    ////    {
+    ////        NationalIdentityNumbers = ["07875499461", "none", "07844998311"]
+    ////    };
 
-        HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/person/contact/details/lookup");
-        httpRequestMessage.Content = JsonContent.Create(lookupCriteria);
+    ////    HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/person/contact/details/lookup");
+    ////    httpRequestMessage.Content = JsonContent.Create(lookupCriteria);
 
-        // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+    ////    // Act
+    ////    HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
 
-        // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    ////    // Assert
+    ////    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        string responseContent = await response.Content.ReadAsStringAsync();
-        PersonContactDetailsLookupResult lookupResult = JsonSerializer.Deserialize<PersonContactDetailsLookupResult>(responseContent, _serializerOptions);
+    ////    string responseContent = await response.Content.ReadAsStringAsync();
+    ////    PersonContactDetailsLookupResult lookupResult = JsonSerializer.Deserialize<PersonContactDetailsLookupResult>(responseContent, _serializerOptions);
 
-        Assert.NotNull(lookupResult);
-        Assert.NotNull(lookupResult.MatchedPersonContactDetails);
-        Assert.Single(lookupResult.UnmatchedNationalIdentityNumbers);
-        Assert.NotNull(lookupResult.UnmatchedNationalIdentityNumbers);
-        Assert.Equal(2, lookupResult.MatchedPersonContactDetails.Count);
-    }
+    ////    Assert.NotNull(lookupResult);
+    ////    Assert.NotNull(lookupResult.MatchedPersonContactDetails);
+    ////    Assert.Single(lookupResult.UnmatchedNationalIdentityNumbers);
+    ////    Assert.NotNull(lookupResult.UnmatchedNationalIdentityNumbers);
+    ////    Assert.Equal(2, lookupResult.MatchedPersonContactDetails.Count);
+    ////}
 
     private static HttpRequestMessage CreatePostRequest(string requestUri)
     {

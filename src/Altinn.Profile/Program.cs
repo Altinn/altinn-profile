@@ -57,7 +57,7 @@ ConfigureServices(builder.Services, builder.Configuration);
 
 WebApplication app = builder.Build();
 
-app.SetUpPostgreSql(builder.Environment.IsDevelopment(), builder.Configuration);
+app.SetUpPostgreSql(builder.Configuration);
 
 Configure();
 
