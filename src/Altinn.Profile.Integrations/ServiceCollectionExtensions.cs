@@ -1,10 +1,13 @@
 ﻿using Altinn.ApiClients.Maskinporten.Extensions;
 using Altinn.ApiClients.Maskinporten.Services;
 using Altinn.Profile.Core.ContactRegister;
+using System.Diagnostics.CodeAnalysis;
+
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Extensions;
+using Altinn.Profile.Integrations.Mappings;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.SblBridge;
@@ -21,6 +24,7 @@ namespace Altinn.Profile.Integrations;
 /// <summary>
 /// Extension class for <see cref="IServiceCollection"/>
 /// </summary>
+[ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions
 {
     /// <summary>
@@ -63,7 +67,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPersonRepository, PersonRepository>();
         services.AddScoped<IMetadataRepository, MetadataRepository>();
 
-        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+        services.AddAutoMapper(typeof(PersonContactDetailsProfile));
 
         services.AddSingleton<INationalIdentityNumberChecker, NationalIdentityNumberChecker>();
 

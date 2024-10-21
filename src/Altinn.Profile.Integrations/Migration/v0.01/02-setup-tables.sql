@@ -1,10 +1,3 @@
-﻿-- Create schema if it doesn't exist
-CREATE SCHEMA IF NOT EXISTS contact_and_reservation;
-
--- Grant access to the schema
-GRANT ALL ON SCHEMA contact_and_reservation TO platform_profile_admin;
-GRANT USAGE ON SCHEMA contact_and_reservation TO platform_profile;
-
 -- Create table MailboxSupplier
 CREATE TABLE IF NOT EXISTS contact_and_reservation.mailbox_supplier (
     mailbox_supplier_id INT GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) PRIMARY KEY,
