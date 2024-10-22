@@ -8,14 +8,14 @@ namespace Altinn.Profile.Integrations.ContactRegister;
 internal class ContactRegisterService : IContactRegisterService
 {
     private readonly IContactRegisterHttpClient _contactRegisterHttpClient;
-    private readonly IContactRegisterSettings _contactRegisterSettings;
+    private readonly ContactRegisterSettings _contactRegisterSettings;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ContactRegisterService"/> class.
     /// </summary>
     /// <param name="contactRegisterSettings">The settings used to configure the contact register.</param>
     /// <param name="contactRegisterHttpClient">The HTTP client used to retrieve contact details changes.</param>
-    public ContactRegisterService(IContactRegisterSettings contactRegisterSettings, IContactRegisterHttpClient contactRegisterHttpClient)
+    public ContactRegisterService(ContactRegisterSettings contactRegisterSettings, IContactRegisterHttpClient contactRegisterHttpClient)
     {
         _contactRegisterSettings = contactRegisterSettings;
         _contactRegisterHttpClient = contactRegisterHttpClient;
@@ -28,7 +28,7 @@ internal class ContactRegisterService : IContactRegisterService
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    /// <exception cref="InvalidOperationException">Thrown if the <see cref="IContactRegisterSettings.ChangesLogEndpoint"/> is <c>null</c> or empty.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the <see cref="ContactRegisterSettings.ChangesLogEndpoint"/> is <c>null</c> or empty.</exception>
     public async Task<ContactRegisterChangesLog> RetrieveContactDetailsChangesAsync(long startingIdentifier)
     {
         if (string.IsNullOrWhiteSpace(_contactRegisterSettings.ChangesLogEndpoint))
