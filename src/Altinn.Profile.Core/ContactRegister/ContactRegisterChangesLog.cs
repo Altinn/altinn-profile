@@ -8,7 +8,7 @@ namespace Altinn.Profile.Core.ContactRegister;
 /// <summary>
 /// Represents the changes to a person's contact preferences from the contact register.
 /// </summary>
-public record ContactRegisterChangesLog : IContactRegisterChangesLog
+public record ContactRegisterChangesLog
 {
     /// <summary>
     /// Gets the collection of snapshots representing the changes to a person's contact preferences.

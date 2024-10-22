@@ -68,7 +68,7 @@ internal class PersonRepository : IPersonRepository
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object with a <see cref="bool"/> indicating success or failure.
     /// </returns>
-    public async Task<int> SyncPersonContactPreferencesAsync(IContactRegisterChangesLog personContactPreferencesSnapshots)
+    public async Task<int> SyncPersonContactPreferencesAsync(ContactRegisterChangesLog personContactPreferencesSnapshots)
     {
         ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots);
         ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots.ContactPreferencesSnapshots);
