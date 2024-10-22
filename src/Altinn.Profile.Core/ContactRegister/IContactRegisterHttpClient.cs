@@ -16,5 +16,5 @@ public interface IContactRegisterHttpClient
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object, where <see cref="IContactRegisterChangesLog"/> represents the successful result and <see cref="bool"/> indicates a failure.
     /// </returns>
-    Task<Result<IContactRegisterChangesLog, bool>> GetContactDetailsChangesAsync(string endpointUrl, long startingIdentifier);
+    Task<ContactRegisterChangesLog> GetContactDetailsChangesAsync(string endpointUrl, long startingIdentifier);
 }

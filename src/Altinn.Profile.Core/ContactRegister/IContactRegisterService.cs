@@ -10,7 +10,7 @@ public interface IContactRegisterService
     /// </summary>
     /// <param name="startingIdentifier">The identifier from which to start retrieving the data.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object, where <see cref="IContactRegisterChangesLog"/> represents the successful result and <see cref="bool"/> indicates a failure.
+    /// A task that represents the asynchronous operation.
     /// </returns>
-    Task<Result<IContactRegisterChangesLog, bool>> RetrieveContactDetailsChangesAsync(long startingIdentifier = 0);
+    Task<ContactRegisterChangesLog> RetrieveContactDetailsChangesAsync(long startingIdentifier = 0);
 }

@@ -35,10 +35,10 @@ public class ContactRegisterHttpClient : IContactRegisterHttpClient
     /// <param name="endpointUrl">The URL of the endpoint to retrieve contact details changes from.</param>
     /// <param name="startingIdentifier">The starting identifier for retrieving contact details changes.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object, where <see cref="IContactRegisterChangesLog"/> represents the successful result and <see cref="bool"/> indicates a failure.
+    /// A task that represents the asynchronous operation with the returned values.
     /// </returns>
     /// <exception cref="System.ArgumentException">The URL is invalid. - endpointUrl</exception>
-    public async Task<Result<IContactRegisterChangesLog, bool>> GetContactDetailsChangesAsync(string endpointUrl, long startingIdentifier)
+    public async Task<ContactRegisterChangesLog> GetContactDetailsChangesAsync(string endpointUrl, long startingIdentifier)
     {
         if (!endpointUrl.IsValidUrl())
         {
@@ -59,12 +59,7 @@ public class ContactRegisterHttpClient : IContactRegisterHttpClient
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError(
-                "// ContactRegisterHttpClient // GetContactDetailsChangesAsync // Unexpected response. Failed with {StatusCode} and message {Message}",
-                response.StatusCode,
-                await response.Content.ReadAsStringAsync());
-
-            return false;
+            throw new Exception("Failed to retrieve contact details changes.");
         }
 
         var responseData = await response.Content.ReadAsStringAsync();
@@ -73,7 +68,7 @@ public class ContactRegisterHttpClient : IContactRegisterHttpClient
 
         if (responseObject == null || responseObject.ContactPreferencesSnapshots == null)
         {
-            return false;
+            throw new Exception("Failed to retrieve contact details changes.");
         }
 
         return responseObject;

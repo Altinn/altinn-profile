@@ -68,7 +68,7 @@ internal class PersonRepository : IPersonRepository
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object with a <see cref="bool"/> indicating success or failure.
     /// </returns>
-    public async Task<Result<int, bool>> SyncPersonContactPreferencesAsync(IContactRegisterChangesLog personContactPreferencesSnapshots)
+    public async Task<int> SyncPersonContactPreferencesAsync(IContactRegisterChangesLog personContactPreferencesSnapshots)
     {
         ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots);
         ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots.ContactPreferencesSnapshots);
@@ -89,8 +89,15 @@ internal class PersonRepository : IPersonRepository
             }
             else
             {
+                existingPerson.Reservation = person.Reservation;
                 existingPerson.EmailAddress = person.EmailAddress;
+                existingPerson.EmailAddressLastUpdated = person.EmailAddressLastUpdated;
+                existingPerson.EmailAddressLastVerified = person.EmailAddressLastVerified;
                 existingPerson.MobilePhoneNumber = person.MobilePhoneNumber;
+                existingPerson.MobilePhoneNumberLastUpdated = person.MobilePhoneNumberLastUpdated;
+                existingPerson.MobilePhoneNumberLastVerified = person.MobilePhoneNumberLastVerified;
+                existingPerson.LanguageCode = person.LanguageCode;
+
                 databaseContext.People.Update(existingPerson);
             }
         }

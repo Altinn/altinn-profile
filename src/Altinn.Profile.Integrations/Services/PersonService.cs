@@ -98,21 +98,12 @@ public class PersonService : IPersonService
         latestChangeNumberGetter.Match(e => latestChangeNumber = e, _ => latestChangeNumber = 0);
 
         // Retrieve the changes in contact preferences from the changes log.
-        var contactDetailsChangesGetter = await _changesLogService.RetrieveContactDetailsChangesAsync(latestChangeNumber);
-        contactDetailsChangesGetter.Match(
-            async e =>
-            {
-                var synchronizationResult = await _personRepository.SyncPersonContactPreferencesAsync(e);
-                synchronizationResult.Match(
-                    async synchornizedRowsCount =>
-                    {
-                        if (synchornizedRowsCount > 0 && e.EndingIdentifier.HasValue)
-                        {
-                            await _metadataRepository.UpdateLatestChangeNumberAsync(e.EndingIdentifier.Value);
-                        }
-                    },
-                    _ => { });
-            },
-            _ => { });
+        var contactDetailsChanges = await _changesLogService.RetrieveContactDetailsChangesAsync(latestChangeNumber);
+
+        var synchornizedRowsCount = await _personRepository.SyncPersonContactPreferencesAsync(contactDetailsChanges);
+        if (synchornizedRowsCount > 0 && contactDetailsChanges.EndingIdentifier.HasValue)
+        {
+            await _metadataRepository.UpdateLatestChangeNumberAsync(contactDetailsChanges.EndingIdentifier.Value);
+        }
     }
 }
