@@ -64,7 +64,7 @@ public class PersonContactDetailsInternalControllerTests
     [Fact]
     public async Task PostLookup_WhenRetrievalThrowsException_LogsErrorAndReturnsProblemResult()
     {
-        var request = new PersonContactDetailsLookupCriteria
+        var request = new UserContactDetailsLookupCriteria
         {
             NationalIdentityNumbers = ["05025308508"]
         };
@@ -91,7 +91,7 @@ public class PersonContactDetailsInternalControllerTests
     [Fact]
     public async Task PostLookup_WithEmptyNationalIdentityNumbers_ReturnsBadRequest()
     {
-        var request = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = [] };
+        var request = new UserContactDetailsLookupCriteria { NationalIdentityNumbers = [] };
         var response = await _controller.PostLookup(request);
         AssertBadRequest(response, "National identity numbers cannot be null or empty.");
     }
@@ -99,7 +99,7 @@ public class PersonContactDetailsInternalControllerTests
     [Fact]
     public async Task PostLookup_WithInvalidModelState_ReturnsBadRequest()
     {
-        var request = new PersonContactDetailsLookupCriteria
+        var request = new UserContactDetailsLookupCriteria
         {
             NationalIdentityNumbers = ["17092037169"]
         };
@@ -112,7 +112,7 @@ public class PersonContactDetailsInternalControllerTests
     [Fact]
     public async Task PostLookup_WithMixedNationalIdentityNumbers_ReturnsMixedResults()
     {
-        var request = new PersonContactDetailsLookupCriteria
+        var request = new UserContactDetailsLookupCriteria
         {
             NationalIdentityNumbers = ["05025308508", "08110270527"]
         };
@@ -145,7 +145,7 @@ public class PersonContactDetailsInternalControllerTests
     [Fact]
     public async Task PostLookup_WithNullNationalIdentityNumbers_ReturnsBadRequest()
     {
-        var request = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = null };
+        var request = new UserContactDetailsLookupCriteria { NationalIdentityNumbers = null };
         var response = await _controller.PostLookup(request);
         AssertBadRequest(response, "National identity numbers cannot be null or empty.");
     }
@@ -183,7 +183,7 @@ public class PersonContactDetailsInternalControllerTests
     {
         // Arrange
         var client = _webApplicationFactorySetup.GetTestServerClient();
-        var lookupCriteria = new PersonContactDetailsLookupCriteria
+        var lookupCriteria = new UserContactDetailsLookupCriteria
         {
             NationalIdentityNumbers = null
         };
@@ -202,7 +202,7 @@ public class PersonContactDetailsInternalControllerTests
     {
         // Arrange
         var client = _webApplicationFactorySetup.GetTestServerClient();
-        var lookupCriteria = new PersonContactDetailsLookupCriteria
+        var lookupCriteria = new UserContactDetailsLookupCriteria
         {
             NationalIdentityNumbers = ["false"]
         };

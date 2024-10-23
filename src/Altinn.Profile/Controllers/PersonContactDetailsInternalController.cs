@@ -49,7 +49,7 @@ public class PersonContactDetailsInternalController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(PersonContactDetailsLookupResult), StatusCodes.Status200OK)]
-    public async Task<ActionResult<PersonContactDetailsLookupResult>> PostLookup([FromBody] PersonContactDetailsLookupCriteria request)
+    public async Task<ActionResult<PersonContactDetailsLookupResult>> PostLookup([FromBody] UserContactDetailsLookupCriteria request)
     {
         if (!ModelState.IsValid)
         {

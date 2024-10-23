@@ -39,7 +39,7 @@ public class PersonContactDetailsRetrieverTests
     public async Task RetrieveAsync_WhenNationalIdentityNumbersIsEmpty_ReturnsFalse()
     {
         // Arrange
-        var lookupCriteria = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = [] };
+        var lookupCriteria = new UserContactDetailsLookupCriteria { NationalIdentityNumbers = [] };
 
         // Act
         var result = await _retriever.RetrieveAsync(lookupCriteria);
@@ -53,7 +53,7 @@ public class PersonContactDetailsRetrieverTests
     public async Task RetrieveAsync_WhenNoContactDetailsFound_ReturnsFalse()
     {
         // Arrange
-        var lookupCriteria = new PersonContactDetailsLookupCriteria
+        var lookupCriteria = new UserContactDetailsLookupCriteria
         {
             NationalIdentityNumbers = ["08119043698"]
         };
@@ -72,7 +72,7 @@ public class PersonContactDetailsRetrieverTests
     public async Task RetrieveAsync_WhenValidNationalIdentityNumbers_ReturnsExpectedContactDetailsLookupResult()
     {
         // Arrange
-        var lookupCriteria = new PersonContactDetailsLookupCriteria
+        var lookupCriteria = new UserContactDetailsLookupCriteria
         {
             NationalIdentityNumbers = ["08053414843"]
         };

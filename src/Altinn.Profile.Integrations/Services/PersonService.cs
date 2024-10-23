@@ -31,16 +31,18 @@ public class PersonService : IPersonService
     /// <param name="changesLogService">The service used for logging changes in contact preferences.</param>
     /// <param name="metadataRepository">The repository used for accessing metadata.</param>
     /// <param name="nationalIdentityNumberChecker">The service used for checking the validity of national identity numbers.</param>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown if <paramref name="mapper"/>, <paramref name="personRepository"/>, <paramref name="changesLogService"/>, <paramref name="metadataRepository"/>, or <paramref name="nationalIdentityNumberChecker"/> is <c>null</c>.
-    /// </exception>
-    public PersonService(IMapper mapper, IPersonRepository personRepository, IContactRegisterService changesLogService, IMetadataRepository metadataRepository, INationalIdentityNumberChecker nationalIdentityNumberChecker)
+    public PersonService(
+        IMapper mapper, 
+        IPersonRepository personRepository, 
+        IContactRegisterService changesLogService, 
+        IMetadataRepository metadataRepository, 
+        INationalIdentityNumberChecker nationalIdentityNumberChecker)
     {
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _personRepository = personRepository ?? throw new ArgumentNullException(nameof(personRepository));
-        _changesLogService = changesLogService ?? throw new ArgumentNullException(nameof(changesLogService));
-        _metadataRepository = metadataRepository ?? throw new ArgumentNullException(nameof(metadataRepository));
-        _nationalIdentityNumberChecker = nationalIdentityNumberChecker ?? throw new ArgumentNullException(nameof(nationalIdentityNumberChecker));
+        _mapper = mapper;
+        _personRepository = personRepository;
+        _changesLogService = changesLogService;
+        _metadataRepository = metadataRepository;
+        _nationalIdentityNumberChecker = nationalIdentityNumberChecker;
     }
 
     /// <summary>
@@ -48,7 +50,8 @@ public class PersonService : IPersonService
     /// </summary>
     /// <param name="nationalIdentityNumbers">A collection of national identity numbers.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object, where <see cref="IPersonContactPreferencesLookupResult"/> represents the successful lookup result and <see cref="bool"/> indicates a failure.
+    /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> 
+    /// object, where <see cref="IPersonContactPreferencesLookupResult"/> represents the successful lookup result and <see cref="bool"/> indicates a failure.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="nationalIdentityNumbers"/> is <c>null</c>.</exception>
     public async Task<Result<IPersonContactPreferencesLookupResult, bool>> GetContactPreferencesAsync(IEnumerable<string> nationalIdentityNumbers)
@@ -61,7 +64,7 @@ public class PersonService : IPersonService
             return false;
         }
 
-        var matchedContactDetails = await _personRepository.GetContactDetailsAsync(validNationalIdentityNumbers);
+        Result<ImmutableList<Person>, bool> matchedContactDetails = await _personRepository.GetContactDetailsAsync(validNationalIdentityNumbers);
 
         HashSet<string> matchedNationalIdentityNumbers = [];
         IEnumerable<string> unmatchedNationalIdentityNumbers = [];
@@ -94,14 +97,14 @@ public class PersonService : IPersonService
     {
         // Get the latest change number.
         long latestChangeNumber = 0;
-        var latestChangeNumberGetter = await _metadataRepository.GetLatestChangeNumberAsync();
+        Result<long, bool> latestChangeNumberGetter = await _metadataRepository.GetLatestChangeNumberAsync();
         latestChangeNumberGetter.Match(e => latestChangeNumber = e, _ => latestChangeNumber = 0);
 
         // Retrieve the changes in contact preferences from the changes log.
-        var contactDetailsChanges = await _changesLogService.RetrieveContactDetailsChangesAsync(latestChangeNumber);
+        ContactRegisterChangesLog contactDetailsChanges = await _changesLogService.RetrieveContactDetailsChangesAsync(latestChangeNumber);
 
-        var synchornizedRowsCount = await _personRepository.SyncPersonContactPreferencesAsync(contactDetailsChanges);
-        if (synchornizedRowsCount > 0 && contactDetailsChanges.EndingIdentifier.HasValue)
+        int synchornizedRowCount = await _personRepository.SyncPersonContactPreferencesAsync(contactDetailsChanges);
+        if (synchornizedRowCount > 0 && contactDetailsChanges.EndingIdentifier.HasValue)
         {
             await _metadataRepository.UpdateLatestChangeNumberAsync(contactDetailsChanges.EndingIdentifier.Value);
         }

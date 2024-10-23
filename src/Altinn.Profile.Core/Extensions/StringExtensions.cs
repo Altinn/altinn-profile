@@ -71,48 +71,48 @@ public static partial class StringExtensions
     }
 
     /// <summary>
-    ///     Determines whether a given string represents a valid format for a Norwegian Social Security Number (SSN).
+    ///     Determines whether a given string represents a valid format for a Norwegian national identity mumber.
     /// </summary>
-    /// <param name="socialSecurityNumber">The Norwegian Social Security Number (SSN) to validate.</param>
+    /// <param name="nationalIdentityNumber">The Norwegian national identity number to validate.</param>
     /// <param name="controlDigits">Indicates whether to validate the control digits.</param>
     /// <returns>
-    ///     <c>true</c> if the given string represents a valid format for a Norwegian Social Security Number (SSN) and, if specified, the control digits are valid; otherwise, <c>false</c>.
+    ///     <c>true</c> if the given string represents a valid format for a Norwegian national identity number and, if specified, the control digits are valid; otherwise, <c>false</c>.
     /// </returns>
     /// <remarks>
-    ///     A valid Norwegian Social Security Number (SSN) is an 11-digit number where:
+    ///     A valid Norwegian national identity number is an 11-digit number where:
     ///         - The first six digits represent the date of birth in the format DDMMYY.
     ///         - The next three digits are an individual number where the first digit indicates the century of birth.
     ///         - The last two digits are control digits.
     /// </remarks>
-    /// <exception cref="FormatException">Thrown when the individual number part of the SSN cannot be parsed into an integer.</exception>
+    /// <exception cref="FormatException">Thrown when the individual number part of the national identity number cannot be parsed into an integer.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when the parsed date is outside the range of DateTime.</exception>
-    public static bool IsValidSocialSecurityNumber(this string socialSecurityNumber, bool controlDigits = true)
+    public static bool IsValidNationalIdentityNumber(this string nationalIdentityNumber, bool controlDigits = true)
     {
-        if (string.IsNullOrWhiteSpace(socialSecurityNumber) || socialSecurityNumber.Length != 11)
+        if (string.IsNullOrWhiteSpace(nationalIdentityNumber) || nationalIdentityNumber.Length != 11)
         {
             return false;
         }
 
         // Return the cached result if the given string has been checked once.
-        if (CachedSocialSecurityNumber.TryGetValue(socialSecurityNumber, out var cachedResult))
+        if (CachedNationalIdentityNumber.TryGetValue(nationalIdentityNumber, out var cachedResult))
         {
             return cachedResult;
         }
 
-        ReadOnlySpan<char> socialSecurityNumberSpan = socialSecurityNumber.AsSpan();
+        ReadOnlySpan<char> nationalIdentityNumberSpan = nationalIdentityNumber.AsSpan();
 
-        for (int i = 0; i < socialSecurityNumberSpan.Length; i++)
+        for (int i = 0; i < nationalIdentityNumberSpan.Length; i++)
         {
-            if (!char.IsDigit(socialSecurityNumberSpan[i]))
+            if (!char.IsDigit(nationalIdentityNumberSpan[i]))
             {
                 return false;
             }
         }
 
-        // Extract parts of the Social Security Number (SSN) using slicing.
-        ReadOnlySpan<char> datePart = socialSecurityNumberSpan[..6];
-        ReadOnlySpan<char> controlDigitsPart = socialSecurityNumberSpan[9..11];
-        ReadOnlySpan<char> individualNumberPart = socialSecurityNumberSpan[6..9];
+        // Extract parts of the national identity number using slicing.
+        ReadOnlySpan<char> datePart = nationalIdentityNumberSpan[..6];
+        ReadOnlySpan<char> individualNumberPart = nationalIdentityNumberSpan[6..9];
+        ReadOnlySpan<char> controlDigitsPart = nationalIdentityNumberSpan[9..11];
 
         // If parsing the individual number part fails, return false.
         if (!int.TryParse(individualNumberPart, out _))
@@ -126,17 +126,17 @@ public static partial class StringExtensions
             return false;
         }
 
-        var isValidSocialSecurityNumber = !controlDigits || CalculateControlDigits(socialSecurityNumberSpan[..9].ToString()) == controlDigitsPart.ToString();
+        var isValidNationalIdentityNumber = !controlDigits || CalculateControlDigits(nationalIdentityNumberSpan[..9].ToString()) == controlDigitsPart.ToString();
 
-        CachedSocialSecurityNumber.TryAdd(socialSecurityNumber, isValidSocialSecurityNumber);
+        CachedNationalIdentityNumber.TryAdd(nationalIdentityNumber, isValidNationalIdentityNumber);
 
-        return isValidSocialSecurityNumber;
+        return isValidNationalIdentityNumber;
     }
 
     /// <summary>
-    ///     Calculates the control digits used to validate a Norwegian Social Security Number.
+    ///     Calculates the control digits used to validate a Norwegian national identity number.
     /// </summary>
-    /// <param name="firstNineDigits">The first nine digits of the Social Security Number.</param>
+    /// <param name="firstNineDigits">The first nine digits of the national identity number.</param>
     /// <returns>A <see cref="string"/> represents the two control digits.</returns>
     private static string CalculateControlDigits(string firstNineDigits)
     {
@@ -189,12 +189,12 @@ public static partial class StringExtensions
     private static partial Regex DigitsOnlyRegex();
 
     /// <summary>
-    /// A cache for storing the validation results of Norwegian Social Security Numbers (SSNs).
+    /// A cache for storing the validation results of Norwegian national identity numbers.
     /// </summary>
     /// <remarks>
-    /// This cache helps to avoid redundant validation checks for SSNs that have already been processed. 
-    /// It maps the SSN as a string to a boolean indicating whether the SSN is valid (true) or not (false).
-    /// Utilizing this cache can significantly improve performance for applications that frequently validate the same SSNs.
+    /// This cache helps to avoid redundant validation checks for national identity numbers (nin) that have already been processed. 
+    /// It maps the identity numbers as a string to a boolean indicating whether the number is valid (true) or not (false).
+    /// Utilizing this cache can significantly improve performance for applications that frequently validate the same numbers.
     /// </remarks>
-    private static ConcurrentDictionary<string, bool> CachedSocialSecurityNumber => new();
+    private static ConcurrentDictionary<string, bool> CachedNationalIdentityNumber => new();
 }

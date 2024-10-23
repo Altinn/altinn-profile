@@ -77,7 +77,7 @@ public class PersonContactDetailsControllerTests
     public async Task PostLookup_WhenExceptionOccurs_ReturnsInternalServerError_And_LogsError()
     {
         // Arrange
-        var request = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = { "27038893837" } };
+        var request = new UserContactDetailsLookupCriteria { NationalIdentityNumbers = { "27038893837" } };
         _mockContactDetailsRetriever.Setup(x => x.RetrieveAsync(request)).ThrowsAsync(new Exception("Test exception"));
 
         // Act
@@ -101,7 +101,7 @@ public class PersonContactDetailsControllerTests
     public async Task PostLookup_WhenLookupCriteriaIsNull_ReturnsBadRequest()
     {
         // Arrange
-        PersonContactDetailsLookupCriteria request = null;
+        UserContactDetailsLookupCriteria request = null;
 
         // Act
         var response = await _controller.PostLookup(request);
@@ -116,7 +116,7 @@ public class PersonContactDetailsControllerTests
     public async Task PostLookup_WhenMatchedContactDetailsAreFound_ReturnsOk()
     {
         // Arrange
-        var request = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = { "05053423096" } };
+        var request = new UserContactDetailsLookupCriteria { NationalIdentityNumbers = { "05053423096" } };
         var contactDetails = new PersonContactDetails
         {
             LanguageCode = "en",
@@ -146,7 +146,7 @@ public class PersonContactDetailsControllerTests
     public async Task PostLookup_WhenNationalIdentityNumbersIsNull_ReturnsBadRequest()
     {
         // Arrange
-        var request = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = null };
+        var request = new UserContactDetailsLookupCriteria { NationalIdentityNumbers = null };
 
         // Act
         var response = await _controller.PostLookup(request);
@@ -161,7 +161,7 @@ public class PersonContactDetailsControllerTests
     public async Task PostLookup_WhenNoContactDetailsFound_ReturnsNotFound()
     {
         // Arrange
-        var request = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = { "30083542175" } };
+        var request = new UserContactDetailsLookupCriteria { NationalIdentityNumbers = { "30083542175" } };
         var lookupResult = new PersonContactDetailsLookupResult(matchedPersonContactDetails: [], unmatchedNationalIdentityNumbers: ["30083542175"]);
 
         _mockContactDetailsRetriever.Setup(x => x.RetrieveAsync(request)).ReturnsAsync(lookupResult);
@@ -178,7 +178,7 @@ public class PersonContactDetailsControllerTests
     public async Task PostLookup_WhenNoMatchedContactDetailsAreFound_ReturnsNotFound()
     {
         // Arrange
-        var request = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = { "99020312345" } };
+        var request = new UserContactDetailsLookupCriteria { NationalIdentityNumbers = { "99020312345" } };
         var lookupResult = new PersonContactDetailsLookupResult(matchedPersonContactDetails: [], unmatchedNationalIdentityNumbers: ["99020312345"]);
 
         _mockContactDetailsRetriever.Setup(x => x.RetrieveAsync(request)).ReturnsAsync(lookupResult);
@@ -195,7 +195,7 @@ public class PersonContactDetailsControllerTests
     public async Task PostLookup_WhenServiceCallIsLongRunning_DoesNotBlock()
     {
         // Arrange
-        var request = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = { "02038112735" } };
+        var request = new UserContactDetailsLookupCriteria { NationalIdentityNumbers = { "02038112735" } };
         var contactDetails = new PersonContactDetails
         {
             LanguageCode = "nb",
@@ -225,7 +225,7 @@ public class PersonContactDetailsControllerTests
     public async Task PostLookup_WithInvalidModelState_ReturnsBadRequest()
     {
         // Arrange
-        var invalidRequest = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = { "14078112078" } };
+        var invalidRequest = new UserContactDetailsLookupCriteria { NationalIdentityNumbers = { "14078112078" } };
         _controller.ModelState.AddModelError("InvalidKey", "Invalid error message");
 
         // Act
@@ -240,7 +240,7 @@ public class PersonContactDetailsControllerTests
     public async Task PostLookup_WithInvalidSingleNationalIdentityNumber_ReturnsBadRequest()
     {
         // Arrange
-        var invalidRequest = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = { "invalid_format" } };
+        var invalidRequest = new UserContactDetailsLookupCriteria { NationalIdentityNumbers = { "invalid_format" } };
 
         // Act
         var response = await _controller.PostLookup(invalidRequest);
@@ -254,7 +254,7 @@ public class PersonContactDetailsControllerTests
     public async Task PostLookup_WithMixedNationalIdentityNumbers_ReturnsMixedResults()
     {
         // Arrange
-        var request = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = { "10060339738", "16051327393" } };
+        var request = new UserContactDetailsLookupCriteria { NationalIdentityNumbers = { "10060339738", "16051327393" } };
         var contactDetails = new PersonContactDetails
         {
             LanguageCode = "nb",
@@ -283,7 +283,7 @@ public class PersonContactDetailsControllerTests
     public async Task PostLookup_WithNoNationalIdentityNumbers_ReturnsBadRequest()
     {
         // Arrange
-        var invalidRequest = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = { } };
+        var invalidRequest = new UserContactDetailsLookupCriteria { NationalIdentityNumbers = { } };
 
         // Act
         var response = await _controller.PostLookup(invalidRequest);
@@ -298,7 +298,7 @@ public class PersonContactDetailsControllerTests
     public async Task PostLookup_WithValidRequest_ReturnsOk()
     {
         // Arrange
-        var request = new PersonContactDetailsLookupCriteria { NationalIdentityNumbers = { "27038893837" } };
+        var request = new UserContactDetailsLookupCriteria { NationalIdentityNumbers = { "27038893837" } };
         var contactDetails = new PersonContactDetails
         {
             LanguageCode = "nb",
@@ -354,7 +354,7 @@ public class PersonContactDetailsControllerTests
     {
         // Arrange
         var client = _webApplicationFactorySetup.GetTestServerClient();
-        var lookupCriteria = new PersonContactDetailsLookupCriteria
+        var lookupCriteria = new UserContactDetailsLookupCriteria
         {
             NationalIdentityNumbers = null
         };
@@ -373,7 +373,7 @@ public class PersonContactDetailsControllerTests
     {
         // Arrange
         var client = _webApplicationFactorySetup.GetTestServerClient();
-        var lookupCriteria = new PersonContactDetailsLookupCriteria
+        var lookupCriteria = new UserContactDetailsLookupCriteria
         {
             NationalIdentityNumbers = ["false"]
         };

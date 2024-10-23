@@ -31,9 +31,9 @@ public class MetadataRepository : IMetadataRepository
     /// </returns>
     public async Task<Result<long, bool>> GetLatestChangeNumberAsync()
     {
-        using var databaseContext = _contextFactory.CreateDbContext();
+        using ProfileDbContext databaseContext = _contextFactory.CreateDbContext();
 
-        var metadataSingleRow = await databaseContext.Metadata.FirstOrDefaultAsync();
+        Metadata? metadataSingleRow = await databaseContext.Metadata.FirstOrDefaultAsync();
 
         return metadataSingleRow != null ? metadataSingleRow.LatestChangeNumber : 0;
     }
@@ -52,15 +52,15 @@ public class MetadataRepository : IMetadataRepository
             throw new ArgumentException("The new change number must be non-negative.", nameof(newNumber));
         }
 
-        using var databaseContext = _contextFactory.CreateDbContext();
-        var existingMetadata = await databaseContext.Metadata.FirstOrDefaultAsync();
+        using ProfileDbContext databaseContext = _contextFactory.CreateDbContext();
+        Metadata? existingMetadata = await databaseContext.Metadata.FirstOrDefaultAsync();
 
         if (existingMetadata != null)
         {
             databaseContext.Metadata.Remove(existingMetadata);
         }
 
-        var metadata = new Metadata
+        Metadata metadata = new()
         {
             Exported = DateTime.UtcNow,
             LatestChangeNumber = newNumber

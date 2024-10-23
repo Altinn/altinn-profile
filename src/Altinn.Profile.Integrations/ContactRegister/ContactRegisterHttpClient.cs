@@ -1,11 +1,8 @@
 ﻿using System.Text;
 using System.Text.Json;
 
-using Altinn.Profile.Core;
 using Altinn.Profile.Core.ContactRegister;
 using Altinn.Profile.Core.Extensions;
-
-using Microsoft.Extensions.Logging;
 
 namespace Altinn.Profile.Integrations.ContactRegister;
 
@@ -15,18 +12,14 @@ namespace Altinn.Profile.Integrations.ContactRegister;
 public class ContactRegisterHttpClient : IContactRegisterHttpClient
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<ContactRegisterHttpClient> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ContactRegisterHttpClient"/> class.
     /// </summary>
-    /// <param name="logger">The logger instance used for logging.</param>
     /// <param name="httpClient">The HTTP client to interact with the contact register.</param>
-    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="logger"/> or <paramref name="httpClient"/> is null.</exception>
-    public ContactRegisterHttpClient(ILogger<ContactRegisterHttpClient> logger, HttpClient httpClient)
+    public ContactRegisterHttpClient(HttpClient httpClient)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _httpClient = httpClient;
     }
 
     /// <summary>
@@ -59,7 +52,7 @@ public class ContactRegisterHttpClient : IContactRegisterHttpClient
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new Exception("Failed to retrieve contact details changes.");
+            throw new ContactAndReservationChangesException("Failed to retrieve contact details changes.");
         }
 
         var responseData = await response.Content.ReadAsStringAsync();
@@ -68,7 +61,7 @@ public class ContactRegisterHttpClient : IContactRegisterHttpClient
 
         if (responseObject == null || responseObject.ContactPreferencesSnapshots == null)
         {
-            throw new Exception("Failed to retrieve contact details changes.");
+            throw new ContactAndReservationChangesException("Failed to deserialize the response from the contact and reservation registry.");
         }
 
         return responseObject;

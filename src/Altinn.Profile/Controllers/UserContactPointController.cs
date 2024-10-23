@@ -12,6 +12,7 @@ namespace Altinn.Profile.Controllers;
 /// <summary>
 /// Controller for user profile contact point API endpoints for internal consumption (e.g. Notifications) requiring neither authenticated user token nor access token authorization.
 /// </summary>
+[ApiController]
 [Route("profile/api/v1/users/contactpoint")]
 [ApiExplorerSettings(IgnoreApi = true)]
 [Consumes("application/json")]
@@ -34,7 +35,7 @@ public class UserContactPointController : ControllerBase
     /// <returns>Returns an overview of the availability of various contact points for the user</returns>
     [HttpPost("availability")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<UserContactPointAvailabilityList>> PostAvailabilityLookup([FromBody] PersonContactDetailsLookupCriteria userContactPointLookup)
+    public async Task<ActionResult<UserContactPointAvailabilityList>> PostAvailabilityLookup([FromBody] UserContactDetailsLookupCriteria userContactPointLookup)
     {
         if (userContactPointLookup.NationalIdentityNumbers.Count == 0)
         {
@@ -54,7 +55,7 @@ public class UserContactPointController : ControllerBase
     /// <returns>Returns an overview of the contact points for the user</returns>
     [HttpPost("lookup")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<UserContactPointsList>> PostLookup([FromBody] PersonContactDetailsLookupCriteria userContactPointLookup)
+    public async Task<ActionResult<UserContactPointsList>> PostLookup([FromBody] UserContactDetailsLookupCriteria userContactPointLookup)
     {
         Result<UserContactPointsList, bool> result = await _contactPointService.GetContactPoints(userContactPointLookup.NationalIdentityNumbers);
         return result.Match<ActionResult<UserContactPointsList>>(

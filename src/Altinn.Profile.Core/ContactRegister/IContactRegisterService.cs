@@ -12,5 +12,5 @@ public interface IContactRegisterService
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    Task<ContactRegisterChangesLog> RetrieveContactDetailsChangesAsync(long startingIdentifier = 0);
+    Task<ContactRegisterChangesLog> RetrieveContactDetailsChangesAsync(long startingIdentifier);
 }

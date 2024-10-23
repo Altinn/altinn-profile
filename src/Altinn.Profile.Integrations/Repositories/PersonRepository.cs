@@ -54,9 +54,9 @@ internal class PersonRepository : IPersonRepository
             return ImmutableList<Person>.Empty;
         }
 
-        using var databaseContext = await _contextFactory.CreateDbContextAsync();
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
-        var people = await databaseContext.People.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync();
+        List<Person> people = await databaseContext.People.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync();
 
         return people.ToImmutableList();
     }
@@ -73,17 +73,18 @@ internal class PersonRepository : IPersonRepository
         ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots);
         ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots.ContactPreferencesSnapshots);
 
-        var distinctContactPreferences = GetDistinctContactPreferences(personContactPreferencesSnapshots.ContactPreferencesSnapshots);
+        ImmutableList<PersonContactPreferencesSnapshot> distinctContactPreferences = 
+            GetDistinctContactPreferences(personContactPreferencesSnapshots.ContactPreferencesSnapshots);
 
-        using var databaseContext = await _contextFactory.CreateDbContextAsync();
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
-        foreach (var contactPreference in distinctContactPreferences)
+        foreach (PersonContactPreferencesSnapshot contactPreferenceSnapshot in distinctContactPreferences)
         {
-            var person = _mapper.Map<Person>(contactPreference);
+            Person person = _mapper.Map<Person>(contactPreferenceSnapshot);
 
-            var existingPerson = await databaseContext.People.FirstOrDefaultAsync(e => e.FnumberAk.Trim() == person.FnumberAk.Trim());
+            Person? existingPerson = await databaseContext.People.FirstOrDefaultAsync(e => e.FnumberAk.Trim() == person.FnumberAk.Trim());
 
-            if (existingPerson == null)
+            if (existingPerson is null)
             {
                 await databaseContext.People.AddAsync(person);
             }

@@ -37,7 +37,7 @@ public class PersonContactDetailsRetriever : IPersonContactDetailsRetriever
     /// The task result contains a <see cref="Result{TValue, TError}"/> object, where <see cref="PersonContactDetailsLookupResult"/> represents the successful outcome and <see cref="bool"/> indicates a failure.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="lookupCriteria"/> is null.</exception>
-    public async Task<Result<PersonContactDetailsLookupResult, bool>> RetrieveAsync(PersonContactDetailsLookupCriteria lookupCriteria)
+    public async Task<Result<PersonContactDetailsLookupResult, bool>> RetrieveAsync(UserContactDetailsLookupCriteria lookupCriteria)
     {
         ArgumentNullException.ThrowIfNull(lookupCriteria);
 

@@ -18,5 +18,5 @@ public interface IPersonContactDetailsRetriever
     /// A task representing the asynchronous operation. 
     /// The task result contains a <see cref="Result{TValue, TError}"/> object, where <see cref="PersonContactDetailsLookupResult"/> represents the successful outcome and <see cref="bool"/> indicates a failure.
     /// </returns>
-    Task<Result<PersonContactDetailsLookupResult, bool>> RetrieveAsync(PersonContactDetailsLookupCriteria lookupCriteria);
+    Task<Result<PersonContactDetailsLookupResult, bool>> RetrieveAsync(UserContactDetailsLookupCriteria lookupCriteria);
 }
