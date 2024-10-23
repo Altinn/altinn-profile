@@ -9,19 +9,13 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// <summary>
 /// Provides methods for handling metadata operations in the profile database.
 /// </summary>
-public class MetadataRepository : IMetadataRepository
+/// <remarks>
+/// Initializes a new instance of the <see cref="MetadataRepository"/> class.
+/// </remarks>
+/// <param name="contextFactory">The factory for creating database context instances.</param>
+public class MetadataRepository(IDbContextFactory<ProfileDbContext> contextFactory) : IMetadataRepository
 {
-    private readonly IDbContextFactory<ProfileDbContext> _contextFactory;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="MetadataRepository"/> class.
-    /// </summary>
-    /// <param name="contextFactory">The factory for creating database context instances.</param>
-    /// <exception cref="ArgumentNullException"> Thrown when the <paramref name="contextFactory"/> is null. </exception>
-    public MetadataRepository(IDbContextFactory<ProfileDbContext> contextFactory)
-    {
-        _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
-    }
+    private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
     /// <summary>
     /// Asynchronously retrieves the latest change number from the metadata repository.

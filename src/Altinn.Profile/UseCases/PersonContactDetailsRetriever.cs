@@ -14,19 +14,13 @@ namespace Altinn.Profile.UseCases;
 /// <summary>
 /// Provides an implementation for retrieving the contact details for one or more persons.
 /// </summary>
-public class PersonContactDetailsRetriever : IPersonContactDetailsRetriever
+/// <remarks>
+/// Initializes a new instance of the <see cref="PersonContactDetailsRetriever"/> class.
+/// </remarks>
+/// <param name="personService">The person service for retrieving contact details.</param>
+public class PersonContactDetailsRetriever(IPersonService personService) : IPersonContactDetailsRetriever
 {
-    private readonly IPersonService _personService;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="PersonContactDetailsRetriever"/> class.
-    /// </summary>
-    /// <param name="personService">The person service for retrieving contact details.</param>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="personService"/> is null.</exception>
-    public PersonContactDetailsRetriever(IPersonService personService)
-    {
-        _personService = personService ?? throw new ArgumentNullException(nameof(personService));
-    }
+    private readonly IPersonService _personService = personService;
 
     /// <summary>
     /// Asynchronously retrieves the contact details for one or more persons based on the specified lookup criteria.

@@ -41,19 +41,6 @@ public class PersonContactDetailsInternalControllerTests
     }
 
     [Fact]
-    public void Constructor_WithNullContactDetailsRetriever_ThrowsArgumentNullException()
-    {
-        Assert.Throws<ArgumentNullException>(() => new PersonContactDetailsInternalController(_loggerMock.Object, null));
-    }
-
-    [Fact]
-    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
-    {
-        var contactDetailsRetrieverMock = new Mock<IPersonContactDetailsRetriever>();
-        Assert.Throws<ArgumentNullException>(() => new PersonContactDetailsInternalController(null, contactDetailsRetrieverMock.Object));
-    }
-
-    [Fact]
     public void Constructor_WithValidParameters_InitializesCorrectly()
     {
         var contactDetailsRetrieverMock = new Mock<IPersonContactDetailsRetriever>();

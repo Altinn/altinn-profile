@@ -18,24 +18,18 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// Defines a repository for handling person data operations.
 /// </summary>
 /// <seealso cref="IPersonRepository" />
-internal class PersonRepository : IPersonRepository
+/// <remarks>
+/// Initializes a new instance of the <see cref="PersonRepository"/> class.
+/// </remarks>
+/// <param name="mapper">The mapper instance used for object-object mapping.</param>
+/// <param name="contextFactory">The factory for creating database context instances.</param>
+/// <exception cref="ArgumentNullException">
+/// Thrown when the <paramref name="mapper"/>, or <paramref name="contextFactory"/> is null.
+/// </exception>
+internal class PersonRepository(IMapper mapper, IDbContextFactory<ProfileDbContext> contextFactory) : IPersonRepository
 {
-    private readonly IMapper _mapper;
-    private readonly IDbContextFactory<ProfileDbContext> _contextFactory;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="PersonRepository"/> class.
-    /// </summary>
-    /// <param name="mapper">The mapper instance used for object-object mapping.</param>
-    /// <param name="contextFactory">The factory for creating database context instances.</param>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown when the <paramref name="mapper"/>, or <paramref name="contextFactory"/> is null.
-    /// </exception>
-    public PersonRepository(IMapper mapper, IDbContextFactory<ProfileDbContext> contextFactory)
-    {
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
-    }
+    private readonly IMapper _mapper = mapper;
+    private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
     /// <summary>
     /// Asynchronously retrieves the contact details for multiple persons by their national identity numbers.

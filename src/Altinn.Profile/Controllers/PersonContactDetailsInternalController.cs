@@ -29,11 +29,10 @@ public class PersonContactDetailsInternalController : ControllerBase
     /// </summary>
     /// <param name="logger">The logger instance used for logging.</param>
     /// <param name="contactDetailsRetriever">The use case for retrieving the contact details.</param>
-    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="contactDetailsRetriever"/> is null.</exception>
     public PersonContactDetailsInternalController(ILogger<PersonContactDetailsInternalController> logger, IPersonContactDetailsRetriever contactDetailsRetriever)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _contactDetailsRetriever = contactDetailsRetriever ?? throw new ArgumentNullException(nameof(contactDetailsRetriever));
+        _logger = logger;
+        _contactDetailsRetriever = contactDetailsRetriever;
     }
 
     /// <summary>

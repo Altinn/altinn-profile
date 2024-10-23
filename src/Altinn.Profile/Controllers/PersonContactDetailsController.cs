@@ -14,29 +14,22 @@ namespace Altinn.Profile.Controllers;
 /// <summary>
 /// Controller responsible for managing contact details for one or more persons.
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="PersonContactDetailsController"/> class.
+/// </remarks>
+/// <param name="logger">The logger instance used for logging.</param>
+/// <param name="contactDetailsRetriever">The service for retrieving the contact details.</param>
 [Authorize]
 [ApiController]
 [Consumes("application/json")]
 [Produces("application/json")]
 [Route("profile/api/v1/person/contact/details")]
-public class PersonContactDetailsController : ControllerBase
+public class PersonContactDetailsController(
+    ILogger<PersonContactDetailsController> logger, IPersonContactDetailsRetriever contactDetailsRetriever) 
+    : ControllerBase
 {
-    private readonly IPersonContactDetailsRetriever _contactDetailsRetriever;
-    private readonly ILogger<PersonContactDetailsController> _logger;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="PersonContactDetailsController"/> class.
-    /// </summary>
-    /// <param name="logger">The logger instance used for logging.</param>
-    /// <param name="contactDetailsRetriever">The service for retrieving the contact details.</param>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown when the <paramref name="logger"/> or <paramref name="contactDetailsRetriever"/> is null.
-    /// </exception>
-    public PersonContactDetailsController(ILogger<PersonContactDetailsController> logger, IPersonContactDetailsRetriever contactDetailsRetriever)
-    {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _contactDetailsRetriever = contactDetailsRetriever ?? throw new ArgumentNullException(nameof(contactDetailsRetriever));
-    }
+    private readonly IPersonContactDetailsRetriever _contactDetailsRetriever = contactDetailsRetriever;
+    private readonly ILogger<PersonContactDetailsController> _logger = logger;
 
     /// <summary>
     /// Retrieves the contact details for persons based on their national identity numbers.

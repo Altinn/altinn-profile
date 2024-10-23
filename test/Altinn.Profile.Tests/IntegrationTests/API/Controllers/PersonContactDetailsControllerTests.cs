@@ -40,26 +40,6 @@ public class PersonContactDetailsControllerTests
     }
 
     [Fact]
-    public void Constructor_WithNullContactDetailsRetriever_ThrowsArgumentNullException()
-    {
-        // Arrange
-        var loggerMock = new Mock<ILogger<PersonContactDetailsController>>();
-
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new PersonContactDetailsController(loggerMock.Object, null));
-    }
-
-    [Fact]
-    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
-    {
-        // Arrange
-        var contactDetailsRetrieverMock = new Mock<IPersonContactDetailsRetriever>();
-
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new PersonContactDetailsController(null, contactDetailsRetrieverMock.Object));
-    }
-
-    [Fact]
     public void Constructor_WithValidParameters_InitializesCorrectly()
     {
         // Arrange
