@@ -5,7 +5,7 @@ namespace Altinn.Profile.Core.Person.ContactPreferences;
 /// <summary>
 /// Represents a log of changes to a person's contact preferences, including contact information, language preference, notification status, and other details.
 /// </summary>
-public class PersonContactPreferencesSnapshot : IPersonContactPreferencesSnapshot
+public class PersonContactPreferencesSnapshot
 {
     /// <summary>
     /// Gets the contact information details of the person.

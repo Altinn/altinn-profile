@@ -85,7 +85,7 @@ public class PersonServiceTests
 
         // Assert
         IEnumerable<string>? unmatchedNationalIdentityNumbers = null;
-        IEnumerable<IPersonContactPreferences>? matchedPersonContactDetails = null;
+        IEnumerable<PersonContactPreferences>? matchedPersonContactDetails = null;
 
         result.Match(
             success =>
@@ -141,7 +141,7 @@ public class PersonServiceTests
 
         _mapperMock.Setup(x => x.Map<PersonContactPreferences>(firstRandomPerson))
                    .Returns(firstMappedContactDetails);
-        _mapperMock.Setup(x => x.Map<IPersonContactPreferences>(secondRandomPerson))
+        _mapperMock.Setup(x => x.Map<PersonContactPreferences>(secondRandomPerson))
                    .Returns(secondMappedContactDetails);
 
         _personRepositoryMock
@@ -157,7 +157,7 @@ public class PersonServiceTests
 
         // Assert
         IEnumerable<string>? unmatchedNationalIdentityNumbers = null;
-        IEnumerable<IPersonContactPreferences>? matchedPersonContactDetails = null;
+        IEnumerable<PersonContactPreferences>? matchedPersonContactDetails = null;
 
         result.Match(
             success =>
@@ -203,7 +203,7 @@ public class PersonServiceTests
 
         // Assert
         IEnumerable<string>? unmatchedNationalIdentityNumbers = null;
-        IEnumerable<IPersonContactPreferences>? matchedPersonContactDetails = null;
+        IEnumerable<PersonContactPreferences>? matchedPersonContactDetails = null;
         result.Match(
           success =>
           {
@@ -256,7 +256,7 @@ public class PersonServiceTests
 
         // Assert
         IEnumerable<string>? unmatchedNationalIdentityNumbers = null;
-        IEnumerable<IPersonContactPreferences>? matchedPersonContactDetails = null;
+        IEnumerable<PersonContactPreferences>? matchedPersonContactDetails = null;
 
         result.Match(
             success =>
@@ -283,7 +283,7 @@ public class PersonServiceTests
     /// </summary>
     /// <param name="expected">The expected contact preferences.</param>
     /// <param name="actualContactDetails">The actual contact details.</param>
-    private static void AssertContactDetails(PersonContactPreferences expected, IEnumerable<IPersonContactPreferences> actualContactDetails)
+    private static void AssertContactDetails(PersonContactPreferences expected, IEnumerable<PersonContactPreferences> actualContactDetails)
     {
         var contactDetails = actualContactDetails.FirstOrDefault(detail => detail.NationalIdentityNumber == expected.NationalIdentityNumber);
 

@@ -53,7 +53,7 @@ public class PersonContactDetailsRetriever(IPersonService personService) : IPers
     /// <param name="contactPreferences">The person contact details to map.</param>
     /// <returns>The mapped <see cref="PersonContactDetails"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="contactPreferences"/> is null.</exception>
-    private PersonContactDetails MapToContactDetails(IPersonContactPreferences contactPreferences)
+    private PersonContactDetails MapToContactDetails(PersonContactPreferences contactPreferences)
     {
         ArgumentNullException.ThrowIfNull(contactPreferences);
 

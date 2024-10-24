@@ -5,7 +5,7 @@ namespace Altinn.Profile.Core.Person.ContactPreferences;
 /// <summary>
 /// Represents a snapshot of the contact details retrieved from the changes log.
 /// </summary>
-public record PersonContactDetailsSnapshot : IPersonContactDetailsSnapshot
+public record PersonContactDetailsSnapshot
 {
     /// <summary>
     /// Gets the email address of the person.

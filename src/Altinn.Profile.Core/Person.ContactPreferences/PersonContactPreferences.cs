@@ -5,7 +5,7 @@ namespace Altinn.Profile.Core.Person.ContactPreferences;
 /// <summary>
 /// Represents a person's contact details.
 /// </summary>
-public record PersonContactPreferences : IPersonContactPreferences
+public record PersonContactPreferences
 {
     /// <summary>
     /// Gets the email address of the person.
