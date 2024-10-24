@@ -47,7 +47,7 @@ public class UserContactPointControllerTests : IClassFixture<WebApplicationFacto
     public async Task PostAvailabilityLookup_NoNationalIdentityNumbers_EmptyListReturned()
     {
         // Arrange
-        UserContactPointLookup input = new();
+        UserContactDetailsLookupCriteria input = new();
 
         HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/availability");
@@ -68,7 +68,7 @@ public class UserContactPointControllerTests : IClassFixture<WebApplicationFacto
     public async Task PostAvailabilityLookup_SingleUser_DetailsReturned()
     {
         // Arrange       
-        UserContactPointLookup input = new()
+        UserContactDetailsLookupCriteria input = new()
         {
             NationalIdentityNumbers = new List<string>() { "01025101037" }
         };
@@ -93,7 +93,7 @@ public class UserContactPointControllerTests : IClassFixture<WebApplicationFacto
     public async Task PostAvailabilityLookup_SingleProfileNotFoundInBridge_RemainingUsersReturned()
     {
         // Arrange       
-        UserContactPointLookup input = new()
+        UserContactDetailsLookupCriteria input = new()
         {
             NationalIdentityNumbers = new List<string>() { "01025101037", "99999999999" }
         };
@@ -118,7 +118,7 @@ public class UserContactPointControllerTests : IClassFixture<WebApplicationFacto
     public async Task PostLookup_NoNationalIdentityNumbers_EmptyListReturned()
     {
         // Arrange       
-        UserContactPointLookup input = new()
+        UserContactDetailsLookupCriteria input = new()
         {
             NationalIdentityNumbers = new List<string>() { }
         };
@@ -142,7 +142,7 @@ public class UserContactPointControllerTests : IClassFixture<WebApplicationFacto
     public async Task PostLookup_SingleProfileNotFoundInBridge_RemainingUsersReturned()
     {
         // Arrange       
-        UserContactPointLookup input = new()
+        UserContactDetailsLookupCriteria input = new()
         {
             NationalIdentityNumbers = new List<string>() { "01025101037", "99999999999" }
         };
@@ -167,7 +167,7 @@ public class UserContactPointControllerTests : IClassFixture<WebApplicationFacto
     public async Task PostLookup_SingleUser_DetailsReturned()
     {
         // Arrange       
-        UserContactPointLookup input = new()
+        UserContactDetailsLookupCriteria input = new()
         {
             NationalIdentityNumbers = new List<string>() { "01025101037" }
         };

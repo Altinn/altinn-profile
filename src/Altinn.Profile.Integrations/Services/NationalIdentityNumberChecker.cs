@@ -55,6 +55,6 @@ public class NationalIdentityNumberChecker : INationalIdentityNumberChecker
     /// </returns>
     public bool IsValid(string nationalIdentityNumber)
     {
-        return nationalIdentityNumber.IsValidSocialSecurityNumber();
+        return nationalIdentityNumber.IsValidNationalIdentityNumber();
     }
 }
