@@ -2,7 +2,10 @@ using System.IO;
 using System.Net.Http;
 
 using Altinn.Common.AccessToken.Services;
+using Altinn.Profile.Core;
+using Altinn.Profile.Core.ContactRegister;
 using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 using Altinn.Profile.Integrations.SblBridge.User.Profile;
@@ -32,6 +35,8 @@ public class WebApplicationFactorySetup<T>
     {
         _webApplicationFactory = webApplicationFactory;
     }
+
+    public Mock<IContactRegisterHttpClient> ContactRegisterServiceMock { get; set; } = new();
 
     public Mock<ILogger<UserProfileClient>> UserProfileClientLogger { get; set; } = new();
 
@@ -63,6 +68,9 @@ public class WebApplicationFactorySetup<T>
                 services.AddSingleton<IPostConfigureOptions<JwtCookieOptions>, JwtCookiePostConfigureOptionsStub>();
                 services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProviderMock>();
                 services.AddSingleton<IMemoryCache>(memoryCache);
+
+                // Using a mock to stop tests from calling the contact register service.
+                services.AddSingleton(ContactRegisterServiceMock.Object);
 
                 // Using the real/actual implementation of IUserProfileService, but with a mocked message handler.
                 // Haven't found any other ways of injecting a mocked message handler to simulate SBL Bridge.

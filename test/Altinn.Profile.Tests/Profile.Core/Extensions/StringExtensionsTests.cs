@@ -49,10 +49,10 @@ public class StringExtensionsTests
 
         // Act
         // First check: This will validate the SSN and store the result in the cache.
-        var firstCheck = ssn.IsValidSocialSecurityNumber();
+        var firstCheck = ssn.IsValidNationalIdentityNumber();
 
         // Second check: This should return the cached result.
-        var secondCheck = ssn.IsValidSocialSecurityNumber();
+        var secondCheck = ssn.IsValidNationalIdentityNumber();
 
         // Assert
         Assert.Equal(expectedFirstValidation, firstCheck);  // Verify first validation result
@@ -66,8 +66,8 @@ public class StringExtensionsTests
         var ssn = "08119043698";
 
         // Act
-        var firstCheck = ssn.IsValidSocialSecurityNumber(); // First call
-        var secondCheck = ssn.IsValidSocialSecurityNumber(); // Should be cached
+        var firstCheck = ssn.IsValidNationalIdentityNumber(); // First call
+        var secondCheck = ssn.IsValidNationalIdentityNumber(); // Should be cached
 
         // Assert
         Assert.True(firstCheck);
@@ -81,38 +81,28 @@ public class StringExtensionsTests
         var invalidSsn = "0811a043698";
 
         // Act
-        var result = invalidSsn.IsValidSocialSecurityNumber();
+        var result = invalidSsn.IsValidNationalIdentityNumber();
 
         // Assert
         Assert.False(result);
     }
 
     [Theory]
-    [InlineData("08119", false)]
-    [InlineData("081190A3698", false)]
-    [InlineData("081190 3698", false)]
-    public void IsValidSocialSecurityNumber_InvalidIndividualNumberPart_ReturnsFalse(string socialSecurityNumber, bool expected)
-    {
-        // Act
-        var result = socialSecurityNumber.IsValidSocialSecurityNumber();
-
-        // Assert
-        Assert.Equal(expected, result);
-    }
-
-    [Theory]
-    [InlineData(null, false)]
     [InlineData("", false)]
+    [InlineData(null, false)]
     [InlineData("12345", false)]
-    [InlineData("12345678900", false)]
-    [InlineData("98765432100", false)]
+    [InlineData("08119", false)]
     [InlineData("08119043698", true)]
     [InlineData("23017126016", true)]
     [InlineData("04045325356", true)]
+    [InlineData("081190A3698", false)]
+    [InlineData("081190 3698", false)]
+    [InlineData("12345678900", false)]
+    [InlineData("98765432100", false)]
     public void IsValidSocialSecurityNumber_ValidatesCorrectly(string socialSecurityNumber, bool expected)
     {
         // Act
-        var result = socialSecurityNumber.IsValidSocialSecurityNumber();
+        var result = socialSecurityNumber.IsValidNationalIdentityNumber();
 
         // Assert
         Assert.Equal(expected, result);

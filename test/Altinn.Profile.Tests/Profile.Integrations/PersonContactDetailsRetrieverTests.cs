@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Services;
 using Altinn.Profile.Models;
@@ -16,15 +17,15 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations;
 
-public class UserContactDetailsRetrieverTests
+public class PersonContactDetailsRetrieverTests
 {
-    private readonly ContactDetailsRetriever _retriever;
+    private readonly PersonContactDetailsRetriever _retriever;
     private readonly Mock<IPersonService> _mockPersonService;
 
-    public UserContactDetailsRetrieverTests()
+    public PersonContactDetailsRetrieverTests()
     {
         _mockPersonService = new Mock<IPersonService>();
-        _retriever = new ContactDetailsRetriever(_mockPersonService.Object);
+        _retriever = new PersonContactDetailsRetriever(_mockPersonService.Object);
     }
 
     [Fact]
@@ -38,7 +39,7 @@ public class UserContactDetailsRetrieverTests
     public async Task RetrieveAsync_WhenNationalIdentityNumbersIsEmpty_ReturnsFalse()
     {
         // Arrange
-        var lookupCriteria = new UserContactPointLookup { NationalIdentityNumbers = [] };
+        var lookupCriteria = new UserContactDetailsLookupCriteria { NationalIdentityNumbers = [] };
 
         // Act
         var result = await _retriever.RetrieveAsync(lookupCriteria);
@@ -52,12 +53,12 @@ public class UserContactDetailsRetrieverTests
     public async Task RetrieveAsync_WhenNoContactDetailsFound_ReturnsFalse()
     {
         // Arrange
-        var lookupCriteria = new UserContactPointLookup
+        var lookupCriteria = new UserContactDetailsLookupCriteria
         {
             NationalIdentityNumbers = ["08119043698"]
         };
 
-        _mockPersonService.Setup(s => s.GetContactDetailsAsync(lookupCriteria.NationalIdentityNumbers)).ReturnsAsync(false);
+        _mockPersonService.Setup(s => s.GetContactPreferencesAsync(lookupCriteria.NationalIdentityNumbers)).ReturnsAsync(false);
 
         // Act
         var result = await _retriever.RetrieveAsync(lookupCriteria);
@@ -71,28 +72,28 @@ public class UserContactDetailsRetrieverTests
     public async Task RetrieveAsync_WhenValidNationalIdentityNumbers_ReturnsExpectedContactDetailsLookupResult()
     {
         // Arrange
-        var lookupCriteria = new UserContactPointLookup
+        var lookupCriteria = new UserContactDetailsLookupCriteria
         {
             NationalIdentityNumbers = ["08053414843"]
         };
 
-        var personContactDetails = new PersonContactDetails
+        var personContactDetails = new PersonContactPreferences
         {
             IsReserved = false,
             LanguageCode = "en",
-            MobilePhoneNumber = "1234567890",
-            EmailAddress = "test@example.com",
+            MobileNumber = "1234567890",
+            Email = "test@example.com",
             NationalIdentityNumber = "08053414843"
         };
 
-        var lookupResult = new PersonContactDetailsLookupResult
+        var lookupResult = new PersonContactPreferencesLookupResult
         {
             UnmatchedNationalIdentityNumbers = [],
-            MatchedPersonContactDetails = [personContactDetails]
+            MatchedPersonContactPreferences = [personContactDetails]
         };
 
         _mockPersonService
-            .Setup(e => e.GetContactDetailsAsync(lookupCriteria.NationalIdentityNumbers))
+            .Setup(e => e.GetContactPreferencesAsync(lookupCriteria.NationalIdentityNumbers))
             .ReturnsAsync(lookupResult);
 
         // Act
@@ -101,12 +102,12 @@ public class UserContactDetailsRetrieverTests
         // Assert
         Assert.True(result.IsSuccess);
         IEnumerable<string>? unmatchedNationalIdentityNumbers = [];
-        IEnumerable<ContactDetails>? matchedPersonContactDetails = [];
+        IEnumerable<Models.PersonContactDetails>? matchedPersonContactDetails = [];
 
         result.Match(
             success =>
             {
-                matchedPersonContactDetails = success.MatchedContactDetails;
+                matchedPersonContactDetails = success.MatchedPersonContactDetails;
                 unmatchedNationalIdentityNumbers = success.UnmatchedNationalIdentityNumbers;
             },
             failure =>
@@ -119,10 +120,10 @@ public class UserContactDetailsRetrieverTests
 
         var matchPersonContactDetails = matchedPersonContactDetails.FirstOrDefault();
         Assert.NotNull(matchPersonContactDetails);
-        Assert.Equal(personContactDetails.IsReserved, matchPersonContactDetails.Reservation);
+        Assert.Equal(personContactDetails.IsReserved, matchPersonContactDetails.IsReserved);
         Assert.Equal(personContactDetails.LanguageCode, matchPersonContactDetails.LanguageCode);
-        Assert.Equal(personContactDetails.MobilePhoneNumber, matchPersonContactDetails.MobilePhoneNumber);
-        Assert.Equal(personContactDetails.EmailAddress, matchPersonContactDetails.EmailAddress);
+        Assert.Equal(personContactDetails.MobileNumber, matchPersonContactDetails.MobilePhoneNumber);
+        Assert.Equal(personContactDetails.Email, matchPersonContactDetails.EmailAddress);
         Assert.Equal(personContactDetails.NationalIdentityNumber, matchPersonContactDetails.NationalIdentityNumber);
 
         Assert.Empty(unmatchedNationalIdentityNumbers);
