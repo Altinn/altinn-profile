@@ -45,8 +45,8 @@ public class UserContactPointController : ControllerBase
         Result<UserContactPointAvailabilityList, bool> result = await _contactPointService.GetContactPointAvailability(userContactPointLookup.NationalIdentityNumbers);
 
         return result.Match<ActionResult<UserContactPointAvailabilityList>>(
-                       success => Ok(success),
-                       _ => Problem("Could not retrieve contact point availability"));
+            success => Ok(success),
+            _ => Problem("Could not retrieve contact point availability"));
     }
 
     /// <summary>
@@ -58,8 +58,9 @@ public class UserContactPointController : ControllerBase
     public async Task<ActionResult<UserContactPointsList>> PostLookup([FromBody] UserContactDetailsLookupCriteria userContactPointLookup)
     {
         Result<UserContactPointsList, bool> result = await _contactPointService.GetContactPoints(userContactPointLookup.NationalIdentityNumbers);
+        
         return result.Match<ActionResult<UserContactPointsList>>(
-                     success => Ok(success),
-                     _ => Problem("Could not retrieve contact points"));
+            success => Ok(success),
+            _ => Problem("Could not retrieve contact points"));
     }
 }
