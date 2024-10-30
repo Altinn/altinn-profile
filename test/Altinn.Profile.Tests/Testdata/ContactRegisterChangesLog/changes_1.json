@@ -1,0 +1,217 @@
+{
+  "list": [
+    {
+      "personidentifikator": "22885399316",
+      "reservasjon": "NEI",
+      "status": "AKTIV",
+      "varslingsstatus": "KAN_VARSLES",
+      "kontaktinformasjon": {
+        "epostadresse": "NULLstillt@default.digdir.no",
+        "epostadresse_oppdatert": "2023-06-10T21:00:01+02",
+        "epostadresse_sist_verifisert": "2023-06-10T21:00:01+02",
+        "epostadresse_duplisert": "JA",
+        "mobiltelefonnummer": "+4799999999",
+        "mobiltelefonnummer_oppdatert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_sist_verifisert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_duplisert": "JA"
+      },
+      "digital_post": {
+        "postkasseadresse": "",
+        "postkasseleverandoeradresse": "984661185"
+      },
+      "sertifikat": ""
+    },
+    {
+      "personidentifikator": "21836797660",
+      "reservasjon": "NEI",
+      "status": "AKTIV",
+      "varslingsstatus": "KAN_VARSLES",
+      "kontaktinformasjon": {
+        "epostadresse": "NULLstillt@default.digdir.no",
+        "epostadresse_oppdatert": "2023-06-10T21:00:01+02",
+        "epostadresse_sist_verifisert": "2023-06-10T21:00:01+02",
+        "epostadresse_duplisert": "JA",
+        "mobiltelefonnummer": "+4799999999",
+        "mobiltelefonnummer_oppdatert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_sist_verifisert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_duplisert": "JA"
+      },
+      "digital_post": {
+        "postkasseadresse": "",
+        "postkasseleverandoeradresse": "984661185"
+      },
+      "sertifikat": ""
+    },
+    {
+      "personidentifikator": "22838497199",
+      "reservasjon": "NEI",
+      "status": "AKTIV",
+      "varslingsstatus": "KAN_VARSLES",
+      "kontaktinformasjon": {
+        "epostadresse": "NULLstillt@default.digdir.no",
+        "epostadresse_oppdatert": "2023-06-10T21:00:01+02",
+        "epostadresse_sist_verifisert": "2023-06-10T21:00:01+02",
+        "epostadresse_duplisert": "JA",
+        "mobiltelefonnummer": "+4799999999",
+        "mobiltelefonnummer_oppdatert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_sist_verifisert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_duplisert": "JA"
+      },
+      "digital_post": {
+        "postkasseadresse": "",
+        "postkasseleverandoeradresse": "984661185"
+      },
+      "sertifikat": ""
+    },
+    {
+      "personidentifikator": "22828999528",
+      "reservasjon": "NEI",
+      "status": "AKTIV",
+      "varslingsstatus": "KAN_VARSLES",
+      "kontaktinformasjon": {
+        "epostadresse": "NULLstillt@default.digdir.no",
+        "epostadresse_oppdatert": "2023-06-10T21:00:01+02",
+        "epostadresse_sist_verifisert": "2023-06-10T21:00:01+02",
+        "epostadresse_duplisert": "JA",
+        "mobiltelefonnummer": "+4799999999",
+        "mobiltelefonnummer_oppdatert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_sist_verifisert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_duplisert": "JA"
+      },
+      "digital_post": {
+        "postkasseadresse": "",
+        "postkasseleverandoeradresse": "984661185"
+      },
+      "sertifikat": ""
+    },
+    {
+      "personidentifikator": "22814398483",
+      "reservasjon": "NEI",
+      "status": "AKTIV",
+      "varslingsstatus": "KAN_VARSLES",
+      "kontaktinformasjon": {
+        "epostadresse": "NULLstillt@default.digdir.no",
+        "epostadresse_oppdatert": "2023-06-10T21:00:01+02",
+        "epostadresse_sist_verifisert": "2023-06-10T21:00:01+02",
+        "epostadresse_duplisert": "JA",
+        "mobiltelefonnummer": "+4799999999",
+        "mobiltelefonnummer_oppdatert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_sist_verifisert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_duplisert": "JA"
+      },
+      "digital_post": {
+        "postkasseadresse": "",
+        "postkasseleverandoeradresse": "984661185"
+      },
+      "sertifikat": ""
+    },
+    {
+      "personidentifikator": "21835998891",
+      "reservasjon": "NEI",
+      "status": "AKTIV",
+      "varslingsstatus": "KAN_VARSLES",
+      "kontaktinformasjon": {
+        "epostadresse": "NULLstillt@default.digdir.no",
+        "epostadresse_oppdatert": "2023-06-10T21:00:01+02",
+        "epostadresse_sist_verifisert": "2023-06-10T21:00:01+02",
+        "epostadresse_duplisert": "JA",
+        "mobiltelefonnummer": "+4799999999",
+        "mobiltelefonnummer_oppdatert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_sist_verifisert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_duplisert": "JA"
+      },
+      "digital_post": {
+        "postkasseadresse": "",
+        "postkasseleverandoeradresse": "984661185"
+      },
+      "sertifikat": ""
+    },
+    {
+      "personidentifikator": "07900399841",
+      "reservasjon": "NEI",
+      "status": "AKTIV",
+      "varslingsstatus": "KAN_VARSLES",
+      "kontaktinformasjon": {
+        "epostadresse": "NULLstillt@default.digdir.no",
+        "epostadresse_oppdatert": "2023-06-10T21:00:01+02",
+        "epostadresse_sist_verifisert": "2023-06-10T21:00:01+02",
+        "epostadresse_duplisert": "JA",
+        "mobiltelefonnummer": "+4799999999",
+        "mobiltelefonnummer_oppdatert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_sist_verifisert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_duplisert": "JA"
+      },
+      "digital_post": {
+        "postkasseadresse": "",
+        "postkasseleverandoeradresse": "984661185"
+      },
+      "sertifikat": ""
+    },
+    {
+      "personidentifikator": "21904098520",
+      "reservasjon": "NEI",
+      "status": "AKTIV",
+      "varslingsstatus": "KAN_VARSLES",
+      "kontaktinformasjon": {
+        "epostadresse": "NULLstillt@default.digdir.no",
+        "epostadresse_oppdatert": "2023-06-10T21:00:01+02",
+        "epostadresse_sist_verifisert": "2023-06-10T21:00:01+02",
+        "epostadresse_duplisert": "JA",
+        "mobiltelefonnummer": "+4799999999",
+        "mobiltelefonnummer_oppdatert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_sist_verifisert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_duplisert": "JA"
+      },
+      "digital_post": {
+        "postkasseadresse": "",
+        "postkasseleverandoeradresse": "984661185"
+      },
+      "sertifikat": ""
+    },
+    {
+      "personidentifikator": "20874299651",
+      "reservasjon": "NEI",
+      "status": "AKTIV",
+      "varslingsstatus": "KAN_VARSLES",
+      "kontaktinformasjon": {
+        "epostadresse": "NULLstillt@default.digdir.no",
+        "epostadresse_oppdatert": "2023-06-10T21:00:01+02",
+        "epostadresse_sist_verifisert": "2023-06-10T21:00:01+02",
+        "epostadresse_duplisert": "JA",
+        "mobiltelefonnummer": "+4799999999",
+        "mobiltelefonnummer_oppdatert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_sist_verifisert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_duplisert": "JA"
+      },
+      "digital_post": {
+        "postkasseadresse": "",
+        "postkasseleverandoeradresse": "984661185"
+      },
+      "sertifikat": ""
+    },
+    {
+      "personidentifikator": "07880099013",
+      "reservasjon": "NEI",
+      "status": "AKTIV",
+      "varslingsstatus": "KAN_VARSLES",
+      "kontaktinformasjon": {
+        "epostadresse": "NULLstillt@default.digdir.no",
+        "epostadresse_oppdatert": "2023-06-10T21:00:01+02",
+        "epostadresse_sist_verifisert": "2023-06-10T21:00:01+02",
+        "epostadresse_duplisert": "JA",
+        "mobiltelefonnummer": "+4799999999",
+        "mobiltelefonnummer_oppdatert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_sist_verifisert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_duplisert": "JA"
+      },
+      "digital_post": {
+        "postkasseadresse": "",
+        "postkasseleverandoeradresse": "984661185"
+      },
+      "sertifikat": ""
+    }
+  ],
+  "fraEndringsId": 23,
+  "tilEndringsId": 33,
+  "sisteEndringsId": 38
+}

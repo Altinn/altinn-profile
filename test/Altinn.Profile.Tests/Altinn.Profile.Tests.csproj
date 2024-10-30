@@ -65,6 +65,9 @@
     <None Update="skd-org.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Testdata\ContactRegisterChangesLog\changes_1.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
     <None Update="ttd-org.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

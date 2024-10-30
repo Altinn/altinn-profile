@@ -1,5 +1,4 @@
-﻿using Altinn.Profile.Core;
-using Altinn.Profile.Integrations.Repositories;
+﻿using Altinn.Profile.Integrations.Repositories;
 
 namespace Altinn.Profile.Integrations.ContactRegister
 {
@@ -26,29 +25,39 @@ namespace Altinn.Profile.Integrations.ContactRegister
         /// <summary>
         /// Retrieves all changes from the source registry and updates the local contact information.
         /// </summary>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException">Not implemented yet</exception>
+        /// <returns>A task representing the asynchronous operation</returns>
         public async Task SyncContactInformationAsync()
         {
-            // Retrieve the changes in contact preferences from the changes log.
             if (string.IsNullOrWhiteSpace(_contactRegisterSettings.ChangesLogEndpoint))
             {
                 throw new InvalidOperationException("The endpoint URL must not be null or empty.");
             }
 
-            long latestChangeNumber = 0;
-            Result<long, bool> latestChangeNumberGetter = await _metadataRepository.GetLatestChangeNumberAsync();
-            latestChangeNumberGetter.Match(e => latestChangeNumber = e, _ => latestChangeNumber = 0);
-
-            ContactRegisterChangesLog contactDetailsChanges =
-                await _contactRegisterHttpClient.GetContactDetailsChangesAsync(
-                    _contactRegisterSettings.ChangesLogEndpoint, latestChangeNumber);
-
-            int synchornizedRowCount = await _personRepository.SyncPersonContactPreferencesAsync(contactDetailsChanges);
-            if (synchornizedRowCount > 0 && contactDetailsChanges.EndingIdentifier.HasValue)
+            long finalGlobalChangeNumber;
+            long lastChangeNumberInBatch;
+            do
             {
-                await _metadataRepository.UpdateLatestChangeNumberAsync(contactDetailsChanges.EndingIdentifier.Value);
+                long previousChangeNumber = await _metadataRepository.GetLatestChangeNumberAsync();
+
+                ContactRegisterChangesLog registerChanges =
+                    await _contactRegisterHttpClient.GetContactDetailsChangesAsync(
+                        _contactRegisterSettings.ChangesLogEndpoint, previousChangeNumber);
+
+                int synchornizedRowCount = 
+                    await _personRepository.SyncPersonContactPreferencesAsync(registerChanges);
+
+                // setting it high to escape the loop if something is wrong
+                lastChangeNumberInBatch = long.MaxValue; 
+                if (synchornizedRowCount > 0 && registerChanges.EndingIdentifier.HasValue)
+                {
+                    lastChangeNumberInBatch = registerChanges.EndingIdentifier.Value;
+                    await _metadataRepository.UpdateLatestChangeNumberAsync(lastChangeNumberInBatch);
+                }
+
+                // defaulting to -1 to escape the loop if something is wrong
+                finalGlobalChangeNumber = registerChanges.LatestChangeIdentifier ?? -1;
             }
+            while (lastChangeNumberInBatch < finalGlobalChangeNumber);
         }
     }
 }
