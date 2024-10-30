@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Altinn.Profile.Core.Person.ContactPreferences;
+namespace Altinn.Profile.Integrations.ContactRegister;
 
 /// <summary>
 /// Represents a snapshot of the contact details retrieved from the changes log.

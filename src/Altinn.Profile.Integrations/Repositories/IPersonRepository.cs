@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 
 using Altinn.Profile.Core;
-using Altinn.Profile.Core.ContactRegister;
+using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Entities;
 
 namespace Altinn.Profile.Integrations.Repositories;

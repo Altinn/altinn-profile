@@ -6,7 +6,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Altinn.Profile.Core.ContactRegister;
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Repositories;
@@ -26,7 +25,6 @@ public class PersonServiceTests
     private readonly PersonService _personService;
     private readonly Mock<IPersonRepository> _personRepositoryMock;
     private readonly Mock<IMetadataRepository> _metadataRepositoryMock;
-    private readonly Mock<IContactRegisterService> _contactRegisterServiceMock;
     private readonly Mock<INationalIdentityNumberChecker> _nationalIdentityNumberCheckerMock;
 
     public PersonServiceTests()
@@ -34,9 +32,8 @@ public class PersonServiceTests
         _mapperMock = new Mock<IMapper>();
         _personRepositoryMock = new Mock<IPersonRepository>();
         _metadataRepositoryMock = new Mock<IMetadataRepository>();
-        _contactRegisterServiceMock = new Mock<IContactRegisterService>();
         _nationalIdentityNumberCheckerMock = new Mock<INationalIdentityNumberChecker>();
-        _personService = new PersonService(_mapperMock.Object, _personRepositoryMock.Object, _contactRegisterServiceMock.Object, _metadataRepositoryMock.Object, _nationalIdentityNumberCheckerMock.Object);
+        _personService = new PersonService(_mapperMock.Object, _personRepositoryMock.Object, _metadataRepositoryMock.Object, _nationalIdentityNumberCheckerMock.Object);
     }
 
     /// <summary>

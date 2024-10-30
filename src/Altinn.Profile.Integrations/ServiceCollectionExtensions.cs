@@ -2,10 +2,8 @@
 
 using Altinn.ApiClients.Maskinporten.Extensions;
 using Altinn.ApiClients.Maskinporten.Services;
-using Altinn.Profile.Core.ContactRegister;
 
 using Altinn.Profile.Core.Integrations;
-using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Mappings;
@@ -67,6 +65,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPersonService, PersonService>();
         services.AddScoped<IPersonRepository, PersonRepository>();
         services.AddScoped<IMetadataRepository, MetadataRepository>();
+        services.AddScoped<IContactRegisterUpdateJob, ContactRegisterUpdateJob>();
 
         services.AddAutoMapper(typeof(PersonMappingProfile));
 
@@ -95,8 +94,6 @@ public static class ServiceCollectionExtensions
         {
             throw new InvalidOperationException("Contact and reservation settings are not properly configured.");
         }
-
-        services.AddScoped<IContactRegisterService, ContactRegisterService>();
 
         services.AddSingleton(contactRegisterSettings);
         services.AddMaskinportenHttpClient<SettingsJwkClientDefinition, IContactRegisterHttpClient, ContactRegisterHttpClient>(contactRegisterSettings.MaskinportenSettings);

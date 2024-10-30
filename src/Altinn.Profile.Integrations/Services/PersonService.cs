@@ -3,7 +3,6 @@
 using System.Collections.Immutable;
 
 using Altinn.Profile.Core;
-using Altinn.Profile.Core.ContactRegister;
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Repositories;
@@ -20,7 +19,6 @@ public class PersonService : IPersonService
     private readonly IMapper _mapper;
     private readonly IPersonRepository _personRepository;
     private readonly IMetadataRepository _metadataRepository;
-    private readonly IContactRegisterService _changesLogService;
     private readonly INationalIdentityNumberChecker _nationalIdentityNumberChecker;
 
     /// <summary>
@@ -28,19 +26,16 @@ public class PersonService : IPersonService
     /// </summary>
     /// <param name="mapper">The objects mapper.</param>
     /// <param name="personRepository">The repository used for accessing the person data.</param>
-    /// <param name="changesLogService">The service used for logging changes in contact preferences.</param>
     /// <param name="metadataRepository">The repository used for accessing metadata.</param>
     /// <param name="nationalIdentityNumberChecker">The service used for checking the validity of national identity numbers.</param>
     public PersonService(
         IMapper mapper, 
         IPersonRepository personRepository, 
-        IContactRegisterService changesLogService, 
         IMetadataRepository metadataRepository, 
         INationalIdentityNumberChecker nationalIdentityNumberChecker)
     {
         _mapper = mapper;
         _personRepository = personRepository;
-        _changesLogService = changesLogService;
         _metadataRepository = metadataRepository;
         _nationalIdentityNumberChecker = nationalIdentityNumberChecker;
     }
@@ -87,26 +82,5 @@ public class PersonService : IPersonService
             MatchedPersonContactPreferences = matchedPersonContactDetails.Any() ? matchedPersonContactDetails.ToImmutableList() : null,
             UnmatchedNationalIdentityNumbers = unmatchedNationalIdentityNumbers.Any() ? unmatchedNationalIdentityNumbers.ToImmutableList() : null
         };
-    }
-
-    /// <summary>
-    /// Asynchronously synchronizes the person contact preferences.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task SyncPersonContactPreferencesAsync()
-    {
-        // Get the latest change number.
-        long latestChangeNumber = 0;
-        Result<long, bool> latestChangeNumberGetter = await _metadataRepository.GetLatestChangeNumberAsync();
-        latestChangeNumberGetter.Match(e => latestChangeNumber = e, _ => latestChangeNumber = 0);
-
-        // Retrieve the changes in contact preferences from the changes log.
-        ContactRegisterChangesLog contactDetailsChanges = await _changesLogService.RetrieveContactDetailsChangesAsync(latestChangeNumber);
-
-        int synchornizedRowCount = await _personRepository.SyncPersonContactPreferencesAsync(contactDetailsChanges);
-        if (synchornizedRowCount > 0 && contactDetailsChanges.EndingIdentifier.HasValue)
-        {
-            await _metadataRepository.UpdateLatestChangeNumberAsync(contactDetailsChanges.EndingIdentifier.Value);
-        }
     }
 }

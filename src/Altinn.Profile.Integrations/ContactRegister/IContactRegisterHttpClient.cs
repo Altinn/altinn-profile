@@ -1,6 +1,4 @@
-﻿using Altinn.Profile.Core.ContactRegister;
-
-namespace Altinn.Profile.Integrations.ContactRegister;
+﻿namespace Altinn.Profile.Integrations.ContactRegister;
 
 /// <summary>
 /// An HTTP client to interact with the contact register.
