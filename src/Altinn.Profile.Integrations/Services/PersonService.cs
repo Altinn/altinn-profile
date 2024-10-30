@@ -18,7 +18,6 @@ public class PersonService : IPersonService
 {
     private readonly IMapper _mapper;
     private readonly IPersonRepository _personRepository;
-    private readonly IMetadataRepository _metadataRepository;
     private readonly INationalIdentityNumberChecker _nationalIdentityNumberChecker;
 
     /// <summary>
@@ -26,17 +25,14 @@ public class PersonService : IPersonService
     /// </summary>
     /// <param name="mapper">The objects mapper.</param>
     /// <param name="personRepository">The repository used for accessing the person data.</param>
-    /// <param name="metadataRepository">The repository used for accessing metadata.</param>
     /// <param name="nationalIdentityNumberChecker">The service used for checking the validity of national identity numbers.</param>
     public PersonService(
         IMapper mapper, 
-        IPersonRepository personRepository, 
-        IMetadataRepository metadataRepository, 
+        IPersonRepository personRepository,
         INationalIdentityNumberChecker nationalIdentityNumberChecker)
     {
         _mapper = mapper;
         _personRepository = personRepository;
-        _metadataRepository = metadataRepository;
         _nationalIdentityNumberChecker = nationalIdentityNumberChecker;
     }
 
