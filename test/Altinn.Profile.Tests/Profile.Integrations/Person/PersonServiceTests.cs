@@ -24,16 +24,14 @@ public class PersonServiceTests
     private readonly Mock<IMapper> _mapperMock;
     private readonly PersonService _personService;
     private readonly Mock<IPersonRepository> _personRepositoryMock;
-    private readonly Mock<IMetadataRepository> _metadataRepositoryMock;
     private readonly Mock<INationalIdentityNumberChecker> _nationalIdentityNumberCheckerMock;
 
     public PersonServiceTests()
     {
         _mapperMock = new Mock<IMapper>();
         _personRepositoryMock = new Mock<IPersonRepository>();
-        _metadataRepositoryMock = new Mock<IMetadataRepository>();
         _nationalIdentityNumberCheckerMock = new Mock<INationalIdentityNumberChecker>();
-        _personService = new PersonService(_mapperMock.Object, _personRepositoryMock.Object, _metadataRepositoryMock.Object, _nationalIdentityNumberCheckerMock.Object);
+        _personService = new PersonService(_mapperMock.Object, _personRepositoryMock.Object, _nationalIdentityNumberCheckerMock.Object);
     }
 
     /// <summary>
