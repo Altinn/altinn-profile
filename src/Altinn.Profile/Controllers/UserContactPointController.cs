@@ -50,7 +50,7 @@ public class UserContactPointController : ControllerBase
     }
 
     /// <summary>
-    /// Endpoint looking up the contact points for the user connected to the provideded national identity number in the request body
+    /// Endpoint looking up the contact points for the user connected to the provided national identity number in the request body
     /// </summary>
     /// <returns>Returns an overview of the contact points for the user</returns>
     [HttpPost("lookup")]
