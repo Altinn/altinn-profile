@@ -1,0 +1,112 @@
+{
+  "list": [
+    {
+      "personidentifikator": "16828397668",
+      "reservasjon": "NEI",
+      "status": "AKTIV",
+      "varslingsstatus": "KAN_VARSLES",
+      "kontaktinformasjon": {
+        "epostadresse": "NULLstillt@default.digdir.no",
+        "epostadresse_oppdatert": "2023-06-10T21:00:01+02",
+        "epostadresse_sist_verifisert": "2023-06-10T21:00:01+02",
+        "epostadresse_duplisert": "JA",
+        "mobiltelefonnummer": "+4799999999",
+        "mobiltelefonnummer_oppdatert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_sist_verifisert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_duplisert": "JA"
+      },
+      "digital_post": {
+        "postkasseadresse": "",
+        "postkasseleverandoeradresse": "984661185"
+      },
+      "sertifikat": ""
+    },
+    {
+      "personidentifikator": "07878398712",
+      "reservasjon": "NEI",
+      "status": "AKTIV",
+      "varslingsstatus": "KAN_VARSLES",
+      "kontaktinformasjon": {
+        "epostadresse": "NULLstillt@default.digdir.no",
+        "epostadresse_oppdatert": "2023-06-10T21:00:01+02",
+        "epostadresse_sist_verifisert": "2023-06-10T21:00:01+02",
+        "epostadresse_duplisert": "JA",
+        "mobiltelefonnummer": "+4799999999",
+        "mobiltelefonnummer_oppdatert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_sist_verifisert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_duplisert": "JA"
+      },
+      "digital_post": {
+        "postkasseadresse": "",
+        "postkasseleverandoeradresse": "984661185"
+      },
+      "sertifikat": ""
+    },
+    {
+      "personidentifikator": "16837297366",
+      "reservasjon": "NEI",
+      "status": "AKTIV",
+      "varslingsstatus": "KAN_VARSLES",
+      "kontaktinformasjon": {
+        "epostadresse": "NULLstillt@default.digdir.no",
+        "epostadresse_oppdatert": "2023-06-10T21:00:01+02",
+        "epostadresse_sist_verifisert": "2023-06-10T21:00:01+02",
+        "epostadresse_duplisert": "JA",
+        "mobiltelefonnummer": "+4799999999",
+        "mobiltelefonnummer_oppdatert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_sist_verifisert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_duplisert": "JA"
+      },
+      "digital_post": {
+        "postkasseadresse": "",
+        "postkasseleverandoeradresse": "984661185"
+      },
+      "sertifikat": ""
+    },
+    {
+      "personidentifikator": "21849297640",
+      "reservasjon": "NEI",
+      "status": "AKTIV",
+      "varslingsstatus": "KAN_VARSLES",
+      "kontaktinformasjon": {
+        "epostadresse": "NULLstillt@default.digdir.no",
+        "epostadresse_oppdatert": "2023-06-10T21:00:01+02",
+        "epostadresse_sist_verifisert": "2023-06-10T21:00:01+02",
+        "epostadresse_duplisert": "JA",
+        "mobiltelefonnummer": "+4799999999",
+        "mobiltelefonnummer_oppdatert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_sist_verifisert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_duplisert": "JA"
+      },
+      "digital_post": {
+        "postkasseadresse": "",
+        "postkasseleverandoeradresse": "984661185"
+      },
+      "sertifikat": ""
+    },
+    {
+      "personidentifikator": "20878697112",
+      "reservasjon": "NEI",
+      "status": "AKTIV",
+      "varslingsstatus": "KAN_VARSLES",
+      "kontaktinformasjon": {
+        "epostadresse": "NULLstillt@default.digdir.no",
+        "epostadresse_oppdatert": "2023-06-10T21:00:01+02",
+        "epostadresse_sist_verifisert": "2023-06-10T21:00:01+02",
+        "epostadresse_duplisert": "JA",
+        "mobiltelefonnummer": "+4799999999",
+        "mobiltelefonnummer_oppdatert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_sist_verifisert": "2023-06-10T21:00:01+02",
+        "mobiltelefonnummer_duplisert": "JA"
+      },
+      "digital_post": {
+        "postkasseadresse": "",
+        "postkasseleverandoeradresse": "984661185"
+      },
+      "sertifikat": ""
+    }
+  ],
+  "fraEndringsId": 33,
+  "tilEndringsId": 38,
+  "sisteEndringsId": 38
+}

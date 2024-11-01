@@ -1,7 +1,5 @@
 ﻿using System.Text;
 using System.Text.Json;
-
-using Altinn.Profile.Core.ContactRegister;
 using Altinn.Profile.Core.Extensions;
 
 namespace Altinn.Profile.Integrations.ContactRegister;

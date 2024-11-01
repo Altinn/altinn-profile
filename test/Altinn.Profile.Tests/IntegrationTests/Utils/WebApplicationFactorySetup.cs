@@ -2,8 +2,6 @@ using System.IO;
 using System.Net.Http;
 
 using Altinn.Common.AccessToken.Services;
-using Altinn.Profile.Core;
-using Altinn.Profile.Core.ContactRegister;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.SblBridge;

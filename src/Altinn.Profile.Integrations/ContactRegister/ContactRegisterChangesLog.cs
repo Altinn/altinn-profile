@@ -1,9 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
-using Altinn.Profile.Core.Person.ContactPreferences;
-
-namespace Altinn.Profile.Core.ContactRegister;
+namespace Altinn.Profile.Integrations.ContactRegister;
 
 /// <summary>
 /// Represents the changes to a person's contact preferences from the contact register.

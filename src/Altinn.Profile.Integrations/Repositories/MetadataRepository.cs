@@ -21,9 +21,9 @@ public class MetadataRepository(IDbContextFactory<ProfileDbContext> contextFacto
     /// Asynchronously retrieves the latest change number from the metadata repository.
     /// </summary>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object with a <see cref="long"/> value on success, or a <see cref="bool"/> value indicating failure.
+    /// A task that represents the asynchronous operation.
     /// </returns>
-    public async Task<Result<long, bool>> GetLatestChangeNumberAsync()
+    public async Task<long> GetLatestChangeNumberAsync()
     {
         using ProfileDbContext databaseContext = _contextFactory.CreateDbContext();
 
@@ -37,9 +37,9 @@ public class MetadataRepository(IDbContextFactory<ProfileDbContext> contextFacto
     /// </summary>
     /// <param name="newNumber">The new changed number.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object with a <see cref="long"/> value on success, or a <see cref="bool"/> value indicating failure.
+    /// A task that represents the asynchronous operation.
     /// </returns>
-    public async Task<Result<long, bool>> UpdateLatestChangeNumberAsync(long newNumber)
+    public async Task<long> UpdateLatestChangeNumberAsync(long newNumber)
     {
         if (newNumber < 0)
         {

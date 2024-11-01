@@ -4,8 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Controllers;
-using Altinn.Profile.Core.ContactRegister;
-using Altinn.Profile.Core.Person.ContactPreferences;
+using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Services;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
