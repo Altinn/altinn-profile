@@ -75,7 +75,7 @@ internal class PersonRepository(IMapper mapper, IDbContextFactory<ProfileDbConte
         {
             Person person = _mapper.Map<Person>(contactPreferenceSnapshot);
 
-            Person? existingPerson = await databaseContext.People.FirstOrDefaultAsync(e => e.FnumberAk.Trim() == person.FnumberAk.Trim());
+            Person? existingPerson = await databaseContext.People.FirstOrDefaultAsync(e => e.FnumberAk == person.FnumberAk);
 
             if (existingPerson is null)
             {
