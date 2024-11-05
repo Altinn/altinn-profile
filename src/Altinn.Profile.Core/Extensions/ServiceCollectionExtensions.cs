@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
             .Configure<CoreSettings>(config.GetSection(nameof(CoreSettings)))
             .AddMemoryCache()
             .AddSingleton<IUserProfileService, UserProfileService>()
-            .AddSingleton<IUserContactPoints, UserContactPointService>()
+            .AddSingleton<IUserContactPointsService, UserContactPointService>()
             .Decorate<IUserProfileService, UserProfileCachingDecorator>()
             .AddSingleton<IUnitContactPointsService, UnitContactPointService>();
     }

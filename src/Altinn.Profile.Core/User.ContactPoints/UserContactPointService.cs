@@ -1,11 +1,11 @@
-﻿using Altinn.Platform.Profile.Models;
+using Altinn.Platform.Profile.Models;
 
 namespace Altinn.Profile.Core.User.ContactPoints;
 
 /// <summary>
-/// An implementation of <see cref="IUserContactPoints"/> that uses the <see cref="IUserProfileService"/> to obtain contact point information.
+/// An implementation of <see cref="IUserContactPointsService"/> that uses the <see cref="IUserProfileService"/> to obtain contact point information.
 /// </summary>
-public class UserContactPointService : IUserContactPoints
+public class UserContactPointService : IUserContactPointsService
 {
     private readonly IUserProfileService _userProfileService;
 

@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.User.ContactPoints;
@@ -19,12 +19,12 @@ namespace Altinn.Profile.Controllers;
 [Produces("application/json")]
 public class UserContactPointController : ControllerBase
 {
-    private readonly IUserContactPoints _contactPointService;
+    private readonly IUserContactPointsService _contactPointService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserContactPointController"/> class.
     /// </summary>
-    public UserContactPointController(IUserContactPoints contactPointService)
+    public UserContactPointController(IUserContactPointsService contactPointService)
     {
         _contactPointService = contactPointService;
     }
