@@ -12,9 +12,9 @@ public class UserContactPointService : IUserContactPointsService
     /// <summary>
     /// Initializes a new instance of the <see cref="UserContactPointService"/> class.
     /// </summary>
-    public UserContactPointService(IUserProfileService userProfiles)
+    public UserContactPointService(IUserProfileService userProfileService)
     {
-        _userProfileService = userProfiles;
+        _userProfileService = userProfileService;
     }
 
     /// <inheritdoc/>
