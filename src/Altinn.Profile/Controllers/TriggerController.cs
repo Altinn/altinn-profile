@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
+
 using Altinn.Profile.Integrations.ContactRegister;
-using Altinn.Profile.Integrations.Services;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
