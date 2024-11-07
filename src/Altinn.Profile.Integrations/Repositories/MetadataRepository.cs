@@ -1,5 +1,4 @@
-﻿using Altinn.Profile.Core;
-using Altinn.Profile.Integrations.Entities;
+﻿using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;
