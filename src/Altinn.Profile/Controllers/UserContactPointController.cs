@@ -1,11 +1,12 @@
+using System;
 using System.Threading.Tasks;
 
-using Altinn.Profile.Core;
 using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Models;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Altinn.Profile.Controllers;
 
@@ -20,13 +21,15 @@ namespace Altinn.Profile.Controllers;
 public class UserContactPointController : ControllerBase
 {
     private readonly IUserContactPointsService _contactPointService;
+    private readonly ILogger<UserContactPointController> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserContactPointController"/> class.
     /// </summary>
-    public UserContactPointController(IUserContactPointsService contactPointService)
+    public UserContactPointController(IUserContactPointsService contactPointService, ILogger<UserContactPointController> logger)
     {
         _contactPointService = contactPointService;
+        _logger = logger;
     }
 
     /// <summary>
@@ -42,11 +45,19 @@ public class UserContactPointController : ControllerBase
             return new UserContactPointAvailabilityList();
         }
 
-        Result<UserContactPointAvailabilityList, bool> result = await _contactPointService.GetContactPointAvailability(userContactPointLookup.NationalIdentityNumbers);
+        ActionResult<UserContactPointAvailabilityList> requestResult;
 
-        return result.Match<ActionResult<UserContactPointAvailabilityList>>(
-            success => Ok(success),
-            _ => Problem("Could not retrieve contact point availability"));
+        try
+        {
+            UserContactPointAvailabilityList result = await _contactPointService.GetContactPointAvailability(userContactPointLookup.NationalIdentityNumbers);
+            requestResult = Ok(result);
+        }
+        catch
+        {
+            requestResult = Problem("An unexpected error occurred.");
+        }
+
+        return requestResult;
     }
 
     /// <summary>
@@ -57,10 +68,24 @@ public class UserContactPointController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<UserContactPointsList>> PostLookup([FromBody] UserContactDetailsLookupCriteria userContactPointLookup)
     {
-        Result<UserContactPointsList, bool> result = await _contactPointService.GetContactPoints(userContactPointLookup.NationalIdentityNumbers);
+        if (userContactPointLookup.NationalIdentityNumbers.Count == 0)
+        {
+            return Ok(new UserContactPointsList());
+        }
+
+        ActionResult<UserContactPointsList> requestResult;
+
+        try
+        {
+            UserContactPointsList userContactPointsList = await _contactPointService.GetContactPoints(userContactPointLookup.NationalIdentityNumbers);
+            requestResult = Ok(userContactPointsList);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while retrieving contact details.");
+            requestResult = Problem("An unexpected error occurred.");
+        }
         
-        return result.Match<ActionResult<UserContactPointsList>>(
-            success => Ok(success),
-            _ => Problem("Could not retrieve contact points"));
+        return requestResult;
     }
 }
