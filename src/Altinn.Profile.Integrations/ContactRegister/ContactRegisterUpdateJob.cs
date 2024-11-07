@@ -9,18 +9,18 @@ namespace Altinn.Profile.Integrations.ContactRegister
     /// <param name="contactRegisterSettings">Settings for the synchronization update job</param>
     /// <param name="contactRegisterHttpClient">A HTTP client that can be used to retrieve contact details changes</param>
     /// <param name="metadataRepository">A repository implementation for managing persistance of the job status between runs</param>
-    /// <param name="personRepository">A repository implementation for managing persistance for the local contact information</param>
+    /// <param name="personUpdater">A repository implementation for managing persistance for the local contact information</param>
     public class ContactRegisterUpdateJob(
         ContactRegisterSettings contactRegisterSettings,
         IContactRegisterHttpClient contactRegisterHttpClient,
         IMetadataRepository metadataRepository,
-        IPersonRepository personRepository)
+        IPersonUpdater personUpdater)
         : IContactRegisterUpdateJob
     {
         private readonly ContactRegisterSettings _contactRegisterSettings = contactRegisterSettings;
         private readonly IContactRegisterHttpClient _contactRegisterHttpClient = contactRegisterHttpClient;
         private readonly IMetadataRepository _metadataRepository = metadataRepository;
-        private readonly IPersonRepository _personRepository = personRepository;
+        private readonly IPersonUpdater _personUpdater = personUpdater;
 
         /// <summary>
         /// Retrieves all changes from the source registry and updates the local contact information.
@@ -44,7 +44,7 @@ namespace Altinn.Profile.Integrations.ContactRegister
                         _contactRegisterSettings.ChangesLogEndpoint, previousChangeNumber);
 
                 int synchornizedRowCount = 
-                    await _personRepository.SyncPersonContactPreferencesAsync(registerChanges);
+                    await _personUpdater.SyncPersonContactPreferencesAsync(registerChanges);
 
                 // setting it high to escape the loop if something is wrong
                 lastChangeNumberInBatch = long.MaxValue; 

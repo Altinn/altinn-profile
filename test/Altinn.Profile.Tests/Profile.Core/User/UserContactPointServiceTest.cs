@@ -10,6 +10,7 @@ using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Core.User;
 using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Tests.Testdata;
+
 using Microsoft.Extensions.Options;
 
 using Moq;
@@ -71,11 +72,9 @@ public class UserContactPointServiceTest
             IsReserved = userProfileB.IsReserved,
             MobileNumber = userProfileB.PhoneNumber,
         };
-
-        _userProfileServiceMock.Setup(m => m.GetUser(UserIdAStr)).ReturnsAsync(userProfileA);
-        _userProfileServiceMock.Setup(m => m.GetUser(UserIdBStr)).ReturnsAsync(userProfileB);
-
-        _personServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>())).ReturnsAsync([]);
+        _userProfileServiceMock.Setup(m => m.GetUser(userProfileA.Party.SSN)).ReturnsAsync(userProfileA);
+        _userProfileServiceMock.Setup(m => m.GetUser(userProfileB.Party.SSN)).ReturnsAsync(userProfileB);
+        _personServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>())).ReturnsAsync([contactPreferencesA, contactPreferencesB]);
 
         return [expectedUserContactPointA, expectedUserContactPointB];
     }
@@ -205,6 +204,52 @@ public class UserContactPointServiceTest
                 Assert.Equal(2, actual.ContactPointsList.Count);
                 Assert.Contains(actual.ContactPointsList, ob => AreEqualUserContactPoints(ob, expectedUsers[0]));
                 Assert.Contains(actual.ContactPointsList, ob => AreEqualUserContactPoints(ob, expectedUsers[1]));
+            },
+            _ => { });
+    }
+
+    [Fact]
+    public async Task GetContactPoints_FeatureFlagEnabled_ReturnsZeroForUserIds()
+    {
+        // Arrange
+        List<UserContactPoints> expectedUsers = await Setup(mockedFeatureFlag: true);
+        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _coreSettingsOptions.Object);
+
+        // Act
+        Result<UserContactPointsList, bool> result = await target.GetContactPoints(
+            [
+                expectedUsers[0].NationalIdentityNumber,
+                expectedUsers[1].NationalIdentityNumber
+            ]);
+
+        // Assert
+        result.Match(
+            actual =>
+            {
+                Assert.DoesNotContain(actual.ContactPointsList, contactPoint => contactPoint.UserId != 0);
+            },
+            _ => { });
+    }
+
+    [Fact]
+    public async Task GetContactPoints_FeatureFlagDisabled_ReturnsZeroForUserIds()
+    {
+        // Arrange
+        List<UserContactPoints> expectedUsers = await Setup(mockedFeatureFlag: false);
+        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _coreSettingsOptions.Object);
+
+        // Act
+        Result<UserContactPointsList, bool> result = await target.GetContactPoints(
+            [
+                expectedUsers[0].NationalIdentityNumber,
+                expectedUsers[1].NationalIdentityNumber
+            ]);
+
+        // Assert
+        result.Match(
+            actual =>
+            {
+                Assert.DoesNotContain(actual.ContactPointsList, contactPoint => contactPoint.UserId != 0);
             },
             _ => { });
     }

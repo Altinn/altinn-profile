@@ -1,4 +1,6 @@
-using Altinn.Platform.Profile.Models;
+﻿using Altinn.Platform.Profile.Models;
+using Altinn.Profile.Core.Integrations;
+using Microsoft.Extensions.Options;
 
 namespace Altinn.Profile.Core.User.ContactPoints;
 
@@ -8,17 +10,21 @@ namespace Altinn.Profile.Core.User.ContactPoints;
 public class UserContactPointService : IUserContactPointsService
 {
     private readonly IUserProfileService _userProfileService;
+    private readonly IPersonService _personService;
+    private readonly bool _enablePersonService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserContactPointService"/> class.
     /// </summary>
-    public UserContactPointService(IUserProfileService userProfileService)
+    public UserContactPointService(IUserProfileService userProfileService, IPersonService personService, IOptions<CoreSettings> settings)
     {
         _userProfileService = userProfileService;
+        _personService = personService;
+        _enablePersonService = settings.Value.EnableLocalKrrFetch;
     }
 
     /// <inheritdoc/>
-    public async Task<Result<UserContactPointAvailabilityList, bool>> GetContactPointAvailability(List<string> nationalIdentityNumbers)
+    public async Task<UserContactPointAvailabilityList> GetContactPointAvailability(List<string> nationalIdentityNumbers)
     {
         UserContactPointAvailabilityList availabilityResult = new();
 
@@ -31,7 +37,6 @@ public class UserContactPointService : IUserContactPointsService
                 {
                     availabilityResult.AvailabilityList.Add(new UserContactPointAvailability()
                     {
-                        UserId = profile.PartyId,
                         NationalIdentityNumber = profile.Party.SSN,
                         EmailRegistered = !string.IsNullOrEmpty(profile.Email),
                         MobileNumberRegistered = !string.IsNullOrEmpty(profile.PhoneNumber),
@@ -45,28 +50,46 @@ public class UserContactPointService : IUserContactPointsService
     }
 
     /// <inheritdoc/>
-    public async Task<Result<UserContactPointsList, bool>> GetContactPoints(List<string> nationalIdentityNumbers)
+    public async Task<UserContactPointsList> GetContactPoints(List<string> nationalIdentityNumbers)
     {
         UserContactPointsList resultList = new();
 
-        foreach (var nationalIdentityNumber in nationalIdentityNumbers)
+        if (_enablePersonService)
         {
-            Result<UserProfile, bool> result = await _userProfileService.GetUser(nationalIdentityNumber);
+            var preferencesForContacts = await _personService.GetContactPreferencesAsync(nationalIdentityNumbers);
 
-            result.Match(
-              profile =>
-              {
-                  resultList.ContactPointsList.Add(
+            preferencesForContacts?.ForEach(contactPreference =>
+            {
+                resultList.ContactPointsList.Add(
                     new UserContactPoints()
                     {
-                        UserId = profile.PartyId,
-                        NationalIdentityNumber = profile.Party.SSN,
-                        Email = profile.Email,
-                        MobileNumber = profile.PhoneNumber,
-                        IsReserved = profile.IsReserved
+                        NationalIdentityNumber = contactPreference.NationalIdentityNumber,
+                        Email = contactPreference.Email,
+                        IsReserved = contactPreference.IsReserved,
+                        MobileNumber = contactPreference.MobileNumber,
                     });
-              },
-              _ => { });
+            });
+        }
+        else
+        {
+            foreach (var nationalIdentityNumber in nationalIdentityNumbers)
+            {
+                Result<UserProfile, bool> result = await _userProfileService.GetUser(nationalIdentityNumber);
+
+                result.Match(
+                    profile =>
+                    {
+                        resultList.ContactPointsList.Add(
+                            new UserContactPoints()
+                            {
+                                Email = profile.Email,
+                                IsReserved = profile.IsReserved,
+                                MobileNumber = profile.PhoneNumber,
+                                NationalIdentityNumber = profile.Party.SSN,
+                            });
+                    },
+                    _ => { });
+            }
         }
 
         return resultList;

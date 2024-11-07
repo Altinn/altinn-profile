@@ -3,6 +3,8 @@
 using System.Collections.Immutable;
 
 using Altinn.Profile.Core;
+using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Persistence;
@@ -16,7 +18,8 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// <summary>
 /// Defines a repository for handling person data operations.
 /// </summary>
-/// <seealso cref="IPersonRepository" />
+/// <seealso cref="IPersonUpdater" />
+/// <seealso cref="IPersonService" />
 /// <remarks>
 /// Initializes a new instance of the <see cref="PersonRepository"/> class.
 /// </remarks>
@@ -25,7 +28,7 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// <exception cref="ArgumentNullException">
 /// Thrown when the <paramref name="mapper"/>, or <paramref name="contextFactory"/> is null.
 /// </exception>
-internal class PersonRepository(IMapper mapper, IDbContextFactory<ProfileDbContext> contextFactory) : IPersonRepository
+public class PersonRepository(IMapper mapper, IDbContextFactory<ProfileDbContext> contextFactory) : IPersonUpdater, IPersonService
 {
     private readonly IMapper _mapper = mapper;
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
@@ -35,23 +38,24 @@ internal class PersonRepository(IMapper mapper, IDbContextFactory<ProfileDbConte
     /// </summary>
     /// <param name="nationalIdentityNumbers">A collection of national identity numbers to look up.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object with an <see cref="ImmutableList{T}"/> of <see cref="Person"/> objects representing the contact details of the persons on success, or a <see cref="bool"/> indicating failure.
+    /// A task that represents the asynchronous operation. The task result contains a an <see cref="ImmutableList{T}"/> of <see cref="PersonContactPreferences"/> objects representing the contact details of the persons.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="nationalIdentityNumbers"/> is null.</exception>
-    public async Task<Result<ImmutableList<Person>, bool>> GetContactDetailsAsync(IEnumerable<string> nationalIdentityNumbers)
+    public async Task<ImmutableList<PersonContactPreferences>> GetContactPreferencesAsync(IEnumerable<string> nationalIdentityNumbers)
     {
         ArgumentNullException.ThrowIfNull(nationalIdentityNumbers);
 
         if (!nationalIdentityNumbers.Any())
         {
-            return ImmutableList<Person>.Empty;
+            return ImmutableList<PersonContactPreferences>.Empty;
         }
 
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
         List<Person> people = await databaseContext.People.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync();
 
-        return people.ToImmutableList();
+        var asContactPreferences = people.Select(_mapper.Map<PersonContactPreferences>);
+        return asContactPreferences.ToImmutableList();
     }
 
     /// <summary>

@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
+using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
+using Altinn.Profile.Integrations.Mappings;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
+using Altinn.Profile.Tests.Profile.Integrations.Extensions;
 using Altinn.Profile.Tests.Testdata;
 
 using AutoMapper;
@@ -25,7 +27,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations;
 public class PersonRepositoryTests : IDisposable
 {
     private bool _isDisposed;
-    private readonly Mock<IMapper> _mapperMock;
     private readonly ProfileDbContext _databaseContext;
     private readonly PersonRepository _personRepository;
     private readonly List<Person> _personContactAndReservationTestData;
@@ -33,7 +34,11 @@ public class PersonRepositoryTests : IDisposable
 
     public PersonRepositoryTests()
     {
-        _mapperMock = new Mock<IMapper>();
+        var mockMapper = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new PersonContactPreferencesProfile());
+            });
+        var mapper = mockMapper.CreateMapper();
 
         var databaseContextOptions = new DbContextOptionsBuilder<ProfileDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -47,7 +52,7 @@ public class PersonRepositoryTests : IDisposable
         _databaseContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new ProfileDbContext(databaseContextOptions));
 
-        _personRepository = new PersonRepository(_mapperMock.Object, _databaseContextFactory.Object);
+        _personRepository = new PersonRepository(mapper, _databaseContextFactory.Object);
 
         _personContactAndReservationTestData = new List<Person>(PersonTestData.GetContactAndReservationTestData());
 
@@ -80,42 +85,36 @@ public class PersonRepositoryTests : IDisposable
     public async Task GetContactDetailsAsync_WhenFound_ReturnsContactInfo()
     {
         // Act
-        var matchedPerson = (await _personRepository.GetContactDetailsAsync(["17111933790"]))
-            .Match(
-                e => e.Find(p => p.FnumberAk == "17111933790"),
-                _ => null);
+        var matches = await _personRepository.GetContactPreferencesAsync(["17111933790"]);
+        var matchedPersonContactPreferences = matches[0];
 
         var expectedPerson = _personContactAndReservationTestData
-            .Find(e => e.FnumberAk == "17111933790");
+            .Find(p => p.FnumberAk == "17111933790");
 
         // Assert
-        Assert.NotNull(matchedPerson);
-        AssertRegisterProperties(expectedPerson, matchedPerson);
+        Assert.NotNull(matchedPersonContactPreferences);
+        AssertRegisterProperties(expectedPerson.AsPersonContactPreferences(), matchedPersonContactPreferences);
     }
 
     [Fact]
     public async Task GetContactDetailsAsync_WhenMultipleContactsFound_ReturnsMultipleContacts()
     {
         // Act
-        var contactDetailsGetter = await _personRepository.GetContactDetailsAsync(["24064316776", "11044314101"]);
-
-        var matchedPersons = contactDetailsGetter.Match(
-            e => e,
-            _ => Enumerable.Empty<Person>());
+        var matchedPersonContactPreferences = await _personRepository.GetContactPreferencesAsync(["24064316776", "11044314101"]);
 
         var expectedPersons = _personContactAndReservationTestData
             .Where(e => e.FnumberAk == "24064316776" || e.FnumberAk == "11044314101")
             .ToList();
 
         // Assert
-        Assert.Equal(2, matchedPersons.Count());
+        Assert.Equal(2, matchedPersonContactPreferences.Count);
 
-        foreach (var person in matchedPersons)
+        foreach (var person in matchedPersonContactPreferences)
         {
-            var expectedPerson = expectedPersons.Find(r => r.FnumberAk == person.FnumberAk);
+            var expectedPerson = expectedPersons.Find(r => r.FnumberAk == person.NationalIdentityNumber);
 
             Assert.NotNull(expectedPerson);
-            AssertRegisterProperties(expectedPerson, person);
+            AssertRegisterProperties(expectedPerson.AsPersonContactPreferences(), person);
         }
     }
 
@@ -123,55 +122,41 @@ public class PersonRepositoryTests : IDisposable
     public async Task GetContactDetailsAsync_WhenNoNationalIdentityNumbersProvided_ReturnsEmpty()
     {
         // Act
-        var contactDetailsGetter = await _personRepository.GetContactDetailsAsync([]);
-
-        var matchedPersons = contactDetailsGetter.Match(
-            e => e,
-            _ => Enumerable.Empty<Person>());
+        var matchedPersonContactPreferences = await _personRepository.GetContactPreferencesAsync([]);
 
         // Assert
-        Assert.Empty(matchedPersons);
+        Assert.Empty(matchedPersonContactPreferences);
     }
 
     [Fact]
     public async Task GetContactDetailsAsync_WhenNoneFound_ReturnsEmpty()
     {
         // Act
-        var contactDetailsGetter = await _personRepository.GetContactDetailsAsync(["nonexistent1", "nonexistent2"]);
-
-        var matchedPersons = contactDetailsGetter.Match(
-            e => e,
-            _ => Enumerable.Empty<Person>());
+        var matchedPersonContactPreferences = await _personRepository.GetContactPreferencesAsync(["nonexistent1", "nonexistent2"]);
 
         // Assert
-        Assert.Empty(matchedPersons);
+        Assert.Empty(matchedPersonContactPreferences);
     }
 
     [Fact]
     public async Task GetContactDetailsAsync_WhenValidAndInvalidNumbers_ReturnsCorrectResults()
     {
         // Act
-        var result = _personContactAndReservationTestData.Find(e => e.FnumberAk == "28026698350");
+        var expectedPerson = _personContactAndReservationTestData.Find(e => e.FnumberAk == "28026698350");
 
-        var contactDetailsGetter = await _personRepository.GetContactDetailsAsync(["28026698350", "nonexistent2"]);
-
-        var matchedPersons = contactDetailsGetter.Match(
-            e => e,
-            _ => Enumerable.Empty<Person>());
+        var matchedPersonContactPreferences = await _personRepository.GetContactPreferencesAsync(["28026698350", "nonexistent2"]);
 
         // Assert invalid result
-        Assert.Single(matchedPersons);
-        AssertRegisterProperties(matchedPersons.FirstOrDefault(), result);
+        Assert.Single(matchedPersonContactPreferences);
+        AssertRegisterProperties(expectedPerson.AsPersonContactPreferences(), matchedPersonContactPreferences.FirstOrDefault());
     }
 
-    private static void AssertRegisterProperties(Person expected, Person actual)
+    private static void AssertRegisterProperties(PersonContactPreferences expected, PersonContactPreferences actual)
     {
-        Assert.Equal(expected.FnumberAk, actual.FnumberAk);
-        Assert.Equal(expected.Description, actual.Description);
-        Assert.Equal(expected.Reservation, actual.Reservation);
+        Assert.Equal(expected.NationalIdentityNumber, actual.NationalIdentityNumber);
+        Assert.Equal(expected.IsReserved, actual.IsReserved);
         Assert.Equal(expected.LanguageCode, actual.LanguageCode);
-        Assert.Equal(expected.EmailAddress, actual.EmailAddress);
-        Assert.Equal(expected.MailboxAddress, actual.MailboxAddress);
-        Assert.Equal(expected.MobilePhoneNumber, actual.MobilePhoneNumber);
+        Assert.Equal(expected.Email, actual.Email);
+        Assert.Equal(expected.MobileNumber, actual.MobileNumber);
     }
 }
