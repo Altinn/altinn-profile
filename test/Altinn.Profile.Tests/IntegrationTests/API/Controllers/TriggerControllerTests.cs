@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Controllers;
 using Altinn.Profile.Integrations.ContactRegister;
-using Altinn.Profile.Integrations.Services;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -19,13 +18,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
 public class TriggerControllerTests : IClassFixture<WebApplicationFactory<Program>>
 {
-    private readonly Mock<IPersonService> _personServiceMock;
     private readonly Mock<ILogger<TriggerController>> _loggerMock;
     private readonly WebApplicationFactorySetup<Program> _webApplicationFactorySetup;
 
     public TriggerControllerTests(WebApplicationFactory<Program> factory)
     {
-        _personServiceMock = new Mock<IPersonService>();
         _loggerMock = new Mock<ILogger<TriggerController>>();
         _webApplicationFactorySetup = new WebApplicationFactorySetup<Program>(factory);
     }
