@@ -28,6 +28,8 @@ The infrastructure layer that implements the interfaces defined in _Altinn.Profi
 
 Relevant implementations:
 - Clients for communicating with SBL Bridge in Altinn 2
+- Database for KRR-data
+- Client for communicating with KRR to update the local DB
 
 
 ## Getting Started
@@ -41,7 +43,20 @@ These instructions will get you a copy of the profile component up and running o
 3. A code editor - we like [Visual Studio Code](https://code.visualstudio.com/download)
    - Also install [recommended extensions](https://code.visualstudio.com/docs/editor/extension-marketplace#_workspace-recommended-extensions) (e.g. [C#](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp))
 4. [Podman](https://podman.io/) or another container tool such as Docker Desktop
+5. [PostgreSQL](https://www.postgresql.org/download/)
+6. [pgAdmin](https://www.pgadmin.org/download/)
 
+### Setting up PostgreSQL
+
+Ensure that both PostgreSQL and pgAdmin have been installed and start pgAdmin.
+
+In pgAdmin
+- Create database _profiledb_
+- Create the following users with password: _Password_ (see privileges in parentheses)
+  - platform_profile_admin (superuser, canlogin)
+  - platform_profile (canlogin)
+
+A more detailed description of the database setup is available in [our developer handbook](https://docs.altinn.studio/community/contributing/handbook/postgres/)
 
 ### Cloning the application
 
