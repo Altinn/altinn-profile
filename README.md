@@ -58,6 +58,7 @@ In pgAdmin
 
 A more detailed description of the database setup is available in [our developer handbook](https://docs.altinn.studio/community/contributing/handbook/postgres/)
 
+
 ### Cloning the application
 
 Clone [Altinn Profile repo](https://github.com/Altinn/altinn-profile) and navigate to the folder.
@@ -95,3 +96,15 @@ dotnet run
 
 The profile solution is now available locally at http://localhost:5030/.
 To access swagger use http://localhost:5030/swagger.
+
+### Populate the Profile DB with KRR data
+
+1. Set up required user secrets for Maskinporten integration in the ASP.NET Core Secret Manager, e.g. via CLI by running the following commands from `src/Altinn.Profile`
+```cmd
+dotnet user-secrets set "ContactAndReservationSettings:MaskinportenSettings:ClientId" "{SECRET_GOES_HERE}"
+dotnet user-secrets set "ContactAndReservationSettings:MaskinportenSettings:EncodedJwk" "{SECRET_GOES_HERE}"
+```
+2. Run the application, and send the following request (e.g. using Postman) to initiate the synchronization job:
+   ```cmd
+   GET http://localhost:5030/profile/api/v1/trigger/syncpersonchanges
+   ```
