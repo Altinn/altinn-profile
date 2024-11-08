@@ -4,7 +4,7 @@ using Altinn.Profile.Integrations.ContactRegister;
 namespace Altinn.Profile.Integrations.Repositories;
 
 /// <summary>
-/// Defines a repository for updating person entities.
+/// Defines a repository for updating person data.
 /// </summary>
 public interface IPersonUpdater
 {

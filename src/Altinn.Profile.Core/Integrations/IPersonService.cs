@@ -5,7 +5,7 @@ using Altinn.Profile.Core.Person.ContactPreferences;
 namespace Altinn.Profile.Core.Integrations;
 
 /// <summary>
-/// Defines a service for handling operations related to person data.
+/// Defines a service for read-operations related to person data.
 /// </summary>
 public interface IPersonService
 {
