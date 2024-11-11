@@ -20,15 +20,13 @@ namespace Altinn.Profile.Controllers;
 public class UserContactPointController : ControllerBase
 {
     private readonly IUserContactPointsService _contactPointService;
-    private readonly ILogger<UserContactPointController> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserContactPointController"/> class.
     /// </summary>
-    public UserContactPointController(IUserContactPointsService contactPointService, ILogger<UserContactPointController> logger)
+    public UserContactPointController(IUserContactPointsService contactPointService)
     {
         _contactPointService = contactPointService;
-        _logger = logger;
     }
 
     /// <summary>
@@ -49,7 +47,7 @@ public class UserContactPointController : ControllerBase
     }
 
     /// <summary>
-    /// Endpoint looking up the contact points for the user connected to the provided national identity number in the request body
+    /// Endpoint looking up the contact points for the user connected to the provided national identity number in the request body  
     /// </summary>
     /// <returns>Returns an overview of the contact points for the user</returns>
     [HttpPost("lookup")]
