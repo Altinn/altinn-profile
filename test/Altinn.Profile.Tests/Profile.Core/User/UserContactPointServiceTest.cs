@@ -101,7 +101,7 @@ public class UserContactPointServiceTest
     public async Task GetContactPoints_FeatureFlagDisabled_ProfileServiceIsCalled()
     {
         // Arrange
-        _coreSettingsOptions.Setup(s => s.Value).Returns(new CoreSettings { EnableLocalKrrFetch = false});
+        _coreSettingsOptions.Setup(s => s.Value).Returns(new CoreSettings { EnableLocalKrrFetch = false });
         List<UserContactPoints> expectedUsers = await MockTestUsers();
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _coreSettingsOptions.Object);
 
