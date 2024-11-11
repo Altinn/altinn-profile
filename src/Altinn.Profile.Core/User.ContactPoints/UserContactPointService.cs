@@ -58,15 +58,15 @@ public class UserContactPointService : IUserContactPointsService
         {
             var preferencesForContacts = await _personService.GetContactPreferencesAsync(nationalIdentityNumbers);
 
-            preferencesForContacts?.ForEach(contactPreference =>
+            preferencesForContacts.ForEach(contactPreference =>
             {
                 resultList.ContactPointsList.Add(
                     new UserContactPoints()
                     {
                         NationalIdentityNumber = contactPreference.NationalIdentityNumber,
                         Email = contactPreference.Email,
-                        IsReserved = contactPreference.IsReserved,
                         MobileNumber = contactPreference.MobileNumber,
+                        IsReserved = contactPreference.IsReserved,
                     });
             });
         }
@@ -82,10 +82,10 @@ public class UserContactPointService : IUserContactPointsService
                         resultList.ContactPointsList.Add(
                             new UserContactPoints()
                             {
-                                Email = profile.Email,
-                                IsReserved = profile.IsReserved,
-                                MobileNumber = profile.PhoneNumber,
                                 NationalIdentityNumber = profile.Party.SSN,
+                                Email = profile.Email,
+                                MobileNumber = profile.PhoneNumber,
+                                IsReserved = profile.IsReserved,
                             });
                     },
                     _ => { });
