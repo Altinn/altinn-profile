@@ -24,24 +24,19 @@ public class UserContactPointServiceTest
     private readonly Mock<IOptions<CoreSettings>> _coreSettingsOptions;
     private readonly Mock<IUserProfileService> _userProfileServiceMock = new();
     private readonly Mock<IPersonService> _personServiceMock = new();
-    
-    private const int _userIdA = 2001606;
-    private const int _userIdB = 2001607;
-    
-    private string UserIdAStr => _userIdA.ToString();
+        
+    private static readonly string _userIdAStr = "2001606";
 
-    private string UserIdBStr => _userIdB.ToString();
+    private static readonly string _userIdBStr = "2001607";
 
     public UserContactPointServiceTest()
     {
         _coreSettingsOptions = new Mock<IOptions<CoreSettings>>();
     }
 
-    private async Task<List<UserContactPoints>> Setup(bool mockedFeatureFlag)
+    private async Task<List<UserContactPoints>> MockTestUsers() // Take a look at IAsyncLifetime / InitializeAsync from XUnit, as something for next time
     {
-        _coreSettingsOptions.Setup(s => s.Value).Returns(new CoreSettings { EnableLocalKrrFetch = mockedFeatureFlag });
-
-        var userProfileA = await TestDataLoader.Load<UserProfile>(UserIdAStr);
+        var userProfileA = await TestDataLoader.Load<UserProfile>(_userIdAStr);
         var contactPreferencesA = new PersonContactPreferences()
         {
             NationalIdentityNumber = userProfileA.Party.SSN,
@@ -57,7 +52,7 @@ public class UserContactPointServiceTest
             MobileNumber = userProfileA.PhoneNumber,
         };
 
-        var userProfileB = await TestDataLoader.Load<UserProfile>(UserIdBStr);
+        var userProfileB = await TestDataLoader.Load<UserProfile>(_userIdBStr);
         var contactPreferencesB = new PersonContactPreferences()
         {
             NationalIdentityNumber = userProfileB.Party.SSN,
@@ -86,7 +81,9 @@ public class UserContactPointServiceTest
     public async Task GetContactPoints_FeatureFlagDisabled_PersonServiceNotCalled()
     {
         // Arrange
-        List<UserContactPoints> expectedUsers = await Setup(mockedFeatureFlag: false);
+        _coreSettingsOptions.Setup(s => s.Value).Returns(new CoreSettings { EnableLocalKrrFetch = false });
+        List<UserContactPoints> expectedUsers = await MockTestUsers();
+        
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _coreSettingsOptions.Object);
 
         // Act
@@ -104,7 +101,8 @@ public class UserContactPointServiceTest
     public async Task GetContactPoints_FeatureFlagDisabled_ProfileServiceIsCalled()
     {
         // Arrange
-        List<UserContactPoints> expectedUsers = await Setup(mockedFeatureFlag: false);
+        _coreSettingsOptions.Setup(s => s.Value).Returns(new CoreSettings { EnableLocalKrrFetch = false});
+        List<UserContactPoints> expectedUsers = await MockTestUsers();
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _coreSettingsOptions.Object);
 
         // Act
@@ -122,7 +120,8 @@ public class UserContactPointServiceTest
     public async Task GetContactPoints_FeatureFlagEnabled_PersonServiceIsCalled()
     {
         // Arrange
-        List<UserContactPoints> expectedUsers = await Setup(mockedFeatureFlag: true);
+        _coreSettingsOptions.Setup(s => s.Value).Returns(new CoreSettings { EnableLocalKrrFetch = true });
+        List<UserContactPoints> expectedUsers = await MockTestUsers();
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _coreSettingsOptions.Object);
 
         // Act
@@ -140,7 +139,8 @@ public class UserContactPointServiceTest
     public async Task GetContactPoints_FeatureFlagEnabled_ProfileServiceNotCalled()
     {
         // Arrange
-        List<UserContactPoints> expectedUsers = await Setup(mockedFeatureFlag: true);
+        _coreSettingsOptions.Setup(s => s.Value).Returns(new CoreSettings { EnableLocalKrrFetch = true });
+        List<UserContactPoints> expectedUsers = await MockTestUsers();
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _coreSettingsOptions.Object);
 
         // Act
@@ -155,10 +155,11 @@ public class UserContactPointServiceTest
     }
 
     [Fact]
-    public async Task GetContactPoints_FeatureFlagEnabled_ReturnsExpectedUserContactPoints()
+    public async Task GetContactPoints_FeatureFlagEnabled_ReturnsExpectedMappingToUserContactPoints()
     {
         // Arrange
-        List<UserContactPoints> expectedUsers = await Setup(mockedFeatureFlag: true);
+        _coreSettingsOptions.Setup(s => s.Value).Returns(new CoreSettings { EnableLocalKrrFetch = true });
+        List<UserContactPoints> expectedUsers = await MockTestUsers();
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _coreSettingsOptions.Object);
 
         // Act
@@ -182,10 +183,11 @@ public class UserContactPointServiceTest
     }
 
     [Fact]
-    public async Task GetContactPoints_FeatureFlagDisabled_ReturnsExpectedUserContactPoints()
+    public async Task GetContactPoints_FeatureFlagDisabled_ReturnsExpectedMappingToUserContactPoints()
     {
         // Arrange
-        List<UserContactPoints> expectedUsers = await Setup(mockedFeatureFlag: false);
+        _coreSettingsOptions.Setup(s => s.Value).Returns(new CoreSettings { EnableLocalKrrFetch = false });
+        List<UserContactPoints> expectedUsers = await MockTestUsers();
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _coreSettingsOptions.Object);
 
         // Act
@@ -212,7 +214,8 @@ public class UserContactPointServiceTest
     public async Task GetContactPoints_FeatureFlagEnabled_ReturnsZeroForUserIds()
     {
         // Arrange
-        List<UserContactPoints> expectedUsers = await Setup(mockedFeatureFlag: true);
+        _coreSettingsOptions.Setup(s => s.Value).Returns(new CoreSettings { EnableLocalKrrFetch = true });
+        List<UserContactPoints> expectedUsers = await MockTestUsers();
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _coreSettingsOptions.Object);
 
         // Act
@@ -226,7 +229,7 @@ public class UserContactPointServiceTest
         result.Match(
             actual =>
             {
-                Assert.DoesNotContain(actual.ContactPointsList, contactPoint => contactPoint.UserId != 0);
+                Assert.DoesNotContain(actual.ContactPointsList, contactPoint => contactPoint.UserId != null);
             },
             _ => { });
     }
@@ -235,7 +238,8 @@ public class UserContactPointServiceTest
     public async Task GetContactPoints_FeatureFlagDisabled_ReturnsZeroForUserIds()
     {
         // Arrange
-        List<UserContactPoints> expectedUsers = await Setup(mockedFeatureFlag: false);
+        _coreSettingsOptions.Setup(s => s.Value).Returns(new CoreSettings { EnableLocalKrrFetch = false });
+        List<UserContactPoints> expectedUsers = await MockTestUsers();
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _coreSettingsOptions.Object);
 
         // Act
@@ -249,7 +253,7 @@ public class UserContactPointServiceTest
         result.Match(
             actual =>
             {
-                Assert.DoesNotContain(actual.ContactPointsList, contactPoint => contactPoint.UserId != 0);
+                Assert.DoesNotContain(actual.ContactPointsList, contactPoint => contactPoint.UserId != null);
             },
             _ => { });
     }
