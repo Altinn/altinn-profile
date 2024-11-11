@@ -43,12 +43,12 @@ namespace Altinn.Profile.Integrations.ContactRegister
                     await _contactRegisterHttpClient.GetContactDetailsChangesAsync(
                         _contactRegisterSettings.ChangesLogEndpoint, previousChangeNumber);
 
-                int synchornizedRowCount = 
+                int synchronizedRowCount = 
                     await _personUpdater.SyncPersonContactPreferencesAsync(registerChanges);
 
                 // setting it high to escape the loop if something is wrong
                 lastChangeNumberInBatch = long.MaxValue; 
-                if (synchornizedRowCount > 0 && registerChanges.EndingIdentifier.HasValue)
+                if (synchronizedRowCount > 0 && registerChanges.EndingIdentifier.HasValue)
                 {
                     lastChangeNumberInBatch = registerChanges.EndingIdentifier.Value;
                     await _metadataRepository.UpdateLatestChangeNumberAsync(lastChangeNumberInBatch);
