@@ -57,7 +57,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge
                             Email = "user@domain.com",
                             MobileNumber = "12345678",
                             IsReserved = false,
-                            NationalIdentityNumber = string.Empty
+                            NationalIdentityNumber = null
                         }
                     ]
                 }
