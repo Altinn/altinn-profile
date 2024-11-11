@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.User.ContactPoints;
@@ -45,19 +44,8 @@ public class UserContactPointController : ControllerBase
             return new UserContactPointAvailabilityList();
         }
 
-        ActionResult<UserContactPointAvailabilityList> requestResult;
-
-        try
-        {
-            UserContactPointAvailabilityList result = await _contactPointService.GetContactPointAvailability(userContactPointLookup.NationalIdentityNumbers);
-            requestResult = Ok(result);
-        }
-        catch
-        {
-            requestResult = Problem("An unexpected error occurred.");
-        }
-
-        return requestResult;
+        UserContactPointAvailabilityList result = await _contactPointService.GetContactPointAvailability(userContactPointLookup.NationalIdentityNumbers);
+        return Ok(result);
     }
 
     /// <summary>
@@ -72,20 +60,8 @@ public class UserContactPointController : ControllerBase
         {
             return Ok(new UserContactPointsList());
         }
-
-        ActionResult<UserContactPointsList> requestResult;
-
-        try
-        {
-            UserContactPointsList userContactPointsList = await _contactPointService.GetContactPoints(userContactPointLookup.NationalIdentityNumbers);
-            requestResult = Ok(userContactPointsList);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error occurred while retrieving contact details.");
-            requestResult = Problem("An unexpected error occurred.");
-        }
-        
-        return requestResult;
+ 
+        UserContactPointsList userContactPointsList = await _contactPointService.GetContactPoints(userContactPointLookup.NationalIdentityNumbers);
+        return Ok(userContactPointsList);
     }
 }
