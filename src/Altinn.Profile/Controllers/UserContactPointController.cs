@@ -5,7 +5,6 @@ using Altinn.Profile.Models;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Altinn.Profile.Controllers;
 
