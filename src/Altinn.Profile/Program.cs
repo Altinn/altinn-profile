@@ -163,7 +163,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         services.AddApplicationInsightsTelemetryProcessor<IdentityTelemetryFilter>();
         services.AddSingleton<ITelemetryInitializer, CustomTelemetryInitializer>();
 
-        logger.LogInformation("Program // ApplicationInsightsTelemetryKey = {applicationInsightsConnectionString}", applicationInsightsConnectionString);
+        logger.LogInformation("Program // ApplicationInsightsTelemetryKey = {ApplicationInsightsConnectionString}", applicationInsightsConnectionString);
     }
 
     services.AddControllers();
