@@ -1,6 +1,5 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 
-using Altinn.Profile.Core;
 using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Models;
 
@@ -19,12 +18,12 @@ namespace Altinn.Profile.Controllers;
 [Produces("application/json")]
 public class UserContactPointController : ControllerBase
 {
-    private readonly IUserContactPoints _contactPointService;
+    private readonly IUserContactPointsService _contactPointService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserContactPointController"/> class.
     /// </summary>
-    public UserContactPointController(IUserContactPoints contactPointService)
+    public UserContactPointController(IUserContactPointsService contactPointService)
     {
         _contactPointService = contactPointService;
     }
@@ -42,24 +41,24 @@ public class UserContactPointController : ControllerBase
             return new UserContactPointAvailabilityList();
         }
 
-        Result<UserContactPointAvailabilityList, bool> result = await _contactPointService.GetContactPointAvailability(userContactPointLookup.NationalIdentityNumbers);
-
-        return result.Match<ActionResult<UserContactPointAvailabilityList>>(
-                       success => Ok(success),
-                       _ => Problem("Could not retrieve contact point availability"));
+        UserContactPointAvailabilityList result = await _contactPointService.GetContactPointAvailability(userContactPointLookup.NationalIdentityNumbers);
+        return Ok(result);
     }
 
     /// <summary>
-    /// Endpoint looking up the contact points for the user connected to the provideded national identity number in the request body
+    /// Endpoint looking up the contact points for the user connected to the provided national identity number in the request body  
     /// </summary>
     /// <returns>Returns an overview of the contact points for the user</returns>
     [HttpPost("lookup")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<UserContactPointsList>> PostLookup([FromBody] UserContactDetailsLookupCriteria userContactPointLookup)
     {
-        Result<UserContactPointsList, bool> result = await _contactPointService.GetContactPoints(userContactPointLookup.NationalIdentityNumbers);
-        return result.Match<ActionResult<UserContactPointsList>>(
-                     success => Ok(success),
-                     _ => Problem("Could not retrieve contact points"));
+        if (userContactPointLookup.NationalIdentityNumbers.Count == 0)
+        {
+            return Ok(new UserContactPointsList());
+        }
+ 
+        UserContactPointsList userContactPointsList = await _contactPointService.GetContactPoints(userContactPointLookup.NationalIdentityNumbers);
+        return Ok(userContactPointsList);
     }
 }

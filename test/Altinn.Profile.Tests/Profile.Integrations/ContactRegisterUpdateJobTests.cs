@@ -16,7 +16,7 @@ public class ContactRegisterUpdateJobTests()
     private readonly ContactRegisterSettings _settings = new() { ChangesLogEndpoint = "https://example.com/changes" };
     private readonly Mock<IMetadataRepository> _metadataRepository = new();
     private readonly Mock<IContactRegisterHttpClient> _httpClient = new();
-    private readonly Mock<IPersonRepository> _personRepository = new();
+    private readonly Mock<IPersonUpdater> _personRepository = new();
 
     [Fact]
     public async Task SyncContactInformationAsyncTest_Missing_endpoint_Cause_InvalidOperationException()

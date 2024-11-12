@@ -13,7 +13,6 @@ using Altinn.Profile.Filters;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
-using Altinn.Profile.UseCases;
 
 using AltinnCore.Authentication.JwtCookie;
 
@@ -162,7 +161,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
     services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProvider>();
-    services.AddScoped<IPersonContactDetailsRetriever, PersonContactDetailsRetriever>();
 
     services.AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
         .AddJwtCookie(JwtCookieDefaults.AuthenticationScheme, options =>

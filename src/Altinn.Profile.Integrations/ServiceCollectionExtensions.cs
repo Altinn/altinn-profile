@@ -62,12 +62,12 @@ public static class ServiceCollectionExtensions
             throw new InvalidOperationException("Database connection string is not properly configured.");
         }
 
-        services.AddScoped<IPersonService, PersonService>();
-        services.AddScoped<IPersonRepository, PersonRepository>();
+        services.AddScoped<IPersonService, PersonRepository>();
+        services.AddScoped<IPersonUpdater, PersonRepository>();
         services.AddScoped<IMetadataRepository, MetadataRepository>();
         services.AddScoped<IContactRegisterUpdateJob, ContactRegisterUpdateJob>();
 
-        services.AddAutoMapper(typeof(PersonMappingProfile));
+        services.AddAutoMapper(typeof(PersonMappingProfile), typeof(PersonContactPreferencesProfile));
 
         services.AddSingleton<INationalIdentityNumberChecker, NationalIdentityNumberChecker>();
 

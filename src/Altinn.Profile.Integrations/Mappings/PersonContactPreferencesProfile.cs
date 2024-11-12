@@ -19,6 +19,7 @@ public class PersonContactPreferencesProfile : AutoMapper.Profile
         CreateMap<Person, PersonContactPreferences>()
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.EmailAddress))
             .ForMember(dest => dest.IsReserved, opt => opt.MapFrom(src => src.Reservation))
+            .ForMember(dest => dest.IsReserved, opt => opt.NullSubstitute(false))
             .ForMember(dest => dest.LanguageCode, opt => opt.MapFrom(src => src.LanguageCode))
             .ForMember(dest => dest.MobileNumber, opt => opt.MapFrom(src => src.MobilePhoneNumber))
             .ForMember(dest => dest.NationalIdentityNumber, opt => opt.MapFrom(src => src.FnumberAk));

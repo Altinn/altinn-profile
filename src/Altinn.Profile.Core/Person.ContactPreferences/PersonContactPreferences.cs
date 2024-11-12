@@ -15,7 +15,7 @@ public record PersonContactPreferences
     /// <summary>
     /// Gets a value indicating whether the person opts out of being contacted.
     /// </summary>
-    public bool? IsReserved { get; init; }
+    public bool IsReserved { get; init; }
 
     /// <summary>
     /// Gets the language code of the person, represented as an ISO 639-1 code.
