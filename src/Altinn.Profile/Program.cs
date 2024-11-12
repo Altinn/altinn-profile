@@ -151,6 +151,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
     if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
     {
+        // Note - this has to happen early due to a bug in Application Insights
+        // See: https://github.com/microsoft/ApplicationInsights-dotnet/issues/2879
         services.AddSingleton(typeof(ITelemetryChannel), new ServerTelemetryChannel { StorageFolder = "/tmp/logtelemetry" });
         services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
         {
