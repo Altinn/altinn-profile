@@ -234,7 +234,7 @@ void AddSwaggerGen(SwaggerGenOptions swaggerGenOptions)
 
 void Configure()
 {
-    logger.LogInformation("Program // Configure {appName}", app.Environment.ApplicationName);
+    logger.LogInformation("Program // Configure {AppName}", app.Environment.ApplicationName);
 
     if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
     {
