@@ -8,10 +8,10 @@ public class UserContactPoints
     /// <summary>
     /// Gets or sets the ID of the user
     /// </summary>
-    public int? UserId { get; set; }
+    public int UserId { get; set; } = 0;
 
     /// <summary>
-    /// Gets or sets the national identityt number of the user
+    /// Gets or sets the national identity number of the user
     /// </summary>
     public string? NationalIdentityNumber { get; set; }
 
