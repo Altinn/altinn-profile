@@ -229,7 +229,7 @@ public class UserContactPointServiceTest
         result.Match(
             actual =>
             {
-                Assert.DoesNotContain(actual.ContactPointsList, contactPoint => contactPoint.UserId != null);
+                Assert.DoesNotContain(actual.ContactPointsList, contactPoint => contactPoint.UserId != 0);
             },
             _ => { });
     }
@@ -253,7 +253,7 @@ public class UserContactPointServiceTest
         result.Match(
             actual =>
             {
-                Assert.DoesNotContain(actual.ContactPointsList, contactPoint => contactPoint.UserId != null);
+                Assert.DoesNotContain(actual.ContactPointsList, contactPoint => contactPoint.UserId != 0);
             },
             _ => { });
     }
