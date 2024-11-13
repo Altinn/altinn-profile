@@ -148,6 +148,23 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 {
     logger.LogInformation("Program // ConfigureServices");
 
+    if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
+    {
+        // Note - this has to happen early due to a bug in Application Insights
+        // See: https://github.com/microsoft/ApplicationInsights-dotnet/issues/2879
+        services.AddSingleton(typeof(ITelemetryChannel), new ServerTelemetryChannel { StorageFolder = "/tmp/logtelemetry" });
+        services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
+        {
+            ConnectionString = applicationInsightsConnectionString
+        });
+
+        services.AddApplicationInsightsTelemetryProcessor<HealthTelemetryFilter>();
+        services.AddApplicationInsightsTelemetryProcessor<IdentityTelemetryFilter>();
+        services.AddSingleton<ITelemetryInitializer, CustomTelemetryInitializer>();
+
+        logger.LogInformation("Program // ApplicationInsightsTelemetryKey = {ApplicationInsightsConnectionString}", applicationInsightsConnectionString);
+    }
+
     services.AddControllers();
 
     services.AddMemoryCache();
@@ -194,21 +211,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddSblBridgeClients(config);
     services.AddMaskinportenClient(config);
 
-    if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
-    {
-        services.AddSingleton(typeof(ITelemetryChannel), new ServerTelemetryChannel { StorageFolder = "/tmp/logtelemetry" });
-        services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
-        {
-            ConnectionString = applicationInsightsConnectionString
-        });
-
-        services.AddApplicationInsightsTelemetryProcessor<HealthTelemetryFilter>();
-        services.AddApplicationInsightsTelemetryProcessor<IdentityTelemetryFilter>();
-        services.AddSingleton<ITelemetryInitializer, CustomTelemetryInitializer>();
-
-        logger.LogInformation("Program // ApplicationInsightsTelemetryKey = {applicationInsightsConnectionString}", applicationInsightsConnectionString);
-    }
-
     services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
 }
 
@@ -230,7 +232,7 @@ void AddSwaggerGen(SwaggerGenOptions swaggerGenOptions)
 
 void Configure()
 {
-    logger.LogInformation("Program // Configure {appName}", app.Environment.ApplicationName);
+    logger.LogInformation("Program // Configure {AppName}", app.Environment.ApplicationName);
 
     if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
     {
