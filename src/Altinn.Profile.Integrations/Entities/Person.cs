@@ -7,11 +7,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace Altinn.Profile.Integrations.Entities;
+
 /// <summary>
 /// Represents a person in the contact and reservation schema.
 /// </summary>
 [Table("person", Schema = "contact_and_reservation")]
-[Index("FnumberAk", Name = "idx_fnumber_ak")]
 [Index("FnumberAk", Name = "person_fnumber_ak_key", IsUnique = true)]
 public partial class Person
 {
