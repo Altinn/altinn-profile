@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
@@ -9,20 +10,16 @@ using Altinn.Common.AccessToken.Configuration;
 using Altinn.Common.AccessToken.Services;
 using Altinn.Profile.Configuration;
 using Altinn.Profile.Core.Extensions;
-using Altinn.Profile.Filters;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
-
+using Altinn.Profile.Telemetry;
 using AltinnCore.Authentication.JwtCookie;
 
 using Azure.Identity;
+using Azure.Monitor.OpenTelemetry.Exporter;
 using Azure.Security.KeyVault.Secrets;
 
-using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -31,10 +28,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+
+using Npgsql;
+
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -101,6 +104,8 @@ async Task ConnectToKeyVaultAndSetApplicationInsights(ConfigurationManager confi
         {
             KeyVaultSecret keyVaultSecret = await client.GetSecretAsync(VaultApplicationInsightsKey);
             applicationInsightsConnectionString = string.Format("InstrumentationKey={0}", keyVaultSecret.Value);
+
+            logger.LogInformation("Program // ApplicationInsightsTelemetryKey = {ApplicationInsightsConnectionString}", applicationInsightsConnectionString);
         }
         catch (Exception vaultException)
         {
@@ -111,58 +116,64 @@ async Task ConnectToKeyVaultAndSetApplicationInsights(ConfigurationManager confi
 
 void ConfigureApplicationLogging(ILoggingBuilder logging)
 {
-    // The default ASP.NET Core project templates call CreateDefaultBuilder, which adds the following logging providers:
-    // Console, Debug, EventSource
-    // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/?view=aspnetcore-3.1
-
-    // Clear log providers
-    logging.ClearProviders();
-
-    // Setup up application insight if applicationInsightsConnectionString is available
-    if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
+    logging.AddOpenTelemetry(builder =>
     {
-        // Add application insights https://docs.microsoft.com/en-us/azure/azure-monitor/app/ilogger
-        logging.AddApplicationInsights(
-            configureTelemetryConfiguration: (config) => config.ConnectionString = applicationInsightsConnectionString,
-            configureApplicationInsightsLoggerOptions: (options) => { });
-
-        // Optional: Apply filters to control what logs are sent to Application Insights.
-        // The following configures LogLevel Information or above to be sent to
-        // Application Insights for all categories.
-        logging.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Warning);
-
-        // Adding the filter below to ensure logs of all severity from Program.cs
-        // is sent to ApplicationInsights.
-        logging.AddFilter<ApplicationInsightsLoggerProvider>(typeof(Program).FullName, LogLevel.Trace);
-    }
-    else
-    {
-        // If not application insight is available log to console
-        logging.AddFilter("Microsoft", LogLevel.Warning);
-        logging.AddFilter("System", LogLevel.Warning);
-        logging.AddConsole();
-    }
+        builder.IncludeFormattedMessage = true;
+        builder.IncludeScopes = true;
+    });
 }
 
 void ConfigureServices(IServiceCollection services, IConfiguration config)
 {
     logger.LogInformation("Program // ConfigureServices");
 
-    if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
+    var attributes = new List<KeyValuePair<string, object>>(2)
     {
-        // Note - this has to happen early due to a bug in Application Insights
-        // See: https://github.com/microsoft/ApplicationInsights-dotnet/issues/2879
-        services.AddSingleton(typeof(ITelemetryChannel), new ServerTelemetryChannel { StorageFolder = "/tmp/logtelemetry" });
-        services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
+        KeyValuePair.Create("service.name", (object)"platform-profile"),
+    };
+
+    services.AddOpenTelemetry()
+        .ConfigureResource(resourceBuilder => resourceBuilder.AddAttributes(attributes))
+        .WithMetrics(metrics =>
         {
-            ConnectionString = applicationInsightsConnectionString
+            metrics.AddAspNetCoreInstrumentation();
+            metrics.AddMeter(
+                "Microsoft.AspNetCore.Hosting",
+                "Microsoft.AspNetCore.Server.Kestrel",
+                "System.Net.Http");
+        })
+        .WithTracing(tracing =>
+        {
+            if (builder.Environment.IsDevelopment())
+            {
+                tracing.SetSampler(new AlwaysOnSampler());
+            }
+
+            tracing.AddAspNetCoreInstrumentation(o =>
+            {
+                o.Filter = (httpContext) =>
+                {
+                    if (TelemetryHelpers.ShouldExclude(httpContext.Request.Path))
+                    {
+                        return false;
+                    }
+
+                    return true;
+                };
+
+                o.EnrichWithHttpRequest = (activity, request) =>
+                {
+                    TelemetryHelpers.EnrichFromRequest(activity, request);
+                };
+            });
+
+            tracing.AddHttpClientInstrumentation();
+            tracing.AddNpgsql();
         });
 
-        services.AddApplicationInsightsTelemetryProcessor<HealthTelemetryFilter>();
-        services.AddApplicationInsightsTelemetryProcessor<IdentityTelemetryFilter>();
-        services.AddSingleton<ITelemetryInitializer, CustomTelemetryInitializer>();
-
-        logger.LogInformation("Program // ApplicationInsightsTelemetryKey = {ApplicationInsightsConnectionString}", applicationInsightsConnectionString);
+    if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
+    {
+        AddAzureMonitorTelemetryExporters(services, applicationInsightsConnectionString);
     }
 
     services.AddControllers();
@@ -201,10 +212,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
             }
         });
 
-    services.AddAuthorization(options =>
-    {
-        options.AddPolicy("PlatformAccess", policy => policy.Requirements.Add(new AccessTokenRequirement()));
-    });
+    services.AddAuthorizationBuilder()
+        .AddPolicy("PlatformAccess", policy => policy.Requirements.Add(new AccessTokenRequirement()));
 
     services.AddCoreServices(config);
     services.AddRegisterService(config);
@@ -212,6 +221,22 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddMaskinportenClient(config);
 
     services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
+}
+
+static void AddAzureMonitorTelemetryExporters(IServiceCollection services, string applicationInsightsConnectionString)
+{
+    services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddAzureMonitorLogExporter(o =>
+    {
+        o.ConnectionString = applicationInsightsConnectionString;
+    }));
+    services.ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddAzureMonitorMetricExporter(o =>
+    {
+        o.ConnectionString = applicationInsightsConnectionString;
+    }));
+    services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddAzureMonitorTraceExporter(o =>
+    {
+        o.ConnectionString = applicationInsightsConnectionString;
+    }));
 }
 
 void AddSwaggerGen(SwaggerGenOptions swaggerGenOptions)
