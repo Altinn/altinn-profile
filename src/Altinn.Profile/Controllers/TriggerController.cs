@@ -32,9 +32,9 @@ public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJo
     /// <response code="200">Starting the synchronisation work was successfull.</response>
     [HttpGet("syncpersonchanges")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult> SyncChanges()
+    public ActionResult SyncChanges()
     {
-        await _contactRegisterUpdateJob.SyncContactInformationAsync();
+        _ = Task.Run(() => _contactRegisterUpdateJob.SyncContactInformationAsync());
 
         return Ok();
     }
