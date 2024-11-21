@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-using Altinn.Profile.Integrations.ContactRegister;
+﻿using Altinn.Profile.Integrations.ContactRegister;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -34,8 +32,8 @@ public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJo
     [ProducesResponseType(StatusCodes.Status200OK)]
     public ActionResult SyncChanges()
     {
-        _ = Task.Run(() => _contactRegisterUpdateJob.SyncContactInformationAsync());
+        _contactRegisterUpdateJob.SyncContactInformationAsync();
 
-        return Ok();
+        return Ok("Synchronization has started.");
     }
 }
