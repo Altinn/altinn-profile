@@ -10,8 +10,8 @@ namespace Altinn.Profile.Integrations.ContactRegister;
 /// </summary>
 /// <param name="contactRegisterSettings">Settings for the synchronization update job</param>
 /// <param name="contactRegisterHttpClient">A HTTP client that can be used to retrieve contact details changes</param>
-/// <param name="metadataRepository">A repository implementation for managing persistance of the job status between runs</param>
-/// <param name="personUpdater">A repository implementation for managing persistance for the local contact information</param>
+/// <param name="metadataRepository">A repository implementation for managing persistence of the job status between runs</param>
+/// <param name="personUpdater">A repository implementation for managing persistence for the local contact information</param>
 /// <param name="logger">A logger to log detailed information.</param>
 public class ContactRegisterUpdateJob(
     ContactRegisterSettings contactRegisterSettings,
@@ -41,8 +41,8 @@ public class ContactRegisterUpdateJob(
 
         try
         {
-            long finalGlobalChangeNumber = 0;
-            long lastProcessedChangeNumber = 0;
+            long finalGlobalChangeNumber;
+            long lastProcessedChangeNumber;
 
             do
             {
@@ -52,7 +52,6 @@ public class ContactRegisterUpdateJob(
 
                 if (changesLog == null)
                 {
-                    _logger.LogWarning("Received an empty changes log. Aborting synchronization.");
                     break;
                 }
 
@@ -65,16 +64,12 @@ public class ContactRegisterUpdateJob(
                 }
                 else
                 {
-                    _logger.LogWarning("No rows were updated. This might indicate no new changes.");
-
                     break;
                 }
 
                 finalGlobalChangeNumber = changesLog.LatestChangeIdentifier ?? lastProcessedChangeNumber;
             }
             while (lastProcessedChangeNumber < finalGlobalChangeNumber);
-
-            _logger.LogInformation("Synchronization completed successfully.");
         }
         catch (Exception ex)
         {
