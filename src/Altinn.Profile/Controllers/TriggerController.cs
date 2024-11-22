@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using Altinn.Profile.Integrations.ContactRegister;
 
@@ -41,13 +42,23 @@ public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJo
     {
         try
         {
-            _contactRegisterUpdateJob.SyncContactInformationAsync();
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _contactRegisterUpdateJob.SyncContactInformationAsync();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "An error occurred during the background synchronization.");
+                }
+            });
 
             return Ok("Synchronization has started.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while starting the synchronization.");
+            _logger.LogError(ex, "An error occurred while initiating the synchronization.");
 
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while synchronizing the changes.");
         }
