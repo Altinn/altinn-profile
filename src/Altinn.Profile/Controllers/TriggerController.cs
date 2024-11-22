@@ -44,7 +44,7 @@ public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJo
         {
             await _contactRegisterUpdateJob.SyncContactInformationAsync();
 
-            return Ok("Synchronization has started.");
+            return Ok("Synchronization has completed.");
         }
         catch (Exception ex)
         {
