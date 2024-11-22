@@ -1,7 +1,10 @@
-﻿using Altinn.Profile.Integrations.ContactRegister;
+﻿using System;
+
+using Altinn.Profile.Integrations.ContactRegister;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Altinn.Profile.Controllers;
 
@@ -12,13 +15,15 @@ namespace Altinn.Profile.Controllers;
 /// Initializes a new instance of the <see cref="TriggerController"/> class.
 /// </remarks>
 /// <param name="contactRegisterUpdateJob">The service for retrieving the contact details.</param>
+/// <param name="logger">A logger to log detailed information.</param>
 [ApiController]
 [ApiExplorerSettings(IgnoreApi = true)]
 [Consumes("application/json")]
 [Produces("application/json")]
 [Route("profile/api/v1/trigger")]
-public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJob) : ControllerBase
+public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJob, ILogger<TriggerController> logger) : ControllerBase
 {
+    private readonly ILogger<TriggerController> _logger = logger;
     private readonly IContactRegisterUpdateJob _contactRegisterUpdateJob = contactRegisterUpdateJob;
 
     /// <summary>
@@ -27,13 +32,24 @@ public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJo
     /// <returns>
     /// A task that represents the asynchronous operation. If successful, returns a status 200 OK.
     /// </returns>
-    /// <response code="200">Starting the synchronisation work was successfull.</response>
+    /// <response code="200">Starting the synchronization work was successful.</response>
+    /// <response code="500">An error occurred while starting the synchronization.</response>
     [HttpGet("syncpersonchanges")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public ActionResult SyncChanges()
     {
-        _contactRegisterUpdateJob.SyncContactInformationAsync();
+        try
+        {
+            _contactRegisterUpdateJob.SyncContactInformationAsync();
 
-        return Ok("Synchronization has started.");
+            return Ok("Synchronization has started.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while starting the synchronization.");
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while synchronizing the changes.");
+        }
     }
 }

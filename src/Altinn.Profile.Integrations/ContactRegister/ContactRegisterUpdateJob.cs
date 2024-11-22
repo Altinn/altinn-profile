@@ -1,7 +1,5 @@
 ﻿using Altinn.Profile.Integrations.Repositories;
 
-using Microsoft.Extensions.Logging;
-
 namespace Altinn.Profile.Integrations.ContactRegister;
 
 /// <summary>
@@ -12,20 +10,17 @@ namespace Altinn.Profile.Integrations.ContactRegister;
 /// <param name="contactRegisterHttpClient">A HTTP client that can be used to retrieve contact details changes</param>
 /// <param name="metadataRepository">A repository implementation for managing persistence of the job status between runs</param>
 /// <param name="personUpdater">A repository implementation for managing persistence for the local contact information</param>
-/// <param name="logger">A logger to log detailed information.</param>
 public class ContactRegisterUpdateJob(
     ContactRegisterSettings contactRegisterSettings,
     IContactRegisterHttpClient contactRegisterHttpClient,
     IMetadataRepository metadataRepository,
-    IPersonUpdater personUpdater,
-    ILogger<ContactRegisterUpdateJob> logger)
+    IPersonUpdater personUpdater)
     : IContactRegisterUpdateJob
 {
     private readonly ContactRegisterSettings _contactRegisterSettings = contactRegisterSettings;
     private readonly IContactRegisterHttpClient _contactRegisterHttpClient = contactRegisterHttpClient;
     private readonly IMetadataRepository _metadataRepository = metadataRepository;
     private readonly IPersonUpdater _personUpdater = personUpdater;
-    private readonly ILogger<ContactRegisterUpdateJob> _logger = logger;
 
     /// <summary>
     /// Retrieves all changes from the source registry and updates the local contact information.
@@ -39,43 +34,34 @@ public class ContactRegisterUpdateJob(
             throw new InvalidOperationException("The endpoint URL must not be null or empty.");
         }
 
-        try
-        {
-            long finalGlobalChangeNumber;
-            long lastProcessedChangeNumber;
+        long finalGlobalChangeNumber;
+        long lastProcessedChangeNumber;
 
-            do
+        do
+        {
+            long previousChangeNumber = await _metadataRepository.GetLatestChangeNumberAsync();
+
+            ContactRegisterChangesLog changesLog = await _contactRegisterHttpClient.GetContactDetailsChangesAsync(_contactRegisterSettings.ChangesLogEndpoint, previousChangeNumber);
+
+            if (changesLog == null)
             {
-                long previousChangeNumber = await _metadataRepository.GetLatestChangeNumberAsync();
-
-                ContactRegisterChangesLog changesLog = await _contactRegisterHttpClient.GetContactDetailsChangesAsync(_contactRegisterSettings.ChangesLogEndpoint, previousChangeNumber);
-
-                if (changesLog == null)
-                {
-                    break;
-                }
-
-                int updatedRowsCount = await _personUpdater.SyncPersonContactPreferencesAsync(changesLog);
-
-                if (updatedRowsCount > 0 && changesLog.EndingIdentifier.HasValue)
-                {
-                    lastProcessedChangeNumber = changesLog.EndingIdentifier.Value;
-                    await _metadataRepository.UpdateLatestChangeNumberAsync(lastProcessedChangeNumber);
-                }
-                else
-                {
-                    break;
-                }
-
-                finalGlobalChangeNumber = changesLog.LatestChangeIdentifier ?? lastProcessedChangeNumber;
+                break;
             }
-            while (lastProcessedChangeNumber < finalGlobalChangeNumber);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error occurred during the synchronization of contact information.");
 
-            throw;
+            int updatedRowsCount = await _personUpdater.SyncPersonContactPreferencesAsync(changesLog);
+
+            if (updatedRowsCount > 0 && changesLog.EndingIdentifier.HasValue)
+            {
+                lastProcessedChangeNumber = changesLog.EndingIdentifier.Value;
+                await _metadataRepository.UpdateLatestChangeNumberAsync(lastProcessedChangeNumber);
+            }
+            else
+            {
+                break;
+            }
+
+            finalGlobalChangeNumber = changesLog.LatestChangeIdentifier ?? lastProcessedChangeNumber;
         }
+        while (lastProcessedChangeNumber < finalGlobalChangeNumber);
     }
 }
