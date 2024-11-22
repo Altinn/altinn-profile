@@ -38,27 +38,17 @@ public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJo
     [HttpGet("syncpersonchanges")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public ActionResult SyncChanges()
+    public async Task<ActionResult> SyncChanges()
     {
         try
         {
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await _contactRegisterUpdateJob.SyncContactInformationAsync();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "An error occurred during the background synchronization.");
-                }
-            });
+            await _contactRegisterUpdateJob.SyncContactInformationAsync();
 
             return Ok("Synchronization has started.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while initiating the synchronization.");
+            _logger.LogError(ex, "An error occurred during the background synchronization.");
 
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while synchronizing the changes.");
         }
