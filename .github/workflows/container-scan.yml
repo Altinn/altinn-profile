@@ -12,11 +12,12 @@ on:
     branches: [ main ]
     types: [opened, synchronize, reopened]
     paths:
+      - '.github/workflows/container-scan.yml'
       - 'src/**'
       - 'Dockerfile'
 jobs:
   scan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker image
