@@ -1,8 +1,11 @@
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
@@ -20,7 +23,7 @@ public class ConfigurationManagerStub : IConfigurationManager<OpenIdConnectConfi
     {
         ICollection<SecurityKey> signingKeys = await GetSigningKeys();
 
-        OpenIdConnectConfiguration configuration = new OpenIdConnectConfiguration();
+        OpenIdConnectConfiguration configuration = new();
         foreach (var securityKey in signingKeys)
         {
             configuration.SigningKeys.Add(securityKey);
@@ -37,10 +40,10 @@ public class ConfigurationManagerStub : IConfigurationManager<OpenIdConnectConfi
 
     private static async Task<ICollection<SecurityKey>> GetSigningKeys()
     {
-        X509Certificate2 cert = new X509Certificate2("JWTValidationCert.cer");
+        X509Certificate2 cert = X509CertificateLoader.LoadCertificateFromFile("JWTValidationCert.cer");
         SecurityKey key = new X509SecurityKey(cert);
 
-        List<SecurityKey> signingKeys = new() { key };
+        List<SecurityKey> signingKeys = [key];
 
         return await Task.FromResult(signingKeys);
     }
