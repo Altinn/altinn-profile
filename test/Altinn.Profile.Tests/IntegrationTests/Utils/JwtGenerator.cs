@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -37,18 +39,18 @@ public static class JwtGenerator
         return serializedToken;
     }
 
-    private static SigningCredentials GetSigningCredentials(string issuer)
+    private static X509SigningCredentials GetSigningCredentials(string issuer)
     {
         string certPath = "jwtselfsignedcert.pfx";
         if (!issuer.Equals("UnitTest"))
         {
             certPath = $"{issuer}-org.pfx";
 
-            X509Certificate2 certIssuer = new X509Certificate2(certPath);
+            X509Certificate2 certIssuer = X509CertificateLoader.LoadPkcs12FromFile(certPath, string.Empty);
             return new X509SigningCredentials(certIssuer, SecurityAlgorithms.RsaSha256);
         }
 
-        X509Certificate2 cert = new X509Certificate2(certPath, "qwer1234");
+        X509Certificate2 cert = X509CertificateLoader.LoadPkcs12FromFile(certPath, "qwer1234");
         return new X509SigningCredentials(cert, SecurityAlgorithms.RsaSha256);
     }
 }
