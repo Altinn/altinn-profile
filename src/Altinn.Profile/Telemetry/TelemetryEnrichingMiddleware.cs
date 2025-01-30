@@ -56,14 +56,14 @@ internal sealed class TelemetryEnrichingMiddleware
                 AltinnCoreClaimTypes.Org,
                 static (claim, activity) =>
                 {
-                    activity.SetTag("user.org.id", claim.Value);
+                    activity.SetTag("user.application.owner.id", claim.Value);
                 }
             },
             { 
                 AltinnCoreClaimTypes.OrgNumber, 
                 static (claim, activity) =>
                 {
-                    activity.SetTag("user.org.number", claim.Value);
+                    activity.SetTag("user.organization.number", claim.Value);
                 }
             },
             {

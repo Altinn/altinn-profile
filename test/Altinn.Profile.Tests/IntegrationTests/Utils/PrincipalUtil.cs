@@ -49,14 +49,9 @@ public static class PrincipalUtil
         claims.Add(new Claim(AltinnCoreClaimTypes.Org, org, ClaimValueTypes.String, issuer));
         claims.Add(new Claim(AltinnCoreClaimTypes.AuthenticateMethod, "Mock", ClaimValueTypes.String, issuer));
         claims.Add(new Claim(AltinnCoreClaimTypes.AuthenticationLevel, authenticationLevel.ToString(), ClaimValueTypes.Integer32, issuer));
+        claims.Add(new Claim(AltinnCoreClaimTypes.OrgNumber, "orgno", ClaimValueTypes.Integer32, issuer));
 
-        ClaimsIdentity identity = new("mock");
-        identity.AddClaims(claims);
-
-        ClaimsPrincipal principal = new(identity);
-        string token = JwtGenerator.GenerateToken(principal, new TimeSpan(1, 1, 1));
-
-        return token;
+        return GenerateToken(claims);
     }
 
     public static string GetSystemUserToken(Guid systemUserId)
@@ -78,9 +73,24 @@ public static class PrincipalUtil
         claims.Add(new Claim(AltinnCoreClaimTypes.AuthenticateMethod, "Mock", ClaimValueTypes.String, issuer));
         claims.Add(new Claim(AltinnCoreClaimTypes.AuthenticationLevel, "3", ClaimValueTypes.Integer32, issuer));
 
+        return GenerateToken(claims);
+    }
+
+    public static string GetInvalidSystemUserToken(Guid systemUserId)
+    {
+        List<Claim> claims = [];
+        string issuer = "www.altinn.no";
+        string systemUser = "not a valid authorization_details claim";
+        claims.Add(new Claim("authorization_details", systemUser, ClaimValueTypes.String, issuer));
+
+        return GenerateToken(claims);
+    }
+
+    private static string GenerateToken(List<Claim> claims)
+    {
         ClaimsIdentity identity = new("mock");
         identity.AddClaims(claims);
-        
+
         ClaimsPrincipal principal = new(identity);
         string token = JwtGenerator.GenerateToken(principal, new TimeSpan(1, 1, 1));
 

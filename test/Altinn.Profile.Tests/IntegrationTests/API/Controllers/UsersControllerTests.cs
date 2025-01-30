@@ -266,6 +266,42 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
     }
 
     [Fact]
+    public async Task GetUsersById_AsInvalidSystemUser_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+    {
+        //// The content of the bearer token is invalid, but the profile doesn't check the content of the token. It's only
+        //// checking that the token is valid by verifying the signature. The purpose of the test is to trigger an
+        //// exception during telemetry enrichment from the claims principal.
+
+        // Arrange
+        const int UserId = 2516356;
+
+        HttpRequestMessage? sblRequest = null;
+        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        {
+            sblRequest = request;
+
+            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
+            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+        });
+        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
+
+        HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/{UserId}");
+        string token = PrincipalUtil.GetInvalidSystemUserToken(Guid.NewGuid());
+        httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
+
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+        // Assert
+        Assert.NotNull(sblRequest);
+        Assert.Equal(HttpMethod.Get, sblRequest.Method);
+        Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri?.ToString());
+    }
+
+    [Fact]
     public async Task GetUsersByUuid_AsUser_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
     {
         // Arrange
