@@ -25,9 +25,9 @@ internal sealed class TelemetryEnrichingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<TelemetryEnrichingMiddleware> _logger;
-    private static readonly FrozenDictionary<string, Action<Claim, Activity>> _claimActions;
+    private static readonly FrozenDictionary<string, Action<Claim, Activity>> _claimActions = InitClaimActions();
 
-    static TelemetryEnrichingMiddleware()
+    private static FrozenDictionary<string, Action<Claim, Activity>> InitClaimActions()
     {
         var actions = new Dictionary<string, Action<Claim, Activity>>(StringComparer.OrdinalIgnoreCase)
         {
@@ -77,7 +77,7 @@ internal sealed class TelemetryEnrichingMiddleware
             },
         };
 
-        _claimActions = actions.ToFrozenDictionary();
+        return actions.ToFrozenDictionary();
     }
 
     /// <summary>

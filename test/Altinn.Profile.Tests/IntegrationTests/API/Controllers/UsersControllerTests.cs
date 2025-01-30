@@ -26,7 +26,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
 {
     private readonly WebApplicationFactorySetup<UsersController> _webApplicationFactorySetup;
 
-    private readonly JsonSerializerOptions serializerOptionsCamelCase = new()
+    private readonly JsonSerializerOptions _serializerOptionsCamelCase = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
@@ -70,7 +70,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         string responseContent = await response.Content.ReadAsStringAsync();
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
-            responseContent, serializerOptionsCamelCase);
+            responseContent, _serializerOptionsCamelCase);
         
         Assert.NotNull(actualUser);
 
@@ -161,7 +161,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         string responseContent = await response.Content.ReadAsStringAsync();
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
-            responseContent, serializerOptionsCamelCase);
+            responseContent, _serializerOptionsCamelCase);
         
         Assert.NotNull(actualUser);
 
@@ -207,7 +207,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         string responseContent = await response.Content.ReadAsStringAsync();
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
-            responseContent, serializerOptionsCamelCase);
+            responseContent, _serializerOptionsCamelCase);
         
         Assert.NotNull(actualUser);
 
@@ -253,7 +253,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         string responseContent = await response.Content.ReadAsStringAsync();
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
-            responseContent, serializerOptionsCamelCase);
+            responseContent, _serializerOptionsCamelCase);
 
         Assert.NotNull(actualUser);
 
@@ -335,7 +335,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         string responseContent = await response.Content.ReadAsStringAsync();
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
-            responseContent, serializerOptionsCamelCase);
+            responseContent, _serializerOptionsCamelCase);
         
         Assert.NotNull(actualUser);
 
@@ -520,7 +520,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         string responseContent = await response.Content.ReadAsStringAsync();
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
-            responseContent, serializerOptionsCamelCase);
+            responseContent, _serializerOptionsCamelCase);
         
         Assert.NotNull(actualUser);
 
