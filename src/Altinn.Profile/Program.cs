@@ -149,20 +149,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
             tracing.AddAspNetCoreInstrumentation(o =>
             {
-                o.Filter = (httpContext) =>
-                {
-                    if (TelemetryHelpers.ShouldExclude(httpContext.Request.Path))
-                    {
-                        return false;
-                    }
-
-                    return true;
-                };
-
-                o.EnrichWithHttpRequest = (activity, request) =>
-                {
-                    TelemetryHelpers.EnrichFromRequest(activity, request);
-                };
+                o.Filter = (httpContext) => !TelemetryHelpers.ShouldExclude(httpContext.Request.Path);
             });
 
             tracing.AddHttpClientInstrumentation();
@@ -278,6 +265,7 @@ void Configure()
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseTelemetryEnricher();
 
     app.MapControllers();
     app.MapHealthChecks("/health");

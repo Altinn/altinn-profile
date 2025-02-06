@@ -26,7 +26,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
 {
     private readonly WebApplicationFactorySetup<UsersController> _webApplicationFactorySetup;
 
-    private readonly JsonSerializerOptions serializerOptionsCamelCase = new()
+    private readonly JsonSerializerOptions _serializerOptionsCamelCase = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
@@ -70,7 +70,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         string responseContent = await response.Content.ReadAsStringAsync();
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
-            responseContent, serializerOptionsCamelCase);
+            responseContent, _serializerOptionsCamelCase);
         
         Assert.NotNull(actualUser);
 
@@ -91,6 +91,29 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "/profile/api/v1/users/current");
 
         string token = PrincipalUtil.GetOrgToken("ttd");
+        httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+        // Assert
+        string responseContent = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains("UserId must be provided in claims", responseContent);
+    }
+
+    [Fact]
+    public async Task GetUsersCurrent_AsSystemUser_ResponseBadRequest()
+    {
+        // Arrange
+        const int UserId = 2516356;
+
+        HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "/profile/api/v1/users/current");
+
+        string token = PrincipalUtil.GetSystemUserToken(Guid.NewGuid());
         httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
@@ -138,7 +161,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         string responseContent = await response.Content.ReadAsStringAsync();
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
-            responseContent, serializerOptionsCamelCase);
+            responseContent, _serializerOptionsCamelCase);
         
         Assert.NotNull(actualUser);
 
@@ -184,7 +207,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         string responseContent = await response.Content.ReadAsStringAsync();
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
-            responseContent, serializerOptionsCamelCase);
+            responseContent, _serializerOptionsCamelCase);
         
         Assert.NotNull(actualUser);
 
@@ -194,6 +217,88 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         Assert.Equal("Sophie Salt", actualUser.Party.Name);
         Assert.Equal("Sophie", actualUser.Party.Person.FirstName);
         Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
+    }
+
+    [Fact]
+    public async Task GetUsersById_AsSystemUser_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+    {
+        // Arrange
+        const int UserId = 2516356;
+
+        HttpRequestMessage? sblRequest = null;
+        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        {
+            sblRequest = request;
+
+            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
+            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+        });
+        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
+
+        HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/{UserId}");
+        string token = PrincipalUtil.GetSystemUserToken(Guid.NewGuid());
+        httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
+
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+        // Assert
+        Assert.NotNull(sblRequest);
+        Assert.Equal(HttpMethod.Get, sblRequest.Method);
+        Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri?.ToString());
+
+        string responseContent = await response.Content.ReadAsStringAsync();
+
+        UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
+            responseContent, _serializerOptionsCamelCase);
+
+        Assert.NotNull(actualUser);
+
+        // These asserts check that deserializing with camel casing was successful.
+        Assert.Equal(UserId, actualUser.UserId);
+        Assert.Equal("sophie", actualUser.UserName);
+        Assert.Equal("Sophie Salt", actualUser.Party.Name);
+        Assert.Equal("Sophie", actualUser.Party.Person.FirstName);
+        Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
+    }
+
+    [Fact]
+    public async Task GetUsersById_AsInvalidSystemUser_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+    {
+        //// The content of the bearer token is invalid, but the profile doesn't check the content of the token. It's only
+        //// checking that the token is valid by verifying the signature. The purpose of the test is to trigger an
+        //// exception during telemetry enrichment from the claims principal.
+
+        // Arrange
+        const int UserId = 2516356;
+
+        HttpRequestMessage? sblRequest = null;
+        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        {
+            sblRequest = request;
+
+            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
+            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+        });
+        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
+
+        HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/{UserId}");
+        string token = PrincipalUtil.GetInvalidSystemUserToken(Guid.NewGuid());
+        httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
+
+        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+        // Assert
+        Assert.NotNull(sblRequest);
+        Assert.Equal(HttpMethod.Get, sblRequest.Method);
+        Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri?.ToString());
     }
 
     [Fact]
@@ -230,7 +335,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         string responseContent = await response.Content.ReadAsStringAsync();
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
-            responseContent, serializerOptionsCamelCase);
+            responseContent, _serializerOptionsCamelCase);
         
         Assert.NotNull(actualUser);
 
@@ -415,7 +520,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         string responseContent = await response.Content.ReadAsStringAsync();
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
-            responseContent, serializerOptionsCamelCase);
+            responseContent, _serializerOptionsCamelCase);
         
         Assert.NotNull(actualUser);
 

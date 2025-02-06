@@ -1,37 +1,38 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<!-- SonarCloud needs this -->
-		<ProjectGuid>{d32c4ee9-e827-467a-b116-8ef0ba08a11f}</ProjectGuid>
-		<UserSecretsId>bca64e38-bd2b-434e-96c0-e486dfed625d</UserSecretsId>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <UserSecretsId>bca64e38-bd2b-434e-96c0-e486dfed625d</UserSecretsId>
+    <!-- SonarCloud needs the ProjectGuid value -->
+    <ProjectGuid>{d32c4ee9-e827-467a-b116-8ef0ba08a11f}</ProjectGuid>
+  </PropertyGroup>
 
   <ItemGroup>
-		<PackageReference Include="Altinn.Common.AccessToken" Version="4.5.5" />
-		<PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.3.2" />
-		<PackageReference Include="JWTCookieAuthentication" Version="4.0.1" />
-		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.11.1" />
-    	<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.11.0" />
-    	<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.11.0" />
-		<PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.3.0" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
-	</ItemGroup>
+    <PackageReference Include="Altinn.Common.AccessToken" Version="4.5.5" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.3.2" />
+    <PackageReference Include="JWTCookieAuthentication" Version="4.0.1" />
+    <PackageReference Include="Altinn.Common.PEP" Version="4.1.2" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.11.1" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.11.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.11.0" />
+    <PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.3.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Altinn.Profile.Core\Altinn.Profile.Core.csproj" />
-		<ProjectReference Include="..\Altinn.Profile.Integrations\Altinn.Profile.Integrations.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Altinn.Profile.Core\Altinn.Profile.Core.csproj" />
+    <ProjectReference Include="..\Altinn.Profile.Integrations\Altinn.Profile.Integrations.csproj" />
+  </ItemGroup>
 
-	<ItemGroup Condition="'$(Configuration)'=='Debug'">
-		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-		</PackageReference>
-		<AdditionalFiles Include="..\..\stylecop.json">
-			<Link>stylecop.json</Link>
-		</AdditionalFiles>
-	</ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'=='Debug'">
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <AdditionalFiles Include="..\..\stylecop.json">
+      <Link>stylecop.json</Link>
+    </AdditionalFiles>
+  </ItemGroup>
 
 </Project>
