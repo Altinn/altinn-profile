@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using System.Text.Json;
 
+using Altinn.AccessManagement.Core.Models;
 using Altinn.Common.AccessToken.Constants;
 
 using AltinnCore.Authentication.Constants;
@@ -56,19 +58,19 @@ public static class PrincipalUtil
 
     public static string GetSystemUserToken(Guid systemUserId)
     {
-        List<Claim> claims = [];
         string issuer = "www.altinn.no";
-        string systemUser = $$"""
+        SystemUserClaim systemUserClaim = new SystemUserClaim()
+        {
+            Systemuser_org = new()
             {
-                "type": "urn:altinn:systemuser",
-                "systemuser_org": {
-                    "authority": "iso6523-actorid-upis",
-                    "ID": "myOrg"
-                },
-                "systemuser_id":["{{systemUserId}}"],
-                "system_id": "the_matrix"
-            }
-        """;
+                ID = "myOrg"
+            },
+            Systemuser_id = [systemUserId.ToString()],
+            System_id = "the_matrix"
+        };
+        string systemUser = JsonSerializer.Serialize(systemUserClaim);
+
+        List<Claim> claims = [];
         claims.Add(new Claim("authorization_details", systemUser, ClaimValueTypes.String, issuer));
         claims.Add(new Claim(AltinnCoreClaimTypes.AuthenticateMethod, "Mock", ClaimValueTypes.String, issuer));
         claims.Add(new Claim(AltinnCoreClaimTypes.AuthenticationLevel, "3", ClaimValueTypes.Integer32, issuer));
