@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0.102-alpine3.20 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0.200-alpine3.20 AS build
 WORKDIR /app
 
 COPY src/Altinn.Profile/*.csproj ./src/Altinn.Profile/
@@ -10,7 +10,7 @@ RUN dotnet restore ./src/Altinn.Profile/Altinn.Profile.csproj
 COPY src ./src
 RUN dotnet publish -c Release -o /app_output ./src/Altinn.Profile/Altinn.Profile.csproj
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0.1-alpine3.20 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:9.0.2-alpine3.20 AS final
 EXPOSE 5030
 WORKDIR /app
 
