@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Altinn.Profile.Integrations.OfficialAddressRegister
 {
@@ -36,5 +37,11 @@ namespace Altinn.Profile.Integrations.OfficialAddressRegister
         /// </summary>
         [JsonPropertyName("content")]
         public string? ContentStringified { get; init; }
+
+        /// <summary>
+        /// Gets the content of the contact point.
+        /// </summary>
+        [JsonIgnore] 
+        public EntryContent? Content => ContentStringified != null ? JsonSerializer.Deserialize<EntryContent>(ContentStringified) : throw new ArgumentNullException("Missing content");
     }
 }
