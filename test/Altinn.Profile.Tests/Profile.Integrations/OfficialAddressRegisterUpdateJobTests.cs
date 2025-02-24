@@ -15,6 +15,7 @@ public class OfficialAddressRegisterUpdateJobTests()
 {
     private readonly OfficialAddressRegisterSettings _settings = new() { ChangesLogEndpoint = "https://example.com/changes", ChangesLogPageSize = 10000 };
     private readonly Mock<IOfficialAddressMetadataRepository> _metadataRepository = new();
+    private readonly Mock<IOfficialAddressUpdater> _officialAddressUpdater = new();
     private readonly Mock<IOfficialAddressHttpClient> _httpClient = new();
 
     [Fact]
@@ -23,7 +24,7 @@ public class OfficialAddressRegisterUpdateJobTests()
         // Arrange
         OfficialAddressRegisterSettings settings = new();
         OfficialAddressRegisterUpdateJob target =
-            new(settings, _httpClient.Object, _metadataRepository.Object);
+            new(settings, _httpClient.Object, _metadataRepository.Object, _officialAddressUpdater.Object);
 
         // Act
         InvalidOperationException actual = null;
@@ -51,13 +52,13 @@ public class OfficialAddressRegisterUpdateJobTests()
         _httpClient.SetupSequence(h => h.GetAddressChangesAsync(It.IsAny<string>()))
             .ReturnsAsync(await TestDataLoader.Load<OfficialAddressRegisterChangesLog>("changes_1"))
             .ReturnsAsync(await TestDataLoader.Load<OfficialAddressRegisterChangesLog>("changes_2"));
-        /*
-        _personRepository.SetupSequence(p => p.SyncPersonContactPreferencesAsync(It.IsAny<OfficialAddressRegisterChangesLog>()))
-            .ReturnsAsync(10)
-            .ReturnsAsync(5);*/
+        
+        _officialAddressUpdater.SetupSequence(p => p.SyncOfficialContactsAsync(It.IsAny<OfficialAddressRegisterChangesLog>()))
+            .ReturnsAsync(2)
+            .ReturnsAsync(4);
 
         OfficialAddressRegisterUpdateJob target =
-            new(_settings, _httpClient.Object, _metadataRepository.Object);
+            new(_settings, _httpClient.Object, _metadataRepository.Object, _officialAddressUpdater.Object);
 
         // Act
         await target.SyncContactInformationAsync();
@@ -65,5 +66,6 @@ public class OfficialAddressRegisterUpdateJobTests()
         // Assert
         _metadataRepository.VerifyAll();
         _httpClient.VerifyAll();
+        _officialAddressUpdater.VerifyAll();
     }
 }

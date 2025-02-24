@@ -9,15 +9,18 @@ namespace Altinn.Profile.Integrations.OfficialAddressRegister;
 /// <param name="OfficialAddressRegisterSettings">Settings for the synchronization update job</param>
 /// <param name="OfficialAddressRegisterHttpClient">A HTTP client that can be used to retrieve contact details changes</param>
 /// <param name="metadataRepository">A repository implementation for managing persistence of the job status between runs</param>
+/// <param name="officialContactUpdater">A repository implementation for managing persistence for the local contact information</param>
 public class OfficialAddressRegisterUpdateJob(
     OfficialAddressRegisterSettings OfficialAddressRegisterSettings,
     IOfficialAddressHttpClient OfficialAddressRegisterHttpClient,
-    IOfficialAddressMetadataRepository metadataRepository)
+    IOfficialAddressMetadataRepository metadataRepository,
+    IOfficialAddressUpdater officialContactUpdater)
     : IOfficialAddressRegisterUpdateJob
 {
     private readonly OfficialAddressRegisterSettings _officialAddressRegisterSettings = OfficialAddressRegisterSettings;
     private readonly IOfficialAddressHttpClient _officialAddressRegisterHttpClient = OfficialAddressRegisterHttpClient;
     private readonly IOfficialAddressMetadataRepository _metadataRepository = metadataRepository;
+    private readonly IOfficialAddressUpdater _officialContactUpdater = officialContactUpdater;
 
     /// <summary>
     /// Retrieves all changes from the source registry and updates the local contact information.
@@ -39,26 +42,24 @@ public class OfficialAddressRegisterUpdateJob(
         {
             OfficialAddressRegisterChangesLog changesLog = await _officialAddressRegisterHttpClient.GetAddressChangesAsync(fullUrl);
 
-            if (changesLog == null)
+            if (changesLog?.OfficialAddressList == null || changesLog.OfficialAddressList?.Count == 0)
             {
                 break;
             }
+            
+            int updatedRowsCount = await _officialContactUpdater.SyncOfficialContactsAsync(changesLog);
 
-            /*
-            int updatedRowsCount = await _personUpdater.SyncPersonContactPreferencesAsync(changesLog);
-
-            if (updatedRowsCount > 0 && changesLog.EndingIdentifier.HasValue)
+            if (updatedRowsCount > 0 && changesLog.Updated.HasValue)
             {
-                lastProcessedChangeNumber = changesLog.EndingIdentifier.Value;
-                await _metadataRepository.UpdateLatestChangeNumberAsync(lastProcessedChangeNumber);
+                var lastUpdatedTimestamp = changesLog.Updated;
+                await _metadataRepository.UpdateLatestChangeTimestampAsync((DateTime)lastUpdatedTimestamp);
             }
             else
             {
                 break;
             }
-            */
-            fullUrl = changesLog.NextPage?.ToString();
             
+            fullUrl = changesLog.NextPage?.ToString();
         }
         while (!string.IsNullOrEmpty(fullUrl));
     }

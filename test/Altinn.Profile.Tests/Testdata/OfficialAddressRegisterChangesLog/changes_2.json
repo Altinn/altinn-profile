@@ -12,9 +12,23 @@
     {
       "title": "4798765432",
       "id": "37ab4733648c4d5b825a813c6e1ace70",
-      "updated": "2025-01-16T09:07:11Z",
+      "updated": "2022-01-16T09:07:11Z",
       "isdeleted": false,
       "content": "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"mobiltelefon\":{\"navn\":\"4798765432\",\"internasjonaltPrefiks\":\"47\",\"nasjonaltNummer\":\"98765432\"}},\"identifikator\":\"37ab4733648c4d5b825a813c6e1ace70\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"920254321\",\"type\":\"ORGANISASJONSNUMMER\"}}}}"
+    },
+    {
+      "title": "mock@test.no",
+      "id": "27ae0c8bea1f4f02a974c10429c32759",
+      "updated": "2024-01-15T10:01:14Z",
+      "isdeleted": false,
+      "content": "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"epostadresse\":{\"navn\":\"mock@test.no\",\"domenenavn\":\"test.no\",\"brukernavn\":\"mock\"}},\"identifikator\":\"27ae0c8bea1f4f02a974c10429c32758\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"920212345\",\"type\":\"ORGANISASJONSNUMMER\"}}}}"
+    },
+    {
+      "title": "4798765431",
+      "id": "37ab4733648c4d5b825a813c6e1ace71",
+      "updated": "2025-01-16T09:07:11Z",
+      "isdeleted": false,
+      "content": "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"mobiltelefon\":{\"navn\":\"4798765431\",\"internasjonaltPrefiks\":\"47\",\"nasjonaltNummer\":\"98765431\"}},\"identifikator\":\"37ab4733648c4d5b825a813c6e1ace70\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"920254321\",\"type\":\"ORGANISASJONSNUMMER\"}}}}"
     }
   ]
 }
