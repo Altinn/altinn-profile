@@ -44,7 +44,7 @@ public partial class ProfileDbContext : DbContext
     /// <summary>
     /// Gets or sets the <see cref="DbSet{OfficialAddressSyncMetadata}"/> timestamp for last brreg-sync.
     /// </summary>
-    public virtual DbSet<OfficialAddressSyncMetadata> OfficialAddressSyncMetadata { get; set; }
+    public virtual DbSet<OfficialInfoSyncMetadata> OfficialAddressSyncMetadata { get; set; }
 
     /// <summary>
     /// Configures the schema needed for the context.
@@ -87,7 +87,7 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.CreatedDateTime).HasComputedColumnSql("CURRENT_TIMESTAMP");
         });
 
-        modelBuilder.Entity<OfficialAddressSyncMetadata>(entity =>
+        modelBuilder.Entity<OfficialInfoSyncMetadata>(entity =>
         {
             entity.HasKey(e => e.LastChangedId).HasName("official_address_metadata_pkey");
         });
