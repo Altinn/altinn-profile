@@ -19,16 +19,16 @@ namespace Altinn.Profile.Integrations.Entities
         public int KoFuViOrganizationNumber { get; set; }
 
         /// <summary>
-        /// Gets or sets <see cref="KoFuViID"/>
+        /// Gets or sets <see cref="KoFuViOrganizationId"/>
         /// </summary>
         [Required]
         [StringLength(32)]
         [Column("kofuvi_organization_id")]
-        public string KoFuViOrganizationId { get; set; }
+        public required string KoFuViOrganizationId { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="OfficialContactPoint"/>
         /// </summary>
-        public List<OfficialContactPoint> OfficialContactPoints { get; set; }
+        public List<OfficialContactPoint>? OfficialContactPoints { get; set; }
     }
 }
