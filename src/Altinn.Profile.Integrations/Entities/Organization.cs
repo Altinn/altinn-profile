@@ -6,7 +6,7 @@ namespace Altinn.Profile.Integrations.Entities
     /// <summary>
     /// class for organizations connection id and orgNumber
     /// </summary>
-    [Table("Organizations", Schema = "organization_contact_info")]
+    [Table("organizations", Schema = "organization_contact_info")]
 
     public class Organization
     {

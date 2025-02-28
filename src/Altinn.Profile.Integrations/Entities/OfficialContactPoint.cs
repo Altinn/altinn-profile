@@ -9,7 +9,7 @@ namespace Altinn.Profile.Integrations.Entities
     /// <summary>
     /// class for official contact points for organizations 
     /// </summary>
-    [Table("OfficialContactPoints", Schema = "organization_contact_info")]
+    [Table("official_contact_points", Schema = "organization_contact_info")]
     public class OfficialContactPoint
     {
         /// <summary>
