@@ -40,7 +40,7 @@ public class OfficialAddressHttpClient : IOfficialAddressHttpClient
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new Exception("Failed to retrieve contact details changes.");
+            throw new OfficialAddressRegisterChangesException("Failed to retrieve contact details changes.");
         }
 
         var responseData = await response.Content.ReadAsStringAsync();
@@ -49,7 +49,7 @@ public class OfficialAddressHttpClient : IOfficialAddressHttpClient
 
         if (responseObject == null || responseObject.OfficialAddressList == null)
         {
-            throw new Exception("Failed to deserialize the response from the contact and reservation registry.");
+            throw new OfficialAddressRegisterChangesException("Failed to deserialize the response from the contact and reservation registry.");
         }
 
         return responseObject;

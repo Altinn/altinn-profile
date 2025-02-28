@@ -92,7 +92,7 @@ namespace Altinn.Profile.Integrations.OfficialAddressRegister
                     /// Gets the international prefix of the phone number.
                     /// </summary>
                     [JsonPropertyName("internasjonaltPrefiks")]
-                    public string? Domain { get; init; }
+                    public string? Prefix { get; init; }
 
                     /// <summary>
                     /// Gets the national phone number.

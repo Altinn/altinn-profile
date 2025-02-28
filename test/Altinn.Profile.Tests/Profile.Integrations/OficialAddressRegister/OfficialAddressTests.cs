@@ -42,7 +42,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OficialAddressRegister
 
             Assert.Equal("98765432", content.ContactPoint.DigitalContactPoint.PhoneNumber.NationalNumber);
             Assert.Equal("4798765432", content.ContactPoint.DigitalContactPoint.PhoneNumber.Number);
-            Assert.Equal("47", content.ContactPoint.DigitalContactPoint.PhoneNumber.Domain);
+            Assert.Equal("47", content.ContactPoint.DigitalContactPoint.PhoneNumber.Prefix);
 
             Assert.Null(content.ContactPoint.DigitalContactPoint.EmailAddress);
 
