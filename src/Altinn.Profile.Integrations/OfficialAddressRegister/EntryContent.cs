@@ -11,12 +11,12 @@ namespace Altinn.Profile.Integrations.OfficialAddressRegister
         /// Gets the content of the cotanct point.
         /// </summary>
         [JsonPropertyName("Kontaktinformasjon")]
-        public ContactPoint? Kontaktinformasjon { get; init; }
+        public ContactPointModel? ContactPoint { get; init; }
 
         /// <summary>
         /// Gets the content of the cotanct point.
         /// </summary>
-        public record ContactPoint
+        public record ContactPointModel
         {
             /// <summary>
             /// Gets the identificator of the cotanct point.

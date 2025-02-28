@@ -42,6 +42,6 @@ namespace Altinn.Profile.Integrations.OfficialAddressRegister
         /// Gets the content of the contact point.
         /// </summary>
         [JsonIgnore] 
-        public EntryContent? Content => ContentStringified != null ? JsonSerializer.Deserialize<EntryContent>(ContentStringified) : throw new ArgumentNullException("Missing content");
+        public EntryContent? Content => ContentStringified != null ? JsonSerializer.Deserialize<EntryContent>(ContentStringified) : throw new ArgumentNullException("Content");
     }
 }
