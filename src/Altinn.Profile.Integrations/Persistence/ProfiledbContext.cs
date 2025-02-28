@@ -84,7 +84,8 @@ public partial class ProfileDbContext : DbContext
         {
             entity.HasKey(e => e.NotificationEndpointID).HasName("official_contact_pkey"); ;
             entity.Property(e => e.KoFuViOrganizationNumber);
-            entity.Property(e => e.CreatedDateTime).HasComputedColumnSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.CreatedDateTime).HasDefaultValueSql("now()").ValueGeneratedOnAdd();
+            entity.HasIndex(d => d.KoFuViOrganizationNumber).IsUnique();
         });
 
         modelBuilder.Entity<OfficialInfoSyncMetadata>(entity =>
