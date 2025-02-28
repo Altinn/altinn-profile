@@ -37,6 +37,11 @@ public partial class ProfileDbContext : DbContext
     public virtual DbSet<Person> People { get; set; }
 
     /// <summary>
+    /// Gets or sets <see cref="DbSet{Organization}"/> orgnumber and id.
+    /// </summary>
+    public virtual DbSet<Organization> Organizations { get; set; }
+
+    /// <summary>
     /// Gets or sets the <see cref="DbSet{OfficialContactPoint}"/> for organizations.
     /// </summary>
     public virtual DbSet<OfficialContactPoint> OfficialContactPoints { get; set; }
@@ -82,12 +87,17 @@ public partial class ProfileDbContext : DbContext
 
         modelBuilder.Entity<OfficialContactPoint>(entity =>
         {
-            entity.HasKey(e => e.NotificationEndpointID).HasName("official_contact_pkey"); ;
-            entity.Property(e => e.KoFuViOrganizationNumber);
+            entity.HasKey(e => e.NotificationEndpointID).HasName("official_contact_pkey");
+            entity.HasAlternateKey(e => e.KoFuViOrganizationID).HasName("kofuvi_organization_id_akey");
             entity.Property(e => e.CreatedDateTime).HasDefaultValueSql("now()").ValueGeneratedOnAdd();
-            entity.HasIndex(d => d.KoFuViOrganizationNumber).IsUnique();
         });
 
+        modelBuilder.Entity<Organization>(entity =>
+        {
+            entity.HasKey(e => e.KoFuViOrganizationId).HasName("organization_id_pkey");
+            entity.HasMany(e => e.OfficialContactPoints);
+            entity.HasIndex(d => d.KoFuViOrganizationNumber).IsUnique();
+        });
         modelBuilder.Entity<OfficialInfoSyncMetadata>(entity =>
         {
             entity.HasKey(e => e.LastChangedId).HasName("official_address_metadata_pkey");

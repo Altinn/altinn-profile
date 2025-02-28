@@ -20,18 +20,19 @@ namespace Altinn.Profile.Integrations.Entities
         public int NotificationEndpointID { get; set; }
 
         /// <summary>
-        /// Gets or sets <see cref="KoFuViOrganizationNumber"/>
+        /// Gets or sets <see cref="KoFuViOrganizationID"/>
         /// </summary>
         [Required]
-        [Column("kofuvi_organization_number")]
-        public int KoFuViOrganizationNumber { get; set; }
+        [StringLength(32)]
+        [Column("kofuvi_organization_id")]
+        public string KoFuViOrganizationID { get; set; }
 
         /// <summary>
         /// Gets or sets <see cref="KoFuViID"/>
         /// </summary>
         [Required]
         [StringLength(32)]
-        [Column("kofuvi_organization_id")]
+        [Column("kofuvi_id")]
         public string KoFuViID { get; set; }
 
         /// <summary>
