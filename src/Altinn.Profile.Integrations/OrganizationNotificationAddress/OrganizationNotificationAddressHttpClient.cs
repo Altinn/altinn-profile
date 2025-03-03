@@ -40,7 +40,7 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new OrganizationNotificationAddressChangesException("Failed to retrieve contact details changes.");
+            throw new OrganizationNotificationAddressChangesException($"Failed to retrieve contact details changes. StatusCode: {response.StatusCode}");
         }
 
         var responseData = await response.Content.ReadAsStringAsync();
@@ -49,7 +49,7 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
 
         if (responseObject == null || responseObject.OrganizationNotificationAddressList == null)
         {
-            throw new OrganizationNotificationAddressChangesException("Failed to deserialize the response from the contact and reservation registry.");
+            throw new OrganizationNotificationAddressChangesException("Failed to deserialize the response from the organization notification address sync.");
         }
 
         return responseObject;

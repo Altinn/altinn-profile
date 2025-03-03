@@ -12,7 +12,7 @@ public record NotificationAddressChangesLog
     /// Gets the collection of snapshots representing the changes to notification addresses of an organization.
     /// </summary>
     [JsonPropertyName("entries")]
-    public IImmutableList<OrganizationNotificationAddress>? OrganizationNotificationAddressList { get; init; }
+    public IList<OrganizationNotificationAddress>? OrganizationNotificationAddressList { get; init; }
 
     /// <summary>
     /// Gets the title.

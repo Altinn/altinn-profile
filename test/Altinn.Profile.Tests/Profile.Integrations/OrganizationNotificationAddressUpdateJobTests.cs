@@ -67,4 +67,26 @@ public class OrganizationNotificationAddressUpdateJobTests()
         _httpClient.VerifyAll();
         _organizationNotificationAddressUpdater.VerifyAll();
     }
+
+    [Fact]
+    public async Task SyncNotificationAddressesAsyncTest_DoNothingIfNoChanges()
+    {
+        // Arrange
+        _metadataRepository.SetupSequence(m => m.GetLatestSyncTimestampAsync())
+    .ReturnsAsync(DateTime.Now.AddDays(-1));
+
+        _httpClient.SetupSequence(h => h.GetAddressChangesAsync(It.IsAny<string>()))
+            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_0"));
+
+        OrganizationNotificationAddressUpdateJob target =
+            new(_settings, _httpClient.Object, _metadataRepository.Object, _organizationNotificationAddressUpdater.Object);
+
+        // Act
+        await target.SyncNotificationAddressesAsync();
+
+        // Assert
+        _metadataRepository.VerifyAll();
+        _httpClient.VerifyAll();
+        _organizationNotificationAddressUpdater.VerifyNoOtherCalls();
+    }
 }
