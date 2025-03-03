@@ -1,18 +1,18 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
-namespace Altinn.Profile.Integrations.OfficialAddressRegister;
+namespace Altinn.Profile.Integrations.OrganizationNotificationAddress;
 
 /// <summary>
-/// Gets the collection of snapshots representing the changes to offical addresses of a unit.
+/// Gets the collection of snapshots representing the changes to notification addresses of an organization.
 /// </summary>
-public record OfficialAddressRegisterChangesLog
+public record NotificationAddressChangesLog
 {
     /// <summary>
-    /// Gets the collection of snapshots representing the changes to offical addresses of a unit.
+    /// Gets the collection of snapshots representing the changes to notification addresses of an organization.
     /// </summary>
     [JsonPropertyName("entries")]
-    public IImmutableList<OfficialAddress>? OfficialAddressList { get; init; }
+    public IImmutableList<OrganizationNotificationAddress>? OrganizationNotificationAddressList { get; init; }
 
     /// <summary>
     /// Gets the title.

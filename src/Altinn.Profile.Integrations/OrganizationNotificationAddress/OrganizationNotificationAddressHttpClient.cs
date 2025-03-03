@@ -1,20 +1,20 @@
 ﻿using System.Text.Json;
 using Altinn.Profile.Core.Extensions;
 
-namespace Altinn.Profile.Integrations.OfficialAddressRegister;
+namespace Altinn.Profile.Integrations.OrganizationNotificationAddress;
 
 /// <summary>
 /// An HTTP client to interact with the contact register.
 /// </summary>
-public class OfficialAddressHttpClient : IOfficialAddressHttpClient
+public class OrganizationNotificationAddressHttpClient : IOrganizationNotificationAddressHttpClient
 {
     private readonly HttpClient _httpClient;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="OfficialAddressHttpClient"/> class.
+    /// Initializes a new instance of the <see cref="OrganizationNotificationAddressHttpClient"/> class.
     /// </summary>
     /// <param name="httpClient">The HTTP client to interact with KoFuVi.</param>
-    public OfficialAddressHttpClient(HttpClient httpClient)
+    public OrganizationNotificationAddressHttpClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }
@@ -27,7 +27,7 @@ public class OfficialAddressHttpClient : IOfficialAddressHttpClient
     /// A task that represents the asynchronous operation with the returned values.
     /// </returns>
     /// <exception cref="System.ArgumentException">The URL is invalid. - endpointUrl</exception>
-    public async Task<OfficialAddressRegisterChangesLog> GetAddressChangesAsync(string endpointUrl)
+    public async Task<NotificationAddressChangesLog> GetAddressChangesAsync(string endpointUrl)
     {
         if (!endpointUrl.IsValidUrl())
         {
@@ -40,16 +40,16 @@ public class OfficialAddressHttpClient : IOfficialAddressHttpClient
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new OfficialAddressRegisterChangesException("Failed to retrieve contact details changes.");
+            throw new OrganizationNotificationAddressChangesException("Failed to retrieve contact details changes.");
         }
 
         var responseData = await response.Content.ReadAsStringAsync();
 
-        var responseObject = JsonSerializer.Deserialize<OfficialAddressRegisterChangesLog>(responseData);
+        var responseObject = JsonSerializer.Deserialize<NotificationAddressChangesLog>(responseData);
 
-        if (responseObject == null || responseObject.OfficialAddressList == null)
+        if (responseObject == null || responseObject.OrganizationNotificationAddressList == null)
         {
-            throw new OfficialAddressRegisterChangesException("Failed to deserialize the response from the contact and reservation registry.");
+            throw new OrganizationNotificationAddressChangesException("Failed to deserialize the response from the contact and reservation registry.");
         }
 
         return responseObject;

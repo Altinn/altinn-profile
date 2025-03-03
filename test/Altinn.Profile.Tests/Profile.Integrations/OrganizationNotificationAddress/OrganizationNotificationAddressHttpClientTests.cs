@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Altinn.Profile.Integrations.OfficialAddressRegister;
+using Altinn.Profile.Integrations.OrganizationNotificationAddress;
 using Moq;
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.OficialAddressRegister
 {
-    public class OfficialAddressHttpClientTests
+    public class OrganizationNotificationAddressHttpClientTests
     {
         private readonly Mock<HttpMessageHandler> _messageHandler = new();
 
@@ -15,7 +15,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OficialAddressRegister
         public async Task ThrowsWhenMissingEndpointURl()
         {
             var httpClient = new HttpClient(_messageHandler.Object);
-            var client = new OfficialAddressHttpClient(httpClient);
+            var client = new OrganizationNotificationAddressHttpClient(httpClient);
 
             await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync(null));
         }
@@ -24,7 +24,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OficialAddressRegister
         public async Task ThrowsWhenEmptyEndpointURl()
         {
             var httpClient = new HttpClient(_messageHandler.Object);
-            var client = new OfficialAddressHttpClient(httpClient);
+            var client = new OrganizationNotificationAddressHttpClient(httpClient);
 
             await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync(string.Empty));
         }
@@ -33,7 +33,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OficialAddressRegister
         public async Task ThrowsWhenInvalidEndpointURl()
         {
             var httpClient = new HttpClient(_messageHandler.Object);
-            var client = new OfficialAddressHttpClient(httpClient);
+            var client = new OrganizationNotificationAddressHttpClient(httpClient);
 
             await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync("notAnUrl"));
         }

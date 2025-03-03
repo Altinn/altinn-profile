@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Altinn.Profile.Integrations.OfficialAddressRegister
+namespace Altinn.Profile.Integrations.OrganizationNotificationAddress
 {
     /// <summary>
     /// Gets the content of the cotanct point.

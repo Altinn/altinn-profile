@@ -1,24 +1,24 @@
 ﻿using System;
-using Altinn.Profile.Integrations.OfficialAddressRegister;
+using Altinn.Profile.Integrations.OrganizationNotificationAddress;
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.OficialAddressRegister
 {
-    public class OfficialAddressTests
+    public class OrganizationNotificationAddressTests
     {
         [Fact]
         public void ThrowsWhenMissingContent()
         {
-            var officialAddress = new OfficialAddress();
+            var organizationNotificationAddress = new OrganizationNotificationAddress();
 
-            Assert.Throws<ArgumentNullException>(() => officialAddress.Content);
+            Assert.Throws<ArgumentNullException>(() => organizationNotificationAddress.Content);
         }
 
         [Fact]
         public void DeserializesStringifiedEmailContent()
         {
-            var officialAddress = new OfficialAddress() { ContentStringified = "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"epostadresse\":{\"navn\":\"test@test.no\",\"domenenavn\":\"test.no\",\"brukernavn\":\"test\"}},\"identifikator\":\"27ae0c8bea1f4f02a974c10429c32758\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"920212345\",\"type\":\"ORGANISASJONSNUMMER\"}}}}" };
-            var content = officialAddress.Content;
+            var organizationNotificationAddress = new OrganizationNotificationAddress() { ContentStringified = "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"epostadresse\":{\"navn\":\"test@test.no\",\"domenenavn\":\"test.no\",\"brukernavn\":\"test\"}},\"identifikator\":\"27ae0c8bea1f4f02a974c10429c32758\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"920212345\",\"type\":\"ORGANISASJONSNUMMER\"}}}}" };
+            var content = organizationNotificationAddress.Content;
 
             Assert.Equal("27ae0c8bea1f4f02a974c10429c32758", content.ContactPoint.Id);
 
@@ -35,8 +35,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OficialAddressRegister
         [Fact]
         public void DeserializesStringifiedPhoneContent()
         {
-            var officialAddress = new OfficialAddress() { ContentStringified = "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"mobiltelefon\":{\"navn\":\"4798765432\",\"internasjonaltPrefiks\":\"47\",\"nasjonaltNummer\":\"98765432\"}},\"identifikator\":\"37ab4733648c4d5b825a813c6e1ace70\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"920254321\",\"type\":\"ORGANISASJONSNUMMER\"}}}}" };
-            var content = officialAddress.Content;
+            var organizationNotificationAddress = new OrganizationNotificationAddress() { ContentStringified = "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"mobiltelefon\":{\"navn\":\"4798765432\",\"internasjonaltPrefiks\":\"47\",\"nasjonaltNummer\":\"98765432\"}},\"identifikator\":\"37ab4733648c4d5b825a813c6e1ace70\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"920254321\",\"type\":\"ORGANISASJONSNUMMER\"}}}}" };
+            var content = organizationNotificationAddress.Content;
 
             Assert.Equal("37ab4733648c4d5b825a813c6e1ace70", content.ContactPoint.Id);
 

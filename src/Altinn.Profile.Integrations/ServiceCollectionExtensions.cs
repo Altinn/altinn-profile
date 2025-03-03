@@ -7,7 +7,7 @@ using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Mappings;
-using Altinn.Profile.Integrations.OfficialAddressRegister;
+using Altinn.Profile.Integrations.OrganizationNotificationAddress;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.SblBridge;
@@ -99,9 +99,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(contactRegisterSettings);
         services.AddMaskinportenHttpClient<SettingsJwkClientDefinition, IContactRegisterHttpClient, ContactRegisterHttpClient>(contactRegisterSettings.MaskinportenSettings);
 
-        var officialAddressRegisterSettings = new OfficialAddressRegisterSettings();
-        config.GetSection("OfficialAddressRegisterSettings").Bind(officialAddressRegisterSettings);
+        var organizationNotificationAddressSettings = new OrganizationNotificationAddressSettings();
+        config.GetSection("OrganizationNotificationAddressSettings").Bind(organizationNotificationAddressSettings);
 
-        services.AddSingleton(officialAddressRegisterSettings);
+        services.AddSingleton(organizationNotificationAddressSettings);
     }
 }

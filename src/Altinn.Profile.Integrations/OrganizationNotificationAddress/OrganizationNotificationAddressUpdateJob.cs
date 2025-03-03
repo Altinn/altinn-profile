@@ -1,0 +1,66 @@
+﻿using Altinn.Profile.Integrations.Repositories;
+
+namespace Altinn.Profile.Integrations.OrganizationNotificationAddress;
+
+/// <summary>
+/// An implementation of the <see cref="IOrganizationNotificationAddressUpdateJob"/> interface that will retrieve 
+/// changes from the source registry and update the local contact information.
+/// </summary>
+/// <param name="OrganizationNotificationAddressSettings">Settings for the synchronization update job</param>
+/// <param name="OrganizationNotificationAddressHttpClient">A HTTP client that can be used to retrieve contact details changes</param>
+/// <param name="metadataRepository">A repository implementation for managing persistence of the job status between runs</param>
+/// <param name="notificationAddressUpdater">A repository implementation for managing persistence for the local contact information</param>
+public class OrganizationNotificationAddressUpdateJob(
+    OrganizationNotificationAddressSettings OrganizationNotificationAddressSettings,
+    IOrganizationNotificationAddressHttpClient OrganizationNotificationAddressHttpClient,
+    IRegistrySyncMetadataRepository metadataRepository,
+    IOrganizationNotificationAddressUpdater notificationAddressUpdater)
+    : IOrganizationNotificationAddressUpdateJob
+{
+    private readonly OrganizationNotificationAddressSettings _organizationNotificationAddressSettings = OrganizationNotificationAddressSettings;
+    private readonly IOrganizationNotificationAddressHttpClient _organizationNotificationAddressHttpClient = OrganizationNotificationAddressHttpClient;
+    private readonly IRegistrySyncMetadataRepository _metadataRepository = metadataRepository;
+    private readonly IOrganizationNotificationAddressUpdater _notificationAddressUpdater = notificationAddressUpdater;
+
+    /// <summary>
+    /// Retrieves all changes from the source registry and updates the local contact information.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the endpoint URL is null or empty.</exception>
+    public async Task SyncNotificationAddressesAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_organizationNotificationAddressSettings.ChangesLogEndpoint))
+        {
+            throw new InvalidOperationException("The endpoint URL must not be null or empty.");
+        }
+
+        DateTime lastUpdated = await _metadataRepository.GetLatestSyncTimestampAsync();
+
+        string? fullUrl = _organizationNotificationAddressSettings.ChangesLogEndpoint + $"?since={lastUpdated.ToString("s")}&pageSize={_organizationNotificationAddressSettings.ChangesLogPageSize}";
+
+        do
+        {
+            NotificationAddressChangesLog changesLog = await _organizationNotificationAddressHttpClient.GetAddressChangesAsync(fullUrl);
+
+            if (changesLog?.OrganizationNotificationAddressList == null || changesLog.OrganizationNotificationAddressList?.Count == 0)
+            {
+                break;
+            }
+            
+            int updatedRowsCount = await _notificationAddressUpdater.SyncNotificationAddressesAsync(changesLog);
+
+            if (updatedRowsCount > 0 && changesLog.Updated.HasValue)
+            {
+                var lastUpdatedTimestamp = changesLog.Updated;
+                await _metadataRepository.UpdateLatestChangeTimestampAsync((DateTime)lastUpdatedTimestamp);
+            }
+            else
+            {
+                break;
+            }
+            
+            fullUrl = changesLog.NextPage?.ToString();
+        }
+        while (!string.IsNullOrEmpty(fullUrl));
+    }
+}

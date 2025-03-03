@@ -3,7 +3,7 @@
 /// <summary>
 /// Defines a repository for handling metadata operations.
 /// </summary>
-public interface IOfficialAddressMetadataRepository
+public interface IRegistrySyncMetadataRepository
 {
     /// <summary>
     /// Asynchronously retrieves the latest change number from the metadata repository.

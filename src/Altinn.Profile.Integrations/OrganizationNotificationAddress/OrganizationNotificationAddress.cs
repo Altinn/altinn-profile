@@ -1,12 +1,12 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Altinn.Profile.Integrations.OfficialAddressRegister
+namespace Altinn.Profile.Integrations.OrganizationNotificationAddress
 {
     /// <summary>
-    /// Gets the changes to an official contact point
+    /// Gets the changes to annotification addresses for organizations
     /// </summary>
-    public record OfficialAddress
+    public record OrganizationNotificationAddress
     {
         /// <summary>
         /// Gets the title of the cotanct point.

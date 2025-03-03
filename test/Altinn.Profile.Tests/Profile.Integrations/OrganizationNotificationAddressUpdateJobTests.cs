@@ -1,0 +1,70 @@
+﻿using System;
+using System.Threading.Tasks;
+
+using Altinn.Profile.Integrations.OrganizationNotificationAddress;
+using Altinn.Profile.Integrations.Repositories;
+using Altinn.Profile.Tests.Testdata;
+using Moq;
+
+using Xunit;
+
+namespace Altinn.Profile.Tests.Profile.Integrations;
+
+public class OrganizationNotificationAddressUpdateJobTests()
+{
+    private readonly OrganizationNotificationAddressSettings _settings = new() { ChangesLogEndpoint = "https://example.com/changes", ChangesLogPageSize = 10000 };
+    private readonly Mock<IRegistrySyncMetadataRepository> _metadataRepository = new();
+    private readonly Mock<IOrganizationNotificationAddressUpdater> _organizationNotificationAddressUpdater = new();
+    private readonly Mock<IOrganizationNotificationAddressHttpClient> _httpClient = new();
+
+    [Fact]
+    public async Task SyncNotificationAddressesAsyncTest_Missing_endpoint_Cause_InvalidOperationException()
+    {
+        // Arrange
+        OrganizationNotificationAddressSettings settings = new();
+        OrganizationNotificationAddressUpdateJob target =
+            new(settings, _httpClient.Object, _metadataRepository.Object, _organizationNotificationAddressUpdater.Object);
+
+        // Act
+        InvalidOperationException actual = null;
+
+        try
+        {
+            await target.SyncNotificationAddressesAsync();
+        }
+        catch (InvalidOperationException ioe)
+        {
+            actual = ioe;
+        }
+
+        // Assert
+        Assert.NotNull(actual);
+    }
+
+    [Fact]
+    public async Task SyncNotificationAddressesAsyncTest_Expected_work()
+    {
+        // Arrange
+        _metadataRepository.SetupSequence(m => m.GetLatestSyncTimestampAsync())
+    .ReturnsAsync(DateTime.Now.AddDays(-1));
+
+        _httpClient.SetupSequence(h => h.GetAddressChangesAsync(It.IsAny<string>()))
+            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_1"))
+            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_2"));
+        
+        _organizationNotificationAddressUpdater.SetupSequence(p => p.SyncNotificationAddressesAsync(It.IsAny<NotificationAddressChangesLog>()))
+            .ReturnsAsync(2)
+            .ReturnsAsync(4);
+
+        OrganizationNotificationAddressUpdateJob target =
+            new(_settings, _httpClient.Object, _metadataRepository.Object, _organizationNotificationAddressUpdater.Object);
+
+        // Act
+        await target.SyncNotificationAddressesAsync();
+
+        // Assert
+        _metadataRepository.VerifyAll();
+        _httpClient.VerifyAll();
+        _organizationNotificationAddressUpdater.VerifyAll();
+    }
+}
