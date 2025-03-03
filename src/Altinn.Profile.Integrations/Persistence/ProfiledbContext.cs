@@ -42,9 +42,9 @@ public partial class ProfileDbContext : DbContext
     public virtual DbSet<Organization> Organizations { get; set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="DbSet{OfficialContactPoint}"/> for organizations.
+    /// Gets or sets the <see cref="DbSet{OfficialContactInfo}"/> for organizations.
     /// </summary>
-    public virtual DbSet<OfficialContactPoint> OfficialContactPoints { get; set; }
+    public virtual DbSet<ContactInfo> OfficialContactInfo { get; set; }
 
     /// <summary>
     /// Gets or sets the <see cref="DbSet{OfficialAddressSyncMetadata}"/> timestamp for last brreg-sync.
@@ -85,18 +85,18 @@ public partial class ProfileDbContext : DbContext
                   .HasConstraintName("fk_mailbox_supplier");
         });
 
-        modelBuilder.Entity<OfficialContactPoint>(entity =>
+        modelBuilder.Entity<ContactInfo>(entity =>
         {
-            entity.HasKey(e => e.NotificationEndpointID).HasName("official_contact_pkey");
-            entity.HasAlternateKey(e => e.KoFuViOrganizationID).HasName("kofuvi_organization_id_akey");
+            entity.HasKey(e => e.ContactInfoID).HasName("contact_info_pkey");
+            entity.HasAlternateKey(e => e.RegistryOrganizationID).HasName("registry_organization_id_akey");
             entity.Property(e => e.CreatedDateTime).HasDefaultValueSql("now()").ValueGeneratedOnAdd();
         });
 
         modelBuilder.Entity<Organization>(entity =>
         {
-            entity.HasKey(e => e.KoFuViOrganizationId).HasName("organization_id_pkey");
-            entity.HasMany(e => e.OfficialContactPoints);
-            entity.HasIndex(d => d.KoFuViOrganizationNumber).IsUnique();
+            entity.HasKey(e => e.RegistryOrganizationId).HasName("organization_id_pkey");
+            entity.HasMany(e => e.OfficialContactInfo);
+            entity.HasIndex(d => d.RegistryOrganizationNumber).IsUnique();
         });
         modelBuilder.Entity<OfficialInfoSyncMetadata>(entity =>
         {

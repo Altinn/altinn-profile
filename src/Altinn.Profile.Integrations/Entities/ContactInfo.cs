@@ -9,31 +9,31 @@ namespace Altinn.Profile.Integrations.Entities
     /// <summary>
     /// class for official contact points for organizations 
     /// </summary>
-    [Table("official_contact_points", Schema = "organization_contact_info")]
-    public class OfficialContactPoint
+    [Table("contact_info", Schema = "organization_contact_info")]
+    public class ContactInfo
     {
         /// <summary>
-        /// Gets or sets <see cref="NotificationEndpointID"/>
+        /// Gets or sets <see cref="ContactInfoID"/>
         /// </summary>
         [Required]
-        [Column("notification_endpoint_id")]
-        public int NotificationEndpointID { get; set; }
+        [Column("contact_info_id")]
+        public int ContactInfoID { get; set; }
 
         /// <summary>
-        /// Gets or sets <see cref="KoFuViOrganizationID"/>
+        /// Gets or sets <see cref="RegistryOrganizationID"/>
         /// </summary>
         [Required]
         [StringLength(32)]
-        [Column("kofuvi_organization_id")]
-        public string KoFuViOrganizationID { get; set; }
+        [Column("registry_organization_id")]
+        public string RegistryOrganizationID { get; set; }
 
         /// <summary>
-        /// Gets or sets <see cref="KoFuViID"/>
+        /// Gets or sets <see cref="RegistryID"/>
         /// </summary>
         [Required]
         [StringLength(32)]
-        [Column("kofuvi_id")]
-        public string KoFuViID { get; set; }
+        [Column("registry_id")]
+        public string RegistryID { get; set; }
 
         /// <summary>
         /// Gets or sets AddressType, Email,Phone
@@ -73,10 +73,10 @@ namespace Altinn.Profile.Integrations.Entities
         public DateTime CreatedDateTime { get; set; }
 
         /// <summary>
-        /// Gets or sets <see cref="KoFuViUpdatedDateTime"/>, the time when the item is updated in the origin system
+        /// Gets or sets <see cref="RegistryUpdatedDateTime"/>, the time when the item is updated in the origin system
         /// </summary>
-        [Column("kofuvi_updated_date_time")]
-        public DateTime? KoFuViUpdatedDateTime { get; set; }
+        [Column("registry_updated_date_time")]
+        public DateTime? RegistryUpdatedDateTime { get; set; }
 
         /// <summary>
         /// Gets or sets the originator that did the last change
@@ -86,10 +86,10 @@ namespace Altinn.Profile.Integrations.Entities
         public UpdateSource UpdateSource { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the endpoint has been accepted and received from kofuvi 
+        /// Gets or sets a value indicating whether the endpoint has been accepted and received from kofuvi registry 
         /// </summary>
-        [Column("has_kofuvi_accepted")]
-        public bool? HasKoFuViAccepted { get; set; }
+        [Column("has_registry_accepted")]
+        public bool? HasRegistryAccepted { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the entity is deleted in Altinn.

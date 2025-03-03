@@ -11,24 +11,24 @@ namespace Altinn.Profile.Integrations.Entities
     public class Organization
     {
         /// <summary>
-        /// Gets or sets <see cref="KoFuViOrganizationNumber"/>
+        /// Gets or sets <see cref="RegistryOrganizationNumber"/>
         /// </summary>
         [Required]
         [StringLength(9)]
-        [Column("kofuvi_organization_number")]
-        public int KoFuViOrganizationNumber { get; set; }
+        [Column("registry_organization_number")]
+        public int RegistryOrganizationNumber { get; set; }
 
         /// <summary>
-        /// Gets or sets <see cref="KoFuViOrganizationId"/>
+        /// Gets or sets <see cref="RegistryOrganizationId"/>
         /// </summary>
         [Required]
         [StringLength(32)]
-        [Column("kofuvi_organization_id")]
-        public required string KoFuViOrganizationId { get; set; }
+        [Column("registry_organization_id")]
+        public required string RegistryOrganizationId { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="OfficialContactPoint"/>
+        /// Gets or sets the <see cref="ContactInfo"/>
         /// </summary>
-        public List<OfficialContactPoint>? OfficialContactPoints { get; set; }
+        public List<ContactInfo>? OfficialContactInfo { get; set; }
     }
 }
