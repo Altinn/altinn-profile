@@ -6,7 +6,7 @@ namespace Altinn.Profile.Integrations.Entities
     /// <summary>
     /// class for organizations connection id and orgNumber
     /// </summary>
-    [Table("organizations", Schema = "organization_contact_info")]
+    [Table("organizations", Schema = "organization_notification_address")]
 
     public class Organization
     {
@@ -27,8 +27,8 @@ namespace Altinn.Profile.Integrations.Entities
         public required string RegistryOrganizationId { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="ContactInfo"/>
+        /// Gets or sets the <see cref="OrganizationNotificationAddress"/>
         /// </summary>
-        public List<ContactInfo>? OfficialContactInfo { get; set; }
+        public List<OrganizationNotificationAddress>? NotificationAddresses { get; set; }
     }
 }

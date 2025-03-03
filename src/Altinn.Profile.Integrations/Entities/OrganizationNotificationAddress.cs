@@ -7,17 +7,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Altinn.Profile.Integrations.Entities
 {
     /// <summary>
-    /// class for official contact points for organizations 
+    /// class for notifications addresses for organizations 
     /// </summary>
-    [Table("contact_info", Schema = "organization_contact_info")]
-    public class ContactInfo
+    [Table("notifications_address", Schema = "organization_notification_address")]
+    public class OrganizationNotificationAddress
     {
         /// <summary>
-        /// Gets or sets <see cref="ContactInfoID"/>
+        /// Gets or sets <see cref="NotificationAddressID"/>
         /// </summary>
         [Required]
         [Column("contact_info_id")]
-        public int ContactInfoID { get; set; }
+        public int NotificationAddressID { get; set; }
 
         /// <summary>
         /// Gets or sets <see cref="RegistryOrganizationID"/>

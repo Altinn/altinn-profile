@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace Altinn.Profile.Integrations.Entities
+﻿namespace Altinn.Profile.Integrations.Entities
 {
     /// <summary>
     /// AddressType is used to define type of address

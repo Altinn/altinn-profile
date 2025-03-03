@@ -6,8 +6,8 @@ namespace Altinn.Profile.Integrations.Entities
     /// <summary>
     /// Table of metadata for last brreg kof sync batch
     /// </summary>
-    [Table("official_info_sync_metadata", Schema = "organization_contact_info")]
-    public class OfficialInfoSyncMetadata
+    [Table("registry_sync_metadata", Schema = "organization_notification_address")]
+    public class RegistrySyncMetadata
     {
         /// <summary>
         /// Gets LastChangedId 

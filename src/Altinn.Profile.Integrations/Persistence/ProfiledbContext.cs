@@ -42,14 +42,14 @@ public partial class ProfileDbContext : DbContext
     public virtual DbSet<Organization> Organizations { get; set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="DbSet{OfficialContactInfo}"/> for organizations.
+    /// Gets or sets the <see cref="DbSet{NotificationAddresses}"/> for organizations.
     /// </summary>
-    public virtual DbSet<ContactInfo> OfficialContactInfo { get; set; }
+    public virtual DbSet<OrganizationNotificationAddress> NotificationAddresses { get; set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="DbSet{OfficialAddressSyncMetadata}"/> timestamp for last brreg-sync.
+    /// Gets or sets the <see cref="DbSet{RegistrySyncMetadata}"/> timestamp for last brreg-sync.
     /// </summary>
-    public virtual DbSet<OfficialInfoSyncMetadata> OfficialAddressSyncMetadata { get; set; }
+    public virtual DbSet<RegistrySyncMetadata> RegistrySyncMetadata { get; set; }
 
     /// <summary>
     /// Configures the schema needed for the context.
@@ -85,9 +85,9 @@ public partial class ProfileDbContext : DbContext
                   .HasConstraintName("fk_mailbox_supplier");
         });
 
-        modelBuilder.Entity<ContactInfo>(entity =>
+        modelBuilder.Entity<OrganizationNotificationAddress>(entity =>
         {
-            entity.HasKey(e => e.ContactInfoID).HasName("contact_info_pkey");
+            entity.HasKey(e => e.NotificationAddressID).HasName("contact_info_pkey");
             entity.HasAlternateKey(e => e.RegistryOrganizationID).HasName("registry_organization_id_akey");
             entity.Property(e => e.CreatedDateTime).HasDefaultValueSql("now()").ValueGeneratedOnAdd();
         });
@@ -95,12 +95,12 @@ public partial class ProfileDbContext : DbContext
         modelBuilder.Entity<Organization>(entity =>
         {
             entity.HasKey(e => e.RegistryOrganizationId).HasName("organization_id_pkey");
-            entity.HasMany(e => e.OfficialContactInfo);
+            entity.HasMany(e => e.NotificationAddresses);
             entity.HasIndex(d => d.RegistryOrganizationNumber).IsUnique();
         });
-        modelBuilder.Entity<OfficialInfoSyncMetadata>(entity =>
+        modelBuilder.Entity<RegistrySyncMetadata>(entity =>
         {
-            entity.HasKey(e => e.LastChangedId).HasName("official_address_metadata_pkey");
+            entity.HasKey(e => e.LastChangedId).HasName("registry_sync_metadata_pkey");
         });
 
         OnModelCreatingPartial(modelBuilder);
