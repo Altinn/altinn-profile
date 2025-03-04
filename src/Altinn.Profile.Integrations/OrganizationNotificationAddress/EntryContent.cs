@@ -3,23 +3,23 @@
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddress
 {
     /// <summary>
-    /// Gets the content of the cotanct point.
+    /// Gets the content of the notification address.
     /// </summary>
     public record EntryContent
     {
         /// <summary>
-        /// Gets the content of the cotanct point.
+        /// Gets the content of the contact point.
         /// </summary>
         [JsonPropertyName("Kontaktinformasjon")]
         public ContactPointModel? ContactPoint { get; init; }
 
         /// <summary>
-        /// Gets the content of the cotanct point.
+        /// Gets the content of the contact point.
         /// </summary>
         public record ContactPointModel
         {
             /// <summary>
-            /// Gets the identificator of the cotanct point.
+            /// Gets the identificator of the contact point.
             /// </summary>
             [JsonPropertyName("identifikator")]
             public string? Id { get; init; }
@@ -119,7 +119,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddress
                 public record UnitIdentifierModel
                 {
                     /// <summary>
-                    /// Gets the value of the identificator of the cotanct point.
+                    /// Gets the value of the identificator of the contact point.
                     /// </summary>
                     [JsonPropertyName("verdi")]
                     public string? Value { get; init; }
