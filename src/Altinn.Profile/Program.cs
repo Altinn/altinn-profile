@@ -152,6 +152,11 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
             tracing.AddHttpClientInstrumentation();
             tracing.AddEntityFrameworkCoreInstrumentation();
+
+            if (builder.Environment.IsDevelopment())
+            {
+                tracing.AddConsoleExporter();
+            }
         });
 
     if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
