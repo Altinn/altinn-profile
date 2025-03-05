@@ -57,7 +57,7 @@ namespace Altinn.Profile.Telemetry
             }
         }
 
-        private static bool ExcludeRequest(string? localpath)
+        private static bool ExcludeRequest(string localpath)
         {
             if (string.IsNullOrEmpty(localpath))
             {
