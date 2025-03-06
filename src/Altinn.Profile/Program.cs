@@ -147,13 +147,16 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
                 tracing.SetSampler(new AlwaysOnSampler());
             }
 
-            tracing.AddAspNetCoreInstrumentation(o =>
-            {
-                o.Filter = (httpContext) => !TelemetryHelpers.ShouldExclude(httpContext.Request.Path);
-            });
+            tracing.AddAspNetCoreInstrumentation();
+            tracing.AddProcessor(new RequestFilterProcessor(new HttpContextAccessor()));
 
             tracing.AddHttpClientInstrumentation();
-            tracing.AddNpgsql();
+            tracing.AddEntityFrameworkCoreInstrumentation();
+
+            if (builder.Environment.IsDevelopment())
+            {
+                tracing.AddConsoleExporter();
+            }
         });
 
     if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
@@ -265,7 +268,6 @@ void Configure()
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
-    app.UseTelemetryEnricher();
 
     app.MapControllers();
     app.MapHealthChecks("/health");
