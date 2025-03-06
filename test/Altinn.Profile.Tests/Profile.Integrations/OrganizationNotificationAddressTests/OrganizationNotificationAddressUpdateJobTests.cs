@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-
 using Altinn.Profile.Integrations.OrganizationNotificationAddress;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Tests.Testdata;
@@ -51,7 +50,7 @@ public class OrganizationNotificationAddressUpdateJobTests()
         _httpClient.SetupSequence(h => h.GetAddressChangesAsync(It.IsAny<string>()))
             .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_1"))
             .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_2"));
-        
+
         _organizationNotificationAddressUpdater.SetupSequence(p => p.SyncNotificationAddressesAsync(It.IsAny<NotificationAddressChangesLog>()))
             .ReturnsAsync(2)
             .ReturnsAsync(4);
