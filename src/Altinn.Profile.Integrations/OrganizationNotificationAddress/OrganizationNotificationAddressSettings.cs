@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using Altinn.ApiClients.Maskinporten.Config;
+﻿using Altinn.ApiClients.Maskinporten.Config;
 
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddress;
 

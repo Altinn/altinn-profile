@@ -1,14 +1,17 @@
 ﻿namespace Altinn.Profile.Integrations.OrganizationNotificationAddress
 {
     /// <summary>
-    /// Defines a component that can perform synchronization of notification addresses for organizations.
+    /// Defines an HTTP client to interact with a source registry for organizational notification addresses.
     /// </summary>
     public interface IOrganizationNotificationAddressHttpClient
     {
         /// <summary>
-        /// Retrieves all changes from the source registry(KoFuVi) and updates the local contact information.
+        /// Retrieves changes to organizational notification addresses
         /// </summary>
-        /// <returns>A task that represents the asynchronous operation.</returns>
+        /// <param name="endpointUrl">The URL of the endpoint to retrieve contact details changes from.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation with the returned values.
+        /// </returns>
         Task<NotificationAddressChangesLog> GetAddressChangesAsync(string endpointUrl);
     }
 }

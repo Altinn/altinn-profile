@@ -19,14 +19,8 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
         _httpClient = httpClient;
     }
 
-    /// <summary>
-    /// Retrieves the changes in persons' contact details from the specified endpoint.
-    /// </summary>
-    /// <param name="endpointUrl">The URL of the endpoint to retrieve contact details changes from.</param>
-    /// <returns>
-    /// A task that represents the asynchronous operation with the returned values.
-    /// </returns>
-    /// <exception cref="System.ArgumentException">The URL is invalid. - endpointUrl</exception>
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentException">The URL is invalid. - endpointUrl</exception>
     public async Task<NotificationAddressChangesLog> GetAddressChangesAsync(string endpointUrl)
     {
         if (!endpointUrl.IsValidUrl())

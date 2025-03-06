@@ -1,10 +1,9 @@
-﻿using System.Collections.Immutable;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddress;
 
 /// <summary>
-/// Gets the collection of snapshots representing the changes to notification addresses of an organization.
+/// Represents a change log for organizational notification addresses.
 /// </summary>
 public record NotificationAddressChangesLog
 {
