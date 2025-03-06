@@ -2,7 +2,7 @@
 using Altinn.Profile.Integrations.OrganizationNotificationAddress;
 using Xunit;
 
-namespace Altinn.Profile.Tests.Profile.Integrations.OficialAddressRegister
+namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddressTests
 {
     public class OrganizationNotificationAddressTests
     {

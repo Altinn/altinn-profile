@@ -1,12 +1,12 @@
 ﻿namespace Altinn.Profile.Integrations.Repositories;
 
 /// <summary>
-/// Defines a repository for handling metadata operations.
+/// Defines a repository for operations related to registry sync metadata.
 /// </summary>
 public interface IRegistrySyncMetadataRepository
 {
     /// <summary>
-    /// Asynchronously retrieves the latest change number from the metadata repository.
+    /// Asynchronously retrieves the latest sync timestamp from the metadata repository.
     /// </summary>
     /// <returns>
     /// A task that represents the asynchronous operation.
@@ -14,7 +14,7 @@ public interface IRegistrySyncMetadataRepository
     Task<DateTime> GetLatestSyncTimestampAsync();
 
     /// <summary>
-    /// Asynchronously updates the latest change number from the metadata repository.
+    /// Asynchronously updates the latest sync timestamp in the metadata repository.
     /// </summary>
     /// <param name="updated">The new timestamp for last sync.</param>
     /// <returns>

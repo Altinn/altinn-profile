@@ -4,7 +4,7 @@ using Altinn.Profile.Integrations.OrganizationNotificationAddress;
 namespace Altinn.Profile.Integrations.Repositories;
 
 /// <summary>
-/// Defines a repository for handling metadata operations.
+/// Defines operations for syncrhonizing changes to notification addresses for organizations
 /// </summary>
 public interface IOrganizationNotificationAddressUpdater
 {

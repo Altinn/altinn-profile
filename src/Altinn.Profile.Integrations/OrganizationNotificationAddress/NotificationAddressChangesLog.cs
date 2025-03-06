@@ -14,7 +14,7 @@ public record NotificationAddressChangesLog
     public IList<OrganizationNotificationAddress>? OrganizationNotificationAddressList { get; init; }
 
     /// <summary>
-    /// Gets the title.
+    /// Gets the title of this change log page.
     /// </summary>
     [JsonPropertyName("title")]
     public string? Title { get; init; }

@@ -22,10 +22,7 @@ public class OrganizationNotificationAddressUpdateJob(
     private readonly IRegistrySyncMetadataRepository _metadataRepository = metadataRepository;
     private readonly IOrganizationNotificationAddressUpdater _notificationAddressUpdater = notificationAddressUpdater;
 
-    /// <summary>
-    /// Retrieves all changes from the source registry and updates the local contact information.
-    /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Thrown when the endpoint URL is null or empty.</exception>
     public async Task SyncNotificationAddressesAsync()
     {
@@ -42,11 +39,12 @@ public class OrganizationNotificationAddressUpdateJob(
         {
             NotificationAddressChangesLog changesLog = await _organizationNotificationAddressHttpClient.GetAddressChangesAsync(fullUrl);
 
-            if (changesLog?.OrganizationNotificationAddressList == null || changesLog.OrganizationNotificationAddressList?.Count == 0)
+            var noChangesSinceLastCheck = changesLog.OrganizationNotificationAddressList?.Count == 0;
+            if (noChangesSinceLastCheck)
             {
                 break;
             }
-            
+
             int updatedRowsCount = await _notificationAddressUpdater.SyncNotificationAddressesAsync(changesLog);
 
             if (updatedRowsCount > 0 && changesLog.Updated.HasValue)
