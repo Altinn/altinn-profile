@@ -42,5 +42,5 @@ public record OrganizationNotificationAddress
     /// The content of the notification address.
     /// </summary>
     [JsonIgnore] 
-    public EntryContent? Content => ContentStringified != null ? JsonSerializer.Deserialize<EntryContent>(ContentStringified)   ;
+    public EntryContent? Content => ContentStringified != null ? JsonSerializer.Deserialize<EntryContent>(ContentStringified) : throw new ArgumentNullException("Content");
 }
