@@ -42,5 +42,5 @@ public record OrganizationNotificationAddress
     /// The content of the notification address. Will be null if the address is marked as deleted.
     /// </summary>
     [JsonIgnore] 
-    public EntryContent? Content => JsonSerializer.Deserialize<EntryContent>(ContentStringified);
+    public EntryContent? Content => ContentStringified != null ? JsonSerializer.Deserialize<EntryContent>(ContentStringified) : null;
 }

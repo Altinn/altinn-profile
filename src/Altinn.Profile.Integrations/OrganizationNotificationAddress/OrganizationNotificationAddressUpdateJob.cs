@@ -6,19 +6,19 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddress;
 /// An implementation of the <see cref="IOrganizationNotificationAddressUpdateJob"/> interface that will retrieve 
 /// changes from the source registry and update the local contact information.
 /// </summary>
-/// <param name="OrganizationNotificationAddressSettings">Settings for the synchronization update job</param>
-/// <param name="OrganizationNotificationAddressHttpClient">A HTTP client that can be used to retrieve contact details changes</param>
+/// <param name="organizationNotificationAddressSettings">Settings for the synchronization update job</param>
+/// <param name="organizationNotificationAddressHttpClient">A HTTP client that can be used to retrieve contact details changes</param>
 /// <param name="metadataRepository">A repository implementation for managing persistence of the job status between runs</param>
 /// <param name="notificationAddressUpdater">A repository implementation for managing persistence for the local contact information</param>
 public class OrganizationNotificationAddressUpdateJob(
-    OrganizationNotificationAddressSettings OrganizationNotificationAddressSettings,
-    IOrganizationNotificationAddressHttpClient OrganizationNotificationAddressHttpClient,
+    OrganizationNotificationAddressSettings organizationNotificationAddressSettings,
+    IOrganizationNotificationAddressHttpClient organizationNotificationAddressHttpClient,
     IRegistrySyncMetadataRepository metadataRepository,
     IOrganizationNotificationAddressUpdater notificationAddressUpdater)
     : IOrganizationNotificationAddressUpdateJob
 {
-    private readonly OrganizationNotificationAddressSettings _organizationNotificationAddressSettings = OrganizationNotificationAddressSettings;
-    private readonly IOrganizationNotificationAddressHttpClient _organizationNotificationAddressHttpClient = OrganizationNotificationAddressHttpClient;
+    private readonly OrganizationNotificationAddressSettings _organizationNotificationAddressSettings = organizationNotificationAddressSettings;
+    private readonly IOrganizationNotificationAddressHttpClient _organizationNotificationAddressHttpClient = organizationNotificationAddressHttpClient;
     private readonly IRegistrySyncMetadataRepository _metadataRepository = metadataRepository;
     private readonly IOrganizationNotificationAddressUpdater _notificationAddressUpdater = notificationAddressUpdater;
 

@@ -7,11 +7,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations;
 public class OrganizationNotificationAddressTests
 {
     [Fact]
-    public void Content_WhenMissingContentString_Throws()
+    public void Content_WhenMissingContentString_ReturnsNull()
     {
         var organizationNotificationAddress = new OrganizationNotificationAddress();
 
-        Assert.Throws<ArgumentNullException>(() => organizationNotificationAddress.Content);
+        Assert.Null(organizationNotificationAddress.Content);
     }
 
     [Fact]
