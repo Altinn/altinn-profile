@@ -8,7 +8,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddress;
 public class OrganizationNotificationAddressSettings
 {
     /// <summary>
-    /// Gets the endpoint URL used to retrieve updates in the contact information for one or more organizations.
+    /// The endpoint URL used to retrieve updates in the contact information for one or more organizations.
     /// </summary>
     public string? ChangesLogEndpoint { get; init; }
 
@@ -18,7 +18,7 @@ public class OrganizationNotificationAddressSettings
     public int ChangesLogPageSize { get; init; }
 
     /// <summary>
-    /// Gets the settings required for Maskinporten authentication.
+    /// The settings required for Maskinporten authentication.
     /// </summary>
     public MaskinportenSettings? MaskinportenSettings { get; init; }
 }

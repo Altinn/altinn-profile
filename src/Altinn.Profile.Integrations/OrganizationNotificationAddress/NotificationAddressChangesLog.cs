@@ -8,25 +8,25 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddress;
 public record NotificationAddressChangesLog
 {
     /// <summary>
-    /// Gets the collection of snapshots representing the changes to notification addresses of an organization.
+    /// The collection of snapshots representing the changes to notification addresses of an organization.
     /// </summary>
     [JsonPropertyName("entries")]
     public IList<OrganizationNotificationAddress>? OrganizationNotificationAddressList { get; init; }
 
     /// <summary>
-    /// Gets the title of this change log page.
+    /// The title of this change log page.
     /// </summary>
     [JsonPropertyName("title")]
     public string? Title { get; init; }
 
     /// <summary>
-    /// Gets the datetime of when the changes were fetched.
+    /// The datetime of when the changes were fetched.
     /// </summary>
     [JsonPropertyName("updated")]
     public DateTime? Updated { get; init; }
 
     /// <summary>
-    /// Gets the uri for the next batch of data.
+    /// The uri for the next batch of data.
     /// </summary>
     [JsonPropertyName("nextPage")]
     public Uri? NextPage { get; init; }

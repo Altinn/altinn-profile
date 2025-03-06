@@ -3,7 +3,7 @@
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddress;
 
 /// <summary>
-/// Represents errors that occur during order processing operations.
+/// Represents errors that occur during the syncing of changes to organizations notification addresses
 /// </summary>
 [ExcludeFromCodeCoverage]
 public class OrganizationNotificationAddressChangesException : Exception
