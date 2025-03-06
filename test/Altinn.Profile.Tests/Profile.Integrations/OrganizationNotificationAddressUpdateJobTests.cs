@@ -18,7 +18,7 @@ public class OrganizationNotificationAddressUpdateJobTests()
     private readonly Mock<IOrganizationNotificationAddressHttpClient> _httpClient = new();
 
     [Fact]
-    public async Task SyncNotificationAddressesAsyncTest_Missing_endpoint_Cause_InvalidOperationException()
+    public async Task SyncNotificationAddressesAsyncTest_MissingEndpoint_CauseInvalidOperationException()
     {
         // Arrange
         OrganizationNotificationAddressSettings settings = new();
@@ -42,7 +42,7 @@ public class OrganizationNotificationAddressUpdateJobTests()
     }
 
     [Fact]
-    public async Task SyncNotificationAddressesAsyncTest_Expected_work()
+    public async Task SyncNotificationAddressesAsyncTest_Success()
     {
         // Arrange
         _metadataRepository.SetupSequence(m => m.GetLatestSyncTimestampAsync())
@@ -69,7 +69,7 @@ public class OrganizationNotificationAddressUpdateJobTests()
     }
 
     [Fact]
-    public async Task SyncNotificationAddressesAsyncTest_DoNothingIfNoChanges()
+    public async Task SyncNotificationAddressesAsync_IfNoChanges_DoNothing()
     {
         // Arrange
         _metadataRepository.SetupSequence(m => m.GetLatestSyncTimestampAsync())
