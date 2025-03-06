@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddress
 {
     /// <summary>
-    /// Gets the changes to annotification addresses for organizations
+    /// Represents changes to a notification address for an organization
     /// </summary>
     public record OrganizationNotificationAddress
     {
@@ -21,7 +21,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddress
         public string? Id { get; init; }
 
         /// <summary>
-        /// Gets the date and time when the notification address. was updated.
+        /// Gets the date and time when the notification address was updated.
         /// </summary>
         [JsonPropertyName("updated")]
         public DateTime? Updated { get; init; }
