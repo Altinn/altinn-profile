@@ -33,7 +33,7 @@ public record OrganizationNotificationAddress
     public bool? IsDeleted { get; init; }
 
     /// <summary>
-    /// The content of the notification address as a serialized string.
+    /// The content of the notification address as a serialized string. Will be null if the address is marked as deleted.
     /// </summary>
     [JsonPropertyName("content")]
     public string? ContentStringified { get; init; }
@@ -42,5 +42,5 @@ public record OrganizationNotificationAddress
     /// The content of the notification address.
     /// </summary>
     [JsonIgnore] 
-    public EntryContent? Content => ContentStringified != null ? JsonSerializer.Deserialize<EntryContent>(ContentStringified) : throw new ArgumentNullException("Content");
+    public EntryContent? Content => JsonSerializer.Deserialize<EntryContent>(ContentStringified);
 }
