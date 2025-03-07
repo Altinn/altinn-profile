@@ -101,7 +101,7 @@ public static class ServiceCollectionExtensions
 
         var organizationNotificationAddressSettings = new OrganizationNotificationAddressSettings();
         config.GetSection("OrganizationNotificationAddressSettings").Bind(organizationNotificationAddressSettings);
-        if (organizationNotificationAddressSettings.ChangesLogEndpoint == null)
+        if (string.IsNullOrWhiteSpace(organizationNotificationAddressSettings.ChangesLogEndpoint))
         {
             throw new InvalidOperationException("Organization notification address settings are not properly configured.");
         }

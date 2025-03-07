@@ -17,30 +17,6 @@ public class OrganizationNotificationAddressUpdateJobTests()
     private readonly Mock<IOrganizationNotificationAddressHttpClient> _httpClient = new();
 
     [Fact]
-    public async Task SyncNotificationAddressesAsyncTest_MissingEndpoint_CauseInvalidOperationException()
-    {
-        // Arrange
-        OrganizationNotificationAddressSettings settings = new();
-        OrganizationNotificationAddressUpdateJob target =
-            new(settings, _httpClient.Object, _metadataRepository.Object, _organizationNotificationAddressUpdater.Object);
-
-        // Act
-        InvalidOperationException actual = null;
-
-        try
-        {
-            await target.SyncNotificationAddressesAsync();
-        }
-        catch (InvalidOperationException ioe)
-        {
-            actual = ioe;
-        }
-
-        // Assert
-        Assert.NotNull(actual);
-    }
-
-    [Fact]
     public async Task SyncNotificationAddressesAsync_IfNoEntries_DoNothing()
     {
         // Arrange
