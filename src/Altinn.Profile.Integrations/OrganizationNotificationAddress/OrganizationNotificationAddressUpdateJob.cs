@@ -33,7 +33,8 @@ public class OrganizationNotificationAddressUpdateJob(
 
         DateTime lastUpdated = await _metadataRepository.GetLatestSyncTimestampAsync();
 
-        string? fullUrl = _organizationNotificationAddressSettings.ChangesLogEndpoint + $"?since={lastUpdated.ToString("s")}&pageSize={_organizationNotificationAddressSettings.ChangesLogPageSize}";
+        // Time should be in iso8601 format example: 2018-02-15T11:07:12Z
+        string? fullUrl = _organizationNotificationAddressSettings.ChangesLogEndpoint + $"?since={lastUpdated.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffZ")}&pageSize={_organizationNotificationAddressSettings.ChangesLogPageSize}";
 
         do
         {
