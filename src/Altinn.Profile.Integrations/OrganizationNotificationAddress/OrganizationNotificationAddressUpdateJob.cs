@@ -39,7 +39,7 @@ public class OrganizationNotificationAddressUpdateJob(
         {
             NotificationAddressChangesLog changesLog = await _organizationNotificationAddressHttpClient.GetAddressChangesAsync(fullUrl);
 
-            var noChangesSinceLastCheck = changesLog.OrganizationNotificationAddressList?.Count == 0;
+            var noChangesSinceLastCheck = changesLog.OrganizationNotificationAddressList == null || changesLog.OrganizationNotificationAddressList?.Count == 0;
             if (noChangesSinceLastCheck)
             {
                 break;
