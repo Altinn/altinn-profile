@@ -24,7 +24,7 @@ public record OrganizationNotificationAddress
     /// The date and time when the notification address was updated.
     /// </summary>
     [JsonPropertyName("updated")]
-    public DateTime? Updated { get; init; }
+    public DateTime Updated { get; init; }
 
     /// <summary>
     /// Gets if the notification address is deleted.
