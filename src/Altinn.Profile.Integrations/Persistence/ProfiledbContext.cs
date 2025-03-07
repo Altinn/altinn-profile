@@ -37,17 +37,17 @@ public partial class ProfileDbContext : DbContext
     public virtual DbSet<Person> People { get; set; }
 
     /// <summary>
-    /// Gets or sets <see cref="DbSet{Organization}"/> orgnumber and id.
+    /// The <see cref="DbSet{Organization}"/>'s orgnumber and id.
     /// </summary>
     public virtual DbSet<Organization> Organizations { get; set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="DbSet{NotificationAddresses}"/> for organizations.
+    /// The <see cref="DbSet{NotificationAddresses}"/> for organizations.
     /// </summary>
     public virtual DbSet<OrganizationNotificationAddress> NotificationAddresses { get; set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="DbSet{RegistrySyncMetadata}"/> timestamp for last brreg-sync.
+    /// The <see cref="DbSet{RegistrySyncMetadata}"/> timestamp for last brreg-sync.
     /// </summary>
     public virtual DbSet<RegistrySyncMetadata> RegistrySyncMetadata { get; set; }
 

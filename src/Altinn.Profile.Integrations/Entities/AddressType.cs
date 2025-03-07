@@ -1,7 +1,7 @@
 ﻿namespace Altinn.Profile.Integrations.Entities
 {
     /// <summary>
-    /// AddressType is used to define type of address
+    /// The type of digital notification address
     /// </summary>
     public enum AddressType : int
     {

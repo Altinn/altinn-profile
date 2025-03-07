@@ -11,7 +11,7 @@ namespace Altinn.Profile.Integrations.Entities
     public class Organization
     {
         /// <summary>
-        /// Gets or sets <see cref="RegistryOrganizationNumber"/>
+        /// OrganizationNumber of the organization
         /// </summary>
         [Required]
         [StringLength(9)]
@@ -19,7 +19,7 @@ namespace Altinn.Profile.Integrations.Entities
         public int RegistryOrganizationNumber { get; set; }
 
         /// <summary>
-        /// Gets or sets <see cref="RegistryOrganizationId"/>
+        /// The id of the organization in the registry
         /// </summary>
         [Required]
         [StringLength(32)]
@@ -27,7 +27,7 @@ namespace Altinn.Profile.Integrations.Entities
         public required string RegistryOrganizationId { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="OrganizationNotificationAddress"/>
+        /// A collection of notification addresses associated with this organization
         /// </summary>
         public List<OrganizationNotificationAddress>? NotificationAddresses { get; set; }
     }

@@ -10,15 +10,15 @@ namespace Altinn.Profile.Integrations.Entities
     public class RegistrySyncMetadata
     {
         /// <summary>
-        /// Gets LastChangedId 
+        /// An identifier for this table 
         /// </summary>
         [StringLength(32)]
         [Required]
         [Column("last_changed_id")]
-        public string LastChangedId { get; set; }
+        public string? LastChangedId { get; set; }
 
         /// <summary>
-        /// Gets or sets LastChangedDateTime
+        /// The time and date if last sync with changes
         /// </summary>
         [Required]
         [Column("last_changed_date_time")]

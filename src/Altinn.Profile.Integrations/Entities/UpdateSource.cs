@@ -16,9 +16,9 @@
         Altinn = 1,
 
         /// <summary>
-        /// UpdateOrigin Type is KofuVi
+        /// UpdateOrigin Type is KoFuVi
         /// </summary>
-        KofuVi = 2,
+        KoFuVi = 2,
 
         /// <summary>
         /// UpdateOrigin Type is ER

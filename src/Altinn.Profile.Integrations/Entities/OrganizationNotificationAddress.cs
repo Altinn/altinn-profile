@@ -13,14 +13,14 @@ namespace Altinn.Profile.Integrations.Entities
     public class OrganizationNotificationAddress
     {
         /// <summary>
-        /// Gets or sets <see cref="NotificationAddressID"/>
+        /// <see cref="NotificationAddressID"/>
         /// </summary>
         [Required]
         [Column("contact_info_id")]
         public int NotificationAddressID { get; set; }
 
         /// <summary>
-        /// Gets or sets <see cref="RegistryOrganizationID"/>
+        /// The <see cref="RegistryOrganizationID"/>
         /// </summary>
         [Required]
         [StringLength(32)]
@@ -28,7 +28,7 @@ namespace Altinn.Profile.Integrations.Entities
         public string RegistryOrganizationID { get; set; }
 
         /// <summary>
-        /// Gets or sets <see cref="RegistryID"/>
+        /// <see cref="RegistryID"/>
         /// </summary>
         [Required]
         [StringLength(32)]
@@ -36,14 +36,14 @@ namespace Altinn.Profile.Integrations.Entities
         public string RegistryID { get; set; }
 
         /// <summary>
-        /// Gets or sets AddressType, Email,Phone
+        /// The AddressType, either Email or Sms
         /// </summary>
         [Required]
         [Column("address_type")]
         public AddressType AddressType { get; set; }
 
         /// <summary>
-        /// Gets or sets Domain part of the Address. In case phone the country code, in case of email the domain address
+        /// The domain part of the Address. In case of phone numbers the country code, in case of email the domain address
         /// </summary>
         [StringLength(200)]
         [Required]
@@ -51,14 +51,15 @@ namespace Altinn.Profile.Integrations.Entities
         public string Domain { get; set; }
 
         /// <summary>
-        /// Gets or sets Address, email address if address type is email, phone number if type is SMS
+        /// The address, email address if address type is email, phone number if type is SMS
         /// </summary>
         [StringLength(200)]
+        [Required]
         [Column("address")]
         public string Address { get; set; }
 
         /// <summary>
-        /// Gets FullAddress, either full email address or international country prefix and phone number
+        /// FullAddress, either full email address or international country prefix and phone number
         /// </summary>
         [StringLength(200)]
         [Required]
@@ -66,39 +67,39 @@ namespace Altinn.Profile.Integrations.Entities
         public string FullAddress { get; set; }
 
         /// <summary>
-        /// Gets or sets CreatedDateTime, the time when the items is initially saved in the local database
+        /// The time when the items is initially saved in the local database
         /// </summary>
         [Required]
         [Column("created_date_time")]
         public DateTime CreatedDateTime { get; set; }
 
         /// <summary>
-        /// Gets or sets <see cref="RegistryUpdatedDateTime"/>, the time when the item is updated in the origin system
+        /// The time when the item is updated in the origin system
         /// </summary>
         [Column("registry_updated_date_time")]
         public DateTime? RegistryUpdatedDateTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the originator that did the last change
+        /// The originator that did the last change
         /// </summary>
         [Required]
         [Column("update_source")]
         public UpdateSource UpdateSource { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the endpoint has been accepted and received from kofuvi registry 
+        /// A value indicating whether the endpoint has been accepted and received from kofuvi registry 
         /// </summary>
         [Column("has_registry_accepted")]
         public bool? HasRegistryAccepted { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the entity is deleted in Altinn.
+        /// A value indicating whether the entity is deleted in Altinn.
         /// </summary>
         [Column("is_soft_deleted")]
         public bool? IsSoftDeleted { get; set; }
 
         /// <summary>
-        /// Gets or sets name of the contact point 
+        /// Name of the contact point 
         /// </summary>
         [StringLength(200)]
         [Column("notification_name")]
