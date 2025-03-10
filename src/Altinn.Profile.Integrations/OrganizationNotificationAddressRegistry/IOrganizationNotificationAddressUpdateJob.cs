@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Integrations.OrganizationNotificationAddress;
+﻿namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
 /// <summary>
 /// Defines a component that can perform synchronization of contact information for organizations.

@@ -6,7 +6,7 @@ using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Integrations.OrganizationNotificationAddress;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.Testdata;
 using Moq;

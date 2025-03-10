@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Integrations.OrganizationNotificationAddress;
+﻿namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
 /// <summary>
 /// Defines an HTTP client to interact with a source registry for organizational notification addresses.

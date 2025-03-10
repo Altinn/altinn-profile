@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Altinn.Profile.Integrations.OrganizationNotificationAddress;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Tests.Testdata;
 using Moq;

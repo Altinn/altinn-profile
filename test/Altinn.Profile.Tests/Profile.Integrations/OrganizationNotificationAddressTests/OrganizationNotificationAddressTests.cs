@@ -1,5 +1,5 @@
 ﻿using System;
-using Altinn.Profile.Integrations.OrganizationNotificationAddress;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations;

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Altinn.Profile.Integrations.OrganizationNotificationAddress;
+namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
 /// <summary>
 /// Represents errors that occur during the syncing of changes to organizations notification addresses

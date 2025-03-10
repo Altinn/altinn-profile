@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using Altinn.Profile.Core.Extensions;
 
-namespace Altinn.Profile.Integrations.OrganizationNotificationAddress;
+namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
 /// <summary>
 /// An HTTP client to interact with the contact register.

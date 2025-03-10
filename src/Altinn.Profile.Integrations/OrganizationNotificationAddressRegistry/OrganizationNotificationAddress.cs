@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Altinn.Profile.Integrations.OrganizationNotificationAddress;
+namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
 /// <summary>
 /// Represents changes to a notification address for an organization
@@ -41,6 +41,6 @@ public record OrganizationNotificationAddress
     /// <summary>
     /// The content of the notification address. Will be null if the address is marked as deleted.
     /// </summary>
-    [JsonIgnore] 
+    [JsonIgnore]
     public EntryContent? Content => ContentStringified != null ? JsonSerializer.Deserialize<EntryContent>(ContentStringified) : null;
 }

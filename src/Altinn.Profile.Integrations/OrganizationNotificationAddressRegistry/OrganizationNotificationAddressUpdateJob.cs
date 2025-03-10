@@ -1,6 +1,6 @@
 ﻿using Altinn.Profile.Integrations.Repositories;
 
-namespace Altinn.Profile.Integrations.OrganizationNotificationAddress;
+namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
 /// <summary>
 /// An implementation of the <see cref="IOrganizationNotificationAddressUpdateJob"/> interface that will retrieve 
@@ -52,7 +52,7 @@ public class OrganizationNotificationAddressUpdateJob(
             {
                 break;
             }
-            
+
             fullUrl = changesLog.NextPage?.ToString();
         }
         while (!string.IsNullOrEmpty(fullUrl));

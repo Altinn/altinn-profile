@@ -7,7 +7,7 @@ using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Mappings;
-using Altinn.Profile.Integrations.OrganizationNotificationAddress;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.SblBridge;
