@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Altinn.Profile.Integrations.OrganizationNotificationAddress;
+namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
 /// <summary>
 /// Represents a change log for organizational notification addresses.

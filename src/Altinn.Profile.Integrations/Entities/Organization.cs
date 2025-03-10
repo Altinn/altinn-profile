@@ -16,7 +16,7 @@ namespace Altinn.Profile.Integrations.Entities
         [Required]
         [StringLength(9)]
         [Column("registry_organization_number")]
-        public string RegistryOrganizationNumber { get; set; }
+        public required string RegistryOrganizationNumber { get; set; }
 
         /// <summary>
         /// The id of the organization in the registry
