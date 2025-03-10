@@ -19,10 +19,5 @@
         /// UpdateOrigin Type is KoFuVi
         /// </summary>
         KoFuVi = 2,
-
-        /// <summary>
-        /// UpdateOrigin Type is ER
-        /// </summary>
-        ER = 3
     }
 }
