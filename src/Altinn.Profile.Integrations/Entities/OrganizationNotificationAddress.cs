@@ -24,6 +24,7 @@ namespace Altinn.Profile.Integrations.Entities
         /// </summary>
         [Required]
         [Column("registry_organization_id")]
+        [ForeignKey("registry_organization_id")]
         public int RegistryOrganizationID { get; set; }
 
         /// <summary>

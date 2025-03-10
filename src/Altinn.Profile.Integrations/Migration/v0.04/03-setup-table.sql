@@ -29,12 +29,11 @@ CREATE TABLE organization_notification_address.notifications_address (
     has_registry_accepted boolean,
     is_soft_deleted boolean,
     notification_name character varying(200),
-    "OrganizationRegistryOrganizationId" integer,
     CONSTRAINT contact_info_pkey PRIMARY KEY (contact_info_id),
     CONSTRAINT registry_organization_id_akey UNIQUE (registry_organization_id),
-    CONSTRAINT "FK_notifications_address_organizations_OrganizationRegistryOrg~" FOREIGN KEY ("OrganizationRegistryOrganizationId") REFERENCES organization_notification_address.organizations (registry_organization_id)
+    CONSTRAINT "FK_notifications_address_organizations_OrganizationRegistryOrg~" FOREIGN KEY (registry_organization_id) REFERENCES organization_notification_address.organizations (registry_organization_id)
 );
 
-CREATE INDEX "IX_notifications_address_OrganizationRegistryOrganizationId" ON organization_notification_address.notifications_address ("OrganizationRegistryOrganizationId");
+CREATE INDEX "IX_notifications_address_registry_organization_id" ON organization_notification_address.notifications_address (registry_organization_id);
 
 CREATE UNIQUE INDEX "IX_organizations_registry_organization_number" ON organization_notification_address.organizations (registry_organization_number);
