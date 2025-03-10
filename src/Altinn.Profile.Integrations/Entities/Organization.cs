@@ -16,15 +16,14 @@ namespace Altinn.Profile.Integrations.Entities
         [Required]
         [StringLength(9)]
         [Column("registry_organization_number")]
-        public int RegistryOrganizationNumber { get; set; }
+        public string RegistryOrganizationNumber { get; set; }
 
         /// <summary>
         /// The id of the organization in the registry
         /// </summary>
         [Required]
-        [StringLength(32)]
         [Column("registry_organization_id")]
-        public required string RegistryOrganizationId { get; set; }
+        public required int RegistryOrganizationId { get; set; }
 
         /// <summary>
         /// A collection of notification addresses associated with this organization

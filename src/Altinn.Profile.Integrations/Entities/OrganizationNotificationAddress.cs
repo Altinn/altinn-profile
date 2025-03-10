@@ -23,9 +23,8 @@ namespace Altinn.Profile.Integrations.Entities
         /// The <see cref="RegistryOrganizationID"/>
         /// </summary>
         [Required]
-        [StringLength(32)]
         [Column("registry_organization_id")]
-        public string RegistryOrganizationID { get; set; }
+        public int RegistryOrganizationID { get; set; }
 
         /// <summary>
         /// <see cref="RegistryID"/>
