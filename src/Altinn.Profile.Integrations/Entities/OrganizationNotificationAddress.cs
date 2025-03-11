@@ -16,7 +16,6 @@ namespace Altinn.Profile.Integrations.Entities
         /// <see cref="NotificationAddressID"/>
         /// </summary>
         [Required]
-        [Column("contact_info_id")]
         public int NotificationAddressID { get; set; }
 
         /// <summary>
@@ -24,14 +23,12 @@ namespace Altinn.Profile.Integrations.Entities
         /// </summary>
         [Required]
         [StringLength(32)]
-        [Column("registry_id")]
         public string RegistryID { get; set; }
 
         /// <summary>
         /// The AddressType, either Email or Sms
         /// </summary>
         [Required]
-        [Column("address_type")]
         public AddressType AddressType { get; set; }
 
         /// <summary>
@@ -39,7 +36,6 @@ namespace Altinn.Profile.Integrations.Entities
         /// </summary>
         [StringLength(200)]
         [Required]
-        [Column("domain")]
         public string Domain { get; set; }
 
         /// <summary>
@@ -47,7 +43,6 @@ namespace Altinn.Profile.Integrations.Entities
         /// </summary>
         [StringLength(200)]
         [Required]
-        [Column("address")]
         public string Address { get; set; }
 
         /// <summary>
@@ -55,46 +50,53 @@ namespace Altinn.Profile.Integrations.Entities
         /// </summary>
         [StringLength(200)]
         [Required]
-        [Column("full_address")]
         public string FullAddress { get; set; }
 
         /// <summary>
         /// The time when the items is initially saved in the local database
         /// </summary>
         [Required]
-        [Column("created_date_time")]
         public DateTime CreatedDateTime { get; set; }
 
         /// <summary>
         /// The time when the item is updated in the origin system
         /// </summary>
-        [Column("registry_updated_date_time")]
         public DateTime? RegistryUpdatedDateTime { get; set; }
 
         /// <summary>
         /// The originator that did the last change
         /// </summary>
         [Required]
-        [Column("update_source")]
         public UpdateSource UpdateSource { get; set; }
 
         /// <summary>
         /// A value indicating whether the endpoint has been accepted and received from kofuvi registry 
         /// </summary>
-        [Column("has_registry_accepted")]
         public bool? HasRegistryAccepted { get; set; }
 
         /// <summary>
         /// A value indicating whether the entity is deleted in Altinn.
         /// </summary>
-        [Column("is_soft_deleted")]
         public bool? IsSoftDeleted { get; set; }
 
         /// <summary>
         /// Name of the contact point 
         /// </summary>
         [StringLength(200)]
-        [Column("notification_name")]
         public string NotificationName { get; set; }
+
+        /// <summary>
+        /// The id of the organization in the registry
+        /// </summary>
+        [Required]
+        [Column("fk_registry_organization_id")]
+        public required int RegistryOrganizationId { get; set; }
+
+        /// <summary>
+        /// The organization the notification address is connected to
+        /// </summary>
+        [ForeignKey("RegistryOrganizationId")]
+        [InverseProperty("NotificationAddresses")]
+        public virtual Organization Organization { get; set; }
     }
 }

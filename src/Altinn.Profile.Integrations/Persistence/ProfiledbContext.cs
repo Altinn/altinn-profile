@@ -94,7 +94,10 @@ public partial class ProfileDbContext : DbContext
         modelBuilder.Entity<Organization>(entity =>
         {
             entity.HasKey(e => e.RegistryOrganizationId).HasName("organization_id_pkey");
-            entity.HasMany(e => e.NotificationAddresses);
+            entity.HasMany(e => e.NotificationAddresses)
+                    .WithOne(n => n.Organization)
+                    .HasForeignKey(e => e.RegistryOrganizationId)
+                    .HasConstraintName("fk_organization_id");
             entity.HasIndex(d => d.RegistryOrganizationNumber).IsUnique();
         });
         modelBuilder.Entity<RegistrySyncMetadata>(entity =>

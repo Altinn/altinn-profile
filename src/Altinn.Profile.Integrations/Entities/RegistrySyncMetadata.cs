@@ -14,14 +14,12 @@ namespace Altinn.Profile.Integrations.Entities
         /// </summary>
         [StringLength(32)]
         [Required]
-        [Column("last_changed_id")]
         public string? LastChangedId { get; set; }
 
         /// <summary>
         /// The time and date if last sync with changes
         /// </summary>
         [Required]
-        [Column("last_changed_date_time")]
         public DateTime LastChangedDateTime { get; set; }
     }
 }
