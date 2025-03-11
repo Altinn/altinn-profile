@@ -20,14 +20,6 @@ namespace Altinn.Profile.Integrations.Entities
         public int NotificationAddressID { get; set; }
 
         /// <summary>
-        /// The <see cref="RegistryOrganizationID"/>
-        /// </summary>
-        [Required]
-        [Column("registry_organization_id")]
-        [ForeignKey("registry_organization_id")]
-        public int RegistryOrganizationID { get; set; }
-
-        /// <summary>
         /// <see cref="RegistryID"/>
         /// </summary>
         [Required]

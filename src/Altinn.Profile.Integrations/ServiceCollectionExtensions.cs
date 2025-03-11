@@ -72,7 +72,7 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<INationalIdentityNumberChecker, NationalIdentityNumberChecker>();
 
-        services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString));
+        services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
     }
 
     /// <summary>

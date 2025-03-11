@@ -88,7 +88,6 @@ public partial class ProfileDbContext : DbContext
         modelBuilder.Entity<OrganizationNotificationAddress>(entity =>
         {
             entity.HasKey(e => e.NotificationAddressID).HasName("contact_info_pkey");
-            entity.HasAlternateKey(e => e.RegistryOrganizationID).HasName("registry_organization_id_akey");
             entity.Property(e => e.CreatedDateTime).HasDefaultValueSql("now()").ValueGeneratedOnAdd();
         });
 

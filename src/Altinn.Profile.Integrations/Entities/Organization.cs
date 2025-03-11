@@ -28,6 +28,7 @@ namespace Altinn.Profile.Integrations.Entities
         /// <summary>
         /// A collection of notification addresses associated with this organization
         /// </summary>
+        [ForeignKey("fk_registry_organization_id")]
         public List<OrganizationNotificationAddress>? NotificationAddresses { get; set; }
     }
 }
