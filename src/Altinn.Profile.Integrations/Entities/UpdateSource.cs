@@ -3,7 +3,7 @@
     /// <summary>
     ///  UpdateOrigin is used to specify the the changes of the UnitNotificationEndPoint 
     /// </summary>
-    public enum UpdateSource : int
+    public enum UpdateSource
     {
         /// <summary>
         /// UpdateOrigin is None

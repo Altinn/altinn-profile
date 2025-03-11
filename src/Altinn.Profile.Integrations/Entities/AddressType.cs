@@ -3,7 +3,7 @@
     /// <summary>
     /// The type of digital notification address
     /// </summary>
-    public enum AddressType : int
+    public enum AddressType
     {
         /// <summary>
         /// Specify that address is an SMS address
