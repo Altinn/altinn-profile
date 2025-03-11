@@ -11,7 +11,7 @@ public record NotificationAddressChangesLog
     /// The collection of snapshots representing the changes to notification addresses of an organization.
     /// </summary>
     [JsonPropertyName("entries")]
-    public IList<OrganizationNotificationAddress>? OrganizationNotificationAddressList { get; init; }
+    public IList<Entry>? OrganizationNotificationAddressList { get; init; }
 
     /// <summary>
     /// The title of this change log page.
