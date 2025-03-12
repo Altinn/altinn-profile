@@ -108,3 +108,14 @@ dotnet user-secrets set "ContactAndReservationSettings:MaskinportenSettings:Enco
    ```cmd
    GET http://localhost:5030/profile/api/v1/trigger/syncpersonchanges
    ```
+
+### Adding migrations with EF core
+1. Code the desired classes and add them to the DB context
+2. Run the following command to add a migration. The name should be more descriptive than AddNewMigration:
+   ```cmd
+   dotnet ef migrations Add AddNewMigration --startup-project ../Altinn.Profile
+   ```
+3. To generate SQL scripts, run `dotnet ef migrations script --startup-project ../Altinn.Profile`
+
+If you want to remove the migration run `dotnet ef migrations remove --startup-project ../Altinn.Profile`
+Read more about applying migrations [here](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli).
