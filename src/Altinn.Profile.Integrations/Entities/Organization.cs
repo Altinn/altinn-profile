@@ -18,10 +18,10 @@ namespace Altinn.Profile.Integrations.Entities
         public required string RegistryOrganizationNumber { get; set; }
 
         /// <summary>
-        /// The id of the organization in the registry
+        /// The incremental id of the organization in the database
         /// </summary>
         [Required]
-        public required int RegistryOrganizationId { get; set; }
+        public int RegistryOrganizationId { get; set; }
 
         /// <summary>
         /// A collection of notification addresses associated with this organization
