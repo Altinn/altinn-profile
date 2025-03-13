@@ -1,6 +1,14 @@
 ﻿using System;
+using System.Collections.Frozen;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Claims;
+using System.Text.Json;
+
+using Altinn.AccessManagement.Core.Models;
+using AltinnCore.Authentication.Constants;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using OpenTelemetry;
@@ -12,7 +20,7 @@ namespace Altinn.Profile.Telemetry
     /// </summary>
     public class RequestFilterProcessor : BaseProcessor<Activity>
     {
-        private const string RequestKind = "Microsoft.AspNetCore.Hosting.HttpRequestIn";
+        private const string _requestKind = "Microsoft.AspNetCore.Hosting.HttpRequestIn";
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         /// <summary>
@@ -23,13 +31,68 @@ namespace Altinn.Profile.Telemetry
             _httpContextAccessor = httpContextAccessor;
         }
 
+        private static readonly FrozenDictionary<string, Action<Claim, Activity>> _claimActions = InitClaimActions();
+
+        private static FrozenDictionary<string, Action<Claim, Activity>> InitClaimActions()
+        {
+            var actions = new Dictionary<string, Action<Claim, Activity>>(StringComparer.OrdinalIgnoreCase)
+            {
+                {
+                    AltinnCoreClaimTypes.UserId,
+                    static (claim, activity) =>
+                    {
+                        activity.SetTag("user.id", claim.Value);
+                    }
+                },
+                {
+                    AltinnCoreClaimTypes.PartyID,
+                    static (claim, activity) =>
+                    {
+                        activity.SetTag("user.party.id", claim.Value);
+                    }
+                },
+                {
+                    AltinnCoreClaimTypes.AuthenticationLevel,
+                    static (claim, activity) =>
+                    {
+                        activity.SetTag("user.authentication.level", claim.Value);
+                    }
+                },
+                {
+                    AltinnCoreClaimTypes.Org,
+                    static (claim, activity) =>
+                    {
+                        activity.SetTag("user.application.owner.id", claim.Value);
+                    }
+                },
+                {
+                    AltinnCoreClaimTypes.OrgNumber,
+                    static (claim, activity) =>
+                    {
+                        activity.SetTag("user.organization.number", claim.Value);
+                    }
+                },
+                {
+                    "authorization_details",
+                    static (claim, activity) =>
+                    {
+                        SystemUserClaim claimValue = JsonSerializer.Deserialize<SystemUserClaim>(claim.Value);
+                        activity.SetTag("user.system.id", claimValue?.Systemuser_id[0] ?? null);
+                        activity.SetTag("user.system.owner.number", claimValue?.Systemuser_org.ID ?? null);
+                    }
+                },
+            };
+
+            return actions.ToFrozenDictionary();
+        }
+
         /// <summary>
         /// Determine whether to skip a request
         /// </summary>
         public override void OnStart(Activity activity)
         {
             bool skip = false;
-            if (activity.OperationName == RequestKind)
+            if (activity.OperationName == _requestKind)
             {
                 skip = ExcludeRequest(_httpContextAccessor?.HttpContext?.Request?.Path.Value);
             }
@@ -50,10 +113,18 @@ namespace Altinn.Profile.Telemetry
         /// <param name="activity">xx</param>
         public override void OnEnd(Activity activity)
         {
-            if (activity.OperationName == RequestKind && _httpContextAccessor.HttpContext is not null &&
-                _httpContextAccessor.HttpContext.Request.Headers.TryGetValue("X-Forwarded-For", out StringValues ipaddress))
+            if (activity.OperationName == _requestKind && _httpContextAccessor.HttpContext is not null &&
+                _httpContextAccessor.HttpContext.Request.Headers.TryGetValue("X-Forwarded-For", out StringValues clientIp))
             {
-                activity.SetTag("ipAddress", ipaddress.FirstOrDefault());
+                activity.SetTag("ipAddress", clientIp.FirstOrDefault());
+            }
+
+            foreach (var claim in _httpContextAccessor.HttpContext.User.Claims)
+            {
+                if (_claimActions.TryGetValue(claim.Type, out var action))
+                {
+                    action(claim, activity);
+                }
             }
         }
 
