@@ -45,8 +45,7 @@ public class OrganizationNotificationAddressUpdateJob(
 
             if (updatedRowsCount > 0)
             {
-                IList<OrganizationNotificationAddress> changesList = changesLog.OrganizationNotificationAddressList!;
-                var lastUpdatedTimestamp = changesList[changesList.Count - 1].Updated;
+                var lastUpdatedTimestamp = changesLog.OrganizationNotificationAddressList![^1].Updated;
                 await _metadataRepository.UpdateLatestChangeTimestampAsync(lastUpdatedTimestamp);
             }
             else
