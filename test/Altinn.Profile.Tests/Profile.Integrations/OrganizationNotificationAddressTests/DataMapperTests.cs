@@ -6,11 +6,14 @@ namespace Altinn.Profile.Tests.Profile.Integrations;
 
 public class DataMapperTests
 {
-    [Fact]
-    public void MapOrganizationNotificationAddress_WhenMappingPhone_Returns()
+    [Theory]
+    [InlineData("47")]
+    [InlineData("+47")]
+    [InlineData("0047")]
+    public void MapOrganizationNotificationAddress_WhenMappingPhone_Returns(string prefix)
     {
         // Arrange
-        var entry = new Entry() { Id = "37ab4733648c4d5b825a813c6e1ace70", ContentStringified = "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"mobiltelefon\":{\"navn\":\"4798765432\",\"internasjonaltPrefiks\":\"47\",\"nasjonaltNummer\":\"98765432\"}},\"identifikator\":\"37ab4733648c4d5b825a813c6e1ace70\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"920254321\",\"type\":\"ORGANISASJONSNUMMER\"}}}}" };
+        var entry = new Entry() { Id = "37ab4733648c4d5b825a813c6e1ace70", ContentStringified = "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"mobiltelefon\":{\"navn\":\"4798765432\",\"internasjonaltPrefiks\":\"" + prefix + "\",\"nasjonaltNummer\":\"98765432\"}},\"identifikator\":\"37ab4733648c4d5b825a813c6e1ace70\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"920254321\",\"type\":\"ORGANISASJONSNUMMER\"}}}}" };
         var organization = new Organization { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
         
         // Act
@@ -20,6 +23,23 @@ public class DataMapperTests
         Assert.Equal("98765432", organizationNotificationAddress.Address);
         Assert.Equal("+47", organizationNotificationAddress.Domain);
         Assert.Equal("+4798765432", organizationNotificationAddress.FullAddress);
+        Assert.Equal("37ab4733648c4d5b825a813c6e1ace70", organizationNotificationAddress.RegistryID);
+    }
+
+    [Fact]
+    public void MapOrganizationNotificationAddress_WhenMappingPhoneWithoutPrefix_Returns()
+    {
+        // Arrange
+        var entry = new Entry() { Id = "37ab4733648c4d5b825a813c6e1ace70", ContentStringified = "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"mobiltelefon\":{\"navn\":\"4798765432\",\"internasjonaltPrefiks\":\"\",\"nasjonaltNummer\":\"98765432\"}},\"identifikator\":\"37ab4733648c4d5b825a813c6e1ace70\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"920254321\",\"type\":\"ORGANISASJONSNUMMER\"}}}}" };
+        var organization = new Organization { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
+
+        // Act
+        var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(entry, organization);
+
+        // Assert
+        Assert.Equal("98765432", organizationNotificationAddress.Address);
+        Assert.Null(organizationNotificationAddress.Domain);
+        Assert.Equal("98765432", organizationNotificationAddress.FullAddress);
         Assert.Equal("37ab4733648c4d5b825a813c6e1ace70", organizationNotificationAddress.RegistryID);
     }
 
