@@ -9,7 +9,7 @@ namespace Altinn.Profile.Integrations.Repositories;
 public class OrganizationNotificationAddressRepository(IDbContextFactory<ProfileDbContext> contextFactory) : IOrganizationNotificationAddressUpdater
 {
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
-    private readonly string organizationNumberConst = "ORGANISASJONSNUMMER";
+    private readonly string _organizationNumberConst = "ORGANISASJONSNUMMER";
 
     /// <inheritdoc />
     public async Task<int> SyncNotificationAddressesAsync(NotificationAddressChangesLog organizationNotificationAddressChanges)
@@ -37,7 +37,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    private async Task<int> DeleteNotificationAddressAsync(string addressId)
+    private async Task<int> DeleteNotificationAddressAsync(string? addressId)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
@@ -60,11 +60,14 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// </returns>
     private async Task<int> UpdateNotificationAddressAsync(Entry address)
     {
-        var organization = await GetOrganization(address.Content.ContactPoint.UnitContactInfo.UnitIdentifier.Type, address.Content.ContactPoint.UnitContactInfo.UnitIdentifier.Value);
-        if (organization == null)
+        var orgNumber = address?.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Value;
+        if (orgNumber == null || address?.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Type != _organizationNumberConst)
         {
-            organization = await CreateOrganization(address.Content.ContactPoint.UnitContactInfo.UnitIdentifier.Value);
+            return 0;
         }
+
+        var organization = await GetOrganization(orgNumber);
+        organization ??= await CreateOrganization(orgNumber);
 
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
@@ -96,21 +99,16 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    public async Task<Organization?> GetOrganization(string identificatortype, string orgNumber)
+    public async Task<Organization?> GetOrganization(string orgNumber)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
-        if (identificatortype == organizationNumberConst)
-        {
-            return await databaseContext.Organizations
+        return await databaseContext.Organizations
                 .Include(o => o.NotificationAddresses)
                 .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == orgNumber);
-        }
-
-        return null;
     }
     
-    private async Task<Organization?> CreateOrganization(string orgNumber)
+    private async Task<Organization> CreateOrganization(string orgNumber)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 

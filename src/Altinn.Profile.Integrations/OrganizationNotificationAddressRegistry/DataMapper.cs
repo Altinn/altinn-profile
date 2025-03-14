@@ -24,8 +24,8 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
                 NotificationName = entry.Title,
             };
 
-            var contanctPoint = entry.Content.ContactPoint.DigitalContactPoint;
-            var isEmail = contanctPoint.EmailAddress != null;
+            var contanctPoint = entry?.Content?.ContactPoint?.DigitalContactPoint;
+            var isEmail = contanctPoint?.EmailAddress != null;
 
             if (isEmail)
             {
@@ -33,7 +33,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
             }
             else
             {
-                MapPhoneSpecificDetails(organizationNotificationAddress, contanctPoint.PhoneNumber);
+                MapPhoneSpecificDetails(organizationNotificationAddress, contanctPoint?.PhoneNumber);
             }
 
             return organizationNotificationAddress;

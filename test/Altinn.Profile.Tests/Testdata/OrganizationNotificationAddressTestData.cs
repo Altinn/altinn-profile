@@ -14,7 +14,7 @@ public static class OrganizationNotificationAddressTestData
     /// Gets a list of notificationAddresses.
     /// </summary>
     /// <returns>A list of <see cref="Register"/> objects containing test data.</returns>
-    public static (List<Organization> organizations, List<OrganizationNotificationAddress> notificationAddresses) GetNotificationAddresses()
+    public static (List<Organization> Organizations, List<OrganizationNotificationAddress> NotificationAddresses) GetNotificationAddresses()
     {
         var oranizations = new List<Organization>()
         {
