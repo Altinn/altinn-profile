@@ -41,9 +41,9 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
 
         _repository = new OrganizationNotificationAddressRepository(_databaseContextFactory.Object);
 
-        var testdata = OrganizationNotificationAddressTestData.GetNotificationAddresses();
-        _notificationAddressTestData = testdata.notificationAddresses;
-        _organizationTestData = testdata.organizations;
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        _notificationAddressTestData = notificationAddresses;
+        _organizationTestData = organizations;
 
         _databaseContext = _databaseContextFactory.Object.CreateDbContext();
         _databaseContext.NotificationAddresses.AddRange(_notificationAddressTestData);
@@ -134,7 +134,7 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
         var updatedOrg = await _repository.GetOrganization("ORGANISASJONSNUMMER", "987654321");
 
         // Assert
-        Assert.Equal(1, updatedOrg.NotificationAddresses.Count);
+        Assert.Single(updatedOrg.NotificationAddresses);
         Assert.Equal(1, numberOfUpdatedAddresses);
     }
 

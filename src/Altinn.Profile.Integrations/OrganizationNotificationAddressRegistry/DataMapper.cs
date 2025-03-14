@@ -41,9 +41,9 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
 
         private static void MapPhoneSpecificDetails(OrganizationNotificationAddress organizationNotificationAddress, PhoneNumberModel phoneNumber)
         {
-            string rawDataPrefix = string.IsNullOrEmpty(phoneNumber.Prefix) ? null : phoneNumber.Prefix.Trim();
-            string prefix;
-            if (string.IsNullOrEmpty(rawDataPrefix) || rawDataPrefix.StartsWith("+"))
+            string? rawDataPrefix = string.IsNullOrEmpty(phoneNumber.Prefix) ? null : phoneNumber.Prefix.Trim();
+            string? prefix;
+            if (string.IsNullOrEmpty(rawDataPrefix) || rawDataPrefix.StartsWith('+'))
             {
                 prefix = rawDataPrefix;
             }
