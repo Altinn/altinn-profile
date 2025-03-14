@@ -25,15 +25,18 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
             };
 
             var contanctPoint = entry.Content?.ContactPoint?.DigitalContactPoint;
-            var isEmail = contanctPoint?.EmailAddress != null;
 
-            if (isEmail)
+            if (contanctPoint?.EmailAddress != null)
             {
                 MapEmailSpecificValues(organizationNotificationAddress, contanctPoint.EmailAddress);
             }
+            else if (contanctPoint?.PhoneNumber != null)
+            {
+                MapPhoneSpecificDetails(organizationNotificationAddress, contanctPoint.PhoneNumber);
+            }
             else
             {
-                MapPhoneSpecificDetails(organizationNotificationAddress, contanctPoint?.PhoneNumber);
+                throw new OrganizationNotificationAddressChangesException(string.Concat("NotificationAddress type not recognized for feed entry with id: ", entry.Id));
             }
 
             return organizationNotificationAddress;

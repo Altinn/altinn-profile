@@ -1,5 +1,4 @@
-﻿using System;
-using Altinn.Profile.Integrations.Entities;
+﻿using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Xunit;
 

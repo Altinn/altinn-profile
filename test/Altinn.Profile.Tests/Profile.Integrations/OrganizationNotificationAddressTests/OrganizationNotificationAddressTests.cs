@@ -1,6 +1,4 @@
-﻿using System;
-using System;
-using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
+﻿using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations;
