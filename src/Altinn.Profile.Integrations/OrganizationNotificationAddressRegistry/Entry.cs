@@ -6,7 +6,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 /// <summary>
 /// Represents changes to a notification address for an organization
 /// </summary>
-public record OrganizationNotificationAddress
+public record Entry
 {
     /// <summary>
     /// The title of the notification address.

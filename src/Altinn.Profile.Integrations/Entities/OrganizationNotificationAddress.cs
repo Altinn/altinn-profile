@@ -13,13 +13,13 @@ namespace Altinn.Profile.Integrations.Entities
     public class OrganizationNotificationAddress
     {
         /// <summary>
-        /// <see cref="NotificationAddressID"/>
+        /// Incremental Id
         /// </summary>
         [Required]
         public int NotificationAddressID { get; set; }
 
         /// <summary>
-        /// <see cref="RegistryID"/>
+        /// Id from the registry
         /// </summary>
         [Required]
         [StringLength(32)]
@@ -86,7 +86,7 @@ namespace Altinn.Profile.Integrations.Entities
         public string NotificationName { get; set; }
 
         /// <summary>
-        /// The id of the organization in the registry
+        /// The id of the organization in our database
         /// </summary>
         [Required]
         [Column("fk_registry_organization_id")]
