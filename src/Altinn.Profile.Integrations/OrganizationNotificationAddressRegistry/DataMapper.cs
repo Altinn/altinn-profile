@@ -24,7 +24,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
                 NotificationName = entry.Title,
             };
 
-            var contanctPoint = entry?.Content?.ContactPoint?.DigitalContactPoint;
+            var contanctPoint = entry.Content?.ContactPoint?.DigitalContactPoint;
             var isEmail = contanctPoint?.EmailAddress != null;
 
             if (isEmail)
