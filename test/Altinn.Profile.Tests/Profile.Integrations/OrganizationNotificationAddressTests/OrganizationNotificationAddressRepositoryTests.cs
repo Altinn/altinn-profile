@@ -139,6 +139,24 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     }
 
     [Fact]
+    public async Task SyncNotificationAddressesAsync_WithDeleteData_ReturnsNullWhenAlreadyDeleted()
+    {
+        var matchedOrg = await _repository.GetOrganization("987654321");
+        Assert.Equal(2, matchedOrg.NotificationAddresses.Count);
+
+        var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_4");
+
+        // Act - call delete twice
+        await _repository.SyncNotificationAddressesAsync(changes);
+        var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changes);
+        var updatedOrg = await _repository.GetOrganization("987654321");
+
+        // Assert
+        Assert.Single(updatedOrg.NotificationAddresses);
+        Assert.Equal(0, numberOfUpdatedAddresses);
+    }
+
+    [Fact]
     public async Task SyncNotificationAddressesAsync_WithUpdateData_ReturnsUpdatedRows()
     {
         var matchedOrg = await _repository.GetOrganization("987654321");
