@@ -85,4 +85,20 @@ public class RegistrySyncMetadataRepositoryTests : IDisposable
         // Assert
         Assert.Equal(DateTime.MinValue, timestamp);
     }
+
+    [Fact]
+    public async Task GetLatestSyncTimestampAsync_ReturnsUpdatedTime()
+    {
+        // Arrange
+        var timestamp = DateTime.UtcNow;
+        var oldTime = await _repository.GetLatestSyncTimestampAsync();
+
+        // Act
+        await _repository.UpdateLatestChangeTimestampAsync(timestamp);
+        var updatedTime = await _repository.GetLatestSyncTimestampAsync();
+
+        // Assert
+        Assert.Equal(timestamp, updatedTime);
+        Assert.NotEqual(timestamp, oldTime);
+    }
 }

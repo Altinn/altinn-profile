@@ -34,10 +34,16 @@ public class RegistrySyncMetadataRepository(IDbContextFactory<ProfileDbContext> 
             lastSync = new Entities.RegistrySyncMetadata
             {
                 LastChangedId = Guid.NewGuid().ToString("N"),
+                LastChangedDateTime = updated
             };
+            databaseContext.RegistrySyncMetadata.Add(lastSync);
         }
+        else
+        {
+            lastSync.LastChangedDateTime = updated;
 
-        lastSync.LastChangedDateTime = updated;
+            databaseContext.RegistrySyncMetadata.Update(lastSync);
+        }
 
         await databaseContext.SaveChangesAsync();
         return updated;
