@@ -37,7 +37,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    public async Task<int> DeleteNotificationAddressAsync(string addressId)
+    private async Task<int> DeleteNotificationAddressAsync(string addressId)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
@@ -58,7 +58,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    public async Task<int> UpdateNotificationAddressAsync(Entry address)
+    private async Task<int> UpdateNotificationAddressAsync(Entry address)
     {
         var organization = await GetOrganization(address.Content.ContactPoint.UnitContactInfo.UnitIdentifier.Type, address.Content.ContactPoint.UnitContactInfo.UnitIdentifier.Value);
         if (organization == null)
@@ -73,7 +73,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
         var existingAddress = organization.NotificationAddresses?.FirstOrDefault(a => a.RegistryID == address.Id);
         if (existingAddress == null)
         {
-            organization.NotificationAddresses.Add(organizationNotificationAddress);
+            databaseContext.NotificationAddresses.Add(organizationNotificationAddress);
         }
         else
         {
@@ -83,6 +83,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             existingAddress.RegistryUpdatedDateTime = organizationNotificationAddress.RegistryUpdatedDateTime;
             existingAddress.UpdateSource = organizationNotificationAddress.UpdateSource;
             existingAddress.IsSoftDeleted = organizationNotificationAddress.IsSoftDeleted;
+
             databaseContext.NotificationAddresses.Update(existingAddress);
         }
 
@@ -95,13 +96,15 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    private async Task<Organization?> GetOrganization(string identificatortype, string orgNumber)
+    public async Task<Organization?> GetOrganization(string identificatortype, string orgNumber)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
         if (identificatortype == organizationNumberConst)
         {
-            return await databaseContext.Organizations.FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == orgNumber);
+            return await databaseContext.Organizations
+                .Include(o => o.NotificationAddresses)
+                .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == orgNumber);
         }
 
         return null;
@@ -114,6 +117,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
         var organization = new Organization
         {
             RegistryOrganizationNumber = orgNumber,
+            NotificationAddresses = [],
         };
         
         await databaseContext.Organizations.AddAsync(organization);
