@@ -73,6 +73,21 @@ public class TriggerControllerTests : IClassFixture<WebApplicationFactory<Progra
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
+    [Fact]
+    public async Task SyncOrgChanges_WhenSomethingsGoesWrong_ReturnsInternalServerError()
+    {
+        // Arrange
+        var client = _webApplicationFactorySetup.GetTestServerClient();
+
+        HttpRequestMessage httpRequestMessage = CreateGetRequest("/profile/api/v1/trigger/syncorgchanges");
+
+        // Act
+        var response = await client.SendAsync(httpRequestMessage);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+    }
+
     private static HttpRequestMessage CreateGetRequest(string requestUri)
     {
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, requestUri);
