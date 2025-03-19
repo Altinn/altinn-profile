@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Controllers;
@@ -77,6 +78,8 @@ public class TriggerControllerTests : IClassFixture<WebApplicationFactory<Progra
     public async Task SyncOrgChanges_WhenSomethingsGoesWrong_ReturnsInternalServerError()
     {
         // Arrange
+        _webApplicationFactorySetup.OrganizationNotificationAddressServiceMock.Setup(
+            c => c.GetAddressChangesAsync(It.IsAny<string>())).ThrowsAsync(new OrganizationNotificationAddressChangesException("Something went wrong"));
         var client = _webApplicationFactorySetup.GetTestServerClient();
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest("/profile/api/v1/trigger/syncorgchanges");
