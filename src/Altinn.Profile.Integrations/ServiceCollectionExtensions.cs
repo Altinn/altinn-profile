@@ -74,6 +74,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<INationalIdentityNumberChecker, NationalIdentityNumberChecker>();
 
         services.AddScoped<IOrganizationNotificationAddressUpdater, OrganizationNotificationAddressRepository>();
+        services.AddScoped<IOrganizationNotificationAddressRepository, OrganizationNotificationAddressRepository>();
         services.AddScoped<IRegistrySyncMetadataRepository, RegistrySyncMetadataRepository>();
         services.AddScoped<IOrganizationNotificationAddressUpdateJob, OrganizationNotificationAddressUpdateJob>();
 

@@ -34,10 +34,5 @@ public class OrgContactPointsList
         /// Gets or sets a list of official email addresses
         /// </summary>
         public List<string> EmailList { get; set; } = [];
-
-        /// <summary>
-        /// Gets or sets a list of user registered contact points associated with the organization.
-        /// </summary>
-        // TODO: public List<UserContactPoints> UserContactPoints { get; set; } = [];
     }
 }

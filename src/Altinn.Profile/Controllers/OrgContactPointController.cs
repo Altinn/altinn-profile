@@ -17,14 +17,14 @@ namespace Altinn.Profile.Controllers
     [Produces("application/json")]
     public class OrgContactPointController : ControllerBase
     {
-        private readonly IOrganizationNotificationAddressesService _contactPointService;
+        private readonly IOrganizationNotificationAddressesService _notificationAddressService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OrgContactPointController"/> class.
         /// </summary>
-        public OrgContactPointController(IOrganizationNotificationAddressesService contactPointsService)
+        public OrgContactPointController(IOrganizationNotificationAddressesService notificationAddressService)
         {
-            _contactPointService = contactPointsService;
+            _notificationAddressService = notificationAddressService;
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<OrgContactPointsList>> PostLookup([FromBody] OrgContactPointLookup orgContactPointLookup, CancellationToken cancellationToken)
         {     
-            Result<OrgContactPointsList, bool> result = await _contactPointService.GetNotificationContactPoints(orgContactPointLookup, cancellationToken);
+            Result<OrgContactPointsList, bool> result = await _notificationAddressService.GetNotificationContactPoints(orgContactPointLookup, cancellationToken);
             return result.Match<ActionResult<OrgContactPointsList>>(
                          success => Ok(success),
                          _ => Problem("Could not retrieve contact points"));
