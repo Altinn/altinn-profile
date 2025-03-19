@@ -72,6 +72,10 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<INationalIdentityNumberChecker, NationalIdentityNumberChecker>();
 
+        services.AddScoped<IOrganizationNotificationAddressUpdater, OrganizationNotificationAddressRepository>();
+        services.AddScoped<IRegistrySyncMetadataRepository, RegistrySyncMetadataRepository>();
+        services.AddScoped<IOrganizationNotificationAddressUpdateJob, OrganizationNotificationAddressUpdateJob>();
+
         services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
     }
 
@@ -107,5 +111,6 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddSingleton(organizationNotificationAddressSettings);
+        services.AddScoped<IOrganizationNotificationAddressHttpClient, OrganizationNotificationAddressHttpClient>();
     }
 }
