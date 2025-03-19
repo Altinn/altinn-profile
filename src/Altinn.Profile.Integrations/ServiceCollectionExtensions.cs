@@ -69,6 +69,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IContactRegisterUpdateJob, ContactRegisterUpdateJob>();
 
         services.AddAutoMapper(typeof(PersonMappingProfile), typeof(PersonContactPreferencesProfile));
+        services.AddAutoMapper(typeof(OrganizationMappingProfile));
 
         services.AddSingleton<INationalIdentityNumberChecker, NationalIdentityNumberChecker>();
 

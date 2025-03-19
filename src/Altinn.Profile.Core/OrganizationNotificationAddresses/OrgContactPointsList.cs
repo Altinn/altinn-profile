@@ -1,0 +1,43 @@
+﻿namespace Altinn.Profile.Core.OrganizationNotificationAddresses;
+
+/// <summary>
+/// A list representation of <see cref="OrganizationContactPoints"/>
+/// </summary>
+public class OrgContactPointsList
+{
+    /// <summary>
+    /// A list containing contact points for organizations
+    /// </summary>
+    public List<OrganizationContactPoints> ContactPointsList { get; set; } = [];
+
+    /// <summary>
+    /// Class describing the contact points for an organization as notifications services uses
+    /// </summary>
+    public class OrganizationContactPoints
+    {
+        /// <summary>
+        /// Gets or sets the organization number for the organization
+        /// </summary>
+        public string OrganizationNumber { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the party id of the organization
+        /// </summary>
+        public int PartyId { get; set; }
+
+        /// <summary>
+        /// Gets or sets a list of official mobile numbers
+        /// </summary>
+        public List<string> MobileNumberList { get; set; } = [];
+
+        /// <summary>
+        /// Gets or sets a list of official email addresses
+        /// </summary>
+        public List<string> EmailList { get; set; } = [];
+
+        /// <summary>
+        /// Gets or sets a list of user registered contact points associated with the organization.
+        /// </summary>
+        // TODO: public List<UserContactPoints> UserContactPoints { get; set; } = [];
+    }
+}

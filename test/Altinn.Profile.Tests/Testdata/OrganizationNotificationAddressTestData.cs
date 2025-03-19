@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.Entities;
 
 namespace Altinn.Profile.Tests.Testdata;
@@ -14,9 +14,9 @@ public static class OrganizationNotificationAddressTestData
     /// Gets a list of notificationAddresses.
     /// </summary>
     /// <returns>A list of <see cref="Register"/> objects containing test data.</returns>
-    public static (List<Organization> Organizations, List<OrganizationNotificationAddress> NotificationAddresses) GetNotificationAddresses()
+    public static (List<Integrations.Entities.Organization> Organizations, List<OrganizationNotificationAddress> NotificationAddresses) GetNotificationAddresses()
     {
-        var oranizations = new List<Organization>()
+        var oranizations = new List<Integrations.Entities.Organization>()
         {
             new()
             {

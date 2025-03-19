@@ -1,4 +1,5 @@
-﻿using Altinn.Profile.Core.Unit.ContactPoints;
+﻿using Altinn.Profile.Core.OrganizationNotificationAddresses;
+using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Core.User;
 using Altinn.Profile.Core.User.ContactPoints;
 
@@ -25,6 +26,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<IUserProfileService, UserProfileService>()
             .AddScoped<IUserContactPointsService, UserContactPointService>()
             .Decorate<IUserProfileService, UserProfileCachingDecorator>()
-            .AddScoped<IUnitContactPointsService, UnitContactPointService>();
+            .AddScoped<IUnitContactPointsService, UnitContactPointService>()
+            .AddScoped<IOrganizationNotificationAddressesService, OrganizationNotificationAddressesService>();
     }
 }

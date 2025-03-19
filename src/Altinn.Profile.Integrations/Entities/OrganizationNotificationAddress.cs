@@ -1,8 +1,8 @@
 ﻿#nullable disable
 
 using System.ComponentModel.DataAnnotations;
-
 using System.ComponentModel.DataAnnotations.Schema;
+using Altinn.Profile.Core.OrganizationNotificationAddresses;
 
 namespace Altinn.Profile.Integrations.Entities
 {

@@ -1,4 +1,5 @@
-﻿using Altinn.Profile.Integrations.Entities;
+﻿using Altinn.Profile.Core.OrganizationNotificationAddresses;
+using Altinn.Profile.Integrations.Entities;
 using static Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.EntryContent.ContactPointModel.DigitalContactPointModel;
 
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
@@ -11,7 +12,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
         /// <summary>
         /// Maps from the registry raw data to the data model stored in the database
         /// </summary>
-        public static OrganizationNotificationAddress MapOrganizationNotificationAddress(Entry entry, Organization organization)
+        public static OrganizationNotificationAddress MapOrganizationNotificationAddress(Entry entry, Entities.Organization organization)
         {
             var organizationNotificationAddress = new OrganizationNotificationAddress
             {
