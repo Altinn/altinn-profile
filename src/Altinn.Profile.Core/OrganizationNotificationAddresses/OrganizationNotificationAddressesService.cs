@@ -39,16 +39,19 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
                     OrganizationNumber = organization.RegistryOrganizationNumber,
                 };
 
-                foreach (var notificationAddress in organization.NotificationAddresses)
+                if (organization?.NotificationAddresses?.Count > 0)
                 {
-                    switch (notificationAddress.AddressType)
+                    foreach (var notificationAddress in organization.NotificationAddresses)
                     {
-                        case AddressType.Email:
-                            contactPoints.EmailList.Add(notificationAddress.FullAddress);
-                            break;
-                        case AddressType.SMS:
-                            contactPoints.MobileNumberList.Add(notificationAddress.FullAddress);
-                            break;
+                        switch (notificationAddress.AddressType)
+                        {
+                            case AddressType.Email:
+                                contactPoints.EmailList.Add(notificationAddress.FullAddress);
+                                break;
+                            case AddressType.SMS:
+                                contactPoints.MobileNumberList.Add(notificationAddress.FullAddress);
+                                break;
+                        }
                     }
                 }
 

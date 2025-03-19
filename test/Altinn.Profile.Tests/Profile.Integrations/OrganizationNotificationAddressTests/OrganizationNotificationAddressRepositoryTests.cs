@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Mappings;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
@@ -24,7 +26,7 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     private readonly ProfileDbContext _databaseContext;
     private readonly OrganizationNotificationAddressRepository _repository;
     private readonly List<OrganizationNotificationAddress> _notificationAddressTestData;
-    private readonly List<Organization> _organizationTestData;
+    private readonly List<Altinn.Profile.Integrations.Entities.Organization> _organizationTestData;
     private readonly Mock<IDbContextFactory<ProfileDbContext>> _databaseContextFactory;
 
     public OrganizationNotificationAddressRepositoryTests()
@@ -53,7 +55,7 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
 
         _databaseContext = _databaseContextFactory.Object.CreateDbContext();
         _databaseContext.NotificationAddresses.AddRange(_notificationAddressTestData);
-        _databaseContext.Organizations.AddRange(_organizationTestData);
+        _databaseContext.Organizations.AddRange((IEnumerable<Altinn.Profile.Integrations.Entities.Organization>)_organizationTestData);
         _databaseContext.SaveChanges();
     }
 
@@ -181,7 +183,61 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
         Assert.True(numberOfUpdatedAddresses > 0);
     }
 
-    private static void AssertRegisterProperties(Organization expected, Organization actual)
+    [Fact]
+    public async Task GetOrganizations_WhenFound_ReturnsWithNotificationAddresses()
+    {
+        // Arrange
+        var orgNumberLookup = new OrgContactPointLookup
+        {
+            OrganizationNumbers = ["123456789", "987654321"]
+        };
+
+        // Act
+        var result = await _repository.GetOrganizationsAsync(orgNumberLookup, CancellationToken.None);
+
+        var expectedOrg1 = _organizationTestData
+            .Find(p => p.RegistryOrganizationNumber == "123456789");
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        result.Match(
+                success =>
+                {
+                    Assert.IsType<List<Altinn.Profile.Core.OrganizationNotificationAddresses.Organization>>(success);
+                    Assert.NotEmpty(success);
+                    var matchedOrg1 = success.FirstOrDefault();
+                    Assert.NotEmpty(matchedOrg1.NotificationAddresses);
+                    Assert.Equal(matchedOrg1.NotificationAddresses.Count, expectedOrg1.NotificationAddresses.Count);
+                    Assert.Equal(matchedOrg1.RegistryOrganizationNumber, expectedOrg1.RegistryOrganizationNumber);
+                    Assert.Equal(matchedOrg1.RegistryOrganizationId, expectedOrg1.RegistryOrganizationId);
+                },
+                error => throw new Exception("No error value should be returned if SBL client respons with 200 OK."));
+    }
+
+    [Fact]
+    public async Task GetOrganizations_WhenNoneFound_ReturnsFalse()
+    {
+        // Arrange
+        var orgNumberLookup = new OrgContactPointLookup
+        {
+            OrganizationNumbers = ["000000000"]
+        };
+
+        // Act
+        var result = await _repository.GetOrganizationsAsync(orgNumberLookup, CancellationToken.None);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        result.Match(
+            success => throw new Exception("No success value should be returned if SBL client respons with 5xx."),
+            error =>
+             {
+                 Assert.IsType<bool>(error);
+                 Assert.False(error);
+             });
+    }
+
+    private static void AssertRegisterProperties(Altinn.Profile.Integrations.Entities.Organization expected, Altinn.Profile.Integrations.Entities.Organization actual)
     {
         Assert.Equal(expected.RegistryOrganizationNumber, actual.RegistryOrganizationNumber);
         Assert.Equal(expected.RegistryOrganizationId, actual.RegistryOrganizationId);
