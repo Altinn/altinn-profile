@@ -39,7 +39,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
                     OrganizationNumber = organization.RegistryOrganizationNumber,
                 };
 
-                if (organization?.NotificationAddresses?.Count > 0)
+                if (organization.NotificationAddresses?.Count > 0)
                 {
                     foreach (var notificationAddress in organization.NotificationAddresses)
                     {

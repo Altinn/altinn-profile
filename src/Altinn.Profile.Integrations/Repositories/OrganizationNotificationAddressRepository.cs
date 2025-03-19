@@ -131,14 +131,14 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// <inheritdoc/>
     public async Task<Result<IEnumerable<Core.OrganizationNotificationAddresses.Organization>, bool>> GetOrganizationsAsync(Core.OrganizationNotificationAddresses.OrgContactPointLookup orgNumberLookup, CancellationToken cancellationToken)
     {
-        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
         var foundOrganizations = await databaseContext.Organizations
                 .Include(o => o.NotificationAddresses)
                 .Where(o => orgNumberLookup.OrganizationNumbers.Contains(o.RegistryOrganizationNumber))
                 .ToListAsync(cancellationToken);
 
-        if (!foundOrganizations.Any())
+        if (foundOrganizations.Count == 0)
         {
             return false;
         }

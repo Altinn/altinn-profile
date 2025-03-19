@@ -13,7 +13,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
     public class OrganizationNotificationAddressesServiceTests
     {
         private readonly Mock<IOrganizationNotificationAddressRepository> _repository;
-        private readonly IOrganizationNotificationAddressesService _service;
+        private readonly OrganizationNotificationAddressesService _service;
         private readonly List<Organization> _testdata;
 
         public OrganizationNotificationAddressesServiceTests()
