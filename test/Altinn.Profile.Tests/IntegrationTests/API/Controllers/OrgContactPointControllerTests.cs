@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Controllers;
@@ -13,7 +14,7 @@ using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
 using Microsoft.AspNetCore.Mvc.Testing;
-
+using Moq;
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
@@ -28,12 +29,39 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             PropertyNameCaseInsensitive = true
         };
 
+        private readonly List<Organization> _testdata;
+
         public OrgContactPointControllerTests(WebApplicationFactory<OrgContactPointController> factory)
         {
             _webApplicationFactorySetup = new WebApplicationFactorySetup<OrgContactPointController>(factory);
+            _testdata =
+            [
+                new()
+                {
+                    RegistryOrganizationId = 1,
+                    RegistryOrganizationNumber = "123456789",
+                    NotificationAddresses =
+                    [
+                        new()
+                        {
+                            FullAddress = "test@test.com",
+                            AddressType = AddressType.Email,
+                        },
+                        new()
+                        {
+                            FullAddress = "+4798765432",
+                            AddressType = AddressType.SMS,
+                        },
+                        new()
+                        {
+                            FullAddress = "+4747765432",
+                            AddressType = AddressType.SMS,
+                        }
+                    ]
+                }
+            ];
         }
 
-        /* TODO
         [Fact]
         public async Task PostLookup_SuccessResult_ReturnsOk()
         {
@@ -43,6 +71,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 OrganizationNumbers = ["123456789"],
             };
 
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationsAsync(It.IsAny<OrgContactPointLookup>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata);
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/contactpoint/lookup")
             {
@@ -57,7 +88,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string responseContent = await response.Content.ReadAsStringAsync();
             var actual = JsonSerializer.Deserialize<OrgContactPointsList>(responseContent, _serializerOptions);
             Assert.Single(actual.ContactPointsList);
-        }*/
+        }
 
         [Fact]
         public async Task PostLookup_ErrorResult_ReturnsProblemDetails()
