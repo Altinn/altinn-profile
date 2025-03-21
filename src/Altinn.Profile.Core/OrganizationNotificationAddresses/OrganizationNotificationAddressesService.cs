@@ -20,13 +20,11 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         }
 
         /// <inheritdoc/>
-        public async Task<Result<OrgContactPointsList, bool>> GetNotificationContactPoints(OrgContactPointLookup lookup, CancellationToken cancellationToken)
+        public async Task<OrgContactPointsList> GetNotificationContactPoints(OrgContactPointLookup lookup, CancellationToken cancellationToken)
         {
             var result = await _orgRepository.GetOrganizationsAsync(lookup, cancellationToken);
 
-            return result.Match<Result<OrgContactPointsList, bool>>(
-                                     success => MapResult(success),
-                                     _ => false);
+            return MapResult(result);
         }
 
         private static OrgContactPointsList MapResult(IEnumerable<Organization> organizations)

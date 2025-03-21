@@ -40,10 +40,8 @@ namespace Altinn.Profile.Controllers
                 return BadRequest(ModelState);
             }
 
-            Result<OrgContactPointsList, bool> result = await _notificationAddressService.GetNotificationContactPoints(orgContactPointLookup, cancellationToken);
-            return result.Match<ActionResult<OrgContactPointsList>>(
-                         success => Ok(success),
-                         _ => Problem("Could not retrieve contact points"));
+            OrgContactPointsList result = await _notificationAddressService.GetNotificationContactPoints(orgContactPointLookup, cancellationToken);
+            return Ok(result);
         }
     }
 }

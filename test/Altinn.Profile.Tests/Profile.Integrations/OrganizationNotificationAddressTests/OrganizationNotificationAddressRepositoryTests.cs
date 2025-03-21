@@ -191,31 +191,24 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
         {
             OrganizationNumbers = ["123456789", "987654321"]
         };
+        var expectedOrg1 = _organizationTestData
+            .Find(p => p.RegistryOrganizationNumber == "123456789");
 
         // Act
         var result = await _repository.GetOrganizationsAsync(orgNumberLookup, CancellationToken.None);
 
-        var expectedOrg1 = _organizationTestData
-            .Find(p => p.RegistryOrganizationNumber == "123456789");
-
         // Assert
-        Assert.True(result.IsSuccess);
-        result.Match(
-                success =>
-                {
-                    Assert.IsType<List<Altinn.Profile.Core.OrganizationNotificationAddresses.Organization>>(success);
-                    Assert.NotEmpty(success);
-                    var matchedOrg1 = success.FirstOrDefault();
-                    Assert.NotEmpty(matchedOrg1.NotificationAddresses);
-                    Assert.Equal(matchedOrg1.NotificationAddresses.Count, expectedOrg1.NotificationAddresses.Count);
-                    Assert.Equal(matchedOrg1.RegistryOrganizationNumber, expectedOrg1.RegistryOrganizationNumber);
-                    Assert.Equal(matchedOrg1.RegistryOrganizationId, expectedOrg1.RegistryOrganizationId);
-                },
-                error => throw new Exception("No error value should be returned if SBL client respons with 200 OK."));
+        Assert.IsType<List<Altinn.Profile.Core.OrganizationNotificationAddresses.Organization>>(result);
+        Assert.NotEmpty(result);
+        var matchedOrg1 = result.FirstOrDefault();
+        Assert.NotEmpty(matchedOrg1.NotificationAddresses);
+        Assert.Equal(matchedOrg1.NotificationAddresses.Count, expectedOrg1.NotificationAddresses.Count);
+        Assert.Equal(matchedOrg1.RegistryOrganizationNumber, expectedOrg1.RegistryOrganizationNumber);
+        Assert.Equal(matchedOrg1.RegistryOrganizationId, expectedOrg1.RegistryOrganizationId);
     }
 
     [Fact]
-    public async Task GetOrganizations_WhenNoneFound_ReturnsFalse()
+    public async Task GetOrganizations_WhenNoneFound_ReturnsEmptyList()
     {
         // Arrange
         var orgNumberLookup = new OrgContactPointLookup
@@ -224,17 +217,10 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
         };
 
         // Act
-        var result = await _repository.GetOrganizationsAsync(orgNumberLookup, CancellationToken.None);
+        var orgList = await _repository.GetOrganizationsAsync(orgNumberLookup, CancellationToken.None);
 
         // Assert
-        Assert.False(result.IsSuccess);
-        result.Match(
-            success => throw new Exception("No success value should be returned if SBL client respons with 5xx."),
-            error =>
-             {
-                 Assert.IsType<bool>(error);
-                 Assert.False(error);
-             });
+        Assert.Empty(orgList);
     }
 
     private static void AssertRegisterProperties(Altinn.Profile.Integrations.Entities.Organization expected, Altinn.Profile.Integrations.Entities.Organization actual)

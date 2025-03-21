@@ -129,7 +129,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     }
 
     /// <inheritdoc/>
-    public async Task<Result<IEnumerable<Core.OrganizationNotificationAddresses.Organization>, bool>> GetOrganizationsAsync(Core.OrganizationNotificationAddresses.OrgContactPointLookup orgNumberLookup, CancellationToken cancellationToken)
+    public async Task<IEnumerable<Core.OrganizationNotificationAddresses.Organization>> GetOrganizationsAsync(Core.OrganizationNotificationAddresses.OrgContactPointLookup orgNumberLookup, CancellationToken cancellationToken)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
@@ -140,7 +140,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         if (foundOrganizations.Count == 0)
         {
-            return false;
+            return new List<Core.OrganizationNotificationAddresses.Organization>();
         }
 
         return foundOrganizations.Select(_mapper.Map<Core.OrganizationNotificationAddresses.Organization>).ToList();

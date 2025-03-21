@@ -67,43 +67,30 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             var result = await _service.GetNotificationContactPoints(lookup, CancellationToken.None);
 
             // Assert
-            Assert.True(result.IsSuccess);
-            result.Match(
-                    success =>
-                    {
-                        Assert.IsType<OrgContactPointsList>(success);
-                        Assert.NotEmpty(success.ContactPointsList);
-                        var matchedOrg1 = success.ContactPointsList.FirstOrDefault();
-                        Assert.NotEmpty(matchedOrg1.EmailList);
-                        Assert.Single(matchedOrg1.EmailList);
-                        Assert.Equal(matchedOrg1.OrganizationNumber, _testdata[0].RegistryOrganizationNumber);
-                        Assert.Equal(2, matchedOrg1.MobileNumberList.Count);
-                    },
-                    error => throw new Exception("No error value should be returned if SBL client respons with 200 OK."));
+            Assert.IsType<OrgContactPointsList>(result);
+            Assert.NotEmpty(result.ContactPointsList);
+            var matchedOrg1 = result.ContactPointsList.FirstOrDefault();
+            Assert.NotEmpty(matchedOrg1.EmailList);
+            Assert.Single(matchedOrg1.EmailList);
+            Assert.Equal(matchedOrg1.OrganizationNumber, _testdata[0].RegistryOrganizationNumber);
+            Assert.Equal(2, matchedOrg1.MobileNumberList.Count);
         }
 
         [Fact]
-        public async Task GetNotificationContactPoints_WhenNothingFound_ReturnsError()
+        public async Task GetNotificationContactPoints_WhenNothingFound_ReturnsEmptyList()
         {
             var lookup = new OrgContactPointLookup
             {
                 OrganizationNumbers = ["123456789"]
             };
             _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<OrgContactPointLookup>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(false);
+                .ReturnsAsync(new List<Organization>());
 
             // Act
             var result = await _service.GetNotificationContactPoints(lookup, CancellationToken.None);
 
             // Assert
-            Assert.True(result.IsError);
-            result.Match(
-                success => throw new Exception("No success value should be returned if SBL client respons with 5xx."),
-                error =>
-                {
-                    Assert.IsType<bool>(error);
-                    Assert.False(error);
-                });
+            Assert.Empty(result.ContactPointsList);
         }
     }
 }

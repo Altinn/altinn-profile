@@ -11,5 +11,5 @@ public interface IOrganizationNotificationAddressRepository
     /// Getting the organizations notification addresses from the database
     /// </summary>
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    Task<Result<IEnumerable<Organization>, bool>> GetOrganizationsAsync(OrgContactPointLookup orgNumberLookup, CancellationToken cancellationToken);
+    Task<IEnumerable<Organization>> GetOrganizationsAsync(OrgContactPointLookup orgNumberLookup, CancellationToken cancellationToken);
 }

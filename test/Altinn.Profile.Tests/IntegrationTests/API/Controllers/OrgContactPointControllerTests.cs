@@ -91,7 +91,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task PostLookup_ErrorResult_ReturnsProblemDetails()
+        public async Task PostLookup_ErrorResult_ReturnsEmptyList()
         {
             // Arrange
             OrgContactPointLookup input = new()
@@ -109,7 +109,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
 
             // Assert
-            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<OrgContactPointsList>(responseContent, _serializerOptions);
+            Assert.Empty(actual.ContactPointsList);
         }
     }
 }
