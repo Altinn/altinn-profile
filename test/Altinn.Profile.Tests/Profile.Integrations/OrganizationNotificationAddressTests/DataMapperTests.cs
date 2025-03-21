@@ -14,7 +14,7 @@ public class DataMapperTests
     {
         // Arrange
         var entry = new Entry() { Id = "37ab4733648c4d5b825a813c6e1ace70", ContentStringified = "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"mobiltelefon\":{\"navn\":\"4798765432\",\"internasjonaltPrefiks\":\"" + prefix + "\",\"nasjonaltNummer\":\"98765432\"}},\"identifikator\":\"37ab4733648c4d5b825a813c6e1ace70\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"920254321\",\"type\":\"ORGANISASJONSNUMMER\"}}}}" };
-        var organization = new Organization { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
+        var organization = new OrganizationDataModel { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
         
         // Act
         var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(entry, organization);
@@ -31,7 +31,7 @@ public class DataMapperTests
     {
         // Arrange
         var entry = new Entry() { Id = "37ab4733648c4d5b825a813c6e1ace70", ContentStringified = "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"mobiltelefon\":{\"navn\":\"4798765432\",\"internasjonaltPrefiks\":\"\",\"nasjonaltNummer\":\"98765432\"}},\"identifikator\":\"37ab4733648c4d5b825a813c6e1ace70\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"920254321\",\"type\":\"ORGANISASJONSNUMMER\"}}}}" };
-        var organization = new Organization { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
+        var organization = new OrganizationDataModel { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
 
         // Act
         var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(entry, organization);
@@ -48,7 +48,7 @@ public class DataMapperTests
     {
         // Arrange
         var entry = new Entry() { Id = "27ae0c8bea1f4f02a974c10429c32758", ContentStringified = "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"epostadresse\":{\"navn\":\"test@test.no\",\"domenenavn\":\"test.no\",\"brukernavn\":\"test\"}},\"identifikator\":\"27ae0c8bea1f4f02a974c10429c32758\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"920212345\",\"type\":\"ORGANISASJONSNUMMER\"}}}}" };
-        var organization = new Organization { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
+        var organization = new OrganizationDataModel { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
 
         // Act
         var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(entry, organization);
@@ -65,7 +65,7 @@ public class DataMapperTests
     {
         // Arrange
         var entry = new Entry() { Id = "27ae0c8bea1f4f02a974c10429c32758", ContentStringified = "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{},\"identifikator\":\"27ae0c8bea1f4f02a974c10429c32758\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"920212345\",\"type\":\"ORGANISASJONSNUMMER\"}}}}" };
-        var organization = new Organization { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
+        var organization = new OrganizationDataModel { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
 
         // Act & Assert
         Assert.Throws<OrganizationNotificationAddressChangesException>(() => DataMapper.MapOrganizationNotificationAddress(entry, organization));

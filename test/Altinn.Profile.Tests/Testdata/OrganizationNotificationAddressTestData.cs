@@ -14,9 +14,9 @@ public static class OrganizationNotificationAddressTestData
     /// Gets a list of notificationAddresses.
     /// </summary>
     /// <returns>A list of <see cref="Register"/> objects containing test data.</returns>
-    public static (List<Integrations.Entities.Organization> Organizations, List<OrganizationNotificationAddress> NotificationAddresses) GetNotificationAddresses()
+    public static (List<OrganizationDataModel> Organizations, List<NotificationAddressDataModel> NotificationAddresses) GetNotificationAddresses()
     {
-        var oranizations = new List<Integrations.Entities.Organization>()
+        var oranizations = new List<OrganizationDataModel>()
         {
             new()
             {
@@ -29,7 +29,7 @@ public static class OrganizationNotificationAddressTestData
                 RegistryOrganizationId = 2
             }
         };
-        var notificationAddresses = new List<OrganizationNotificationAddress>()
+        var notificationAddresses = new List<NotificationAddressDataModel>()
         {
             new()
             {

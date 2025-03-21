@@ -8,7 +8,7 @@ namespace Altinn.Profile.Integrations.Entities
     /// </summary>
     [Table("organizations", Schema = "organization_notification_address")]
 
-    public class Organization
+    public class OrganizationDataModel
     {
         /// <summary>
         /// OrganizationNumber of the organization
@@ -27,6 +27,6 @@ namespace Altinn.Profile.Integrations.Entities
         /// A collection of notification addresses associated with this organization
         /// </summary>
         [InverseProperty("Organization")]
-        public List<OrganizationNotificationAddress>? NotificationAddresses { get; set; }
+        public List<NotificationAddressDataModel>? NotificationAddresses { get; set; }
     }
 }

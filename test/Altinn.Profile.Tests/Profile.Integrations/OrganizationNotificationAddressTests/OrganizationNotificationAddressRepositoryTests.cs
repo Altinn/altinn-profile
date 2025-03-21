@@ -25,8 +25,8 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     private bool _isDisposed;
     private readonly ProfileDbContext _databaseContext;
     private readonly OrganizationNotificationAddressRepository _repository;
-    private readonly List<OrganizationNotificationAddress> _notificationAddressTestData;
-    private readonly List<Altinn.Profile.Integrations.Entities.Organization> _organizationTestData;
+    private readonly List<NotificationAddressDataModel> _notificationAddressTestData;
+    private readonly List<OrganizationDataModel> _organizationTestData;
     private readonly Mock<IDbContextFactory<ProfileDbContext>> _databaseContextFactory;
 
     public OrganizationNotificationAddressRepositoryTests()
@@ -55,7 +55,7 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
 
         _databaseContext = _databaseContextFactory.Object.CreateDbContext();
         _databaseContext.NotificationAddresses.AddRange(_notificationAddressTestData);
-        _databaseContext.Organizations.AddRange((IEnumerable<Altinn.Profile.Integrations.Entities.Organization>)_organizationTestData);
+        _databaseContext.Organizations.AddRange((IEnumerable<OrganizationDataModel>)_organizationTestData);
         _databaseContext.SaveChanges();
     }
 
@@ -198,7 +198,7 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
         var result = await _repository.GetOrganizationsAsync(orgNumberLookup, CancellationToken.None);
 
         // Assert
-        Assert.IsType<List<Altinn.Profile.Core.OrganizationNotificationAddresses.Organization>>(result);
+        Assert.IsType<List<Organization>>(result);
         Assert.NotEmpty(result);
         var matchedOrg1 = result.FirstOrDefault();
         Assert.NotEmpty(matchedOrg1.NotificationAddresses);
@@ -223,7 +223,7 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
         Assert.Empty(orgList);
     }
 
-    private static void AssertRegisterProperties(Altinn.Profile.Integrations.Entities.Organization expected, Altinn.Profile.Integrations.Entities.Organization actual)
+    private static void AssertRegisterProperties(OrganizationDataModel expected, OrganizationDataModel actual)
     {
         Assert.Equal(expected.RegistryOrganizationNumber, actual.RegistryOrganizationNumber);
         Assert.Equal(expected.RegistryOrganizationId, actual.RegistryOrganizationId);
