@@ -60,7 +60,7 @@ public class TriggerControllerTests : IClassFixture<WebApplicationFactory<Progra
         {
             OrganizationNotificationAddressList = new List<Entry>(),
         };
-        _webApplicationFactorySetup.OrganizationNotificationAddressServiceMock.Setup(
+        _webApplicationFactorySetup.OrganizationNotificationAddressClientMock.Setup(
             c => c.GetAddressChangesAsync(It.IsAny<string>())).ReturnsAsync(changes);
 
         var client = _webApplicationFactorySetup.GetTestServerClient();
@@ -78,7 +78,7 @@ public class TriggerControllerTests : IClassFixture<WebApplicationFactory<Progra
     public async Task SyncOrgChanges_WhenSomethingsGoesWrong_ReturnsInternalServerError()
     {
         // Arrange
-        _webApplicationFactorySetup.OrganizationNotificationAddressServiceMock.Setup(
+        _webApplicationFactorySetup.OrganizationNotificationAddressClientMock.Setup(
             c => c.GetAddressChangesAsync(It.IsAny<string>())).ThrowsAsync(new OrganizationNotificationAddressChangesException("Something went wrong"));
         var client = _webApplicationFactorySetup.GetTestServerClient();
 
