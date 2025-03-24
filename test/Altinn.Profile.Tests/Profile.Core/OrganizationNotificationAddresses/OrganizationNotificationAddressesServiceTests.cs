@@ -22,8 +22,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             [
                 new()
                 {
-                    RegistryOrganizationId = 1,
-                    RegistryOrganizationNumber = "123456789",
+                    OrganizationNumber = "123456789",
                     NotificationAddresses =
                     [
                         new()
@@ -45,8 +44,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 },
                 new()
                 {
-                    RegistryOrganizationId = 2,
-                    RegistryOrganizationNumber = "987654321",
+                    OrganizationNumber = "987654321",
                 }
             ];
             _repository = new Mock<IOrganizationNotificationAddressRepository>();
@@ -72,7 +70,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             var matchedOrg1 = result.ContactPointsList.FirstOrDefault();
             Assert.NotEmpty(matchedOrg1.EmailList);
             Assert.Single(matchedOrg1.EmailList);
-            Assert.Equal(matchedOrg1.OrganizationNumber, _testdata[0].RegistryOrganizationNumber);
+            Assert.Equal(matchedOrg1.OrganizationNumber, _testdata[0].OrganizationNumber);
             Assert.Equal(2, matchedOrg1.MobileNumberList.Count);
         }
 

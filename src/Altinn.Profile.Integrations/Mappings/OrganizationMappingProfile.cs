@@ -14,7 +14,8 @@ public class OrganizationMappingProfile : AutoMapper.Profile
     /// </summary>
     public OrganizationMappingProfile()
     {
-        CreateMap<OrganizationDataModel, Organization>();
+        CreateMap<OrganizationDataModel, Organization>()
+            .ForMember(dest => dest.OrganizationNumber, opt => opt.MapFrom(src => src.RegistryOrganizationNumber));
 
         CreateMap<NotificationAddressDataModel, NotificationAddress>();
     }

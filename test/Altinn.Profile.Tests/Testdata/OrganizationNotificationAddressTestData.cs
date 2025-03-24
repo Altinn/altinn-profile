@@ -16,7 +16,7 @@ public static class OrganizationNotificationAddressTestData
     /// <returns>A list of <see cref="Register"/> objects containing test data.</returns>
     public static (List<OrganizationDataModel> Organizations, List<NotificationAddressDataModel> NotificationAddresses) GetNotificationAddresses()
     {
-        var oranizations = new List<OrganizationDataModel>()
+        var organizations = new List<OrganizationDataModel>()
         {
             new()
             {
@@ -98,6 +98,6 @@ public static class OrganizationNotificationAddressTestData
             },
         };
             
-        return (oranizations, notificationAddresses);
+        return (organizations, notificationAddresses);
     }
 }

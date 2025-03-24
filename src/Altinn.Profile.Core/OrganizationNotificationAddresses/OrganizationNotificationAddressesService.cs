@@ -34,7 +34,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
             {
                 var contactPoints = new OrganizationContactPoints
                 {
-                    OrganizationNumber = organization.RegistryOrganizationNumber,
+                    OrganizationNumber = organization.OrganizationNumber,
                 };
 
                 if (organization.NotificationAddresses?.Count > 0)

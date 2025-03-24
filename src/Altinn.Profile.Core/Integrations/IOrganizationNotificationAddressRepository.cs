@@ -3,13 +3,13 @@
 namespace Altinn.Profile.Core.Integrations;
 
 /// <summary>
-/// Defines a repository for accessing organizationNotificationAddresses.
+/// Defines a repository for accessing  notification addresses of organizations.
 /// </summary>
 public interface IOrganizationNotificationAddressRepository
 {
     /// <summary>
-    /// Getting the organizations notification addresses from the database
+    /// Fetches organizations notification addresses from the database
     /// </summary>
-    /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+    /// <returns>A <see cref="Task{TResult}"/> with a collection of organizations as value.</returns>
     Task<IEnumerable<Organization>> GetOrganizationsAsync(OrgContactPointLookup orgNumberLookup, CancellationToken cancellationToken);
 }

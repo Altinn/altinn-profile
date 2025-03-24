@@ -203,8 +203,7 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
         var matchedOrg1 = result.FirstOrDefault();
         Assert.NotEmpty(matchedOrg1.NotificationAddresses);
         Assert.Equal(matchedOrg1.NotificationAddresses.Count, expectedOrg1.NotificationAddresses.Count);
-        Assert.Equal(matchedOrg1.RegistryOrganizationNumber, expectedOrg1.RegistryOrganizationNumber);
-        Assert.Equal(matchedOrg1.RegistryOrganizationId, expectedOrg1.RegistryOrganizationId);
+        Assert.Equal(matchedOrg1.OrganizationNumber, expectedOrg1.RegistryOrganizationNumber);
     }
 
     [Fact]

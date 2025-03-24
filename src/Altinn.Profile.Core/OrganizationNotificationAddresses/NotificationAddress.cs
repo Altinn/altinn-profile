@@ -1,13 +1,9 @@
 ﻿#nullable disable
 
-using System.ComponentModel.DataAnnotations;
-
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 {
     /// <summary>
-    /// class for notifications addresses for organizations 
+    /// Represents a notification address
     /// </summary>
     public class NotificationAddress
     {
@@ -15,11 +11,6 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// <see cref="NotificationAddressID"/>
         /// </summary>
         public int NotificationAddressID { get; set; }
-
-        /// <summary>
-        /// <see cref="RegistryID"/>
-        /// </summary>
-        public string RegistryID { get; set; }
 
         /// <summary>
         /// The AddressType, either Email or Sms
