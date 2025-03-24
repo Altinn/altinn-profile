@@ -1,6 +1,7 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
-namespace Altinn.Profile.Core.OrganizationNotificationAddresses
+namespace Altinn.Profile.Models
 {
     /// <summary>
     /// A class describing the query model for contact points for organizations

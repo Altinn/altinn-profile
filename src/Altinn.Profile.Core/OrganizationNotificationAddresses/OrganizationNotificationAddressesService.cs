@@ -1,6 +1,5 @@
 ﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Unit.ContactPoints;
-using static Altinn.Profile.Core.OrganizationNotificationAddresses.OrgContactPointsResponse;
 
 namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 {
@@ -20,43 +19,11 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         }
 
         /// <inheritdoc/>
-        public async Task<OrgContactPointsResponse> GetNotificationContactPoints(OrgContactPointLookupRequest lookup, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Organization>> GetNotificationContactPoints(List<string> organizationNumbers, CancellationToken cancellationToken)
         {
-            var result = await _orgRepository.GetOrganizationsAsync(lookup, cancellationToken);
+            var result = await _orgRepository.GetOrganizationsAsync(organizationNumbers, cancellationToken);
 
-            return MapResult(result);
-        }
-
-        private static OrgContactPointsResponse MapResult(IEnumerable<Organization> organizations)
-        {
-            var orgContacts = new OrgContactPointsResponse();
-            foreach (var organization in organizations)
-            {
-                var contactPoints = new OrganizationContactPoints
-                {
-                    OrganizationNumber = organization.OrganizationNumber,
-                };
-
-                if (organization.NotificationAddresses?.Count > 0)
-                {
-                    foreach (var notificationAddress in organization.NotificationAddresses)
-                    {
-                        switch (notificationAddress.AddressType)
-                        {
-                            case AddressType.Email:
-                                contactPoints.EmailList.Add(notificationAddress.FullAddress);
-                                break;
-                            case AddressType.SMS:
-                                contactPoints.MobileNumberList.Add(notificationAddress.FullAddress);
-                                break;
-                        }
-                    }
-                }
-
-                orgContacts.ContactPointsList.Add(contactPoints);
-            }
-
-            return orgContacts;
+            return result;
         }
     }
 }

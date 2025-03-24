@@ -1,5 +1,4 @@
-﻿using Altinn.Profile.Core;
-using Altinn.Profile.Core.Integrations;
+﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.Persistence;
@@ -129,13 +128,13 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     }
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<Core.OrganizationNotificationAddresses.Organization>> GetOrganizationsAsync(Core.OrganizationNotificationAddresses.OrgContactPointLookupRequest orgNumberLookup, CancellationToken cancellationToken)
+    public async Task<IEnumerable<Core.OrganizationNotificationAddresses.Organization>> GetOrganizationsAsync(List<string> organizationNumbers, CancellationToken cancellationToken)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
         var foundOrganizations = await databaseContext.Organizations
                 .Include(o => o.NotificationAddresses)
-                .Where(o => orgNumberLookup.OrganizationNumbers.Contains(o.RegistryOrganizationNumber))
+                .Where(o => organizationNumbers.Contains(o.RegistryOrganizationNumber))
                 .ToListAsync(cancellationToken);
 
         if (foundOrganizations.Count == 0)

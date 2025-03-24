@@ -187,10 +187,8 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     public async Task GetOrganizations_WhenFound_ReturnsWithNotificationAddresses()
     {
         // Arrange
-        var orgNumberLookup = new OrgContactPointLookupRequest
-        {
-            OrganizationNumbers = ["123456789", "987654321"]
-        };
+        var orgNumberLookup = new List<string>() { "123456789", "987654321" };
+
         var expectedOrg1 = _organizationTestData
             .Find(p => p.RegistryOrganizationNumber == "123456789");
 
@@ -210,10 +208,7 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     public async Task GetOrganizations_WhenNoneFound_ReturnsEmptyList()
     {
         // Arrange
-        var orgNumberLookup = new OrgContactPointLookupRequest
-        {
-            OrganizationNumbers = ["000000000"]
-        };
+        var orgNumberLookup = new List<string>() { "000000000" };
 
         // Act
         var orgList = await _repository.GetOrganizationsAsync(orgNumberLookup, CancellationToken.None);

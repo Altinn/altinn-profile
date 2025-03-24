@@ -1,4 +1,6 @@
-﻿namespace Altinn.Profile.Core.OrganizationNotificationAddresses;
+﻿using System.Collections.Generic;
+
+namespace Altinn.Profile.Models;
 
 /// <summary>
 /// A list representation of <see cref="OrganizationContactPoints"/>

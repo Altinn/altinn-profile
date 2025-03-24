@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
+using Altinn.Profile.Models;
 using Moq;
 using Xunit;
 
@@ -48,7 +49,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 }
             ];
             _repository = new Mock<IOrganizationNotificationAddressRepository>();
-            _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<OrgContactPointLookupRequest>(), It.IsAny<CancellationToken>()))
+            _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata);
             _service = new OrganizationNotificationAddressesService(_repository.Object);
         }
@@ -56,39 +57,32 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
         [Fact]
         public async Task GetNotificationContactPoints_WhenFound_Returns()
         {
-            var lookup = new OrgContactPointLookupRequest
-            {
-                OrganizationNumbers = ["123456789"]
-            };
+            var lookup = new List<string>() { "123456789" };
 
             // Act
             var result = await _service.GetNotificationContactPoints(lookup, CancellationToken.None);
 
             // Assert
-            Assert.IsType<OrgContactPointsResponse>(result);
-            Assert.NotEmpty(result.ContactPointsList);
-            var matchedOrg1 = result.ContactPointsList.FirstOrDefault();
-            Assert.NotEmpty(matchedOrg1.EmailList);
-            Assert.Single(matchedOrg1.EmailList);
+            Assert.IsType<List<Organization>>(result);
+            Assert.NotEmpty(result);
+            var matchedOrg1 = result.FirstOrDefault();
             Assert.Equal(matchedOrg1.OrganizationNumber, _testdata[0].OrganizationNumber);
-            Assert.Equal(2, matchedOrg1.MobileNumberList.Count);
+            Assert.Equal(3, matchedOrg1.NotificationAddresses.Count);
         }
 
         [Fact]
         public async Task GetNotificationContactPoints_WhenNothingFound_ReturnsEmptyList()
         {
-            var lookup = new OrgContactPointLookupRequest
-            {
-                OrganizationNumbers = ["123456789"]
-            };
-            _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<OrgContactPointLookupRequest>(), It.IsAny<CancellationToken>()))
+            var lookup = new List<string>() { "123456789" };
+
+            _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<Organization>());
 
             // Act
             var result = await _service.GetNotificationContactPoints(lookup, CancellationToken.None);
 
             // Assert
-            Assert.Empty(result.ContactPointsList);
+            Assert.Empty(result);
         }
     }
 }

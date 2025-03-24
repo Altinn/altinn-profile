@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Controllers;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
-
+using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -84,7 +84,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             };
 
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
-                .Setup(r => r.GetOrganizationsAsync(It.IsAny<OrgContactPointLookupRequest>(), It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.Where(o => input.OrganizationNumbers.Contains(o.OrganizationNumber)));
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/contactpoint/lookup")
@@ -112,7 +112,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             };
 
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
-                .Setup(r => r.GetOrganizationsAsync(It.IsAny<OrgContactPointLookupRequest>(), It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.Where(o => input.OrganizationNumbers.Contains(o.OrganizationNumber)));
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/contactpoint/lookup")
