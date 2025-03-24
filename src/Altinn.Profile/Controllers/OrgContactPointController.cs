@@ -33,14 +33,14 @@ namespace Altinn.Profile.Controllers
         /// <returns>Returns an overview of the user registered contact points for the provided organization</returns>
         [HttpPost("lookup")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<OrgContactPointsList>> PostLookup([FromBody] OrgContactPointLookup orgContactPointLookup, CancellationToken cancellationToken)
+        public async Task<ActionResult<OrgContactPointsResponse>> PostLookup([FromBody] OrgContactPointLookupRequest orgContactPointLookup, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            OrgContactPointsList result = await _notificationAddressService.GetNotificationContactPoints(orgContactPointLookup, cancellationToken);
+            OrgContactPointsResponse result = await _notificationAddressService.GetNotificationContactPoints(orgContactPointLookup, cancellationToken);
             return Ok(result);
         }
     }

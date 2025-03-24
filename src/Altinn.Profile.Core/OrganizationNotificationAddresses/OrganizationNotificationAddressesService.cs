@@ -1,6 +1,6 @@
 ﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Unit.ContactPoints;
-using static Altinn.Profile.Core.OrganizationNotificationAddresses.OrgContactPointsList;
+using static Altinn.Profile.Core.OrganizationNotificationAddresses.OrgContactPointsResponse;
 
 namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 {
@@ -20,16 +20,16 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         }
 
         /// <inheritdoc/>
-        public async Task<OrgContactPointsList> GetNotificationContactPoints(OrgContactPointLookup lookup, CancellationToken cancellationToken)
+        public async Task<OrgContactPointsResponse> GetNotificationContactPoints(OrgContactPointLookupRequest lookup, CancellationToken cancellationToken)
         {
             var result = await _orgRepository.GetOrganizationsAsync(lookup, cancellationToken);
 
             return MapResult(result);
         }
 
-        private static OrgContactPointsList MapResult(IEnumerable<Organization> organizations)
+        private static OrgContactPointsResponse MapResult(IEnumerable<Organization> organizations)
         {
-            var orgContacts = new OrgContactPointsList();
+            var orgContacts = new OrgContactPointsResponse();
             foreach (var organization in organizations)
             {
                 var contactPoints = new OrganizationContactPoints

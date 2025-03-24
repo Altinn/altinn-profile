@@ -48,7 +48,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 }
             ];
             _repository = new Mock<IOrganizationNotificationAddressRepository>();
-            _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<OrgContactPointLookup>(), It.IsAny<CancellationToken>()))
+            _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<OrgContactPointLookupRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata);
             _service = new OrganizationNotificationAddressesService(_repository.Object);
         }
@@ -56,7 +56,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
         [Fact]
         public async Task GetNotificationContactPoints_WhenFound_Returns()
         {
-            var lookup = new OrgContactPointLookup
+            var lookup = new OrgContactPointLookupRequest
             {
                 OrganizationNumbers = ["123456789"]
             };
@@ -65,7 +65,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             var result = await _service.GetNotificationContactPoints(lookup, CancellationToken.None);
 
             // Assert
-            Assert.IsType<OrgContactPointsList>(result);
+            Assert.IsType<OrgContactPointsResponse>(result);
             Assert.NotEmpty(result.ContactPointsList);
             var matchedOrg1 = result.ContactPointsList.FirstOrDefault();
             Assert.NotEmpty(matchedOrg1.EmailList);
@@ -77,11 +77,11 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
         [Fact]
         public async Task GetNotificationContactPoints_WhenNothingFound_ReturnsEmptyList()
         {
-            var lookup = new OrgContactPointLookup
+            var lookup = new OrgContactPointLookupRequest
             {
                 OrganizationNumbers = ["123456789"]
             };
-            _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<OrgContactPointLookup>(), It.IsAny<CancellationToken>()))
+            _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<OrgContactPointLookupRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<Organization>());
 
             // Act

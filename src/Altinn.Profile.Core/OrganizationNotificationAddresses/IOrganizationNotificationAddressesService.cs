@@ -11,5 +11,5 @@ public interface IOrganizationNotificationAddressesService
     /// <param name="lookup">Wraps  a list of organization numbers to lookup contact points for</param>
     /// <param name="cancellationToken">To cancel the request before it is finished</param>
     /// <returns>The notification addresses or a boolean if failure.</returns>
-    Task<OrgContactPointsList> GetNotificationContactPoints(OrgContactPointLookup lookup, CancellationToken cancellationToken);
+    Task<OrgContactPointsResponse> GetNotificationContactPoints(OrgContactPointLookupRequest lookup, CancellationToken cancellationToken);
 }

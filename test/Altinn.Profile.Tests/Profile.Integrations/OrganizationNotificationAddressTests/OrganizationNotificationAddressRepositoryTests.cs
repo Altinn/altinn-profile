@@ -187,7 +187,7 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     public async Task GetOrganizations_WhenFound_ReturnsWithNotificationAddresses()
     {
         // Arrange
-        var orgNumberLookup = new OrgContactPointLookup
+        var orgNumberLookup = new OrgContactPointLookupRequest
         {
             OrganizationNumbers = ["123456789", "987654321"]
         };
@@ -210,7 +210,7 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     public async Task GetOrganizations_WhenNoneFound_ReturnsEmptyList()
     {
         // Arrange
-        var orgNumberLookup = new OrgContactPointLookup
+        var orgNumberLookup = new OrgContactPointLookupRequest
         {
             OrganizationNumbers = ["000000000"]
         };

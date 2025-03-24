@@ -3,7 +3,7 @@
 /// <summary>
 /// A list representation of <see cref="OrganizationContactPoints"/>
 /// </summary>
-public class OrgContactPointsList
+public class OrgContactPointsResponse
 {
     /// <summary>
     /// A list containing contact points for organizations
