@@ -5,7 +5,7 @@ using Altinn.Profile.Integrations.Entities;
 namespace Altinn.Profile.Integrations.Mappings;
 
 /// <summary>
-/// AutoMapper profile for mapping between db model <see cref="OrganizationDataModel"/> and core model <see cref="OrganizationDataModel"/>.
+/// AutoMapper profile for mapping between db model <see cref="OrganizationDE"/> and core model <see cref="OrganizationDE"/>.
 /// </summary>
 public class OrganizationMappingProfile : AutoMapper.Profile
 {
@@ -14,9 +14,9 @@ public class OrganizationMappingProfile : AutoMapper.Profile
     /// </summary>
     public OrganizationMappingProfile()
     {
-        CreateMap<OrganizationDataModel, Organization>()
+        CreateMap<OrganizationDE, Organization>()
             .ForMember(dest => dest.OrganizationNumber, opt => opt.MapFrom(src => src.RegistryOrganizationNumber));
 
-        CreateMap<NotificationAddressDataModel, NotificationAddress>();
+        CreateMap<NotificationAddressDE, NotificationAddress>();
     }
 }

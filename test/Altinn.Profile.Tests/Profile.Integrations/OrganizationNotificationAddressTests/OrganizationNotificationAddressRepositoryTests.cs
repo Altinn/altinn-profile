@@ -25,8 +25,8 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     private bool _isDisposed;
     private readonly ProfileDbContext _databaseContext;
     private readonly OrganizationNotificationAddressRepository _repository;
-    private readonly List<NotificationAddressDataModel> _notificationAddressTestData;
-    private readonly List<OrganizationDataModel> _organizationTestData;
+    private readonly List<NotificationAddressDE> _notificationAddressTestData;
+    private readonly List<OrganizationDE> _organizationTestData;
     private readonly Mock<IDbContextFactory<ProfileDbContext>> _databaseContextFactory;
 
     public OrganizationNotificationAddressRepositoryTests()
@@ -55,7 +55,7 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
 
         _databaseContext = _databaseContextFactory.Object.CreateDbContext();
         _databaseContext.NotificationAddresses.AddRange(_notificationAddressTestData);
-        _databaseContext.Organizations.AddRange((IEnumerable<OrganizationDataModel>)_organizationTestData);
+        _databaseContext.Organizations.AddRange((IEnumerable<OrganizationDE>)_organizationTestData);
         _databaseContext.SaveChanges();
     }
 
@@ -222,7 +222,7 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
         Assert.Empty(orgList);
     }
 
-    private static void AssertRegisterProperties(OrganizationDataModel expected, OrganizationDataModel actual)
+    private static void AssertRegisterProperties(OrganizationDE expected, OrganizationDE actual)
     {
         Assert.Equal(expected.RegistryOrganizationNumber, actual.RegistryOrganizationNumber);
         Assert.Equal(expected.RegistryOrganizationId, actual.RegistryOrganizationId);

@@ -4,11 +4,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Altinn.Profile.Integrations.Entities
 {
     /// <summary>
-    /// class for organizations connection id and orgNumber
+    /// Class for organizations connection id and orgNumber
     /// </summary>
     [Table("organizations", Schema = "organization_notification_address")]
 
-    public class OrganizationDataModel
+    public class OrganizationDE
     {
         /// <summary>
         /// OrganizationNumber of the organization
@@ -27,6 +27,6 @@ namespace Altinn.Profile.Integrations.Entities
         /// A collection of notification addresses associated with this organization
         /// </summary>
         [InverseProperty("Organization")]
-        public List<NotificationAddressDataModel>? NotificationAddresses { get; set; }
+        public List<NotificationAddressDE>? NotificationAddresses { get; set; }
     }
 }

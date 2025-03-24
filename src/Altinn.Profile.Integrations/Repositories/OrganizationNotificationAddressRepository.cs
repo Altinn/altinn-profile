@@ -103,7 +103,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    public async Task<OrganizationDataModel?> GetOrganizationAsync(string orgNumber)
+    public async Task<OrganizationDE?> GetOrganizationAsync(string orgNumber)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
@@ -112,11 +112,11 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
                 .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == orgNumber);
     }
     
-    private async Task<OrganizationDataModel> CreateOrganization(string orgNumber)
+    private async Task<OrganizationDE> CreateOrganization(string orgNumber)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
-        var organization = new OrganizationDataModel
+        var organization = new OrganizationDE
         {
             RegistryOrganizationNumber = orgNumber,
             NotificationAddresses = [],

@@ -12,9 +12,9 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
         /// <summary>
         /// Maps from the registry raw data to the data model stored in the database
         /// </summary>
-        public static NotificationAddressDataModel MapOrganizationNotificationAddress(Entry entry, Entities.OrganizationDataModel organization)
+        public static NotificationAddressDE MapOrganizationNotificationAddress(Entry entry, Entities.OrganizationDE organization)
         {
-            var organizationNotificationAddress = new NotificationAddressDataModel
+            var organizationNotificationAddress = new NotificationAddressDE
             {
                 RegistryOrganizationId = organization.RegistryOrganizationId,
                 RegistryID = entry.Id,
@@ -43,7 +43,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
             return organizationNotificationAddress;
         }
 
-        private static void MapPhoneSpecificDetails(NotificationAddressDataModel organizationNotificationAddress, PhoneNumberModel phoneNumber)
+        private static void MapPhoneSpecificDetails(NotificationAddressDE organizationNotificationAddress, PhoneNumberModel phoneNumber)
         {
             string? rawDataPrefix = string.IsNullOrEmpty(phoneNumber.Prefix) ? null : phoneNumber.Prefix.Trim();
             string? prefix;
@@ -66,7 +66,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
             organizationNotificationAddress.FullAddress = string.Concat(prefix, phoneNumber.NationalNumber);
         }
 
-        private static void MapEmailSpecificValues(NotificationAddressDataModel organizationNotificationAddress, EmailAddressModel emailAddress)
+        private static void MapEmailSpecificValues(NotificationAddressDE organizationNotificationAddress, EmailAddressModel emailAddress)
             {
             organizationNotificationAddress.AddressType = AddressType.Email;
             organizationNotificationAddress.Domain = emailAddress.Domain;

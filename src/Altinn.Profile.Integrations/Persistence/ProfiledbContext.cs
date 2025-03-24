@@ -39,12 +39,12 @@ public partial class ProfileDbContext : DbContext
     /// <summary>
     /// The <see cref="DbSet{Organization}"/>'s orgnumber and id.
     /// </summary>
-    public virtual DbSet<OrganizationDataModel> Organizations { get; set; }
+    public virtual DbSet<OrganizationDE> Organizations { get; set; }
 
     /// <summary>
     /// The <see cref="DbSet{NotificationAddresses}"/> for organizations.
     /// </summary>
-    public virtual DbSet<NotificationAddressDataModel> NotificationAddresses { get; set; }
+    public virtual DbSet<NotificationAddressDE> NotificationAddresses { get; set; }
 
     /// <summary>
     /// The <see cref="DbSet{RegistrySyncMetadata}"/> timestamp for last brreg-sync.
@@ -85,13 +85,13 @@ public partial class ProfileDbContext : DbContext
                   .HasConstraintName("fk_mailbox_supplier");
         });
 
-        modelBuilder.Entity<NotificationAddressDataModel>(entity =>
+        modelBuilder.Entity<NotificationAddressDE>(entity =>
         {
             entity.HasKey(e => e.NotificationAddressID).HasName("contact_info_pkey");
             entity.Property(e => e.CreatedDateTime).HasDefaultValueSql("now()").ValueGeneratedOnAdd();
         });
 
-        modelBuilder.Entity<OrganizationDataModel>(entity =>
+        modelBuilder.Entity<OrganizationDE>(entity =>
         {
             entity.HasKey(e => e.RegistryOrganizationId).HasName("organization_id_pkey");
             entity.HasMany(e => e.NotificationAddresses)
