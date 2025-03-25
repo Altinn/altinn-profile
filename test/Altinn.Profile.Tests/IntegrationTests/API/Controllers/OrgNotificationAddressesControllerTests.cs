@@ -17,7 +17,7 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class OrgContactPointControllerTests : IClassFixture<WebApplicationFactory<OrgNotificationAddressController>>
+    public class OrgNotificationAddressesControllerTests : IClassFixture<WebApplicationFactory<OrgNotificationAddressController>>
     {
         private readonly WebApplicationFactorySetup<OrgNotificationAddressController> _webApplicationFactorySetup;
 
@@ -29,7 +29,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         private readonly List<Organization> _testdata;
 
-        public OrgContactPointControllerTests(WebApplicationFactory<OrgNotificationAddressController> factory)
+        public OrgNotificationAddressesControllerTests(WebApplicationFactory<OrgNotificationAddressController> factory)
         {
             _webApplicationFactorySetup = new WebApplicationFactorySetup<OrgNotificationAddressController>(factory);
             _testdata = [
@@ -42,11 +42,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                         {
                             FullAddress = "test@example.com",
                             AddressType = AddressType.Email,
-                        },
-                        new()
-                        {
-                            FullAddress = "+4798765433",
-                            AddressType = AddressType.SMS,
                         },
                     ]
                 }, new()
@@ -100,6 +95,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string responseContent = await response.Content.ReadAsStringAsync();
             var actual = JsonSerializer.Deserialize<OrgNotificationAddressesResponse>(responseContent, _serializerOptions);
             Assert.Single(actual.ContactPointsList);
+            Assert.Equal("123456789", actual.ContactPointsList[0].OrganizationNumber);
+            Assert.Single(actual.ContactPointsList[0].EmailList);
+            Assert.Equal(2, actual.ContactPointsList[0].MobileNumberList.Count);
         }
 
         [Fact]
@@ -128,6 +126,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string responseContent = await response.Content.ReadAsStringAsync();
             var actual = JsonSerializer.Deserialize<OrgNotificationAddressesResponse>(responseContent, _serializerOptions);
             Assert.Equal(2, actual.ContactPointsList.Count);
+            Assert.Equal("987654321", actual.ContactPointsList[0].OrganizationNumber);
+            Assert.Single(actual.ContactPointsList[0].EmailList);
+            Assert.Empty(actual.ContactPointsList[0].MobileNumberList);
+            Assert.Equal("123456789", actual.ContactPointsList[1].OrganizationNumber);
+            Assert.Single(actual.ContactPointsList[1].EmailList);
+            Assert.Equal(2, actual.ContactPointsList[1].MobileNumberList.Count);
         }
 
         [Fact]

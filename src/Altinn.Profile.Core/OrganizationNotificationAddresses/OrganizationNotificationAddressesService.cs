@@ -4,14 +4,14 @@ using Altinn.Profile.Core.Unit.ContactPoints;
 namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 {
     /// <summary>
-    /// Implementation of the <see cref="IOrganizationNotificationAddressesService"/> interface using an <see cref="IUnitProfileRepository"/> retrieve profile data "/>
+    /// Implementation of the <see cref="IOrganizationNotificationAddressesService"/> interface using an <see cref="IOrganizationNotificationAddressRepository"/> retrieve profile data "/>
     /// </summary>
     public class OrganizationNotificationAddressesService : IOrganizationNotificationAddressesService
     {
         private readonly IOrganizationNotificationAddressRepository _orgRepository;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UnitContactPointService"/> class.
+        /// Initializes a new instance of the <see cref="OrganizationNotificationAddressesService"/> class.
         /// </summary>
         public OrganizationNotificationAddressesService(IOrganizationNotificationAddressRepository orgRepository)
         {

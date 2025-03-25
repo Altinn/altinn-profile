@@ -12,7 +12,7 @@ using static Altinn.Profile.Models.OrgNotificationAddressesResponse;
 namespace Altinn.Profile.Controllers
 {
     /// <summary>
-    /// Controller for organization contact point API endpoints for internal consumption (e.g. Notifications) requiring neither authenticated user token nor access token authorization.
+    /// Controller for organization notifications address API endpoints for internal consumption (e.g. Notifications) requiring neither authenticated user token nor access token authorization.
     /// </summary>
     [Route("profile/api/v1/organizations/notificationaddresses")]
     [ApiExplorerSettings(IgnoreApi = true)]
@@ -31,9 +31,9 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
-        /// Endpoint looking up the contact points for the organization provided in the lookup object in the request body
+        /// Endpoint looking up the notification addresses for the organization provided in the lookup object in the request body
         /// </summary>
-        /// <returns>Returns an overview of the user registered contact points for the provided organization</returns>
+        /// <returns>Returns an overview of the user registered notification addresses for the provided organization</returns>
         [HttpPost("lookup")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<OrgNotificationAddressesResponse>> PostLookup([FromBody] OrgNotificationAddressLookupRequest orgContactPointLookup, CancellationToken cancellationToken)
@@ -54,7 +54,7 @@ namespace Altinn.Profile.Controllers
             var orgContacts = new OrgNotificationAddressesResponse();
             foreach (var organization in organizations)
             {
-                var contactPoints = new OrganizationContactPoints
+                var contactPoints = new NotificationAddresses
                 {
                     OrganizationNumber = organization.OrganizationNumber,
                 };

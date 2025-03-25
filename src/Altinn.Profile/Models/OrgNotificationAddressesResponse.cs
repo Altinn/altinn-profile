@@ -3,19 +3,19 @@
 namespace Altinn.Profile.Models;
 
 /// <summary>
-/// A list representation of <see cref="OrganizationContactPoints"/>
+/// A list representation of <see cref="NotificationAddresses"/>
 /// </summary>
 public class OrgNotificationAddressesResponse
 {
     /// <summary>
-    /// A list containing contact points for organizations
+    /// A list containing notification addresses for organizations
     /// </summary>
-    public List<OrganizationContactPoints> ContactPointsList { get; set; } = [];
+    public List<NotificationAddresses> ContactPointsList { get; set; } = [];
 
     /// <summary>
-    /// Class describing the contact points for an organization as notifications services uses
+    /// Class describing the notification addresses for an organization as notifications services uses
     /// </summary>
-    public class OrganizationContactPoints
+    public class NotificationAddresses
     {
         /// <summary>
         /// Gets or sets the organization number for the organization

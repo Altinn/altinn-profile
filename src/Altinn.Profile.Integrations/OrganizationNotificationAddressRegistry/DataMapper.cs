@@ -12,7 +12,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
         /// <summary>
         /// Maps from the registry raw data to the data model stored in the database
         /// </summary>
-        public static NotificationAddressDE MapOrganizationNotificationAddress(Entry entry, Entities.OrganizationDE organization)
+        public static NotificationAddressDE MapOrganizationNotificationAddress(Entry entry, OrganizationDE organization)
         {
             var organizationNotificationAddress = new NotificationAddressDE
             {
