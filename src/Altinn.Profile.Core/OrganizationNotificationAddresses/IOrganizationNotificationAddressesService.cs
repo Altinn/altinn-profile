@@ -11,5 +11,5 @@ public interface IOrganizationNotificationAddressesService
     /// <param name="organizationNumbers">A list of organization numbers to lookup contact points for</param>
     /// <param name="cancellationToken">To cancel the request before it is finished</param>
     /// <returns>The notification addresses or a boolean if failure.</returns>
-    Task<IEnumerable<Organization>> GetNotificationContactPoints(List<string> organizationNumbers, CancellationToken cancellationToken);
+    Task<IEnumerable<Organization>> GetOrganizationNotificationAddresses(List<string> organizationNumbers, CancellationToken cancellationToken);
 }

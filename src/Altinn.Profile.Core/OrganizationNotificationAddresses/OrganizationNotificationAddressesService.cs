@@ -19,7 +19,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<Organization>> GetNotificationContactPoints(List<string> organizationNumbers, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddresses(List<string> organizationNumbers, CancellationToken cancellationToken)
         {
             var result = await _orgRepository.GetOrganizationsAsync(organizationNumbers, cancellationToken);
 

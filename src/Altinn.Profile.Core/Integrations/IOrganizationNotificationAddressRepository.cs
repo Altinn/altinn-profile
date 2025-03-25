@@ -8,7 +8,7 @@ namespace Altinn.Profile.Core.Integrations;
 public interface IOrganizationNotificationAddressRepository
 {
     /// <summary>
-    /// Fetches organizations notification addresses from the database
+    /// Fetches organizations notification addresses
     /// </summary>
     /// <returns>A <see cref="Task{TResult}"/> with a collection of organizations as value.</returns>
     Task<IEnumerable<Organization>> GetOrganizationsAsync(List<string> organizationNumbers, CancellationToken cancellationToken);

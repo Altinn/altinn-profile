@@ -5,7 +5,7 @@ namespace Altinn.Profile.Models;
 /// <summary>
 /// A list representation of <see cref="OrganizationContactPoints"/>
 /// </summary>
-public class OrgContactPointsResponse
+public class OrgNotificationAddressesResponse
 {
     /// <summary>
     /// A list containing contact points for organizations

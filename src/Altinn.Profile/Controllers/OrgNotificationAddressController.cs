@@ -7,25 +7,25 @@ using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using static Altinn.Profile.Models.OrgContactPointsResponse;
+using static Altinn.Profile.Models.OrgNotificationAddressesResponse;
 
 namespace Altinn.Profile.Controllers
 {
     /// <summary>
     /// Controller for organization contact point API endpoints for internal consumption (e.g. Notifications) requiring neither authenticated user token nor access token authorization.
     /// </summary>
-    [Route("profile/api/v1/organizations/contactpoint")]
+    [Route("profile/api/v1/organizations/notificationaddresses")]
     [ApiExplorerSettings(IgnoreApi = true)]
     [Consumes("application/json")]
     [Produces("application/json")]
-    public class OrgContactPointController : ControllerBase
+    public class OrgNotificationAddressController : ControllerBase
     {
         private readonly IOrganizationNotificationAddressesService _notificationAddressService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OrgContactPointController"/> class.
+        /// Initializes a new instance of the <see cref="OrgNotificationAddressController"/> class.
         /// </summary>
-        public OrgContactPointController(IOrganizationNotificationAddressesService notificationAddressService)
+        public OrgNotificationAddressController(IOrganizationNotificationAddressesService notificationAddressService)
         {
             _notificationAddressService = notificationAddressService;
         }
@@ -36,22 +36,22 @@ namespace Altinn.Profile.Controllers
         /// <returns>Returns an overview of the user registered contact points for the provided organization</returns>
         [HttpPost("lookup")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<OrgContactPointsResponse>> PostLookup([FromBody] OrgContactPointLookupRequest orgContactPointLookup, CancellationToken cancellationToken)
+        public async Task<ActionResult<OrgNotificationAddressesResponse>> PostLookup([FromBody] OrgNotificationAddressLookupRequest orgContactPointLookup, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var organizations = await _notificationAddressService.GetNotificationContactPoints(orgContactPointLookup.OrganizationNumbers, cancellationToken);
+            var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses(orgContactPointLookup.OrganizationNumbers, cancellationToken);
 
-            OrgContactPointsResponse result = MapResult(organizations);
+            OrgNotificationAddressesResponse result = MapResult(organizations);
             return Ok(result);
         }
 
-        private static OrgContactPointsResponse MapResult(IEnumerable<Organization> organizations)
+        private static OrgNotificationAddressesResponse MapResult(IEnumerable<Organization> organizations)
         {
-            var orgContacts = new OrgContactPointsResponse();
+            var orgContacts = new OrgNotificationAddressesResponse();
             foreach (var organization in organizations)
             {
                 var contactPoints = new OrganizationContactPoints

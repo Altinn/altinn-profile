@@ -60,7 +60,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             var lookup = new List<string>() { "123456789" };
 
             // Act
-            var result = await _service.GetNotificationContactPoints(lookup, CancellationToken.None);
+            var result = await _service.GetOrganizationNotificationAddresses(lookup, CancellationToken.None);
 
             // Assert
             Assert.IsType<List<Organization>>(result);
@@ -79,7 +79,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync(new List<Organization>());
 
             // Act
-            var result = await _service.GetNotificationContactPoints(lookup, CancellationToken.None);
+            var result = await _service.GetOrganizationNotificationAddresses(lookup, CancellationToken.None);
 
             // Assert
             Assert.Empty(result);

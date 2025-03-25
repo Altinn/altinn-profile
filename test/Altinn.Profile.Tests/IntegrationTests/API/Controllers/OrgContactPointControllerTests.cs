@@ -17,9 +17,9 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class OrgContactPointControllerTests : IClassFixture<WebApplicationFactory<OrgContactPointController>>
+    public class OrgContactPointControllerTests : IClassFixture<WebApplicationFactory<OrgNotificationAddressController>>
     {
-        private readonly WebApplicationFactorySetup<OrgContactPointController> _webApplicationFactorySetup;
+        private readonly WebApplicationFactorySetup<OrgNotificationAddressController> _webApplicationFactorySetup;
 
         private readonly JsonSerializerOptions _serializerOptions = new()
         {
@@ -29,9 +29,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         private readonly List<Organization> _testdata;
 
-        public OrgContactPointControllerTests(WebApplicationFactory<OrgContactPointController> factory)
+        public OrgContactPointControllerTests(WebApplicationFactory<OrgNotificationAddressController> factory)
         {
-            _webApplicationFactorySetup = new WebApplicationFactorySetup<OrgContactPointController>(factory);
+            _webApplicationFactorySetup = new WebApplicationFactorySetup<OrgNotificationAddressController>(factory);
             _testdata = [
                 new()
                 {
@@ -78,7 +78,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task PostLookup_WhenOneOrganizationFound_ReturnsOkWithSingleItemList()
         {
             // Arrange
-            OrgContactPointLookupRequest input = new()
+            OrgNotificationAddressLookupRequest input = new()
             {
                 OrganizationNumbers = ["123456789", "111111111"],
             };
@@ -87,7 +87,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.Where(o => input.OrganizationNumbers.Contains(o.OrganizationNumber)));
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/contactpoint/lookup")
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/notificationaddresses/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
             };
@@ -98,7 +98,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             string responseContent = await response.Content.ReadAsStringAsync();
-            var actual = JsonSerializer.Deserialize<OrgContactPointsResponse>(responseContent, _serializerOptions);
+            var actual = JsonSerializer.Deserialize<OrgNotificationAddressesResponse>(responseContent, _serializerOptions);
             Assert.Single(actual.ContactPointsList);
         }
 
@@ -106,7 +106,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task PostLookup_WhenMultipleOrganizationFound_ReturnsOkWithMultipleItemList()
         {
             // Arrange
-            OrgContactPointLookupRequest input = new()
+            OrgNotificationAddressLookupRequest input = new()
             {
                 OrganizationNumbers = ["123456789", "987654321"],
             };
@@ -115,7 +115,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.Where(o => input.OrganizationNumbers.Contains(o.OrganizationNumber)));
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/contactpoint/lookup")
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/notificationaddresses/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
             };
@@ -126,7 +126,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             string responseContent = await response.Content.ReadAsStringAsync();
-            var actual = JsonSerializer.Deserialize<OrgContactPointsResponse>(responseContent, _serializerOptions);
+            var actual = JsonSerializer.Deserialize<OrgNotificationAddressesResponse>(responseContent, _serializerOptions);
             Assert.Equal(2, actual.ContactPointsList.Count);
         }
 
@@ -134,13 +134,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task PostLookup_WhenNoMatchingOrganization_ReturnsEmptyList()
         {
             // Arrange
-            OrgContactPointLookupRequest input = new()
+            OrgNotificationAddressLookupRequest input = new()
             {
                 OrganizationNumbers = ["error-org"],
             };
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/contactpoint/lookup")
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/notificationaddresses/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
             };
@@ -151,7 +151,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             string responseContent = await response.Content.ReadAsStringAsync();
-            var actual = JsonSerializer.Deserialize<OrgContactPointsResponse>(responseContent, _serializerOptions);
+            var actual = JsonSerializer.Deserialize<OrgNotificationAddressesResponse>(responseContent, _serializerOptions);
             Assert.Empty(actual.ContactPointsList);
         }
     }
