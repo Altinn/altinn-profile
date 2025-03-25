@@ -1,4 +1,5 @@
 ﻿using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.Persistence;
@@ -128,7 +129,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     }
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<Core.OrganizationNotificationAddresses.Organization>> GetOrganizationsAsync(List<string> organizationNumbers, CancellationToken cancellationToken)
+    public async Task<IEnumerable<Organization>> GetOrganizationsAsync(List<string> organizationNumbers, CancellationToken cancellationToken)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
@@ -139,9 +140,9 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         if (foundOrganizations.Count == 0)
         {
-            return new List<Core.OrganizationNotificationAddresses.Organization>();
+            return new List<Organization>();
         }
 
-        return foundOrganizations.Select(_mapper.Map<Core.OrganizationNotificationAddresses.Organization>).ToList();
+        return foundOrganizations.Select(_mapper.Map<Organization>).ToList();
     }
 }
