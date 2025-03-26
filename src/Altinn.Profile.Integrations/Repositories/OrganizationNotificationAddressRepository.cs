@@ -143,6 +143,6 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             return [];
         }
 
-        return foundOrganizations.Select(mapper.Map<Organization>);
+        return foundOrganizations.Select(_mapper.Map<Organization>);
     }
 }
