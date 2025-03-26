@@ -196,9 +196,9 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
         var result = await _repository.GetOrganizationsAsync(orgNumberLookup, CancellationToken.None);
 
         // Assert
-        Assert.IsType<List<Organization>>(result);
         Assert.NotEmpty(result);
         var matchedOrg1 = result.FirstOrDefault();
+        Assert.IsType<Organization>(matchedOrg1);
         Assert.NotEmpty(matchedOrg1.NotificationAddresses);
         Assert.Equal(matchedOrg1.NotificationAddresses.Count, expectedOrg1.NotificationAddresses.Count);
         Assert.Equal(matchedOrg1.OrganizationNumber, expectedOrg1.RegistryOrganizationNumber);
