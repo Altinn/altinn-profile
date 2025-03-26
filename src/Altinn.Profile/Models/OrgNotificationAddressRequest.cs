@@ -6,7 +6,7 @@ namespace Altinn.Profile.Models
     /// <summary>
     /// A class describing the query model for contact points for organizations
     /// </summary>
-    public class OrgNotificationAddressLookupRequest
+    public class OrgNotificationAddressRequest
     {
         /// <summary>
         /// Gets or sets the list of organization numbers to lookup contact points for

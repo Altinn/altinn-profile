@@ -140,9 +140,9 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         if (foundOrganizations.Count == 0)
         {
-            return new List<Organization>();
+            return [];
         }
 
-        return foundOrganizations.Select(_mapper.Map<Organization>).ToList();
+        return foundOrganizations.Select(_mapper.Map<Organization>);
     }
 }

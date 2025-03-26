@@ -73,7 +73,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task PostLookup_WhenOneOrganizationFound_ReturnsOkWithSingleItemList()
         {
             // Arrange
-            OrgNotificationAddressLookupRequest input = new()
+            OrgNotificationAddressRequest input = new()
             {
                 OrganizationNumbers = ["123456789", "111111111"],
             };
@@ -104,7 +104,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task PostLookup_WhenMultipleOrganizationFound_ReturnsOkWithMultipleItemList()
         {
             // Arrange
-            OrgNotificationAddressLookupRequest input = new()
+            OrgNotificationAddressRequest input = new()
             {
                 OrganizationNumbers = ["123456789", "987654321"],
             };
@@ -138,7 +138,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task PostLookup_WhenNoMatchingOrganization_ReturnsEmptyList()
         {
             // Arrange
-            OrgNotificationAddressLookupRequest input = new()
+            OrgNotificationAddressRequest input = new()
             {
                 OrganizationNumbers = ["error-org"],
             };

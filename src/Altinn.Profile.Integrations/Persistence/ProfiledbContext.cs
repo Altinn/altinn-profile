@@ -37,12 +37,12 @@ public partial class ProfileDbContext : DbContext
     public virtual DbSet<Person> People { get; set; }
 
     /// <summary>
-    /// The <see cref="DbSet{Organization}"/>'s orgnumber and id.
+    /// The <see cref="DbSet{OrganizationDE}"/> representing orgnumber and id.
     /// </summary>
     public virtual DbSet<OrganizationDE> Organizations { get; set; }
 
     /// <summary>
-    /// The <see cref="DbSet{NotificationAddresses}"/> for organizations.
+    /// The <see cref="DbSet{NotificationAddressesDE}"/> representing notification addresses for organizations.
     /// </summary>
     public virtual DbSet<NotificationAddressDE> NotificationAddresses { get; set; }
 

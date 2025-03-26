@@ -36,7 +36,8 @@ namespace Altinn.Profile.Controllers
         /// <returns>Returns an overview of the user registered notification addresses for the provided organization</returns>
         [HttpPost("lookup")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<OrgNotificationAddressesResponse>> PostLookup([FromBody] OrgNotificationAddressLookupRequest orgContactPointLookup, CancellationToken cancellationToken)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<OrgNotificationAddressesResponse>> PostLookup([FromBody] OrgNotificationAddressRequest orgContactPointLookup, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
