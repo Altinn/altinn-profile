@@ -24,7 +24,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         private readonly JsonSerializerOptions _serializerOptions = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            PropertyNameCaseInsensitive = true
         };
 
         private readonly List<Organization> _testdata;
