@@ -39,13 +39,15 @@ public class WebApplicationFactorySetup<T>
 
     public Mock<ILogger<UserProfileClient>> UserProfileClientLogger { get; set; } = new();
 
-    public Mock<IOrganizationNotificationAddressHttpClient> OrganizationNotificationAddressServiceMock { get; set; } = new();
+    public Mock<IOrganizationNotificationAddressHttpClient> OrganizationNotificationAddressClientMock { get; set; } = new();
 
     public Mock<ILogger<UnitProfileClient>> UnitProfileClientLogger { get; set; } = new();
 
     public Mock<IOptions<SblBridgeSettings>> SblBridgeSettingsOptions { get; set; } = new();
 
     public HttpMessageHandler SblBridgeHttpMessageHandler { get; set; } = new DelegatingHandlerStub();
+
+    public Mock<IOrganizationNotificationAddressRepository> OrganizationNotificationAddressRepositoryMock { get; set; } = new();
 
     public HttpClient GetTestServerClient()
     {
@@ -73,7 +75,8 @@ public class WebApplicationFactorySetup<T>
                 // Using a mock to stop tests from calling the contact register service.
                 services.AddSingleton(ContactRegisterServiceMock.Object);
 
-                services.AddSingleton(OrganizationNotificationAddressServiceMock.Object);
+                services.AddSingleton(OrganizationNotificationAddressClientMock.Object);
+                services.AddSingleton(OrganizationNotificationAddressRepositoryMock.Object);
 
                 // Using the real/actual implementation of IUserProfileService, but with a mocked message handler.
                 // Haven't found any other ways of injecting a mocked message handler to simulate SBL Bridge.

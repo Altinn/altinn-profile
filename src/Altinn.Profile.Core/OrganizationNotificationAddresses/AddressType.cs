@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Integrations.Entities
+﻿namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 {
     /// <summary>
     /// The type of digital notification address

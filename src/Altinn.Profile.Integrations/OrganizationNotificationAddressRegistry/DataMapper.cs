@@ -1,4 +1,5 @@
-﻿using Altinn.Profile.Integrations.Entities;
+﻿using Altinn.Profile.Core.OrganizationNotificationAddresses;
+using Altinn.Profile.Integrations.Entities;
 using static Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.EntryContent.ContactPointModel.DigitalContactPointModel;
 
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
@@ -11,9 +12,9 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
         /// <summary>
         /// Maps from the registry raw data to the data model stored in the database
         /// </summary>
-        public static OrganizationNotificationAddress MapOrganizationNotificationAddress(Entry entry, Organization organization)
+        public static NotificationAddressDE MapOrganizationNotificationAddress(Entry entry, OrganizationDE organization)
         {
-            var organizationNotificationAddress = new OrganizationNotificationAddress
+            var organizationNotificationAddress = new NotificationAddressDE
             {
                 RegistryOrganizationId = organization.RegistryOrganizationId,
                 RegistryID = entry.Id,
@@ -42,7 +43,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
             return organizationNotificationAddress;
         }
 
-        private static void MapPhoneSpecificDetails(OrganizationNotificationAddress organizationNotificationAddress, PhoneNumberModel phoneNumber)
+        private static void MapPhoneSpecificDetails(NotificationAddressDE organizationNotificationAddress, PhoneNumberModel phoneNumber)
         {
             string? rawDataPrefix = string.IsNullOrEmpty(phoneNumber.Prefix) ? null : phoneNumber.Prefix.Trim();
             string? prefix;
@@ -65,7 +66,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
             organizationNotificationAddress.FullAddress = string.Concat(prefix, phoneNumber.NationalNumber);
         }
 
-        private static void MapEmailSpecificValues(OrganizationNotificationAddress organizationNotificationAddress, EmailAddressModel emailAddress)
+        private static void MapEmailSpecificValues(NotificationAddressDE organizationNotificationAddress, EmailAddressModel emailAddress)
             {
             organizationNotificationAddress.AddressType = AddressType.Email;
             organizationNotificationAddress.Domain = emailAddress.Domain;

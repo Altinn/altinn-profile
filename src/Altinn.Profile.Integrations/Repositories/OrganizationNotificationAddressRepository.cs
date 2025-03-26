@@ -1,14 +1,18 @@
-﻿using Altinn.Profile.Integrations.Entities;
+﻿using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.OrganizationNotificationAddresses;
+using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.Persistence;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Altinn.Profile.Integrations.Repositories;
 
 /// <inheritdoc />
-public class OrganizationNotificationAddressRepository(IDbContextFactory<ProfileDbContext> contextFactory) : IOrganizationNotificationAddressUpdater
+public class OrganizationNotificationAddressRepository(IDbContextFactory<ProfileDbContext> contextFactory, IMapper mapper) : IOrganizationNotificationAddressUpdater, IOrganizationNotificationAddressRepository
 {
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
+    private readonly IMapper _mapper = mapper;
     private readonly string _organizationNumberConst = "ORGANISASJONSNUMMER";
 
     /// <inheritdoc />
@@ -66,7 +70,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             return 0;
         }
 
-        var organization = await GetOrganization(orgNumber);
+        var organization = await GetOrganizationAsync(orgNumber);
         organization ??= await CreateOrganization(orgNumber);
 
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
@@ -99,7 +103,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    public async Task<Organization?> GetOrganization(string orgNumber)
+    public async Task<OrganizationDE?> GetOrganizationAsync(string orgNumber)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
@@ -108,11 +112,11 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
                 .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == orgNumber);
     }
     
-    private async Task<Organization> CreateOrganization(string orgNumber)
+    private async Task<OrganizationDE> CreateOrganization(string orgNumber)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
-        var organization = new Organization
+        var organization = new OrganizationDE
         {
             RegistryOrganizationNumber = orgNumber,
             NotificationAddresses = [],
@@ -122,5 +126,23 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
         await databaseContext.SaveChangesAsync();
 
         return organization;
+    }
+
+    /// <inheritdoc/>
+    public async Task<IEnumerable<Organization>> GetOrganizationsAsync(List<string> organizationNumbers, CancellationToken cancellationToken)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        var foundOrganizations = await databaseContext.Organizations
+                .Include(o => o.NotificationAddresses)
+                .Where(o => organizationNumbers.Contains(o.RegistryOrganizationNumber))
+                .ToListAsync(cancellationToken);
+
+        if (foundOrganizations.Count == 0)
+        {
+            return [];
+        }
+
+        return foundOrganizations.Select(_mapper.Map<Organization>);
     }
 }

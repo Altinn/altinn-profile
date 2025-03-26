@@ -1,8 +1,8 @@
 ﻿#nullable disable
 
 using System.ComponentModel.DataAnnotations;
-
 using System.ComponentModel.DataAnnotations.Schema;
+using Altinn.Profile.Core.OrganizationNotificationAddresses;
 
 namespace Altinn.Profile.Integrations.Entities
 {
@@ -10,7 +10,7 @@ namespace Altinn.Profile.Integrations.Entities
     /// class for notifications addresses for organizations 
     /// </summary>
     [Table("notifications_address", Schema = "organization_notification_address")]
-    public class OrganizationNotificationAddress
+    public class NotificationAddressDE
     {
         /// <summary>
         /// Incremental Id
@@ -97,6 +97,6 @@ namespace Altinn.Profile.Integrations.Entities
         /// </summary>
         [ForeignKey("RegistryOrganizationId")]
         [InverseProperty("NotificationAddresses")]
-        public virtual Organization Organization { get; set; }
+        public virtual OrganizationDE Organization { get; set; }
     }
 }
