@@ -37,4 +37,8 @@
     </AdditionalFiles>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Mappers\" />
+  </ItemGroup>
+
 </Project>
