@@ -37,7 +37,7 @@ public class OrganizationNotificationAddressUpdateJob(
 
         do
         {
-            _logger.LogInformation("Fetch data from brreg at url: {fullUrl}", fullUrl);
+            _logger.LogInformation("Fetch data from brreg at url: {FullUrl}", fullUrl);
 
             NotificationAddressChangesLog changesLog = await _organizationNotificationAddressHttpClient.GetAddressChangesAsync(fullUrl);
 
