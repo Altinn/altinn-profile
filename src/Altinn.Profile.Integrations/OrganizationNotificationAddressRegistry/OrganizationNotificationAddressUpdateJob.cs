@@ -49,7 +49,7 @@ public class OrganizationNotificationAddressUpdateJob(
                 break;
             }
 
-            var updatedRowsCount = await _notificationAddressUpdater.SyncNotificationAddressesAsync(changesLog);
+            int updatedRowsCount = await _notificationAddressUpdater.SyncNotificationAddressesAsync(changesLog);
 
             if (updatedRowsCount > 0)
             {
