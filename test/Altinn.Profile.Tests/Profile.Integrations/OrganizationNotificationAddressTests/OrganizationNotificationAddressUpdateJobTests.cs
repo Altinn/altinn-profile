@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.Repositories;
-using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 using Altinn.Profile.Tests.Testdata;
 using Microsoft.Extensions.Logging;
 using Moq;

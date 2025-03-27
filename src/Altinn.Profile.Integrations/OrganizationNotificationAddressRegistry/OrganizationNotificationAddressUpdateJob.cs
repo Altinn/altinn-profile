@@ -1,6 +1,4 @@
 ﻿using Altinn.Profile.Integrations.Repositories;
-using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
@@ -35,7 +33,7 @@ public class OrganizationNotificationAddressUpdateJob(
         DateTime lastUpdated = await _metadataRepository.GetLatestSyncTimestampAsync();
 
         // Time should be in iso8601 format. Example: 2018-02-15T11:07:12Z
-        string? fullUrl = _organizationNotificationAddressSettings.ChangesLogEndpoint + $"?since={lastUpdated.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ")}&pageSize={_organizationNotificationAddressSettings.ChangesLogPageSize}";
+        string? fullUrl = _organizationNotificationAddressSettings.ChangesLogEndpoint + $"?since={lastUpdated:yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ}&pageSize={_organizationNotificationAddressSettings.ChangesLogPageSize}";
 
         do
         {
