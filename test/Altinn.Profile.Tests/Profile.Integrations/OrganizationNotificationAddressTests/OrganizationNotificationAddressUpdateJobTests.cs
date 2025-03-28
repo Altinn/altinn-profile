@@ -92,7 +92,7 @@ public class OrganizationNotificationAddressUpdateJobTests()
     }
 
     [Fact]
-    public async Task SyncNotificationAddressesAsyncTest_WhenNoLatestSyncDate_GetsFrom2001()
+    public async Task SyncNotificationAddressesAsyncTest_WhenNoLatestSyncDate_GetsWithoutSinceParam()
     {
         // Arrange
         _metadataRepository.SetupSequence(m => m.GetLatestSyncTimestampAsync())
