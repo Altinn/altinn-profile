@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
+using Altinn.Profile.Mappers;
 using Altinn.Profile.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -48,47 +49,11 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
-            if (organizations.Count() > 1)
-            {
-                // We have a problem
-            }
-
-            var response = MapResponse(organizations);
-
-            return Ok(response);
-        }
-
-        private OrganizationResponse MapResponse(IEnumerable<Organization> organizations)
-        {
             var organization = organizations.First();
 
-            var result = new OrganizationResponse 
-            { 
-                OrganizationNumber = organization.OrganizationNumber,
-                NotificationAddresses = organization.NotificationAddresses.Where(n => n.IsSoftDeleted != true).Select(MapNotificationAddress).ToList()
-            };
+            var response = OrganizationResponseMapper.MapResponse(organization);
 
-            return result;
-        }
-
-        private OrganizationResponse.NotificationAddress MapNotificationAddress(NotificationAddress notificationAddress)
-        {
-            var response = new OrganizationResponse.NotificationAddress
-            {
-                RegistryID = notificationAddress.RegistryID,
-                NotificationAddressID = notificationAddress.NotificationAddressID,
-            };
-            if (notificationAddress.AddressType == AddressType.Email)
-            {
-                response.Email = notificationAddress.FullAddress;
-            }
-            else
-            {
-                response.Phone = notificationAddress.Address;
-                response.CountryCode = notificationAddress.Domain;
-            }
-
-            return response;
+            return Ok(response);
         }
     }
 }
