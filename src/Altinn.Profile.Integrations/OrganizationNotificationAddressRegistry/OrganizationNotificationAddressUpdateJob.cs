@@ -30,10 +30,14 @@ public class OrganizationNotificationAddressUpdateJob(
     /// <exception cref="InvalidOperationException">Thrown when the endpoint URL is null or empty.</exception>
     public async Task SyncNotificationAddressesAsync()
     {
-        DateTime lastUpdated = await _metadataRepository.GetLatestSyncTimestampAsync();
+        DateTime? lastUpdated = await _metadataRepository.GetLatestSyncTimestampAsync();
 
         // Time should be in iso8601 format. Example: 2018-02-15T11:07:12Z
-        string? fullUrl = _organizationNotificationAddressSettings.ChangesLogEndpoint + $"?since={lastUpdated:yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ}&pageSize={_organizationNotificationAddressSettings.ChangesLogPageSize}";
+        string? fullUrl = _organizationNotificationAddressSettings.ChangesLogEndpoint + $"?pageSize={_organizationNotificationAddressSettings.ChangesLogPageSize}";
+        if (lastUpdated != null)
+        {
+            fullUrl += $"&since={lastUpdated:yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ}";
+        }
 
         do
         {

@@ -92,6 +92,33 @@ public class OrganizationNotificationAddressUpdateJobTests()
     }
 
     [Fact]
+    public async Task SyncNotificationAddressesAsyncTest_WhenNoLatestSyncDate_GetsFrom2001()
+    {
+        // Arrange
+        _metadataRepository.SetupSequence(m => m.GetLatestSyncTimestampAsync())
+    .ReturnsAsync((DateTime?)null);
+
+        _httpClient.Setup(h => h.GetAddressChangesAsync(It.Is<string>(s => !s.Contains("since"))))
+            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_2"));
+
+        _organizationNotificationAddressUpdater.SetupSequence(p => p.SyncNotificationAddressesAsync(It.IsAny<NotificationAddressChangesLog>()))
+            .ReturnsAsync(4);
+
+        _metadataRepository.Setup(m => m.UpdateLatestChangeTimestampAsync(It.IsAny<DateTime>()));
+
+        OrganizationNotificationAddressUpdateJob target =
+            new(_settings, _httpClient.Object, _metadataRepository.Object, _organizationNotificationAddressUpdater.Object, _logger.Object);
+
+        // Act
+        await target.SyncNotificationAddressesAsync();
+
+        // Assert
+        _metadataRepository.VerifyAll();
+        _httpClient.VerifyAll();
+        _organizationNotificationAddressUpdater.VerifyAll();
+    }
+
+    [Fact]
     public async Task SyncNotificationAddressesAsyncTest_WhenNullableValues_Success()
     {
         // Arrange
