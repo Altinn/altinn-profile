@@ -270,7 +270,7 @@ void Configure()
     app.UseAuthorization();
 
     app.MapControllers();
-    app.MapHealthChecks("/health");
+    app.MapHealthChecks("/health").DisableHttpMetrics();
 }
 
 /// <summary>
