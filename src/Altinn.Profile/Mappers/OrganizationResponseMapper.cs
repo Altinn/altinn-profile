@@ -24,9 +24,9 @@ namespace Altinn.Profile.Mappers
             return result;
         }
 
-        private static OrganizationResponse.NotificationAddress MapNotificationAddress(NotificationAddress notificationAddress)
+        private static NotificationAddressModel MapNotificationAddress(NotificationAddress notificationAddress)
         {
-            var response = new OrganizationResponse.NotificationAddress
+            var response = new NotificationAddressModel
             {
                 RegistryID = notificationAddress.RegistryID,
                 NotificationAddressID = notificationAddress.NotificationAddressID,

@@ -7,6 +7,7 @@ using Altinn.Profile.Core;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Mappers;
 using Altinn.Profile.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using static Altinn.Profile.Models.OrgNotificationAddressesResponse;
@@ -20,6 +21,7 @@ namespace Altinn.Profile.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     [Consumes("application/json")]
     [Produces("application/json")]
+    [Authorize(Policy = "PlatformAccess")]
     public class OrganizationsController : ControllerBase
     {
         private readonly IOrganizationNotificationAddressesService _notificationAddressService;
@@ -42,9 +44,8 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<OrganizationResponse>> GetMandatory([FromRoute]string organizationNumber, CancellationToken cancellationToken)
         {
-            // Check user has access to org number
             var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses([organizationNumber], cancellationToken);
-            if (organizations.Count() == 0)
+            if (!organizations.Any())
             {
                 return NotFound();
             }
