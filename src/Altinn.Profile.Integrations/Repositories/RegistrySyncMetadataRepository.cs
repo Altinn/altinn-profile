@@ -11,14 +11,14 @@ public class RegistrySyncMetadataRepository(IDbContextFactory<ProfileDbContext> 
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
     /// <inheritdoc />
-    public async Task<DateTime> GetLatestSyncTimestampAsync()
+    public async Task<DateTime?> GetLatestSyncTimestampAsync()
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
         var lastSync = await databaseContext.RegistrySyncMetadata.FirstOrDefaultAsync();
         if (lastSync == null)
         {
-            return DateTime.MinValue;
+            return null;
         }
 
         return lastSync.LastChangedDateTime;

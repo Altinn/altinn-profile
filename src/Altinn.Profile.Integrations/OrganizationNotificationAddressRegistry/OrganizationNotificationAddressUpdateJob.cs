@@ -1,4 +1,5 @@
 ﻿using Altinn.Profile.Integrations.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
@@ -10,29 +11,38 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 /// <param name="organizationNotificationAddressHttpClient">A HTTP client that can be used to retrieve contact details changes</param>
 /// <param name="metadataRepository">A repository implementation for managing persistence of the job status between runs</param>
 /// <param name="notificationAddressUpdater">A repository implementation for managing persistence for the local contact information</param>
+/// <param name="logger">A logger to log detailed information.</param>
 public class OrganizationNotificationAddressUpdateJob(
     OrganizationNotificationAddressSettings organizationNotificationAddressSettings,
     IOrganizationNotificationAddressHttpClient organizationNotificationAddressHttpClient,
     IRegistrySyncMetadataRepository metadataRepository,
-    IOrganizationNotificationAddressUpdater notificationAddressUpdater)
+    IOrganizationNotificationAddressUpdater notificationAddressUpdater,
+    ILogger<OrganizationNotificationAddressUpdateJob> logger)
     : IOrganizationNotificationAddressUpdateJob
 {
     private readonly OrganizationNotificationAddressSettings _organizationNotificationAddressSettings = organizationNotificationAddressSettings;
     private readonly IOrganizationNotificationAddressHttpClient _organizationNotificationAddressHttpClient = organizationNotificationAddressHttpClient;
     private readonly IRegistrySyncMetadataRepository _metadataRepository = metadataRepository;
     private readonly IOrganizationNotificationAddressUpdater _notificationAddressUpdater = notificationAddressUpdater;
+    private readonly ILogger<OrganizationNotificationAddressUpdateJob> _logger = logger;
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Thrown when the endpoint URL is null or empty.</exception>
     public async Task SyncNotificationAddressesAsync()
     {
-        DateTime lastUpdated = await _metadataRepository.GetLatestSyncTimestampAsync();
+        DateTime? lastUpdated = await _metadataRepository.GetLatestSyncTimestampAsync();
 
         // Time should be in iso8601 format. Example: 2018-02-15T11:07:12Z
-        string? fullUrl = _organizationNotificationAddressSettings.ChangesLogEndpoint + $"?since={lastUpdated.ToString("yyyy-MM-ddTHH\\:mm\\:ssZ")}&pageSize={_organizationNotificationAddressSettings.ChangesLogPageSize}";
+        string? fullUrl = _organizationNotificationAddressSettings.ChangesLogEndpoint + $"?pageSize={_organizationNotificationAddressSettings.ChangesLogPageSize}";
+        if (lastUpdated != null)
+        {
+            fullUrl += $"&since={lastUpdated:yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ}";
+        }
 
         do
         {
+            _logger.LogInformation("Fetch data from brreg at url: {FullUrl}", fullUrl);
+
             NotificationAddressChangesLog changesLog = await _organizationNotificationAddressHttpClient.GetAddressChangesAsync(fullUrl);
 
             var noChangesSinceLastCheck = changesLog.OrganizationNotificationAddressList == null || changesLog.OrganizationNotificationAddressList?.Count == 0;
