@@ -1,16 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Altinn.Profile.Core;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Mappers;
 using Altinn.Profile.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using static Altinn.Profile.Models.OrgNotificationAddressesResponse;
 
 namespace Altinn.Profile.Controllers
 {
@@ -21,7 +18,7 @@ namespace Altinn.Profile.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     [Consumes("application/json")]
     [Produces("application/json")]
-    [Authorize(Policy = "PlatformAccess")]
+    [Authorize]
     public class OrganizationsController : ControllerBase
     {
         private readonly IOrganizationNotificationAddressesService _notificationAddressService;
@@ -39,6 +36,7 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         /// <returns>Returns an overview of the user registered notification addresses for the provided organization</returns>
         [HttpGet("mandatory")]
+        [Authorize(Policy = "PlatformAccess")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
