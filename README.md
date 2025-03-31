@@ -111,7 +111,7 @@ dotnet user-secrets set "ContactAndReservationSettings:MaskinportenSettings:Enco
 
 ### Adding migrations with EF core
 1. Code the desired classes and add them to the DB context
-2. Run the following command in a terminal from src/Altinn.Profile.Integartions to add a migration. The name should be more descriptive than AddNewMigration:
+2. Run the following command in a terminal from src/Altinn.Profile.Integrations to add a migration. The name should be more descriptive than AddNewMigration:
    ```cmd
    dotnet ef migrations Add AddNewMigration --startup-project ../Altinn.Profile
    ```
