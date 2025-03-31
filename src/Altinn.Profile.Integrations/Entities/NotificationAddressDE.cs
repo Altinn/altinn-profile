@@ -35,7 +35,6 @@ namespace Altinn.Profile.Integrations.Entities
         /// The domain part of the Address. In case of phone numbers the country code, in case of email the domain address
         /// </summary>
         [StringLength(200)]
-        [Required]
         public string Domain { get; set; }
 
         /// <summary>

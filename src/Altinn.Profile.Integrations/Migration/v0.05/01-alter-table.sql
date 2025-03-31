@@ -1,0 +1,1 @@
+ALTER TABLE organization_notification_address.notifications_address ALTER COLUMN domain DROP NOT NULL;
