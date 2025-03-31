@@ -9,6 +9,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
     {
         [Theory]
         [InlineData("98765432")]
+        [InlineData("9876543200")]
         public void CustomRegex_WhenPhone_IsValid(string input)
         {
             var attribute = new CustomRegexForNotificationAddressesAttribute("Phone");
@@ -20,6 +21,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
 
         [Theory]
         [InlineData("error")]
+        [InlineData("+47987654321")]
         public void CustomRegex_WhenPhone_IsInvalid(string input)
         {
             var attribute = new CustomRegexForNotificationAddressesAttribute("Phone");
