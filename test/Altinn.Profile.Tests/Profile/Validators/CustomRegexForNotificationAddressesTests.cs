@@ -10,6 +10,8 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [Theory]
         [InlineData("98765432")]
         [InlineData("9876543200")]
+        [InlineData("")]
+        [InlineData(null)]
         public void CustomRegex_WhenPhone_IsValid(string input)
         {
             var attribute = new CustomRegexForNotificationAddressesAttribute("Phone");
@@ -35,6 +37,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData("+47")]
         [InlineData("+385")]
         [InlineData("")]
+        [InlineData(null)]
         public void CustomRegex_WhenCountryCode_IsValid(string input)
         {
             var attribute = new CustomRegexForNotificationAddressesAttribute("CountryCode");
@@ -62,6 +65,8 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData("test@test.com")]
         [InlineData("test-test@test.com")]
         [InlineData("test.test@test.com")]
+        [InlineData("")]
+        [InlineData(null)]
         public void CustomRegex_WhenEmail_IsValid(string input)
         {
             var attribute = new CustomRegexForNotificationAddressesAttribute("Email");
