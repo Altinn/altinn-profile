@@ -83,6 +83,5 @@ namespace Altinn.Profile.Tests.Profile.Validators
 
             Assert.False(validationResult);
         }
-
     }
 }

@@ -1,10 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Altinn.Profile.Validators
 {
     /// <summary>
     /// Custom regex attribute for Kofuvi  using the kofuvi regex from config
     /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
     public class CustomRegexForNotificationAddressesAttribute : RegularExpressionAttribute
     {
         private const string _emailRegexPattern = @"^((([a-zA-Z0-9!#$%&amp;'*+\-=?\^_`{}~])+(\.([a-zA-Z0-9!#$%&amp;'*+\-=?\^_`{}~])+)*)@(((([a-zA-Z0-9æøåÆØÅ]([a-zA-Z0-9\-æøåÆØÅ]{0,61})[a-zA-Z0-9æøåÆØÅ]\.)|[a-zA-Z0-9æøåÆØÅ]\.){1,9})([a-zA-Z]{2,14})))$";
