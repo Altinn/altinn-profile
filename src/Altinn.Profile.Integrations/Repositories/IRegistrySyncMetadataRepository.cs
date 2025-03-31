@@ -11,7 +11,7 @@ public interface IRegistrySyncMetadataRepository
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    Task<DateTime> GetLatestSyncTimestampAsync();
+    Task<DateTime?> GetLatestSyncTimestampAsync();
 
     /// <summary>
     /// Asynchronously updates the latest sync timestamp in the metadata repository.

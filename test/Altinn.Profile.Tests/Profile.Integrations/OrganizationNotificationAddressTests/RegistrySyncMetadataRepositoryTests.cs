@@ -77,13 +77,13 @@ public class RegistrySyncMetadataRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task GetLatestSyncTimestampAsync_WhenNoEntries_ReturnsEarliestDate()
+    public async Task GetLatestSyncTimestampAsync_WhenNoEntries_ReturnsNull()
     {
         // Act
         var timestamp = await _repository.GetLatestSyncTimestampAsync();
 
         // Assert
-        Assert.Equal(DateTime.MinValue, timestamp);
+        Assert.Null(timestamp);
     }
 
     [Fact]
