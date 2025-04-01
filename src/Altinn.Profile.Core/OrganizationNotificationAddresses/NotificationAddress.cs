@@ -36,5 +36,10 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// Name of the contact point 
         /// </summary>
         public string NotificationName { get; set; }
+
+        /// <summary>
+        /// Id from the registry
+        /// </summary>
+        public string RegistryID { get; set; }
     }
 }

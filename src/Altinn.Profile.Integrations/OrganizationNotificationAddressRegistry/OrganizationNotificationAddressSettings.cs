@@ -18,6 +18,11 @@ public class OrganizationNotificationAddressSettings
     public int ChangesLogPageSize { get; init; }
 
     /// <summary>
+    /// The endpoint URL used to send updates in the contact information for one or more organizations.
+    /// </summary>
+    public string? UpdateEndpoint { get; init; }
+
+    /// <summary>
     /// The settings required for Maskinporten authentication.
     /// </summary>
     public MaskinportenSettings? MaskinportenSettings { get; init; }
