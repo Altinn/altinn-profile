@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models
 {
@@ -8,21 +8,27 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Mo
     public record RegistryResponse
     {
         /// <summary>
-        /// Gets or sets sync status
+        /// Sync status
         /// </summary>
-        [JsonProperty("status")]
-        public string? Status { get; set; }
+        [JsonPropertyName("status")]
+        public string? Status { get; init; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the success or failure of the request
+        /// A value indicating whether the success or failure of the request
         /// </summary>
-        [JsonProperty("boolResult")]
-        public bool? BoolResult { get; set; }
+        [JsonPropertyName("boolResult")]
+        public bool? BoolResult { get; init; }
 
         /// <summary>
-        /// Gets or sets details
+        /// TraceID of the response
         /// </summary>
-        [JsonProperty("details")]
-        public string? Details { get; set; }
+        [JsonPropertyName("traceId")]
+        public string? TraceId { get; init; }
+
+        /// <summary>
+        /// Details
+        /// </summary>
+        [JsonPropertyName("details")]
+        public string? Details { get; init; }
     }
 }

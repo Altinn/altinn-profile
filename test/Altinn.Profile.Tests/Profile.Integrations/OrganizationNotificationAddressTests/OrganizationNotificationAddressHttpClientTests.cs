@@ -135,6 +135,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var va = await client.CreateNewNotificationAddress(notificationAddress, new Organization() { OrganizationNumber = "123456789" });
 
         // Assert
+        Assert.IsType<RegistryResponse>(va);
         _messageHandler.VerifyAll();
     }
 
@@ -185,6 +186,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var va = await client.UpdateNotificationAddress(notificationAddress, new Organization() { OrganizationNumber = "123456789" });
 
         // Assert
+        Assert.IsType<RegistryResponse>(va);
         _messageHandler.VerifyAll();
     }
 
@@ -208,6 +210,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var va = await client.DeleteNotificationAddress(new NotificationAddress());
 
         // Assert
+        Assert.IsType<RegistryResponse>(va);
         _messageHandler.VerifyAll();
     }
 }

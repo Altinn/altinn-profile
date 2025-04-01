@@ -25,13 +25,13 @@ public record EntryContent
         public string? Id { get; init; }
 
         /// <summary>
-        /// The content of the contact point.
+        /// Digital contact information such as email or phone number.
         /// </summary>
         [JsonPropertyName("digitalVarslingsinformasjon")]
         public DigitalContactPointModel? DigitalContactPoint { get; init; }
 
         /// <summary>
-        /// The content of the contact point.
+        /// Contact information for the organizational unit.
         /// </summary>
         [JsonPropertyName("kontaktinformasjonForEnhet")]
         public UnitContactInfoModel? UnitContactInfo { get; init; }

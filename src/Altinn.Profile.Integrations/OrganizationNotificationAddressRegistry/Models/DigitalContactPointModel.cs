@@ -20,12 +20,12 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Mo
         public PhoneNumberModel? PhoneNumber { get; init; }
 
         /// <summary>
-        /// The full the email address model.
+        /// The full email address model.
         /// </summary>
         public record EmailAddressModel
         {
             /// <summary>
-            /// The full the email address.
+            /// Name of the address. Currently not used.
             /// </summary>
             [JsonPropertyName("navn")]
             public string? Name { get; init; }
@@ -44,7 +44,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Mo
         }
 
         /// <summary>
-        /// The full the phone number model.
+        /// The full phone number model.
         /// </summary>
         public record PhoneNumberModel
         {

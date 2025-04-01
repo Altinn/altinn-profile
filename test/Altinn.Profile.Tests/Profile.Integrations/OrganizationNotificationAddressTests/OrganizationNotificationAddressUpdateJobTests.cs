@@ -8,7 +8,7 @@ using Moq;
 
 using Xunit;
 
-namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddressTests.OrganizationNotificationAddressTests;
+namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddressTests;
 
 public class OrganizationNotificationAddressUpdateJobTests()
 {

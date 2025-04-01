@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models
 {
@@ -8,21 +8,21 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Mo
     public class CanUseModel
     {
         /// <summary>
-        /// Gets or sets document types
+        /// Document type
         /// </summary>
-        [JsonProperty("dokumenttype")]
+        [JsonPropertyName("dokumenttype")]
         public string? DocumentType { get; set; }
 
         /// <summary>
-        /// Gets or sets an unknown field
+        /// The service area (tjenesteområde) for this contact point. Currently unused
         /// </summary>
-        [JsonProperty("tjenesteområde")]
+        [JsonPropertyName("tjenesteområde")]
         public string? ServiceArea { get; set; }
 
         /// <summary>
-        /// Gets or sets trace id
+        /// Trace id
         /// </summary>
-        [JsonProperty("traceId")]
+        [JsonPropertyName("traceId")]
         public string? TraceId { get; set; }
     }
 }

@@ -1,7 +1,5 @@
 ﻿#nullable disable
 
-using System.ComponentModel.DataAnnotations;
-
 namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 {
     /// <summary>

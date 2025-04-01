@@ -72,6 +72,11 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
     /// <inheritdoc/>
     public async Task<RegistryResponse?> UpdateNotificationAddress(NotificationAddress notificationAddress, Organization organization)
     {
+        if (notificationAddress.RegistryID == null)
+        {
+            throw new ArgumentException("RegistryID cannot be null when updating a notification address");
+        }
+
         var request = DataMapper.MapToRegistryRequest(notificationAddress, organization);
 
         var json = JsonSerializer.Serialize(request);
@@ -85,6 +90,11 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
     /// <inheritdoc/>
     public async Task<RegistryResponse?> DeleteNotificationAddress(NotificationAddress notificationAddress)
     {
+        if (notificationAddress.RegistryID == null)
+        {
+            throw new ArgumentException("RegistryID cannot be null when updating a notification address");
+        }
+
         string command = @"/replace/" + notificationAddress.RegistryID;
         string json = string.Empty;
 

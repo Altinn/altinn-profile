@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models
 {
@@ -17,23 +12,23 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Mo
         /// </summary>
         [JsonPropertyName("enhetsidentifikator")]
         public UnitIdentifierModel? UnitIdentifier { get; init; }
+    }
+
+    /// <summary>
+    /// The identifier of the unit.
+    /// </summary>
+    public record UnitIdentifierModel
+    {
+        /// <summary>
+        /// The value of the identifier of the contact point.
+        /// </summary>
+        [JsonPropertyName("verdi")]
+        public string? Value { get; init; }
 
         /// <summary>
-        /// The identificator of the unit.
+        /// The type of identifier.
         /// </summary>
-        public record UnitIdentifierModel
-        {
-            /// <summary>
-            /// The value of the identificator of the contact point.
-            /// </summary>
-            [JsonPropertyName("verdi")]
-            public string? Value { get; init; }
-
-            /// <summary>
-            /// The type of identifier.
-            /// </summary>
-            [JsonPropertyName("type")]
-            public string? Type { get; init; }
-        }
+        [JsonPropertyName("type")]
+        public string? Type { get; init; }
     }
 }

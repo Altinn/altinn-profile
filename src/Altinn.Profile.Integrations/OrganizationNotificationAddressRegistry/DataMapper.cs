@@ -86,7 +86,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
                 {
                     UnitContactInfo = new UnitContactInfoModel
                     {
-                        UnitIdentifier = new UnitContactInfoModel.UnitIdentifierModel
+                        UnitIdentifier = new UnitIdentifierModel
                         {
                             Value = organization.OrganizationNumber,
                             Type = "ORGANISASJONSNUMMER",
