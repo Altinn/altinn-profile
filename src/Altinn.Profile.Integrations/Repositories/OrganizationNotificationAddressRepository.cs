@@ -2,6 +2,7 @@
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Integrations.Persistence;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;

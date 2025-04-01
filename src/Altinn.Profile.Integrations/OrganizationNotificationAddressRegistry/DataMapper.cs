@@ -1,6 +1,7 @@
 ﻿using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.Entities;
-using static Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.EntryContent.ContactPointModel.DigitalContactPointModel;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
+using static Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models.DigitalContactPointModel;
 
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
 {
@@ -67,11 +68,62 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
         }
 
         private static void MapEmailSpecificValues(NotificationAddressDE organizationNotificationAddress, EmailAddressModel emailAddress)
-            {
+        {
             organizationNotificationAddress.AddressType = AddressType.Email;
             organizationNotificationAddress.Domain = emailAddress.Domain;
             organizationNotificationAddress.Address = emailAddress.Username;
             organizationNotificationAddress.FullAddress = string.Concat(emailAddress.Username, '@', emailAddress.Domain);
+        }
+
+        /// <summary>
+        /// Maps to the registry request from an organization notification address
+        /// </summary>
+        public static RegistryRequest MapToRegistryRequest(NotificationAddress notificationAddress, Organization organization)
+        {
+            var request = new RegistryRequest
+            {
+                ContactInfo = new ContactInfoModel
+                {
+                    UnitContactInfo = new UnitContactInfoModel
+                    {
+                        UnitIdentifier = new UnitContactInfoModel.UnitIdentifierModel
+                        {
+                            Value = organization.OrganizationNumber,
+                            Type = "ORGANISASJONSNUMMER",
+                        },
+                    },
+                    DigitalVarslingsinformasjon = MapDigitalContactPoint(notificationAddress),
+                }
+            };
+
+            return request;
+        }
+
+        private static DigitalContactPointModel MapDigitalContactPoint(NotificationAddress notificationAddress)
+        {
+            if (notificationAddress.AddressType == AddressType.Email)
+            {
+                return new DigitalContactPointModel
+                {
+                    EmailAddress = new EmailAddressModel
+                    {
+                        Domain = notificationAddress.Domain,
+                        Username = notificationAddress.Address,
+                    },
+                };
+            }
+            else
+            {
+                return new DigitalContactPointModel
+                {
+                    PhoneNumber = new PhoneNumberModel
+                    {
+                        Prefix = notificationAddress.Domain,
+                        NationalNumber = notificationAddress.Address,
+                        Name = notificationAddress.NotificationName,
+                    },
+                };
+            }
         }
     }
 }

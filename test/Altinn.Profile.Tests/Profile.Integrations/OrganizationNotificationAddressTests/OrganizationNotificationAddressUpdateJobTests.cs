@@ -8,7 +8,7 @@ using Moq;
 
 using Xunit;
 
-namespace Altinn.Profile.Tests.Profile.Integrations;
+namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddressTests.OrganizationNotificationAddressTests;
 
 public class OrganizationNotificationAddressUpdateJobTests()
 {
@@ -170,6 +170,6 @@ public class OrganizationNotificationAddressUpdateJobTests()
 
         // Verify that metadataRepository.UpdateLatestChangeTimestampAsync() is not called
         _metadataRepository.VerifyAll();
-        _metadataRepository.VerifyNoOtherCalls(); 
+        _metadataRepository.VerifyNoOtherCalls();
     }
 }

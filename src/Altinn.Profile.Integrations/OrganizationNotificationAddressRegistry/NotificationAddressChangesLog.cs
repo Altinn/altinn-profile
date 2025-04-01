@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 

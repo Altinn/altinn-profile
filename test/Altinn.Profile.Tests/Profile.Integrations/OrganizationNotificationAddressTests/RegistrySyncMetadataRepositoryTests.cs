@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
 
-namespace Altinn.Profile.Tests.Profile.Integrations;
+namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddressTests;
 
 /// <summary>
 /// Contains unit tests for the <see cref="RegistrySyncMetadataRepository"/> class.
@@ -37,7 +37,7 @@ public class RegistrySyncMetadataRepositoryTests : IDisposable
         _repository = new RegistrySyncMetadataRepository(_databaseContextFactory.Object);
 
         _databaseContext = _databaseContextFactory.Object.CreateDbContext();
-        
+
         _databaseContext.SaveChanges();
     }
 

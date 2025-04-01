@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
 using Altinn.Platform.Profile.Models;
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.User;
@@ -14,7 +13,7 @@ using Moq;
 
 using Xunit;
 
-namespace Altinn.Profile.Tests.Core.User;
+namespace Altinn.Profile.Tests.Profile.Core.User;
 
 public class UserProfileCachingDecoratorTest
 {
@@ -216,7 +215,7 @@ public class UserProfileCachingDecoratorTest
         // Assert
         _decoratedServiceMock.Verify(service => service.GetUserByUuid(It.IsAny<Guid>()), Times.Once());
         Assert.True(result.IsSuccess, "Expected a success result");
-        
+
         result.Match(
             actual =>
             {
@@ -251,12 +250,12 @@ public class UserProfileCachingDecoratorTest
         // Assert
         _decoratedServiceMock.Verify(service => service.GetUserListByUuid(It.IsAny<List<Guid>>()), Times.Once());
         result.Match(
-            actual => 
+            actual =>
             {
                 Assert.Equal(2, actual.Count);
                 Assert.Equal(userUuids[0], actual[0].UserUuid);
                 Assert.Equal(userUuids[1], actual[1].UserUuid);
-            }, 
+            },
             _ => { });
 
         Assert.True(memoryCache.TryGetValue($"User:UserUuid:{userUuids[0]}", out UserProfile _), "No data found in memory cache");
@@ -327,7 +326,7 @@ public class UserProfileCachingDecoratorTest
         // Assert
         _decoratedServiceMock.Verify(service => service.GetUserListByUuid(It.IsAny<List<Guid>>()), Times.Once);
         result.Match(
-            Assert.Empty, 
+            Assert.Empty,
             _ => { });
         Assert.False(memoryCache.TryGetValue($"User:UserUuid:{userUuids[0]}", out UserProfile _));
         Assert.False(memoryCache.TryGetValue($"User:UserUuid:{userUuids[1]}", out UserProfile _));
@@ -353,7 +352,7 @@ public class UserProfileCachingDecoratorTest
         // Assert
         _decoratedServiceMock.Verify(service => service.GetUser(It.IsAny<string>()), Times.Never());
         Assert.True(result.IsSuccess, "Expected a success result");
-        
+
         result.Match(
            actual =>
            {
@@ -438,8 +437,8 @@ public class UserProfileCachingDecoratorTest
         Result<UserProfile, bool> result = await target.GetUserByUsername(Username);
 
         // Assert
-        _decoratedServiceMock.Verify(service => service.GetUser(It.IsAny<int>()), Times.Never());            
-        
+        _decoratedServiceMock.Verify(service => service.GetUser(It.IsAny<int>()), Times.Never());
+
         Assert.True(result.IsSuccess, "Expected a success result");
         result.Match(
            actual =>
@@ -460,7 +459,7 @@ public class UserProfileCachingDecoratorTest
         // Arrange
         const string Username = "OrstaECUser";
         const int UserId = 2001072;
-        
+
         MemoryCache memoryCache = new(new MemoryCacheOptions());
 
         var userProfile = await TestDataLoader.Load<UserProfile>(Username);

@@ -1,8 +1,9 @@
 ﻿using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Xunit;
 
-namespace Altinn.Profile.Tests.Profile.Integrations;
+namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddressTests;
 
 public class DataMapperTests
 {
@@ -15,7 +16,7 @@ public class DataMapperTests
         // Arrange
         var entry = new Entry() { Id = "37ab4733648c4d5b825a813c6e1ace70", ContentStringified = "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"mobiltelefon\":{\"navn\":\"4798765432\",\"internasjonaltPrefiks\":\"" + prefix + "\",\"nasjonaltNummer\":\"98765432\"}},\"identifikator\":\"37ab4733648c4d5b825a813c6e1ace70\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"920254321\",\"type\":\"ORGANISASJONSNUMMER\"}}}}" };
         var organization = new OrganizationDE { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
-        
+
         // Act
         var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(entry, organization);
 
