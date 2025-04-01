@@ -4,6 +4,7 @@ using System.Text.Json;
 using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
@@ -60,18 +61,10 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
     public async Task<RegistryResponse?> CreateNewNotificationAddress(NotificationAddress notificationAddress, Organization organization)
     {
         var request = DataMapper.MapToRegistryRequest(notificationAddress, organization);
-        var stringContent = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
-        string endpoint = _organizationNotificationAddressSettings.UpdateEndpoint + "/define";
-        var response = await _httpClient.PostAsync(endpoint, stringContent);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new OrganizationNotificationAddressChangesException($"Failed to retrieve contact details changes. StatusCode: {response.StatusCode}");
-        }
-
-        var responseData = await response.Content.ReadAsStringAsync();
-
-        var responseObject = JsonSerializer.Deserialize<RegistryResponse>(responseData);
+        var json = JsonSerializer.Serialize(request);
+        string command = "/define";
+        
+        var responseObject = await PostAsync(json, command);
 
         return responseObject;
     }
@@ -82,7 +75,7 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
         var request = DataMapper.MapToRegistryRequest(notificationAddress, organization);
 
         var json = JsonSerializer.Serialize(request);
-        string command = @"replace/" + notificationAddress.RegistryID;
+        string command = @"/replace/" + notificationAddress.RegistryID;
 
         var responseObject = await PostAsync(json, command);
 
@@ -92,7 +85,7 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
     /// <inheritdoc/>
     public async Task<RegistryResponse?> DeleteNotificationAddress(NotificationAddress notificationAddress)
     {
-        string command = @"replace/" + notificationAddress.RegistryID;
+        string command = @"/replace/" + notificationAddress.RegistryID;
         string json = string.Empty;
 
         var responseObject = await PostAsync(json, command);
@@ -109,7 +102,7 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new OrganizationNotificationAddressChangesException($"Failed to retrieve contact details changes. StatusCode: {response.StatusCode}");
+            throw new OrganizationNotificationAddressChangesException($"Kof-reception connection error. StatusCode: {response.StatusCode}");
         }
 
         var responseData = await response.Content.ReadAsStringAsync();

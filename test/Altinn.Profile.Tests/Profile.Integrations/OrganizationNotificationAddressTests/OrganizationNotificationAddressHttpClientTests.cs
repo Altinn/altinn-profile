@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
@@ -57,7 +58,7 @@ public class OrganizationNotificationAddressHttpClientTests
     public async Task GetAddressChangesAsync_WhenFailingToDeserialize_Throws()
     {
         // Arrange
-        NotificationAddressChangesLog changelog = new NotificationAddressChangesLog();
+        NotificationAddressChangesLog changelog = new();
         var mockResponse = new HttpResponseMessage
         {
             StatusCode = HttpStatusCode.OK,
@@ -93,7 +94,7 @@ public class OrganizationNotificationAddressHttpClientTests
     public async Task GetAddressChangesAsync_WhenValidEndpointUrl_Success()
     {
         // Arrange
-        NotificationAddressChangesLog changelog = new NotificationAddressChangesLog { OrganizationNotificationAddressList = [] };
+        NotificationAddressChangesLog changelog = new() { OrganizationNotificationAddressList = [] };
         var mockResponse = new HttpResponseMessage
         {
             StatusCode = HttpStatusCode.OK,
@@ -128,8 +129,35 @@ public class OrganizationNotificationAddressHttpClientTests
         var httpClient = new HttpClient(messageHandler);
         var client = CreateHttpClient(httpClient);
 
+        var notificationAddress = new NotificationAddress() { AddressType = AddressType.SMS, Address = "98765432", Domain = "+47" };
+
         // Act
-        var va = await client.CreateNewNotificationAddress(new Altinn.Profile.Core.OrganizationNotificationAddresses.NotificationAddress(), new Altinn.Profile.Core.OrganizationNotificationAddresses.Organization() { OrganizationNumber = "123456789" });
+        var va = await client.CreateNewNotificationAddress(notificationAddress, new Organization() { OrganizationNumber = "123456789" });
+
+        // Assert
+        _messageHandler.VerifyAll();
+    }
+
+    [Fact]
+    public async Task UpdateAddress_WhenSomethingGoesWrong_ThrowsException()
+    {
+        // Arrange
+        var response = new RegistryResponse();
+        var mockResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.InternalServerError,
+            Content = JsonContent.Create(response)
+        };
+
+        DelegatingHandlerStub messageHandler = new((request, cancellationToken) => Task.FromResult(mockResponse));
+
+        var httpClient = new HttpClient(messageHandler);
+        var client = CreateHttpClient(httpClient);
+
+        var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com" };
+
+        // Act
+        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.UpdateNotificationAddress(notificationAddress, new Organization() { OrganizationNumber = "123456789" }));
 
         // Assert
         _messageHandler.VerifyAll();
@@ -151,8 +179,10 @@ public class OrganizationNotificationAddressHttpClientTests
         var httpClient = new HttpClient(messageHandler);
         var client = CreateHttpClient(httpClient);
 
+        var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com" };
+
         // Act
-        var va = await client.CreateNewNotificationAddress(new Altinn.Profile.Core.OrganizationNotificationAddresses.NotificationAddress(), new Altinn.Profile.Core.OrganizationNotificationAddresses.Organization() { OrganizationNumber = "123456789" });
+        var va = await client.UpdateNotificationAddress(notificationAddress, new Organization() { OrganizationNumber = "123456789" });
 
         // Assert
         _messageHandler.VerifyAll();
@@ -175,7 +205,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var client = CreateHttpClient(httpClient);
 
         // Act
-        var va = await client.DeleteNotificationAddress(new Altinn.Profile.Core.OrganizationNotificationAddresses.NotificationAddress());
+        var va = await client.DeleteNotificationAddress(new NotificationAddress());
 
         // Assert
         _messageHandler.VerifyAll();

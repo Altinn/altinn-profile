@@ -29,7 +29,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Mo
         /// Gets or sets the object containing alert info
         /// </summary>
         [JsonProperty("digitalVarslingsinformasjon")]
-        public DigitalContactPointModel? DigitalVarslingsinformasjon { get; set; }
+        public DigitalContactPointModel? DigitalContactPoint { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier

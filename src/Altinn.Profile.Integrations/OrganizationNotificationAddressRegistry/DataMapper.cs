@@ -92,7 +92,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
                             Type = "ORGANISASJONSNUMMER",
                         },
                     },
-                    DigitalVarslingsinformasjon = MapDigitalContactPoint(notificationAddress),
+                    DigitalContactPoint = MapDigitalContactPoint(notificationAddress),
                 }
             };
 
