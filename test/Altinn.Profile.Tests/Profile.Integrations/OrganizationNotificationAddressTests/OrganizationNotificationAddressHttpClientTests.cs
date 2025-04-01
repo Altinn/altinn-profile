@@ -129,7 +129,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var httpClient = new HttpClient(messageHandler);
         var client = CreateHttpClient(httpClient);
 
-        var notificationAddress = new NotificationAddress() { AddressType = AddressType.SMS, Address = "98765432", Domain = "+47" };
+        var notificationAddress = new NotificationAddress() { AddressType = AddressType.SMS, Address = "98765432", Domain = "+47", RegistryID = Guid.NewGuid().ToString("N") };
 
         // Act
         var va = await client.CreateNewNotificationAddress(notificationAddress, new Organization() { OrganizationNumber = "123456789" });
@@ -155,7 +155,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var httpClient = new HttpClient(messageHandler);
         var client = CreateHttpClient(httpClient);
 
-        var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com" };
+        var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com", RegistryID = Guid.NewGuid().ToString("N") };
 
         // Act
         await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.UpdateNotificationAddress(notificationAddress, new Organization() { OrganizationNumber = "123456789" }));
@@ -180,7 +180,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var httpClient = new HttpClient(messageHandler);
         var client = CreateHttpClient(httpClient);
 
-        var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com" };
+        var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com", RegistryID = Guid.NewGuid().ToString("N") };
 
         // Act
         var va = await client.UpdateNotificationAddress(notificationAddress, new Organization() { OrganizationNumber = "123456789" });
@@ -207,7 +207,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var client = CreateHttpClient(httpClient);
 
         // Act
-        var va = await client.DeleteNotificationAddress(new NotificationAddress());
+        var va = await client.DeleteNotificationAddress(new NotificationAddress() { RegistryID = Guid.NewGuid().ToString("N") });
 
         // Assert
         Assert.IsType<RegistryResponse>(va);

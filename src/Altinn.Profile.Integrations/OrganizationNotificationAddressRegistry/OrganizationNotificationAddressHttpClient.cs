@@ -95,6 +95,7 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
             throw new ArgumentException("RegistryID cannot be null when updating a notification address");
         }
 
+        // Using /replace/ with empty payload as per API requirements for deletion
         string command = @"/replace/" + notificationAddress.RegistryID;
         string json = string.Empty;
 
