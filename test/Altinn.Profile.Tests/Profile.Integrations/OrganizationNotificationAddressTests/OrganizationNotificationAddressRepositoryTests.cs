@@ -130,6 +130,18 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     }
 
     [Fact]
+    public async Task SyncNotificationAddressesAsync_WithoutOrgNumber_ReturnZero()
+    {
+        var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_6");
+
+        // Act
+        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes);
+
+        // Assert
+        Assert.Equal(0, numberOfUpdatedRows);
+    }
+
+    [Fact]
     public async Task SyncNotificationAddressesAsync_WithDeleteData_ReturnsUpdatedRows()
     {
         var matchedOrg = await _repository.GetOrganizationAsync("987654321");
