@@ -5,7 +5,35 @@
       "id": "27ae0c8bea1f4f02a974c10429c32758",
       "updated": "2025-01-16T09:07:11Z",
       "isdeleted": false,
+      "content": "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"mobiltelefon\":{\"navn\":\"4798765432\",\"internasjonaltPrefiks\":\"47\",\"nasjonaltNummer\":\"98765432\"}},\"identifikator\":\"37ab4733648c4d5b825a813c6e1ace70\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"987654321\",\"type\":\"SOMETHINGELSE\"}}}}"
+    },
+    {
+      "title": "4798765432",
+      "id": "27ae0c8bea1f4f02a974c10429c32758",
+      "updated": "2025-01-16T09:07:11Z",
+      "isdeleted": false,
       "content": "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"mobiltelefon\":{\"navn\":\"4798765432\",\"internasjonaltPrefiks\":\"47\",\"nasjonaltNummer\":\"98765432\"}},\"identifikator\":\"37ab4733648c4d5b825a813c6e1ace70\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{}}}}"
+    },
+    {
+      "title": "4798765432",
+      "id": "27ae0c8bea1f4f02a974c10429c32758",
+      "updated": "2025-01-16T09:07:11Z",
+      "isdeleted": false,
+      "content": "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"mobiltelefon\":{\"navn\":\"4798765432\",\"internasjonaltPrefiks\":\"47\",\"nasjonaltNummer\":\"98765432\"}},\"identifikator\":\"37ab4733648c4d5b825a813c6e1ace70\",\"kontaktinformasjonForEnhet\":{}}}"
+    },
+    {
+      "title": "4798765432",
+      "id": "27ae0c8bea1f4f02a974c10429c32758",
+      "updated": "2025-01-16T09:07:11Z",
+      "isdeleted": false,
+      "content": "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"mobiltelefon\":{\"navn\":\"4798765432\",\"internasjonaltPrefiks\":\"47\",\"nasjonaltNummer\":\"98765432\"}},\"identifikator\":\"37ab4733648c4d5b825a813c6e1ace70\"}}"
+    },
+    {
+      "title": "4798765432",
+      "id": "27ae0c8bea1f4f02a974c10429c32758",
+      "updated": "2025-01-16T09:07:11Z",
+      "isdeleted": false,
+      "content": "{}"
     }
   ]
 }
