@@ -28,7 +28,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             }
             else
             {
-                updates += await UpdateNotificationAddressAsync(address);
+                updates += await InsertOrUpdateNotificationAddressAsync(address);
             }
         }
 
@@ -57,12 +57,12 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     }
 
     /// <summary>
-    /// Updates or creates notification addresses in the DB for organizations
+    /// Updates notification addresses in the DB for organizations
     /// </summary>
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    private async Task<int> UpdateNotificationAddressAsync(Entry address)
+    private async Task<int> InsertOrUpdateNotificationAddressAsync(Entry address)
     {
         var orgNumber = address?.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Value;
         if (orgNumber == null || address?.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Type != _organizationNumberConst)
@@ -71,8 +71,22 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
         }
 
         var organization = await GetOrganizationAsync(orgNumber);
-        organization ??= await CreateOrganization(orgNumber);
+        if (organization is null)
+        {
+            return await CreateOrganizationWithNotificationAddress(orgNumber, address);
+        }
 
+        return await UpdateNotificationAddressAsync(address, organization);
+    }
+
+    /// <summary>
+    /// Updates or creates notification addresses in the DB for organizations
+    /// </summary>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// </returns>
+    private async Task<int> UpdateNotificationAddressAsync(Entry address, OrganizationDE organization)
+    {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
         var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(address, organization);
@@ -112,7 +126,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
                 .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == orgNumber);
     }
     
-    private async Task<OrganizationDE> CreateOrganization(string orgNumber)
+    private async Task<int> CreateOrganizationWithNotificationAddress(string orgNumber, Entry address)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
@@ -121,11 +135,11 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             RegistryOrganizationNumber = orgNumber,
             NotificationAddresses = [],
         };
-        
-        await databaseContext.Organizations.AddAsync(organization);
-        await databaseContext.SaveChangesAsync();
+        organization.NotificationAddresses.Add(DataMapper.MapOrganizationNotificationAddress(address, organization));
 
-        return organization;
+        await databaseContext.Organizations.AddAsync(organization);
+        
+        return await databaseContext.SaveChangesAsync();
     }
 
     /// <inheritdoc/>
