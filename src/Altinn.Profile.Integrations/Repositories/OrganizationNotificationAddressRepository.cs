@@ -64,8 +64,8 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// </returns>
     private async Task<int> InsertOrUpdateNotificationAddressAsync(Entry address)
     {
-        var orgNumber = address?.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Value;
-        if (orgNumber == null || address?.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Type != _organizationNumberConst)
+        var orgNumber = address.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Value;
+        if (orgNumber == null || address.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Type != _organizationNumberConst)
         {
             return 0;
         }
