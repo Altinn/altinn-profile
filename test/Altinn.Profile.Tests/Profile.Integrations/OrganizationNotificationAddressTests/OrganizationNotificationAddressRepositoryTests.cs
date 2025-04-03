@@ -25,8 +25,6 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     private bool _isDisposed;
     private readonly ProfileDbContext _databaseContext;
     private readonly OrganizationNotificationAddressRepository _repository;
-    private readonly List<NotificationAddressDE> _notificationAddressTestData;
-    private readonly List<OrganizationDE> _organizationTestData;
     private readonly Mock<IDbContextFactory<ProfileDbContext>> _databaseContextFactory;
 
     public OrganizationNotificationAddressRepositoryTests()
@@ -49,13 +47,13 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
         var mapper = mapperConfig.CreateMapper();
         _repository = new OrganizationNotificationAddressRepository(_databaseContextFactory.Object, mapper);
 
-        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
-        _notificationAddressTestData = notificationAddresses;
-        _organizationTestData = organizations;
-
         _databaseContext = _databaseContextFactory.Object.CreateDbContext();
-        _databaseContext.NotificationAddresses.AddRange(_notificationAddressTestData);
-        _databaseContext.Organizations.AddRange((IEnumerable<OrganizationDE>)_organizationTestData);
+    }
+
+    private void SeedDatabase(List<OrganizationDE> organizations, List<NotificationAddressDE> notificationAddresses)
+    {
+        _databaseContext.NotificationAddresses.AddRange(notificationAddresses);
+        _databaseContext.Organizations.AddRange((IEnumerable<OrganizationDE>)organizations);
         _databaseContext.SaveChanges();
     }
 
@@ -82,10 +80,14 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     [Fact]
     public async Task GetOrganization_WhenFound_ReturnsWithNotificationAddresses()
     {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
         // Act
         var matchedOrg = await _repository.GetOrganizationAsync("123456789");
 
-        var expectedOrg = _organizationTestData
+        var expectedOrg = organizations
             .Find(p => p.RegistryOrganizationNumber == "123456789");
 
         // Assert
@@ -96,8 +98,9 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     }
 
     [Fact]
-    public async Task GetOrganization_WhenNoneFound_ReturnsNull()
+    public async Task GetOrganization_WhenGivenOrganizationDoesNotExist_ReturnsNull()
     {
+        // Arrange - skip seeding the DB with data
         // Act
         var matchedOrg = await _repository.GetOrganizationAsync("111111111");
 
@@ -108,11 +111,9 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     [Fact]
     public async Task SyncNotificationAddressesAsync_WithProperData_ReturnsUpdatedRows()
     {
-        var matchedOrg1 = await _repository.GetOrganizationAsync("123456789");
-        var matchedOrg2 = await _repository.GetOrganizationAsync("920212345");
-        Assert.NotNull(matchedOrg1);
-        Assert.Equal(3, matchedOrg1.NotificationAddresses.Count);
-        Assert.Null(matchedOrg2);
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
 
         var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_1");
 
@@ -132,16 +133,11 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     [Fact]
     public async Task SyncNotificationAddressesAsync_WithProperDataWithNullablePhonePrefix_ReturnsUpdatedRows()
     {
-        var matchedOrg1 = await _repository.GetOrganizationAsync("920254321");
-        var matchedOrg2 = await _repository.GetOrganizationAsync("920212345");
-        Assert.Null(matchedOrg1);
-        Assert.Null(matchedOrg2);
-
-        // changes_2 contains rows without phone prefix
-        var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_2");
+        // Arrange
+        var changesIncludingMissingPhonePrefix = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_2");
 
         // Act
-        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes);
+        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changesIncludingMissingPhonePrefix);
         var updatedOrg1 = await _repository.GetOrganizationAsync("920254321");
         var updatedOrg2 = await _repository.GetOrganizationAsync("920212345");
 
@@ -157,14 +153,16 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     [Fact]
     public async Task SyncNotificationAddressesAsync_WithDeleteData_ReturnsUpdatedRows()
     {
-        var matchedOrg = await _repository.GetOrganizationAsync("987654321");
-        Assert.Equal(2, matchedOrg.NotificationAddresses.Count);
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
 
-        var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_4");
+        var changeWithDelete = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_4");
+        var orgToUpdate = "987654321";
 
         // Act
-        var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changes);
-        var updatedOrg = await _repository.GetOrganizationAsync("987654321");
+        var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changeWithDelete);
+        var updatedOrg = await _repository.GetOrganizationAsync(orgToUpdate);
 
         // Assert
         Assert.Single(updatedOrg.NotificationAddresses);
@@ -174,8 +172,9 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     [Fact]
     public async Task SyncNotificationAddressesAsync_WithDeleteData_ReturnsNullWhenAlreadyDeleted()
     {
-        var matchedOrg = await _repository.GetOrganizationAsync("987654321");
-        Assert.Equal(2, matchedOrg.NotificationAddresses.Count);
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
 
         var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_4");
 
@@ -190,21 +189,26 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     }
 
     [Fact]
-    public async Task SyncNotificationAddressesAsync_WithUpdateData_ReturnsUpdatedRows()
+    public async Task SyncNotificationAddressesAsync_WhenUpdatingExistingAddress_ReturnsUpdatedRows()
     {
-        var matchedOrg = await _repository.GetOrganizationAsync("987654321");
-        Assert.Equal(2, matchedOrg.NotificationAddresses.Count);
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
 
         var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_5");
+        var identifierForAddressToUpdate = "27ae0c8bea1f4f02a974c10429c32758";
+        var addressToReplace = notificationAddresses.Find(address => address.RegistryID == identifierForAddressToUpdate);
 
         // Act
         var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changes);
-        var updatedOrg = await _repository.GetOrganizationAsync("987654321");
 
         // Assert
-        Assert.Equal(2, updatedOrg.NotificationAddresses.Count);
-        Assert.Equal(matchedOrg.NotificationAddresses[1].RegistryID, updatedOrg.NotificationAddresses[1].RegistryID);
-        Assert.NotEqual(matchedOrg.NotificationAddresses[1].Address, updatedOrg.NotificationAddresses[1].Address);
+        var actualOrg = await _repository.GetOrganizationAsync("987654321");
+        Assert.Equal(2, actualOrg.NotificationAddresses.Count);
+
+        var actualUpdatedAddress = actualOrg.NotificationAddresses.Find(address => address.RegistryID == identifierForAddressToUpdate);
+        Assert.NotNull(actualUpdatedAddress);
+        Assert.NotEqual(addressToReplace.Address, actualUpdatedAddress.Address);
         Assert.True(numberOfUpdatedAddresses > 0);
     }
 
@@ -212,9 +216,12 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     public async Task GetOrganizations_WhenFound_ReturnsWithNotificationAddresses()
     {
         // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
         var orgNumberLookup = new List<string>() { "123456789", "987654321" };
 
-        var expectedOrg1 = _organizationTestData
+        var expectedOrg1 = organizations
             .Find(p => p.RegistryOrganizationNumber == "123456789");
 
         // Act
