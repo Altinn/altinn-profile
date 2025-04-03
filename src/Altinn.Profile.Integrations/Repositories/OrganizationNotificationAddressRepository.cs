@@ -57,7 +57,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     }
 
     /// <summary>
-    /// Updates notification addresses in the DB for organizations
+    /// Updates or creates notification addresses in the DB for organizations
     /// </summary>
     /// <returns>
     /// A task that represents the asynchronous operation.
