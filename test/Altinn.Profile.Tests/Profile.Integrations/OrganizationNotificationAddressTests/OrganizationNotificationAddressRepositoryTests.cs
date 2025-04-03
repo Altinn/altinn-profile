@@ -130,6 +130,31 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
     }
 
     [Fact]
+    public async Task SyncNotificationAddressesAsync_WithProperDataWithNullablePhonePrefix_ReturnsUpdatedRows()
+    {
+        var matchedOrg1 = await _repository.GetOrganizationAsync("920254321");
+        var matchedOrg2 = await _repository.GetOrganizationAsync("920212345");
+        Assert.Null(matchedOrg1);
+        Assert.Null(matchedOrg2);
+
+        // changes_2 contains rows without phone prefix
+        var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_2");
+
+        // Act
+        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes);
+        var updatedOrg1 = await _repository.GetOrganizationAsync("920254321");
+        var updatedOrg2 = await _repository.GetOrganizationAsync("920212345");
+
+        // Assert
+        Assert.NotNull(updatedOrg1);
+        Assert.Equal(2, updatedOrg1.NotificationAddresses.Count);
+        Assert.NotNull(updatedOrg2);
+        Assert.Equal(2, updatedOrg2.NotificationAddresses.Count);
+        Assert.Equal(4, numberOfUpdatedRows);
+        Assert.Null(updatedOrg1.NotificationAddresses.Last().Domain);
+    }
+
+    [Fact]
     public async Task SyncNotificationAddressesAsync_WithDeleteData_ReturnsUpdatedRows()
     {
         var matchedOrg = await _repository.GetOrganizationAsync("987654321");
