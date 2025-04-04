@@ -80,10 +80,10 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     }
 
     /// <summary>
-    /// Updates or creates notification addresses in the DB for organizations
+    /// Updates or creates a notification address in the DB for an organization
     /// </summary>
     /// <returns>
-    /// A task that represents the asynchronous operation.
+    /// A task that represents the asynchronous operation.  The result contains a bit (1 or 0) indicating whether the address was updated.
     /// </returns>
     private async Task<int> UpdateNotificationAddressAsync(Entry address, OrganizationDE organization)
     {
@@ -135,7 +135,8 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             RegistryOrganizationNumber = orgNumber,
             NotificationAddresses = [],
         };
-        organization.NotificationAddresses.Add(DataMapper.MapOrganizationNotificationAddress(address, organization));
+        var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(address, organization);
+        organization.NotificationAddresses.Add(organizationNotificationAddress);
 
         await databaseContext.Organizations.AddAsync(organization);
         
