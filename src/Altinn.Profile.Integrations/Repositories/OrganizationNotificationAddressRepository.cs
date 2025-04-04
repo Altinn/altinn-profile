@@ -80,7 +80,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     }
 
     /// <summary>
-    /// Updates or creates a notification address in the DB for an organization
+    /// Updates or creates a notification address in the DB for the given organization
     /// </summary>
     /// <returns>
     /// A task that represents the asynchronous operation.  The result contains a bit (1 or 0) indicating whether the address was updated.
