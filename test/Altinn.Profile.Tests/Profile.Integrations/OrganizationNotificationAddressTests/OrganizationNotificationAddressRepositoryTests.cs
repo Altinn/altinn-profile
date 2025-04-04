@@ -118,7 +118,7 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
         var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_1");
 
         // Act
-        var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changes);
+        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes);
         var updatedOrg1 = await _repository.GetOrganizationAsync("123456789");
         var updatedOrg2 = await _repository.GetOrganizationAsync("920212345");
 
@@ -127,7 +127,19 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
         Assert.Equal(4, updatedOrg1.NotificationAddresses.Count);
         Assert.NotNull(updatedOrg2);
         Assert.Single(updatedOrg2.NotificationAddresses);
-        Assert.Equal(2, numberOfUpdatedAddresses);
+        Assert.Equal(3, numberOfUpdatedRows);
+    }
+
+    [Fact]
+    public async Task SyncNotificationAddressesAsync_WithoutOrgNumber_ReturnZero()
+    {
+        var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_6");
+
+        // Act
+        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes);
+
+        // Assert
+        Assert.Equal(0, numberOfUpdatedRows);
     }
 
     [Fact]
@@ -146,7 +158,7 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
         Assert.Equal(2, updatedOrg1.NotificationAddresses.Count);
         Assert.NotNull(updatedOrg2);
         Assert.Equal(2, updatedOrg2.NotificationAddresses.Count);
-        Assert.Equal(4, numberOfUpdatedRows);
+        Assert.Equal(6, numberOfUpdatedRows);
         Assert.Null(updatedOrg1.NotificationAddresses.Last().Domain);
     }
 

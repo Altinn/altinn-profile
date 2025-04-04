@@ -13,7 +13,7 @@ public interface IOrganizationNotificationAddressUpdater
     /// </summary>
     /// <param name="organizationNotificationAddressChanges">The snapshots of notification addresses to be synchronized.</param>
     /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object with a <see cref="bool"/> indicating success or failure.
+    /// A task that represents the asynchronous operation. The task result contains an integer value giving the number of writes to the database.
     /// </returns>
     Task<int> SyncNotificationAddressesAsync(NotificationAddressChangesLog organizationNotificationAddressChanges);
 }
