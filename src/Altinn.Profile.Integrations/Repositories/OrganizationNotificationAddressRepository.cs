@@ -28,7 +28,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             }
             else
             {
-                updates += await InsertOrUpdateNotificationAddressAsync(address);
+                updates += await UpsertOrganizationWithNotificationAddressAsync(address);
             }
         }
 
@@ -60,9 +60,9 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// Updates or creates notification addresses in the DB for organizations
     /// </summary>
     /// <returns>
-    /// A task that represents the asynchronous operation.
+    /// A task that represents the asynchronous operation with the number of written rows. 
     /// </returns>
-    private async Task<int> InsertOrUpdateNotificationAddressAsync(Entry address)
+    private async Task<int> UpsertOrganizationWithNotificationAddressAsync(Entry address)
     {
         var orgNumber = address.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Value;
         if (orgNumber == null || address.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Type != _organizationNumberConst)
