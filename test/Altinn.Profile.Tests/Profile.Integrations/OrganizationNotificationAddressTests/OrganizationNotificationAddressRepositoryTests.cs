@@ -158,7 +158,7 @@ public class OrganizationNotificationAddressRepositoryTests: IDisposable
         Assert.Equal(2, updatedOrg1.NotificationAddresses.Count);
         Assert.NotNull(updatedOrg2);
         Assert.Equal(2, updatedOrg2.NotificationAddresses.Count);
-        Assert.Equal(4, numberOfUpdatedRows);
+        Assert.Equal(6, numberOfUpdatedRows);
         Assert.Null(updatedOrg1.NotificationAddresses.Last().Domain);
     }
 
