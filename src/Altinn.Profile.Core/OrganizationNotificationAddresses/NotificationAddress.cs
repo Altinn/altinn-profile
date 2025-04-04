@@ -1,5 +1,7 @@
 ﻿#nullable disable
 
+using System.ComponentModel.DataAnnotations;
+
 namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 {
     /// <summary>
@@ -11,6 +13,13 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// <see cref="NotificationAddressID"/>
         /// </summary>
         public int NotificationAddressID { get; set; }
+
+        /// <summary>
+        /// Id from the registry
+        /// </summary>
+        [Required]
+        [StringLength(32)]
+        public string RegistryID { get; set; }
 
         /// <summary>
         /// The AddressType, either Email or Sms
@@ -36,5 +45,10 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// Name of the contact point 
         /// </summary>
         public string NotificationName { get; set; }
+
+        /// <summary>
+        /// A value indicating whether the entity is deleted in Altinn.
+        /// </summary>
+        public bool? IsSoftDeleted { get; set; }
     }
 }
