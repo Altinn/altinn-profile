@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.Common.AccessToken.Services;
+using Altinn.Common.PEP.Authorization;
+using Altinn.Profile.Authorization;
 using Altinn.Profile.Configuration;
 using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Health;
@@ -201,7 +203,9 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         });
 
     services.AddAuthorizationBuilder()
-        .AddPolicy("PlatformAccess", policy => policy.Requirements.Add(new AccessTokenRequirement()));
+        .AddPolicy(AuthConstants.PlatformAccess, policy => policy.Requirements.Add(new AccessTokenRequirement()))
+        .AddPolicy(AuthConstants.OrgNotificationAddress_Read, policy => policy.Requirements.Add(new ResourceAccessRequirement("read", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
+        .AddPolicy(AuthConstants.OrgNotificationAddress_Write, policy => policy.Requirements.Add(new ResourceAccessRequirement("write", "altinn-profil-api-varslingsdaresser-for-virksomheter")));
 
     services.AddCoreServices(config);
     services.AddRegisterService(config);
