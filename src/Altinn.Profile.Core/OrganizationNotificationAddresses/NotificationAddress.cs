@@ -15,13 +15,6 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         public int NotificationAddressID { get; set; }
 
         /// <summary>
-        /// Id from the registry
-        /// </summary>
-        [Required]
-        [StringLength(32)]
-        public string RegistryID { get; set; }
-
-        /// <summary>
         /// The AddressType, either Email or Sms
         /// </summary>
         public AddressType AddressType { get; set; }

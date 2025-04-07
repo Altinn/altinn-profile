@@ -28,7 +28,6 @@ namespace Altinn.Profile.Mappers
         {
             var response = new NotificationAddressModel
             {
-                RegistryID = notificationAddress.RegistryID,
                 NotificationAddressID = notificationAddress.NotificationAddressID,
             };
             if (notificationAddress.AddressType == AddressType.Email)

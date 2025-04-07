@@ -35,12 +35,5 @@ namespace Altinn.Profile.Models
         /// A value indicating whether the entity is deleted in Altinn.
         /// </summary>
         public bool? IsDeleted { get; set; }
-
-        /// <summary>
-        /// Id from the registry
-        /// </summary>
-        [Required]
-        [StringLength(32)]
-        public string RegistryID { get; set; }
     }
 }
