@@ -12,7 +12,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData("9876543200")]
         [InlineData("")]
         [InlineData(null)]
-        public void CustomRegex_WhenPhone_IsValid(string input)
+        public void CustomRegex_WhenPhoneHasAllowedValues_ReturnsValidResult(string input)
         {
             var attribute = new CustomRegexForNotificationAddressesAttribute("Phone");
 
@@ -24,7 +24,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [Theory]
         [InlineData("error")]
         [InlineData("+47987654321")]
-        public void CustomRegex_WhenPhone_IsInvalid(string input)
+        public void CustomRegex_WhenPhoneHasInvalidValues_IsInvalid(string input)
         {
             var attribute = new CustomRegexForNotificationAddressesAttribute("Phone");
 
@@ -38,7 +38,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData("+385")]
         [InlineData("")]
         [InlineData(null)]
-        public void CustomRegex_WhenCountryCode_IsValid(string input)
+        public void CustomRegex_WhenCountryCodeHasAllowedValues_IsValid(string input)
         {
             var attribute = new CustomRegexForNotificationAddressesAttribute("CountryCode");
 
@@ -52,7 +52,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData("47")]
         [InlineData("+4777")]
         [InlineData("0047")]
-        public void CustomRegex_WhenCountryCode_IsInvalid(string input)
+        public void CustomRegex_WhenCountryCodeHasWrongFormat_IsInvalid(string input)
         {
             var attribute = new CustomRegexForNotificationAddressesAttribute("CountryCode");
 
@@ -67,7 +67,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData("test.test@test.com")]
         [InlineData("")]
         [InlineData(null)]
-        public void CustomRegex_WhenEmail_IsValid(string input)
+        public void CustomRegex_WhenEmailHasAllowedValues_IsValid(string input)
         {
             var attribute = new CustomRegexForNotificationAddressesAttribute("Email");
 
@@ -80,7 +80,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData("98765432")]
         [InlineData("test-test@@test.com")]
         [InlineData("test@test..com")]
-        public void CustomRegex_WhenEmail_IsInvalid(string input)
+        public void CustomRegex_WhenEmailHasWrongFormat_IsInvalid(string input)
         {
             var attribute = new CustomRegexForNotificationAddressesAttribute("Email");
 

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,9 +33,9 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
-        /// Endpoint looking up the notification addresses for the organization provided in the lookup object in the request body
+        /// Endpoint looking up the notification addresses for the given organization
         /// </summary>
-        /// <returns>Returns an overview of the user registered notification addresses for the provided organization</returns>
+        /// <returns>Returns an overview of the registered notification addresses for the provided organization</returns>
         [HttpGet("mandatory")]
         [Authorize(Policy = "PlatformAccess")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -43,9 +44,16 @@ namespace Altinn.Profile.Controllers
         public async Task<ActionResult<OrganizationResponse>> GetMandatory([FromRoute]string organizationNumber, CancellationToken cancellationToken)
         {
             var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses([organizationNumber], cancellationToken);
-            if (!organizations.Any())
+
+            var orgCount = organizations.Count();
+
+            if (orgCount == 0)
             {
                 return NotFound();
+            }
+            else if (orgCount > 1)
+            {
+                throw new InvalidOperationException("Indecisive organization result");
             }
 
             var organization = organizations.First();

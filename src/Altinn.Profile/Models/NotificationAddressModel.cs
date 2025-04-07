@@ -28,6 +28,7 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// Phone number
         /// </summary>
+        [CustomRegexForNotificationAddresses("Phone")]
         public string Phone { get; set; }
 
         /// <summary>

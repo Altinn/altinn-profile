@@ -139,7 +139,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetMandatory_WhenInvalidAuth_ReturnsForbidden()
+        public async Task GetMandatory_WhenMissingPlatformAccessToken_ReturnsForbidden()
         {
             // Arrange
             var orgNo = "123456789";
