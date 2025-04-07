@@ -1,5 +1,7 @@
 ﻿#nullable disable
 
+using System.ComponentModel.DataAnnotations;
+
 namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 {
     /// <summary>
@@ -36,5 +38,10 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// Name of the contact point 
         /// </summary>
         public string NotificationName { get; set; }
+
+        /// <summary>
+        /// A value indicating whether the entity is deleted in Altinn.
+        /// </summary>
+        public bool? IsSoftDeleted { get; set; }
     }
 }
