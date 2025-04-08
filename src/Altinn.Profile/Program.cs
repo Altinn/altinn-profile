@@ -215,7 +215,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         .AddPolicy(AuthConstants.OrgNotificationAddress_Read, policy => policy.Requirements.Add(new ResourceAccessRequirement("read", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
         .AddPolicy(AuthConstants.OrgNotificationAddress_Write, policy => policy.Requirements.Add(new ResourceAccessRequirement("write", "altinn-profil-api-varslingsdaresser-for-virksomheter")));
 
-    services.AddScoped<IAuthorizationHandler, ApiResourceAccessHandler>();
+    services.AddScoped<IAuthorizationHandler, OrgResourceAccessHandler>();
 
     services.AddCoreServices(config);
     services.AddRegisterService(config);

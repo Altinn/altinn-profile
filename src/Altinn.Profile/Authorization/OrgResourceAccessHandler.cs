@@ -6,43 +6,32 @@ using Altinn.Common.PEP.Authorization;
 using Altinn.Common.PEP.Constants;
 using Altinn.Common.PEP.Helpers;
 using Altinn.Common.PEP.Interfaces;
-using Altinn.Common.PEP.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
 
 namespace Altinn.Profile.Authorization
 {
     /// <summary>
-    /// AuthorizationHandler that is created for handling access to api.
+    /// AuthorizationHandler that is created for handling access to api with organizationNumber in path.
     /// Authorizes based om ResourceAccessRequirement and organization number from route
     /// <see href="https://docs.asp.net/en/latest/security/authorization/policies.html"/> for details about authorization
     /// in asp.net core
     /// </summary>
-    public class ApiResourceAccessHandler : AuthorizationHandler<ResourceAccessRequirement>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="ResourceAccessHandler"/> class.
+    /// </remarks>
+    /// <param name="httpContextAccessor">The http context accessor</param>
+    /// <param name="pdp">The pdp</param>
+    public class OrgResourceAccessHandler(
+        IHttpContextAccessor httpContextAccessor,
+        IPDP pdp) : AuthorizationHandler<ResourceAccessRequirement>
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IPDP _pdp;
-        private readonly ILogger _logger;
-        private const string DefaultIssuer = "Altinn";
-        private const string DefaultType = "string";
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ResourceAccessHandler"/> class.
-        /// </summary>
-        /// <param name="httpContextAccessor">The http context accessor</param>
-        /// <param name="pdp">The pdp</param>
-        /// <param name="logger">The logger. </param>
-        public ApiResourceAccessHandler(
-            IHttpContextAccessor httpContextAccessor,
-            IPDP pdp,
-            ILogger<ResourceAccessHandler> logger)
-        {
-            _httpContextAccessor = httpContextAccessor;
-            _pdp = pdp;
-            _logger = logger;
-        }
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly IPDP _pdp = pdp;
+        private const string _defaultIssuer = "Altinn";
+        private const string _defaultType = "string";
+        private const string _organizationNumberParam = "organizationNumber"; 
 
         /// <summary>
         /// This method authorize access bases on context and requirement
@@ -55,7 +44,7 @@ namespace Altinn.Profile.Authorization
         {
             HttpContext httpContext = _httpContextAccessor.HttpContext;
 
-            XacmlJsonRequestRoot request = CreateDecisionRequest(context, requirement, _httpContextAccessor.HttpContext.GetRouteData(), _httpContextAccessor.HttpContext.Request.Headers);
+            XacmlJsonRequestRoot request = CreateDecisionRequest(context, requirement, httpContext.GetRouteData());
 
             XacmlJsonResponse response = await _pdp.GetDecisionForRequest(request);
 
@@ -73,18 +62,16 @@ namespace Altinn.Profile.Authorization
             await Task.CompletedTask;
         }
 
-        /// <summary>
-        /// Creates a decision request based on input
-        /// </summary>
-        /// <returns></returns>
-        public static XacmlJsonRequestRoot CreateDecisionRequest(AuthorizationHandlerContext context, ResourceAccessRequirement requirement, RouteData routeData, IHeaderDictionary headers)
+        private static XacmlJsonRequestRoot CreateDecisionRequest(AuthorizationHandlerContext context, ResourceAccessRequirement requirement, RouteData routeData)
         {
-            XacmlJsonRequest request = new XacmlJsonRequest();
-            request.AccessSubject = new List<XacmlJsonCategory>();
-            request.Action = new List<XacmlJsonCategory>();
-            request.Resource = new List<XacmlJsonCategory>();
+            XacmlJsonRequest request = new()
+            {
+                AccessSubject = [],
+                Action = [],
+                Resource = []
+            };
 
-            string orgNumber = routeData.Values["organizationNumber"] as string;
+            string orgNumber = routeData.Values[_organizationNumberParam] as string;
 
             request.AccessSubject.Add(DecisionHelper.CreateSubjectCategory(context.User.Claims));
             request.Action.Add(DecisionHelper.CreateActionCategory(requirement.ActionType));
@@ -98,21 +85,24 @@ namespace Altinn.Profile.Authorization
                 throw new ArgumentException("invalid organization number " + orgNumber);
             }
 
-            XacmlJsonRequestRoot jsonRequest = new XacmlJsonRequestRoot() { Request = request };
+            XacmlJsonRequestRoot jsonRequest = new() { Request = request };
 
             return jsonRequest;
         }
 
         private static XacmlJsonCategory CreateResourceCategoryForResource(string resourceid, string organizationnumber, bool includeResult = false)
         {
-            XacmlJsonCategory resourceCategory = new XacmlJsonCategory();
-            resourceCategory.Attribute = new List<XacmlJsonAttribute>();
-
-            resourceCategory.Attribute.Add(CreateXacmlJsonAttribute(AltinnXacmlUrns.OrganizationNumber, organizationnumber, DefaultType, DefaultIssuer, includeResult));
+            XacmlJsonCategory resourceCategory = new()
+            {
+                Attribute =
+            [
+                CreateXacmlJsonAttribute(AltinnXacmlUrns.OrganizationNumber, organizationnumber, _defaultType, _defaultIssuer, includeResult),
+            ]
+            };
 
             if (!string.IsNullOrWhiteSpace(resourceid))
             {
-                resourceCategory.Attribute.Add(CreateXacmlJsonAttribute(AltinnXacmlUrns.ResourceId, resourceid, DefaultType, DefaultIssuer));
+                resourceCategory.Attribute.Add(CreateXacmlJsonAttribute(AltinnXacmlUrns.ResourceId, resourceid, _defaultType, _defaultIssuer));
             }
 
             return resourceCategory;
@@ -129,13 +119,14 @@ namespace Altinn.Profile.Authorization
         /// <returns>A new created attribute</returns>
         public static XacmlJsonAttribute CreateXacmlJsonAttribute(string attributeId, string value, string dataType, string issuer, bool includeResult = false)
         {
-            XacmlJsonAttribute xacmlJsonAttribute = new XacmlJsonAttribute();
-
-            xacmlJsonAttribute.AttributeId = attributeId;
-            xacmlJsonAttribute.Value = value;
-            xacmlJsonAttribute.DataType = dataType;
-            xacmlJsonAttribute.Issuer = issuer;
-            xacmlJsonAttribute.IncludeInResult = includeResult;
+            XacmlJsonAttribute xacmlJsonAttribute = new()
+            {
+                AttributeId = attributeId,
+                Value = value,
+                DataType = dataType,
+                Issuer = issuer,
+                IncludeInResult = includeResult
+            };
 
             return xacmlJsonAttribute;
         }
