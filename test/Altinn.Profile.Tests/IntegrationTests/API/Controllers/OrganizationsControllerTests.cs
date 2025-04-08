@@ -86,7 +86,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory?party=123456789");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory");
             httpRequestMessage = CreateAutorizedRequest(orgNo, httpRequestMessage);
 
             // Act
@@ -112,7 +112,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var orgNo = "error-org";
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory?party=123456789");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory");
             httpRequestMessage = CreateAutorizedRequest(orgNo, httpRequestMessage);
 
             // Act
