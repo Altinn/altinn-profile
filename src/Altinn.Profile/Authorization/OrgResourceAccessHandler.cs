@@ -53,12 +53,11 @@ namespace Altinn.Profile.Authorization
                 throw new ArgumentNullException("response");
             }
 
-            if (!DecisionHelper.ValidatePdpDecision(response.Response, context.User))
+            if (DecisionHelper.ValidatePdpDecision(response.Response, context.User))
             {
-                context.Fail();
+                context.Succeed(requirement);
             }
 
-            context.Succeed(requirement);
             await Task.CompletedTask;
         }
 
