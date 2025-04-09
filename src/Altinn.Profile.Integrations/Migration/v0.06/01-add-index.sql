@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX IF NOT EXISTS ix_notifications_address_registry_id ON organization_notification_address.notifications_address (registry_id);
