@@ -3,7 +3,7 @@
     /// <summary>
     /// Constants for authorization policies
     /// </summary>
-    public class AuthConstants
+    public static class AuthConstants
     {
         /// <summary>
         /// Policy name for platform access
