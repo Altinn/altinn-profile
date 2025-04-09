@@ -76,7 +76,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ];
         }
 
-        [Fact(Skip = "Skipping failing test to get feedback")]
+        [Fact]
         public async Task GetMandatory_WhenOneOrganizationFound_ReturnsOkWithSingleItemList()
         {
             // Arrange
@@ -105,7 +105,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Null(actual.NotificationAddresses[1].Email);
         }
 
-        [Fact(Skip = "Skipping failing test to get feedback")]
+        [Fact]
         public async Task GetMandatory_WhenNoMatchingOrganization_ReturnsNotFound()
         {
             // Arrange
@@ -139,7 +139,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetMandatory_WhenMissingPlatformAccessToken_ReturnsForbidden()
+        public async Task GetMandatory_WhenHavingWrongAccessToken_ReturnsForbidden()
         {
             // Arrange
             var orgNo = "123456789";
