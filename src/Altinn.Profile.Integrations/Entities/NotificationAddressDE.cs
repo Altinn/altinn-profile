@@ -3,6 +3,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
+using Microsoft.EntityFrameworkCore;
 
 namespace Altinn.Profile.Integrations.Entities
 {
@@ -10,6 +11,7 @@ namespace Altinn.Profile.Integrations.Entities
     /// class for notifications addresses for organizations 
     /// </summary>
     [Table("notifications_address", Schema = "organization_notification_address")]
+    [Index(nameof(RegistryID), IsUnique = true)]
     public class NotificationAddressDE
     {
         /// <summary>
@@ -35,7 +37,6 @@ namespace Altinn.Profile.Integrations.Entities
         /// The domain part of the Address. In case of phone numbers the country code, in case of email the domain address
         /// </summary>
         [StringLength(200)]
-        [Required]
         public string Domain { get; set; }
 
         /// <summary>
