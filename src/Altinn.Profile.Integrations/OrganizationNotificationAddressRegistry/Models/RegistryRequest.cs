@@ -27,13 +27,13 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Mo
         public string? ConfirmedDate { get; set; }
 
         /// <summary>
-        /// Gets or sets the object containing alert info
+        /// A channel for digital contact, either email or phone
         /// </summary>
         [JsonPropertyName("digitalVarslingsinformasjon")]
         public DigitalContactPointModel? DigitalContactPoint { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier
+        /// The identifier in the registry
         /// </summary>
         [JsonPropertyName("identifikator")]
         public string? Id { get; set; }

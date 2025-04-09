@@ -3,7 +3,7 @@
 /// <summary>
 /// Defines an HTTP client to interact with a source registry for organizational notification addresses.
 /// </summary>
-public interface IOrganizationNotificationAddressHttpClient
+public interface IOrganizationNotificationAddressSyncClient
 {
     /// <summary>
     /// Retrieves changes to organizational notification addresses

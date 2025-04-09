@@ -1,17 +1,15 @@
-﻿using System.Net;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
 /// <summary>
 /// An HTTP client to interact with the contact register.
 /// </summary>
-public class OrganizationNotificationAddressHttpClient : IOrganizationNotificationAddressHttpClient, IOrganizationNotificationAddressUpdateClient
+public class OrganizationNotificationAddressHttpClient : IOrganizationNotificationAddressSyncClient, IOrganizationNotificationAddressUpdateClient
 {
     private readonly HttpClient _httpClient;
     private readonly OrganizationNotificationAddressSettings _organizationNotificationAddressSettings;

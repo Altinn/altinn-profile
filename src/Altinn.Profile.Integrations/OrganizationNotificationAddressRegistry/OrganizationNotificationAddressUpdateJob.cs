@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
 /// <summary>
-/// An implementation of the <see cref="IOrganizationNotificationAddressUpdateJob"/> interface that will retrieve 
+/// An implementation of the <see cref="IOrganizationNotificationAddressSyncJob"/> interface that will retrieve 
 /// changes from the source registry and update the local contact information.
 /// </summary>
 /// <param name="organizationNotificationAddressSettings">Settings for the synchronization update job</param>
@@ -14,14 +14,14 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 /// <param name="logger">A logger to log detailed information.</param>
 public class OrganizationNotificationAddressUpdateJob(
     OrganizationNotificationAddressSettings organizationNotificationAddressSettings,
-    IOrganizationNotificationAddressHttpClient organizationNotificationAddressHttpClient,
+    IOrganizationNotificationAddressSyncClient organizationNotificationAddressHttpClient,
     IRegistrySyncMetadataRepository metadataRepository,
     IOrganizationNotificationAddressUpdater notificationAddressUpdater,
     ILogger<OrganizationNotificationAddressUpdateJob> logger)
-    : IOrganizationNotificationAddressUpdateJob
+    : IOrganizationNotificationAddressSyncJob
 {
     private readonly OrganizationNotificationAddressSettings _organizationNotificationAddressSettings = organizationNotificationAddressSettings;
-    private readonly IOrganizationNotificationAddressHttpClient _organizationNotificationAddressHttpClient = organizationNotificationAddressHttpClient;
+    private readonly IOrganizationNotificationAddressSyncClient _organizationNotificationAddressHttpClient = organizationNotificationAddressHttpClient;
     private readonly IRegistrySyncMetadataRepository _metadataRepository = metadataRepository;
     private readonly IOrganizationNotificationAddressUpdater _notificationAddressUpdater = notificationAddressUpdater;
     private readonly ILogger<OrganizationNotificationAddressUpdateJob> _logger = logger;

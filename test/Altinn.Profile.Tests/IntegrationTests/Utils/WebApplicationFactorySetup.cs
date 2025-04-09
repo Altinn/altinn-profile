@@ -39,7 +39,7 @@ public class WebApplicationFactorySetup<T>
 
     public Mock<ILogger<UserProfileClient>> UserProfileClientLogger { get; set; } = new();
 
-    public Mock<IOrganizationNotificationAddressHttpClient> OrganizationNotificationAddressClientMock { get; set; } = new();
+    public Mock<IOrganizationNotificationAddressSyncClient> OrganizationNotificationAddressClientMock { get; set; } = new();
 
     public Mock<ILogger<UnitProfileClient>> UnitProfileClientLogger { get; set; } = new();
 
