@@ -7,7 +7,8 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-
+using Altinn.Authorization.ABAC.Xacml.JsonProfile;
+using Altinn.Common.PEP.Interfaces;
 using Altinn.Profile.Controllers;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Models;
@@ -81,13 +82,15 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             var orgNo = "123456789";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithRespose("Permit");
 
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory");
-            httpRequestMessage = CreateAutorizedRequest(orgNo, httpRequestMessage);
+            httpRequestMessage = CreateAutorizedRequest(UserId, orgNo, httpRequestMessage);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -110,10 +113,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             var orgNo = "error-org";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithRespose("Permit");
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory");
-            httpRequestMessage = CreateAutorizedRequest(orgNo, httpRequestMessage);
+            httpRequestMessage = CreateAutorizedRequest(UserId, orgNo, httpRequestMessage);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -143,6 +148,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             var orgNo = "123456789";
+            var userId = 2516356;
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory");
@@ -156,13 +162,31 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
-        private static HttpRequestMessage CreateAutorizedRequest(string orgNo, HttpRequestMessage httpRequestMessage)
+        private static HttpRequestMessage CreateAutorizedRequest(int userId, string orgNo, HttpRequestMessage httpRequestMessage)
         {
-            string token = PrincipalUtil.GetOrgToken(orgNo);
+            string token = PrincipalUtil.GetToken(userId);
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
             return httpRequestMessage;
+        }
+
+        private static Mock<IPDP> GetPDPMockWithRespose(string decision)
+        {
+            var pdpMock = new Mock<IPDP>();
+            pdpMock
+                .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
+                .ReturnsAsync(new XacmlJsonResponse
+                {
+                    Response =
+                    [
+                        new XacmlJsonResult
+                        {
+                            Decision = decision
+                        }
+                    ]
+                });
+
+            return pdpMock;
         }
     }
 }
