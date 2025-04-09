@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Altinn.Profile.Integrations.Entities
 {
@@ -7,7 +8,7 @@ namespace Altinn.Profile.Integrations.Entities
     /// Class for organizations connection id and orgNumber
     /// </summary>
     [Table("organizations", Schema = "organization_notification_address")]
-
+    [Index(nameof(RegistryOrganizationNumber), IsUnique = true)]
     public class OrganizationDE
     {
         /// <summary>

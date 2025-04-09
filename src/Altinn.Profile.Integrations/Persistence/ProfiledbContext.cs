@@ -98,7 +98,6 @@ public partial class ProfileDbContext : DbContext
                     .WithOne(n => n.Organization)
                     .HasForeignKey(e => e.RegistryOrganizationId)
                     .HasConstraintName("fk_organization_id");
-            entity.HasIndex(d => d.RegistryOrganizationNumber).IsUnique();
         });
         modelBuilder.Entity<RegistrySyncMetadata>(entity =>
         {
