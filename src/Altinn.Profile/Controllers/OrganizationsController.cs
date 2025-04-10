@@ -19,7 +19,6 @@ namespace Altinn.Profile.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     [Consumes("application/json")]
     [Produces("application/json")]
-    [Authorize]
     public class OrganizationsController : ControllerBase
     {
         private readonly IOrganizationNotificationAddressesService _notificationAddressService;
