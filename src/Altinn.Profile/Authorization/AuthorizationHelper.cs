@@ -41,7 +41,7 @@ namespace Altinn.Profile.Authorization
             }
             else
             {
-                throw new ArgumentException("invalid organization number " + orgNumber);
+                throw new InvalidOperationException("invalid organization number for this operation: " + orgNumber);
             }
 
             XacmlJsonRequestRoot jsonRequest = new() { Request = request };
