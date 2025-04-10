@@ -45,7 +45,7 @@ namespace Altinn.Profile.Authorization
 
             if (response?.Response == null)
             {
-                throw new NullReferenceException("response");
+                throw new InvalidOperationException("The PDP response is null.");
             }
 
             if (DecisionHelper.ValidatePdpDecision(response.Response, context.User))
