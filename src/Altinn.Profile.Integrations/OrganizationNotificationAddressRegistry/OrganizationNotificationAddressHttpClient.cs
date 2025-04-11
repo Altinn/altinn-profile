@@ -70,7 +70,7 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
     /// <inheritdoc/>
     public async Task<RegistryResponse> UpdateNotificationAddress(NotificationAddress notificationAddress, Organization organization)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(notificationAddress.RegistryID, nameof(notificationAddress.RegistryID));
+        ArgumentException.ThrowIfNullOrWhiteSpace(notificationAddress.RegistryID);
 
         var request = DataMapper.MapToRegistryRequest(notificationAddress, organization);
 
@@ -85,7 +85,7 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
     /// <inheritdoc/>
     public async Task<RegistryResponse> DeleteNotificationAddress(string notificationAddressRegistryId)
     {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(notificationAddressRegistryId, nameof(notificationAddressRegistryId));
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(notificationAddressRegistryId);
 
         // Using /replace/ with empty payload as per API requirements for deletion
         string command = @"/replace/" + notificationAddressRegistryId;

@@ -23,7 +23,6 @@ public class OrganizationNotificationAddressHttpClientTests
         {
             DelegatingHandlerStub messageHandler = new((request, cancellationToken) => Task.FromResult(mockResponse));
             httpClient = new HttpClient(messageHandler);
-
         }
         else
         {
@@ -109,7 +108,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var client = CreateHttpClient(mockResponse);
 
         // Act
-        var va = await client.GetAddressChangesAsync("http://example.com");
+        _ = await client.GetAddressChangesAsync("http://example.com");
 
         // Assert
         _messageHandler.VerifyAll();
