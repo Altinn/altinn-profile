@@ -1,5 +1,4 @@
 ﻿using Altinn.Profile.Core.OrganizationNotificationAddresses;
-using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
@@ -16,7 +15,7 @@ public interface IOrganizationNotificationAddressUpdateClient
     /// <returns>
     /// A task that represents the asynchronous operation with the returned values.
     /// </returns>
-    Task<RegistryResponse> CreateNewNotificationAddress(NotificationAddress notificationAddress, Organization organization);
+    Task CreateNewNotificationAddress(NotificationAddress notificationAddress, Organization organization);
 
     /// <summary>
     /// Updates the notification address in the registry
@@ -26,7 +25,7 @@ public interface IOrganizationNotificationAddressUpdateClient
     /// <returns>
     /// A task that represents the asynchronous operation with the returned values.
     /// </returns>
-    Task<RegistryResponse> UpdateNotificationAddress(NotificationAddress notificationAddress, Organization organization);
+    Task UpdateNotificationAddress(NotificationAddress notificationAddress, Organization organization);
 
     /// <summary>
     /// Deletes a notification address from the registry
@@ -35,5 +34,5 @@ public interface IOrganizationNotificationAddressUpdateClient
     /// <returns>
     /// A task that represents the asynchronous operation with the returned values.
     /// </returns>
-    Task<RegistryResponse> DeleteNotificationAddress(NotificationAddress notificationAddress);
+    Task DeleteNotificationAddress(NotificationAddress notificationAddress);
 }

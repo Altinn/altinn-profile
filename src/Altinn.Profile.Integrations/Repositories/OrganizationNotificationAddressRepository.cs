@@ -6,7 +6,6 @@ using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models
 using Altinn.Profile.Integrations.Persistence;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 
 namespace Altinn.Profile.Integrations.Repositories;
 
@@ -189,7 +188,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
-        var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(address, organization);
+        var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(notificationAddress, organization);
 
         databaseContext.NotificationAddresses.Add(organizationNotificationAddress);
         

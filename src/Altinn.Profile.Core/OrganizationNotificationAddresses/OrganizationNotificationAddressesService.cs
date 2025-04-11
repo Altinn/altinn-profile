@@ -55,7 +55,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         {
             try
             {
-                var response = await _updateClient.CreateNewNotificationAddress(notificationAddress, organization);
+                await _updateClient.CreateNewNotificationAddress(notificationAddress, organization);
             }
             catch (Exception ex)
             {
@@ -69,7 +69,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         {
             try
             {
-                var response = await _updateClient.DeleteNotificationAddress(notificationAddress);
+                await _updateClient.DeleteNotificationAddress(notificationAddress);
             }
             catch (Exception ex)
             {
@@ -92,7 +92,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 
             try
             {
-                var response = await _updateClient.DeleteNotificationAddress(notificationAddress);
+                await _updateClient.DeleteNotificationAddress(notificationAddress);
             }
             catch (Exception ex)
             {

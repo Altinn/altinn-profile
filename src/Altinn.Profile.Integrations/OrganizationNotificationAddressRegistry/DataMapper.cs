@@ -6,10 +6,30 @@ using static Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
 {
     /// <summary>
-    /// Maps from the registry raw data to the data model stored in the database
+    /// Maps from other data models to the data model stored in the database
     /// </summary>
     public static class DataMapper
     {
+        /// <summary>
+        /// Maps from the registry raw data to the data model stored in the database
+        /// </summary>
+        public static NotificationAddressDE MapFromCoreModelNotificationAddress(Organization organization, NotificationAddress notificationAddress)
+        {
+            var organizationNotificationAddress = new NotificationAddressDE
+            {
+                RegistryOrganizationId = organization,
+                RegistryID = entry.Id,
+                UpdateSource = UpdateSource.Altinn,
+                HasRegistryAccepted = false,
+                IsSoftDeleted = false,
+                Address = notificationAddress.Address,
+                Domain = notificationAddress.Domain,
+                FullAddress = notificationAddress.FullAddress,
+            };
+          
+            return organizationNotificationAddress;
+        }
+
         /// <summary>
         /// Maps from the registry raw data to the data model stored in the database
         /// </summary>
