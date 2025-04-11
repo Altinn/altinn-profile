@@ -20,15 +20,15 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Mo
     public record UnitIdentifierModel
     {
         /// <summary>
-        /// The value of the identifier of the contact point.
-        /// </summary>
-        [JsonPropertyName("verdi")]
-        public string? Value { get; init; }
-
-        /// <summary>
-        /// The type of identifier.
+        /// The kind of identifier, e.g. "ORGANISASJONSNUMMER"
         /// </summary>
         [JsonPropertyName("type")]
         public string? Type { get; init; }
+
+        /// <summary>
+        /// The unique value of the identifier, e.g. "920254321"
+        /// </summary>
+        [JsonPropertyName("verdi")]
+        public string? Value { get; init; }
     }
 }

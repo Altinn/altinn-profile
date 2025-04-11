@@ -4,14 +4,14 @@ using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
 /// <summary>
-/// Defines an HTTP client to interact with a source registry for organizational notification addresses.
+/// Defines an HTTP client to interact with a source registry for updates to organizational notification addresses.
 /// </summary>
 public interface IOrganizationNotificationAddressUpdateClient
 {
     /// <summary>
     /// Updates the registry with a new notification address
     /// </summary>
-    /// <param name="notificationAddress">The notification address.</param>
+    /// <param name="notificationAddress">The notification address to create.</param>
     /// <param name="organization">The organization the notification address belongs to</param>
     /// <returns>
     /// A task that represents the asynchronous operation with the returned values.
@@ -19,7 +19,7 @@ public interface IOrganizationNotificationAddressUpdateClient
     Task<RegistryResponse> CreateNewNotificationAddress(NotificationAddress notificationAddress, Organization organization);
 
     /// <summary>
-    /// Updates the notification address in the registry
+    /// Updates an existing notification address in the registry
     /// </summary>
     /// <param name="notificationAddress">The notification address to be updated.</param>
     /// <param name="organization">The organization the notification address belongs to</param>
@@ -31,9 +31,9 @@ public interface IOrganizationNotificationAddressUpdateClient
     /// <summary>
     /// Deletes a notification address from the registry
     /// </summary>
-    /// <param name="notificationAddress">The notification address to be deleted.</param>
+    /// <param name="notificationAddressRegistryId">The id of the notification address in the regsirty.</param>
     /// <returns>
     /// A task that represents the asynchronous operation with the returned values.
     /// </returns>
-    Task<RegistryResponse> DeleteNotificationAddress(NotificationAddress notificationAddress);
+    Task<RegistryResponse> DeleteNotificationAddress(string notificationAddressRegistryId);
 }

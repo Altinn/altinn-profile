@@ -11,6 +11,11 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
     public static class DataMapper
     {
         /// <summary>
+        /// A const for decalring the identifier type as organizationNumber
+        /// </summary>
+        public const string OrganizationNumberType = "ORGANISASJONSNUMMER";
+
+        /// <summary>
         /// Maps from the registry raw data to the data model stored in the database
         /// </summary>
         public static NotificationAddressDE MapOrganizationNotificationAddress(Entry entry, OrganizationDE organization)
@@ -89,7 +94,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
                         UnitIdentifier = new UnitIdentifierModel
                         {
                             Value = organization.OrganizationNumber,
-                            Type = "ORGANISASJONSNUMMER",
+                            Type = OrganizationNumberType,
                         },
                     },
                     DigitalContactPoint = MapDigitalContactPoint(notificationAddress),

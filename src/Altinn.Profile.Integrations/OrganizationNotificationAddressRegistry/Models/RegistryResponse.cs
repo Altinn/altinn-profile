@@ -8,13 +8,13 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Mo
     public record RegistryResponse
     {
         /// <summary>
-        /// Sync status
+        /// Sync status, eg "OK", "VALIDATION_ERROR"
         /// </summary>
         [JsonPropertyName("status")]
         public string? Status { get; init; }
 
         /// <summary>
-        /// A value indicating whether the success or failure of the request
+        /// A value indicating whether the request was handled as a success or failure
         /// </summary>
         [JsonPropertyName("boolResult")]
         public bool? BoolResult { get; init; }
@@ -26,7 +26,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Mo
         public string? TraceId { get; init; }
 
         /// <summary>
-        /// Details
+        /// Details of the error if there is a validation error
         /// </summary>
         [JsonPropertyName("details")]
         public string? Details { get; init; }

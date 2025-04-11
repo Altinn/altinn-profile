@@ -16,8 +16,20 @@ public class OrganizationNotificationAddressHttpClientTests
 {
     private readonly Mock<HttpMessageHandler> _messageHandler = new();
 
-    private static OrganizationNotificationAddressHttpClient CreateHttpClient(HttpClient httpClient)
+    private static OrganizationNotificationAddressHttpClient CreateHttpClient(HttpResponseMessage mockResponse = null)
     {
+        HttpClient httpClient;
+        if (mockResponse != null)
+        {
+            DelegatingHandlerStub messageHandler = new((request, cancellationToken) => Task.FromResult(mockResponse));
+            httpClient = new HttpClient(messageHandler);
+
+        }
+        else
+        {
+            httpClient = new HttpClient();
+        }
+
         return new OrganizationNotificationAddressHttpClient(httpClient, new OrganizationNotificationAddressSettings() { UpdateEndpoint = "https://example.com" });
     }
 
@@ -25,8 +37,7 @@ public class OrganizationNotificationAddressHttpClientTests
     public async Task GetAddressChangesAsync_WhenMissingEndpointUrl_Throws()
     {
         // Arrange
-        var httpClient = new HttpClient();
-        var client = CreateHttpClient(httpClient);
+        var client = CreateHttpClient();
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync(null));
@@ -36,8 +47,7 @@ public class OrganizationNotificationAddressHttpClientTests
     public async Task GetAddressChangesAsync_WhenEmptyEndpointUrl_Throws()
     {
         // Arrange
-        var httpClient = new HttpClient();
-        var client = CreateHttpClient(httpClient);
+        var client = CreateHttpClient();
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync(string.Empty));
@@ -47,8 +57,7 @@ public class OrganizationNotificationAddressHttpClientTests
     public async Task GetAddressChangesAsync_WhenInvalidEndpointUrl_Throws()
     {
         // Arrange
-        var httpClient = new HttpClient();
-        var client = CreateHttpClient(httpClient);
+        var client = CreateHttpClient();
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync("notAnUrl"));
@@ -64,10 +73,8 @@ public class OrganizationNotificationAddressHttpClientTests
             StatusCode = HttpStatusCode.OK,
             Content = JsonContent.Create(changelog)
         };
-        DelegatingHandlerStub messageHandler = new((request, cancellationToken) => Task.FromResult(mockResponse));
 
-        var httpClient = new HttpClient(messageHandler);
-        var client = CreateHttpClient(httpClient);
+        var client = CreateHttpClient(mockResponse);
 
         // Act and Assert
         await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.GetAddressChangesAsync("http://example.com"));
@@ -81,10 +88,8 @@ public class OrganizationNotificationAddressHttpClientTests
         {
             StatusCode = HttpStatusCode.NotFound,
         };
-        DelegatingHandlerStub messageHandler = new((request, cancellationToken) => Task.FromResult(mockResponse));
 
-        var httpClient = new HttpClient(messageHandler);
-        var client = CreateHttpClient(httpClient);
+        var client = CreateHttpClient(mockResponse);
 
         // Act and Assert
         await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.GetAddressChangesAsync("http://example.com"));
@@ -101,10 +106,7 @@ public class OrganizationNotificationAddressHttpClientTests
             Content = JsonContent.Create(changelog)
         };
 
-        DelegatingHandlerStub messageHandler = new((request, cancellationToken) => Task.FromResult(mockResponse));
-
-        var httpClient = new HttpClient(messageHandler);
-        var client = CreateHttpClient(httpClient);
+        var client = CreateHttpClient(mockResponse);
 
         // Act
         var va = await client.GetAddressChangesAsync("http://example.com");
@@ -124,10 +126,7 @@ public class OrganizationNotificationAddressHttpClientTests
             Content = JsonContent.Create(response)
         };
 
-        DelegatingHandlerStub messageHandler = new((request, cancellationToken) => Task.FromResult(mockResponse));
-
-        var httpClient = new HttpClient(messageHandler);
-        var client = CreateHttpClient(httpClient);
+        var client = CreateHttpClient(mockResponse);
 
         var notificationAddress = new NotificationAddress() { AddressType = AddressType.SMS, Address = "98765432", Domain = "+47", RegistryID = Guid.NewGuid().ToString("N") };
 
@@ -150,10 +149,7 @@ public class OrganizationNotificationAddressHttpClientTests
             Content = JsonContent.Create(response)
         };
 
-        DelegatingHandlerStub messageHandler = new((request, cancellationToken) => Task.FromResult(mockResponse));
-
-        var httpClient = new HttpClient(messageHandler);
-        var client = CreateHttpClient(httpClient);
+        var client = CreateHttpClient(mockResponse);
 
         var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com", RegistryID = Guid.NewGuid().ToString("N") };
 
@@ -175,10 +171,7 @@ public class OrganizationNotificationAddressHttpClientTests
             Content = JsonContent.Create(response)
         };
 
-        DelegatingHandlerStub messageHandler = new((request, cancellationToken) => Task.FromResult(mockResponse));
-
-        var httpClient = new HttpClient(messageHandler);
-        var client = CreateHttpClient(httpClient);
+        var client = CreateHttpClient(mockResponse);
 
         var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com", RegistryID = Guid.NewGuid().ToString("N") };
 
@@ -201,13 +194,10 @@ public class OrganizationNotificationAddressHttpClientTests
             Content = JsonContent.Create(response)
         };
 
-        DelegatingHandlerStub messageHandler = new((request, cancellationToken) => Task.FromResult(mockResponse));
-
-        var httpClient = new HttpClient(messageHandler);
-        var client = CreateHttpClient(httpClient);
+        var client = CreateHttpClient(mockResponse);
 
         // Act
-        var va = await client.DeleteNotificationAddress(new NotificationAddress() { RegistryID = Guid.NewGuid().ToString("N") });
+        var va = await client.DeleteNotificationAddress(Guid.NewGuid().ToString("N"));
 
         // Assert
         Assert.IsType<RegistryResponse>(va);

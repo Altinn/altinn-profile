@@ -7,7 +7,7 @@ using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
 /// <summary>
-/// An HTTP client to interact with the contact register.
+/// An HTTP client to interact with a source registry for organizational notification addresses.
 /// </summary>
 public class OrganizationNotificationAddressHttpClient : IOrganizationNotificationAddressSyncClient, IOrganizationNotificationAddressUpdateClient
 {
@@ -70,10 +70,7 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
     /// <inheritdoc/>
     public async Task<RegistryResponse> UpdateNotificationAddress(NotificationAddress notificationAddress, Organization organization)
     {
-        if (notificationAddress.RegistryID == null)
-        {
-            throw new ArgumentException("RegistryID cannot be null when updating a notification address");
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(notificationAddress.RegistryID, nameof(notificationAddress.RegistryID));
 
         var request = DataMapper.MapToRegistryRequest(notificationAddress, organization);
 
@@ -86,15 +83,12 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
     }
 
     /// <inheritdoc/>
-    public async Task<RegistryResponse> DeleteNotificationAddress(NotificationAddress notificationAddress)
+    public async Task<RegistryResponse> DeleteNotificationAddress(string notificationAddressRegistryId)
     {
-        if (notificationAddress.RegistryID == null)
-        {
-            throw new ArgumentException("RegistryID cannot be null when deleting a notification address");
-        }
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(notificationAddressRegistryId, nameof(notificationAddressRegistryId));
 
         // Using /replace/ with empty payload as per API requirements for deletion
-        string command = @"/replace/" + notificationAddress.RegistryID;
+        string command = @"/replace/" + notificationAddressRegistryId;
         string json = string.Empty;
 
         var responseObject = await PostAsync(json, command);
