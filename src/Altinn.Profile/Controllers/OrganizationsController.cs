@@ -62,5 +62,35 @@ namespace Altinn.Profile.Controllers
 
             return Ok(response);
         }
+
+        /// <summary>
+        /// Endpoint looking up the notification addresses for the given organization
+        /// </summary>
+        /// <returns>Returns an overview of the registered notification addresses for the provided organization</returns>
+        [HttpPut("mandatory")]
+        [Authorize(Policy = "PlatformAccess")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<OrganizationResponse>> UpdateMandatory([FromRoute] string organizationNumber, [FromBody] UpdateOrganizationRequest request, CancellationToken cancellationToken)
+        {
+            if (ModelState.IsValid == false)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (string.IsNullOrWhiteSpace(organizationNumber))
+            {
+                return BadRequest("Organization number is required");
+            }
+
+            var notificationAddresses = OrganizationRequestMapper.Request(request.NotificationAddresses);
+
+            var organization = await _notificationAddressService.UpdateOrganizationNotificationAddresses(organizationNumber, notificationAddresses, cancellationToken);
+
+            var response = OrganizationResponseMapper.MapResponse(organization);
+
+            return Ok(response);
+        }
     }
 }

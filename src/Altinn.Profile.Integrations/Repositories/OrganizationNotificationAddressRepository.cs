@@ -6,6 +6,7 @@ using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models
 using Altinn.Profile.Integrations.Persistence;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace Altinn.Profile.Integrations.Repositories;
 
@@ -42,7 +43,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    private async Task<int> DeleteNotificationAddressAsync(string? addressId)
+    public async Task<int> DeleteNotificationAddressAsync(string? addressId)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
@@ -160,5 +161,38 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
         }
 
         return foundOrganizations.Select(_mapper.Map<Organization>);
+    }
+
+    /// <inheritdoc/>
+    public async Task<int> UpdateNotificationAddressAsync(Organization organization, NotificationAddress notificationAddress)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+
+        var organizationDE = databaseContext.Organizations
+            .Include(o => o.NotificationAddresses)
+            .First(o => o.RegistryOrganizationNumber == organization.OrganizationNumber);
+
+        var existingAddress = organizationDE.NotificationAddresses!.First(a => a.NotificationAddressID == notificationAddress.NotificationAddressID);
+
+        existingAddress.Address = notificationAddress.Address;
+        existingAddress.FullAddress = notificationAddress.FullAddress;
+        existingAddress.Domain = notificationAddress.Domain;
+        existingAddress.IsSoftDeleted = notificationAddress.IsSoftDeleted;
+
+        databaseContext.NotificationAddresses.Update(existingAddress);
+
+        return await databaseContext.SaveChangesAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<int> CreateNotificationAddressAsync(Organization organization, NotificationAddress notificationAddress)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+
+        var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(address, organization);
+
+        databaseContext.NotificationAddresses.Add(organizationNotificationAddress);
+        
+        return await databaseContext.SaveChangesAsync();
     }
 }
