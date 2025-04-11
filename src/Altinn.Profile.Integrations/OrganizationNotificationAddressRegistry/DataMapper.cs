@@ -81,7 +81,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
         }
 
         /// <summary>
-        /// Maps to the registry request from an organization notification address
+        /// Maps from an organization notification address to the registry request
         /// </summary>
         public static RegistryRequest MapToRegistryRequest(NotificationAddress notificationAddress, Organization organization)
         {
