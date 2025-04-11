@@ -83,7 +83,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             var orgNo = "123456789";
             const int UserId = 2516356;
-            Mock<IPDP> pdpMock = GetPDPMockWithRespose("Permit");
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
 
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
@@ -114,7 +114,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             var orgNo = "error-org";
             const int UserId = 2516356;
-            Mock<IPDP> pdpMock = GetPDPMockWithRespose("Permit");
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory");
@@ -169,7 +169,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             return httpRequestMessage;
         }
 
-        private static Mock<IPDP> GetPDPMockWithRespose(string decision)
+        private static Mock<IPDP> GetPDPMockWithResponse(string decision)
         {
             var pdpMock = new Mock<IPDP>();
             pdpMock

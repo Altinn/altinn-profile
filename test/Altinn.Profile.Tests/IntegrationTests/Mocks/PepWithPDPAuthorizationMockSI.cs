@@ -12,10 +12,11 @@ using Altinn.Authorization.ABAC.Xacml;
 using Altinn.Authorization.ABAC.Xacml.JsonProfile;
 using Altinn.Common.PEP.Helpers;
 using Altinn.Common.PEP.Interfaces;
+using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Authorization.Platform.Authorization.Models;
 using Newtonsoft.Json;
 
-namespace Altinn.Profile.Tests.IntegrationTests.Utils
+namespace Altinn.Profile.Tests.IntegrationTests.Mocks
 {
     public class PepWithPDPAuthorizationMockSI : IPDP
     {
