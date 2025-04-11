@@ -8,6 +8,12 @@ using System.Threading.Tasks;
 using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.Common.AccessToken.Services;
+using Altinn.Common.PEP.Authorization;
+using Altinn.Common.PEP.Clients;
+using Altinn.Common.PEP.Configuration;
+using Altinn.Common.PEP.Implementation;
+using Altinn.Common.PEP.Interfaces;
+using Altinn.Profile.Authorization;
 using Altinn.Profile.Configuration;
 using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Health;
@@ -172,11 +178,15 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.Configure<GeneralSettings>(config.GetSection("GeneralSettings"));
     services.Configure<KeyVaultSettings>(config.GetSection("kvSetting"));
     services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
+    services.Configure<PlatformSettings>(config.GetSection("PlatformSettings"));
 
     services.AddSingleton(config);
     services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
     services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProvider>();
+
+    services.AddHttpClient<AuthorizationApiClient>();
+    services.AddSingleton<IPDP, PDPAppSI>();
 
     services.AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
         .AddJwtCookie(JwtCookieDefaults.AuthenticationScheme, options =>
@@ -201,7 +211,11 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         });
 
     services.AddAuthorizationBuilder()
-        .AddPolicy("PlatformAccess", policy => policy.Requirements.Add(new AccessTokenRequirement()));
+        .AddPolicy(AuthConstants.PlatformAccess, policy => policy.Requirements.Add(new AccessTokenRequirement()))
+        .AddPolicy(AuthConstants.OrgNotificationAddress_Read, policy => policy.Requirements.Add(new ResourceAccessRequirement("read", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
+        .AddPolicy(AuthConstants.OrgNotificationAddress_Write, policy => policy.Requirements.Add(new ResourceAccessRequirement("write", "altinn-profil-api-varslingsdaresser-for-virksomheter")));
+
+    services.AddScoped<IAuthorizationHandler, OrgResourceAccessHandler>();
 
     services.AddCoreServices(config);
     services.AddRegisterService(config);

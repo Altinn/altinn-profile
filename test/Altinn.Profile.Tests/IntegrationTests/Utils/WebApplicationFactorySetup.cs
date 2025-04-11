@@ -2,6 +2,7 @@ using System.IO;
 using System.Net.Http;
 
 using Altinn.Common.AccessToken.Services;
+using Altinn.Common.PEP.Interfaces;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
@@ -49,7 +50,7 @@ public class WebApplicationFactorySetup<T>
 
     public Mock<IOrganizationNotificationAddressRepository> OrganizationNotificationAddressRepositoryMock { get; set; } = new();
 
-    public HttpClient GetTestServerClient()
+    public HttpClient GetTestServerClient(IPDP pdp = null)
     {
         MemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions());
 
@@ -77,6 +78,15 @@ public class WebApplicationFactorySetup<T>
 
                 services.AddSingleton(OrganizationNotificationAddressClientMock.Object);
                 services.AddSingleton(OrganizationNotificationAddressRepositoryMock.Object);
+
+                if (pdp != null)
+                {
+                    services.AddSingleton<IPDP>(pdp);
+                }
+                else
+                {
+                    services.AddSingleton<IPDP, PepWithPDPAuthorizationMockSI>();
+                }
 
                 // Using the real/actual implementation of IUserProfileService, but with a mocked message handler.
                 // Haven't found any other ways of injecting a mocked message handler to simulate SBL Bridge.
