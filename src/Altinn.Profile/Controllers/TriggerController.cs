@@ -23,11 +23,11 @@ namespace Altinn.Profile.Controllers;
 [Consumes("application/json")]
 [Produces("application/json")]
 [Route("profile/api/v1/trigger")]
-public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJob, IOrganizationNotificationAddressUpdateJob orgUpdateJob, ILogger<TriggerController> logger) : ControllerBase
+public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJob, IOrganizationNotificationAddressSyncJob orgUpdateJob, ILogger<TriggerController> logger) : ControllerBase
 {
     private readonly ILogger<TriggerController> _logger = logger;
     private readonly IContactRegisterUpdateJob _contactRegisterUpdateJob = contactRegisterUpdateJob;
-    private readonly IOrganizationNotificationAddressUpdateJob _orgUpdateJob = orgUpdateJob;
+    private readonly IOrganizationNotificationAddressSyncJob _orgUpdateJob = orgUpdateJob;
 
     /// <summary>
     /// Synchronizes the changes in the contact details for persons.

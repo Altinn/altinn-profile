@@ -8,14 +8,14 @@ using Moq;
 
 using Xunit;
 
-namespace Altinn.Profile.Tests.Profile.Integrations;
+namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddressTests;
 
 public class OrganizationNotificationAddressUpdateJobTests()
 {
     private readonly OrganizationNotificationAddressSettings _settings = new() { ChangesLogEndpoint = "https://example.com/changes", ChangesLogPageSize = 10000 };
     private readonly Mock<IRegistrySyncMetadataRepository> _metadataRepository = new();
     private readonly Mock<IOrganizationNotificationAddressUpdater> _organizationNotificationAddressUpdater = new();
-    private readonly Mock<IOrganizationNotificationAddressHttpClient> _httpClient = new();
+    private readonly Mock<IOrganizationNotificationAddressSyncClient> _httpClient = new();
     private readonly Mock<ILogger<OrganizationNotificationAddressUpdateJob>> _logger = new();
 
     [Fact]
@@ -170,6 +170,6 @@ public class OrganizationNotificationAddressUpdateJobTests()
 
         // Verify that metadataRepository.UpdateLatestChangeTimestampAsync() is not called
         _metadataRepository.VerifyAll();
-        _metadataRepository.VerifyNoOtherCalls(); 
+        _metadataRepository.VerifyNoOtherCalls();
     }
 }

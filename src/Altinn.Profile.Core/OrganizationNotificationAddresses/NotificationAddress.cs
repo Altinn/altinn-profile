@@ -40,6 +40,11 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         public string NotificationName { get; set; }
 
         /// <summary>
+        /// Id from the registry
+        /// </summary>
+        public string RegistryID { get; set; }
+
+        /// <summary>
         /// A value indicating whether the entity is deleted in Altinn.
         /// </summary>
         public bool? IsSoftDeleted { get; set; }

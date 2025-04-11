@@ -1,9 +1,9 @@
-﻿using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
+﻿using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Xunit;
 
-namespace Altinn.Profile.Tests.Profile.Integrations;
+namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddressTests;
 
-public class OrganizationNotificationAddressTests
+public class NotificationAddressContentTests
 {
     [Fact]
     public void Content_WhenMissingContentString_ReturnsNull()
@@ -40,7 +40,7 @@ public class OrganizationNotificationAddressTests
         Assert.Equal("37ab4733648c4d5b825a813c6e1ace70", content.ContactPoint.Id);
 
         Assert.Equal("98765432", content.ContactPoint.DigitalContactPoint.PhoneNumber.NationalNumber);
-        Assert.Equal("4798765432", content.ContactPoint.DigitalContactPoint.PhoneNumber.Number);
+        Assert.Equal("4798765432", content.ContactPoint.DigitalContactPoint.PhoneNumber.Name);
         Assert.Equal("47", content.ContactPoint.DigitalContactPoint.PhoneNumber.Prefix);
 
         Assert.Null(content.ContactPoint.DigitalContactPoint.EmailAddress);

@@ -15,12 +15,12 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
 
-namespace Altinn.Profile.Tests.Profile.Integrations;
+namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddressTests;
 
 /// <summary>
 /// Contains unit tests for the <see cref="OrganizationNotificationAddressRepository"/> class.
 /// </summary>
-public class OrganizationNotificationAddressRepositoryTests: IDisposable
+public class OrganizationNotificationAddressRepositoryTests : IDisposable
 {
     private bool _isDisposed;
     private readonly ProfileDbContext _databaseContext;

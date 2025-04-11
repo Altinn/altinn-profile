@@ -2,6 +2,7 @@
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Integrations.Persistence;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,6 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 {
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
     private readonly IMapper _mapper = mapper;
-    private readonly string _organizationNumberConst = "ORGANISASJONSNUMMER";
 
     /// <inheritdoc />
     public async Task<int> SyncNotificationAddressesAsync(NotificationAddressChangesLog organizationNotificationAddressChanges)
@@ -65,7 +65,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     private async Task<int> UpsertOrganizationWithNotificationAddressAsync(Entry address)
     {
         var orgNumber = address.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Value;
-        if (orgNumber == null || address.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Type != _organizationNumberConst)
+        if (orgNumber == null || address.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Type != DataMapper.OrganizationNumberType)
         {
             return 0;
         }
