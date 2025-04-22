@@ -90,7 +90,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory");
-            httpRequestMessage = CreateAutorizedRequest(UserId, orgNo, httpRequestMessage);
+            httpRequestMessage = CreateAutorizedRequest(UserId, httpRequestMessage);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -118,7 +118,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory");
-            httpRequestMessage = CreateAutorizedRequest(UserId, orgNo, httpRequestMessage);
+            httpRequestMessage = CreateAutorizedRequest(UserId, httpRequestMessage);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -161,7 +161,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
-        private static HttpRequestMessage CreateAutorizedRequest(int userId, string orgNo, HttpRequestMessage httpRequestMessage)
+        private static HttpRequestMessage CreateAutorizedRequest(int userId, HttpRequestMessage httpRequestMessage)
         {
             string token = PrincipalUtil.GetToken(userId);
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);

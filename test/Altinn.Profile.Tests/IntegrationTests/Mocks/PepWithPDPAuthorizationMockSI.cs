@@ -20,13 +20,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.Mocks
 {
     public class PepWithPDPAuthorizationMockSI : IPDP
     {
-        private readonly string orgAttributeId = "urn:altinn:org";
+        private readonly string _orgAttributeId = XacmlRequestAttribute.OrgAttribute;
 
-        private readonly string appAttributeId = "urn:altinn:app";
+        private readonly string _appAttributeId = XacmlRequestAttribute.AppAttribute;
 
-        private readonly string userAttributeId = "urn:altinn:userid";
+        private readonly string _userAttributeId = XacmlRequestAttribute.UserAttribute;
 
-        private readonly string altinnRoleAttributeId = "urn:altinn:rolecode";
+        private readonly string _altinnRoleAttributeId = XacmlRequestAttribute.RoleAttribute;
 
         public PepWithPDPAuthorizationMockSI()
         {
@@ -155,7 +155,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.Mocks
 
             foreach (XacmlAttribute xacmlAttribute in subjectContextAttributes.Attributes)
             {
-                if (xacmlAttribute.AttributeId.OriginalString.Equals(userAttributeId))
+                if (xacmlAttribute.AttributeId.OriginalString.Equals(_userAttributeId))
                 {
                     subjectUserId = Convert.ToInt32(xacmlAttribute.AttributeValues.First().Value);
                 }
@@ -213,7 +213,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.Mocks
 
         private XacmlAttribute GetRoleAttribute(List<Role> roles)
         {
-            XacmlAttribute attribute = new XacmlAttribute(new Uri(altinnRoleAttributeId), false);
+            XacmlAttribute attribute = new XacmlAttribute(new Uri(_altinnRoleAttributeId), false);
             foreach (Role role in roles)
             {
                 attribute.AttributeValues.Add(new XacmlAttributeValue(new Uri(XacmlConstants.DataTypes.XMLString), role.Value));
@@ -259,7 +259,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.Mocks
                 {
                     foreach (XacmlAttribute asd in attr.Attributes)
                     {
-                        if (asd.AttributeId.OriginalString.Equals(orgAttributeId))
+                        if (asd.AttributeId.OriginalString.Equals(_orgAttributeId))
                         {
                             foreach (var asff in asd.AttributeValues)
                             {
@@ -268,7 +268,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.Mocks
                             }
                         }
 
-                        if (asd.AttributeId.OriginalString.Equals(appAttributeId))
+                        if (asd.AttributeId.OriginalString.Equals(_appAttributeId))
                         {
                             foreach (var asff in asd.AttributeValues)
                             {
