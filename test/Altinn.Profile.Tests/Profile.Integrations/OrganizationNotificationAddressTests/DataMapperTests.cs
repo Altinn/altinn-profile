@@ -82,7 +82,7 @@ public class DataMapperTests
         var notificationAddress = new NotificationAddress { AddressType = AddressType.Email, Address = "test", Domain = "test.com" };
 
         // Act & Assert
-        var request = DataMapper.MapToRegistryRequest(notificationAddress, organization);
+        var request = DataMapper.MapToRegistryRequest(notificationAddress, organization.OrganizationNumber);
 
         Assert.Equal("123456789", request.ContactInfo.UnitContactInfo.UnitIdentifier.Value);
         Assert.Equal("ORGANISASJONSNUMMER", request.ContactInfo.UnitContactInfo.UnitIdentifier.Type);
@@ -98,7 +98,7 @@ public class DataMapperTests
         var notificationAddress = new NotificationAddress { AddressType = AddressType.SMS, Address = "98765432", Domain = "+47" };
 
         // Act & Assert
-        var request = DataMapper.MapToRegistryRequest(notificationAddress, organization);
+        var request = DataMapper.MapToRegistryRequest(notificationAddress, organization.OrganizationNumber);
 
         Assert.Equal("123456789", request.ContactInfo.UnitContactInfo.UnitIdentifier.Value);
         Assert.Equal("ORGANISASJONSNUMMER", request.ContactInfo.UnitContactInfo.UnitIdentifier.Type);

@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Altinn.Profile.Core.Extensions;
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 
@@ -70,9 +71,9 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
     }
 
     /// <inheritdoc/>
-    public async Task<RegistryResponse> CreateNewNotificationAddress(NotificationAddress notificationAddress, Organization organization)
+    public async Task<(string? RegistryId, string? ErrorMessage)> CreateNewNotificationAddress(NotificationAddress notificationAddress, string organizationNumber)
     {
-        var request = DataMapper.MapToRegistryRequest(notificationAddress, organization);
+        var request = DataMapper.MapToRegistryRequest(notificationAddress, organizationNumber);
         var json = JsonSerializer.Serialize(request);
         string command = "/define";
         
@@ -82,11 +83,11 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
     }
 
     /// <inheritdoc/>
-    public async Task<RegistryResponse> UpdateNotificationAddress(NotificationAddress notificationAddress, Organization organization)
+    public async Task<(string? RegistryId, string? ErrorMessage)> UpdateNotificationAddress(NotificationAddress notificationAddress, string organizationNumber)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(notificationAddress.RegistryID);
 
-        var request = DataMapper.MapToRegistryRequest(notificationAddress, organization);
+        var request = DataMapper.MapToRegistryRequest(notificationAddress, organizationNumber);
 
         var json = JsonSerializer.Serialize(request);
         string command = @"/replace/" + notificationAddress.RegistryID;
@@ -97,7 +98,7 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
     }
 
     /// <inheritdoc/>
-    public async Task<RegistryResponse> DeleteNotificationAddress(string notificationAddressRegistryId)
+    public async Task<(string? RegistryId, string? ErrorMessage)> DeleteNotificationAddress(string notificationAddressRegistryId)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(notificationAddressRegistryId);
 
@@ -110,7 +111,7 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
         return responseObject;
     }
 
-    private async Task<RegistryResponse> PostAsync(string request, string command)
+    private async Task<(string? RegistryId, string? ErrorMessage)> PostAsync(string request, string command)
     {
         var stringContent = new StringContent(request, Encoding.UTF8, "application/json");
         string endpoint = _organizationNotificationAddressSettings.UpdateEndpoint + command;
@@ -130,6 +131,11 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
             throw new OrganizationNotificationAddressChangesException("Failed to deserialize the response from external registry.");
         }
 
-        return responseObject;
+        if (responseObject.BoolResult != true)
+        {
+            return (string.Empty, responseObject.Status);
+        }
+
+        return (responseObject.AddressID, string.Empty);
     }
 }

@@ -6,7 +6,15 @@
 public interface IOrganizationNotificationAddressesService
 {
     /// <summary>
-    /// Method for retrieving notification addresses for an organization to use by notifications api
+    /// Method for creating a notification addresses for an organization
+    /// </summary>
+    /// <param name="organizationNumber">An organization number to indicate which organization to update addresses for</param>
+    /// <param name="notificationAddresses">The new notification address</param>
+    /// <param name="cancellationToken">To cancel the request before it is finished</param>
+    Task<Organization> CreateNotificationAddress(string organizationNumber, NotificationAddress notificationAddresses, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Method for retrieving notification addresses for an organization
     /// </summary>
     /// <param name="organizationNumbers">A list of organization numbers to lookup contact points for</param>
     /// <param name="cancellationToken">To cancel the request before it is finished</param>

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
-using Altinn.Profile.Models;
 using Moq;
 using Xunit;
 
@@ -51,7 +49,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             _repository = new Mock<IOrganizationNotificationAddressRepository>();
             _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata);
-            _service = new OrganizationNotificationAddressesService(_repository.Object);
+            _service = new OrganizationNotificationAddressesService(_repository.Object, null);
         }
 
         [Fact]

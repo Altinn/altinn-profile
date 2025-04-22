@@ -83,7 +83,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
         /// <summary>
         /// Maps from an organization notification address to the registry request
         /// </summary>
-        public static RegistryRequest MapToRegistryRequest(NotificationAddress notificationAddress, Organization organization)
+        public static RegistryRequest MapToRegistryRequest(NotificationAddress notificationAddress, string organizationNumber)
         {
             var request = new RegistryRequest
             {
@@ -93,7 +93,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
                     {
                         UnitIdentifier = new UnitIdentifierModel
                         {
-                            Value = organization.OrganizationNumber,
+                            Value = organizationNumber,
                             Type = OrganizationNumberType,
                         },
                     },
@@ -129,6 +129,28 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
                     },
                 };
             }
+        }
+
+        /// <summary>
+        /// Maps from the core data model to the data model stored in the database
+        /// </summary>
+        public static NotificationAddressDE MapFromCoreModelNotificationAddress(OrganizationDE organization, NotificationAddress notificationAddress)
+        {
+            var organizationNotificationAddress = new NotificationAddressDE
+            {
+                RegistryOrganizationId = organization.RegistryOrganizationId,
+                UpdateSource = UpdateSource.Altinn,
+                HasRegistryAccepted = false,
+                IsSoftDeleted = false,
+                Address = notificationAddress.Address,
+                Domain = notificationAddress.Domain,
+                FullAddress = notificationAddress.FullAddress,
+                AddressType = notificationAddress.AddressType,
+                NotificationName = notificationAddress.NotificationName,
+                RegistryID = notificationAddress.RegistryID,
+            };
+
+            return organizationNotificationAddress;
         }
     }
 }

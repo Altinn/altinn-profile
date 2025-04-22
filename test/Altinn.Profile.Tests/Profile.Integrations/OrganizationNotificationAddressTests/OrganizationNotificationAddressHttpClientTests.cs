@@ -158,10 +158,12 @@ public class OrganizationNotificationAddressHttpClientTests
         var notificationAddress = new NotificationAddress() { AddressType = AddressType.SMS, Address = "98765432", Domain = "+47", RegistryID = Guid.NewGuid().ToString("N") };
 
         // Act
-        var va = await client.CreateNewNotificationAddress(notificationAddress, new Organization() { OrganizationNumber = "123456789" });
+        var va = await client.CreateNewNotificationAddress(notificationAddress, "123456789");
 
         // Assert
-        Assert.IsType<RegistryResponse>(va);
+        Assert.IsType<string>(va.RegistryId);
+        Assert.Null(va.ErrorMessage);
+
         _messageHandler.VerifyAll();
     }
 
@@ -181,7 +183,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com", RegistryID = Guid.NewGuid().ToString("N") };
 
         // Act
-        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.UpdateNotificationAddress(notificationAddress, new Organization() { OrganizationNumber = "123456789" }));
+        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.UpdateNotificationAddress(notificationAddress, "123456789"));
 
         // Assert
         _messageHandler.VerifyAll();
@@ -203,10 +205,12 @@ public class OrganizationNotificationAddressHttpClientTests
         var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com", RegistryID = Guid.NewGuid().ToString("N") };
 
         // Act
-        var va = await client.UpdateNotificationAddress(notificationAddress, new Organization() { OrganizationNumber = "123456789" });
+        var va = await client.UpdateNotificationAddress(notificationAddress, "123456789");
 
         // Assert
-        Assert.IsType<RegistryResponse>(va);
+        // Assert
+        Assert.IsType<string>(va.RegistryId);
+        Assert.Null(va.ErrorMessage);
         _messageHandler.VerifyAll();
     }
 
@@ -227,7 +231,9 @@ public class OrganizationNotificationAddressHttpClientTests
         var va = await client.DeleteNotificationAddress(Guid.NewGuid().ToString("N"));
 
         // Assert
-        Assert.IsType<RegistryResponse>(va);
+        // Assert
+        Assert.IsType<string>(va.RegistryId);
+        Assert.Null(va.ErrorMessage);
         _messageHandler.VerifyAll();
     }
 }
