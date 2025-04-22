@@ -13,4 +13,10 @@ public interface IOrganizationNotificationAddressSyncClient
     /// A task that represents the asynchronous operation with the returned values.
     /// </returns>
     Task<NotificationAddressChangesLog> GetAddressChangesAsync(string endpointUrl);
+
+    /// <summary>
+    /// Formats the url to get the initial dataload - either from the last changed timestamp or from the beginning.
+    /// </summary>
+    /// <param name="lastUpdated">The timestamp to get changes since.</param>
+    string GetInitialUrl(DateTime? lastUpdated);
 }

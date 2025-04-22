@@ -27,6 +27,20 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentException">The URL is invalid. - endpointUrl</exception>
+    public string GetInitialUrl(DateTime? lastUpdated)
+    {
+        // Time should be in iso8601 format. Example: 2018-02-15T11:07:12Z
+        string? fullUrl = _organizationNotificationAddressSettings.ChangesLogEndpoint + $"?pageSize={_organizationNotificationAddressSettings.ChangesLogPageSize}";
+        if (lastUpdated != null)
+        {
+            fullUrl += $"&since={lastUpdated:yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ}";
+        }
+
+        return fullUrl;
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentException">The URL is invalid. - endpointUrl</exception>
     public async Task<NotificationAddressChangesLog> GetAddressChangesAsync(string endpointUrl)
     {
         if (!endpointUrl.IsValidUrl())

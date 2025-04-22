@@ -7,20 +7,17 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 /// An implementation of the <see cref="IOrganizationNotificationAddressSyncJob"/> interface that will retrieve 
 /// changes from the source registry and update the local contact information.
 /// </summary>
-/// <param name="organizationNotificationAddressSettings">Settings for the synchronization update job</param>
 /// <param name="organizationNotificationAddressHttpClient">A HTTP client that can be used to retrieve contact details changes</param>
 /// <param name="metadataRepository">A repository implementation for managing persistence of the job status between runs</param>
 /// <param name="notificationAddressUpdater">A repository implementation for managing persistence for the local contact information</param>
 /// <param name="logger">A logger to log detailed information.</param>
 public class OrganizationNotificationAddressUpdateJob(
-    OrganizationNotificationAddressSettings organizationNotificationAddressSettings,
     IOrganizationNotificationAddressSyncClient organizationNotificationAddressHttpClient,
     IRegistrySyncMetadataRepository metadataRepository,
     IOrganizationNotificationAddressUpdater notificationAddressUpdater,
     ILogger<OrganizationNotificationAddressUpdateJob> logger)
     : IOrganizationNotificationAddressSyncJob
 {
-    private readonly OrganizationNotificationAddressSettings _organizationNotificationAddressSettings = organizationNotificationAddressSettings;
     private readonly IOrganizationNotificationAddressSyncClient _organizationNotificationAddressHttpClient = organizationNotificationAddressHttpClient;
     private readonly IRegistrySyncMetadataRepository _metadataRepository = metadataRepository;
     private readonly IOrganizationNotificationAddressUpdater _notificationAddressUpdater = notificationAddressUpdater;
@@ -32,12 +29,7 @@ public class OrganizationNotificationAddressUpdateJob(
     {
         DateTime? lastUpdated = await _metadataRepository.GetLatestSyncTimestampAsync();
 
-        // Time should be in iso8601 format. Example: 2018-02-15T11:07:12Z
-        string? fullUrl = _organizationNotificationAddressSettings.ChangesLogEndpoint + $"?pageSize={_organizationNotificationAddressSettings.ChangesLogPageSize}";
-        if (lastUpdated != null)
-        {
-            fullUrl += $"&since={lastUpdated:yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ}";
-        }
+        var fullUrl = _organizationNotificationAddressHttpClient.GetInitialUrl(lastUpdated);
 
         do
         {

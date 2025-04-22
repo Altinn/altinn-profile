@@ -33,6 +33,34 @@ public class OrganizationNotificationAddressHttpClientTests
     }
 
     [Fact]
+    public void GetInitialUrl_WhenNoLastChangedDate_ReturnsUrlWithoutSinceParameter()
+    {
+        // Arrange
+        var client = CreateHttpClient();
+
+        // Act and Assert
+        var url = client.GetInitialUrl(null);
+
+        // Assert
+        Assert.Contains("pageSize=", url);
+        Assert.DoesNotContain("since=", url);
+    }
+
+    [Fact]
+    public void GetInitialUrl_WhenLastChangedDate_ReturnsUrlWithSinceParameter()
+    {
+        // Arrange
+        var client = CreateHttpClient();
+
+        // Act and Assert
+        var url = client.GetInitialUrl(DateTime.Now);
+
+        // Assert
+        Assert.Contains("pageSize=", url);
+        Assert.Contains("since=", url);
+    }
+
+    [Fact]
     public async Task GetAddressChangesAsync_WhenMissingEndpointUrl_Throws()
     {
         // Arrange
