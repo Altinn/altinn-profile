@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Altinn.Platform.Profile.Models;
+using Altinn.Profile.Authorization;
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.User;
 
@@ -40,7 +41,7 @@ public class UsersController : Controller
     /// <param name="userID">The user id</param>
     /// <returns>The information about a given user</returns>
     [HttpGet("{userID:int}")]
-    [Authorize(Policy = "PlatformAccess")]
+    [Authorize(Policy = AuthConstants.PlatformAccess)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserProfile>> Get(int userID)
@@ -63,7 +64,7 @@ public class UsersController : Controller
     /// <param name="userUuid">The user uuid</param>
     /// <returns>The information about a given user</returns>
     [HttpGet("byuuid/{userUuid:Guid}")]
-    [Authorize(Policy = "PlatformAccess")]
+    [Authorize(Policy = AuthConstants.PlatformAccess)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserProfile>> Get([FromRoute] Guid userUuid)
@@ -104,7 +105,7 @@ public class UsersController : Controller
     /// <param name="ssn">The user's social security number</param>
     /// <returns>User profile connected to given SSN </returns>
     [HttpPost]
-    [Authorize(Policy = "PlatformAccess")]
+    [Authorize(Policy = AuthConstants.PlatformAccess)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserProfile>> GetUserFromSSN([FromBody] string ssn)
