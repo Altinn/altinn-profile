@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
 using Altinn.Platform.Profile.Models;
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.Integrations;
@@ -17,14 +16,14 @@ using Moq;
 
 using Xunit;
 
-namespace Altinn.Profile.Tests.Core.User;
+namespace Altinn.Profile.Tests.Profile.Core.User;
 
-public class UserContactPointServiceTest 
+public class UserContactPointServiceTest
 {
     private readonly Mock<IOptions<CoreSettings>> _coreSettingsOptions;
     private readonly Mock<IUserProfileService> _userProfileServiceMock = new();
     private readonly Mock<IPersonService> _personServiceMock = new();
-        
+
     private static readonly string _userIdAStr = "2001606";
 
     private static readonly string _userIdBStr = "2001607";
@@ -40,7 +39,7 @@ public class UserContactPointServiceTest
         var contactPreferencesA = new PersonContactPreferences()
         {
             NationalIdentityNumber = userProfileA.Party.SSN,
-            Email = userProfileA.Email, 
+            Email = userProfileA.Email,
             IsReserved = userProfileA.IsReserved,
             MobileNumber = userProfileA.PhoneNumber
         };
@@ -56,7 +55,7 @@ public class UserContactPointServiceTest
         var contactPreferencesB = new PersonContactPreferences()
         {
             NationalIdentityNumber = userProfileB.Party.SSN,
-            Email = userProfileB.Email, 
+            Email = userProfileB.Email,
             IsReserved = userProfileB.IsReserved,
             MobileNumber = userProfileB.PhoneNumber
         };
@@ -83,7 +82,7 @@ public class UserContactPointServiceTest
         // Arrange
         _coreSettingsOptions.Setup(s => s.Value).Returns(new CoreSettings { EnableLocalKrrFetch = false });
         List<UserContactPoints> expectedUsers = await MockTestUsers();
-        
+
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _coreSettingsOptions.Object);
 
         // Act

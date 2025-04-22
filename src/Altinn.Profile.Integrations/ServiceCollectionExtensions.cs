@@ -76,7 +76,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IOrganizationNotificationAddressUpdater, OrganizationNotificationAddressRepository>();
         services.AddScoped<IOrganizationNotificationAddressRepository, OrganizationNotificationAddressRepository>();
         services.AddScoped<IRegistrySyncMetadataRepository, RegistrySyncMetadataRepository>();
-        services.AddScoped<IOrganizationNotificationAddressUpdateJob, OrganizationNotificationAddressUpdateJob>();
+        services.AddScoped<IOrganizationNotificationAddressSyncJob, OrganizationNotificationAddressUpdateJob>();
 
         services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
     }
@@ -113,6 +113,6 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddSingleton(organizationNotificationAddressSettings);
-        services.AddScoped<IOrganizationNotificationAddressHttpClient, OrganizationNotificationAddressHttpClient>();
+        services.AddScoped<IOrganizationNotificationAddressSyncClient, OrganizationNotificationAddressHttpClient>();
     }
 }

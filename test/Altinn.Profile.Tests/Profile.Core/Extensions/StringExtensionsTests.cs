@@ -1,10 +1,8 @@
 ﻿using System.Reflection;
-
 using Altinn.Profile.Core.Extensions;
-
 using Xunit;
 
-namespace Altinn.Profile.Tests.Core.Extensions;
+namespace Altinn.Profile.Tests.Profile.Core.Extensions;
 
 public class StringExtensionsTests
 {
@@ -16,7 +14,7 @@ public class StringExtensionsTests
         var expectedControlDigits = "98"; // Known correct control digits for this SSN
 
         // Act
-        var method = typeof(StringExtensions).GetMethod("CalculateControlDigits", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var method = typeof(StringExtensions).GetMethod("CalculateControlDigits", BindingFlags.NonPublic | BindingFlags.Static);
         var result = method.Invoke(null, [firstNineDigits]);
 
         // Assert

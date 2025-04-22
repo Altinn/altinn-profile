@@ -2,16 +2,14 @@
 using System.Collections.Immutable;
 using System.Net;
 using System.Net.Http;
-using System.Threading.Channels;
 using System.Threading.Tasks;
 
-using Altinn.Profile.Controllers;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Logging;
 
 using Moq;
 
@@ -21,12 +19,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
 public class TriggerControllerTests : IClassFixture<WebApplicationFactory<Program>>
 {
-    private readonly Mock<ILogger<TriggerController>> _loggerMock;
     private readonly WebApplicationFactorySetup<Program> _webApplicationFactorySetup;
 
     public TriggerControllerTests(WebApplicationFactory<Program> factory)
     {
-        _loggerMock = new Mock<ILogger<TriggerController>>();
         _webApplicationFactorySetup = new WebApplicationFactorySetup<Program>(factory);
     }
 
