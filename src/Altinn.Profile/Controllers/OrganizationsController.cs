@@ -16,7 +16,6 @@ namespace Altinn.Profile.Controllers
     /// Controller for organization notifications address API endpoints for external usage
     /// </summary>
     [Route("profile/api/v1/organizations/{organizationNumber}/notificationaddresses")]
-    [ApiExplorerSettings(IgnoreApi = true)]
     [Consumes("application/json")]
     [Produces("application/json")]
     public class OrganizationsController : ControllerBase
@@ -67,7 +66,7 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         /// <returns>Returns an overview of the registered notification addresses for the provided organization</returns>
         [HttpPost("mandatory")]
-        ////[Authorize(Policy = AuthConstants.OrgNotificationAddress_Write)]
+        [Authorize(Policy = AuthConstants.OrgNotificationAddress_Write)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<OrganizationResponse>> CreateNotificationAddress([FromRoute] string organizationNumber, [FromBody] NotificationAddressModel request, CancellationToken cancellationToken)

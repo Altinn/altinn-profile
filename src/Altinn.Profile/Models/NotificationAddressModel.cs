@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Altinn.Profile.Validators;
+﻿using Altinn.Profile.Validators;
 
 namespace Altinn.Profile.Models
 {
