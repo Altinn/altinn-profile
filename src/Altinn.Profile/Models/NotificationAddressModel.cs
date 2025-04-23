@@ -9,11 +9,6 @@ namespace Altinn.Profile.Models
     public class NotificationAddressModel
     {
         /// <summary>
-        /// <see cref="NotificationAddressID"/>
-        /// </summary>
-        public int NotificationAddressID { get; set; }
-
-        /// <summary>
         /// Country code for phone number
         /// </summary>
         [CustomRegexForNotificationAddresses("CountryCode")]

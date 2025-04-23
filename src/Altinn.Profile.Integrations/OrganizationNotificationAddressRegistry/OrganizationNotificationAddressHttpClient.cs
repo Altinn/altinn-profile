@@ -20,7 +20,7 @@ public class OrganizationNotificationAddressHttpClient(HttpClient httpClient, Or
 {
     private readonly HttpClient _httpClient = httpClient;
     private readonly OrganizationNotificationAddressSettings _organizationNotificationAddressSettings = organizationNotificationAddressSettings;
-    JsonSerializerOptions options = new()
+    private readonly JsonSerializerOptions _options = new()
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
@@ -73,7 +73,7 @@ public class OrganizationNotificationAddressHttpClient(HttpClient httpClient, Or
     public async Task<(string? RegistryId, string? ErrorMessage)> CreateNewNotificationAddress(NotificationAddress notificationAddress, string organizationNumber)
     {
         var request = DataMapper.MapToRegistryRequest(notificationAddress, organizationNumber);
-        var json = JsonSerializer.Serialize(request, options);
+        var json = JsonSerializer.Serialize(request, _options);
         string command = "/define";
         
         var responseObject = await PostAsync(json, command);
@@ -88,7 +88,7 @@ public class OrganizationNotificationAddressHttpClient(HttpClient httpClient, Or
 
         var request = DataMapper.MapToRegistryRequest(notificationAddress, organizationNumber);
 
-        var json = JsonSerializer.Serialize(request, options);
+        var json = JsonSerializer.Serialize(request, _options);
         string command = @"/replace/" + notificationAddress.RegistryID;
 
         var responseObject = await PostAsync(json, command);
@@ -124,7 +124,7 @@ public class OrganizationNotificationAddressHttpClient(HttpClient httpClient, Or
 
         var responseData = await response.Content.ReadAsStringAsync();
 
-        var responseObject = JsonSerializer.Deserialize<RegistryResponse>(responseData, options);
+        var responseObject = JsonSerializer.Deserialize<RegistryResponse>(responseData, _options);
         if (responseObject == null)
         {
             throw new OrganizationNotificationAddressChangesException("Failed to deserialize the response from external registry.");

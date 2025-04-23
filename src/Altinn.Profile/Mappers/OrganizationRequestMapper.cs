@@ -16,7 +16,6 @@ namespace Altinn.Profile.Mappers
         {
             var response = new NotificationAddress
             {
-                NotificationAddressID = notificationAddress.NotificationAddressID,
                 ToBeDeleted = notificationAddress.IsDeleted,
             };
 
