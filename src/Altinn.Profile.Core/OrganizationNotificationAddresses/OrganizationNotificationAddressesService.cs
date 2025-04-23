@@ -29,22 +29,15 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
                 return org;
             }
 
-            try
+            var (registryId, errorMessage) = await _updateClient.CreateNewNotificationAddress(notificationAddress, organizationNumber);
+            if (registryId == null)
             {
-                var (registryId, errorMessage) = await _updateClient.CreateNewNotificationAddress(notificationAddress, organizationNumber);
-                if (registryId == null)
-                {
-                    notificationAddress.UpdateMessage = errorMessage;
-                    org.NotificationAddresses!.Add(notificationAddress);
-                    return org;
-                }
+                notificationAddress.UpdateMessage = errorMessage;
+                org.NotificationAddresses!.Add(notificationAddress);
+                return org;
+            }
 
-                notificationAddress.RegistryID = registryId;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed to create notification address {notificationAddress.FullAddress} for organization {organizationNumber}", ex);
-            }
+            notificationAddress.RegistryID = registryId;
 
             return await _orgRepository.CreateNotificationAddressAsync(organizationNumber, notificationAddress);
         }
