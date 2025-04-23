@@ -74,7 +74,7 @@ namespace Altinn.Profile.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return ValidationProblem(ModelState);
             }
 
             if (string.IsNullOrWhiteSpace(organizationNumber))

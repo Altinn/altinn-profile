@@ -13,7 +13,8 @@ using Altinn.Profile.Controllers;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
-
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
 using Xunit;
@@ -235,8 +236,14 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.IsType<OrganizationResponse>(actual);
         }
 
-        [Fact]
-        public async Task CreateMandatory_WhenWrongFormatOfEmail_ReturnsBadRequest()
+        [Theory]
+        [InlineData("test")] // Invalid email
+        [InlineData("test@.com")] // Invalid email
+        [InlineData("test@com")] // Invalid email
+        [InlineData("test@com.")] // Invalid email
+        [InlineData("test@com@com")] // Invalid email
+        [InlineData("test@com..com")] // Invalid email
+        public async Task CreateMandatory_WhenWrongFormatOfEmail_ReturnsBadRequest(string email)
         {
             // Arrange
             var orgNo = "123456789";
@@ -245,7 +252,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
 
-            var input = new NotificationAddressModel { Email = "testtest.com" };
+            var input = new NotificationAddressModel { Email = email };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -254,13 +261,27 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            string responseContent = await response.Content.ReadAsStringAsync();
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(responseContent, _serializerOptions);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal(400, actual.Status);
+            Assert.Equal("One or more validation errors occurred.", actual.Title);
+
+            Assert.Single(actual.Errors);
+            Assert.NotNull(actual.Errors["Email"]);
+            Assert.True(actual.Errors.TryGetValue("Email", out var message));
+            Assert.Contains("The field Email must match the regular expression", message[0]);
         }
 
-        [Fact]
-        public async Task CreateMandatory_WhenWrongFormatOfPhone_ReturnsBadRequest()
+        [Theory]
+        [InlineData("invalid", "++47")]
+        [InlineData("invalid", "47")]
+        [InlineData(" ", "+4700")]
+        public async Task CreateMandatory_WhenWrongFormatOfPhone_ReturnsBadRequest(string phone, string countryCode)
         {
             // Arrange
             var orgNo = "123456789";
@@ -269,7 +290,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
 
-            var input = new NotificationAddressModel { Phone = "1", CountryCode = "++47" };
+            var input = new NotificationAddressModel { Phone = phone, CountryCode = countryCode };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -281,6 +302,21 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(responseContent, _serializerOptions);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal(400, actual.Status);
+            Assert.Equal("One or more validation errors occurred.", actual.Title);
+
+            Assert.Equal(2, actual.Errors.Count);
+            Assert.NotNull(actual.Errors["CountryCode"]);
+            Assert.True(actual.Errors.TryGetValue("CountryCode", out var message));
+            Assert.Contains("The field CountryCode must match the regular expression", message[0]);
+
+            Assert.NotNull(actual.Errors["Phone"]);
+            Assert.True(actual.Errors.TryGetValue("Phone", out var phoneMessage));
+            Assert.Contains("The field Phone must match the regular expression", phoneMessage[0]);
         }
 
         private static HttpRequestMessage CreateAutorizedRequest(int userId, HttpRequestMessage httpRequestMessage)
