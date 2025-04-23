@@ -198,6 +198,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.IsType<OrganizationResponse>(actual);
         }
 
+        [Fact]
         public async Task CreateMandatory_WhenSuccessWithPhoneNumber_ReturnsCreatedResult()
         {
             // Arrange

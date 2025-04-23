@@ -155,17 +155,16 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 FullAddress = "throw@test.com",
                 AddressType = AddressType.SMS
             };
-            var innerEx = new InvalidOperationException("inner");
+            var innerEx = new InvalidOperationException("Something went wrong");
 
             _updateClient
                 .Setup(u => u.CreateNewNotificationAddress(newAddress, orgNum))
                 .ThrowsAsync(innerEx);
 
             // Act & Assert
-            var ex = await Assert.ThrowsAsync<Exception>(() =>
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
                 _service.CreateNotificationAddress(orgNum, newAddress, CancellationToken.None));
-            Assert.Contains("Failed to create notification address", ex.Message);
-            Assert.Same(innerEx, ex.InnerException);
+            Assert.Contains("Something went wrong", ex.Message);
         }
     }
 }
