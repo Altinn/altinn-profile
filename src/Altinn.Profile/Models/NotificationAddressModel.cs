@@ -32,7 +32,8 @@ namespace Altinn.Profile.Models
         public bool? IsDeleted { get; set; }
 
         /// <summary>
-        /// Gets or sets a error message indicating why the notification endpoint could not be updated
+        /// An error message indicating why the notification address could not be updated
+        /// Will be null when no error occurred.
         /// </summary>
         public string ErrorMessage { get; set; }
     }
