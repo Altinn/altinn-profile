@@ -161,6 +161,91 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
+        [Fact]
+        public async Task CreateMandatory_WhenOneOrganizationFound_ReturnsOkWithTwoItemsList()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+            .Setup(r => r.CreateNotificationAddressAsync(It.IsAny<string>(), It.IsAny<NotificationAddress>()))
+            .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo));
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock.Setup(
+                c => c.CreateNewNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync(("123456789", null));
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+
+            var input = new NotificationAddressModel { Email = "test@test.com" };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAutorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            string responseContent = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            var actual = JsonSerializer.Deserialize<OrganizationResponse>(responseContent, _serializerOptions);
+            Assert.IsType<OrganizationResponse>(actual);
+        }
+
+        [Fact]
+        public async Task CreateMandatory_WhenWrongFormatOfEmail_ReturnsBadRequest()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+
+            var input = new NotificationAddressModel { Email = "testtest.com" };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAutorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task CreateMandatory_WhenWrongFormatOfPhone_ReturnsBadRequest()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+
+            var input = new NotificationAddressModel { Phone = "1", CountryCode = "++47" };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAutorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
         private static HttpRequestMessage CreateAutorizedRequest(int userId, HttpRequestMessage httpRequestMessage)
         {
             string token = PrincipalUtil.GetToken(userId);

@@ -70,9 +70,9 @@ namespace Altinn.Profile.Controllers
         [Authorize(Policy = AuthConstants.OrgNotificationAddress_Write)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<OrganizationResponse>> UpdateMandatory([FromRoute] string organizationNumber, [FromBody] NotificationAddressModel request, CancellationToken cancellationToken)
+        public async Task<ActionResult<OrganizationResponse>> CreateNotificationAddress([FromRoute] string organizationNumber, [FromBody] NotificationAddressModel request, CancellationToken cancellationToken)
         {
-            if (ModelState.IsValid == false)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -88,7 +88,7 @@ namespace Altinn.Profile.Controllers
 
             var response = OrganizationResponseMapper.MapResponse(organization);
 
-            return Ok(response);
+            return Created($"profile/api/v1/organizations/{organizationNumber}/notificationaddresses/mandatory", response);
         }
     }
 }

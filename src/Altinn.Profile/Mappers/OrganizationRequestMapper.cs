@@ -25,12 +25,14 @@ namespace Altinn.Profile.Mappers
                 response.Address = notificationAddress.Email.Trim().Split('@').First();
                 response.Domain = notificationAddress.Email.Trim().Split('@').Last();
                 response.AddressType = AddressType.Email;
+                response.FullAddress = notificationAddress.Email.Trim();
             }
             else if (!string.IsNullOrEmpty(notificationAddress.Phone))
             {
-                response.Address = notificationAddress.Phone;
-                response.Domain = notificationAddress.CountryCode;
+                response.Address = notificationAddress.Phone.Trim();
+                response.Domain = notificationAddress.CountryCode.Trim();
                 response.AddressType = AddressType.SMS;
+                response.FullAddress = notificationAddress.CountryCode + notificationAddress.Phone;
             }
 
             return response;

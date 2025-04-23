@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
         private readonly Mock<IOrganizationNotificationAddressRepository> _repository;
         private readonly OrganizationNotificationAddressesService _service;
         private readonly List<Organization> _testdata;
+        private readonly Mock<IOrganizationNotificationAddressUpdateClient> _updateClient;
 
         public OrganizationNotificationAddressesServiceTests()
         {
@@ -49,7 +51,10 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             _repository = new Mock<IOrganizationNotificationAddressRepository>();
             _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata);
-            _service = new OrganizationNotificationAddressesService(_repository.Object, null);
+
+            _updateClient = new Mock<IOrganizationNotificationAddressUpdateClient>();
+
+            _service = new OrganizationNotificationAddressesService(_repository.Object, _updateClient.Object);
         }
 
         [Fact]
@@ -81,6 +86,86 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
 
             // Assert
             Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task CreateNotificationAddress_SuccessfulCreation_ReturnsOrganization()
+        { 
+            // Arrange
+            _updateClient.Setup(c => c.CreateNewNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync(("registry-id", null));
+            
+            _repository.Setup(r => r.CreateNotificationAddressAsync(It.IsAny<string>(), It.IsAny<NotificationAddress>()))
+                .ReturnsAsync(new Organization { NotificationAddresses = [], OrganizationNumber = "123456789" });
+            
+            // Act
+            var result = await _service.CreateNotificationAddress("123456789", new NotificationAddress(), CancellationToken.None); 
+            
+            // Assert
+            Assert.NotNull(result); 
+        }
+
+        [Fact]
+        public async Task CreateNotificationAddress_WhenDuplicateIsFound_ReturnsOrganizationWithoutUpdate()
+        {
+            // Arrange
+            _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == "123456789"));
+            
+            // Act
+            var result = await _service.CreateNotificationAddress("123456789", new NotificationAddress { FullAddress = "test@test.com", AddressType = AddressType.Email }, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            _updateClient.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task CreateNotificationAddress_WhenRegistryReturnsNull_AddsAddressWithUpdateMessageAndReturnsOrg()
+        {
+            // Arrange
+            var orgNum = _testdata[0].OrganizationNumber;
+            var newAddress = new NotificationAddress
+            {
+                FullAddress = "null@test.com",
+                AddressType = AddressType.Email
+            };
+
+            // Simulate registry returning null id and error message
+            _updateClient
+                .Setup(u => u.CreateNewNotificationAddress(newAddress, orgNum))
+                .ReturnsAsync((null, "Error occurred"));
+
+            // Act
+            var result = await _service.CreateNotificationAddress(orgNum, newAddress, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(orgNum, result.OrganizationNumber);
+            Assert.Contains(result.NotificationAddresses, na => na.FullAddress == newAddress.FullAddress);
+            Assert.Equal("Error occurred", result.NotificationAddresses.First(na => na.FullAddress == newAddress.FullAddress).UpdateMessage);
+        }
+
+        [Fact]
+        public async Task CreateNotificationAddress_WhenUpdateClientThrows_ThrowsExceptionWithContext()
+        {
+            // Arrange
+            var orgNum = _testdata[0].OrganizationNumber;
+            var newAddress = new NotificationAddress
+            {
+                FullAddress = "throw@test.com",
+                AddressType = AddressType.SMS
+            };
+            var innerEx = new InvalidOperationException("inner");
+
+            _updateClient
+                .Setup(u => u.CreateNewNotificationAddress(newAddress, orgNum))
+                .ThrowsAsync(innerEx);
+
+            // Act & Assert
+            var ex = await Assert.ThrowsAsync<Exception>(() =>
+                _service.CreateNotificationAddress(orgNum, newAddress, CancellationToken.None));
+            Assert.Contains("Failed to create notification address", ex.Message);
+            Assert.Same(innerEx, ex.InnerException);
         }
     }
 }

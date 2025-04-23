@@ -114,5 +114,6 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton(organizationNotificationAddressSettings);
         services.AddScoped<IOrganizationNotificationAddressSyncClient, OrganizationNotificationAddressHttpClient>();
+        services.AddScoped<IOrganizationNotificationAddressUpdateClient, OrganizationNotificationAddressHttpClient>();
     }
 }

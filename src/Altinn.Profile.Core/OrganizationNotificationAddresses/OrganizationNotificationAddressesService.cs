@@ -18,9 +18,16 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// <inheritdoc/>
         public async Task<Organization> CreateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken)
         {
-            var orgs = await _orgRepository.GetOrganizationsAsync(new List<string> { organizationNumber }, cancellationToken);
+            var orgs = await _orgRepository.GetOrganizationsAsync([organizationNumber], cancellationToken);
             var org = orgs.FirstOrDefault();
             org ??= new Organization { OrganizationNumber = organizationNumber, NotificationAddresses = [] };
+
+            var existingAddress = org.NotificationAddresses?.FirstOrDefault(x => x.FullAddress == notificationAddress.FullAddress && x.AddressType == notificationAddress.AddressType);
+            if (existingAddress != null)
+            {
+                existingAddress.UpdateMessage = "Notification address already exists";
+                return org;
+            }
 
             try
             {

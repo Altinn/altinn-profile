@@ -166,9 +166,9 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
-        var orgDE = databaseContext.Organizations
+        var orgDE = await databaseContext.Organizations
             .Include(o => o.NotificationAddresses)
-            .FirstOrDefault(o => o.RegistryOrganizationNumber == organizationNumber);
+            .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == organizationNumber);
 
         if (orgDE == null)
         {
