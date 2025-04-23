@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
@@ -10,21 +11,19 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 /// <summary>
 /// An HTTP client to interact with a source registry for organizational notification addresses.
 /// </summary>
-public class OrganizationNotificationAddressHttpClient : IOrganizationNotificationAddressSyncClient, IOrganizationNotificationAddressUpdateClient
+/// <remarks>
+/// Initializes a new instance of the <see cref="OrganizationNotificationAddressHttpClient"/> class.
+/// </remarks>
+/// <param name="httpClient">The HTTP client to interact with KoFuVi.</param>
+/// <param name="organizationNotificationAddressSettings">Settings for http client with base addresses</param>
+public class OrganizationNotificationAddressHttpClient(HttpClient httpClient, OrganizationNotificationAddressSettings organizationNotificationAddressSettings) : IOrganizationNotificationAddressSyncClient, IOrganizationNotificationAddressUpdateClient
 {
-    private readonly HttpClient _httpClient;
-    private readonly OrganizationNotificationAddressSettings _organizationNotificationAddressSettings;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="OrganizationNotificationAddressHttpClient"/> class.
-    /// </summary>
-    /// <param name="httpClient">The HTTP client to interact with KoFuVi.</param>
-    /// <param name="organizationNotificationAddressSettings">Settings for http client with base addresses</param>
-    public OrganizationNotificationAddressHttpClient(HttpClient httpClient, OrganizationNotificationAddressSettings organizationNotificationAddressSettings)
+    private readonly HttpClient _httpClient = httpClient;
+    private readonly OrganizationNotificationAddressSettings _organizationNotificationAddressSettings = organizationNotificationAddressSettings;
+    JsonSerializerOptions options = new()
     {
-        _httpClient = httpClient;
-        _organizationNotificationAddressSettings = organizationNotificationAddressSettings;
-    }
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentException">The URL is invalid. - endpointUrl</exception>
@@ -74,7 +73,7 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
     public async Task<(string? RegistryId, string? ErrorMessage)> CreateNewNotificationAddress(NotificationAddress notificationAddress, string organizationNumber)
     {
         var request = DataMapper.MapToRegistryRequest(notificationAddress, organizationNumber);
-        var json = JsonSerializer.Serialize(request);
+        var json = JsonSerializer.Serialize(request, options);
         string command = "/define";
         
         var responseObject = await PostAsync(json, command);
@@ -89,7 +88,7 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
 
         var request = DataMapper.MapToRegistryRequest(notificationAddress, organizationNumber);
 
-        var json = JsonSerializer.Serialize(request);
+        var json = JsonSerializer.Serialize(request, options);
         string command = @"/replace/" + notificationAddress.RegistryID;
 
         var responseObject = await PostAsync(json, command);
@@ -125,7 +124,7 @@ public class OrganizationNotificationAddressHttpClient : IOrganizationNotificati
 
         var responseData = await response.Content.ReadAsStringAsync();
 
-        var responseObject = JsonSerializer.Deserialize<RegistryResponse>(responseData);
+        var responseObject = JsonSerializer.Deserialize<RegistryResponse>(responseData, options);
         if (responseObject == null)
         {
             throw new OrganizationNotificationAddressChangesException("Failed to deserialize the response from external registry.");

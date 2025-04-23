@@ -35,5 +35,10 @@ namespace Altinn.Profile.Models
         /// A value indicating whether the entity is deleted in Altinn.
         /// </summary>
         public bool? IsDeleted { get; set; }
+
+        /// <summary>
+        /// Gets or sets a error message indicating why the notification endpoint could not be updated
+        /// </summary>
+        public string ErrorMessage { get; set; }
     }
 }

@@ -1,6 +1,4 @@
-﻿using Altinn.Platform.Register.Models;
-using Altinn.Profile.Core.Integrations;
-using Altinn.Profile.Core.Unit.ContactPoints;
+﻿using Altinn.Profile.Core.Integrations;
 
 namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 {
@@ -30,7 +28,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
             }
 
             var (registryId, errorMessage) = await _updateClient.CreateNewNotificationAddress(notificationAddress, organizationNumber);
-            if (registryId == null)
+            if (!string.IsNullOrWhiteSpace(errorMessage))
             {
                 notificationAddress.UpdateMessage = errorMessage;
                 org.NotificationAddresses!.Add(notificationAddress);
@@ -39,7 +37,9 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 
             notificationAddress.RegistryID = registryId;
 
-            return await _orgRepository.CreateNotificationAddressAsync(organizationNumber, notificationAddress);
+            var updatedOrg = await _orgRepository.CreateNotificationAddressAsync(organizationNumber, notificationAddress);
+
+            return updatedOrg;
         }
 
         /// <inheritdoc/>
