@@ -170,14 +170,11 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             .Include(o => o.NotificationAddresses)
             .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == organizationNumber);
 
-        if (orgDE == null)
-        {
-            orgDE = new OrganizationDE
+        orgDE ??= new OrganizationDE
             {
                 RegistryOrganizationNumber = organizationNumber,
                 NotificationAddresses = [],
             };
-        }
 
         var organizationNotificationAddress = DataMapper.MapFromCoreModelNotificationAddress(orgDE, notificationAddress);
 

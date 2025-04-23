@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Altinn.Profile.Core;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Mappings;
@@ -259,6 +260,44 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
 
         // Assert
         Assert.Empty(orgList);
+    }
+
+    [Fact]
+    public async Task CreateNotificationAddressAsync_WhenFirstAdded_ReturnsOrgWithNotificationAddress()
+    {
+        // Arrange
+        var orgNumber = "000000000";
+
+        // Act
+        var org = await _repository.CreateNotificationAddressAsync(orgNumber, new NotificationAddress { AddressType = AddressType.Email, FullAddress = "test@test.com", RegistryID = "1", Address = "test" });
+
+        // Assert;
+        Assert.IsType<Organization>(org);
+        Assert.NotEmpty(org.NotificationAddresses);
+        Assert.Single(org.NotificationAddresses);
+        Assert.Equal(orgNumber, org.OrganizationNumber);
+    }
+
+    [Fact]
+    public async Task CreateNotificationAddressAsync_WhenFound_ReturnsWithAllNotificationAddresses()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        var orgNumber = "123456789";
+
+        var expectedOrg1 = organizations
+            .Find(p => p.RegistryOrganizationNumber == orgNumber);
+
+        // Act
+        var org = await _repository.CreateNotificationAddressAsync(orgNumber, new NotificationAddress { AddressType = AddressType.Email, FullAddress = "test@test.com", RegistryID = "1", Address = "test" });
+
+        // Assert
+        Assert.IsType<Organization>(org);
+        Assert.NotEmpty(org.NotificationAddresses);
+        Assert.Equal(org.NotificationAddresses.Count, expectedOrg1.NotificationAddresses.Count + 1);
+        Assert.Equal(org.OrganizationNumber, expectedOrg1.RegistryOrganizationNumber);
     }
 
     private static void AssertRegisterProperties(OrganizationDE expected, OrganizationDE actual)

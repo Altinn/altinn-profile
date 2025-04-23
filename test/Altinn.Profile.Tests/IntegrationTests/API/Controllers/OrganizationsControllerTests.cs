@@ -162,7 +162,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task CreateMandatory_WhenOneOrganizationFound_ReturnsOkWithTwoItemsList()
+        public async Task CreateMandatory_WhenSuccess_ReturnsCreatedResult()
         {
             // Arrange
             var orgNo = "123456789";
@@ -190,10 +190,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-            string responseContent = await response.Content.ReadAsStringAsync();
 
             // Assert
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
             var actual = JsonSerializer.Deserialize<OrganizationResponse>(responseContent, _serializerOptions);
             Assert.IsType<OrganizationResponse>(actual);
         }
