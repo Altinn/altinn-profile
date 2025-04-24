@@ -4,12 +4,12 @@ using Altinn.Profile.Core.OrganizationNotificationAddresses;
 namespace Altinn.Profile.Models
 {
     /// <summary>
-    /// Extention class to map from Notification address input model 
+    /// Extension class to map from Notification address input model 
     /// </summary>
     public static class NotificationAddressModelExtensions
     {
         /// <summary>
-        /// Maps from notification address request model to notification address core model
+        /// Maps from notification address input model to notification address core model
         /// </summary>
         public static NotificationAddress ToInternalModel(this NotificationAddressModel notificationAddress)
         {
@@ -31,7 +31,7 @@ namespace Altinn.Profile.Models
                 response.Address = notificationAddress.Phone.Trim();
                 response.Domain = notificationAddress.CountryCode.Trim();
                 response.AddressType = AddressType.SMS;
-                response.FullAddress = notificationAddress.CountryCode + notificationAddress.Phone;
+                response.FullAddress = response.Domain + response.Address;
             }
 
             return response;
