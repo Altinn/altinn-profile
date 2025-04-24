@@ -14,7 +14,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         private readonly IOrganizationNotificationAddressUpdateClient _updateClient = updateClient;
 
         /// <inheritdoc/>
-        public async Task<Organization> CreateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken)
+        public async Task<NotificationAddress> CreateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken)
         {
             var orgs = await _orgRepository.GetOrganizationsAsync([organizationNumber], cancellationToken);
             var org = orgs.FirstOrDefault();
@@ -23,23 +23,16 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
             var existingAddress = org.NotificationAddresses?.FirstOrDefault(x => x.FullAddress == notificationAddress.FullAddress && x.AddressType == notificationAddress.AddressType);
             if (existingAddress != null)
             {
-                existingAddress.UpdateMessage = "Notification address already exists";
-                return org;
+                return existingAddress;
             }
 
-            var (registryId, errorMessage) = await _updateClient.CreateNewNotificationAddress(notificationAddress, organizationNumber);
-            if (!string.IsNullOrWhiteSpace(errorMessage))
-            {
-                notificationAddress.UpdateMessage = errorMessage;
-                org.NotificationAddresses!.Add(notificationAddress);
-                return org;
-            }
+            var registryId = await _updateClient.CreateNewNotificationAddress(notificationAddress, organizationNumber);
 
             notificationAddress.RegistryID = registryId;
 
-            var updatedOrg = await _orgRepository.CreateNotificationAddressAsync(organizationNumber, notificationAddress);
+            var updatedNotificationAddress = await _orgRepository.CreateNotificationAddressAsync(organizationNumber, notificationAddress);
 
-            return updatedOrg;
+            return updatedNotificationAddress;
         }
 
         /// <inheritdoc/>

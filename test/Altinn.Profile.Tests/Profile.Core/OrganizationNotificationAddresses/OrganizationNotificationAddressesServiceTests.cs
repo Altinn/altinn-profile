@@ -93,10 +93,10 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
         { 
             // Arrange
             _updateClient.Setup(c => c.CreateNewNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
-                .ReturnsAsync(("registry-id", null));
+                .ReturnsAsync("registry-id");
             
             _repository.Setup(r => r.CreateNotificationAddressAsync(It.IsAny<string>(), It.IsAny<NotificationAddress>()))
-                .ReturnsAsync(new Organization { NotificationAddresses = [], OrganizationNumber = "123456789" });
+                .ReturnsAsync(new NotificationAddress { });
             
             // Act
             var result = await _service.CreateNotificationAddress("123456789", new NotificationAddress(), CancellationToken.None); 
@@ -118,31 +118,6 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             // Assert
             Assert.NotNull(result);
             _updateClient.VerifyNoOtherCalls();
-        }
-
-        [Fact]
-        public async Task CreateNotificationAddress_WhenRegistryReturnsNull_AddsAddressWithUpdateMessageAndReturnsOrg()
-        {
-            // Arrange
-            var orgNum = _testdata[0].OrganizationNumber;
-            var newAddress = new NotificationAddress
-            {
-                FullAddress = "null@test.com",
-                AddressType = AddressType.Email
-            };
-
-            // Simulate registry returning null id and error message
-            _updateClient
-                .Setup(u => u.CreateNewNotificationAddress(newAddress, orgNum))
-                .ReturnsAsync((null, "Error occurred"));
-
-            // Act
-            var result = await _service.CreateNotificationAddress(orgNum, newAddress, CancellationToken.None);
-
-            // Assert
-            Assert.Equal(orgNum, result.OrganizationNumber);
-            Assert.Contains(result.NotificationAddresses, na => na.FullAddress == newAddress.FullAddress);
-            Assert.Equal("Error occurred", result.NotificationAddresses.First(na => na.FullAddress == newAddress.FullAddress).UpdateMessage);
         }
 
         [Fact]

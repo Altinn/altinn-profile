@@ -1,6 +1,4 @@
-﻿using Altinn.Profile.Models;
-using Altinn.Profile.Validators;
-using Microsoft.VisualBasic;
+﻿using Altinn.Profile.Validators;
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Validators

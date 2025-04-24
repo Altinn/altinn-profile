@@ -70,7 +70,7 @@ public class OrganizationNotificationAddressHttpClient(HttpClient httpClient, Or
     }
 
     /// <inheritdoc/>
-    public async Task<(string? RegistryId, string? ErrorMessage)> CreateNewNotificationAddress(NotificationAddress notificationAddress, string organizationNumber)
+    public async Task<string> CreateNewNotificationAddress(NotificationAddress notificationAddress, string organizationNumber)
     {
         var request = DataMapper.MapToRegistryRequest(notificationAddress, organizationNumber);
         var json = JsonSerializer.Serialize(request, _options);
@@ -82,7 +82,7 @@ public class OrganizationNotificationAddressHttpClient(HttpClient httpClient, Or
     }
 
     /// <inheritdoc/>
-    public async Task<(string? RegistryId, string? ErrorMessage)> UpdateNotificationAddress(NotificationAddress notificationAddress, string organizationNumber)
+    public async Task<string> UpdateNotificationAddress(NotificationAddress notificationAddress, string organizationNumber)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(notificationAddress.RegistryID);
 
@@ -97,7 +97,7 @@ public class OrganizationNotificationAddressHttpClient(HttpClient httpClient, Or
     }
 
     /// <inheritdoc/>
-    public async Task<(string? RegistryId, string? ErrorMessage)> DeleteNotificationAddress(string notificationAddressRegistryId)
+    public async Task<string> DeleteNotificationAddress(string notificationAddressRegistryId)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(notificationAddressRegistryId);
 
@@ -110,7 +110,7 @@ public class OrganizationNotificationAddressHttpClient(HttpClient httpClient, Or
         return responseObject;
     }
 
-    private async Task<(string? RegistryId, string? ErrorMessage)> PostAsync(string request, string command)
+    private async Task<string> PostAsync(string request, string command)
     {
         var stringContent = new StringContent(request, Encoding.UTF8, "application/json");
         string endpoint = _organizationNotificationAddressSettings.UpdateEndpoint + command;
@@ -130,11 +130,11 @@ public class OrganizationNotificationAddressHttpClient(HttpClient httpClient, Or
             throw new OrganizationNotificationAddressChangesException("Failed to deserialize the response from external registry.");
         }
 
-        if (responseObject.BoolResult != true)
+        if (responseObject.BoolResult != true || responseObject.AddressID == null)
         {
-            return (string.Empty, responseObject.Status);
+            throw new OrganizationNotificationAddressChangesException(responseObject.Status + ": " + responseObject.Details);
         }
 
-        return (responseObject.AddressID, string.Empty);
+        return responseObject.AddressID;
     }
 }

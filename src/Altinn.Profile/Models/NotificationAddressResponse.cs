@@ -6,9 +6,8 @@
     public class NotificationAddressResponse : NotificationAddressModel
     {
         /// <summary>
-        /// An error message indicating why the notification address could not be updated
-        /// Will be null when no error occurred.
+        /// <see cref="NotificationAddressID"/>
         /// </summary>
-        public string ErrorMessage { get; set; }
+        public int NotificationAddressID { get; set; }
     }
 }

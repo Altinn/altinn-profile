@@ -1,8 +1,5 @@
 ﻿#nullable disable
 
-using System.ComponentModel.DataAnnotations;
-using System.Runtime.Serialization;
-
 namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 {
     /// <summary>
@@ -54,11 +51,5 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// A value indicating whether the entity should be deleted in Altinn.
         /// </summary>
         public bool? ToBeDeleted { get; set; }
-
-        /// <summary>
-        /// Gets or sets status message of operation against the registry
-        /// </summary>
-        [DataMember]
-        public string UpdateMessage { get; set; }
     }
 }

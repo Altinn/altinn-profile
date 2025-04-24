@@ -146,7 +146,7 @@ public class OrganizationNotificationAddressHttpClientTests
     public async Task CreateNewAddress_WhenValid_Success()
     {
         // Arrange
-        var response = new RegistryResponse();
+        var response = new RegistryResponse { BoolResult = true, AddressID = "1" };
         var mockResponse = new HttpResponseMessage
         {
             StatusCode = HttpStatusCode.OK,
@@ -158,11 +158,10 @@ public class OrganizationNotificationAddressHttpClientTests
         var notificationAddress = new NotificationAddress() { AddressType = AddressType.SMS, Address = "98765432", Domain = "+47", RegistryID = Guid.NewGuid().ToString("N") };
 
         // Act
-        var va = await client.CreateNewNotificationAddress(notificationAddress, "123456789");
+        var addressId = await client.CreateNewNotificationAddress(notificationAddress, "123456789");
 
         // Assert
-        Assert.IsType<string>(va.RegistryId);
-        Assert.Null(va.ErrorMessage);
+        Assert.IsType<string>(addressId);
 
         _messageHandler.VerifyAll();
     }
@@ -190,10 +189,10 @@ public class OrganizationNotificationAddressHttpClientTests
     }
 
     [Fact]
-    public async Task UpdateAddress_WhenValid_Success()
+    public async Task UpdateAddress_WhenValidation_ThrowsException()
     {
         // Arrange
-        var response = new RegistryResponse();
+        var response = new RegistryResponse { BoolResult = false, Status = "VALIDATION_EXCEPTION" };
         var mockResponse = new HttpResponseMessage
         {
             StatusCode = HttpStatusCode.OK,
@@ -205,12 +204,32 @@ public class OrganizationNotificationAddressHttpClientTests
         var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com", RegistryID = Guid.NewGuid().ToString("N") };
 
         // Act
-        var va = await client.UpdateNotificationAddress(notificationAddress, "123456789");
+        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.UpdateNotificationAddress(notificationAddress, "123456789"));
 
         // Assert
+        _messageHandler.VerifyAll();
+    }
+
+    [Fact]
+    public async Task UpdateAddress_WhenValid_Success()
+    {
+        // Arrange
+        var response = new RegistryResponse { BoolResult = true, AddressID = "1" };
+        var mockResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = JsonContent.Create(response)
+        };
+
+        var client = CreateHttpClient(mockResponse);
+
+        var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com", RegistryID = Guid.NewGuid().ToString("N") };
+
+        // Act
+        var addressId = await client.UpdateNotificationAddress(notificationAddress, "123456789");
+
         // Assert
-        Assert.IsType<string>(va.RegistryId);
-        Assert.Null(va.ErrorMessage);
+        Assert.IsType<string>(addressId);
         _messageHandler.VerifyAll();
     }
 
@@ -218,7 +237,7 @@ public class OrganizationNotificationAddressHttpClientTests
     public async Task DeleteAddress_WhenValid_Success()
     {
         // Arrange
-        var response = new RegistryResponse();
+        var response = new RegistryResponse { BoolResult = true, AddressID = "1" };
         var mockResponse = new HttpResponseMessage
         {
             StatusCode = HttpStatusCode.OK,
@@ -228,12 +247,10 @@ public class OrganizationNotificationAddressHttpClientTests
         var client = CreateHttpClient(mockResponse);
 
         // Act
-        var va = await client.DeleteNotificationAddress(Guid.NewGuid().ToString("N"));
+        var addressId = await client.DeleteNotificationAddress(Guid.NewGuid().ToString("N"));
 
         // Assert
-        // Assert
-        Assert.IsType<string>(va.RegistryId);
-        Assert.Null(va.ErrorMessage);
+        Assert.IsType<string>(addressId);
         _messageHandler.VerifyAll();
     }
 }

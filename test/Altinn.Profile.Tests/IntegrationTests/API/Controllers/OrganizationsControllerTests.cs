@@ -175,11 +175,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
             .Setup(r => r.CreateNotificationAddressAsync(It.IsAny<string>(), It.IsAny<NotificationAddress>()))
-            .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo));
+            .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
 
             _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock.Setup(
                 c => c.CreateNewNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
-                .ReturnsAsync(("123456789", null));
+                .ReturnsAsync("123456789");
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
 
             var input = new NotificationAddressModel { Email = "test@test.com" };
@@ -212,11 +212,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
             .Setup(r => r.CreateNotificationAddressAsync(It.IsAny<string>(), It.IsAny<NotificationAddress>()))
-            .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo));
+            .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
 
             _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock.Setup(
                 c => c.CreateNewNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
-                .ReturnsAsync(("123456789", null));
+                .ReturnsAsync("123456789");
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
 
             var input = new NotificationAddressModel { Phone = "98765432", CountryCode = "+47" };

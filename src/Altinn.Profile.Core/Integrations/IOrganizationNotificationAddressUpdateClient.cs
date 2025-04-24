@@ -15,7 +15,7 @@ public interface IOrganizationNotificationAddressUpdateClient
     /// <returns>
     /// A task that represents the asynchronous operation with the returned values.
     /// </returns>
-    Task<(string? RegistryId, string? ErrorMessage)> CreateNewNotificationAddress(NotificationAddress notificationAddress, string organizationNumber);
+    Task<string> CreateNewNotificationAddress(NotificationAddress notificationAddress, string organizationNumber);
 
     /// <summary>
     /// Updates the notification address in the registry
@@ -25,7 +25,7 @@ public interface IOrganizationNotificationAddressUpdateClient
     /// <returns>
     /// A task that represents the asynchronous operation with the returned values.
     /// </returns>
-    Task<(string? RegistryId, string? ErrorMessage)> UpdateNotificationAddress(NotificationAddress notificationAddress, string organizationNumber);
+    Task<string> UpdateNotificationAddress(NotificationAddress notificationAddress, string organizationNumber);
 
     /// <summary>
     /// Deletes a notification address from the registry
@@ -34,5 +34,5 @@ public interface IOrganizationNotificationAddressUpdateClient
     /// <returns>
     /// A task that represents the asynchronous operation with the returned values.
     /// </returns>
-    Task<(string? RegistryId, string? ErrorMessage)> DeleteNotificationAddress(string notificationAddressRegistryId);
+    Task<string> DeleteNotificationAddress(string notificationAddressRegistryId);
 }

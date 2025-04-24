@@ -57,6 +57,43 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
+        /// Endpoint looking up the notification addresses for the given organization
+        /// </summary>
+        /// <returns>Returns an overview of the registered notification addresses for the provided organization</returns>
+        [HttpGet("mandatory/{notificationAddressId}")]
+        [Authorize(Policy = AuthConstants.OrgNotificationAddress_Read)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<NotificationAddressResponse>> GetMandatoryNotificationAddress([FromRoute] string organizationNumber, [FromRoute] int notificationAddressId, CancellationToken cancellationToken)
+        {
+            var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses([organizationNumber], cancellationToken);
+
+            var orgCount = organizations.Count();
+
+            if (orgCount == 0)
+            {
+                return NotFound();
+            }
+            else if (orgCount > 1)
+            {
+                throw new InvalidOperationException("Indecisive organization result");
+            }
+
+            var organization = organizations.First();
+            var notificationAddress = organization.NotificationAddresses.First(n => n.NotificationAddressID == notificationAddressId);
+
+            if (notificationAddress == null)
+            {
+                return NotFound();
+            }
+
+            var response = OrganizationResponseMapper.MapNotificationAddress(notificationAddress);
+
+            return Ok(response);
+        }
+
+        /// <summary>
         /// Create a new notification address for an organization
         /// </summary>
         /// <returns>Returns an overview of the registered notification addresses for the given organization</returns>
@@ -79,11 +116,11 @@ namespace Altinn.Profile.Controllers
 
             var notificationAddresses = request.ToInternalModel();
 
-            var organization = await _notificationAddressService.CreateNotificationAddress(organizationNumber, notificationAddresses, cancellationToken);
+            var newNotificationAddress = await _notificationAddressService.CreateNotificationAddress(organizationNumber, notificationAddresses, cancellationToken);
 
-            var response = OrganizationResponseMapper.MapResponse(organization);
+            var response = OrganizationResponseMapper.MapNotificationAddress(newNotificationAddress);
 
-            return CreatedAtAction(nameof(GetMandatory), new { organizationNumber }, response);
+            return CreatedAtAction(nameof(GetMandatoryNotificationAddress), new { organizationNumber, newNotificationAddress.NotificationAddressID }, response);
         }
     }
 }

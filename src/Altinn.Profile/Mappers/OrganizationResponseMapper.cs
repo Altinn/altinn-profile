@@ -24,12 +24,16 @@ namespace Altinn.Profile.Mappers
             return result;
         }
 
-        private static NotificationAddressResponse MapNotificationAddress(NotificationAddress notificationAddress)
+        /// <summary>
+        /// Maps from a notification address to a notification address reponse
+        /// </summary>
+        public static NotificationAddressResponse MapNotificationAddress(NotificationAddress notificationAddress)
         {
             var response = new NotificationAddressResponse
             {
-                ErrorMessage = notificationAddress.UpdateMessage,
+                NotificationAddressID = notificationAddress.NotificationAddressID,
             };
+
             if (notificationAddress.AddressType == AddressType.Email)
             {
                 response.Email = notificationAddress.FullAddress;

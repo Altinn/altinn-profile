@@ -263,19 +263,18 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task CreateNotificationAddressAsync_WhenFirstAdded_ReturnsOrgWithNotificationAddress()
+    public async Task CreateNotificationAddressAsync_WhenFirstAdded_ReturnsStoredNotificationAddress()
     {
         // Arrange
         var orgNumber = "000000000";
 
         // Act
-        var org = await _repository.CreateNotificationAddressAsync(orgNumber, new NotificationAddress { AddressType = AddressType.Email, FullAddress = "test@test.com", RegistryID = "1", Address = "test" });
+        var na = await _repository.CreateNotificationAddressAsync(orgNumber, new NotificationAddress { AddressType = AddressType.Email, FullAddress = "test@test.com", RegistryID = "1", Address = "test" });
 
         // Assert;
-        Assert.IsType<Organization>(org);
-        Assert.NotEmpty(org.NotificationAddresses);
-        Assert.Single(org.NotificationAddresses);
-        Assert.Equal(orgNumber, org.OrganizationNumber);
+        Assert.IsType<NotificationAddress>(na);
+        Assert.NotNull(na.RegistryID);
+        Assert.NotEqual(default, na.NotificationAddressID);
     }
 
     [Fact]
@@ -291,13 +290,12 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
             .Find(p => p.RegistryOrganizationNumber == orgNumber);
 
         // Act
-        var org = await _repository.CreateNotificationAddressAsync(orgNumber, new NotificationAddress { AddressType = AddressType.Email, FullAddress = "test@test.com", RegistryID = "1", Address = "test" });
+        var na = await _repository.CreateNotificationAddressAsync(orgNumber, new NotificationAddress { AddressType = AddressType.Email, FullAddress = "test@test.com", RegistryID = "1", Address = "test" });
 
         // Assert
-        Assert.IsType<Organization>(org);
-        Assert.NotEmpty(org.NotificationAddresses);
-        Assert.Equal(org.NotificationAddresses.Count, expectedOrg1.NotificationAddresses.Count + 1);
-        Assert.Equal(org.OrganizationNumber, expectedOrg1.RegistryOrganizationNumber);
+        Assert.IsType<NotificationAddress>(na);
+        Assert.NotNull(na.RegistryID);
+        Assert.NotEqual(default, na.NotificationAddressID);
     }
 
     private static void AssertRegisterProperties(OrganizationDE expected, OrganizationDE actual)
