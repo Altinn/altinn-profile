@@ -1,18 +1,17 @@
 ﻿using System.Linq;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
-using Altinn.Profile.Models;
 
-namespace Altinn.Profile.Mappers
+namespace Altinn.Profile.Models
 {
     /// <summary>
-    /// Maps from an organization notificationAddress input model to the internal models
+    /// Extention class to map from Notification address input model 
     /// </summary>
-    public static class OrganizationRequestMapper
+    public static class NotificationAddressModelExtensions
     {
         /// <summary>
         /// Maps from notification address request model to notification address core model
         /// </summary>
-        public static NotificationAddress MapNotificationAddress(NotificationAddressModel notificationAddress)
+        public static NotificationAddress ToInternalModel(this NotificationAddressModel notificationAddress)
         {
             var response = new NotificationAddress
             {
@@ -20,7 +19,7 @@ namespace Altinn.Profile.Mappers
             };
 
             if (!string.IsNullOrEmpty(notificationAddress.Email))
-            {   
+            {
                 var emailParts = notificationAddress.Email.Trim().Split('@');
                 response.Address = emailParts.First();
                 response.Domain = emailParts.Last();

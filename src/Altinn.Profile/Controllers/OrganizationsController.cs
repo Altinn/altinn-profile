@@ -15,20 +15,15 @@ namespace Altinn.Profile.Controllers
     /// <summary>
     /// Controller for organization notifications address API endpoints for external usage
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="OrganizationsController"/> class.
+    /// </remarks>
     [Route("profile/api/v1/organizations/{organizationNumber}/notificationaddresses")]
     [Consumes("application/json")]
     [Produces("application/json")]
-    public class OrganizationsController : ControllerBase
+    public class OrganizationsController(IOrganizationNotificationAddressesService notificationAddressService) : ControllerBase
     {
-        private readonly IOrganizationNotificationAddressesService _notificationAddressService;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OrganizationsController"/> class.
-        /// </summary>
-        public OrganizationsController(IOrganizationNotificationAddressesService notificationAddressService)
-        {
-            _notificationAddressService = notificationAddressService;
-        }
+        private readonly IOrganizationNotificationAddressesService _notificationAddressService = notificationAddressService;
 
         /// <summary>
         /// Endpoint looking up the notification addresses for the given organization
@@ -82,7 +77,7 @@ namespace Altinn.Profile.Controllers
                 return BadRequest("Organization number is required");
             }
 
-            var notificationAddresses = OrganizationRequestMapper.MapNotificationAddress(request);
+            var notificationAddresses = request.ToInternalModel();
 
             var organization = await _notificationAddressService.CreateNotificationAddress(organizationNumber, notificationAddresses, cancellationToken);
 
