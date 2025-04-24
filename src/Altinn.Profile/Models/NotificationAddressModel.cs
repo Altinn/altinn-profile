@@ -24,16 +24,5 @@ namespace Altinn.Profile.Models
         /// </summary>
         [CustomRegexForNotificationAddresses("Phone")]
         public string Phone { get; set; }
-
-        /// <summary>
-        /// A value indicating whether the entity is deleted in Altinn.
-        /// </summary>
-        public bool? IsDeleted { get; set; }
-
-        /// <summary>
-        /// An error message indicating why the notification address could not be updated
-        /// Will be null when no error occurred.
-        /// </summary>
-        public string ErrorMessage { get; set; }
     }
 }

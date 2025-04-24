@@ -1,7 +1,7 @@
 ﻿namespace Altinn.Profile.Core.OrganizationNotificationAddresses;
 
 /// <summary>
-/// Defines a service which can retrieve notification addresses for organizations
+/// Defines a service which handles notification addresses for organizations
 /// </summary>
 public interface IOrganizationNotificationAddressesService
 {

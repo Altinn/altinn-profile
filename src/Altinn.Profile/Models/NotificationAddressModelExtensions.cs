@@ -13,10 +13,7 @@ namespace Altinn.Profile.Models
         /// </summary>
         public static NotificationAddress ToInternalModel(this NotificationAddressModel notificationAddress)
         {
-            var response = new NotificationAddress
-            {
-                ToBeDeleted = notificationAddress.IsDeleted,
-            };
+            var response = new NotificationAddress();
 
             if (!string.IsNullOrEmpty(notificationAddress.Email))
             {
