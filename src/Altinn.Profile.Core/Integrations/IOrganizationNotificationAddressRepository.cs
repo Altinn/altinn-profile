@@ -3,7 +3,7 @@
 namespace Altinn.Profile.Core.Integrations;
 
 /// <summary>
-/// Defines a repository for accessing  notification addresses of organizations.
+/// Defines a repository for interacting with notification addresses of organizations.
 /// </summary>
 public interface IOrganizationNotificationAddressRepository
 {

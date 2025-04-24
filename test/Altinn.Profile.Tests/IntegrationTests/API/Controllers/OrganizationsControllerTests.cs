@@ -91,7 +91,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory");
-            httpRequestMessage = CreateAutorizedRequest(UserId, httpRequestMessage);
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -119,7 +119,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory");
-            httpRequestMessage = CreateAutorizedRequest(UserId, httpRequestMessage);
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -187,7 +187,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
             };
-            httpRequestMessage = CreateAutorizedRequest(UserId, httpRequestMessage);
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -224,7 +224,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
             };
-            httpRequestMessage = CreateAutorizedRequest(UserId, httpRequestMessage);
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -257,7 +257,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
             };
-            httpRequestMessage = CreateAutorizedRequest(UserId, httpRequestMessage);
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -295,7 +295,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
             };
-            httpRequestMessage = CreateAutorizedRequest(UserId, httpRequestMessage);
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -319,7 +319,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Contains("The field Phone must match the regular expression", phoneMessage[0]);
         }
 
-        private static HttpRequestMessage CreateAutorizedRequest(int userId, HttpRequestMessage httpRequestMessage)
+        private static HttpRequestMessage CreateAuthorizedRequest(int userId, HttpRequestMessage httpRequestMessage)
         {
             string token = PrincipalUtil.GetToken(userId);
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
