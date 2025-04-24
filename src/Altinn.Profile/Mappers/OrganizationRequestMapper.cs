@@ -20,9 +20,10 @@ namespace Altinn.Profile.Mappers
             };
 
             if (!string.IsNullOrEmpty(notificationAddress.Email))
-            {
-                response.Address = notificationAddress.Email.Trim().Split('@').First();
-                response.Domain = notificationAddress.Email.Trim().Split('@').Last();
+            {   
+                var emailParts = notificationAddress.Email.Trim().Split('@');
+                response.Address = emailParts.First();
+                response.Domain = emailParts.Last();
                 response.AddressType = AddressType.Email;
                 response.FullAddress = notificationAddress.Email.Trim();
             }

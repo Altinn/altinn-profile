@@ -62,12 +62,13 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
-        /// Endpoint looking up the notification addresses for the given organization
+        /// Create a new notification address for an organization
         /// </summary>
-        /// <returns>Returns an overview of the registered notification addresses for the provided organization</returns>
+        /// <returns>Returns an overview of the registered notification addresses for the given organization</returns>
         [HttpPost("mandatory")]
         [Authorize(Policy = AuthConstants.OrgNotificationAddress_Write)]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<OrganizationResponse>> CreateNotificationAddress([FromRoute] string organizationNumber, [FromBody] NotificationAddressModel request, CancellationToken cancellationToken)
         {
@@ -87,7 +88,7 @@ namespace Altinn.Profile.Controllers
 
             var response = OrganizationResponseMapper.MapResponse(organization);
 
-            return Created($"profile/api/v1/organizations/{organizationNumber}/notificationaddresses/mandatory", response);
+            return CreatedAtAction(nameof(GetMandatory), new { organizationNumber }, response);
         }
     }
 }
