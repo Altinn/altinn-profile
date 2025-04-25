@@ -57,9 +57,9 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
-        /// Endpoint looking up the notification addresses for the given organization
+        /// Endpoint looking up a specific notification address for the given organization
         /// </summary>
-        /// <returns>Returns an overview of the registered notification addresses for the provided organization</returns>
+        /// <returns>Returns the notification addresses for the provided organization</returns>
         [HttpGet("mandatory/{notificationAddressId}")]
         [Authorize(Policy = AuthConstants.OrgNotificationAddress_Read)]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -67,6 +67,11 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<NotificationAddressResponse>> GetMandatoryNotificationAddress([FromRoute] string organizationNumber, [FromRoute] int notificationAddressId, CancellationToken cancellationToken)
         {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
             var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses([organizationNumber], cancellationToken);
 
             var orgCount = organizations.Count();
@@ -81,7 +86,7 @@ namespace Altinn.Profile.Controllers
             }
 
             var organization = organizations.First();
-            var notificationAddress = organization.NotificationAddresses.First(n => n.NotificationAddressID == notificationAddressId);
+            var notificationAddress = organization.NotificationAddresses.FirstOrDefault(n => n.NotificationAddressID == notificationAddressId);
 
             if (notificationAddress == null)
             {

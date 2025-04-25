@@ -58,6 +58,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                             Address = "test",
                             Domain = "test.com",
                             AddressType = AddressType.Email,
+                            NotificationAddressID = 1
                         },
                         new()
                         {
@@ -65,6 +66,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                             Address = "98765432",
                             Domain = "+47",
                             AddressType = AddressType.SMS,
+                            NotificationAddressID = 2
                         },
                         new()
                         {
@@ -72,6 +74,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                             Address = "47765432",
                             Domain = "+47",
                             AddressType = AddressType.SMS,
+                            NotificationAddressID = 3
                         }
                     ]
                 }
@@ -152,6 +155,84 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory");
+            string token = PrincipalUtil.GetOrgToken(orgNo);
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetMandatoryNotificationAddress_WhenOneAddressFound_ReturnsOk()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1");
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<NotificationAddressResponse>(responseContent, _serializerOptions);
+            Assert.Equal("123456789", actual.Email);
+        }
+
+        [Fact]
+        public async Task GetMandatoryNotificationAddress_WhenNoMatchingOrganization_ReturnsNotFound()
+        {
+            // Arrange
+            var orgNo = "error-org";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1");
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetMandatoryNotificationAddress_WhenNoAuth_ReturnsUnautorized()
+        {
+            // Arrange
+            var orgNo = "123456789";
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetMandatoryNotificationAddress_WhenHavingWrongAccessToken_ReturnsForbidden()
+        {
+            // Arrange
+            var orgNo = "123456789";
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1");
             string token = PrincipalUtil.GetOrgToken(orgNo);
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
