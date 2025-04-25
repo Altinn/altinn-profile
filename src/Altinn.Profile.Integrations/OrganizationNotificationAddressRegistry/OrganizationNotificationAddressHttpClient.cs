@@ -26,7 +26,6 @@ public class OrganizationNotificationAddressHttpClient(HttpClient httpClient, Or
     };
 
     /// <inheritdoc/>
-    /// <exception cref="ArgumentException">The URL is invalid. - endpointUrl</exception>
     public string GetInitialUrl(DateTime? lastUpdated)
     {
         // Time should be in iso8601 format. Example: 2018-02-15T11:07:12Z
@@ -40,7 +39,6 @@ public class OrganizationNotificationAddressHttpClient(HttpClient httpClient, Or
     }
 
     /// <inheritdoc/>
-    /// <exception cref="ArgumentException">The URL is invalid. - endpointUrl</exception>
     public async Task<NotificationAddressChangesLog> GetAddressChangesAsync(string endpointUrl)
     {
         if (!endpointUrl.IsValidUrl())
@@ -99,7 +97,7 @@ public class OrganizationNotificationAddressHttpClient(HttpClient httpClient, Or
     /// <inheritdoc/>
     public async Task<string> DeleteNotificationAddress(string notificationAddressRegistryId)
     {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(notificationAddressRegistryId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(notificationAddressRegistryId);
 
         // Using /replace/ with empty payload as per API requirements for deletion
         string command = @"/replace/" + notificationAddressRegistryId;

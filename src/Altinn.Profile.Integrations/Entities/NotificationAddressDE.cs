@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Altinn.Profile.Integrations.Entities
 {
     /// <summary>
-    /// class for notifications addresses for organizations 
+    /// Data Entity model for the notification address of an organization
     /// </summary>
     [Table("notifications_address", Schema = "organization_notification_address")]
     [Index(nameof(RegistryID), IsUnique = true)]
