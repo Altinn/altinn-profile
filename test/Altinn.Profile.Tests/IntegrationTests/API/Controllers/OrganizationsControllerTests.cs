@@ -187,7 +187,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             string responseContent = await response.Content.ReadAsStringAsync();
             var actual = JsonSerializer.Deserialize<NotificationAddressResponse>(responseContent, _serializerOptions);
-            Assert.Equal("123456789", actual.Email);
+            Assert.Equal("test@test.com", actual.Email);
         }
 
         [Fact]
