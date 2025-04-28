@@ -6,12 +6,12 @@ namespace Altinn.Profile.Models
     /// <summary>
     /// Extension class to map from Notification address input model 
     /// </summary>
-    public static class NotificationAddressModelExtensions
+    public static class NotificationAddressRequestMapper
     {
         /// <summary>
         /// Maps from notification address input model to notification address core model
         /// </summary>
-        public static NotificationAddress ToInternalModel(this NotificationAddressModel notificationAddress)
+        public static NotificationAddress ToInternalModel(NotificationAddressModel notificationAddress)
         {
             var response = new NotificationAddress();
 
