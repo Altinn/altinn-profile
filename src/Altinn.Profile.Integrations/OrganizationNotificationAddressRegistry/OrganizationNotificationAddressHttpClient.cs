@@ -16,7 +16,9 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 /// </remarks>
 /// <param name="httpClient">The HTTP client to interact with KoFuVi.</param>
 /// <param name="organizationNotificationAddressSettings">Settings for http client with base addresses</param>
-public class OrganizationNotificationAddressHttpClient(HttpClient httpClient, OrganizationNotificationAddressSettings organizationNotificationAddressSettings) : IOrganizationNotificationAddressSyncClient, IOrganizationNotificationAddressUpdateClient
+public class OrganizationNotificationAddressHttpClient(
+    HttpClient httpClient, OrganizationNotificationAddressSettings organizationNotificationAddressSettings) 
+    : IOrganizationNotificationAddressSyncClient, IOrganizationNotificationAddressUpdateClient
 {
     private readonly HttpClient _httpClient = httpClient;
     private readonly OrganizationNotificationAddressSettings _organizationNotificationAddressSettings = organizationNotificationAddressSettings;

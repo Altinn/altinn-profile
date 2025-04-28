@@ -46,10 +46,5 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// A value indicating whether the entity is deleted in Altinn.
         /// </summary>
         public bool? IsSoftDeleted { get; set; }
-
-        /// <summary>
-        /// A value indicating whether the entity should be deleted in Altinn.
-        /// </summary>
-        public bool? ToBeDeleted { get; set; }
     }
 }

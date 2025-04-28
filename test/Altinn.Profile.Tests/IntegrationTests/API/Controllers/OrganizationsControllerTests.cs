@@ -276,8 +276,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
             string responseContent = await response.Content.ReadAsStringAsync();
-            var actual = JsonSerializer.Deserialize<OrganizationResponse>(responseContent, _serializerOptions);
-            Assert.IsType<OrganizationResponse>(actual);
+            var actual = JsonSerializer.Deserialize<NotificationAddressResponse>(responseContent, _serializerOptions);
+            Assert.IsType<NotificationAddressResponse>(actual);
         }
 
         [Fact]
@@ -313,8 +313,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
             string responseContent = await response.Content.ReadAsStringAsync();
-            var actual = JsonSerializer.Deserialize<OrganizationResponse>(responseContent, _serializerOptions);
-            Assert.IsType<OrganizationResponse>(actual);
+            var actual = JsonSerializer.Deserialize<NotificationAddressResponse>(responseContent, _serializerOptions);
+            Assert.IsType<NotificationAddressResponse>(actual);
         }
 
         [Theory]

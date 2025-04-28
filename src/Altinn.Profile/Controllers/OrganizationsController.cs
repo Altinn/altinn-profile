@@ -104,10 +104,10 @@ namespace Altinn.Profile.Controllers
         /// <returns>Returns an overview of the registered notification addresses for the given organization</returns>
         [HttpPost("mandatory")]
         [Authorize(Policy = AuthConstants.OrgNotificationAddress_Write)]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<OrganizationResponse>> CreateNotificationAddress([FromRoute] string organizationNumber, [FromBody] NotificationAddressModel request, CancellationToken cancellationToken)
+        public async Task<ActionResult<NotificationAddressResponse>> CreateNotificationAddress([FromRoute] string organizationNumber, [FromBody] NotificationAddressModel request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
