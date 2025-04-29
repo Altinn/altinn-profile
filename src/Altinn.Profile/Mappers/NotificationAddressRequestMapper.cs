@@ -13,25 +13,25 @@ namespace Altinn.Profile.Models
         /// </summary>
         public static NotificationAddress ToInternalModel(NotificationAddressModel notificationAddress)
         {
-            var response = new NotificationAddress();
+            var coreModel = new NotificationAddress();
 
             if (!string.IsNullOrEmpty(notificationAddress.Email))
             {
                 var emailParts = notificationAddress.Email.Trim().Split('@');
-                response.Address = emailParts.First();
-                response.Domain = emailParts.Last();
-                response.AddressType = AddressType.Email;
-                response.FullAddress = notificationAddress.Email.Trim();
+                coreModel.Address = emailParts.First();
+                coreModel.Domain = emailParts.Last();
+                coreModel.AddressType = AddressType.Email;
+                coreModel.FullAddress = notificationAddress.Email.Trim();
             }
             else if (!string.IsNullOrEmpty(notificationAddress.Phone))
             {
-                response.Address = notificationAddress.Phone.Trim();
-                response.Domain = notificationAddress.CountryCode.Trim();
-                response.AddressType = AddressType.SMS;
-                response.FullAddress = response.Domain + response.Address;
+                coreModel.Address = notificationAddress.Phone.Trim();
+                coreModel.Domain = notificationAddress.CountryCode?.Trim();
+                coreModel.AddressType = AddressType.SMS;
+                coreModel.FullAddress = coreModel.Domain + coreModel.Address;
             }
 
-            return response;
+            return coreModel;
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Altinn.Profile.Mappers
             var result = new OrganizationResponse
             {
                 OrganizationNumber = organization.OrganizationNumber,
-                NotificationAddresses = organization.NotificationAddresses.Where(n => n.IsSoftDeleted != true).Select(MapNotificationAddress).ToList()
+                NotificationAddresses = [.. organization.NotificationAddresses.Where(n => n.IsSoftDeleted != true).Select(MapNotificationAddressResponse)]
             };
 
             return result;
@@ -27,7 +27,7 @@ namespace Altinn.Profile.Mappers
         /// <summary>
         /// Maps from a notification address to a notification address reponse
         /// </summary>
-        public static NotificationAddressResponse MapNotificationAddress(NotificationAddress notificationAddress)
+        public static NotificationAddressResponse MapNotificationAddressResponse(NotificationAddress notificationAddress)
         {
             var response = new NotificationAddressResponse
             {

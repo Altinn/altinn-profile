@@ -93,7 +93,7 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
-            var response = OrganizationResponseMapper.MapNotificationAddress(notificationAddress);
+            var response = OrganizationResponseMapper.MapNotificationAddressResponse(notificationAddress);
 
             return Ok(response);
         }
@@ -123,7 +123,7 @@ namespace Altinn.Profile.Controllers
 
             var newNotificationAddress = await _notificationAddressService.CreateNotificationAddress(organizationNumber, notificationAddresses, cancellationToken);
 
-            var response = OrganizationResponseMapper.MapNotificationAddress(newNotificationAddress);
+            var response = OrganizationResponseMapper.MapNotificationAddressResponse(newNotificationAddress);
 
             return CreatedAtAction(nameof(GetMandatoryNotificationAddress), new { organizationNumber, newNotificationAddress.NotificationAddressID }, response);
         }
