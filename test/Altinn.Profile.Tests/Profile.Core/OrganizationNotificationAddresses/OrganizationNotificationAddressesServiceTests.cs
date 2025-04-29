@@ -95,7 +95,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             _updateClient.Setup(c => c.CreateNewNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
                 .ReturnsAsync("registry-id");
             
-            _repository.Setup(r => r.CreateNotificationAddressAsync(It.IsAny<string>(), It.IsAny<NotificationAddress>()))
+            _repository.Setup(r => r.CreateNotificationAddressAsync(It.IsAny<string>(), It.IsAny<NotificationAddress>(), It.IsAny<string>()))
                 .ReturnsAsync(new NotificationAddress { });
             
             // Act
@@ -139,7 +139,10 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             // Act & Assert
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
                 _service.CreateNotificationAddress(orgNum, newAddress, CancellationToken.None));
+
             Assert.Contains("Something went wrong", ex.Message);
+            _repository.Verify(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repository.VerifyNoOtherCalls();
         }
     }
 }

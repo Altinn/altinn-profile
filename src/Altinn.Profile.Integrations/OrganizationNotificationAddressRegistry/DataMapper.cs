@@ -134,7 +134,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
         /// <summary>
         /// Maps from the core data model to the data model stored in the database
         /// </summary>
-        public static NotificationAddressDE MapFromCoreModelNotificationAddress(OrganizationDE organization, NotificationAddress notificationAddress)
+        public static NotificationAddressDE MapFromCoreModelNotificationAddress(OrganizationDE organization, NotificationAddress notificationAddress, string registryId)
         {
             var organizationNotificationAddress = new NotificationAddressDE
             {
@@ -147,7 +147,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
                 FullAddress = notificationAddress.FullAddress,
                 AddressType = notificationAddress.AddressType,
                 NotificationName = notificationAddress.NotificationName,
-                RegistryID = notificationAddress.RegistryID,
+                RegistryID = registryId,
             };
 
             return organizationNotificationAddress;

@@ -17,5 +17,5 @@ public interface IOrganizationNotificationAddressRepository
     /// Creates a new notification address for an organization
     /// </summary>
     /// <returns>A <see cref="Task{TResult}"/> with an organization as value.</returns>
-    Task<NotificationAddress> CreateNotificationAddressAsync(string organizationNumber, NotificationAddress notificationAddress);
+    Task<NotificationAddress> CreateNotificationAddressAsync(string organizationNumber, NotificationAddress notificationAddress, string registryId);
 }

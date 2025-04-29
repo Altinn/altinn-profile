@@ -6,7 +6,7 @@
 public interface IOrganizationNotificationAddressesService
 {
     /// <summary>
-    /// Method for creating a notification addresses for an organization
+    /// Method for creating a notification addresses for an organization. Data is written primarily to an <see cref="IOrganizationNotificationAddressUpdateClient"/> and lastly to the <see cref="IOrganizationNotificationAddressRepository"/>.
     /// </summary>
     /// <param name="organizationNumber">An organization number to indicate which organization to update addresses for</param>
     /// <param name="notificationAddress">The new notification address</param>

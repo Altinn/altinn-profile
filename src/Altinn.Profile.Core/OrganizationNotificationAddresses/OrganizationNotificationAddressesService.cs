@@ -3,7 +3,7 @@
 namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 {
     /// <summary>
-    /// Implementation of the <see cref="IOrganizationNotificationAddressesService"/> interface using an <see cref="IOrganizationNotificationAddressRepository"/> to interact with notification addresses of organizations "/>
+    /// Implementation of the <see cref="IOrganizationNotificationAddressesService"/>, using an <see cref="IOrganizationNotificationAddressRepository"/> to interact with notification addresses of organizations "/>
     /// </summary>
     /// <remarks>
     /// Initializes a new instance of the <see cref="OrganizationNotificationAddressesService"/> class.
@@ -28,9 +28,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 
             var registryId = await _updateClient.CreateNewNotificationAddress(notificationAddress, organizationNumber);
 
-            notificationAddress.RegistryID = registryId;
-
-            var updatedNotificationAddress = await _orgRepository.CreateNotificationAddressAsync(organizationNumber, notificationAddress);
+            var updatedNotificationAddress = await _orgRepository.CreateNotificationAddressAsync(organizationNumber, notificationAddress, registryId);
 
             return updatedNotificationAddress;
         }

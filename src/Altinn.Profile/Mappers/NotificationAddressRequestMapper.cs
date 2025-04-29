@@ -13,22 +13,29 @@ namespace Altinn.Profile.Models
         /// </summary>
         public static NotificationAddress ToInternalModel(NotificationAddressModel notificationAddress)
         {
-            var coreModel = new NotificationAddress();
+            NotificationAddress coreModel;
 
+            // The notificationAddressModel validates that either Phone or Email must be specified
             if (!string.IsNullOrEmpty(notificationAddress.Email))
             {
                 var emailParts = notificationAddress.Email.Trim().Split('@');
-                coreModel.Address = emailParts.First();
-                coreModel.Domain = emailParts.Last();
-                coreModel.AddressType = AddressType.Email;
-                coreModel.FullAddress = notificationAddress.Email.Trim();
+                coreModel = new NotificationAddress
+                {
+                    AddressType = AddressType.Email,
+                    Address = emailParts.First(),
+                    Domain = emailParts.Last(),
+                    FullAddress = notificationAddress.Email.Trim()
+                };
             }
-            else if (!string.IsNullOrEmpty(notificationAddress.Phone))
+            else
             {
-                coreModel.Address = notificationAddress.Phone.Trim();
-                coreModel.Domain = notificationAddress.CountryCode?.Trim();
-                coreModel.AddressType = AddressType.SMS;
-                coreModel.FullAddress = coreModel.Domain + coreModel.Address;
+                coreModel = new NotificationAddress
+                {
+                    AddressType = AddressType.SMS,
+                    Address = notificationAddress.Phone.Trim(),
+                    Domain = notificationAddress.CountryCode?.Trim(),
+                    FullAddress = notificationAddress.CountryCode?.Trim() + notificationAddress.Phone.Trim()
+                };
             }
 
             return coreModel;

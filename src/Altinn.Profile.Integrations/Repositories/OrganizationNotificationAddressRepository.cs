@@ -162,7 +162,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     }
 
     /// <inheritdoc/>
-    public async Task<NotificationAddress> CreateNotificationAddressAsync(string organizationNumber, NotificationAddress notificationAddress)
+    public async Task<NotificationAddress> CreateNotificationAddressAsync(string organizationNumber, NotificationAddress notificationAddress, string registryId)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
@@ -176,7 +176,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
                 NotificationAddresses = [],
             };
 
-        var organizationNotificationAddress = DataMapper.MapFromCoreModelNotificationAddress(orgDE, notificationAddress);
+        var organizationNotificationAddress = DataMapper.MapFromCoreModelNotificationAddress(orgDE, notificationAddress, registryId);
 
         orgDE.NotificationAddresses!.Add(organizationNotificationAddress);
         databaseContext.Organizations.Update(orgDE);
