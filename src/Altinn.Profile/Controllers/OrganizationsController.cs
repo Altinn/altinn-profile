@@ -134,8 +134,8 @@ namespace Altinn.Profile.Controllers
         /// <returns>Returns an overview of the registered notification addresses for the given organization</returns>
         [HttpPut("mandatory/{notificationAddressId}")]
         [Authorize(Policy = AuthConstants.OrgNotificationAddress_Write)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<NotificationAddressResponse>> UpdateNotificationAddress([FromRoute] string organizationNumber, [FromRoute] int notificationAddressId, [FromBody] NotificationAddressModel request, CancellationToken cancellationToken)
