@@ -162,5 +162,29 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             // Assert
             Assert.NotNull(result);
         }
+
+        [Fact]
+        public async Task DeleteNotificationAddress_WhenNoAddressFound_ReturnsNull()
+        {
+            // Act
+            var result = await _service.DeleteNotificationAddress("123456789", 10000, CancellationToken.None);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task DeleteNotificationAddress_WhenNoOrganizationFound_ReturnsNull()
+        {
+            // Arrange
+            _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync([]);
+
+            // Act
+            var result = await _service.DeleteNotificationAddress("1", 1, CancellationToken.None);
+
+            // Assert
+            Assert.Null(result);
+        }
     }
 }
