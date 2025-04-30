@@ -55,9 +55,14 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
             }
 
             var notificationAddress = org.NotificationAddresses?.FirstOrDefault(n => n.NotificationAddressID == notificationAddressId);
-            if (notificationAddress == null || org.NotificationAddresses?.Count == 1)
+            if (notificationAddress == null)
             {
                 return null;
+            }
+
+            if (org.NotificationAddresses?.Count == 1)
+            {
+                throw new InvalidOperationException("Cannot delete the last notification address");
             }
 
             await _updateClient.DeleteNotificationAddress(notificationAddress.RegistryID);

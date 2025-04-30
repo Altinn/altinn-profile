@@ -15,6 +15,7 @@ using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
 using Xunit;
@@ -45,6 +46,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                         {
                             FullAddress = "test@example.com",
                             AddressType = AddressType.Email,
+                            NotificationAddressID = 9
                         },
                     ]
                 }, new()
@@ -420,11 +422,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync("2");
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
 
-            var input = new NotificationAddressModel { Email = "test@test.com" };
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Delete, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1")
-            {
-                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
-            };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Delete, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1");
             httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
 
             // Act
@@ -435,6 +433,39 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string responseContent = await response.Content.ReadAsStringAsync();
             var actual = JsonSerializer.Deserialize<NotificationAddressResponse>(responseContent, _serializerOptions);
             Assert.IsType<NotificationAddressResponse>(actual);
+        }
+
+        [Fact]
+        public async Task DeleteMandatory_WhenTryingToDeleteLastAddress_ReturnsDeletedResult()
+        {
+            // Arrange
+            var orgNo = "987654321";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+            .Setup(r => r.DeleteNotificationAddressAsync(It.IsAny<int>()))
+            .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock.Setup(
+                c => c.DeleteNotificationAddress(It.IsAny<string>()))
+                .ReturnsAsync("2");
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Delete, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/9");
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<ProblemDetails>(responseContent, _serializerOptions);
+            Assert.IsType<ProblemDetails>(actual);
         }
 
         [Fact]

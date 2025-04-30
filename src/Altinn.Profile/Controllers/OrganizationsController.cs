@@ -149,16 +149,30 @@ namespace Altinn.Profile.Controllers
                 return BadRequest("Organization number is required");
             }
 
-            var updatedNotificationAddress = await _notificationAddressService.DeleteNotificationAddress(organizationNumber, notificationAddressId, cancellationToken);
-
-            if (updatedNotificationAddress == null)
+            try
             {
-                return NotFound();
+                var updatedNotificationAddress = await _notificationAddressService.DeleteNotificationAddress(organizationNumber, notificationAddressId, cancellationToken);
+                if (updatedNotificationAddress == null)
+                {
+                    return NotFound();
+                }
+
+                var response = OrganizationResponseMapper.ToNotificationAddressResponse(updatedNotificationAddress);
+
+                return Ok(response);
             }
-
-            var response = OrganizationResponseMapper.ToNotificationAddressResponse(updatedNotificationAddress);
-
-            return Ok(response);
+            catch (InvalidOperationException ex) 
+                when (ex.Message.Equals("Cannot delete the last notification address", StringComparison.InvariantCultureIgnoreCase))
+            {
+                var problemDetails = new ProblemDetails
+                {
+                    Title = "Conflict",
+                    Detail = ex.Message,
+                    Status = StatusCodes.Status409Conflict,
+                    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.8"
+                };
+                return Conflict(problemDetails);
+            }
         }
     }
 }
