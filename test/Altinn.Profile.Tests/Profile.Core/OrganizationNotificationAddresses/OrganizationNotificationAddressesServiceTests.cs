@@ -168,7 +168,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
         {
             // Arrange
             _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync([new Organization { OrganizationNumber = "123456789", NotificationAddresses = [new NotificationAddress { NotificationAddressID = 1}] }]);
+                .ReturnsAsync([new Organization { OrganizationNumber = "123456789", NotificationAddresses = [new NotificationAddress { NotificationAddressID = 1 }] }]);
 
             // Act
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => _service.DeleteNotificationAddress("123456789", 1, CancellationToken.None));
