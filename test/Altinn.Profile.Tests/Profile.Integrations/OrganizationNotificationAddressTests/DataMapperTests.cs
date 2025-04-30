@@ -82,7 +82,7 @@ public class DataMapperTests
         var notificationAddress = new NotificationAddress { AddressType = AddressType.Email, Address = "test", Domain = "test.com" };
 
         // Act & Assert
-        var request = DataMapper.MapToRegistryRequest(notificationAddress, organization);
+        var request = DataMapper.MapToRegistryRequest(notificationAddress, organization.OrganizationNumber);
 
         Assert.Equal("123456789", request.ContactInfo.UnitContactInfo.UnitIdentifier.Value);
         Assert.Equal("ORGANISASJONSNUMMER", request.ContactInfo.UnitContactInfo.UnitIdentifier.Type);
@@ -98,11 +98,49 @@ public class DataMapperTests
         var notificationAddress = new NotificationAddress { AddressType = AddressType.SMS, Address = "98765432", Domain = "+47" };
 
         // Act & Assert
-        var request = DataMapper.MapToRegistryRequest(notificationAddress, organization);
+        var request = DataMapper.MapToRegistryRequest(notificationAddress, organization.OrganizationNumber);
 
         Assert.Equal("123456789", request.ContactInfo.UnitContactInfo.UnitIdentifier.Value);
         Assert.Equal("ORGANISASJONSNUMMER", request.ContactInfo.UnitContactInfo.UnitIdentifier.Type);
         Assert.Equal("98765432", request.ContactInfo.DigitalContactPoint.PhoneNumber.NationalNumber);
         Assert.Equal("+47", request.ContactInfo.DigitalContactPoint.PhoneNumber.Prefix);
+    }
+
+    [Fact]
+    public void MapFromCoreModelNotificationAddress_WhenEmailAddress_MapsCorrectly()
+    {
+        // Arrange
+        var organizationDE = new OrganizationDE { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
+        var notificationAddress = new NotificationAddress { AddressType = AddressType.Email, Address = "test", Domain = "test.com" };
+
+        // Act & Assert
+        var notificationAddressDE = DataMapper.MapFromCoreModelNotificationAddress(organizationDE, notificationAddress, "id");
+
+        Assert.Equal(notificationAddress.AddressType, notificationAddressDE.AddressType);
+        Assert.Equal(notificationAddress.Address, notificationAddressDE.Address);
+        Assert.Equal(notificationAddress.Domain, notificationAddressDE.Domain);
+        Assert.Equal(notificationAddress.NotificationName, notificationAddressDE.NotificationName);
+        Assert.Equal("id", notificationAddressDE.RegistryID);
+        Assert.Equal(UpdateSource.Altinn, notificationAddressDE.UpdateSource);
+        Assert.False(notificationAddressDE.IsSoftDeleted);
+    }
+
+    [Fact]
+    public void MapFromCoreModelNotificationAddress_WhenPhoneNumber_MapsCorrectly()
+    {
+        // Arrange
+        var organizationDE = new OrganizationDE { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
+        var notificationAddress = new NotificationAddress { AddressType = AddressType.SMS, Address = "98765432", Domain = "+47" };
+
+        // Act & Assert
+        var notificationAddressDE = DataMapper.MapFromCoreModelNotificationAddress(organizationDE, notificationAddress, "id");
+
+        Assert.Equal(notificationAddress.AddressType, notificationAddressDE.AddressType);
+        Assert.Equal(notificationAddress.Address, notificationAddressDE.Address);
+        Assert.Equal(notificationAddress.Domain, notificationAddressDE.Domain);
+        Assert.Equal(notificationAddress.NotificationName, notificationAddressDE.NotificationName);
+        Assert.Equal("id", notificationAddressDE.RegistryID);
+        Assert.Equal(UpdateSource.Altinn, notificationAddressDE.UpdateSource);
+        Assert.False(notificationAddressDE.IsSoftDeleted);
     }
 }

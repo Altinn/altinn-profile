@@ -221,6 +221,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddRegisterService(config);
     services.AddSblBridgeClients(config);
     services.AddMaskinportenClient(config);
+    services.AddProblemDetails();
 
     services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
 }
@@ -267,6 +268,8 @@ void Configure()
 
         // Enable higher level of detail in exceptions related to JWT validation
         IdentityModelEventSource.ShowPII = true;
+
+        app.UseExceptionHandler("/profile/api/v1/error");
     }
     else
     {

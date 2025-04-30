@@ -20,6 +20,12 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Mo
         public bool? BoolResult { get; init; }
 
         /// <summary>
+        /// Id of the address in the registry of the response
+        /// </summary>
+        [JsonPropertyName("addressId")]
+        public string? AddressID { get; init; }
+
+        /// <summary>
         /// TraceID of the response
         /// </summary>
         [JsonPropertyName("traceId")]

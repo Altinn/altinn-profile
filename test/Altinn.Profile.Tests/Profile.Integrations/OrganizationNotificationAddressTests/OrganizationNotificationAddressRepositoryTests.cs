@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Altinn.Profile.Core;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Mappings;
@@ -259,6 +260,42 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
 
         // Assert
         Assert.Empty(orgList);
+    }
+
+    [Fact]
+    public async Task CreateNotificationAddressAsync_WhenFirstAdded_ReturnsStoredNotificationAddress()
+    {
+        // Arrange
+        var orgNumber = "000000000";
+
+        // Act
+        var na = await _repository.CreateNotificationAddressAsync(orgNumber, new NotificationAddress { AddressType = AddressType.Email, FullAddress = "test@test.com", Address = "test" }, "1");
+
+        // Assert;
+        Assert.IsType<NotificationAddress>(na);
+        Assert.NotNull(na.RegistryID);
+        Assert.NotEqual(default, na.NotificationAddressID);
+    }
+
+    [Fact]
+    public async Task CreateNotificationAddressAsync_WhenFound_ReturnsWithAllNotificationAddresses()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        var orgNumber = "123456789";
+
+        var expectedOrg1 = organizations
+            .Find(p => p.RegistryOrganizationNumber == orgNumber);
+
+        // Act
+        var na = await _repository.CreateNotificationAddressAsync(orgNumber, new NotificationAddress { AddressType = AddressType.Email, FullAddress = "test@test.com", Address = "test" }, "1");
+
+        // Assert
+        Assert.IsType<NotificationAddress>(na);
+        Assert.NotNull(na.RegistryID);
+        Assert.NotEqual(default, na.NotificationAddressID);
     }
 
     private static void AssertRegisterProperties(OrganizationDE expected, OrganizationDE actual)

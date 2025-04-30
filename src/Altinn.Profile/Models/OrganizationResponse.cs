@@ -15,6 +15,6 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// Represents a list of mandatory notification address
         /// </summary>
-        public List<NotificationAddressModel> NotificationAddresses { get; set; }
+        public List<NotificationAddressResponse> NotificationAddresses { get; set; }
     }
 }

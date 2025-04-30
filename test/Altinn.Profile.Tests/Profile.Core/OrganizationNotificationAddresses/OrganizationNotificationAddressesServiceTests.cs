@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
-using Altinn.Profile.Models;
 using Moq;
 using Xunit;
 
@@ -16,6 +15,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
         private readonly Mock<IOrganizationNotificationAddressRepository> _repository;
         private readonly OrganizationNotificationAddressesService _service;
         private readonly List<Organization> _testdata;
+        private readonly Mock<IOrganizationNotificationAddressUpdateClient> _updateClient;
 
         public OrganizationNotificationAddressesServiceTests()
         {
@@ -51,7 +51,10 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             _repository = new Mock<IOrganizationNotificationAddressRepository>();
             _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata);
-            _service = new OrganizationNotificationAddressesService(_repository.Object);
+
+            _updateClient = new Mock<IOrganizationNotificationAddressUpdateClient>();
+
+            _service = new OrganizationNotificationAddressesService(_repository.Object, _updateClient.Object);
         }
 
         [Fact]
@@ -83,6 +86,63 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
 
             // Assert
             Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task CreateNotificationAddress_SuccessfulCreation_ReturnsOrganization()
+        { 
+            // Arrange
+            _updateClient.Setup(c => c.CreateNewNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync("registry-id");
+            
+            _repository.Setup(r => r.CreateNotificationAddressAsync(It.IsAny<string>(), It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync(new NotificationAddress { });
+            
+            // Act
+            var result = await _service.CreateNotificationAddress("123456789", new NotificationAddress(), CancellationToken.None); 
+            
+            // Assert
+            Assert.NotNull(result); 
+        }
+
+        [Fact]
+        public async Task CreateNotificationAddress_WhenDuplicateIsFound_ReturnsOrganizationWithoutUpdate()
+        {
+            // Arrange
+            _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == "123456789"));
+            
+            // Act
+            var result = await _service.CreateNotificationAddress("123456789", new NotificationAddress { FullAddress = "test@test.com", AddressType = AddressType.Email }, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            _updateClient.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task CreateNotificationAddress_WhenUpdateClientThrows_ThrowsExceptionWithContext()
+        {
+            // Arrange
+            var orgNum = _testdata[0].OrganizationNumber;
+            var newAddress = new NotificationAddress
+            {
+                FullAddress = "throw@test.com",
+                AddressType = AddressType.SMS
+            };
+            var innerEx = new InvalidOperationException("Something went wrong");
+
+            _updateClient
+                .Setup(u => u.CreateNewNotificationAddress(newAddress, orgNum))
+                .ThrowsAsync(innerEx);
+
+            // Act & Assert
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                _service.CreateNotificationAddress(orgNum, newAddress, CancellationToken.None));
+
+            Assert.Contains("Something went wrong", ex.Message);
+            _repository.Verify(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repository.VerifyNoOtherCalls();
         }
     }
 }

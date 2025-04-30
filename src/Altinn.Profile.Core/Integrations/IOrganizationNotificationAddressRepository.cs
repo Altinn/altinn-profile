@@ -3,7 +3,7 @@
 namespace Altinn.Profile.Core.Integrations;
 
 /// <summary>
-/// Defines a repository for accessing  notification addresses of organizations.
+/// Defines a repository for interacting with notification addresses of organizations.
 /// </summary>
 public interface IOrganizationNotificationAddressRepository
 {
@@ -12,4 +12,10 @@ public interface IOrganizationNotificationAddressRepository
     /// </summary>
     /// <returns>A <see cref="Task{TResult}"/> with a collection of organizations as value.</returns>
     Task<IEnumerable<Organization>> GetOrganizationsAsync(List<string> organizationNumbers, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Creates a new notification address for an organization
+    /// </summary>
+    /// <returns>A <see cref="Task{TResult}"/> with an organization as value.</returns>
+    Task<NotificationAddress> CreateNotificationAddressAsync(string organizationNumber, NotificationAddress notificationAddress, string registryId);
 }

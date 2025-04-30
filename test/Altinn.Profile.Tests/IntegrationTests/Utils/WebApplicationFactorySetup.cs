@@ -40,7 +40,9 @@ public class WebApplicationFactorySetup<T>
 
     public Mock<ILogger<UserProfileClient>> UserProfileClientLogger { get; set; } = new();
 
-    public Mock<IOrganizationNotificationAddressSyncClient> OrganizationNotificationAddressClientMock { get; set; } = new();
+    public Mock<IOrganizationNotificationAddressSyncClient> OrganizationNotificationAddressSyncClientMock { get; set; } = new();
+
+    public Mock<IOrganizationNotificationAddressUpdateClient> OrganizationNotificationAddressUpdateClientMock { get; set; } = new();
 
     public Mock<ILogger<UnitProfileClient>> UnitProfileClientLogger { get; set; } = new();
 
@@ -76,7 +78,8 @@ public class WebApplicationFactorySetup<T>
                 // Using a mock to stop tests from calling the contact register service.
                 services.AddSingleton(ContactRegisterServiceMock.Object);
 
-                services.AddSingleton(OrganizationNotificationAddressClientMock.Object);
+                services.AddSingleton(OrganizationNotificationAddressSyncClientMock.Object);
+                services.AddSingleton(OrganizationNotificationAddressUpdateClientMock.Object);
                 services.AddSingleton(OrganizationNotificationAddressRepositoryMock.Object);
 
                 if (pdp != null)

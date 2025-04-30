@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Altinn.Profile.Validators;
 
 namespace Altinn.Profile.Models
@@ -6,13 +7,8 @@ namespace Altinn.Profile.Models
     /// <summary>
     /// Represents a notification address
     /// </summary>
-    public class NotificationAddressModel
+    public class NotificationAddressModel : IValidatableObject
     {
-        /// <summary>
-        /// <see cref="NotificationAddressID"/>
-        /// </summary>
-        public int NotificationAddressID { get; set; }
-
         /// <summary>
         /// Country code for phone number
         /// </summary>
@@ -31,9 +27,18 @@ namespace Altinn.Profile.Models
         [CustomRegexForNotificationAddresses("Phone")]
         public string Phone { get; set; }
 
-        /// <summary>
-        /// A value indicating whether the entity is deleted in Altinn.
-        /// </summary>
-        public bool? IsDeleted { get; set; }
+        /// <inheritdoc/>
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (Email == null && Phone == null)
+            {
+               yield return new ValidationResult("Either Phone or Email must be specified.", [nameof(Phone), nameof(Email)]);
+            }
+
+            if (Email != null && Phone != null)
+            {
+                yield return new ValidationResult("Cannot provide both Phone and Email for the same notification address.", [nameof(Phone), nameof(Email)]);
+            }
+        }
     }
 }

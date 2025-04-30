@@ -1,12 +1,22 @@
-﻿namespace Altinn.Profile.Core.OrganizationNotificationAddresses;
+﻿using Altinn.Profile.Core.Integrations;
+
+namespace Altinn.Profile.Core.OrganizationNotificationAddresses;
 
 /// <summary>
-/// Defines a service which can retrieve notification addresses for organizations
+/// Defines a service which handles notification addresses for organizations
 /// </summary>
 public interface IOrganizationNotificationAddressesService
 {
     /// <summary>
-    /// Method for retrieving notification addresses for an organization to use by notifications api
+    /// Method for creating a notification addresses for an organization. 
+    /// </summary>
+    /// <param name="organizationNumber">An organization number to indicate which organization to update addresses for</param>
+    /// <param name="notificationAddress">The new notification address</param>
+    /// <param name="cancellationToken">To cancel the request before it is finished</param>
+    Task<NotificationAddress> CreateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Method for retrieving notification addresses for an organization
     /// </summary>
     /// <param name="organizationNumbers">A list of organization numbers to lookup contact points for</param>
     /// <param name="cancellationToken">To cancel the request before it is finished</param>
