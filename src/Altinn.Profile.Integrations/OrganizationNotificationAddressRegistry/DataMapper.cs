@@ -134,7 +134,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
         /// <summary>
         /// Maps from the core data model to the data model stored in the database
         /// </summary>
-        public static NotificationAddressDE MapFromCoreModelNotificationAddress(OrganizationDE organization, NotificationAddress notificationAddress)
+        public static NotificationAddressDE MapFromCoreModelForNewNotificationAddress(OrganizationDE organization, NotificationAddress notificationAddress)
         {
             var organizationNotificationAddress = new NotificationAddressDE
             {

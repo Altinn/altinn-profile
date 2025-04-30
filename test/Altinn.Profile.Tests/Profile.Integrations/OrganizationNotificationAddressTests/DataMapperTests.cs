@@ -114,7 +114,7 @@ public class DataMapperTests
         var notificationAddress = new NotificationAddress { AddressType = AddressType.Email, Address = "test", Domain = "test.com" };
 
         // Act & Assert
-        var notificationAddressDE = DataMapper.MapFromCoreModelNotificationAddress(organizationDE, notificationAddress);
+        var notificationAddressDE = DataMapper.MapFromCoreModelForNewNotificationAddress(organizationDE, notificationAddress);
 
         Assert.Equal(notificationAddress.AddressType, notificationAddressDE.AddressType);
         Assert.Equal(notificationAddress.Address, notificationAddressDE.Address);
@@ -133,7 +133,7 @@ public class DataMapperTests
         var notificationAddress = new NotificationAddress { AddressType = AddressType.SMS, Address = "98765432", Domain = "+47" };
 
         // Act & Assert
-        var notificationAddressDE = DataMapper.MapFromCoreModelNotificationAddress(organizationDE, notificationAddress);
+        var notificationAddressDE = DataMapper.MapFromCoreModelForNewNotificationAddress(organizationDE, notificationAddress);
 
         Assert.Equal(notificationAddress.AddressType, notificationAddressDE.AddressType);
         Assert.Equal(notificationAddress.Address, notificationAddressDE.Address);

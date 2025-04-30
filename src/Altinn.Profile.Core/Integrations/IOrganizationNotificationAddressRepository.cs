@@ -16,6 +16,18 @@ public interface IOrganizationNotificationAddressRepository
     /// <summary>
     /// Creates a new notification address for an organization
     /// </summary>
-    /// <returns>A <see cref="Task{TResult}"/> with an organization as value.</returns>
+    /// <returns>A <see cref="Task{TResult}"/> with the notification address as value.</returns>
     Task<NotificationAddress> CreateNotificationAddressAsync(string organizationNumber, NotificationAddress notificationAddress);
+
+    /// <summary>
+    /// Updates an existing notification address for an organization
+    /// </summary>
+    /// <returns>A <see cref="Task{TResult}"/> with the notification address as value.</returns>
+    Task<NotificationAddress> UpdateNotificationAddressAsync(NotificationAddress notificationAddress, string registryId);
+
+    /// <summary>
+    /// Delete a notification address for an organization
+    /// </summary>
+    /// <returns>A <see cref="Task{TResult}"/> with the notification address as value.</returns>
+    Task<NotificationAddress> DeleteNotificationAddressAsync(int notificationAddressId);
 }

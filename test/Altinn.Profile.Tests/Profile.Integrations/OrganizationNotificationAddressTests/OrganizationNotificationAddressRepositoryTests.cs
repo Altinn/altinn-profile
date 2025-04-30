@@ -298,6 +298,49 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         Assert.NotEqual(default, na.NotificationAddressID);
     }
 
+    [Fact]
+    public async Task UpdateNotificationAddressAsync_WhenFound_ReturnsUpdatedNotificationAddress()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        var notificationAddressId = 1;
+
+        var existingAddress = notificationAddresses
+            .Find(p => p.NotificationAddressID == 1);
+
+        // Act
+        var updatedAddress = await _repository.UpdateNotificationAddressAsync(new NotificationAddress { AddressType = AddressType.Email, FullAddress = "something@new.com", Address = "test", NotificationAddressID = notificationAddressId }, "2");
+
+        // Assert
+        Assert.IsType<NotificationAddress>(updatedAddress);
+        Assert.NotNull(updatedAddress.RegistryID);
+        Assert.NotEqual(existingAddress.Address, updatedAddress.Address);
+        Assert.NotEqual(existingAddress.Domain, updatedAddress.Domain);
+        Assert.NotEqual(existingAddress.RegistryID, updatedAddress.RegistryID);
+    }
+
+    [Fact]
+    public async Task DeleteNotificationAddressAsync_WhenFound_ReturnsSoftDeletedNotificationAddress()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        var notificationAddressId = 1;
+
+        var existingAddress = notificationAddresses
+            .Find(p => p.NotificationAddressID == 1);
+
+        // Act
+        var updatedAddress = await _repository.DeleteNotificationAddressAsync(notificationAddressId);
+
+        // Assert
+        Assert.IsType<NotificationAddress>(updatedAddress);
+        Assert.True(updatedAddress.IsSoftDeleted);
+    }
+
     private static void AssertRegisterProperties(OrganizationDE expected, OrganizationDE actual)
     {
         Assert.Equal(expected.RegistryOrganizationNumber, actual.RegistryOrganizationNumber);

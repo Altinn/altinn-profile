@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Runtime.CompilerServices;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 
 namespace Altinn.Profile.Models
@@ -32,6 +33,16 @@ namespace Altinn.Profile.Models
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// Maps from notification address input model to notification address core model with notification address id
+        /// </summary>
+        public static NotificationAddress ToInternalModel(this NotificationAddressModel notificationAddress, int NotificationAddressId)
+        {
+            var model = ToInternalModel(notificationAddress);
+            model.NotificationAddressID = NotificationAddressId;
+            return model;
         }
     }
 }

@@ -30,6 +30,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                         {
                             FullAddress = "test@test.com",
                             AddressType = AddressType.Email,
+                            NotificationAddressID = 1
                         },
                         new()
                         {
@@ -140,6 +141,40 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
                 _service.CreateNotificationAddress(orgNum, newAddress, CancellationToken.None));
             Assert.Contains("Something went wrong", ex.Message);
+        }
+
+        [Fact]
+        public async Task UpdateNotificationAddress_SuccessfulUpdate_ReturnsUpdatedAddress()
+        {
+            // Arrange
+            _updateClient.Setup(c => c.UpdateNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync("registry-id");
+
+            _repository.Setup(r => r.UpdateNotificationAddressAsync(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync(new NotificationAddress { });
+
+            // Act
+            var result = await _service.UpdateNotificationAddress("123456789", new NotificationAddress { NotificationAddressID = 1 }, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task DeleteNotificationAddress_SuccessfulDeletion_ReturnsDeletedAddress()
+        {
+            // Arrange
+            _updateClient.Setup(c => c.DeleteNotificationAddress(It.IsAny<string>()))
+                .ReturnsAsync("registry-id");
+
+            _repository.Setup(r => r.DeleteNotificationAddressAsync(It.IsAny<int>()))
+                .ReturnsAsync(new NotificationAddress { IsSoftDeleted = true });
+
+            // Act
+            var result = await _service.DeleteNotificationAddress("123456789", 1, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
         }
     }
 }

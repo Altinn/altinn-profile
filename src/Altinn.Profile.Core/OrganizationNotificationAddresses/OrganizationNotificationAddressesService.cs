@@ -36,6 +36,54 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         }
 
         /// <inheritdoc/>
+        public async Task<NotificationAddress?> DeleteNotificationAddress(string organizationNumber, int notificationAddressId, CancellationToken cancellationToken)
+        {
+            var orgs = await _orgRepository.GetOrganizationsAsync([organizationNumber], cancellationToken);
+            var org = orgs.FirstOrDefault();
+
+            if (org == null)
+            {
+                return null;
+            }
+
+            var notificationAddress = org.NotificationAddresses.FirstOrDefault(n => n.NotificationAddressID == notificationAddressId);
+            if (notificationAddress == null || org.NotificationAddresses.Count == 1)
+            {
+                return null;
+            }
+
+            await _updateClient.DeleteNotificationAddress(notificationAddress.RegistryID);
+
+            var updatedNotificationAddress = await _orgRepository.DeleteNotificationAddressAsync(notificationAddress.NotificationAddressID);
+
+            return updatedNotificationAddress;
+        }
+
+        /// <inheritdoc/>
+        public async Task<NotificationAddress?> UpdateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken)
+        {
+            var orgs = await _orgRepository.GetOrganizationsAsync([organizationNumber], cancellationToken);
+            var org = orgs.FirstOrDefault();
+
+            if (org == null)
+            {
+                return null;
+            }
+
+            var existingNotificationAddress = org.NotificationAddresses.FirstOrDefault(n => n.NotificationAddressID == notificationAddress.NotificationAddressID);
+            if (existingNotificationAddress == null)
+            {
+                return null;
+            }
+
+            var registryId = await _updateClient.UpdateNotificationAddress(notificationAddress, organizationNumber);
+
+            var updatedNotificationAddress = await _orgRepository.UpdateNotificationAddressAsync(notificationAddress, registryId);
+
+            return updatedNotificationAddress;
+        }
+
+        /// <inheritdoc/>
         public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddresses(List<string> organizationNumbers, CancellationToken cancellationToken)
         {
             var result = await _orgRepository.GetOrganizationsAsync(organizationNumbers, cancellationToken);

@@ -1,4 +1,6 @@
-﻿namespace Altinn.Profile.Core.OrganizationNotificationAddresses;
+﻿using Altinn.Profile.Core.Integrations;
+
+namespace Altinn.Profile.Core.OrganizationNotificationAddresses;
 
 /// <summary>
 /// Defines a service which handles notification addresses for organizations
@@ -12,6 +14,22 @@ public interface IOrganizationNotificationAddressesService
     /// <param name="notificationAddress">The new notification address</param>
     /// <param name="cancellationToken">To cancel the request before it is finished</param>
     Task<NotificationAddress> CreateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Method for updating a notification addresses for an organization. Data is written primarily to an <see cref="IOrganizationNotificationAddressUpdateClient"/> and lastly to the <see cref="IOrganizationNotificationAddressRepository"/>.
+    /// </summary>
+    /// <param name="organizationNumber">An organization number to indicate which organization to update addresses for</param>
+    /// <param name="notificationAddress">The notification address with updated data</param>
+    /// <param name="cancellationToken">To cancel the request before it is finished</param>
+    Task<NotificationAddress> UpdateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Method for deleting a notification addresses for an organization. Data is written primarily to an <see cref="IOrganizationNotificationAddressUpdateClient"/> and lastly to the <see cref="IOrganizationNotificationAddressRepository"/>.
+    /// </summary>
+    /// <param name="organizationNumber">An organization number to indicate which organization to update addresses for</param>
+    /// <param name="notificationAddressId">The new notification address</param>
+    /// <param name="cancellationToken">To cancel the request before it is finished</param>
+    Task<NotificationAddress> DeleteNotificationAddress(string organizationNumber, int notificationAddressId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Method for retrieving notification addresses for an organization
