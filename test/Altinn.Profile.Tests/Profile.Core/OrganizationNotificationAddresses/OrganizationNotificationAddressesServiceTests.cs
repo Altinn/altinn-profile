@@ -96,7 +96,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             _updateClient.Setup(c => c.CreateNewNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
                 .ReturnsAsync("registry-id");
             
-            _repository.Setup(r => r.CreateNotificationAddressAsync(It.IsAny<string>(), It.IsAny<NotificationAddress>()))
+            _repository.Setup(r => r.CreateNotificationAddressAsync(It.IsAny<string>(), It.IsAny<NotificationAddress>(), It.IsAny<string>()))
                 .ReturnsAsync(new NotificationAddress { });
             
             // Act

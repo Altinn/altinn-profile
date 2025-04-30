@@ -28,14 +28,17 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 
             var registryId = await _updateClient.CreateNewNotificationAddress(notificationAddress, organizationNumber);
 
-            notificationAddress.RegistryID = registryId;
-
-            var updatedNotificationAddress = await _orgRepository.CreateNotificationAddressAsync(organizationNumber, notificationAddress);
+            var updatedNotificationAddress = await _orgRepository.CreateNotificationAddressAsync(organizationNumber, notificationAddress, registryId);
 
             return updatedNotificationAddress;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Method for deleting a notification addresses for an organization. Data is written primarily to an <see cref="IOrganizationNotificationAddressUpdateClient"/> and lastly to the <see cref="IOrganizationNotificationAddressRepository"/>.
+        /// </summary>
+        /// <param name="organizationNumber">An organization number to indicate which organization to update addresses for</param>
+        /// <param name="notificationAddressId">The new notification address</param>
+        /// <param name="cancellationToken">To cancel the request before it is finished</param>
         public async Task<NotificationAddress?> DeleteNotificationAddress(string organizationNumber, int notificationAddressId, CancellationToken cancellationToken)
         {
             var orgs = await _orgRepository.GetOrganizationsAsync([organizationNumber], cancellationToken);
@@ -46,8 +49,8 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
                 return null;
             }
 
-            var notificationAddress = org.NotificationAddresses.FirstOrDefault(n => n.NotificationAddressID == notificationAddressId);
-            if (notificationAddress == null || org.NotificationAddresses.Count == 1)
+            var notificationAddress = org.NotificationAddresses?.FirstOrDefault(n => n.NotificationAddressID == notificationAddressId);
+            if (notificationAddress == null || org.NotificationAddresses?.Count == 1)
             {
                 return null;
             }
@@ -59,7 +62,12 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
             return updatedNotificationAddress;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Method for updating a notification addresses for an organization. Data is written primarily to an <see cref="IOrganizationNotificationAddressUpdateClient"/> and lastly to the <see cref="IOrganizationNotificationAddressRepository"/>.
+        /// </summary>
+        /// <param name="organizationNumber">An organization number to indicate which organization to update addresses for</param>
+        /// <param name="notificationAddress">The notification address with updated data</param>
+        /// <param name="cancellationToken">To cancel the request before it is finished</param>
         public async Task<NotificationAddress?> UpdateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken)
         {
             var orgs = await _orgRepository.GetOrganizationsAsync([organizationNumber], cancellationToken);
@@ -70,7 +78,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
                 return null;
             }
 
-            var existingNotificationAddress = org.NotificationAddresses.FirstOrDefault(n => n.NotificationAddressID == notificationAddress.NotificationAddressID);
+            var existingNotificationAddress = org.NotificationAddresses?.FirstOrDefault(n => n.NotificationAddressID == notificationAddress.NotificationAddressID);
             if (existingNotificationAddress == null)
             {
                 return null;

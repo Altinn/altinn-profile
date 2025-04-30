@@ -114,13 +114,13 @@ public class DataMapperTests
         var notificationAddress = new NotificationAddress { AddressType = AddressType.Email, Address = "test", Domain = "test.com" };
 
         // Act & Assert
-        var notificationAddressDE = DataMapper.MapFromCoreModelForNewNotificationAddress(organizationDE, notificationAddress);
+        var notificationAddressDE = DataMapper.MapFromCoreModelForNewNotificationAddress(organizationDE, notificationAddress, "1");
 
         Assert.Equal(notificationAddress.AddressType, notificationAddressDE.AddressType);
         Assert.Equal(notificationAddress.Address, notificationAddressDE.Address);
         Assert.Equal(notificationAddress.Domain, notificationAddressDE.Domain);
         Assert.Equal(notificationAddress.NotificationName, notificationAddressDE.NotificationName);
-        Assert.Equal(notificationAddress.RegistryID, notificationAddressDE.RegistryID);
+        Assert.Equal("1", notificationAddressDE.RegistryID);
         Assert.Equal(UpdateSource.Altinn, notificationAddressDE.UpdateSource);
         Assert.False(notificationAddressDE.IsSoftDeleted);
     }
@@ -133,13 +133,13 @@ public class DataMapperTests
         var notificationAddress = new NotificationAddress { AddressType = AddressType.SMS, Address = "98765432", Domain = "+47" };
 
         // Act & Assert
-        var notificationAddressDE = DataMapper.MapFromCoreModelForNewNotificationAddress(organizationDE, notificationAddress);
+        var notificationAddressDE = DataMapper.MapFromCoreModelForNewNotificationAddress(organizationDE, notificationAddress, "id");
 
         Assert.Equal(notificationAddress.AddressType, notificationAddressDE.AddressType);
         Assert.Equal(notificationAddress.Address, notificationAddressDE.Address);
         Assert.Equal(notificationAddress.Domain, notificationAddressDE.Domain);
         Assert.Equal(notificationAddress.NotificationName, notificationAddressDE.NotificationName);
-        Assert.Equal(notificationAddress.RegistryID, notificationAddressDE.RegistryID);
+        Assert.Equal("id", notificationAddressDE.RegistryID);
         Assert.Equal(UpdateSource.Altinn, notificationAddressDE.UpdateSource);
         Assert.False(notificationAddressDE.IsSoftDeleted);
     }

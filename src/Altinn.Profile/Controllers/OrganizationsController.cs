@@ -51,7 +51,7 @@ namespace Altinn.Profile.Controllers
 
             var organization = organizations.First();
 
-            var response = OrganizationResponseMapper.MapResponse(organization);
+            var response = OrganizationResponseMapper.ToOrganizationResponse(organization);
 
             return Ok(response);
         }
@@ -93,7 +93,7 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
-            var response = OrganizationResponseMapper.MapNotificationAddress(notificationAddress);
+            var response = OrganizationResponseMapper.ToNotificationAddressResponse(notificationAddress);
 
             return Ok(response);
         }
@@ -104,8 +104,8 @@ namespace Altinn.Profile.Controllers
         /// <returns>Returns an overview of the registered notification addresses for the given organization</returns>
         [HttpPost("mandatory")]
         [Authorize(Policy = AuthConstants.OrgNotificationAddress_Write)]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<NotificationAddressResponse>> CreateNotificationAddress([FromRoute] string organizationNumber, [FromBody] NotificationAddressModel request, CancellationToken cancellationToken)
         {
@@ -119,11 +119,11 @@ namespace Altinn.Profile.Controllers
                 return BadRequest("Organization number is required");
             }
 
-            var notificationAddresses = request.ToInternalModel();
+            var notificationAddress = NotificationAddressRequestMapper.ToInternalModel(request);
 
-            var newNotificationAddress = await _notificationAddressService.CreateNotificationAddress(organizationNumber, notificationAddresses, cancellationToken);
+            var newNotificationAddress = await _notificationAddressService.CreateNotificationAddress(organizationNumber, notificationAddress, cancellationToken);
 
-            var response = OrganizationResponseMapper.MapNotificationAddress(newNotificationAddress);
+            var response = OrganizationResponseMapper.ToNotificationAddressResponse(newNotificationAddress);
 
             return CreatedAtAction(nameof(GetMandatoryNotificationAddress), new { organizationNumber, newNotificationAddress.NotificationAddressID }, response);
         }
@@ -150,7 +150,7 @@ namespace Altinn.Profile.Controllers
                 return BadRequest("Organization number is required");
             }
 
-            var notificationAddresses = request.ToInternalModel(notificationAddressId);
+            var notificationAddresses = NotificationAddressRequestMapper.ToInternalModel(request, notificationAddressId);
 
             var updatedNotificationAddress = await _notificationAddressService.UpdateNotificationAddress(organizationNumber, notificationAddresses, cancellationToken);
 
@@ -159,7 +159,7 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
-            var response = OrganizationResponseMapper.MapNotificationAddress(updatedNotificationAddress);
+            var response = OrganizationResponseMapper.ToNotificationAddressResponse(updatedNotificationAddress);
 
             return Ok(response);
         }
@@ -193,7 +193,7 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
-            var response = OrganizationResponseMapper.MapNotificationAddress(updatedNotificationAddress);
+            var response = OrganizationResponseMapper.ToNotificationAddressResponse(updatedNotificationAddress);
 
             return Ok(response);
         }

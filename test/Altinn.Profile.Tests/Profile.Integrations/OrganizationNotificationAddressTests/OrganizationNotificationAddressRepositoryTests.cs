@@ -269,7 +269,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var orgNumber = "000000000";
 
         // Act
-        var na = await _repository.CreateNotificationAddressAsync(orgNumber, new NotificationAddress { AddressType = AddressType.Email, FullAddress = "test@test.com", RegistryID = "1", Address = "test" });
+        var na = await _repository.CreateNotificationAddressAsync(orgNumber, new NotificationAddress { AddressType = AddressType.Email, FullAddress = "test@test.com", Address = "test" }, "1");
 
         // Assert;
         Assert.IsType<NotificationAddress>(na);
@@ -290,7 +290,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
             .Find(p => p.RegistryOrganizationNumber == orgNumber);
 
         // Act
-        var na = await _repository.CreateNotificationAddressAsync(orgNumber, new NotificationAddress { AddressType = AddressType.Email, FullAddress = "test@test.com", RegistryID = "1", Address = "test" });
+        var na = await _repository.CreateNotificationAddressAsync(orgNumber, new NotificationAddress { AddressType = AddressType.Email, FullAddress = "test@test.com", Address = "test" }, "1");
 
         // Assert
         Assert.IsType<NotificationAddress>(na);

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Models;
 
@@ -13,12 +12,12 @@ namespace Altinn.Profile.Mappers
         /// <summary>
         /// Maps from an organization to an organization reponse
         /// </summary>
-        public static OrganizationResponse MapResponse(Organization organization)
+        public static OrganizationResponse ToOrganizationResponse(Organization organization)
         {
             var result = new OrganizationResponse
             {
                 OrganizationNumber = organization.OrganizationNumber,
-                NotificationAddresses = organization.NotificationAddresses.Where(n => n.IsSoftDeleted != true).Select(MapNotificationAddress).ToList()
+                NotificationAddresses = [.. organization.NotificationAddresses.Where(n => n.IsSoftDeleted != true).Select(ToNotificationAddressResponse)]
             };
 
             return result;
@@ -27,7 +26,7 @@ namespace Altinn.Profile.Mappers
         /// <summary>
         /// Maps from a notification address to a notification address reponse
         /// </summary>
-        public static NotificationAddressResponse MapNotificationAddress(NotificationAddress notificationAddress)
+        public static NotificationAddressResponse ToNotificationAddressResponse(NotificationAddress notificationAddress)
         {
             var response = new NotificationAddressResponse
             {

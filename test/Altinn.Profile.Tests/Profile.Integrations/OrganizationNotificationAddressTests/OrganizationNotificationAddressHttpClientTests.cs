@@ -189,7 +189,7 @@ public class OrganizationNotificationAddressHttpClientTests
     }
 
     [Fact]
-    public async Task UpdateAddress_WhenValidation_ThrowsException()
+    public async Task UpdateAddress_WhenValidationErrorFromRegistry_ThrowsException()
     {
         // Arrange
         var response = new RegistryResponse { BoolResult = false, Status = "VALIDATION_EXCEPTION" };

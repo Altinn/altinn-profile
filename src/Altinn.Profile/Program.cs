@@ -269,6 +269,8 @@ void Configure()
 
         // Enable higher level of detail in exceptions related to JWT validation
         IdentityModelEventSource.ShowPII = true;
+
+        app.UseExceptionHandler("/profile/api/v1/error");
     }
     
     app.UseExceptionHandler("/profile/api/v1/error");

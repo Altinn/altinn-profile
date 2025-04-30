@@ -29,7 +29,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         }
 
         [Fact]
-        public void NotificationAddressModel_WhenOnlyEmailIsGiven_ReturnsNoValidationResults()
+        public void NotificationAddressModel_WhenOnlyValidationEmailIsGiven_ReturnsNoValidationResults()
         {
             var model = new NotificationAddressModel { Email = "test@test.com" };
             var validationContext = new ValidationContext(model);
@@ -40,7 +40,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         }
 
         [Fact]
-        public void NotificationAddressModel_WhenOnlyPhoneIsGiven_ReturnsNoValidationResults()
+        public void NotificationAddressModel_WhenOnlyValidPhoneIsGiven_ReturnsNoValidationResults()
         {
             var model = new NotificationAddressModel { Phone = "98765432" };
             var validationContext = new ValidationContext(model);
