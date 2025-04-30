@@ -272,8 +272,10 @@ void Configure()
 
         app.UseExceptionHandler("/profile/api/v1/error");
     }
-    
-    app.UseExceptionHandler("/profile/api/v1/error");
+    else
+    {
+        app.UseExceptionHandler("/profile/api/v1/error");
+    }
 
     if (app.Environment.IsDevelopment())
     {
