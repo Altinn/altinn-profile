@@ -30,6 +30,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                         {
                             FullAddress = "test@test.com",
                             AddressType = AddressType.Email,
+                            NotificationAddressID = 1,
                         },
                         new()
                         {
@@ -143,6 +144,23 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             Assert.Contains("Something went wrong", ex.Message);
             _repository.Verify(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()), Times.Once);
             _repository.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task DeleteNotificationAddress_SuccessfulDeletion_ReturnsDeletedAddress()
+        {
+            // Arrange
+            _updateClient.Setup(c => c.DeleteNotificationAddress(It.IsAny<string>()))
+                .ReturnsAsync("registry-id");
+
+            _repository.Setup(r => r.DeleteNotificationAddressAsync(It.IsAny<int>()))
+                .ReturnsAsync(new NotificationAddress { IsSoftDeleted = true });
+
+            // Act
+            var result = await _service.DeleteNotificationAddress("123456789", 1, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
         }
     }
 }
