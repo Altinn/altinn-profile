@@ -150,9 +150,9 @@ namespace Altinn.Profile.Controllers
                 return BadRequest("Organization number is required");
             }
 
-            var notificationAddresses = NotificationAddressRequestMapper.ToInternalModel(request, notificationAddressId);
+            var notificationAddress = NotificationAddressRequestMapper.ToInternalModel(request, notificationAddressId);
 
-            var updatedNotificationAddress = await _notificationAddressService.UpdateNotificationAddress(organizationNumber, notificationAddresses, cancellationToken);
+            var updatedNotificationAddress = await _notificationAddressService.UpdateNotificationAddress(organizationNumber, notificationAddress, cancellationToken);
 
             if (updatedNotificationAddress == null)
             {

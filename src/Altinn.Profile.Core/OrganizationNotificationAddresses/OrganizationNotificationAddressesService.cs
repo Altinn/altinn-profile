@@ -3,11 +3,10 @@
 namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 {
     /// <summary>
-    /// Implementation of the <see cref="IOrganizationNotificationAddressesService"/> interface using an <see cref="IOrganizationNotificationAddressRepository"/> to interact with notification addresses of organizations "/>
+    /// Initializes a new instance of the <see cref="OrganizationNotificationAddressesService"/> class to interact with notification addresses of organizations.
     /// </summary>
-    /// <remarks>
-    /// Initializes a new instance of the <see cref="OrganizationNotificationAddressesService"/> class.
-    /// </remarks>
+    /// <param name="orgRepository">The repository for organization notification addresses</param>
+    /// <param name="updateClient">The client for updating organization notification addresses</param>
     public class OrganizationNotificationAddressesService(IOrganizationNotificationAddressRepository orgRepository, IOrganizationNotificationAddressUpdateClient updateClient) : IOrganizationNotificationAddressesService
     {
         private readonly IOrganizationNotificationAddressRepository _orgRepository = orgRepository;
