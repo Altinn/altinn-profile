@@ -22,8 +22,8 @@ namespace Altinn.Profile.Models
                 coreModel = new NotificationAddress
                 {
                     AddressType = AddressType.Email,
-                    Address = emailParts.First(),
-                    Domain = emailParts.Last(),
+                    Address = emailParts[0],
+                    Domain = emailParts[^1],
                     FullAddress = notificationAddress.Email.Trim()
                 };
             }
