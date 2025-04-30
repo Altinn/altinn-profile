@@ -152,27 +152,5 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
 
             return organizationNotificationAddress;
         }
-
-        /// <summary>
-        /// Maps from the core data model to the data model stored in the database
-        /// </summary>
-        public static NotificationAddressDE MapFromCoreModelNotificationAddress(OrganizationDE organization, NotificationAddress notificationAddress, string registryId)
-        {
-            var organizationNotificationAddress = new NotificationAddressDE
-            {
-                RegistryOrganizationId = organization.RegistryOrganizationId,
-                UpdateSource = UpdateSource.Altinn,
-                HasRegistryAccepted = false,
-                IsSoftDeleted = false,
-                Address = notificationAddress.Address,
-                Domain = notificationAddress.Domain,
-                FullAddress = notificationAddress.FullAddress,
-                AddressType = notificationAddress.AddressType,
-                NotificationName = notificationAddress.NotificationName,
-                RegistryID = registryId,
-            };
-
-            return organizationNotificationAddress;
-        }
     }
 }
