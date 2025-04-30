@@ -415,7 +415,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
 
             _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock.Setup(
-                c => c.UpdateNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                c => c.UpdateNotificationAddress(It.IsAny<string>(), It.IsAny<NotificationAddress>(), It.IsAny<string>()))
                 .ReturnsAsync("2");
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
 

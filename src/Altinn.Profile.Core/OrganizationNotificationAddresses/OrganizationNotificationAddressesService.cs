@@ -55,7 +55,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
                 return null;
             }
 
-            var registryId = await _updateClient.UpdateNotificationAddress(notificationAddress, organizationNumber);
+            var registryId = await _updateClient.UpdateNotificationAddress(existingNotificationAddress.RegistryID, notificationAddress, organizationNumber);
 
             var updatedNotificationAddress = await _orgRepository.UpdateNotificationAddressAsync(notificationAddress, registryId);
 

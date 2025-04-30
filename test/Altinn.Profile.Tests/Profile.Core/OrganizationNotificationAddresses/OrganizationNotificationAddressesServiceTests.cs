@@ -147,7 +147,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
         public async Task UpdateNotificationAddress_SuccessfulUpdate_ReturnsUpdatedAddress()
         {
             // Arrange
-            _updateClient.Setup(c => c.UpdateNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+            _updateClient.Setup(c => c.UpdateNotificationAddress(It.IsAny<string>(), It.IsAny<NotificationAddress>(), It.IsAny<string>()))
                 .ReturnsAsync("registry-id");
 
             _repository.Setup(r => r.UpdateNotificationAddressAsync(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
