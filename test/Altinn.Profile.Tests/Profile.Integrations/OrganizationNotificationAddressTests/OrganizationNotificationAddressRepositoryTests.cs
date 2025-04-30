@@ -321,26 +321,6 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         Assert.NotEqual(existingAddress.RegistryID, updatedAddress.RegistryID);
     }
 
-    [Fact]
-    public async Task DeleteNotificationAddressAsync_WhenFound_ReturnsSoftDeletedNotificationAddress()
-    {
-        // Arrange
-        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
-        SeedDatabase(organizations, notificationAddresses);
-
-        var notificationAddressId = 1;
-
-        var existingAddress = notificationAddresses
-            .Find(p => p.NotificationAddressID == 1);
-
-        // Act
-        var updatedAddress = await _repository.DeleteNotificationAddressAsync(notificationAddressId);
-
-        // Assert
-        Assert.IsType<NotificationAddress>(updatedAddress);
-        Assert.True(updatedAddress.IsSoftDeleted);
-    }
-
     private static void AssertRegisterProperties(OrganizationDE expected, OrganizationDE actual)
     {
         Assert.Equal(expected.RegistryOrganizationNumber, actual.RegistryOrganizationNumber);

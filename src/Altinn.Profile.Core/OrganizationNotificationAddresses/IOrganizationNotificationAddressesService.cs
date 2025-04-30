@@ -24,14 +24,6 @@ public interface IOrganizationNotificationAddressesService
     Task<NotificationAddress?> UpdateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Method for deleting a notification addresses for an organization
-    /// </summary>
-    /// <param name="organizationNumber">An organization number to indicate which organization to update addresses for</param>
-    /// <param name="notificationAddressId">The new notification address</param>
-    /// <param name="cancellationToken">To cancel the request before it is finished</param>
-    Task<NotificationAddress?> DeleteNotificationAddress(string organizationNumber, int notificationAddressId, CancellationToken cancellationToken);
-
-    /// <summary>
     /// Method for retrieving notification addresses for an organization
     /// </summary>
     /// <param name="organizationNumbers">A list of organization numbers to lookup contact points for</param>
