@@ -436,7 +436,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task DeleteMandatory_WhenTryingToDeleteLastAddress_ReturnsDeletedResult()
+        public async Task DeleteMandatory_WhenTryingToDeleteLastAddress_ReturnsConflict()
         {
             // Arrange
             var orgNo = "987654321";
