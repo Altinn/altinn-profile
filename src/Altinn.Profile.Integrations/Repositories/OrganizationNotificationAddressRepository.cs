@@ -185,4 +185,20 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         return _mapper.Map<NotificationAddress>(organizationNotificationAddress);
     }
+
+    /// <inheritdoc/>
+    public async Task<NotificationAddress> DeleteNotificationAddressAsync(int notificationAddressId)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+
+        var notificationAddressDE = await databaseContext.NotificationAddresses.FirstAsync(n => n.NotificationAddressID == notificationAddressId);
+
+        notificationAddressDE.IsSoftDeleted = true;
+
+        databaseContext.NotificationAddresses.Update(notificationAddressDE);
+
+        await databaseContext.SaveChangesAsync();
+
+        return _mapper.Map<NotificationAddress>(notificationAddressDE);
+    }
 }
