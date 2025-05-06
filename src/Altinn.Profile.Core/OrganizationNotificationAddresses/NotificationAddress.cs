@@ -50,6 +50,6 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// <summary>
         /// A value indicating whether the endpoint has been accepted and received from kofuvi registry 
         /// </summary>
-        public bool? HasRegistryAccepted { get; set; }
+        public bool? HasRegistryAccepted { get; init; }
     }
 }
