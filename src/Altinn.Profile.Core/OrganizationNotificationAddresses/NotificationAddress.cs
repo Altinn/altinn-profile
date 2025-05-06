@@ -46,5 +46,10 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// A value indicating whether the entity is deleted in Altinn.
         /// </summary>
         public bool? IsSoftDeleted { get; init; }
+
+        /// <summary>
+        /// A value indicating whether the endpoint has been accepted and received from kofuvi registry 
+        /// </summary>
+        public bool? HasRegistryAccepted { get; set; }
     }
 }
