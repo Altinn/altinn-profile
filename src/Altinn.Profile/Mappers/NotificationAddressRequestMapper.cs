@@ -11,7 +11,7 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// Maps from notification address input model to notification address core model
         /// </summary>
-        public static NotificationAddress ToInternalModel(NotificationAddressModel notificationAddress)
+        public static NotificationAddress ToInternalModel(NotificationAddressModel notificationAddress, int notificationAddressId = 0)
         {
             NotificationAddress coreModel;
 
@@ -24,7 +24,8 @@ namespace Altinn.Profile.Models
                     AddressType = AddressType.Email,
                     Address = emailParts[0],
                     Domain = emailParts[^1],
-                    FullAddress = notificationAddress.Email.Trim()
+                    FullAddress = notificationAddress.Email.Trim(),
+                    NotificationAddressID = notificationAddressId
                 };
             }
             else
@@ -34,7 +35,8 @@ namespace Altinn.Profile.Models
                     AddressType = AddressType.SMS,
                     Address = notificationAddress.Phone.Trim(),
                     Domain = notificationAddress.CountryCode?.Trim(),
-                    FullAddress = notificationAddress.CountryCode?.Trim() + notificationAddress.Phone.Trim()
+                    FullAddress = notificationAddress.CountryCode?.Trim() + notificationAddress.Phone.Trim(),
+                    NotificationAddressID = notificationAddressId
                 };
             }
 
