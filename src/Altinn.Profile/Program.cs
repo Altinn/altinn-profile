@@ -19,7 +19,6 @@ using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
-using Altinn.Profile.Mappers;
 using Altinn.Profile.Telemetry;
 using AltinnCore.Authentication.JwtCookie;
 

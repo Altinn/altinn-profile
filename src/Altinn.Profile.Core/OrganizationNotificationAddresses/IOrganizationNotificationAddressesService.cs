@@ -1,6 +1,4 @@
-﻿using Altinn.Profile.Core.Integrations;
-
-namespace Altinn.Profile.Core.OrganizationNotificationAddresses;
+﻿namespace Altinn.Profile.Core.OrganizationNotificationAddresses;
 
 /// <summary>
 /// Defines a service which handles notification addresses for organizations

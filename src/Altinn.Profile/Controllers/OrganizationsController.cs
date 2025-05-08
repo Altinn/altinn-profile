@@ -116,7 +116,7 @@ namespace Altinn.Profile.Controllers
 
             if (string.IsNullOrWhiteSpace(organizationNumber))
             {
-                return BadRequest("Organization number is required");
+                return Problem("Organization number is required", statusCode: 400);
             }
 
             var notificationAddress = NotificationAddressRequestMapper.ToInternalModel(request);

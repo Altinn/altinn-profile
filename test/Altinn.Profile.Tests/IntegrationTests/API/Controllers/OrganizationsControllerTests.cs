@@ -411,11 +411,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
-            .Setup(r => r.UpdateNotificationAddressAsync(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
-            .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
+                .Setup(r => r.UpdateNotificationAddressAsync(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
 
-            _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock.Setup(
-                c => c.UpdateNotificationAddress(It.IsAny<string>(), It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+            _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock
+                .Setup(c => c.UpdateNotificationAddress(It.IsAny<string>(), It.IsAny<NotificationAddress>(), It.IsAny<string>()))
                 .ReturnsAsync("2");
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
 

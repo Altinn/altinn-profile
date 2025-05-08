@@ -33,9 +33,9 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         }
 
         /// <summary>
-        /// Method for updating a notification addresses for an organization. Data is written primarily to an <see cref="IOrganizationNotificationAddressUpdateClient"/> and lastly to the <see cref="IOrganizationNotificationAddressRepository"/>.
+        /// Method for updating a notification address for an organization. Data is written primarily to an <see cref="IOrganizationNotificationAddressUpdateClient"/> and lastly to the <see cref="IOrganizationNotificationAddressRepository"/>.
         /// </summary>
-        /// <param name="organizationNumber">An organization number to indicate which organization to update addresses for</param>
+        /// <param name="organizationNumber">The organization number of the organization the notification address belongs to.</param>
         /// <param name="notificationAddress">The notification address with updated data</param>
         /// <param name="cancellationToken">To cancel the request before it is finished</param>
         public async Task<NotificationAddress?> UpdateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken)
