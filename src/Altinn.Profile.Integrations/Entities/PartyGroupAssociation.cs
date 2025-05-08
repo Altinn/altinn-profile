@@ -26,7 +26,7 @@
         public DateTime Created { get; set; }
 
         /// <summary>
-        /// The organization the notification address is connected to
+        /// The group the party is associated with
         /// </summary>
         public virtual Group Group { get; set; }
     }
