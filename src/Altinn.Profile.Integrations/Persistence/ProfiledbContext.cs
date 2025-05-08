@@ -52,6 +52,16 @@ public partial class ProfileDbContext : DbContext
     public virtual DbSet<RegistrySyncMetadata> RegistrySyncMetadata { get; set; }
 
     /// <summary>
+    /// The <see cref="DbSet{Group}"/> representing a users organization of parties in a named group.
+    /// </summary>
+    public virtual DbSet<Group> Groups { get; set; }
+
+    /// <summary>
+    /// The <see cref="DbSet{PartyGroupAssociation}"/> representing the association of parties in groups.
+    /// </summary>
+    public virtual DbSet<PartyGroupAssociation> PartyGroupAssociations { get; set; }
+
+    /// <summary>
     /// Configures the schema needed for the context.
     /// </summary>
     /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -102,6 +112,38 @@ public partial class ProfileDbContext : DbContext
         modelBuilder.Entity<RegistrySyncMetadata>(entity =>
         {
             entity.HasKey(e => e.LastChangedId).HasName("registry_sync_metadata_pkey");
+        });
+
+        modelBuilder.Entity<PartyGroupAssociation>(entity =>
+        {
+            entity.ToTable("party_group_association", "user_preferences");
+
+            entity.HasKey(e => e.AssociationId).HasName("association_id_pkey");
+            entity.Property(e => e.AssociationId).IsRequired();
+            entity.Property(e => e.GroupId).IsRequired();
+            entity.Property(e => e.PartyId).IsRequired();
+            entity.Property(e => e.Created).HasDefaultValueSql("now()").ValueGeneratedOnAdd();
+
+            entity.HasOne(d => d.Group)
+                  .WithMany(p => p.Parties)
+                  .HasForeignKey(d => d.GroupId)
+                  .OnDelete(DeleteBehavior.Cascade)
+                  .HasConstraintName("fk_group_id");
+        });
+
+        modelBuilder.Entity<Group>(entity =>
+        {
+            entity.ToTable("groups", "user_preferences");
+
+            entity.HasKey(e => e.GroupId).HasName("group_id_pkey");
+            entity.Property(e => e.GroupId).IsRequired();
+            entity.Property(e => e.Name).IsRequired();
+            entity.Property(e => e.UserId).IsRequired();
+
+            entity.HasMany(e => e.Parties)
+                    .WithOne(n => n.Group)
+                    .HasForeignKey(e => e.GroupId)
+                    .HasConstraintName("fk_group_id");
         });
 
         OnModelCreatingPartial(modelBuilder);
