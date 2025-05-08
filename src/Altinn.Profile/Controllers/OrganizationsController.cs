@@ -131,7 +131,7 @@ namespace Altinn.Profile.Controllers
         /// <summary>
         /// Update a notification address for an organization
         /// </summary>
-        /// <returns>Returns an overview of the registered notification addresses for the given organization</returns>
+        /// <returns>Returns the updated notification address for the given organization</returns>
         [HttpPut("mandatory/{notificationAddressId}")]
         [Authorize(Policy = AuthConstants.OrgNotificationAddress_Write)]
         [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status200OK)]
@@ -147,7 +147,7 @@ namespace Altinn.Profile.Controllers
 
             if (string.IsNullOrWhiteSpace(organizationNumber))
             {
-                return BadRequest("Organization number is required");
+                return Problem("Organization number is required", statusCode: 400);
             }
 
             var notificationAddress = NotificationAddressRequestMapper.ToInternalModel(request, notificationAddressId);
