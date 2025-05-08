@@ -140,6 +140,8 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.Name).IsRequired();
             entity.Property(e => e.UserId).IsRequired();
 
+            entity.HasIndex(e => e.UserId, "ix_user_id");
+
             entity.HasMany(e => e.Parties)
                     .WithOne(n => n.Group)
                     .HasForeignKey(e => e.GroupId)
