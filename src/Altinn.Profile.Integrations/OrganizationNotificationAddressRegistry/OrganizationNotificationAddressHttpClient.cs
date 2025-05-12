@@ -82,14 +82,14 @@ public class OrganizationNotificationAddressHttpClient(
     }
 
     /// <inheritdoc/>
-    public async Task<string> UpdateNotificationAddress(NotificationAddress notificationAddress, string organizationNumber)
+    public async Task<string> UpdateNotificationAddress(string registryId, NotificationAddress notificationAddress, string organizationNumber)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(notificationAddress.RegistryID);
+        ArgumentException.ThrowIfNullOrWhiteSpace(registryId);
 
         var request = DataMapper.MapToRegistryRequest(notificationAddress, organizationNumber);
 
         var json = JsonSerializer.Serialize(request, _options);
-        string command = @"/replace/" + notificationAddress.RegistryID;
+        string command = @"/replace/" + registryId;
 
         var responseObject = await PostAsync(json, command);
 
