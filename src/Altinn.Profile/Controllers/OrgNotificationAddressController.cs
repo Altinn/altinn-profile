@@ -64,6 +64,11 @@ namespace Altinn.Profile.Controllers
                 {
                     foreach (var notificationAddress in organization.NotificationAddresses)
                     {
+                        if (notificationAddress.IsSoftDeleted == true || notificationAddress.HasRegistryAccepted == false)
+                        {
+                            continue;
+                        }
+
                         switch (notificationAddress.AddressType)
                         {
                             case AddressType.Email:
