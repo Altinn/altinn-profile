@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -417,8 +418,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             .Setup(r => r.DeleteNotificationAddressAsync(It.IsAny<int>()))
             .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
 
-            _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock.Setup(
-                c => c.DeleteNotificationAddress(It.IsAny<string>()))
+            _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock
+                .Setup(c => c.DeleteNotificationAddress(It.IsAny<string>()))
                 .ReturnsAsync("2");
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
 
@@ -450,8 +451,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             .Setup(r => r.DeleteNotificationAddressAsync(It.IsAny<int>()))
             .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
 
-            _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock.Setup(
-                c => c.DeleteNotificationAddress(It.IsAny<string>()))
+            _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock
+                .Setup(c => c.DeleteNotificationAddress(It.IsAny<string>()))
                 .ReturnsAsync("2");
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
 
@@ -485,7 +486,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var input = new NotificationAddressModel { Email = "test@test.com" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Delete, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1")
             {
-                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+                Content = JsonContent.Create(input, options: _serializerOptions)
             };
             httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
 

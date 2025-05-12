@@ -286,9 +286,6 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
 
         var orgNumber = "123456789";
 
-        var expectedOrg1 = organizations
-            .Find(p => p.RegistryOrganizationNumber == orgNumber);
-
         // Act
         var na = await _repository.CreateNotificationAddressAsync(orgNumber, new NotificationAddress { AddressType = AddressType.Email, FullAddress = "test@test.com", Address = "test" }, "1");
 
@@ -306,9 +303,6 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         SeedDatabase(organizations, notificationAddresses);
 
         var notificationAddressId = 1;
-
-        var existingAddress = notificationAddresses
-            .Find(p => p.NotificationAddressID == 1);
 
         // Act
         var updatedAddress = await _repository.DeleteNotificationAddressAsync(notificationAddressId);
