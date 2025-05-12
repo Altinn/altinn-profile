@@ -28,4 +28,12 @@ public interface IOrganizationNotificationAddressesService
     /// <param name="cancellationToken">To cancel the request before it is finished</param>
     /// <returns>The notification addresses or a boolean if failure.</returns>
     Task<IEnumerable<Organization>> GetOrganizationNotificationAddresses(List<string> organizationNumbers, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Method for deleting a notification addresses for an organization
+    /// </summary>
+    /// <param name="organizationNumber">An organization number to indicate which organization to update addresses for</param>
+    /// <param name="notificationAddressId">The new notification address</param>
+    /// <param name="cancellationToken">To cancel the request before it is finished</param>
+    Task<NotificationAddress?> DeleteNotificationAddress(string organizationNumber, int notificationAddressId, CancellationToken cancellationToken);
 }

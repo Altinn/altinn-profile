@@ -163,5 +163,52 @@ namespace Altinn.Profile.Controllers
 
             return Ok(response);
         }
+        
+          /// <summary>
+        /// Delete a notification address for an organization
+        /// </summary>
+        /// <returns>Returns an overview of the registered notification addresses for the given organization</returns>
+        [HttpDelete("mandatory/{notificationAddressId}")]
+        [Authorize(Policy = AuthConstants.OrgNotificationAddress_Write)]
+        [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<NotificationAddressResponse>> DeleteNotificationAddress([FromRoute] string organizationNumber, [FromRoute] int notificationAddressId, CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            if (string.IsNullOrWhiteSpace(organizationNumber))
+            {
+                return BadRequest("Organization number is required");
+            }
+
+            try
+            {
+                var updatedNotificationAddress = await _notificationAddressService.DeleteNotificationAddress(organizationNumber, notificationAddressId, cancellationToken);
+                if (updatedNotificationAddress == null)
+                {
+                    return NotFound();
+                }
+
+                var response = OrganizationResponseMapper.ToNotificationAddressResponse(updatedNotificationAddress);
+
+                return Ok(response);
+            }
+            catch (InvalidOperationException ex) 
+                when (ex.Message.Equals("Cannot delete the last notification address", StringComparison.InvariantCultureIgnoreCase))
+            {
+                var problemDetails = new ProblemDetails
+                {
+                    Title = "Conflict",
+                    Detail = ex.Message,
+                    Status = StatusCodes.Status409Conflict,
+                    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.8"
+                };
+                return Conflict(problemDetails);
+            }
+        }
     }
 }

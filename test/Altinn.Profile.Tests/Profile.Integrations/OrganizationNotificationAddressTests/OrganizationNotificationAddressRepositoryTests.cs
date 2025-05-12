@@ -286,9 +286,6 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
 
         var orgNumber = "123456789";
 
-        var expectedOrg1 = organizations
-            .Find(p => p.RegistryOrganizationNumber == orgNumber);
-
         // Act
         var na = await _repository.CreateNotificationAddressAsync(orgNumber, new NotificationAddress { AddressType = AddressType.Email, FullAddress = "test@test.com", Address = "test" }, "1");
 
@@ -319,6 +316,23 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         Assert.NotEqual(existingAddress.Address, updatedAddress.Address);
         Assert.NotEqual(existingAddress.Domain, updatedAddress.Domain);
         Assert.NotEqual(existingAddress.RegistryID, updatedAddress.RegistryID);
+    }
+    
+    [Fact]
+    public async Task DeleteNotificationAddressAsync_WhenFound_ReturnsSoftDeletedNotificationAddress()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        var notificationAddressId = 1;
+
+        // Act
+        var updatedAddress = await _repository.DeleteNotificationAddressAsync(notificationAddressId);
+
+        // Assert
+        Assert.IsType<NotificationAddress>(updatedAddress);
+        Assert.True(updatedAddress.IsSoftDeleted);
     }
 
     private static void AssertRegisterProperties(OrganizationDE expected, OrganizationDE actual)

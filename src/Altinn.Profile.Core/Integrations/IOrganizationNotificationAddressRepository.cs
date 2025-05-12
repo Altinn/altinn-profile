@@ -20,6 +20,12 @@ public interface IOrganizationNotificationAddressRepository
     Task<NotificationAddress> CreateNotificationAddressAsync(string organizationNumber, NotificationAddress notificationAddress, string registryId);
 
     /// <summary>
+    /// Delete a notification address for an organization
+    /// </summary>
+    /// <returns>A <see cref="Task{TResult}"/> with the notification address as value.</returns>
+    Task<NotificationAddress> DeleteNotificationAddressAsync(int notificationAddressId);
+
+    /// <summary>
     /// Updates an existing notification address for an organization
     /// </summary>
     /// <returns>A <see cref="Task{TResult}"/> with the notification address as value.</returns>

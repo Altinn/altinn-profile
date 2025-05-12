@@ -159,5 +159,60 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             // Assert
             Assert.NotNull(result);
         }
+
+        [Fact]
+        public async Task DeleteNotificationAddress_SuccessfulDeletion_ReturnsDeletedAddress()
+        {
+            // Arrange
+            _updateClient.Setup(c => c.DeleteNotificationAddress(It.IsAny<string>()))
+                .ReturnsAsync("registry-id");
+
+            _repository.Setup(r => r.DeleteNotificationAddressAsync(It.IsAny<int>()))
+                .ReturnsAsync(new NotificationAddress { IsSoftDeleted = true });
+
+            // Act
+            var result = await _service.DeleteNotificationAddress("123456789", 1, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task DeleteNotificationAddress_WhenTryingToDeleteLastAddress_ThrowsInvalidOperationException()
+        {
+            // Arrange
+            _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync([new Organization { OrganizationNumber = "123456789", NotificationAddresses = [new NotificationAddress { NotificationAddressID = 1 }] }]);
+
+            // Act
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => _service.DeleteNotificationAddress("123456789", 1, CancellationToken.None));
+
+            // Assert
+            Assert.Contains("Cannot delete the last notification address", ex.Message);
+        }
+
+        [Fact]
+        public async Task DeleteNotificationAddress_WhenNoAddressFound_ReturnsNull()
+        {
+            // Act
+            var result = await _service.DeleteNotificationAddress("123456789", 10000, CancellationToken.None);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task DeleteNotificationAddress_WhenNoOrganizationFound_ReturnsNull()
+        {
+            // Arrange
+            _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync([]);
+
+            // Act
+            var result = await _service.DeleteNotificationAddress("1", 1, CancellationToken.None);
+
+            // Assert
+            Assert.Null(result);
+        }
     }
 }
