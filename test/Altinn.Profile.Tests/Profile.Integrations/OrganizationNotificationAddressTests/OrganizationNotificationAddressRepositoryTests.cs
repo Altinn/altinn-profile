@@ -318,7 +318,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         Assert.NotEqual(existingAddress.RegistryID, updatedAddress.RegistryID);
     }
     
-        [Fact]
+    [Fact]
     public async Task DeleteNotificationAddressAsync_WhenFound_ReturnsSoftDeletedNotificationAddress()
     {
         // Arrange
