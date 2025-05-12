@@ -17,6 +17,7 @@ using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+
 using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
 using Xunit;
@@ -376,6 +377,154 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             var input = new NotificationAddressModel { Phone = phone, CountryCode = countryCode };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(responseContent, _serializerOptions);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal(400, actual.Status);
+            Assert.Equal("One or more validation errors occurred.", actual.Title);
+
+            Assert.Equal(2, actual.Errors.Count);
+            Assert.NotNull(actual.Errors["CountryCode"]);
+            Assert.True(actual.Errors.TryGetValue("CountryCode", out var message));
+            Assert.Contains("The field CountryCode must match the regular expression", message[0]);
+
+            Assert.NotNull(actual.Errors["Phone"]);
+            Assert.True(actual.Errors.TryGetValue("Phone", out var phoneMessage));
+            Assert.Contains("The field Phone must match the regular expression", phoneMessage[0]);
+        }
+
+        [Fact]
+        public async Task UpdateMandatory_WhenSuccessWithEmail_ReturnsUpdatedResult()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.UpdateNotificationAddressAsync(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock
+                .Setup(c => c.UpdateNotificationAddress(It.IsAny<string>(), It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync("2");
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+
+            var input = new NotificationAddressModel { Email = "test@test.com" };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<NotificationAddressResponse>(responseContent, _serializerOptions);
+            Assert.IsType<NotificationAddressResponse>(actual);
+        }
+
+        [Fact]
+        public async Task UpdateMandatory_WhenNoAddressFound_ReturnsNotFound()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync([new Organization { NotificationAddresses = [], OrganizationNumber = orgNo }]);
+            
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+
+            var input = new NotificationAddressModel { Email = "test@test.com" };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/100")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Theory]
+        [InlineData("test")] // Invalid email
+        [InlineData("test@.com")] // Invalid email
+        [InlineData("test@com")] // Invalid email
+        [InlineData("test@com.")] // Invalid email
+        [InlineData("test@com@com")] // Invalid email
+        [InlineData("test@com..com")] // Invalid email
+        public async Task UpdateMandatory_WhenWrongFormatOfEmail_ReturnsBadRequest(string email)
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+
+            var input = new NotificationAddressModel { Email = email };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            string responseContent = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(responseContent, _serializerOptions);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal(400, actual.Status);
+            Assert.Equal("One or more validation errors occurred.", actual.Title);
+
+            Assert.Single(actual.Errors);
+            Assert.NotNull(actual.Errors["Email"]);
+            Assert.True(actual.Errors.TryGetValue("Email", out var message));
+            Assert.Contains("The field Email must match the regular expression", message[0]);
+        }
+
+        [Theory]
+        [InlineData("invalid", "++47")]
+        [InlineData("invalid", "47")]
+        [InlineData(" ", "+4700")]
+        public async Task UpdateMandatory_WhenWrongFormatOfPhone_ReturnsBadRequest(string phone, string countryCode)
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+
+            var input = new NotificationAddressModel { Phone = phone, CountryCode = countryCode };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
             };

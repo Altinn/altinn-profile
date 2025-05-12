@@ -43,6 +43,7 @@ public static class OrganizationNotificationAddressTestData
                 RegistryUpdatedDateTime = DateTime.Now.AddDays(-1),
                 RegistryID = Guid.NewGuid().ToString("N"),
                 RegistryOrganizationId = 1,
+                NotificationAddressID = 1
             },
             new()
             {
@@ -56,6 +57,7 @@ public static class OrganizationNotificationAddressTestData
                 RegistryUpdatedDateTime = DateTime.Now.AddDays(-2),
                 RegistryID = Guid.NewGuid().ToString("N"),
                 RegistryOrganizationId = 1,
+                NotificationAddressID = 2
             },
             new()
             {
@@ -69,6 +71,7 @@ public static class OrganizationNotificationAddressTestData
                 RegistryUpdatedDateTime = DateTime.Now.AddDays(-10),
                 RegistryID = Guid.NewGuid().ToString("N"),
                 RegistryOrganizationId = 1,
+                NotificationAddressID = 3
             },
             new()
             {
@@ -82,6 +85,7 @@ public static class OrganizationNotificationAddressTestData
                 RegistryUpdatedDateTime = DateTime.Now.AddDays(-3),
                 RegistryID = Guid.NewGuid().ToString("N"),
                 RegistryOrganizationId = 2,
+                NotificationAddressID = 4
             },
             new()
             {
@@ -95,6 +99,7 @@ public static class OrganizationNotificationAddressTestData
                 RegistryUpdatedDateTime = DateTime.Now.AddDays(-20),
                 RegistryID = "27ae0c8bea1f4f02a974c10429c32758",
                 RegistryOrganizationId = 2,
+                NotificationAddressID = 5
             },
         };
             

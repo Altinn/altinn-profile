@@ -116,7 +116,7 @@ namespace Altinn.Profile.Controllers
 
             if (string.IsNullOrWhiteSpace(organizationNumber))
             {
-                return BadRequest("Organization number is required");
+                return Problem("Organization number is required", statusCode: 400);
             }
 
             var notificationAddress = NotificationAddressRequestMapper.ToInternalModel(request);
@@ -129,6 +129,42 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
+        /// Update a notification address for an organization
+        /// </summary>
+        /// <returns>Returns the updated notification address for the given organization</returns>
+        [HttpPut("mandatory/{notificationAddressId}")]
+        [Authorize(Policy = AuthConstants.OrgNotificationAddress_Write)]
+        [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<NotificationAddressResponse>> UpdateNotificationAddress([FromRoute] string organizationNumber, [FromRoute] int notificationAddressId, [FromBody] NotificationAddressModel request, CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            if (string.IsNullOrWhiteSpace(organizationNumber))
+            {
+                return Problem("Organization number is required", statusCode: 400);
+            }
+
+            var notificationAddress = NotificationAddressRequestMapper.ToInternalModel(request, notificationAddressId);
+
+            var updatedNotificationAddress = await _notificationAddressService.UpdateNotificationAddress(organizationNumber, notificationAddress, cancellationToken);
+
+            if (updatedNotificationAddress == null)
+            {
+                return NotFound();
+            }
+
+            var response = OrganizationResponseMapper.ToNotificationAddressResponse(updatedNotificationAddress);
+
+            return Ok(response);
+        }
+        
+          /// <summary>
         /// Delete a notification address for an organization
         /// </summary>
         /// <returns>Returns an overview of the registered notification addresses for the given organization</returns>

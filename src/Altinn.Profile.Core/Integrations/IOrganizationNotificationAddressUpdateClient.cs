@@ -20,12 +20,13 @@ public interface IOrganizationNotificationAddressUpdateClient
     /// <summary>
     /// Updates the notification address in the registry
     /// </summary>
+    /// <param name="registryId">The id of the notification address to be updated in the registry.</param>
     /// <param name="notificationAddress">The notification address to be updated.</param>
     /// <param name="organizationNumber">The organization number the notification address belongs to</param>
     /// <returns>
     /// A task that represents the asynchronous operation with the registry's addressId as return value.
     /// </returns>
-    Task<string> UpdateNotificationAddress(NotificationAddress notificationAddress, string organizationNumber);
+    Task<string> UpdateNotificationAddress(string registryId, NotificationAddress notificationAddress, string organizationNumber);
 
     /// <summary>
     /// Deletes a notification address from the registry

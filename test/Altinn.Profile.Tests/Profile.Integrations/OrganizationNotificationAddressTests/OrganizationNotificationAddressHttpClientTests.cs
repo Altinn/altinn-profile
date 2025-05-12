@@ -179,10 +179,10 @@ public class OrganizationNotificationAddressHttpClientTests
 
         var client = CreateHttpClient(mockResponse);
 
-        var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com", RegistryID = Guid.NewGuid().ToString("N") };
+        var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com" };
 
         // Act
-        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.UpdateNotificationAddress(notificationAddress, "123456789"));
+        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.UpdateNotificationAddress(Guid.NewGuid().ToString("N"), notificationAddress, "123456789"));
 
         // Assert
         _messageHandler.VerifyAll();
@@ -201,10 +201,10 @@ public class OrganizationNotificationAddressHttpClientTests
 
         var client = CreateHttpClient(mockResponse);
 
-        var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com", RegistryID = Guid.NewGuid().ToString("N") };
+        var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com" };
 
         // Act
-        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.UpdateNotificationAddress(notificationAddress, "123456789"));
+        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.UpdateNotificationAddress(Guid.NewGuid().ToString("N"), notificationAddress, "123456789"));
 
         // Assert
         _messageHandler.VerifyAll();
@@ -223,10 +223,10 @@ public class OrganizationNotificationAddressHttpClientTests
 
         var client = CreateHttpClient(mockResponse);
 
-        var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com", RegistryID = Guid.NewGuid().ToString("N") };
+        var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com" };
 
         // Act
-        var addressId = await client.UpdateNotificationAddress(notificationAddress, "123456789");
+        var addressId = await client.UpdateNotificationAddress(Guid.NewGuid().ToString("N"), notificationAddress, "123456789");
 
         // Assert
         Assert.IsType<string>(addressId);
