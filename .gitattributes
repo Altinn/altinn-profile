@@ -4,7 +4,6 @@
 # & do unspecified diff behavior (if file content is recognized as text & filesize < core.bigFileThreshold, do text diff on file changes)
 * text=auto
 
-
 # Override with explicit specific settings for known and/or likely text files in our repo that should be normalized
 # where diff{=optional_pattern} means "do text diff {with specific text pattern} and -diff means "don't do text diffs".
 # Unspecified diff behavior is decribed above
