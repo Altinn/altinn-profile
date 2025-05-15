@@ -1,0 +1,20 @@
+meta {
+  name: Get org notificationAddresses
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{ProfileBaseAddress}}/api/v1/organizations/{{orgNumber}}/notificationaddresses/mandatory
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{BearerToken}}
+  ~PlatformAccessToken: {{AccessToken}}
+}
+
+script:pre-request {
+  bru.runRequest("TokenGenerator/end user token")
+}

@@ -1,0 +1,30 @@
+meta {
+  name: platform access token
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{TokenGeneratorBaseUrl}}/api/GetPlatformAccessToken?env={{Environment}}&app=notifications
+  body: none
+  auth: basic
+}
+
+params:query {
+  env: {{Environment}}
+  app: notifications
+}
+
+auth:basic {
+  username: {{TokenGeneratorUserName}}
+  password: {{TokenGeneratorPassword}}
+}
+
+tests {
+  bru.setEnvVar("AccessToken", responseBody);
+  
+  test("Generated token successfully", () => {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+}

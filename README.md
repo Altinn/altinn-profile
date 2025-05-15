@@ -119,3 +119,6 @@ dotnet user-secrets set "ContactAndReservationSettings:MaskinportenSettings:Enco
 
 If you want to remove the migration run `dotnet ef migrations remove --startup-project ../Altinn.Profile`
 Read more about applying migrations [here](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli).
+
+### Running Bruno requests
+In order to run the requests with active access tokens, you need to add the secrets for the token generator tool. This should be added in a `.env` file. An example is added to the folder. 

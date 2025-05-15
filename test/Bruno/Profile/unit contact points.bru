@@ -1,0 +1,21 @@
+meta {
+  name: unit contact points
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{BasePath}}{{PortNumber}}/profile/api/v1/units/contactpoint/lookup
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{BearerToken}}
+}
+
+body:json {
+  {
+      "OrganizationNumbers": [ "313731596" ]
+  }
+}

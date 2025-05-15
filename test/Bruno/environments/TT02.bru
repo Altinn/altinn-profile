@@ -1,0 +1,10 @@
+vars {
+  BaseUrl: https://platform.{{Environment}}.altinn.no
+  Environment: tt02
+  TokenGeneratorBaseUrl: https://altinn-testtools-token-generator.azurewebsites.net/
+  BearerToken: 
+  TokenGeneratorUserName: {{process.env.TOKEN_BASIC_AUTH_USER}}
+}
+vars:secret [
+  TokenGeneratorPassword
+]
