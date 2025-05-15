@@ -99,9 +99,11 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
-        /// Create a new notification address for an organization
+        /// Create a new notification address for an organization. 
         /// </summary>
         /// <returns>Returns an overview of the registered notification addresses for the given organization</returns>
+        /// <response code="201">Returns the newly created notification address</response>
+        /// <response code="200">Returns the existing address if it is already registered. This means that duplicate create commands will only result in the creation one notification address.</response>
         [HttpPost("mandatory")]
         [Authorize(Policy = AuthConstants.OrgNotificationAddress_Write)]
         [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status200OK)]
@@ -138,6 +140,8 @@ namespace Altinn.Profile.Controllers
         /// Update a notification address for an organization
         /// </summary>
         /// <returns>Returns the updated notification address for the given organization</returns>
+        /// <response code="200">Returns the updated address if it is already registered</response>
+        /// <response code="409">Returns problem details with a reference to the conflicting address in the instance parameter</response>
         [HttpPut("mandatory/{notificationAddressId}")]
         [Authorize(Policy = AuthConstants.OrgNotificationAddress_Write)]
         [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status200OK)]
