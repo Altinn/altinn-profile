@@ -121,11 +121,16 @@ namespace Altinn.Profile.Controllers
 
             var notificationAddress = NotificationAddressRequestMapper.ToInternalModel(request);
 
-            var newNotificationAddress = await _notificationAddressService.CreateNotificationAddress(organizationNumber, notificationAddress, cancellationToken);
+            var (newNotificationAddress, isNew) = await _notificationAddressService.CreateNotificationAddress(organizationNumber, notificationAddress, cancellationToken);
 
             var response = OrganizationResponseMapper.ToNotificationAddressResponse(newNotificationAddress);
 
-            return CreatedAtAction(nameof(GetMandatoryNotificationAddress), new { organizationNumber, newNotificationAddress.NotificationAddressID }, response);
+            if (isNew)
+            {
+                return CreatedAtAction(nameof(GetMandatoryNotificationAddress), new { organizationNumber, newNotificationAddress.NotificationAddressID }, response);
+            }
+
+            return Ok(response);
         }
 
         /// <summary>

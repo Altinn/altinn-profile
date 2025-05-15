@@ -13,7 +13,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         private readonly IOrganizationNotificationAddressUpdateClient _updateClient = updateClient;
 
         /// <inheritdoc/>
-        public async Task<NotificationAddress> CreateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken)
+        public async Task<(NotificationAddress Address, bool IsNew)> CreateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken)
         {
             var orgs = await _orgRepository.GetOrganizationsAsync([organizationNumber], cancellationToken);
             var org = orgs.FirstOrDefault();
@@ -22,14 +22,14 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
             var existingAddress = org.NotificationAddresses?.FirstOrDefault(x => x.FullAddress == notificationAddress.FullAddress && x.AddressType == notificationAddress.AddressType);
             if (existingAddress != null)
             {
-                return existingAddress;
+                return (existingAddress, false);
             }
 
             var registryId = await _updateClient.CreateNewNotificationAddress(notificationAddress, organizationNumber);
 
             var updatedNotificationAddress = await _orgRepository.CreateNotificationAddressAsync(organizationNumber, notificationAddress, registryId);
 
-            return updatedNotificationAddress;
+            return (updatedNotificationAddress, true);
         }
 
         /// <summary>

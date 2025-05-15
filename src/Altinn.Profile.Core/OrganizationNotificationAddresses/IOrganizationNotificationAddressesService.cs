@@ -11,7 +11,7 @@ public interface IOrganizationNotificationAddressesService
     /// <param name="organizationNumber">An organization number to indicate which organization to add address for</param>
     /// <param name="notificationAddress">The new notification address</param>
     /// <param name="cancellationToken">To cancel the request before it is finished</param>
-    Task<NotificationAddress> CreateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken);
+    Task<(NotificationAddress Address, bool IsNew)> CreateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken);
 
     /// <summary>
     /// Method for updating a notification address for an organization. 
