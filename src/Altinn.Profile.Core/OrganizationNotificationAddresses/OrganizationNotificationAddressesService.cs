@@ -51,7 +51,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
             var existingNotificationAddress = org.NotificationAddresses?.FirstOrDefault(n => n.NotificationAddressID == notificationAddress.NotificationAddressID);
             if (existingNotificationAddress == null)
             {
-                return (existingNotificationAddress, true);
+                return (existingNotificationAddress, false);
             }
 
             var duplicateAddress = org.NotificationAddresses?.FirstOrDefault(x => x.FullAddress == notificationAddress.FullAddress && x.AddressType == notificationAddress.AddressType);
