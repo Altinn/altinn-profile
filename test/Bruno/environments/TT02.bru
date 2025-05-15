@@ -3,7 +3,7 @@ vars {
   Environment: tt02
   TokenGeneratorBaseUrl: https://altinn-testtools-token-generator.azurewebsites.net/
   TokenGeneratorUserName: {{process.env.TOKEN_BASIC_AUTH_USER}}
-  TokenGeneratorPassword: null{{process.env.TOKEN_BASIC_AUTH_PW}}
+  TokenGeneratorPassword: {{process.env.TOKEN_BASIC_AUTH_PW}}
 }
 vars:secret [
   BearerToken

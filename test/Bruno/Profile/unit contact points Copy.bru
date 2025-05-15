@@ -5,17 +5,17 @@ meta {
 }
 
 post {
-  url: {{BasePath}}{{PortNumber}}/profile/api/v1/contact/details/lookup
+  url: {{ProfileBaseAddress}}/profile/api/v1/contact/details/lookup
   body: json
   auth: none
 }
 
 body:json {
   {
-  	"organizationNumbers": [
-  		"310604771",
-  		"312508729"
-  	],
-  	"resourceId": "app_ttd_apps-test"
+    "organizationNumbers": [
+      "310604771",
+      "312508729"
+    ],
+    "resourceId": "app_ttd_apps-test"
   }
 }
