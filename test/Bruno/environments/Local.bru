@@ -3,7 +3,9 @@ vars {
   BaseUrl: https://platform.{{Environment}}.altinn.cloud
   TokenGeneratorBaseUrl: https://altinn-testtools-token-generator.azurewebsites.net/
   ProfileBaseAddress: http://localhost:5030/profile
-  BearerToken: 
   TokenGeneratorUserName: {{process.env.TOKEN_BASIC_AUTH_USER}}
   TokenGeneratorPassword: {{process.env.TOKEN_BASIC_AUTH_PW}}
 }
+vars:secret [
+  BearerToken
+]
