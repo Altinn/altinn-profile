@@ -38,27 +38,33 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// <param name="organizationNumber">The organization number of the organization the notification address belongs to.</param>
         /// <param name="notificationAddress">The notification address with updated data</param>
         /// <param name="cancellationToken">To cancel the request before it is finished</param>
-        public async Task<NotificationAddress?> UpdateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken)
+        public async Task<(NotificationAddress? Address, bool IsDuplicate)> UpdateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken)
         {
             var orgs = await _orgRepository.GetOrganizationsAsync([organizationNumber], cancellationToken);
             var org = orgs.FirstOrDefault();
 
             if (org == null)
             {
-                return null;
+                return (null, false);
             }
 
             var existingNotificationAddress = org.NotificationAddresses?.FirstOrDefault(n => n.NotificationAddressID == notificationAddress.NotificationAddressID);
             if (existingNotificationAddress == null)
             {
-                return null;
+                return (existingNotificationAddress, true);
+            }
+
+            var duplicateAddress = org.NotificationAddresses?.FirstOrDefault(x => x.FullAddress == notificationAddress.FullAddress && x.AddressType == notificationAddress.AddressType);
+            if (duplicateAddress != null)
+            {
+                return (duplicateAddress, true);
             }
 
             var registryId = await _updateClient.UpdateNotificationAddress(existingNotificationAddress.RegistryID, notificationAddress, organizationNumber);
 
             var updatedNotificationAddress = await _orgRepository.UpdateNotificationAddressAsync(notificationAddress, registryId);
 
-            return updatedNotificationAddress;
+            return (updatedNotificationAddress, false);
         }
         
          /// <summary>

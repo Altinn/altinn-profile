@@ -158,11 +158,23 @@ namespace Altinn.Profile.Controllers
 
             var notificationAddress = NotificationAddressRequestMapper.ToInternalModel(request, notificationAddressId);
 
-            var updatedNotificationAddress = await _notificationAddressService.UpdateNotificationAddress(organizationNumber, notificationAddress, cancellationToken);
+            var (updatedNotificationAddress, isDuplicate) = await _notificationAddressService.UpdateNotificationAddress(organizationNumber, notificationAddress, cancellationToken);
 
             if (updatedNotificationAddress == null)
             {
                 return NotFound();
+            }
+
+            if (isDuplicate)
+            {
+                return Conflict(new ProblemDetails
+                {
+                    Title = "Conflict",
+                    Detail = "A notification address with the same address already exists.",
+                    Status = StatusCodes.Status409Conflict,
+                    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.8",
+                    Instance = Url.Action(nameof(GetMandatoryNotificationAddress), new { organizationNumber, updatedNotificationAddress.NotificationAddressID })
+                });
             }
 
             var response = OrganizationResponseMapper.ToNotificationAddressResponse(updatedNotificationAddress);
