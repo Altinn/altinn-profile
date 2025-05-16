@@ -148,6 +148,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
         public async Task<ActionResult<NotificationAddressResponse>> UpdateNotificationAddress([FromRoute] string organizationNumber, [FromRoute] int notificationAddressId, [FromBody] NotificationAddressModel request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
