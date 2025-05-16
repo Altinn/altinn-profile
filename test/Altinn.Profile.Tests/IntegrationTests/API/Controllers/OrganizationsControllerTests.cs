@@ -517,6 +517,34 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
+        public async Task UpdateMandatory_WhenNoOrgFound_ReturnsNotFound()
+        {
+            // Arrange
+            var orgNo = "1";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync([new Organization { NotificationAddresses = [], OrganizationNumber = orgNo }]);
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+
+            var input = new NotificationAddressModel { Email = "test@test.com" };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/100")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
         public async Task UpdateMandatory_WhenNoAddressFound_ReturnsNotFound()
         {
             // Arrange
