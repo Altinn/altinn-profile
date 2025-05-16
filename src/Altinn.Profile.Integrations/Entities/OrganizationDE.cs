@@ -28,6 +28,6 @@ namespace Altinn.Profile.Integrations.Entities
         /// A collection of notification addresses associated with this organization
         /// </summary>
         [InverseProperty("Organization")]
-        public List<NotificationAddressDE>? NotificationAddresses { get; set; }
+        public List<NotificationAddressDE> NotificationAddresses { get; set; } = new List<NotificationAddressDE>();
     }
 }
