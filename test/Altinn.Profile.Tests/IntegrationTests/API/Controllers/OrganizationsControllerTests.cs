@@ -267,7 +267,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync("123456789");
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
 
-            var input = new NotificationAddressModel { Email = "test@test.com" };
+            var input = new NotificationAddressModel { Email = "unique@test.com" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -304,7 +304,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync("123456789");
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
 
-            var input = new NotificationAddressModel { Phone = "98765432", CountryCode = "+47" };
+            var input = new NotificationAddressModel { Phone = "912345678", CountryCode = "+47" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -316,6 +316,43 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Assert
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<NotificationAddressResponse>(responseContent, _serializerOptions);
+            Assert.IsType<NotificationAddressResponse>(actual);
+        }
+
+        [Fact]
+        public async Task CreateMandatory_WhenAddressAlreadyExists_ReturnsOkResult()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+            .Setup(r => r.CreateNotificationAddressAsync(It.IsAny<string>(), It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+            .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock.Setup(
+                c => c.CreateNewNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync("123456789");
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+
+            var input = new NotificationAddressModel { Email = "test@test.com" };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             string responseContent = await response.Content.ReadAsStringAsync();
             var actual = JsonSerializer.Deserialize<NotificationAddressResponse>(responseContent, _serializerOptions);
             Assert.IsType<NotificationAddressResponse>(actual);
@@ -424,7 +461,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync("2");
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
 
-            var input = new NotificationAddressModel { Email = "test@test.com" };
+            var input = new NotificationAddressModel { Email = "unique@test.com" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -439,6 +476,72 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string responseContent = await response.Content.ReadAsStringAsync();
             var actual = JsonSerializer.Deserialize<NotificationAddressResponse>(responseContent, _serializerOptions);
             Assert.IsType<NotificationAddressResponse>(actual);
+        }
+
+        [Fact]
+        public async Task UpdateMandatory_WhenTryingToUpdateToAlreadyExistingAddress_ReturnsConfict()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.UpdateNotificationAddressAsync(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock
+                .Setup(c => c.UpdateNotificationAddress(It.IsAny<string>(), It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync("2");
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+
+            var input = new NotificationAddressModel { Email = "test@test.com" };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/2")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<ProblemDetails>(responseContent, _serializerOptions);
+            Assert.IsType<ProblemDetails>(actual);
+            Assert.Equal($"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1", actual.Instance);
+        }
+
+        [Fact]
+        public async Task UpdateMandatory_WhenNoOrgFound_ReturnsNotFound()
+        {
+            // Arrange
+            var orgNo = "1";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync([new Organization { NotificationAddresses = [], OrganizationNumber = orgNo }]);
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+
+            var input = new NotificationAddressModel { Email = "test@test.com" };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/100")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [Fact]

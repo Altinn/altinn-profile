@@ -99,11 +99,14 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
-        /// Create a new notification address for an organization
+        /// Create a new notification address for an organization. 
         /// </summary>
         /// <returns>Returns an overview of the registered notification addresses for the given organization</returns>
+        /// <response code="201">Returns the newly created notification address</response>
+        /// <response code="200">Returns the existing address if it is already registered. This means that duplicate create commands will only result in the creation one notification address.</response>
         [HttpPost("mandatory")]
         [Authorize(Policy = AuthConstants.OrgNotificationAddress_Write)]
+        [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -121,23 +124,31 @@ namespace Altinn.Profile.Controllers
 
             var notificationAddress = NotificationAddressRequestMapper.ToInternalModel(request);
 
-            var newNotificationAddress = await _notificationAddressService.CreateNotificationAddress(organizationNumber, notificationAddress, cancellationToken);
+            var (newNotificationAddress, isNew) = await _notificationAddressService.CreateNotificationAddress(organizationNumber, notificationAddress, cancellationToken);
 
             var response = OrganizationResponseMapper.ToNotificationAddressResponse(newNotificationAddress);
 
-            return CreatedAtAction(nameof(GetMandatoryNotificationAddress), new { organizationNumber, newNotificationAddress.NotificationAddressID }, response);
+            if (isNew)
+            {
+                return CreatedAtAction(nameof(GetMandatoryNotificationAddress), new { organizationNumber, newNotificationAddress.NotificationAddressID }, response);
+            }
+
+            return Ok(response);
         }
 
         /// <summary>
         /// Update a notification address for an organization
         /// </summary>
         /// <returns>Returns the updated notification address for the given organization</returns>
+        /// <response code="200">Returns the updated address if it is already registered</response>
+        /// <response code="409">Returns problem details with a reference to the conflicting address in the instance parameter</response>
         [HttpPut("mandatory/{notificationAddressId}")]
         [Authorize(Policy = AuthConstants.OrgNotificationAddress_Write)]
         [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
         public async Task<ActionResult<NotificationAddressResponse>> UpdateNotificationAddress([FromRoute] string organizationNumber, [FromRoute] int notificationAddressId, [FromBody] NotificationAddressModel request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
@@ -152,11 +163,23 @@ namespace Altinn.Profile.Controllers
 
             var notificationAddress = NotificationAddressRequestMapper.ToInternalModel(request, notificationAddressId);
 
-            var updatedNotificationAddress = await _notificationAddressService.UpdateNotificationAddress(organizationNumber, notificationAddress, cancellationToken);
+            var (updatedNotificationAddress, isDuplicate) = await _notificationAddressService.UpdateNotificationAddress(organizationNumber, notificationAddress, cancellationToken);
 
             if (updatedNotificationAddress == null)
             {
                 return NotFound();
+            }
+
+            if (isDuplicate)
+            {
+                return Conflict(new ProblemDetails
+                {
+                    Title = "Conflict",
+                    Detail = "A notification address with the same address already exists.",
+                    Status = StatusCodes.Status409Conflict,
+                    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.8",
+                    Instance = Url.Action(nameof(GetMandatoryNotificationAddress), new { organizationNumber, updatedNotificationAddress.NotificationAddressID })
+                });
             }
 
             var response = OrganizationResponseMapper.ToNotificationAddressResponse(updatedNotificationAddress);
