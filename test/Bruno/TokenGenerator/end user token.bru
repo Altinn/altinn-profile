@@ -1,0 +1,36 @@
+meta {
+  name: end user token
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{TokenGeneratorBaseUrl}}/api/GetPersonalToken?env={{Environment}}&scopes=altinn:events.subscribe&userId={{userId}}&partyId={{partyId}}&pid={{pid}}
+  body: none
+  auth: basic
+}
+
+params:query {
+  env: {{Environment}}
+  scopes: altinn:events.subscribe
+  userId: {{userId}}
+  partyId: {{partyId}}
+  pid: {{pid}}
+}
+
+auth:basic {
+  username: {{TokenGeneratorUserName}}
+  password: {{TokenGeneratorPassword}}
+}
+
+script:post-response {
+  
+  let data = res.getBody();
+  
+  // Check if the response contains a valid token
+  if (!data || data.trim() === '') {
+    console.error('Failed to retrieve a valid token');
+    return;
+  }
+  bru.setEnvVar("BearerToken",data);
+}

@@ -1,0 +1,20 @@
+meta {
+  name: profile by id
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{ProfileBaseAddress}}/profile/api/v1/users/20020487
+  body: none
+  auth: bearer
+}
+
+headers {
+  Ocp-Apim-Subscription-Key: {{Ocp-Apim-Subscription-Key}}
+  PlatformAccessToken: {{AccessToken}}
+}
+
+auth:bearer {
+  token: {{BearerToken}}
+}

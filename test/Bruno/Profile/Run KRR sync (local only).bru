@@ -1,0 +1,11 @@
+meta {
+  name: Run KRR sync (local only)
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{ProfileBaseAddress}}/api/v1/trigger/syncpersonchanges
+  body: none
+  auth: none
+}

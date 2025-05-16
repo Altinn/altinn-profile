@@ -1,0 +1,16 @@
+meta {
+  name: Delete org notificationAddresses
+  type: http
+  seq: 10
+}
+
+delete {
+  url: {{ProfileBaseAddress}}/api/v1/organizations/{{orgNumber}}/notificationaddresses/mandatory/170734
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{BearerToken}}
+  ~PlatformAccessToken: {{AccessToken}}
+}
