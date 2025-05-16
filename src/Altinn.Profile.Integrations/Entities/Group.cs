@@ -3,7 +3,7 @@
 /// <summary>
 /// A group of parties organized by a user
 /// </summary>
-public class Group
+public record Group
 {
     /// <summary>
     /// The group id
@@ -13,7 +13,7 @@ public class Group
     /// <summary>
     /// The group name
     /// </summary>
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     /// <summary>
     /// The id of the user owning the group

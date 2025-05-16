@@ -3,7 +3,7 @@
     /// <summary>
     /// An association between a party and a group
     /// </summary>
-    public class PartyGroupAssociation
+    public record PartyGroupAssociation
     {
         /// <summary>
         /// The id of the association
@@ -28,6 +28,6 @@
         /// <summary>
         /// The group the party is associated with
         /// </summary>
-        public virtual Group Group { get; set; }
+        public virtual required Group Group { get; set; }
     }
 }
