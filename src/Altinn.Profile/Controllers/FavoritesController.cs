@@ -18,7 +18,7 @@ namespace Altinn.Profile.Controllers
     /// Initializes a new instance of the <see cref="FavoritesController"/> class.
     /// </remarks>
     [Authorize]
-    [Route("profile/api/v1/groups/favorites")]
+    [Route("profile/api/v1/users/current/groups/favorites")]
     [Consumes("application/json")]
     [Produces("application/json")]
     public class FavoritesController(IPartyGroupService partyGroupService) : ControllerBase
@@ -32,7 +32,7 @@ namespace Altinn.Profile.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<OrganizationResponse>> Get(CancellationToken cancellationToken)
+        public async Task<ActionResult<GroupResponse>> Get(CancellationToken cancellationToken)
         {
             string userIdString = Request.HttpContext.User.Claims
                 .Where(c => c.Type == AltinnCoreClaimTypes.UserId)
@@ -47,7 +47,8 @@ namespace Altinn.Profile.Controllers
 
             var favorites = await _partyGroupService.GetFavorites(userId, cancellationToken);
 
-            return Ok(favorites);
+            var response = new GroupResponse { Parties = [.. favorites.Parties.Select(p => p.PartyId)], Name = favorites.Name, IsFavorite = favorites.IsFavorite };
+            return Ok(response);
         }
     }
 }

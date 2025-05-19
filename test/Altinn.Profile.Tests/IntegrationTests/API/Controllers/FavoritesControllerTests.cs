@@ -1,15 +1,12 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Altinn.Platform.Profile.Models;
 using Altinn.Profile.Controllers;
-using Altinn.Profile.Integrations.SblBridge;
-using Altinn.Profile.Tests.IntegrationTests.Mocks;
+using Altinn.Profile.Core.PartyGroups;
+using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
-using Altinn.Profile.Tests.Testdata;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
 using Xunit;
@@ -31,7 +28,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _webApplicationFactorySetup.PartyGroupRepositoryMock
                 .Setup(x => x.GetFavorites(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync([1, 2, 3]);
+                .ReturnsAsync(new Group { Parties = [new PartyGroupAssociation { PartyId = 1 }, new PartyGroupAssociation { PartyId = 2 }], Name = "__favoritter__"});
         }
 
         [Fact]
@@ -42,7 +39,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "profile/api/v1/groups/favorites");
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "profile/api/v1/users/current/groups/favorites");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -53,10 +50,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             string responseContent = await response.Content.ReadAsStringAsync();
 
-            int[] favorites = JsonSerializer.Deserialize<int[]>(
+            GroupResponse favorites = JsonSerializer.Deserialize<GroupResponse>(
                 responseContent, _serializerOptionsCamelCase);
 
-            Assert.NotEmpty(favorites);
+            Assert.NotEmpty(favorites.Parties);
         }
 
         private static HttpRequestMessage CreateGetRequest(int userId, string requestUri)

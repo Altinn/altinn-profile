@@ -8,6 +8,6 @@
         /// <summary>
         /// Gets the favorite parties for a given user
         /// </summary>
-        Task<int[]> GetFavorites(int userId, CancellationToken cancellationToken);
+        Task<Group> GetFavorites(int userId, CancellationToken cancellationToken);
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Altinn.Profile.Core.Integrations
+﻿using Altinn.Profile.Core.PartyGroups;
+
+namespace Altinn.Profile.Core.Integrations
 {
     /// <summary>
     /// Interface to interact with the party group repository
@@ -8,6 +10,6 @@
         /// <summary>
         /// Gets the favorite parties for a given user
         /// </summary>
-        Task<int[]> GetFavorites(int userId, CancellationToken cancellationToken);
+        Task<Group?> GetFavorites(int userId, CancellationToken cancellationToken);
     }
 }

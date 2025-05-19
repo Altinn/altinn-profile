@@ -1,4 +1,6 @@
-﻿namespace Altinn.Profile.Core.PartyGroups;
+﻿#nullable disable
+
+namespace Altinn.Profile.Core.PartyGroups;
 
 /// <summary>
 /// An association between a party and a group
@@ -28,5 +30,5 @@ public record PartyGroupAssociation
     /// <summary>
     /// The group the party is associated with
     /// </summary>
-    public virtual required Group Group { get; set; }
+    public virtual Group Group { get; set; }
 }

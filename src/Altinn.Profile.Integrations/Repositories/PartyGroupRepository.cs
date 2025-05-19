@@ -13,19 +13,13 @@ namespace Altinn.Profile.Integrations.Repositories
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
         /// <inheritdoc />
-        public async Task<int[]> GetFavorites(int userId, CancellationToken cancellationToken)
+        public async Task<Group?> GetFavorites(int userId, CancellationToken cancellationToken)
         {
             var groups = await GetGroups(userId, true, cancellationToken);
 
             var favorites = groups.FirstOrDefault();
-                
-            if (favorites == null)
-            {
-                return Array.Empty<int>();
-            }
 
-            var favoriteParties = favorites.Parties?.Select(p => p.PartyId).ToArray();
-            return favoriteParties;
+            return favorites;
         }
 
         /// <summary>
@@ -37,7 +31,7 @@ namespace Altinn.Profile.Integrations.Repositories
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<List<Group>> GetGroups(int userId, bool filterOnlyFavorite, CancellationToken cancellationToken)
         {
-            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
             var groups = await databaseContext.Groups.Include(g => g.Parties).Where(g => g.UserId == userId && (!filterOnlyFavorite || g.IsFavorite)).ToListAsync(cancellationToken);
 
