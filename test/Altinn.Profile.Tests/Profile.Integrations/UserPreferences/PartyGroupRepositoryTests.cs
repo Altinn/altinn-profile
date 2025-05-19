@@ -118,9 +118,12 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
         {
             // Arrange
             _databaseContext.Groups.AddRange(
-                new Group { Name = "Group A", GroupId = 1, IsFavorite = true, UserId = 1, Parties = [
+                new Group 
+                {
+                    Name = "Group A", GroupId = 1, IsFavorite = true, UserId = 1, Parties = [
                     new PartyGroupAssociation { PartyId = 1, AssociationId = 1, Created = DateTime.Now, GroupId = 1 },
-                    new PartyGroupAssociation { PartyId = 2, AssociationId = 2, Created = DateTime.Now, GroupId = 1 }] },
+                    new PartyGroupAssociation { PartyId = 2, AssociationId = 2, Created = DateTime.Now, GroupId = 1 }] 
+                },
                 new Group { Name = "Group B", GroupId = 2, IsFavorite = false, UserId = 1 },
                 new Group { Name = "Group C", GroupId = 3, IsFavorite = false, UserId = 2 });
 

@@ -19,6 +19,6 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="filterOnlyFavorite">A flag to indicate that ionly the favorite group should be fetched</param>
         /// <param name="cancellationToken">A cancellation token</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        Task<List<Group>> GetGroups(int userId, bool filterOnlyFavorite, CancellationToken cancellationToken)
+        Task<List<Group>> GetGroups(int userId, bool filterOnlyFavorite, CancellationToken cancellationToken);
     }
 }
