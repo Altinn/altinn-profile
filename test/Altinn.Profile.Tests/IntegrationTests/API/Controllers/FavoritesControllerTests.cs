@@ -28,7 +28,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _webApplicationFactorySetup.PartyGroupRepositoryMock
                 .Setup(x => x.GetFavorites(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Group { Parties = [new PartyGroupAssociation { PartyId = 1 }, new PartyGroupAssociation { PartyId = 2 }], Name = "__favoritter__"});
+                .ReturnsAsync(new Group { Parties = [new PartyGroupAssociation { PartyId = 1 }, new PartyGroupAssociation { PartyId = 2 }], Name = "__favoritter__" });
         }
 
         [Fact]
@@ -54,6 +54,64 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 responseContent, _serializerOptionsCamelCase);
 
             Assert.NotEmpty(favorites.Parties);
+        }
+
+        [Fact]
+        public async Task GetFavorites_WhenRepositoryReturnsEmptyGroup_IsOk()
+        {
+            // Arrange
+            const int UserId = 2516356;
+
+            _webApplicationFactorySetup.PartyGroupRepositoryMock
+                .Setup(x => x.GetFavorites(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Group { Parties = [], Name = "__favoritter__" });
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "profile/api/v1/users/current/groups/favorites");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.True(response.IsSuccessStatusCode);
+
+            string responseContent = await response.Content.ReadAsStringAsync();
+
+            GroupResponse favorites = JsonSerializer.Deserialize<GroupResponse>(
+                responseContent, _serializerOptionsCamelCase);
+
+            Assert.Empty(favorites.Parties);
+        }
+
+        [Fact]
+        public async Task GetFavorites_WhenRepositoryReturnsNull_IsOk()
+        {
+            // Arrange
+            const int UserId = 2516356;
+
+            _webApplicationFactorySetup.PartyGroupRepositoryMock
+                .Setup(x => x.GetFavorites(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Group)null);
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "profile/api/v1/users/current/groups/favorites");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.True(response.IsSuccessStatusCode);
+
+            string responseContent = await response.Content.ReadAsStringAsync();
+
+            GroupResponse favorites = JsonSerializer.Deserialize<GroupResponse>(
+                responseContent, _serializerOptionsCamelCase);
+
+            Assert.Empty(favorites.Parties);
         }
 
         private static HttpRequestMessage CreateGetRequest(int userId, string requestUri)

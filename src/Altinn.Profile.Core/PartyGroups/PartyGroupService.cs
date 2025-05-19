@@ -10,7 +10,14 @@ namespace Altinn.Profile.Core.PartyGroups
         /// <inheritdoc/>
         public async Task<Group> GetFavorites(int userId, CancellationToken cancellationToken)
         {
-            return await _groupRepository.GetFavorites(userId, cancellationToken);
+            var favorites = await _groupRepository.GetFavorites(userId, cancellationToken);
+
+            return favorites ?? new Group
+            {
+                Parties = [],
+                Name = "__favoritter__",
+                IsFavorite = true
+            };  
         }
     }
 }
