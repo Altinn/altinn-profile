@@ -7,7 +7,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
     {
         [Theory]
         [InlineData("98765432")]
-        [InlineData("9876543200")]
+        [InlineData("98765")]
         [InlineData("")]
         [InlineData(null)]
         public void CustomRegex_WhenPhoneHasAllowedValues_ReturnsValidResult(string input)
@@ -20,8 +20,9 @@ namespace Altinn.Profile.Tests.Profile.Validators
         }
 
         [Theory]
+        [InlineData(" ")]
         [InlineData("error")]
-        [InlineData("+47987654321")]
+        [InlineData("+47")]
         public void CustomRegex_WhenPhoneHasInvalidValues_IsInvalid(string input)
         {
             var attribute = new CustomRegexForNotificationAddressesAttribute("Phone");
@@ -75,6 +76,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         }
 
         [Theory]
+        [InlineData(" ")]
         [InlineData("98765432")]
         [InlineData("test-test@@test.com")]
         [InlineData("test@test..com")]
