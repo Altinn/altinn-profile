@@ -22,14 +22,8 @@ namespace Altinn.Profile.Integrations.Repositories
             return favorites;
         }
 
-        /// <summary>
-        /// Gets the groups for a given user.
-        /// </summary>
-        /// <param name="userId">The logged in users userId</param>
-        /// <param name="filterOnlyFavorite">A flag to indicate that ionly the favorite group should be fetched</param>
-        /// <param name="cancellationToken">A cancellation token</param>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        private async Task<List<Group>> GetGroups(int userId, bool filterOnlyFavorite, CancellationToken cancellationToken)
+        /// <inheritdoc/>
+        public async Task<List<Group>> GetGroups(int userId, bool filterOnlyFavorite, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 

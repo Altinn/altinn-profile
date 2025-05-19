@@ -16,7 +16,7 @@
         public bool IsFavorite { get; set; }
 
         /// <summary>
-        /// The name of the group
+        /// Array of party IDs that belong to this group
         /// </summary>
         public int[] Parties { get; set; }
     }

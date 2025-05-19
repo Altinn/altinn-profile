@@ -6,6 +6,7 @@ namespace Altinn.Profile.Core.PartyGroups
     public class PartyGroupService(IPartyGroupRepository groupRepository) : IPartyGroupService
     {
         private readonly IPartyGroupRepository _groupRepository = groupRepository;
+        private const string DefaultFavoritesName = "__favoritter__";
 
         /// <inheritdoc/>
         public async Task<Group> GetFavorites(int userId, CancellationToken cancellationToken)
@@ -15,7 +16,7 @@ namespace Altinn.Profile.Core.PartyGroups
             return favorites ?? new Group
             {
                 Parties = [],
-                Name = "__favoritter__",
+                Name = DefaultFavoritesName,
                 IsFavorite = true
             };  
         }
