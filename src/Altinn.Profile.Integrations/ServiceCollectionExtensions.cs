@@ -78,7 +78,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRegistrySyncMetadataRepository, RegistrySyncMetadataRepository>();
         services.AddScoped<IOrganizationNotificationAddressSyncJob, OrganizationNotificationAddressUpdateJob>();
 
-        services.AddScoped<IPartyGroupRepository>();
+        services.AddScoped<IPartyGroupRepository, PartyGroupRepository>();
 
         services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
     }

@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Integrations.Entities;
+﻿namespace Altinn.Profile.Core.PartyGroups;
 
 /// <summary>
 /// A group of parties organized by a user
