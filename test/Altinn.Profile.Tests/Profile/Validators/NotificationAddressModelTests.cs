@@ -60,5 +60,27 @@ namespace Altinn.Profile.Tests.Profile.Validators
 
             Assert.Empty(validationResult);
         }
+
+        [Fact]
+        public void NotificationAddressModel_WhenTooShortPhoneIsGiven_ReturnsValidationResults()
+        {
+            var model = new NotificationAddressModel { CountryCode = "+47", Phone = "9876543" };
+            var validationContext = new ValidationContext(model);
+
+            var validationResult = model.Validate(validationContext);
+
+            Assert.NotEmpty(validationResult);
+        }
+
+        [Fact]
+        public void NotificationAddressModel_WhenInvalidPhoneIsGiven_ReturnsValidationResults()
+        {
+            var model = new NotificationAddressModel { CountryCode = "+47", Phone = "19876543" };
+            var validationContext = new ValidationContext(model);
+
+            var validationResult = model.Validate(validationContext);
+
+            Assert.NotEmpty(validationResult);
+        }
     }
 }
