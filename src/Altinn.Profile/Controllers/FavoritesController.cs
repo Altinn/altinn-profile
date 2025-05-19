@@ -28,7 +28,7 @@ namespace Altinn.Profile.Controllers
         /// <summary>
         /// Get the favorite parties for the current user
         /// </summary>
-        /// <returns>Returns the favorite parties for current user</returns>
+        /// <returns>Returns the group containing the favorite parties for current user</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
