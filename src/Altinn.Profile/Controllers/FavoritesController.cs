@@ -26,9 +26,9 @@ namespace Altinn.Profile.Controllers
         private readonly IPartyGroupService _partyGroupService = partyGroupService;
 
         /// <summary>
-        /// Endpoint looking up the notification addresses for the given organization
+        /// Get the favorite parties for the current user
         /// </summary>
-        /// <returns>Returns an overview of the registered notification addresses for the provided organization</returns>
+        /// <returns>Returns the favorite parties for current user</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -43,7 +43,10 @@ namespace Altinn.Profile.Controllers
                 return BadRequest("Invalid request context. UserId must be provided in claims.");
             }
 
-            int userId = int.Parse(userIdString);
+            if (!int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest("Invalid user ID format in claims.");
+            }
 
             var favorites = await _partyGroupService.GetFavorites(userId, cancellationToken);
 

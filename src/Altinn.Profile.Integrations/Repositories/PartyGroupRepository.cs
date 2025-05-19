@@ -29,7 +29,7 @@ namespace Altinn.Profile.Integrations.Repositories
         /// <param name="filterOnlyFavorite">A flag to indicate that ionly the favorite group should be fetched</param>
         /// <param name="cancellationToken">A cancellation token</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        public async Task<List<Group>> GetGroups(int userId, bool filterOnlyFavorite, CancellationToken cancellationToken)
+        private async Task<List<Group>> GetGroups(int userId, bool filterOnlyFavorite, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
