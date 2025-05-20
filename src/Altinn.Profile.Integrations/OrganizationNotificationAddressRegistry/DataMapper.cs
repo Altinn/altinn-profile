@@ -25,7 +25,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
             existingAddress.HasRegistryAccepted = true;
             existingAddress.NotificationName = entry.Title;
 
-            MapDigitalContactPoint(entry, existingAddress);
+            MapFromDigitalContactPoint(entry, existingAddress);
 
             return existingAddress;
         }
@@ -46,12 +46,12 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
                 NotificationName = entry.Title,
             };
 
-            MapDigitalContactPoint(entry, organizationNotificationAddress);
+            MapFromDigitalContactPoint(entry, organizationNotificationAddress);
 
             return organizationNotificationAddress;
         }
 
-        private static void MapDigitalContactPoint(Entry entry, NotificationAddressDE organizationNotificationAddress)
+        private static void MapFromDigitalContactPoint(Entry entry, NotificationAddressDE organizationNotificationAddress)
         {
             var contanctPoint = entry.Content?.ContactPoint?.DigitalContactPoint;
 
@@ -117,14 +117,14 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
                             Type = OrganizationNumberType,
                         },
                     },
-                    DigitalContactPoint = MapDigitalContactPoint(notificationAddress),
+                    DigitalContactPoint = MapToDigitalContactPoint(notificationAddress),
                 }
             };
 
             return request;
         }
 
-        private static DigitalContactPointModel MapDigitalContactPoint(NotificationAddress notificationAddress)
+        private static DigitalContactPointModel MapToDigitalContactPoint(NotificationAddress notificationAddress)
         {
             if (notificationAddress.AddressType == AddressType.Email)
             {
