@@ -18,6 +18,21 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
         /// <summary>
         /// Maps from the registry raw data to the data model stored in the database
         /// </summary>
+        public static NotificationAddressDE MapExistingOrganizationNotificationAddress(Entry entry, NotificationAddressDE existingAddress)
+        {
+            existingAddress.RegistryUpdatedDateTime = entry.Updated;
+            existingAddress.UpdateSource = UpdateSource.KoFuVi;
+            existingAddress.HasRegistryAccepted = true;
+            existingAddress.NotificationName = entry.Title;
+
+            MapDigitalContactPoint(entry, existingAddress);
+
+            return existingAddress;
+        }
+
+        /// <summary>
+        /// Maps from the registry raw data to the data model stored in the database
+        /// </summary>
         public static NotificationAddressDE MapOrganizationNotificationAddress(Entry entry, OrganizationDE organization)
         {
             var organizationNotificationAddress = new NotificationAddressDE
@@ -31,6 +46,13 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
                 NotificationName = entry.Title,
             };
 
+            MapDigitalContactPoint(entry, organizationNotificationAddress);
+
+            return organizationNotificationAddress;
+        }
+
+        private static void MapDigitalContactPoint(Entry entry, NotificationAddressDE organizationNotificationAddress)
+        {
             var contanctPoint = entry.Content?.ContactPoint?.DigitalContactPoint;
 
             if (contanctPoint?.EmailAddress != null)
@@ -45,8 +67,6 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
             {
                 throw new OrganizationNotificationAddressChangesException(string.Concat("NotificationAddress type not recognized for feed entry with id: ", entry.Id));
             }
-
-            return organizationNotificationAddress;
         }
 
         private static void MapPhoneSpecificDetails(NotificationAddressDE organizationNotificationAddress, PhoneNumberModel phoneNumber)

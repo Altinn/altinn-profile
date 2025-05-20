@@ -89,23 +89,17 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
-        var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(address, organization);
-
         var existingAddress = organization.NotificationAddresses?.FirstOrDefault(a => a.RegistryID == address.Id);
+
         if (existingAddress == null)
         {
+            var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(address, organization);
             databaseContext.NotificationAddresses.Add(organizationNotificationAddress);
         }
         else
         {
-            existingAddress.Address = organizationNotificationAddress.Address;
-            existingAddress.FullAddress = organizationNotificationAddress.FullAddress;
-            existingAddress.Domain = organizationNotificationAddress.Domain;
-            existingAddress.RegistryUpdatedDateTime = organizationNotificationAddress.RegistryUpdatedDateTime;
-            existingAddress.UpdateSource = organizationNotificationAddress.UpdateSource;
-            existingAddress.IsSoftDeleted = organizationNotificationAddress.IsSoftDeleted;
-
-            databaseContext.NotificationAddresses.Update(existingAddress);
+            var updatedAddress = DataMapper.MapExistingOrganizationNotificationAddress(address, existingAddress);
+            databaseContext.NotificationAddresses.Update(updatedAddress);
         }
 
         return await databaseContext.SaveChangesAsync();
