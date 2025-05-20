@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Altinn.Profile.Validators
 {
     /// <summary>
-    /// Custom regex attribute for Kofuvi  using the kofuvi regex from config
+    /// Custom regex attribute for notification address validation
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public class CustomRegexForNotificationAddressesAttribute : RegularExpressionAttribute

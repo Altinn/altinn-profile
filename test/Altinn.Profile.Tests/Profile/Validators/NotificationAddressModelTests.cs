@@ -73,7 +73,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         }
 
         [Fact]
-        public void NotificationAddressModel_WhenInvalidPhoneIsGiven_ReturnsValidationResults()
+        public void NotificationAddressModel_WhenInvalidNorwegianPhoneIsGiven_ReturnsValidationResults()
         {
             var model = new NotificationAddressModel { CountryCode = "+47", Phone = "19876543" };
             var validationContext = new ValidationContext(model);
@@ -81,6 +81,17 @@ namespace Altinn.Profile.Tests.Profile.Validators
             var validationResult = model.Validate(validationContext);
 
             Assert.NotEmpty(validationResult);
+        }
+
+        [Fact]
+        public void NotificationAddressModel_WhenValidInternationalPhoneIsGiven_ReturnsNoValidationResults()
+        {
+            var model = new NotificationAddressModel { CountryCode = "+1", Phone = "2125551234", Email = string.Empty };
+            var validationContext = new ValidationContext(model);
+
+            var validationResult = model.Validate(validationContext);
+
+            Assert.Empty(validationResult);
         }
     }
 }

@@ -47,6 +47,9 @@ namespace Altinn.Profile.Models
             }
         }
 
+        /// <summary>
+        /// This is extra validation for phone numbers that cannot be validated with regex.
+        /// </summary>
         private bool IsValidPhoneNumber()
         {
             var phoneNumberUtil = PhoneNumberUtil.GetInstance();
