@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading;
@@ -7,6 +8,7 @@ using Altinn.Profile.Controllers;
 using Altinn.Profile.Core.PartyGroups;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
 using Xunit;
@@ -39,7 +41,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "profile/api/v1/users/current/party-groups/favorites");
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, "profile/api/v1/users/current/party-groups/favorites");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -68,7 +70,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "profile/api/v1/users/current/party-groups/favorites");
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, "profile/api/v1/users/current/party-groups/favorites");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -97,7 +99,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "profile/api/v1/users/current/party-groups/favorites");
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, "profile/api/v1/users/current/party-groups/favorites");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -114,9 +116,27 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Empty(favorites.Parties);
         }
 
-        private static HttpRequestMessage CreateGetRequest(int userId, string requestUri)
+        [Fact]
+        public async Task AddToFavorites_WhenAllIsGood_ReturnsNoContent()
         {
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, requestUri);
+            // Arrange
+            const int UserId = 2516356;
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Put, UserId, "profile/api/v1/users/current/party-groups/favorites/1234567890");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
+
+        private static HttpRequestMessage CreateRequest(HttpMethod method, int userId, string requestUri)
+        {
+            HttpRequestMessage httpRequestMessage = new(method, requestUri);
             string token = PrincipalUtil.GetToken(userId);
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return httpRequestMessage;

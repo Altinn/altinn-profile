@@ -20,5 +20,10 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="cancellationToken">A cancellation token</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         Task<List<Group>> GetGroups(int userId, bool filterOnlyFavorite, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Adds a party to the favorites group for a given user
+        /// </summary>
+        Task AddPartyToFavorites(int userId, int PartyId, CancellationToken cancellationToken);
     }
 }

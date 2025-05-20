@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.PartyGroups;
 using Altinn.Profile.Models;
 using AltinnCore.Authentication.Constants;
@@ -52,6 +51,33 @@ namespace Altinn.Profile.Controllers
 
             var response = new GroupResponse { Parties = [.. favorites.Parties.Select(p => p.PartyId)], Name = favorites.Name, IsFavorite = favorites.IsFavorite };
             return Ok(response);
+        }
+
+        /// <summary>
+        /// Add a party to the group of favorites for the current user
+        /// </summary>
+        [HttpPut("{partyId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<GroupResponse>> AddFavorite([FromRoute] int partyId,CancellationToken cancellationToken)
+        {
+            string userIdString = Request.HttpContext.User.Claims
+                .Where(c => c.Type == AltinnCoreClaimTypes.UserId)
+                .Select(c => c.Value).SingleOrDefault();
+
+            if (string.IsNullOrEmpty(userIdString))
+            {
+                return BadRequest("Invalid request context. UserId must be provided in claims.");
+            }
+
+            if (!int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest("Invalid user ID format in claims.");
+            }
+
+            await _partyGroupService.MarkPartyAsFavorite(userId, partyId, cancellationToken);
+
+            return NoContent();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Core.PartyGroups;
@@ -31,9 +32,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             _databaseContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => new ProfileDbContext(databaseContextOptions));
 
+            _databaseContext = _databaseContextFactory.Object.CreateDbContext();
+
             _repository = new PartyGroupRepository(_databaseContextFactory.Object);
 
-            _databaseContext = _databaseContextFactory.Object.CreateDbContext();
         }
 
         public void Dispose()
@@ -57,7 +59,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
         }
 
         [Fact]
-        public async Task GetGroups_WhenUserHAsMultipleGroups_ReturnsAll()
+        public async Task GetGroups_WhenUserHasMultipleGroups_ReturnsAll()
         {
             // Arrange
             _databaseContext.Groups.AddRange(
@@ -153,6 +155,24 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
 
             // Assert
             Assert.Null(group);
+        }
+
+        [Fact]
+        public async Task AddPartyToFavorites_WhenUserHasNoGroups_GroupAndPartyIsAdded()
+        {
+            // Arrange
+            var userId = 1;
+            var partyId = 5;
+
+            // Act
+            await _repository.AddPartyToFavorites(userId, partyId, CancellationToken.None);
+
+            // Assert
+            var favoriteGroups = _databaseContext.Groups.Where(g => g.IsFavorite == true && g.UserId == userId);
+
+            Assert.Single(favoriteGroups);
+            Assert.Single(favoriteGroups.First().Parties);
+            Assert.Equal(partyId, favoriteGroups.First().Parties[0].PartyId);
         }
     }
 }
