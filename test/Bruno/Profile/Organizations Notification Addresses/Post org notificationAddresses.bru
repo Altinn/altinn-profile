@@ -1,13 +1,13 @@
 meta {
-  name: Get org notificationAddresses
+  name: Post org notificationAddresses
   type: http
-  seq: 8
+  seq: 5
 }
 
-get {
+post {
   url: {{ProfileBaseAddress}}/api/v1/organizations/{{orgNumber}}/notificationaddresses/mandatory
-  body: none
-  auth: none
+  body: json
+  auth: bearer
 }
 
 headers {
@@ -15,6 +15,13 @@ headers {
   ~PlatformAccessToken: {{AccessToken}}
 }
 
-script:pre-request {
-  bru.runRequest("TokenGenerator/end user token")
+auth:bearer {
+  token: {{BearerToken}}
+}
+
+body:json {
+  {
+      "phone": "44111111",
+      "countryCode": "+47"
+  }
 }
