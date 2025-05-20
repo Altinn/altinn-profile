@@ -18,7 +18,7 @@ namespace Altinn.Profile.Controllers
     /// Initializes a new instance of the <see cref="FavoritesController"/> class.
     /// </remarks>
     [Authorize]
-    [Route("profile/api/v1/users/current/groups/favorites")]
+    [Route("profile/api/v1/users/current/party-groups/favorites")]
     [Consumes("application/json")]
     [Produces("application/json")]
     public class FavoritesController(IPartyGroupService partyGroupService) : ControllerBase

@@ -39,7 +39,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "profile/api/v1/users/current/groups/favorites");
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "profile/api/v1/users/current/party-groups/favorites");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -68,7 +68,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "profile/api/v1/users/current/groups/favorites");
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "profile/api/v1/users/current/party-groups/favorites");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -97,7 +97,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "profile/api/v1/users/current/groups/favorites");
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "profile/api/v1/users/current/party-groups/favorites");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
