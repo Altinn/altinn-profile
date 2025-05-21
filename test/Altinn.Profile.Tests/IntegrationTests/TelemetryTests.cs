@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
@@ -17,7 +16,7 @@ using OpenTelemetry.Metrics;
 
 using Xunit;
 
-namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
+namespace Altinn.Profile.Tests.IntegrationTests;
 
 public class TelemetryTests(WebApplicationFactory<Program> factory) 
     : IClassFixture<WebApplicationFactory<Program>>, IDisposable
@@ -31,7 +30,7 @@ public class TelemetryTests(WebApplicationFactory<Program> factory)
     {
         var metricItems = new List<Metric>();
 
-        this._meterProvider = Sdk.CreateMeterProviderBuilder()
+        _meterProvider = Sdk.CreateMeterProviderBuilder()
             .AddMeter("platform-profile")
             .AddInMemoryExporter(metricItems)
             .Build();
@@ -44,7 +43,7 @@ public class TelemetryTests(WebApplicationFactory<Program> factory)
         _webApplicationFactorySetup.OrganizationNotificationAddressSyncClientMock.Setup(
             c => c.GetAddressChangesAsync(It.IsAny<string>())).ReturnsAsync(changes);
 
-        using (var client = this._webApplicationFactorySetup.GetTestServerClient())
+        using (var client = _webApplicationFactorySetup.GetTestServerClient())
         {
             try
             {
@@ -63,7 +62,7 @@ public class TelemetryTests(WebApplicationFactory<Program> factory)
         // giving some breezing room for the End callback to complete
         await Task.Delay(TimeSpan.FromSeconds(1));
 
-        this._meterProvider.Dispose();
+        _meterProvider.Dispose();
 
         var addedMetrics = metricItems
             .Where(item => item.Name == "profile.contactregistry.person.added")
@@ -79,7 +78,7 @@ public class TelemetryTests(WebApplicationFactory<Program> factory)
 
     public void Dispose()
     {
-        this._meterProvider?.Dispose();
+        _meterProvider?.Dispose();
         GC.SuppressFinalize(this);
     }
 }
