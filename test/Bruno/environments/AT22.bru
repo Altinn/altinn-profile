@@ -1,7 +1,7 @@
 vars {
   Environment: at22
   BaseUrl: https://platform.{{Environment}}.altinn.cloud
-  TokenGeneratorBaseUrl: https://altinn-testtools-token-generator.azurewebsites.net/
+  TokenGeneratorBaseUrl: {{process.env.TOKEN_URL}}
   ProfileBaseAddress: {{BaseUrl}}/profile
   TokenGeneratorUserName: {{process.env.TOKEN_BASIC_AUTH_USER}}
   TokenGeneratorPassword: {{process.env.TOKEN_BASIC_AUTH_PW}}
