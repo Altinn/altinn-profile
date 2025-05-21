@@ -143,7 +143,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
         var foundOrganizations = await databaseContext.Organizations
-                .Include(o => o.NotificationAddresses)
+                .Include(o => o.NotificationAddresses.Where(a => a.IsSoftDeleted != true))
                 .Where(o => organizationNumbers.Contains(o.RegistryOrganizationNumber))
                 .ToListAsync(cancellationToken);
 
@@ -187,6 +187,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         var notificationAddressDE = await databaseContext.NotificationAddresses.FirstAsync(n => n.NotificationAddressID == notificationAddress.NotificationAddressID);
 
+        notificationAddressDE.AddressType = notificationAddress.AddressType;
         notificationAddressDE.Address = notificationAddress.Address;
         notificationAddressDE.Domain = notificationAddress.Domain;
         notificationAddressDE.FullAddress = notificationAddress.FullAddress;

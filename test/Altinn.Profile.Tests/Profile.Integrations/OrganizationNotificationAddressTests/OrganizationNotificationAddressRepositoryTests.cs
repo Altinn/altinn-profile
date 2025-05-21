@@ -252,6 +252,28 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task GetOrganizations_WhenFoundButAddressSoftDeleted_ReturnsWithoutNotificationAddresses()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        var testOrgWithOnlySoftDeletedAddresses = new List<string>() { "999999999" };
+
+        var expectedOrg1 = organizations
+            .Find(p => p.RegistryOrganizationNumber == "999999999");
+
+        // Act
+        var result = await _repository.GetOrganizationsAsync(testOrgWithOnlySoftDeletedAddresses, CancellationToken.None);
+
+        // Assert
+        Assert.NotEmpty(result);
+        var matchedOrg1 = result.FirstOrDefault();
+        Assert.IsType<Organization>(matchedOrg1);
+        Assert.Empty(matchedOrg1.NotificationAddresses);
+    }
+
+    [Fact]
     public async Task GetOrganizations_WhenNoneFound_ReturnsEmptyList()
     {
         // Arrange
@@ -319,7 +341,31 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         Assert.NotEqual(existingAddress.Domain, updatedAddress.Domain);
         Assert.NotEqual(existingAddress.RegistryID, updatedAddress.RegistryID);
     }
-    
+
+    [Fact]
+    public async Task UpdateNotificationAddressAsync_WhenFoundAndChangingAddressType_ReturnsUpdatedNotificationAddress()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        var notificationAddressId = 1;
+
+        var existingAddress = notificationAddresses
+            .Find(p => p.NotificationAddressID == 1);
+
+        // Act
+        var updatedAddress = await _repository.UpdateNotificationAddressAsync(new NotificationAddress { AddressType = AddressType.SMS, FullAddress = "+4712345678", Address = "12345678", Domain = "+47", NotificationAddressID = notificationAddressId }, "2");
+
+        // Assert
+        Assert.IsType<NotificationAddress>(updatedAddress);
+        Assert.NotNull(updatedAddress.RegistryID);
+        Assert.NotEqual(existingAddress.Address, updatedAddress.Address);
+        Assert.NotEqual(existingAddress.Domain, updatedAddress.Domain);
+        Assert.NotEqual(existingAddress.RegistryID, updatedAddress.RegistryID);
+        Assert.NotEqual(existingAddress.AddressType, updatedAddress.AddressType);
+    }
+
     [Fact]
     public async Task DeleteNotificationAddressAsync_WhenFound_ReturnsSoftDeletedNotificationAddress()
     {

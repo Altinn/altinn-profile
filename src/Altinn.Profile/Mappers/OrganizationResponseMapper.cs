@@ -30,7 +30,7 @@ namespace Altinn.Profile.Mappers
         {
             var response = new NotificationAddressResponse
             {
-                NotificationAddressID = notificationAddress.NotificationAddressID,
+                NotificationAddressId = notificationAddress.NotificationAddressID,
             };
 
             if (notificationAddress.AddressType == AddressType.Email)
