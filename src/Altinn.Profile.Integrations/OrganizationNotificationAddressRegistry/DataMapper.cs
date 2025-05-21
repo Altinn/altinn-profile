@@ -18,14 +18,14 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
         /// <summary>
         /// Populates values on the data model stored in the database from the registry raw data 
         /// </summary>
-        public static NotificationAddressDE PopulateExistingOrganizationNotificationAddress(Entry entry, NotificationAddressDE existingAddress)
+        public static NotificationAddressDE PopulateExistingOrganizationNotificationAddress(NotificationAddressDE existingAddress, Entry entry)
         {
             existingAddress.RegistryUpdatedDateTime = entry.Updated;
             existingAddress.UpdateSource = UpdateSource.KoFuVi;
             existingAddress.HasRegistryAccepted = true;
             existingAddress.NotificationName = entry.Title;
 
-            PopulateFromDigitalContactPoint(entry, existingAddress);
+            PopulateFromDigitalContactPoint(existingAddress, entry);
 
             return existingAddress;
         }
@@ -33,7 +33,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
         /// <summary>
         /// Populates values on the data model stored in the database from the registry raw data 
         /// </summary>
-        public static NotificationAddressDE PopulateOrganizationNotificationAddress(Entry entry, OrganizationDE organization)
+        public static NotificationAddressDE PopulateOrganizationNotificationAddress(OrganizationDE organization, Entry entry)
         {
             var organizationNotificationAddress = new NotificationAddressDE
             {
@@ -46,12 +46,12 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
                 NotificationName = entry.Title,
             };
 
-            PopulateFromDigitalContactPoint(entry, organizationNotificationAddress);
+            PopulateFromDigitalContactPoint(organizationNotificationAddress, entry);
 
             return organizationNotificationAddress;
         }
 
-        private static void PopulateFromDigitalContactPoint(Entry entry, NotificationAddressDE organizationNotificationAddress)
+        private static void PopulateFromDigitalContactPoint(NotificationAddressDE organizationNotificationAddress, Entry entry)
         {
             var contanctPoint = entry.Content?.ContactPoint?.DigitalContactPoint;
 
