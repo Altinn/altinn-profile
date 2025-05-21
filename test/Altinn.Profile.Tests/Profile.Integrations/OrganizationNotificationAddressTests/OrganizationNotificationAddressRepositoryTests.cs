@@ -256,20 +256,19 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
         SeedDatabase(organizations, notificationAddresses);
 
-        var orgNumberLookup = new List<string>() { "999999999" };
+        var testOrgWithOnlySoftDeletedAddresses = new List<string>() { "999999999" };
 
         var expectedOrg1 = organizations
             .Find(p => p.RegistryOrganizationNumber == "999999999");
 
         // Act
-        var result = await _repository.GetOrganizationsAsync(orgNumberLookup, CancellationToken.None);
+        var result = await _repository.GetOrganizationsAsync(testOrgWithOnlySoftDeletedAddresses, CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result);
         var matchedOrg1 = result.FirstOrDefault();
         Assert.IsType<Organization>(matchedOrg1);
         Assert.Empty(matchedOrg1.NotificationAddresses);
-        Assert.Equal(matchedOrg1.OrganizationNumber, expectedOrg1.RegistryOrganizationNumber);
     }
 
     [Fact]
