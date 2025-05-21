@@ -1,0 +1,27 @@
+meta {
+  name: Update org notificationAddresses
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{ProfileBaseAddress}}/api/v1/organizations/{{orgNumber}}/notificationaddresses/mandatory/170979
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{BearerToken}}
+  ~PlatformAccessToken: {{AccessToken}}
+}
+
+body:json {
+  {
+      "phone": "91111112",
+      "countryCode": "+47"
+  }
+}
+
+script:pre-request {
+  bru.runRequest("TokenGenerator/end user token")
+}

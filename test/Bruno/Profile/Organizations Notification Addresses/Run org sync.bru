@@ -1,0 +1,11 @@
+meta {
+  name: Run org sync
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{ProfileBaseAddress}}/api/v1/trigger/syncorgchanges
+  body: none
+  auth: none
+}
