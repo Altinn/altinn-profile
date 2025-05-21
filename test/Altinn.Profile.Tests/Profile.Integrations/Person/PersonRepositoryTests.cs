@@ -52,7 +52,7 @@ public class PersonRepositoryTests : IDisposable
         _databaseContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new ProfileDbContext(databaseContextOptions));
 
-        _personRepository = new PersonRepository(mapper, _databaseContextFactory.Object);
+        _personRepository = new PersonRepository(mapper, _databaseContextFactory.Object, null);
 
         _personContactAndReservationTestData = new List<Person>(PersonTestData.GetContactAndReservationTestData());
 

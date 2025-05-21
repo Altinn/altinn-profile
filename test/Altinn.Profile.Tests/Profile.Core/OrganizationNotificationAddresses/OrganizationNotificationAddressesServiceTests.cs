@@ -103,7 +103,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             var result = await _service.CreateNotificationAddress("123456789", new NotificationAddress(), CancellationToken.None); 
             
             // Assert
-            Assert.NotNull(result); 
+            Assert.NotNull(result.Address); 
         }
 
         [Fact]
@@ -117,7 +117,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             var result = await _service.CreateNotificationAddress("123456789", new NotificationAddress { FullAddress = "test@test.com", AddressType = AddressType.Email }, CancellationToken.None);
 
             // Assert
-            Assert.NotNull(result);
+            Assert.NotNull(result.Address);
             _updateClient.VerifyNoOtherCalls();
         }
 
@@ -157,7 +157,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             var result = await _service.UpdateNotificationAddress("123456789", new NotificationAddress { NotificationAddressID = 1 }, CancellationToken.None);
 
             // Assert
-            Assert.NotNull(result);
+            Assert.NotNull(result.Address);
         }
 
         [Fact]
