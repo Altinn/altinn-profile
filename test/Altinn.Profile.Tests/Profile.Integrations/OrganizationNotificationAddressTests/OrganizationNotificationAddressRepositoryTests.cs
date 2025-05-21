@@ -223,6 +223,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         Assert.NotNull(actualUpdatedAddress);
         Assert.NotEqual(addressToReplace.Address, actualUpdatedAddress.Address);
         Assert.True(actualUpdatedAddress.HasRegistryAccepted);
+        Assert.Equal(UpdateSource.KoFuVi, actualUpdatedAddress.UpdateSource);
         Assert.True(numberOfUpdatedAddresses > 0);
     }
 

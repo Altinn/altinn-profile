@@ -20,7 +20,7 @@ public class DataMapperTests
         var organization = new OrganizationDE { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
 
         // Act
-        var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(entry, organization);
+        var organizationNotificationAddress = DataMapper.PopulateOrganizationNotificationAddress(entry, organization);
 
         // Assert
         Assert.Equal("98765432", organizationNotificationAddress.Address);
@@ -37,7 +37,7 @@ public class DataMapperTests
         var organization = new OrganizationDE { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
 
         // Act
-        var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(entry, organization);
+        var organizationNotificationAddress = DataMapper.PopulateOrganizationNotificationAddress(entry, organization);
 
         // Assert
         Assert.Equal("98765432", organizationNotificationAddress.Address);
@@ -54,7 +54,7 @@ public class DataMapperTests
         var organization = new OrganizationDE { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
 
         // Act
-        var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(entry, organization);
+        var organizationNotificationAddress = DataMapper.PopulateOrganizationNotificationAddress(entry, organization);
 
         // Assert
         Assert.Equal("test", organizationNotificationAddress.Address);
@@ -71,7 +71,7 @@ public class DataMapperTests
         var organization = new OrganizationDE { RegistryOrganizationNumber = "123456789", RegistryOrganizationId = 1 };
 
         // Act & Assert
-        Assert.Throws<OrganizationNotificationAddressChangesException>(() => DataMapper.MapOrganizationNotificationAddress(entry, organization));
+        Assert.Throws<OrganizationNotificationAddressChangesException>(() => DataMapper.PopulateOrganizationNotificationAddress(entry, organization));
     }
 
     [Fact]

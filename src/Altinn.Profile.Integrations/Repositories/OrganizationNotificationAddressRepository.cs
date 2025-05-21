@@ -93,12 +93,12 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         if (existingAddress == null)
         {
-            var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(address, organization);
+            var organizationNotificationAddress = DataMapper.PopulateOrganizationNotificationAddress(address, organization);
             databaseContext.NotificationAddresses.Add(organizationNotificationAddress);
         }
         else
         {
-            var updatedAddress = DataMapper.MapExistingOrganizationNotificationAddress(address, existingAddress);
+            var updatedAddress = DataMapper.PopulateExistingOrganizationNotificationAddress(address, existingAddress);
             databaseContext.NotificationAddresses.Update(updatedAddress);
         }
 
@@ -129,7 +129,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             RegistryOrganizationNumber = orgNumber,
             NotificationAddresses = [],
         };
-        var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(address, organization);
+        var organizationNotificationAddress = DataMapper.PopulateOrganizationNotificationAddress(address, organization);
         organization.NotificationAddresses.Add(organizationNotificationAddress);
 
         await databaseContext.Organizations.AddAsync(organization);
