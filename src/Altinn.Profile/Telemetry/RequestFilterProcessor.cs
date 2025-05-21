@@ -113,8 +113,12 @@ namespace Altinn.Profile.Telemetry
         /// <param name="activity">xx</param>
         public override void OnEnd(Activity activity)
         {
-            if (activity.OperationName == _requestKind && _httpContextAccessor.HttpContext is not null &&
-                _httpContextAccessor.HttpContext.Request.Headers.TryGetValue("X-Forwarded-For", out StringValues clientIp))
+            if (activity.OperationName != _requestKind || _httpContextAccessor.HttpContext is null)
+            {
+                return;
+            }
+
+            if (_httpContextAccessor.HttpContext.Request.Headers.TryGetValue("X-Forwarded-For", out StringValues clientIp))
             {
                 activity.SetTag("ipAddress", clientIp.FirstOrDefault());
             }
