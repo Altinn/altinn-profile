@@ -16,9 +16,24 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
         public const string OrganizationNumberType = "ORGANISASJONSNUMMER";
 
         /// <summary>
-        /// Maps from the registry raw data to the data model stored in the database
+        /// Populates values on the data model stored in the database from the registry raw data 
         /// </summary>
-        public static NotificationAddressDE MapOrganizationNotificationAddress(Entry entry, OrganizationDE organization)
+        public static NotificationAddressDE PopulateExistingOrganizationNotificationAddress(NotificationAddressDE existingAddress, Entry entry)
+        {
+            existingAddress.RegistryUpdatedDateTime = entry.Updated;
+            existingAddress.UpdateSource = UpdateSource.KoFuVi;
+            existingAddress.HasRegistryAccepted = true;
+            existingAddress.NotificationName = entry.Title;
+
+            PopulateFromDigitalContactPoint(existingAddress, entry);
+
+            return existingAddress;
+        }
+
+        /// <summary>
+        /// Populates values on the data model stored in the database from the registry raw data 
+        /// </summary>
+        public static NotificationAddressDE PopulateOrganizationNotificationAddress(OrganizationDE organization, Entry entry)
         {
             var organizationNotificationAddress = new NotificationAddressDE
             {
@@ -31,25 +46,30 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
                 NotificationName = entry.Title,
             };
 
+            PopulateFromDigitalContactPoint(organizationNotificationAddress, entry);
+
+            return organizationNotificationAddress;
+        }
+
+        private static void PopulateFromDigitalContactPoint(NotificationAddressDE organizationNotificationAddress, Entry entry)
+        {
             var contanctPoint = entry.Content?.ContactPoint?.DigitalContactPoint;
 
             if (contanctPoint?.EmailAddress != null)
             {
-                MapEmailSpecificValues(organizationNotificationAddress, contanctPoint.EmailAddress);
+                PopulateEmailSpecificValues(organizationNotificationAddress, contanctPoint.EmailAddress);
             }
             else if (contanctPoint?.PhoneNumber != null)
             {
-                MapPhoneSpecificDetails(organizationNotificationAddress, contanctPoint.PhoneNumber);
+                PopulatePhoneSpecificDetails(organizationNotificationAddress, contanctPoint.PhoneNumber);
             }
             else
             {
                 throw new OrganizationNotificationAddressChangesException(string.Concat("NotificationAddress type not recognized for feed entry with id: ", entry.Id));
             }
-
-            return organizationNotificationAddress;
         }
 
-        private static void MapPhoneSpecificDetails(NotificationAddressDE organizationNotificationAddress, PhoneNumberModel phoneNumber)
+        private static void PopulatePhoneSpecificDetails(NotificationAddressDE organizationNotificationAddress, PhoneNumberModel phoneNumber)
         {
             string? rawDataPrefix = string.IsNullOrEmpty(phoneNumber.Prefix) ? null : phoneNumber.Prefix.Trim();
             string? prefix;
@@ -72,7 +92,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
             organizationNotificationAddress.FullAddress = string.Concat(prefix, phoneNumber.NationalNumber);
         }
 
-        private static void MapEmailSpecificValues(NotificationAddressDE organizationNotificationAddress, EmailAddressModel emailAddress)
+        private static void PopulateEmailSpecificValues(NotificationAddressDE organizationNotificationAddress, EmailAddressModel emailAddress)
         {
             organizationNotificationAddress.AddressType = AddressType.Email;
             organizationNotificationAddress.Domain = emailAddress.Domain;
@@ -97,14 +117,14 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
                             Type = OrganizationNumberType,
                         },
                     },
-                    DigitalContactPoint = MapDigitalContactPoint(notificationAddress),
+                    DigitalContactPoint = MapToDigitalContactPoint(notificationAddress),
                 }
             };
 
             return request;
         }
 
-        private static DigitalContactPointModel MapDigitalContactPoint(NotificationAddress notificationAddress)
+        private static DigitalContactPointModel MapToDigitalContactPoint(NotificationAddress notificationAddress)
         {
             if (notificationAddress.AddressType == AddressType.Email)
             {
