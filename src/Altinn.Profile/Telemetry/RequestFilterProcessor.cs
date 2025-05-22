@@ -11,6 +11,7 @@ using AltinnCore.Authentication.Constants;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+
 using OpenTelemetry;
 
 namespace Altinn.Profile.Telemetry
@@ -113,7 +114,7 @@ namespace Altinn.Profile.Telemetry
         /// <param name="activity">xx</param>
         public override void OnEnd(Activity activity)
         {
-            if (activity.OperationName != _requestKind || _httpContextAccessor.HttpContext is null)
+            if (activity.OperationName != _requestKind || _httpContextAccessor?.HttpContext is null)
             {
                 return;
             }

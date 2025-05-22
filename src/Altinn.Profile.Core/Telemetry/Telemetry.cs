@@ -46,7 +46,6 @@ public sealed partial class Telemetry : IDisposable
     public Meter Meter { get; }
 
     private FrozenDictionary<string, Counter<long>> _counters;
-    private FrozenDictionary<string, Histogram<double>> _histograms;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Telemetry"/> class.
@@ -57,7 +56,6 @@ public sealed partial class Telemetry : IDisposable
         Meter = new Meter(AppName);
 
         _counters = FrozenDictionary<string, Counter<long>>.Empty;
-        _histograms = FrozenDictionary<string, Histogram<double>>.Empty;
 
         Init();
     }
@@ -77,8 +75,7 @@ public sealed partial class Telemetry : IDisposable
             _isInitialized = true;
 
             var counters = new Dictionary<string, Counter<long>>();
-            var histograms = new Dictionary<string, Histogram<double>>();
-            var context = new InitContext(counters, histograms);
+            var context = new InitContext(counters);
 
             InitContactRegisterUpdateJob(context);
 
@@ -88,13 +85,11 @@ public sealed partial class Telemetry : IDisposable
             // So instead they are kept in frozen dicts here and looked up as they are incremented.
             // Another option would be to keep them as plain fields here
             _counters = counters.ToFrozenDictionary();
-            _histograms = histograms.ToFrozenDictionary();
         }
     }
 
     private readonly record struct InitContext(
-        Dictionary<string, Counter<long>> Counters,
-        Dictionary<string, Histogram<double>> Histograms);
+        Dictionary<string, Counter<long>> Counters);
 
     /// <summary>
     /// Utility methods for creating metrics.
