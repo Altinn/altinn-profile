@@ -100,10 +100,10 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync(new NotificationAddress { });
             
             // Act
-            var result = await _service.CreateNotificationAddress("123456789", new NotificationAddress(), CancellationToken.None); 
+            var (address, isNew) = await _service.CreateNotificationAddress("123456789", new NotificationAddress(), CancellationToken.None); 
             
             // Assert
-            Assert.NotNull(result); 
+            Assert.NotNull(address); 
         }
 
         [Fact]
@@ -112,12 +112,12 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             // Arrange
             _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == "123456789"));
-            
+
             // Act
-            var result = await _service.CreateNotificationAddress("123456789", new NotificationAddress { FullAddress = "test@test.com", AddressType = AddressType.Email }, CancellationToken.None);
+            var (address, isNew) = await _service.CreateNotificationAddress("123456789", new NotificationAddress { FullAddress = "test@test.com", AddressType = AddressType.Email }, CancellationToken.None);
 
             // Assert
-            Assert.NotNull(result);
+            Assert.NotNull(address);
             _updateClient.VerifyNoOtherCalls();
         }
 
@@ -154,10 +154,10 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync(new NotificationAddress { });
 
             // Act
-            var result = await _service.UpdateNotificationAddress("123456789", new NotificationAddress { NotificationAddressID = 1 }, CancellationToken.None);
+            var (address, isDuplicate) = await _service.UpdateNotificationAddress("123456789", new NotificationAddress { NotificationAddressID = 1 }, CancellationToken.None);
 
             // Assert
-            Assert.NotNull(result);
+            Assert.NotNull(address);
         }
 
         [Fact]
