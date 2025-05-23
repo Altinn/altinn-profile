@@ -13,7 +13,7 @@
         /// <summary>
         /// Mark a party as a favorite for the current user
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        Task MarkPartyAsFavorite(int userId, int partyId, CancellationToken cancellationToken);
+        /// <returns>A <see cref="Task{TResult}"/> representing the result with a boolean telling whether the party was added as a favorite or if it already existed.</returns>
+        Task<bool> MarkPartyAsFavorite(int userId, int partyId, CancellationToken cancellationToken);
     }
 }

@@ -57,9 +57,10 @@ namespace Altinn.Profile.Controllers
         /// Add a party to the group of favorites for the current user
         /// </summary>
         [HttpPut("{partyId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<GroupResponse>> AddFavorite([FromRoute] int partyId,CancellationToken cancellationToken)
+        public async Task<ActionResult<GroupResponse>> AddFavorite([FromRoute] int partyId, CancellationToken cancellationToken)
         {
             string userIdString = Request.HttpContext.User.Claims
                 .Where(c => c.Type == AltinnCoreClaimTypes.UserId)
@@ -75,7 +76,12 @@ namespace Altinn.Profile.Controllers
                 return BadRequest("Invalid user ID format in claims.");
             }
 
-            await _partyGroupService.MarkPartyAsFavorite(userId, partyId, cancellationToken);
+            var addedNow = await _partyGroupService.MarkPartyAsFavorite(userId, partyId, cancellationToken);
+
+            if (addedNow)
+            {
+                return Created((string)null, null);
+            }
 
             return NoContent();
         }
