@@ -31,5 +31,36 @@ namespace Altinn.Profile.Integrations.Repositories
 
             return groups;
         }
+
+        /// <inheritdoc/>
+        public async Task<bool> AddPartyToFavorites(int userId, int PartyId, CancellationToken cancellationToken)
+        {
+            var favoriteGroup = await GetFavorites(userId, cancellationToken) ?? new Group
+                {
+                    UserId = userId,
+                    IsFavorite = true,
+                    Name = PartyGroupConstants.DefaultFavoritesName,
+                    Parties = []
+                };
+
+            if (favoriteGroup.Parties.Any(p => p.PartyId == PartyId))
+            {
+                return false;
+            }
+
+            var partyGroupAssociation = new PartyGroupAssociation
+            {
+                PartyId = PartyId,
+            };
+            favoriteGroup.Parties.Add(partyGroupAssociation);
+
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+            databaseContext.Groups.Update(favoriteGroup);
+
+            await databaseContext.SaveChangesAsync(CancellationToken.None);
+
+            return true;
+        }
     }
 }
