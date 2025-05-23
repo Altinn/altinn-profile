@@ -304,7 +304,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync("123456789");
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
 
-            var input = new NotificationAddressModel { Phone = "912345678", CountryCode = "+47" };
+            var input = new NotificationAddressModel { Phone = "91234567", CountryCode = "+47" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
