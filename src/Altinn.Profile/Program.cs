@@ -173,7 +173,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.Configure<GeneralSettings>(config.GetSection("GeneralSettings"));
     services.Configure<KeyVaultSettings>(config.GetSection("kvSetting"));
     services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
-    services.Configure<PlatformSettings>(config.GetSection("PlatformSettings"));    
+    services.Configure<PlatformSettings>(config.GetSection("PlatformSettings"));
 
     services.AddSingleton(config);
     services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();

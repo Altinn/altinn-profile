@@ -3,13 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
-using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
 using Microsoft.AspNetCore.Mvc.Testing;
-
-using Moq;
 
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
@@ -26,7 +22,7 @@ public class TelemetryTests(WebApplicationFactory<Program> factory)
     private MeterProvider _meterProvider;
 
     [Fact]
-    public async Task Init_Verify_Creation_of_Meters()
+    public async Task Init_Initializing_meters_Meters_are_initialized()
     {
         var metricItems = new List<Metric>();
 
@@ -35,20 +31,12 @@ public class TelemetryTests(WebApplicationFactory<Program> factory)
             .AddInMemoryExporter(metricItems)
             .Build();
 
-        var changes = new NotificationAddressChangesLog
-        {
-            OrganizationNotificationAddressList = new List<Entry>(),
-        };
-
-        _webApplicationFactorySetup.OrganizationNotificationAddressSyncClientMock.Setup(
-            c => c.GetAddressChangesAsync(It.IsAny<string>())).ReturnsAsync(changes);
-
         using (var client = _webApplicationFactorySetup.GetTestServerClient())
         {
             try
             {
-                // We need to call an endpoint that triggers some telemetry
-                using var response = await client.GetAsync(new Uri("/profile/api/v1/trigger/syncorgchanges", UriKind.Relative));
+                // We need to call any endpoint that includes some telemetry.
+                using var response = await client.GetAsync(new Uri("/profile/api/v1/trigger/syncpersonchanges", UriKind.Relative));
                 response.EnsureSuccessStatusCode();
             }
             catch
