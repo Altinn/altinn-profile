@@ -1,4 +1,6 @@
-﻿namespace Altinn.Profile.Models
+﻿using System;
+
+namespace Altinn.Profile.Models
 {
     /// <summary>
     /// GroupModel is used to represent a group of parties
@@ -18,6 +20,6 @@
         /// <summary>
         /// Array of party IDs that belong to this group
         /// </summary>
-        public int[] Parties { get; set; }
+        public Guid[] Parties { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading;
@@ -28,7 +29,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _webApplicationFactorySetup.PartyGroupRepositoryMock
                 .Setup(x => x.GetFavorites(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Group { Parties = [new PartyGroupAssociation { PartyId = 1 }, new PartyGroupAssociation { PartyId = 2 }], Name = "__favoritter__" });
+                .ReturnsAsync(new Group { Parties = [new PartyGroupAssociation { PartyUuid = Guid.NewGuid() }, new PartyGroupAssociation { PartyUuid = Guid.NewGuid() }], Name = "__favoritter__" });
         }
 
         [Fact]

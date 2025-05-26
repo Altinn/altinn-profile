@@ -50,7 +50,7 @@ namespace Altinn.Profile.Controllers
 
             var favorites = await _partyGroupService.GetFavorites(userId, cancellationToken);
 
-            var response = new GroupResponse { Parties = [.. favorites.Parties.Select(p => p.PartyId)], Name = favorites.Name, IsFavorite = favorites.IsFavorite };
+            var response = new GroupResponse { Parties = [.. favorites.Parties.Select(p => p.PartyUuid)], Name = favorites.Name, IsFavorite = favorites.IsFavorite };
             return Ok(response);
         }
     }

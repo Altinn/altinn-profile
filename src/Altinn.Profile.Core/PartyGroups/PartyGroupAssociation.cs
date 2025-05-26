@@ -18,9 +18,9 @@ public record PartyGroupAssociation
     public int GroupId { get; set; }
 
     /// <summary>
-    /// The Party id
+    /// The Party's universally unique id
     /// </summary>
-    public int PartyId { get; set; }
+    public Guid PartyUuid { get; set; }
 
     /// <summary>
     /// The datetime when the association was created

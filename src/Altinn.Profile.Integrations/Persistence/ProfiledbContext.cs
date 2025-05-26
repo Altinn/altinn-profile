@@ -122,7 +122,7 @@ public partial class ProfileDbContext : DbContext
             entity.HasKey(e => e.AssociationId).HasName("association_id_pkey");
             entity.Property(e => e.AssociationId).IsRequired();
             entity.Property(e => e.GroupId).IsRequired();
-            entity.Property(e => e.PartyId).IsRequired();
+            entity.Property(e => e.PartyUuid).IsRequired();
             entity.Property(e => e.Created).HasDefaultValueSql("now()").ValueGeneratedOnAdd();
 
             entity.HasOne(d => d.Group)

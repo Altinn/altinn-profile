@@ -117,29 +117,32 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
         public async Task GetFavorites_WhenUserHasMultipleGroups_ReturnsOnlyFavorite()
         {
             // Arrange
+            var partyUuid = Guid.NewGuid();
+            var userId = 1;
+
             _databaseContext.Groups.AddRange(
                 new Group 
                 {
-                    Name = "Group A", GroupId = 1, IsFavorite = true, UserId = 1, Parties = [
-                    new PartyGroupAssociation { PartyId = 1, AssociationId = 1, Created = DateTime.Now, GroupId = 1 },
-                    new PartyGroupAssociation { PartyId = 2, AssociationId = 2, Created = DateTime.Now, GroupId = 1 }] 
+                    Name = "Group A", GroupId = 1, IsFavorite = true, UserId = userId, Parties = [
+                    new PartyGroupAssociation { PartyUuid = partyUuid, AssociationId = 1, Created = DateTime.Now, GroupId = 1 },
+                    new PartyGroupAssociation { PartyUuid = Guid.NewGuid(), AssociationId = 2, Created = DateTime.Now, GroupId = 1 }] 
                 },
-                new Group { Name = "Group B", GroupId = 2, IsFavorite = false, UserId = 1 },
+                new Group { Name = "Group B", GroupId = 2, IsFavorite = false, UserId = userId },
                 new Group { Name = "Group C", GroupId = 3, IsFavorite = false, UserId = 2 });
 
             await _databaseContext.SaveChangesAsync();
 
             // Act
-            var favorites = await _repository.GetFavorites(1, CancellationToken.None);
+            var favorites = await _repository.GetFavorites(userId, CancellationToken.None);
 
             // Assert
             Assert.Equal("Group A", favorites.Name);
             Assert.Equal(1, favorites.GroupId);
             Assert.True(favorites.IsFavorite);
-            Assert.Equal(1, favorites.UserId);
+            Assert.Equal(userId, favorites.UserId);
             Assert.NotNull(favorites.Parties);
             Assert.Equal(2, favorites.Parties.Count);
-            Assert.Equal(1, favorites.Parties[0].PartyId);
+            Assert.Equal(partyUuid, favorites.Parties[0].PartyUuid);
             Assert.Equal(1, favorites.Parties[0].AssociationId);
             Assert.Equal(1, favorites.Parties[0].GroupId);
             Assert.NotEqual(default, favorites.Parties[0].Created);
