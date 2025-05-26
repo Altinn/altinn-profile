@@ -6,8 +6,8 @@
     public class NotificationAddressResponse : NotificationAddressModel
     {
         /// <summary>
-        /// <see cref="NotificationAddressID"/>
+        /// <see cref="NotificationAddressId"/>
         /// </summary>
-        public int NotificationAddressID { get; set; }
+        public int NotificationAddressId { get; set; }
     }
 }

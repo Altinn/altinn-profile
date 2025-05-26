@@ -27,6 +27,11 @@ public static class OrganizationNotificationAddressTestData
             {
                 RegistryOrganizationNumber = "987654321",
                 RegistryOrganizationId = 2
+            },
+            new()
+            {
+                RegistryOrganizationNumber = "999999999",
+                RegistryOrganizationId = 3
             }
         };
         var notificationAddresses = new List<NotificationAddressDE>()
@@ -94,12 +99,26 @@ public static class OrganizationNotificationAddressTestData
                 Domain = "+47",
                 FullAddress = "+4798765433",
                 IsSoftDeleted = false,
-                HasRegistryAccepted = true,
-                UpdateSource = UpdateSource.KoFuVi,
+                HasRegistryAccepted = false,
+                UpdateSource = UpdateSource.Altinn,
                 RegistryUpdatedDateTime = DateTime.Now.AddDays(-20),
                 RegistryID = "27ae0c8bea1f4f02a974c10429c32758",
                 RegistryOrganizationId = 2,
                 NotificationAddressID = 5
+            },
+            new()
+            {
+                AddressType = AddressType.SMS,
+                Address = "98765434",
+                Domain = "+47",
+                FullAddress = "+4798765434",
+                IsSoftDeleted = true,
+                HasRegistryAccepted = true,
+                UpdateSource = UpdateSource.KoFuVi,
+                RegistryUpdatedDateTime = DateTime.Now.AddDays(-25),
+                RegistryID = "27ae0c8bea1f4f02a974c10429c32759",
+                RegistryOrganizationId = 3,
+                NotificationAddressID = 6
             },
         };
             

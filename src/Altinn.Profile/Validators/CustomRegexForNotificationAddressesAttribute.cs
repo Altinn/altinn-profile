@@ -4,13 +4,13 @@ using System.ComponentModel.DataAnnotations;
 namespace Altinn.Profile.Validators
 {
     /// <summary>
-    /// Custom regex attribute for Kofuvi  using the kofuvi regex from config
+    /// Custom regex attribute for notification address validation
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public class CustomRegexForNotificationAddressesAttribute : RegularExpressionAttribute
     {
-        private const string _emailRegexPattern = @"^((([a-zA-Z0-9!#$%&amp;'*+\-=?\^_`{}~])+(\.([a-zA-Z0-9!#$%&amp;'*+\-=?\^_`{}~])+)*)@(((([a-zA-Z0-9æøåÆØÅ]([a-zA-Z0-9\-æøåÆØÅ]{0,61})[a-zA-Z0-9æøåÆØÅ]\.)|[a-zA-Z0-9æøåÆØÅ]\.){1,9})([a-zA-Z]{2,14})))$";
-        private const string _phoneRegexPattern = @"(^[0-9]+$)";
+        private const string _emailRegexPattern = @"((&quot;[^&quot;]+&quot;)|(([a-zA-Z0-9!#$%&amp;'*+\-=?\^_`{|}~])+(\.([a-zA-Z0-9!#$%&amp;'*+\-=?\^_`{|}~])+)*))@((((([a-zA-Z0-9æøåÆØÅ]([a-zA-Z0-9\-æøåÆØÅ]{0,61})[a-zA-Z0-9æøåÆØÅ]\.)|[a-zA-Z0-9æøåÆØÅ]\.){1,9})([a-zA-Z]{2,14}))|((\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})))";
+        private const string _phoneRegexPattern = @"(([0-9]{5})|([0-9]{8})|((00[0-9]{2})[0-9]+)|((\+[0-9]{2})[0-9]+))$";
         private const string _countryCodeRegexPattern = @"(^\+([0-9]{1,3}))";
 
         /// <summary>

@@ -89,23 +89,17 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
-        var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(address, organization);
-
         var existingAddress = organization.NotificationAddresses?.FirstOrDefault(a => a.RegistryID == address.Id);
+
         if (existingAddress == null)
         {
+            var organizationNotificationAddress = DataMapper.PopulateOrganizationNotificationAddress(organization, address);
             databaseContext.NotificationAddresses.Add(organizationNotificationAddress);
         }
         else
         {
-            existingAddress.Address = organizationNotificationAddress.Address;
-            existingAddress.FullAddress = organizationNotificationAddress.FullAddress;
-            existingAddress.Domain = organizationNotificationAddress.Domain;
-            existingAddress.RegistryUpdatedDateTime = organizationNotificationAddress.RegistryUpdatedDateTime;
-            existingAddress.UpdateSource = organizationNotificationAddress.UpdateSource;
-            existingAddress.IsSoftDeleted = organizationNotificationAddress.IsSoftDeleted;
-
-            databaseContext.NotificationAddresses.Update(existingAddress);
+            var updatedAddress = DataMapper.PopulateExistingOrganizationNotificationAddress(existingAddress, address);
+            databaseContext.NotificationAddresses.Update(updatedAddress);
         }
 
         return await databaseContext.SaveChangesAsync();
@@ -135,7 +129,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             RegistryOrganizationNumber = orgNumber,
             NotificationAddresses = [],
         };
-        var organizationNotificationAddress = DataMapper.MapOrganizationNotificationAddress(address, organization);
+        var organizationNotificationAddress = DataMapper.PopulateOrganizationNotificationAddress(organization, address);
         organization.NotificationAddresses.Add(organizationNotificationAddress);
 
         await databaseContext.Organizations.AddAsync(organization);
@@ -149,7 +143,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
         var foundOrganizations = await databaseContext.Organizations
-                .Include(o => o.NotificationAddresses)
+                .Include(o => o.NotificationAddresses.Where(a => a.IsSoftDeleted != true))
                 .Where(o => organizationNumbers.Contains(o.RegistryOrganizationNumber))
                 .ToListAsync(cancellationToken);
 
@@ -193,6 +187,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         var notificationAddressDE = await databaseContext.NotificationAddresses.FirstAsync(n => n.NotificationAddressID == notificationAddress.NotificationAddressID);
 
+        notificationAddressDE.AddressType = notificationAddress.AddressType;
         notificationAddressDE.Address = notificationAddress.Address;
         notificationAddressDE.Domain = notificationAddress.Domain;
         notificationAddressDE.FullAddress = notificationAddress.FullAddress;

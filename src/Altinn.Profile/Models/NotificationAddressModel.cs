@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Altinn.Profile.Validators;
+using PhoneNumbers;
 
 namespace Altinn.Profile.Models
 {
@@ -30,15 +31,55 @@ namespace Altinn.Profile.Models
         /// <inheritdoc/>
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (Email == null && Phone == null)
+            if (string.IsNullOrWhiteSpace(Email) && string.IsNullOrWhiteSpace(Phone))
             {
-               yield return new ValidationResult("Either Phone or Email must be specified.", [nameof(Phone), nameof(Email)]);
+                yield return new ValidationResult("Either Phone or Email must be specified.", [nameof(Phone), nameof(Email)]);
             }
 
-            if (Email != null && Phone != null)
+            if (!string.IsNullOrWhiteSpace(Email) && !string.IsNullOrWhiteSpace(Phone))
             {
                 yield return new ValidationResult("Cannot provide both Phone and Email for the same notification address.", [nameof(Phone), nameof(Email)]);
             }
+
+            if (string.IsNullOrWhiteSpace(Email) && !IsValidPhoneNumber())
+            {
+                yield return new ValidationResult("Phone number is not valid.", [nameof(Phone)]);
+            }
+        }
+
+        /// <summary>
+        /// This is extra validation for phone numbers that cannot be validated with regex.
+        /// </summary>
+        private bool IsValidPhoneNumber()
+        {
+            var phoneNumberUtil = PhoneNumberUtil.GetInstance();
+           
+            bool isValidNumber;
+
+            try
+            {
+                PhoneNumber phoneNumber = phoneNumberUtil.Parse(CountryCode + Phone, "NO");
+                isValidNumber = phoneNumberUtil.IsValidNumber(phoneNumber);
+            }
+            catch (NumberParseException)
+            {
+                isValidNumber = false;
+            }
+
+            if (CountryCode == "+47")
+            {
+                if (Phone.Length != 8)
+                {
+                    isValidNumber = false;
+                }
+
+                if (!Phone.StartsWith('9') && !Phone.StartsWith('4'))
+                {
+                    isValidNumber = false;
+                }
+            }
+
+            return isValidNumber;
         }
     }
 }
