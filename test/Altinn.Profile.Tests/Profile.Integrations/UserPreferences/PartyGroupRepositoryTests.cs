@@ -56,16 +56,21 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             }
         }
 
-        [Fact]
-        public async Task GetGroups_WhenUserHAsMultipleGroups_ReturnsAll()
+        private async Task SeedTestGroups()
         {
-            // Arrange
             _databaseContext.Groups.AddRange(
                 new Group { Name = "Group A", GroupId = 1, IsFavorite = true, UserId = 1 },
                 new Group { Name = "Group B", GroupId = 2, IsFavorite = false, UserId = 1 },
                 new Group { Name = "Group C", GroupId = 3, IsFavorite = false, UserId = 2 });
 
             await _databaseContext.SaveChangesAsync();
+        }
+
+        [Fact]
+        public async Task GetGroups_WhenUserHasMultipleGroups_ReturnsAll()
+        {
+            // Arrange
+            await SeedTestGroups();
 
             // Act
             var groups = await _repository.GetGroups(1, false, CancellationToken.None);
@@ -80,12 +85,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
         public async Task GetGroups_FilterForFavoriteIsTrue_ReturnsOnlyFavorite()
         {
             // Arrange
-            _databaseContext.Groups.AddRange(
-                new Group { Name = "Group A", GroupId = 1, IsFavorite = true, UserId = 1 },
-                new Group { Name = "Group B", GroupId = 2, IsFavorite = false, UserId = 1 },
-                new Group { Name = "Group C", GroupId = 3, IsFavorite = false, UserId = 2 });
-
-            await _databaseContext.SaveChangesAsync();
+            await SeedTestGroups();
 
             // Act
             var groups = await _repository.GetGroups(1, true, CancellationToken.None);
@@ -99,12 +99,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
         public async Task GetGroups_WhenUserHasNoGroups_ReturnsEmptyList()
         {
             // Arrange
-            _databaseContext.Groups.AddRange(
-                new Group { Name = "Group A", GroupId = 1, IsFavorite = true, UserId = 1 },
-                new Group { Name = "Group B", GroupId = 2, IsFavorite = false, UserId = 1 },
-                new Group { Name = "Group C", GroupId = 3, IsFavorite = false, UserId = 2 });
-
-            await _databaseContext.SaveChangesAsync();
+            await SeedTestGroups();
 
             // Act
             var groups = await _repository.GetGroups(5, false, CancellationToken.None);
@@ -156,6 +151,18 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
 
             // Assert
             Assert.Null(group);
+        }
+
+        [Fact]
+        public async Task GetGroups_WhenCancellationRequested_ThrowsOperationCanceledException()
+        {
+            // Arrange
+            var cts = new CancellationTokenSource();
+            cts.Cancel();
+
+            // Act & Assert
+            await Assert.ThrowsAsync<OperationCanceledException>(
+                () => _repository.GetGroups(1, false, cts.Token));
         }
     }
 }
