@@ -33,16 +33,9 @@ public class TelemetryTests(WebApplicationFactory<Program> factory)
 
         using (var client = _webApplicationFactorySetup.GetTestServerClient())
         {
-            try
-            {
-                // We need to call any endpoint that includes some telemetry.
-                using var response = await client.GetAsync(new Uri("/profile/api/v1/trigger/syncpersonchanges", UriKind.Relative));
-                response.EnsureSuccessStatusCode();
-            }
-            catch
-            {
-                // ignore error.
-            }
+            // We need to call any endpoint that includes some telemetry.
+            using var response = await client.GetAsync(new Uri("/profile/api/v1/trigger/syncpersonchanges", UriKind.Relative));
+            response.EnsureSuccessStatusCode();
         }
 
         // We need to let End callback execute as it is executed AFTER response was returned.
