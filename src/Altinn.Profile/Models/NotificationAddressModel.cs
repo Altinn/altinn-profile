@@ -49,8 +49,7 @@ namespace Altinn.Profile.Models
                 {
                     yield return new ValidationResult("CountryCode is required with Phone.", [nameof(CountryCode)]);
                 }
-
-                if (!IsValidPhoneNumber())
+                else if (!IsValidPhoneNumber())
                 {
                     yield return new ValidationResult("Phone number is not valid.", [nameof(Phone)]);
                 }
