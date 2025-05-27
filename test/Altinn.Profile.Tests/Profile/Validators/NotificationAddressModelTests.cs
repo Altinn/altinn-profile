@@ -51,9 +51,20 @@ namespace Altinn.Profile.Tests.Profile.Validators
         }
 
         [Fact]
-        public void NotificationAddressModel_WhenOnlyValidPhoneIsGiven_ReturnsNoValidationResults()
+        public void NotificationAddressModel_WhenOnlyValidPhoneIsGiven_ReturnsValidationResults()
         {
             var model = new NotificationAddressModel { Phone = "98765432", Email = string.Empty };
+            var validationContext = new ValidationContext(model);
+
+            var validationResult = model.Validate(validationContext);
+
+            Assert.NotEmpty(validationResult);
+        }
+
+        [Fact]
+        public void NotificationAddressModel_WhenValidPhoneAndCountryCodeIsGiven_ReturnsNoValidationResults()
+        {
+            var model = new NotificationAddressModel { Phone = "98765432", CountryCode = "+47" };
             var validationContext = new ValidationContext(model);
 
             var validationResult = model.Validate(validationContext);
