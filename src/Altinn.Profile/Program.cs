@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
@@ -13,13 +12,16 @@ using Altinn.Common.PEP.Clients;
 using Altinn.Common.PEP.Configuration;
 using Altinn.Common.PEP.Implementation;
 using Altinn.Common.PEP.Interfaces;
+
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Configuration;
 using Altinn.Profile.Core.Extensions;
+using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Telemetry;
+
 using AltinnCore.Authentication.JwtCookie;
 
 using Azure.Identity;
@@ -37,8 +39,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-
-using Npgsql;
 
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
@@ -131,37 +131,30 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 {
     logger.LogInformation("Program // ConfigureServices");
 
-    var attributes = new List<KeyValuePair<string, object>>(2)
-    {
-        KeyValuePair.Create("service.name", (object)"platform-profile"),
-    };
-
     services.AddOpenTelemetry()
-        .ConfigureResource(resourceBuilder => resourceBuilder.AddAttributes(attributes))
+        .ConfigureResource(r =>
+            r.AddService(serviceName: Telemetry.AppName, serviceInstanceId: Environment.MachineName))
         .WithMetrics(metrics =>
         {
             metrics.AddAspNetCoreInstrumentation();
             metrics.AddMeter(
                 "Microsoft.AspNetCore.Hosting",
                 "Microsoft.AspNetCore.Server.Kestrel",
-                "System.Net.Http");
+                "System.Net.Http",
+                Telemetry.AppName);
         })
         .WithTracing(tracing =>
         {
-            if (builder.Environment.IsDevelopment())
-            {
-                tracing.SetSampler(new AlwaysOnSampler());
-            }
-
+            tracing.AddSource(Telemetry.AppName);
             tracing.AddAspNetCoreInstrumentation();
-            tracing.AddProcessor(new RequestFilterProcessor(new HttpContextAccessor()));
-
             tracing.AddHttpClientInstrumentation();
             tracing.AddEntityFrameworkCoreInstrumentation();
 
+            tracing.AddProcessor(new RequestFilterProcessor(new HttpContextAccessor()));
+
             if (builder.Environment.IsDevelopment())
             {
-                tracing.AddConsoleExporter();
+                tracing.SetSampler(new AlwaysOnSampler());
             }
         });
 
@@ -169,6 +162,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     {
         AddAzureMonitorTelemetryExporters(services, applicationInsightsConnectionString);
     }
+
+    services.AddSingleton<Telemetry>();
 
     services.AddControllers();
 
