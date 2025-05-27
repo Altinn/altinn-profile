@@ -9,7 +9,7 @@ namespace Altinn.Profile.Validators
     [AttributeUsage(AttributeTargets.Property)]
     public class CustomRegexForNotificationAddressesAttribute : RegularExpressionAttribute
     {
-        private const string _emailRegexPattern = @"^((([a-zA-Z0-9!#$%&amp;'*+\-=?\^_`{}~])+(\.([a-zA-Z0-9!#$%&amp;'*+\-=?\^_`{}~])+)*)@(((([a-zA-Z0-9æøåÆØÅ]([a-zA-Z0-9\-æøåÆØÅ]{0,61})[a-zA-Z0-9æøåÆØÅ]\.)|[a-zA-Z0-9æøåÆØÅ]\.){1,9})([a-zA-Z]{2,14})))$";
+        private const string _emailRegexPattern = @"^((([a-zA-Z0-9!#$%&'*+\-=?\^_`{}~])+(\.([a-zA-Z0-9!#$%&'*+\-=?\^_`{}~])+)*)@(((([a-zA-Z0-9æøåÆØÅ]([a-zA-Z0-9\-æøåÆØÅ]{0,61})[a-zA-Z0-9æøåÆØÅ]\.)|[a-zA-Z0-9æøåÆØÅ]\.){1,9})([a-zA-Z]{2,14})))$";
         private const string _phoneRegexPattern = @"(^[0-9]+$)";
         private const string _countryCodeRegexPattern = @"(^\+([0-9]{1,3}))";
 
