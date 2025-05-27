@@ -54,11 +54,6 @@ namespace Altinn.Profile.Models
         /// </summary>
         private bool IsValidPhoneNumber()
         {
-            if (string.IsNullOrWhiteSpace(Phone))
-            {
-                return false;
-            }
-
             var phoneNumberUtil = PhoneNumberUtil.GetInstance();
            
             bool isValidNumber;

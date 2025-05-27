@@ -117,5 +117,16 @@ namespace Altinn.Profile.Tests.Profile.Validators
 
             Assert.Empty(validationResult);
         }
+
+        [Fact]
+        public void NotificationAddressModel_WhenOnlyCountryCodeIsGiven_ReturnsValidationResults()
+        {
+            var model = new NotificationAddressModel { CountryCode = "+47" };
+            var validationContext = new ValidationContext(model);
+
+            var validationResult = model.Validate(validationContext);
+
+            Assert.NotEmpty(validationResult);
+        }
     }
 }
