@@ -139,5 +139,16 @@ namespace Altinn.Profile.Tests.Profile.Validators
 
             Assert.NotEmpty(validationResult);
         }
+
+        [Fact]
+        public void NotificationAddressModel_WhenCountryCodeAndEmailIsGiven_ReturnsValidationResults()
+        {
+            var model = new NotificationAddressModel { CountryCode = "+47", Email = "test@test.com" };
+            var validationContext = new ValidationContext(model);
+
+            var validationResult = model.Validate(validationContext);
+
+            Assert.NotEmpty(validationResult);
+        }
     }
 }

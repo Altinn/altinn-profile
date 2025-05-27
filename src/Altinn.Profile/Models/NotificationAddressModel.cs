@@ -47,6 +47,11 @@ namespace Altinn.Profile.Models
                     yield return new ValidationResult("CountryCode is required with Phone.", [nameof(CountryCode)]);
                 }
 
+                if (!string.IsNullOrWhiteSpace(Email) && !string.IsNullOrWhiteSpace(CountryCode))
+                {
+                    yield return new ValidationResult("CountryCode cannot be provided with Email.", [nameof(CountryCode)]);
+                }
+
                 if (string.IsNullOrWhiteSpace(Email) && !IsValidPhoneNumber())
                 {
                     yield return new ValidationResult("Phone number is not valid.", [nameof(Phone)]);
