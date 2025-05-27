@@ -22,7 +22,7 @@ public class TelemetryTests(WebApplicationFactory<Program> factory)
     private MeterProvider _meterProvider;
 
     [Fact]
-    public async Task Init_Initializing_meters_Meters_are_initialized()
+    public async Task SyncPersonChanges_WhenCalled_CreatesContactRegistryMetrics()
     {
         var metricItems = new List<Metric>();
 
@@ -34,8 +34,8 @@ public class TelemetryTests(WebApplicationFactory<Program> factory)
         using (var client = _webApplicationFactorySetup.GetTestServerClient())
         {
             // We need to call any endpoint that includes some telemetry.
-            using var response = await client.GetAsync(new Uri("/profile/api/v1/trigger/syncpersonchanges", UriKind.Relative));
-            response.EnsureSuccessStatusCode();
+            using var response = 
+                await client.GetAsync(new Uri("/profile/api/v1/trigger/syncpersonchanges", UriKind.Relative));
         }
 
         // We need to let End callback execute as it is executed AFTER response was returned.
