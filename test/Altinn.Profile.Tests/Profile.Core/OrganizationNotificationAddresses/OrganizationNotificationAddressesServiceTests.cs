@@ -157,7 +157,6 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             var result = await _service.UpdateNotificationAddress("123456789", new NotificationAddress { NotificationAddressID = 1 }, CancellationToken.None);
 
             // Assert
-
             Assert.NotNull(result.Address);
         }
 
