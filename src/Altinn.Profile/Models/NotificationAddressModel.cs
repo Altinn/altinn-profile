@@ -31,21 +31,35 @@ namespace Altinn.Profile.Models
         /// <inheritdoc/>
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (string.IsNullOrWhiteSpace(Email) && string.IsNullOrWhiteSpace(Phone))
+            bool hasEmailValue = !string.IsNullOrWhiteSpace(Email);
+            bool hasPhoneValue = !string.IsNullOrWhiteSpace(Phone);
+            bool hasCountryCodeValue = !string.IsNullOrWhiteSpace(CountryCode);
+
+            if (!hasEmailValue && !hasPhoneValue)
             {
                 yield return new ValidationResult("Either Phone or Email must be specified.", [nameof(Phone), nameof(Email)]);
             }
-            else
+            else if (hasEmailValue && hasPhoneValue)
             {
-                if (!string.IsNullOrWhiteSpace(Email) && !string.IsNullOrWhiteSpace(Phone))
+                yield return new ValidationResult("Cannot provide both Phone and Email for the same notification address.", [nameof(Phone), nameof(Email)]);
+            }
+            else if (hasPhoneValue)
+            {
+                if (!hasCountryCodeValue)
                 {
-                    yield return new ValidationResult("Cannot provide both Phone and Email for the same notification address.", [nameof(Phone), nameof(Email)]);
+                    yield return new ValidationResult("CountryCode is required with Phone.", [nameof(CountryCode)]);
                 }
-
-                if (string.IsNullOrWhiteSpace(Email) && !IsValidPhoneNumber())
+                else if (!IsValidPhoneNumber())
                 {
                     yield return new ValidationResult("Phone number is not valid.", [nameof(Phone)]);
                 }
+            }
+            else
+            {
+                if (hasCountryCodeValue)
+                {
+                    yield return new ValidationResult("CountryCode cannot be provided with Email.", [nameof(CountryCode)]);
+                } 
             }
         }
 
