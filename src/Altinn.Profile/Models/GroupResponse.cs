@@ -1,13 +1,25 @@
-﻿namespace Altinn.Profile.Models
+﻿using System;
+
+namespace Altinn.Profile.Models
 {
     /// <summary>
     /// GroupResponse is used to represent a group of parties
     /// </summary>
-    public class GroupResponse : GroupModel
+    public class GroupResponse
     {
         /// <summary>
-        /// The Id of the group
+        /// The name of the group
         /// </summary>
-        public int Id { get; set; }
+        public string Name { get; set; }
+
+        /// <summary>
+        /// A flag indicating whether the group is a group of favorite parties
+        /// </summary>
+        public bool IsFavorite { get; set; }
+
+        /// <summary>
+        /// Array of party IDs that belong to this group
+        /// </summary>
+        public Guid[] Parties { get; set; }
     }
 }
