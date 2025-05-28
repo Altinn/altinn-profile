@@ -100,10 +100,10 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync(new NotificationAddress { });
             
             // Act
-            var (address, isNew) = await _service.CreateNotificationAddress("123456789", new NotificationAddress(), CancellationToken.None); 
+            var result = await _service.CreateNotificationAddress("123456789", new NotificationAddress(), CancellationToken.None); 
             
             // Assert
-            Assert.NotNull(address); 
+            Assert.NotNull(result.Address); 
         }
 
         [Fact]
@@ -114,10 +114,10 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == "123456789"));
 
             // Act
-            var (address, isNew) = await _service.CreateNotificationAddress("123456789", new NotificationAddress { FullAddress = "test@test.com", AddressType = AddressType.Email }, CancellationToken.None);
+            var result = await _service.CreateNotificationAddress("123456789", new NotificationAddress { FullAddress = "test@test.com", AddressType = AddressType.Email }, CancellationToken.None);
 
             // Assert
-            Assert.NotNull(address);
+            Assert.NotNull(result.Address);
             _updateClient.VerifyNoOtherCalls();
         }
 
@@ -154,10 +154,11 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync(new NotificationAddress { });
 
             // Act
-            var (address, isDuplicate) = await _service.UpdateNotificationAddress("123456789", new NotificationAddress { NotificationAddressID = 1 }, CancellationToken.None);
+            var result = await _service.UpdateNotificationAddress("123456789", new NotificationAddress { NotificationAddressID = 1 }, CancellationToken.None);
 
             // Assert
-            Assert.NotNull(address);
+
+            Assert.NotNull(result.Address);
         }
 
         [Fact]

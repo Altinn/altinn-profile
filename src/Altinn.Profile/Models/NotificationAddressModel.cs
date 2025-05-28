@@ -35,15 +35,17 @@ namespace Altinn.Profile.Models
             {
                 yield return new ValidationResult("Either Phone or Email must be specified.", [nameof(Phone), nameof(Email)]);
             }
-
-            if (!string.IsNullOrWhiteSpace(Email) && !string.IsNullOrWhiteSpace(Phone))
+            else
             {
-                yield return new ValidationResult("Cannot provide both Phone and Email for the same notification address.", [nameof(Phone), nameof(Email)]);
-            }
+                if (!string.IsNullOrWhiteSpace(Email) && !string.IsNullOrWhiteSpace(Phone))
+                {
+                    yield return new ValidationResult("Cannot provide both Phone and Email for the same notification address.", [nameof(Phone), nameof(Email)]);
+                }
 
-            if (string.IsNullOrWhiteSpace(Email) && !IsValidPhoneNumber())
-            {
-                yield return new ValidationResult("Phone number is not valid.", [nameof(Phone)]);
+                if (string.IsNullOrWhiteSpace(Email) && !IsValidPhoneNumber())
+                {
+                    yield return new ValidationResult("Phone number is not valid.", [nameof(Phone)]);
+                }
             }
         }
 

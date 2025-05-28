@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Person.ContactPreferences;
+using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Persistence;
@@ -25,13 +26,16 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// </remarks>
 /// <param name="mapper">The mapper instance used for object-object mapping.</param>
 /// <param name="contextFactory">The factory for creating database context instances.</param>
+/// <param name="telemetry">The application <see cref="Telemetry"/> instance.</param>
 /// <exception cref="ArgumentNullException">
 /// Thrown when the <paramref name="mapper"/>, or <paramref name="contextFactory"/> is null.
 /// </exception>
-public class PersonRepository(IMapper mapper, IDbContextFactory<ProfileDbContext> contextFactory) : IPersonUpdater, IPersonService
+public class PersonRepository(IMapper mapper, IDbContextFactory<ProfileDbContext> contextFactory, Telemetry? telemetry)
+    : IPersonUpdater, IPersonService
 {
     private readonly IMapper _mapper = mapper;
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
+    private readonly Telemetry? _telemetry = telemetry;
 
     /// <summary>
     /// Asynchronously retrieves the contact details for multiple persons by their national identity numbers.
@@ -70,7 +74,7 @@ public class PersonRepository(IMapper mapper, IDbContextFactory<ProfileDbContext
         ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots);
         ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots.ContactPreferencesSnapshots);
 
-        ImmutableList<PersonContactPreferencesSnapshot> distinctContactPreferences = 
+        ImmutableList<PersonContactPreferencesSnapshot> distinctContactPreferences =
             GetDistinctContactPreferences(personContactPreferencesSnapshots.ContactPreferencesSnapshots);
 
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
@@ -84,6 +88,7 @@ public class PersonRepository(IMapper mapper, IDbContextFactory<ProfileDbContext
             if (existingPerson is null)
             {
                 await databaseContext.People.AddAsync(person);
+                _telemetry?.PersonAdded();
             }
             else
             {
@@ -97,6 +102,7 @@ public class PersonRepository(IMapper mapper, IDbContextFactory<ProfileDbContext
                 existingPerson.LanguageCode = person.LanguageCode;
 
                 databaseContext.People.Update(existingPerson);
+                _telemetry?.PersonUpdated();
             }
         }
 
