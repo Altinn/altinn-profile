@@ -112,7 +112,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             // Arrange
             _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == "123456789"));
-            
+
             // Act
             var result = await _service.CreateNotificationAddress("123456789", new NotificationAddress { FullAddress = "test@test.com", AddressType = AddressType.Email }, CancellationToken.None);
 

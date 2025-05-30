@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Integrations.Entities;
+﻿namespace Altinn.Profile.Core.PartyGroups;
 
 /// <summary>
 /// A group of parties organized by a user
@@ -28,5 +28,5 @@ public record Group
     /// <summary>
     /// A collection of parties in this group
     /// </summary>
-    public List<PartyGroupAssociation>? Parties { get; set; }
+    public List<PartyGroupAssociation> Parties { get; set; } = new List<PartyGroupAssociation>();
 }
