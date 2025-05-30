@@ -64,7 +64,7 @@ namespace Altinn.Profile.Controllers
 
             if (partyUuid == Guid.Empty)
             {
-                return BadRequest("Invalid party UUID provided.");
+                return BadRequest("Party UUID cannot be empty.");
             }
 
             var validationResult = TryGetUserIdFromClaims(out int userId);
@@ -83,7 +83,7 @@ namespace Altinn.Profile.Controllers
             return NoContent();
         }
 
-        private ObjectResult TryGetUserIdFromClaims(out int userId)
+        private BadRequestObjectResult TryGetUserIdFromClaims(out int userId)
         {
             userId = 0;
             string userIdString = Request.HttpContext.User.Claims

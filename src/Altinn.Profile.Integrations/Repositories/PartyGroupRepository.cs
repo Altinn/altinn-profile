@@ -52,6 +52,7 @@ namespace Altinn.Profile.Integrations.Repositories
             {
                 PartyUuid = partyUuid,
             };
+
             favoriteGroup.Parties.Add(partyGroupAssociation);
 
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);

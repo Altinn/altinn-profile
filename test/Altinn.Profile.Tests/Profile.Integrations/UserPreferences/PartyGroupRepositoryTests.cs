@@ -32,8 +32,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
                 .ReturnsAsync(() => new ProfileDbContext(databaseContextOptions));
 
             _repository = new PartyGroupRepository(_databaseContextFactory.Object);
-
-            _databaseContext = _databaseContextFactory.Object.CreateDbContext();
         }
 
         public void Dispose()

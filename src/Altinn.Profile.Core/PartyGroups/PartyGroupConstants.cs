@@ -3,7 +3,7 @@
     /// <summary>
     /// Class containing the default name of the group of favorites
     /// </summary>
-    public class PartyGroupConstants
+    public static class PartyGroupConstants
     {
         /// <summary>
         /// Default name of the group of favorites
