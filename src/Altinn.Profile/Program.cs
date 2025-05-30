@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
-using System.Threading.Tasks;
 
 using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
@@ -26,7 +25,6 @@ using AltinnCore.Authentication.JwtCookie;
 
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.Exporter;
-using Azure.Security.KeyVault.Secrets;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -49,15 +47,11 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 ILogger logger;
 
-const string VaultApplicationInsightsKey = "ApplicationInsights--InstrumentationKey";
-
-string applicationInsightsConnectionString = string.Empty;
-
 var builder = WebApplication.CreateBuilder(args);
 
 ConfigureWebHostCreationLogging();
 
-await SetConfigurationProviders(builder.Configuration);
+SetConfigurationProviders(builder.Configuration);
 
 ConfigureApplicationLogging(builder.Logging);
 
@@ -83,38 +77,17 @@ void ConfigureWebHostCreationLogging()
     logger = logFactory.CreateLogger<Program>();
 }
 
-async Task SetConfigurationProviders(ConfigurationManager config)
+void SetConfigurationProviders(ConfigurationManager config)
 {
     string basePath = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
     config.SetBasePath(basePath);
     config.AddJsonFile(basePath + "altinn-appsettings/altinn-dbsettings-secret.json", optional: true, reloadOnChange: true);
 
-    await ConnectToKeyVaultAndSetApplicationInsights(config);
-}
+    var keyVaultUri = config.GetValue<string>("kvSetting:SecretUri");
 
-async Task ConnectToKeyVaultAndSetApplicationInsights(ConfigurationManager config)
-{
-    KeyVaultSettings keyVaultSettings = new();
-    config.GetSection("kvSetting").Bind(keyVaultSettings);
-    if (!string.IsNullOrEmpty(keyVaultSettings.SecretUri))
+    if (!string.IsNullOrEmpty(keyVaultUri))
     {
-        logger.LogInformation("Program // Set app insights connection string // App");
-
-        DefaultAzureCredential azureCredentials = new();
-
-        SecretClient client = new(new Uri(keyVaultSettings.SecretUri), azureCredentials);
-
-        config.AddAzureKeyVault(new Uri(keyVaultSettings.SecretUri), azureCredentials);
-
-        try
-        {
-            KeyVaultSecret keyVaultSecret = await client.GetSecretAsync(VaultApplicationInsightsKey);
-            applicationInsightsConnectionString = string.Format("InstrumentationKey={0}", keyVaultSecret.Value);
-        }
-        catch (Exception vaultException)
-        {
-            logger.LogError(vaultException, "Unable to read application insights key.");
-        }
+        config.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential());
     }
 }
 
@@ -158,10 +131,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
             }
         });
 
-    if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
-    {
-        AddAzureMonitorTelemetryExporters(services, applicationInsightsConnectionString);
-    }
+    AddAzureMonitorTelemetryExporters(services, config);
 
     services.AddSingleton<Telemetry>();
 
@@ -174,8 +144,9 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.Configure<KeyVaultSettings>(config.GetSection("kvSetting"));
     services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
     services.Configure<PlatformSettings>(config.GetSection("PlatformSettings"));
-
+    
     services.AddSingleton(config);
+
     services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
     services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProvider>();
@@ -221,8 +192,17 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
 }
 
-static void AddAzureMonitorTelemetryExporters(IServiceCollection services, string applicationInsightsConnectionString)
+static void AddAzureMonitorTelemetryExporters(IServiceCollection services, IConfiguration config)
 {
+    var instrumentationKey = config.GetValue<string>("ApplicationInsights:InstrumentationKey");
+
+    if (string.IsNullOrEmpty(instrumentationKey))
+    {
+        return;
+    }
+
+    var applicationInsightsConnectionString = string.Format("InstrumentationKey={0}", instrumentationKey);
+
     services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddAzureMonitorLogExporter(o =>
     {
         o.ConnectionString = applicationInsightsConnectionString;
