@@ -46,7 +46,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
             cfg.AddProfile(new OrganizationMappingProfile());
         });
         var mapper = mapperConfig.CreateMapper();
-        _repository = new OrganizationNotificationAddressRepository(_databaseContextFactory.Object, mapper);
+        _repository = new OrganizationNotificationAddressRepository(_databaseContextFactory.Object, mapper, null);
 
         _databaseContext = _databaseContextFactory.Object.CreateDbContext();
     }
