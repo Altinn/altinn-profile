@@ -30,7 +30,7 @@ public class OrganizationNotificationAddressUpdateJob(
     /// <exception cref="InvalidOperationException">Thrown when the endpoint URL is null or empty.</exception>
     public async Task SyncNotificationAddressesAsync()
     {
-        using var activity = _telemetry?.StartContactRegistryUpdateJob();
+        using var activity = _telemetry?.StartOrganizationNotificationAddressUpdateJob();
 
         DateTime? lastUpdated = await _metadataRepository.GetLatestSyncTimestampAsync();
 

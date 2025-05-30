@@ -5,7 +5,7 @@ using static Altinn.Profile.Core.Telemetry.Telemetry.OrganizationNotificationAdd
 namespace Altinn.Profile.Core.Telemetry;
 
 /// <summary>
-/// Telemetry for the contact register update job.
+/// Telemetry for the organization notification address update job.
 /// </summary>
 partial class Telemetry
 {
@@ -38,7 +38,7 @@ partial class Telemetry
     public void AddressDeleted() => _counters[MetricNameAddressDeleted].Add(1);
 
     /// <summary>
-    /// Starts a telemetry activity for the contact registry update job.
+    /// Starts a telemetry activity for the organization notification address update job.
     /// </summary>
     /// <returns>The started activity.</returns>
     public Activity? StartOrganizationNotificationAddressUpdateJob()
