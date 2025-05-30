@@ -56,9 +56,17 @@ namespace Altinn.Profile.Integrations.Repositories
 
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
-            databaseContext.Groups.Update(favoriteGroup);
+            bool isNewGroup = favoriteGroup.GroupId == 0;
+            if (isNewGroup)
+            {
+               databaseContext.Groups.Add(favoriteGroup);
+            }
+            else
+            {
+               databaseContext.Groups.Update(favoriteGroup);
+            }
 
-            await databaseContext.SaveChangesAsync(CancellationToken.None);
+            await databaseContext.SaveChangesAsync(cancellationToken);
 
             return true;
         }

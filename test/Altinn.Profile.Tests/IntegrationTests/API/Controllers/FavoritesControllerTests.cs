@@ -162,6 +162,29 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
 
+        [Fact]
+        public async Task AddToFavorites_WhenAddingEmptyGuid_Returns400BadRequest()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.Empty;
+
+            _webApplicationFactorySetup.PartyGroupRepositoryMock
+                            .Setup(x => x.AddPartyToFavorites(It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                            .ReturnsAsync(true);
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Put, UserId, $"profile/api/v1/users/current/party-groups/favorites/{partyGuid}");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
         private static HttpRequestMessage CreateRequest(HttpMethod method, int userId, string requestUri)
         {
             HttpRequestMessage httpRequestMessage = new(method, requestUri);

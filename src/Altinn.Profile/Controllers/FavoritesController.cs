@@ -34,18 +34,10 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<GroupResponse>> Get(CancellationToken cancellationToken)
         {
-            string userIdString = Request.HttpContext.User.Claims
-                .Where(c => c.Type == AltinnCoreClaimTypes.UserId)
-                .Select(c => c.Value).SingleOrDefault();
-
-            if (string.IsNullOrEmpty(userIdString))
+            var validationResult = TryGetUserIdFromClaims(out int userId);
+            if (validationResult != null)
             {
-                return BadRequest("Invalid request context. UserId must be provided in claims.");
-            }
-
-            if (!int.TryParse(userIdString, out int userId))
-            {
-                return BadRequest("Invalid user ID format in claims.");
+                return validationResult;
             }
 
             var favorites = await _partyGroupService.GetFavorites(userId, cancellationToken);
@@ -63,18 +55,20 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<GroupResponse>> AddFavorite([FromRoute] Guid partyUuid, CancellationToken cancellationToken)
         {
-            string userIdString = Request.HttpContext.User.Claims
-                .Where(c => c.Type == AltinnCoreClaimTypes.UserId)
-                .Select(c => c.Value).SingleOrDefault();
-
-            if (string.IsNullOrEmpty(userIdString))
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid request context. UserId must be provided in claims.");
+                return ValidationProblem(ModelState);
             }
 
-            if (!int.TryParse(userIdString, out int userId))
+            if (partyUuid == Guid.Empty)
             {
-                return BadRequest("Invalid user ID format in claims.");
+                return BadRequest("Invalid party UUID provided.");
+            }
+
+            var validationResult = TryGetUserIdFromClaims(out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
             }
 
             var addedNow = await _partyGroupService.MarkPartyAsFavorite(userId, partyUuid, cancellationToken);
@@ -85,6 +79,26 @@ namespace Altinn.Profile.Controllers
             }
 
             return NoContent();
+        }
+
+        private ObjectResult TryGetUserIdFromClaims(out int userId)
+        {
+            userId = 0;
+            string userIdString = Request.HttpContext.User.Claims
+                .Where(c => c.Type == AltinnCoreClaimTypes.UserId)
+                .Select(c => c.Value).SingleOrDefault();
+
+            if (string.IsNullOrEmpty(userIdString))
+            {
+                return BadRequest("Invalid request context. UserId must be provided in claims.");
+            }
+
+            if (!int.TryParse(userIdString, out userId))
+            {
+                return BadRequest("Invalid user ID format in claims.");
+            }
+
+            return null; // Success case
         }
     }
 }
