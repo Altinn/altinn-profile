@@ -216,8 +216,14 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             // Arrange
             var userId = 1;
             var partyUuid = Guid.NewGuid();
-
-            _databaseContext.Groups.AddRange(CreateFavoriteGroup(userId, 1, parties: [new PartyGroupAssociation { PartyUuid = partyUuid, AssociationId = 1, Created = DateTime.Now, GroupId = 1 }]));
+            var association = new PartyGroupAssociation
+            {
+                PartyUuid = partyUuid,
+                AssociationId = 1,
+                Created = DateTime.Now,
+                GroupId = 1
+            };
+            _databaseContext.Groups.AddRange(CreateFavoriteGroup(userId, 1, parties: [association]));
             await _databaseContext.SaveChangesAsync();
 
             // Act
