@@ -49,11 +49,13 @@ namespace Altinn.Profile.Controllers
         /// <summary>
         /// Add a party to the group of favorites for the current user
         /// </summary>
+        /// <response code="201">Returns status code 201 if the party is added to favorites</response>
+        /// <response code="204">Returns status code 204 if the party is already in the favorites</response>
         [HttpPut("{partyUuid:guid}")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<GroupResponse>> AddFavorite([FromRoute] Guid partyUuid, CancellationToken cancellationToken)
+        public async Task<ActionResult> AddFavorite([FromRoute] Guid partyUuid, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -75,7 +77,7 @@ namespace Altinn.Profile.Controllers
 
             if (addedNow)
             {
-                return Created((string)null, null);
+                return Created($"profile/api/v1/users/current/party-groups/favorites/{partyUuid}", null);
             }
 
             return NoContent();
