@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Core.PartyGroups;
@@ -32,6 +33,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
                 .ReturnsAsync(() => new ProfileDbContext(databaseContextOptions));
 
             _repository = new PartyGroupRepository(_databaseContextFactory.Object);
+
+            _databaseContext = _databaseContextFactory.Object.CreateDbContext();
         }
 
         public void Dispose()
@@ -190,15 +193,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             var userId = 1;
             var partyUuid = Guid.NewGuid();
 
-            _databaseContext.Groups.AddRange(
-                new Group
-                {
-                    Name = "Group A",
-                    GroupId = 1,
-                    IsFavorite = true,
-                    UserId = userId,
-                    Parties = []
-                });
+            _databaseContext.Groups.AddRange(CreateFavoriteGroup(userId, 1));
+
             await _databaseContext.SaveChangesAsync();
 
             // Act
@@ -221,16 +217,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             var userId = 1;
             var partyUuid = Guid.NewGuid();
 
-            _databaseContext.Groups.AddRange(
-                new Group
-                {
-                    Name = "Group A",
-                    GroupId = 1,
-                    IsFavorite = true,
-                    UserId = userId,
-                    Parties = [
-                    new PartyGroupAssociation { PartyUuid = partyUuid, AssociationId = 1, Created = DateTime.Now, GroupId = 1 }]
-                });
+            _databaseContext.Groups.AddRange(CreateFavoriteGroup(userId, 1, parties: [new PartyGroupAssociation { PartyUuid = partyUuid, AssociationId = 1, Created = DateTime.Now, GroupId = 1 }]));
             await _databaseContext.SaveChangesAsync();
 
             // Act
@@ -238,6 +225,18 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
 
             // Assert
             Assert.False(added);
+        }
+
+        private Group CreateFavoriteGroup(int userId, int groupId, string name = "Group A", List<PartyGroupAssociation> parties = null)
+        {
+            return new Group
+            {
+                Name = name,
+                GroupId = groupId,
+                IsFavorite = true,
+                UserId = userId,
+                Parties = parties ?? []
+            };
         }
     }
 }
