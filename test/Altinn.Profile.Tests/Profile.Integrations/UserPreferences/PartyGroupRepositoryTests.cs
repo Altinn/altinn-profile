@@ -116,7 +116,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             var userId = 1;
 
             _databaseContext.Groups.AddRange(
-                new Group 
+                new Group
                 {
                     Name = "Group A", GroupId = 1, IsFavorite = true, UserId = userId, Parties = [
                     new PartyGroupAssociation { PartyUuid = partyUuid, AssociationId = 1, Created = DateTime.Now, GroupId = 1 },
@@ -163,6 +163,83 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             // Act & Assert
             await Assert.ThrowsAsync<OperationCanceledException>(
                 () => _repository.GetGroups(1, false, cts.Token));
+        }
+
+        [Fact]
+        public async Task AddPartyToFavorites_WhenUserHasNoGroups_GroupAndPartyIsAdded()
+        {
+            // Arrange
+            var userId = 1;
+            var partyUuid = Guid.NewGuid();
+
+            // Act
+            var added = await _repository.AddPartyToFavorites(userId, partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.True(added);
+
+            var favoriteGroup = await _repository.GetFavorites(userId, CancellationToken.None);
+
+            Assert.NotNull(favoriteGroup);
+            Assert.Single(favoriteGroup.Parties);
+            Assert.Equal(partyUuid, favoriteGroup.Parties[0].PartyUuid);
+        }
+
+        [Fact]
+        public async Task AddPartyToFavorites_WhenUserHasExistingGroups_GroupAndPartyIsAdded()
+        {
+            // Arrange
+            var userId = 1;
+            var partyUuid = Guid.NewGuid();
+
+            _databaseContext.Groups.AddRange(
+                new Group
+                {
+                    Name = "Group A",
+                    GroupId = 1,
+                    IsFavorite = true,
+                    UserId = userId,
+                    Parties = []
+                });
+            await _databaseContext.SaveChangesAsync();
+
+            // Act
+            var added = await _repository.AddPartyToFavorites(userId, partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.True(added);
+
+            var favoriteGroup = await _repository.GetFavorites(userId, CancellationToken.None);
+
+            Assert.NotNull(favoriteGroup);
+            Assert.Single(favoriteGroup.Parties);
+            Assert.Equal(partyUuid, favoriteGroup.Parties[0].PartyUuid);
+        }
+
+        [Fact]
+        public async Task AddPartyToFavorites_WhenPartyAlreadyInGroup_ReturnsFalseAndNothingIsAdded()
+        {
+            // Arrange
+            var userId = 1;
+            var partyUuid = Guid.NewGuid();
+
+            _databaseContext.Groups.AddRange(
+                new Group
+                {
+                    Name = "Group A",
+                    GroupId = 1,
+                    IsFavorite = true,
+                    UserId = userId,
+                    Parties = [
+                    new PartyGroupAssociation { PartyUuid = partyUuid, AssociationId = 1, Created = DateTime.Now, GroupId = 1 }]
+                });
+            await _databaseContext.SaveChangesAsync();
+
+            // Act
+            var added = await _repository.AddPartyToFavorites(userId, partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.False(added);
         }
     }
 }
