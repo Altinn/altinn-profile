@@ -233,7 +233,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             Assert.False(added);
         }
 
-        private Group CreateFavoriteGroup(int userId, int groupId, string name = "Group A", List<PartyGroupAssociation> parties = null)
+        private static Group CreateFavoriteGroup(int userId, int groupId, string name = "Group A", List<PartyGroupAssociation> parties = null)
         {
             return new Group
             {
