@@ -1,7 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.PartyGroups;
 using Altinn.Profile.Models;
 using AltinnCore.Authentication.Constants;
@@ -34,6 +34,58 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<GroupResponse>> Get(CancellationToken cancellationToken)
         {
+            var validationResult = TryGetUserIdFromClaims(out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            var favorites = await _partyGroupService.GetFavorites(userId, cancellationToken);
+
+            var response = new GroupResponse { Parties = [.. favorites.Parties.Select(p => p.PartyUuid)], Name = favorites.Name, IsFavorite = favorites.IsFavorite };
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Add a party to the group of favorites for the current user
+        /// </summary>
+        /// <response code="201">Returns status code 201 if the party is added to favorites</response>
+        /// <response code="204">Returns status code 204 if the party is already in the favorites</response>
+        [HttpPut("{partyUuid:guid}")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> AddFavorite([FromRoute] Guid partyUuid, CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            if (partyUuid == Guid.Empty)
+            {
+                return BadRequest("Party UUID cannot be empty.");
+            }
+
+            var validationResult = TryGetUserIdFromClaims(out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            var addedNow = await _partyGroupService.AddPartyToFavorites(userId, partyUuid, cancellationToken);
+
+            if (addedNow)
+            {
+                return Created($"profile/api/v1/users/current/party-groups/favorites/{partyUuid}", null);
+            }
+
+            return NoContent();
+        }
+
+        private BadRequestObjectResult TryGetUserIdFromClaims(out int userId)
+        {
+            userId = 0;
             string userIdString = Request.HttpContext.User.Claims
                 .Where(c => c.Type == AltinnCoreClaimTypes.UserId)
                 .Select(c => c.Value).SingleOrDefault();
@@ -43,15 +95,12 @@ namespace Altinn.Profile.Controllers
                 return BadRequest("Invalid request context. UserId must be provided in claims.");
             }
 
-            if (!int.TryParse(userIdString, out int userId))
+            if (!int.TryParse(userIdString, out userId))
             {
                 return BadRequest("Invalid user ID format in claims.");
             }
 
-            var favorites = await _partyGroupService.GetFavorites(userId, cancellationToken);
-
-            var response = new GroupResponse { Parties = [.. favorites.Parties.Select(p => p.PartyUuid)], Name = favorites.Name, IsFavorite = favorites.IsFavorite };
-            return Ok(response);
+            return null; // Success case
         }
     }
 }

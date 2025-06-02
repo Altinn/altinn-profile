@@ -142,6 +142,7 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.UserId).IsRequired();
 
             entity.HasIndex(e => e.UserId, "ix_user_id");
+            entity.HasIndex(e => new { e.UserId, e.IsFavorite }, "ix_user_favorite").IsUnique().HasFilter("is_favorite = true");
 
             entity.HasMany(e => e.Parties)
                     .WithOne(n => n.Group)

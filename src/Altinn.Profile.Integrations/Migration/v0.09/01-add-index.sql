@@ -1,0 +1,1 @@
+﻿CREATE UNIQUE INDEX IF NOT EXISTS ix_groups_user_id_is_favorite ON user_preferences.groups (user_id, is_favorite) WHERE is_favorite = true;
