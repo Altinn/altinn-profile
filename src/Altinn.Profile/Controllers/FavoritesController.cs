@@ -73,7 +73,7 @@ namespace Altinn.Profile.Controllers
                 return validationResult;
             }
 
-            var addedNow = await _partyGroupService.MarkPartyAsFavorite(userId, partyUuid, cancellationToken);
+            var addedNow = await _partyGroupService.AddPartyToFavorites(userId, partyUuid, cancellationToken);
 
             if (addedNow)
             {
