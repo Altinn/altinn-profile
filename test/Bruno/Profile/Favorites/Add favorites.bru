@@ -1,0 +1,15 @@
+meta {
+  name: Add favorites
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{ProfileBaseAddress}}/api/v1/users/current/party-groups/favorites/{{$guid}}
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  bru.runRequest("TokenGenerator/end user token")
+}

@@ -84,5 +84,28 @@ namespace Altinn.Profile.Integrations.Repositories
 
             return true;
         }
+
+        /// <inheritdoc/>
+        public async Task<bool> DeleteFromFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        {
+            var favoriteGroup = await GetFavorites(userId, cancellationToken);
+            if (favoriteGroup == null)
+            {
+                return false;
+            }
+
+            if (!favoriteGroup.Parties.Any(p => p.PartyUuid == partyUuid))
+            {
+                return false;
+            }
+
+            var partyGroupAssociation = favoriteGroup.Parties.First(p => p.PartyUuid == partyUuid);
+
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+            databaseContext.PartyGroupAssociations.Remove(partyGroupAssociation);
+            await databaseContext.SaveChangesAsync(cancellationToken);
+
+            return true;
+        }
     }
 }
