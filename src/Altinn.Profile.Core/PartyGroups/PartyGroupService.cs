@@ -21,7 +21,7 @@ namespace Altinn.Profile.Core.PartyGroups
         }
 
         /// <inheritdoc/>
-        public async Task<bool> MarkPartyAsFavorite(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        public async Task<bool> AddPartyToFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken)
         {
             return await _groupRepository.AddPartyToFavorites(userId, partyUuid, cancellationToken);
         }

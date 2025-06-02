@@ -35,13 +35,11 @@ namespace Altinn.Profile.Integrations.Repositories
         /// <inheritdoc/>
         public async Task<bool> AddPartyToFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken)
         {
-            var favoriteGroup = await GetFavorites(userId, cancellationToken) ?? new Group
-                {
-                    UserId = userId,
-                    IsFavorite = true,
-                    Name = PartyGroupConstants.DefaultFavoritesName,
-                    Parties = []
-                };
+            var favoriteGroup = await GetFavorites(userId, cancellationToken);
+            if (favoriteGroup == null)
+            {
+                return await CreateFavoriteGroupWithAssociation(userId, partyUuid, cancellationToken);
+            }
 
             if (favoriteGroup.Parties.Any(p => p.PartyUuid == partyUuid))
             {
@@ -51,21 +49,36 @@ namespace Altinn.Profile.Integrations.Repositories
             var partyGroupAssociation = new PartyGroupAssociation
             {
                 PartyUuid = partyUuid,
+                GroupId = favoriteGroup.GroupId,
             };
-
             favoriteGroup.Parties.Add(partyGroupAssociation);
 
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
-            bool isNewGroup = favoriteGroup.GroupId == 0;
-            if (isNewGroup)
+            databaseContext.PartyGroupAssociations.Add(partyGroupAssociation);
+
+            await databaseContext.SaveChangesAsync(cancellationToken);
+
+            return true;
+        }
+
+        private async Task<bool> CreateFavoriteGroupWithAssociation(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        {
+            var partyGroupAssociation = new PartyGroupAssociation
             {
-               databaseContext.Groups.Add(favoriteGroup);
-            }
-            else
+                PartyUuid = partyUuid,
+            };
+
+            var favoriteGroup = new Group
             {
-               databaseContext.Groups.Update(favoriteGroup);
-            }
+                UserId = userId,
+                IsFavorite = true,
+                Name = PartyGroupConstants.DefaultFavoritesName,
+                Parties = [partyGroupAssociation]
+            };
+
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+            databaseContext.Groups.Add(favoriteGroup);
 
             await databaseContext.SaveChangesAsync(cancellationToken);
 
