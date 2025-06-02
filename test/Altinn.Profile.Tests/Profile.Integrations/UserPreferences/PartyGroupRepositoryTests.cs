@@ -187,7 +187,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
         }
 
         [Fact]
-        public async Task AddPartyToFavorites_WhenUserHasExistingGroups_GroupAndPartyIsAdded()
+        public async Task AddPartyToFavorites_WhenUserHasExistingGroups_PartyIsAddedToGroup()
         {
             // Arrange
             var userId = 1;
