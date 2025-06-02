@@ -86,7 +86,7 @@ namespace Altinn.Profile.Controllers
         /// <summary>
         /// Remove a party from the group of favorites for the current user
         /// </summary>
-        /// <response code="204">Returns status code 204 if the party was deleted form favorites</response>
+        /// <response code="204">Returns status code 204 if the party was deleted from favorites</response>
         /// <response code="404">Returns status code 404 if the party was not found in favorites</response>
         [HttpDelete("{partyUuid:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
