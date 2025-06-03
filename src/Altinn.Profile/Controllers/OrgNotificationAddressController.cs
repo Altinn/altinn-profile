@@ -44,7 +44,7 @@ namespace Altinn.Profile.Controllers
                 return BadRequest(ModelState);
             }
 
-            var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses(orgContactPointLookup.OrganizationNumbers, cancellationToken);
+            var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses(orgContactPointLookup.OrganizationNumbers, cancellationToken, true);
 
             OrgNotificationAddressesResponse result = MapResult(organizations);
             return Ok(result);

@@ -6,6 +6,7 @@ using Altinn.Common.PEP.Interfaces;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
+using Altinn.Profile.Integrations.Register;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 using Altinn.Profile.Integrations.SblBridge.User.Profile;
@@ -43,6 +44,8 @@ public class WebApplicationFactorySetup<T>
     public Mock<IOrganizationNotificationAddressSyncClient> OrganizationNotificationAddressSyncClientMock { get; set; } = new();
 
     public Mock<IOrganizationNotificationAddressUpdateClient> OrganizationNotificationAddressUpdateClientMock { get; set; } = new();
+
+    public Mock<IRegisterClient> RegisterClientMock { get; set; } = new();
 
     public Mock<ILogger<UnitProfileClient>> UnitProfileClientLogger { get; set; } = new();
 
@@ -83,6 +86,7 @@ public class WebApplicationFactorySetup<T>
                 services.AddSingleton(OrganizationNotificationAddressSyncClientMock.Object);
                 services.AddSingleton(OrganizationNotificationAddressUpdateClientMock.Object);
                 services.AddSingleton(OrganizationNotificationAddressRepositoryMock.Object);
+                services.AddSingleton(RegisterClientMock.Object);
                 services.AddSingleton(PartyGroupRepositoryMock.Object);
 
                 if (pdp != null)

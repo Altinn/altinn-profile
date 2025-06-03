@@ -55,7 +55,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
 
             _updateClient = new Mock<IOrganizationNotificationAddressUpdateClient>();
 
-            _service = new OrganizationNotificationAddressesService(_repository.Object, _updateClient.Object);
+            _service = new OrganizationNotificationAddressesService(_repository.Object, _updateClient.Object, null);
         }
 
         [Fact]
