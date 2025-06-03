@@ -77,6 +77,6 @@ partial class Telemetry
         /// </summary>
         internal static readonly string MetricNameAddressDeleted = MetricName("address.deleted");
 
-        private static string MetricName(string name) => Metrics.CreateName($"organizationNotificationAddress.{name}");
+        private static string MetricName(string name) => Metrics.CreateName($"organizationnotificationaddress.{name}");
     }
 }

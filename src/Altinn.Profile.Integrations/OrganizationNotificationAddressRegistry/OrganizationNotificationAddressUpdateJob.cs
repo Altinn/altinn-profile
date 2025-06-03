@@ -12,6 +12,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 /// <param name="metadataRepository">A repository implementation for managing persistence of the job status between runs</param>
 /// <param name="notificationAddressUpdater">A repository implementation for managing persistence for the local contact information</param>
 /// <param name="logger">A logger to log detailed information.</param>
+/// <param name="telemetry">Optional telemetry instance for tracking job execution.</param>
 public class OrganizationNotificationAddressUpdateJob(
     IOrganizationNotificationAddressSyncClient organizationNotificationAddressHttpClient,
     IRegistrySyncMetadataRepository metadataRepository,
