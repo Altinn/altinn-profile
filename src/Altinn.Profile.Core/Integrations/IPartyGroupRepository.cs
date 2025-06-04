@@ -26,5 +26,10 @@ namespace Altinn.Profile.Core.Integrations
         /// </summary>
         /// <returns>A <see cref="Task{TResult}"/> representing the result with a boolean telling whether the party was added as a favorite or if it already existed.</returns>
         Task<bool> AddPartyToFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Removes a party from the favorites group for a given user
+        /// </summary>
+        Task<bool> DeleteFromFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken);
     }
 }

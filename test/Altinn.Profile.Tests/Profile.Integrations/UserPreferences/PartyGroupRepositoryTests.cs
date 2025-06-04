@@ -233,6 +233,64 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             Assert.False(added);
         }
 
+        [Fact]
+        public async Task DeleteFromFavorites_WhenUserHasNoGroups_ReturnsFalse()
+        {
+            // Arrange
+            var userId = 1;
+            var partyUuid = Guid.NewGuid();
+
+            // Act
+            var deleted = await _repository.DeleteFromFavorites(userId, partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.False(deleted);
+        }
+
+        [Fact]
+        public async Task DeleteFromFavorites_WhenPartyNotFound_ReturnsFalse()
+        {
+            // Arrange
+            var userId = 1;
+            var partyUuid = Guid.NewGuid();
+            _databaseContext.Groups.AddRange(CreateFavoriteGroup(userId, 1, parties: []));
+            await _databaseContext.SaveChangesAsync();
+
+            // Act
+            var deleted = await _repository.DeleteFromFavorites(userId, partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.False(deleted);
+        }
+
+        [Fact]
+        public async Task DeleteFromFavorites_WhenSuccessFullyDeleted_ReturnsTrueAndIsDeleted()
+        {
+            // Arrange
+            var userId = 1;
+            var partyUuid = Guid.NewGuid();
+            var association = new PartyGroupAssociation
+            {
+                PartyUuid = partyUuid,
+                AssociationId = 1,
+                Created = DateTime.Now,
+                GroupId = 1
+            };
+            _databaseContext.Groups.AddRange(CreateFavoriteGroup(userId, 1, parties: [association]));
+            await _databaseContext.SaveChangesAsync();
+
+            // Act
+            var deleted = await _repository.DeleteFromFavorites(userId, partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.True(deleted);
+
+            var favoriteGroup = await _repository.GetFavorites(userId, CancellationToken.None);
+
+            Assert.NotNull(favoriteGroup);
+            Assert.Empty(favoriteGroup.Parties);
+        }
+
         private static Group CreateFavoriteGroup(int userId, int groupId, string name = "Group A", List<PartyGroupAssociation> parties = null)
         {
             return new Group

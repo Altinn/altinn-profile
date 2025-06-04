@@ -25,5 +25,11 @@ namespace Altinn.Profile.Core.PartyGroups
         {
             return await _groupRepository.AddPartyToFavorites(userId, partyUuid, cancellationToken);
         }
+
+        /// <inheritdoc/>
+        public async Task<bool> DeleteFromFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        {
+            return await _groupRepository.DeleteFromFavorites(userId, partyUuid, cancellationToken);
+        }
     }
 }

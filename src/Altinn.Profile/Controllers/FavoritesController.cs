@@ -83,6 +83,43 @@ namespace Altinn.Profile.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Remove a party from the group of favorites for the current user
+        /// </summary>
+        /// <response code="204">Returns status code 204 if the party was deleted from favorites</response>
+        /// <response code="404">Returns status code 404 if the party was not found in favorites</response>
+        [HttpDelete("{partyUuid:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> DeleteFavorite([FromRoute] Guid partyUuid, CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            if (partyUuid == Guid.Empty)
+            {
+                return BadRequest("Party UUID cannot be empty.");
+            }
+
+            var validationResult = TryGetUserIdFromClaims(out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            var deletedNow = await _partyGroupService.DeleteFromFavorites(userId, partyUuid, cancellationToken);
+
+            if (!deletedNow)
+            {
+                return NotFound("Party not found in favorites.");
+            }
+
+            return NoContent();
+        }
+
         private BadRequestObjectResult TryGetUserIdFromClaims(out int userId)
         {
             userId = 0;

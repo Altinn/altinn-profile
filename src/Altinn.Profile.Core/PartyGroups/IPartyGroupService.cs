@@ -15,5 +15,10 @@
         /// </summary>
         /// <returns>A <see cref="Task{TResult}"/> representing the result with a boolean telling whether the party was added as a favorite or if it already existed.</returns>
         Task<bool> AddPartyToFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Delete the given party from a users list of favorites.
+        /// </summary>
+        Task<bool> DeleteFromFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken);
     }
 }
