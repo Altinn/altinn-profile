@@ -21,6 +21,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
         private readonly Mock<ILogger<RegisterClient>> _loggerMock;
         private HttpClient _httpClient;
         private const string _testBaseUrl = "https://api.test.local/";
+        private readonly JsonSerializerOptions _serializerOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        };
 
         public RegisterClientTests()
         {
@@ -29,15 +33,15 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
 
             _tokenGenMock = new Mock<IAccessTokenGenerator>();
             _tokenGenMock.Setup(t => t.GenerateAccessToken(It.IsAny<string>(), It.IsAny<string>()))
-                         .Returns((string?)null);
+                         .Returns((string)null);
 
             _loggerMock = new Mock<ILogger<RegisterClient>>();
         }
 
         private static HttpMessageHandler CreateHandler(
             HttpResponseMessage response,
-            Action<HttpRequestMessage>? requestCallback = null,
-            Action<CancellationToken>? cancelCallback = null)
+            Action<HttpRequestMessage> requestCallback = null,
+            Action<CancellationToken> cancelCallback = null)
         {
             var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
             handlerMock.Protected()
@@ -85,7 +89,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
             {
                 Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
             };
-            HttpRequestMessage? sentRequest = null;
+            HttpRequestMessage sentRequest = null;
             var handler = CreateHandler(response, req => sentRequest = req);
             _httpClient = new HttpClient(handler);
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
@@ -97,6 +101,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
             Assert.NotNull(result);
             Assert.Equal("123456789", result);
             Assert.Equal(HttpMethod.Post, sentRequest.Method);
+            Assert.IsType<StringContent>(sentRequest.Content);
+            var requestContent = await sentRequest.Content.ReadAsStringAsync();
+            var sentPayload = JsonSerializer.Deserialize<LookupMainUnitRequest>(requestContent, _serializerOptions);
+            Assert.Equal("urn:altinn:organization:identifier-no:111111111", sentPayload.Data);
             Assert.Equal(new Uri(_testBaseUrl + "v2/internal/parties/main-units"), sentRequest.RequestUri);
         }
 
@@ -113,9 +121,27 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
             {
                 Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
             };
-            HttpRequestMessage? sentRequest = null;
+            HttpRequestMessage sentRequest = null;
             var handler = CreateHandler(response, req => sentRequest = req);
             _httpClient = new HttpClient(handler);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetMainUnit("111111111", CancellationToken.None);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetMainUnit_WhenRegisterReturns500_ReturnsNullAnLogsWarning()
+        {
+            // Arrange
+            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            HttpRequestMessage sentRequest = null;
+            var handler = CreateHandler(response, req => sentRequest = req);
+            _httpClient = new HttpClient(handler);
+
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act

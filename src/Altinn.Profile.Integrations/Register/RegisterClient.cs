@@ -31,6 +31,7 @@ public class RegisterClient : IRegisterClient
     /// <param name="httpClient">The HTTP client used to make requests to the register service.</param>
     /// <param name="settings">The register settings containing the API endpoint.</param>
     /// <param name="accessTokenGenerator">The access token generator.</param>
+    /// <param name="logger">The logger</param>
     public RegisterClient(HttpClient httpClient, IOptions<RegisterSettings> settings, IAccessTokenGenerator accessTokenGenerator, ILogger<RegisterClient> logger)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -47,7 +48,7 @@ public class RegisterClient : IRegisterClient
             throw new ArgumentException("Organization number cannot be null or empty.", nameof(orgNumber));
         }
 
-        var request = new LookupMainUnitRequest(orgNumber);
+        var request = LookupMainUnitRequest.Create(orgNumber);
         var json = JsonSerializer.Serialize(request, _options);
         var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 
