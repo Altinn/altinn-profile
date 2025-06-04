@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Integrations.Register
+﻿namespace Altinn.Profile.Core.Integrations
 {
     /// <summary>
     /// A http client for interactions with altinn-register

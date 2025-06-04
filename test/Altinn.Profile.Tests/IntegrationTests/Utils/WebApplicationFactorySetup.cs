@@ -6,7 +6,6 @@ using Altinn.Common.PEP.Interfaces;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
-using Altinn.Profile.Integrations.Register;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 using Altinn.Profile.Integrations.SblBridge.User.Profile;
@@ -27,15 +26,10 @@ using Moq;
 
 namespace Altinn.Profile.Tests.IntegrationTests.Utils;
 
-public class WebApplicationFactorySetup<T>
+public class WebApplicationFactorySetup<T>(WebApplicationFactory<T> webApplicationFactory)
     where T : class
 {
-    private readonly WebApplicationFactory<T> _webApplicationFactory;
-
-    public WebApplicationFactorySetup(WebApplicationFactory<T> webApplicationFactory)
-    {
-        _webApplicationFactory = webApplicationFactory;
-    }
+    private readonly WebApplicationFactory<T> _webApplicationFactory = webApplicationFactory;
 
     public Mock<IContactRegisterHttpClient> ContactRegisterServiceMock { get; set; } = new();
 
@@ -59,7 +53,7 @@ public class WebApplicationFactorySetup<T>
 
     public HttpClient GetTestServerClient(IPDP pdp = null)
     {
-        MemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions());
+        MemoryCache memoryCache = new(new MemoryCacheOptions());
 
         SblBridgeSettingsOptions.Setup(gso => gso.Value).Returns(
             new SblBridgeSettings

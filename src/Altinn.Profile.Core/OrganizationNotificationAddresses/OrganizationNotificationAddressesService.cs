@@ -1,5 +1,4 @@
 ﻿using Altinn.Profile.Core.Integrations;
-using Altinn.Profile.Integrations.Register;
 
 namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 {
@@ -124,18 +123,25 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
             {
                 var mainUnit = await _registerClient.GetMainUnit(organization, cancellationToken);
 
-                if (mainUnit != null)
+                if (mainUnit == null)
                 {
-                    var mainUnitResult = await _orgRepository.GetOrganizationsAsync([mainUnit], cancellationToken);
-                    if (mainUnitResult.Any())
-                    {
-                        foreach (var item in mainUnitResult)
-                        {
-                            item.AddressOrigin = item.OrganizationNumber;
-                            item.OrganizationNumber = organization;
+                    break;  // No main unit found, skip to next organization
+                }
 
-                            organizationList.Add(item);
-                        }
+                var mainUnitResult = await _orgRepository.GetOrganizationsAsync([mainUnit], cancellationToken);
+                if (mainUnitResult.Any())
+                {
+                    // Should in theory only return one organization, but handling as a list for consistency
+                    foreach (var item in mainUnitResult)
+                    {
+                        var orgWithMainUnitAddress = new Organization
+                        {
+                            OrganizationNumber = organization,
+                            AddressOrigin = item.OrganizationNumber,
+                            NotificationAddresses = item.NotificationAddresses
+                        };
+
+                        organizationList.Add(orgWithMainUnitAddress);
                     }
                 }
             }

@@ -11,6 +11,6 @@ namespace Altinn.Profile.Integrations.Register
         /// Gets the organization identifier of the party, or <see langword="null"/> if the party is not an organization.
         /// </summary>
         [JsonPropertyName("organizationIdentifier")]
-        public string OrganizationIdentifier { get; set; }
+        public string? OrganizationIdentifier { get; set; }
     }
 }

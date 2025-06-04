@@ -14,21 +14,16 @@ namespace Altinn.Profile.Controllers
     /// <summary>
     /// Controller for organization notifications address API endpoints for internal consumption (e.g. Notifications) requiring neither authenticated user token nor access token authorization.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="OrgNotificationAddressController"/> class.
+    /// </remarks>
     [Route("profile/api/v1/organizations/notificationaddresses")]
     [ApiExplorerSettings(IgnoreApi = true)]
     [Consumes("application/json")]
     [Produces("application/json")]
-    public class OrgNotificationAddressController : ControllerBase
+    public class OrgNotificationAddressController(IOrganizationNotificationAddressesService notificationAddressService) : ControllerBase
     {
-        private readonly IOrganizationNotificationAddressesService _notificationAddressService;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OrgNotificationAddressController"/> class.
-        /// </summary>
-        public OrgNotificationAddressController(IOrganizationNotificationAddressesService notificationAddressService)
-        {
-            _notificationAddressService = notificationAddressService;
-        }
+        private readonly IOrganizationNotificationAddressesService _notificationAddressService = notificationAddressService;
 
         /// <summary>
         /// Endpoint looking up the notification addresses for the organization provided in the lookup object in the request body

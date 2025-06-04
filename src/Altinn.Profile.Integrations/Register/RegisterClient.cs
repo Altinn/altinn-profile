@@ -2,7 +2,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Altinn.Common.AccessTokenClient.Services;
-
+using Altinn.Profile.Core.Integrations;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Altinn.Profile.Integrations.Register;
@@ -17,6 +18,7 @@ public class RegisterClient : IRegisterClient
 {
     private readonly HttpClient _httpClient;
     private readonly IAccessTokenGenerator _accessTokenGenerator;
+    private readonly ILogger<RegisterClient> _logger;
 
     private readonly JsonSerializerOptions _options = new()
     {
@@ -29,12 +31,12 @@ public class RegisterClient : IRegisterClient
     /// <param name="httpClient">The HTTP client used to make requests to the register service.</param>
     /// <param name="settings">The register settings containing the API endpoint.</param>
     /// <param name="accessTokenGenerator">The access token generator.</param>
-    public RegisterClient(HttpClient httpClient, IOptions<RegisterSettings> settings, IAccessTokenGenerator accessTokenGenerator)
+    public RegisterClient(HttpClient httpClient, IOptions<RegisterSettings> settings, IAccessTokenGenerator accessTokenGenerator, ILogger<RegisterClient> logger)
     {
         _httpClient = httpClient;
         _accessTokenGenerator = accessTokenGenerator;
         _httpClient.BaseAddress = new Uri(settings.Value.ApiRegisterEndpoint);
-
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger), "Logger cannot be null.");
     }
 
     /// <inheritdoc/>
@@ -59,24 +61,24 @@ public class RegisterClient : IRegisterClient
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new NotImplementedException($"Failed to retrieve main unit. StatusCode: {response.StatusCode}");
+            _logger.LogError("Failed to get main unit for organization {OrgNumber}. Status code: {StatusCode}", orgNumber, response.StatusCode);
+            return null;
         }
 
         var responseData = await response.Content.ReadAsStringAsync(cancellationToken);
 
-        var responseObject = JsonSerializer.Deserialize<LookupMainUnitResponse>(responseData);
-
-        if (responseObject == null)
-        {
-            throw new NotImplementedException("Failed to deserialize response from Register API.");
-        }
-
+        var responseObject = JsonSerializer.Deserialize<LookupMainUnitResponse>(responseData) ?? throw new InvalidOperationException("Failed to deserialize response from Register API.");
         if (!(responseObject.Data?.Count > 0))
         {
             return null;
         }
 
         // The response is a list, but assuming the list contains only one item in all cases
+        if (responseObject.Data.Count > 1)
+        {
+            _logger.LogWarning("Get main units for organization {OrgNumber} returned multiple results. Using the first one.", orgNumber);
+        }
+
         var mainUnitOrgNumber = responseObject.Data[0].OrganizationIdentifier;
         return mainUnitOrgNumber;
     }
