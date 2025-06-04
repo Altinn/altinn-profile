@@ -16,6 +16,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
         private readonly OrganizationNotificationAddressesService _service;
         private readonly List<Organization> _testdata;
         private readonly Mock<IOrganizationNotificationAddressUpdateClient> _updateClient;
+        private readonly Mock<IRegisterClient> _registerClient;
 
         public OrganizationNotificationAddressesServiceTests()
         {
@@ -54,12 +55,13 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync(_testdata);
 
             _updateClient = new Mock<IOrganizationNotificationAddressUpdateClient>();
+            _registerClient = new Mock<IRegisterClient>();
 
-            _service = new OrganizationNotificationAddressesService(_repository.Object, _updateClient.Object, null);
+            _service = new OrganizationNotificationAddressesService(_repository.Object, _updateClient.Object, _registerClient.Object);
         }
 
         [Fact]
-        public async Task GetNotificationContactPoints_WhenFound_Returns()
+        public async Task GetOrganizationNotificationAddresses_WhenFound_Returns()
         {
             var lookup = new List<string>() { "123456789" };
 
@@ -75,15 +77,50 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
         }
 
         [Fact]
-        public async Task GetNotificationContactPoints_WhenNothingFound_ReturnsEmptyList()
+        public async Task GetOrganizationNotificationAddresses_WhenNothingFound_ReturnsEmptyList()
         {
             var lookup = new List<string>() { "123456789" };
 
             _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<Organization>());
+                .ReturnsAsync([]);
 
             // Act
             var result = await _service.GetOrganizationNotificationAddresses(lookup, CancellationToken.None);
+
+            // Assert
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetOrganizationNotificationAddresses_WhenLookingUpMainUnitAndNothingFound_ReturnsEmptyList()
+        {
+            var lookup = new List<string>() { "123456789" };
+
+            _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync([]);
+            _registerClient.Setup(r => r.GetMainUnit(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((string)null);
+
+            // Act
+            var result = await _service.GetOrganizationNotificationAddresses(lookup, CancellationToken.None, true);
+
+            // Assert
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetOrganizationNotificationAddresses_WhenLookingUpMainUnitAndFound_ReturnsAddressFromMainUnit()
+        {
+            var lookup = new List<string>() { "111111111" };
+
+            _repository.SetupSequence(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync([])
+                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == "123456789"));
+            _registerClient.Setup(r => r.GetMainUnit(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((string)null);
+
+            // Act
+            var result = await _service.GetOrganizationNotificationAddresses(lookup, CancellationToken.None, true);
 
             // Assert
             Assert.Empty(result);

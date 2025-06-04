@@ -33,8 +33,8 @@ public class RegisterClient : IRegisterClient
     /// <param name="accessTokenGenerator">The access token generator.</param>
     public RegisterClient(HttpClient httpClient, IOptions<RegisterSettings> settings, IAccessTokenGenerator accessTokenGenerator, ILogger<RegisterClient> logger)
     {
-        _httpClient = httpClient;
-        _accessTokenGenerator = accessTokenGenerator;
+        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _accessTokenGenerator = accessTokenGenerator ?? throw new ArgumentNullException(nameof(accessTokenGenerator));
         _httpClient.BaseAddress = new Uri(settings.Value.ApiRegisterEndpoint);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger), "Logger cannot be null.");
     }
