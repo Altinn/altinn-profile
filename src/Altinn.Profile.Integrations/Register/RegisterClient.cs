@@ -38,7 +38,7 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
-    public async Task<string> GetMainUnit(string orgNumber, CancellationToken cancellationToken)
+    public async Task<string?> GetMainUnit(string orgNumber, CancellationToken cancellationToken)
     {
         var request = new LookupMainUnitRequest(orgNumber);
         var json = JsonSerializer.Serialize(request, _options);
@@ -64,8 +64,20 @@ public class RegisterClient : IRegisterClient
 
         var responseData = await response.Content.ReadAsStringAsync(cancellationToken);
 
-        ////var responseObject = JsonSerializer.Deserialize<Object>(responseData);
+        var responseObject = JsonSerializer.Deserialize<LookupMainUnitResponse>(responseData);
 
-        return responseData;
+        if (responseObject == null)
+        {
+            throw new NotImplementedException("Failed to deserialize response from Register API.");
+        }
+
+        if (!(responseObject.Data?.Count > 0))
+        {
+            return null;
+        }
+
+        // The response is a list, but assuming the list contains only one item in all cases
+        var mainUnitOrgNumber = responseObject.Data[0].OrganizationIdentifier;
+        return mainUnitOrgNumber;
     }
 }

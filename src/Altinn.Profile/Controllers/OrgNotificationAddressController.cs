@@ -58,6 +58,7 @@ namespace Altinn.Profile.Controllers
                 var contactPoints = new NotificationAddresses
                 {
                     OrganizationNumber = organization.OrganizationNumber,
+                    AddressOrigin = organization.GetAddressOrigin(),
                 };
 
                 if (organization.NotificationAddresses?.Count > 0)

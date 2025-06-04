@@ -65,6 +65,7 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddTransient<IAccessTokenGenerator, AccessTokenGenerator>();
+        services.AddTransient<ISigningCredentialsResolver, SigningCredentialsResolver>();
 
         services.Configure<RegisterSettings>(config.GetSection(nameof(RegisterSettings)));
         services.AddHttpClient<IRegisterClient, RegisterClient>();

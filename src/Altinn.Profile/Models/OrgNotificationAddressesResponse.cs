@@ -23,6 +23,12 @@ public class OrgNotificationAddressesResponse
         public string OrganizationNumber { get; set; } = string.Empty;
 
         /// <summary>
+        /// Gets or sets the organization number for the organization where the address originated
+        /// </summary>
+        /// <remarks>This will be the same as <see cref="OrganizationNumber"/> if the address is from this unit, otherwise it will be from a parent unit</remarks>
+        public string AddressOrigin { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets the party id of the organization
         /// </summary>
         public int PartyId { get; set; }

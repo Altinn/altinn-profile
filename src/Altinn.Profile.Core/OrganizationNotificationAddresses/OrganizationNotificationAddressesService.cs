@@ -69,8 +69,8 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 
             return (updatedNotificationAddress, false);
         }
-        
-         /// <summary>
+
+        /// <summary>
         /// Method for deleting a notification addresses for an organization. Data is written primarily to an <see cref="IOrganizationNotificationAddressUpdateClient"/> and lastly to the <see cref="IOrganizationNotificationAddressRepository"/>.
         /// </summary>
         /// <param name="organizationNumber">An organization number to indicate which organization to update addresses for</param>
@@ -111,19 +111,36 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 
             if (useAddressFromMainUnitIfEmpty)
             {
-                var orgsMissingAddress = organizationNumbers.Except(result.Select(o => o.OrganizationNumber));
-                foreach (var organization in orgsMissingAddress)
-                {
-                    var mainUnit = await _registerClient.GetMainUnit(organization, cancellationToken);
-
-                    /*if (mainUnit != null && mainUnit.NotificationAddresses != null && mainUnit.NotificationAddresses.Any())
-                    {
-                        organization.NotificationAddresses = mainUnit.NotificationAddresses;
-                    }*/ 
-                }
+                return await GetOrganizationsWithNotificationAddressesFromMainUnit(organizationNumbers, [.. result], cancellationToken);
             }
 
             return result;
+        }
+
+        private async Task<IEnumerable<Organization>> GetOrganizationsWithNotificationAddressesFromMainUnit(List<string> organizationNumbers, List<Organization> organizationList, CancellationToken cancellationToken)
+        {
+            var orgsMissingAddress = organizationNumbers.Except(organizationList.Select(o => o.OrganizationNumber));
+            foreach (var organization in orgsMissingAddress)
+            {
+                var mainUnit = await _registerClient.GetMainUnit(organization, cancellationToken);
+
+                if (mainUnit != null)
+                {
+                    var mainUnitResult = await _orgRepository.GetOrganizationsAsync([mainUnit], cancellationToken);
+                    if (mainUnitResult.Any())
+                    {
+                        foreach (var item in mainUnitResult)
+                        {
+                            item.AddressOrigin = item.OrganizationNumber;
+                            item.OrganizationNumber = organization;
+
+                            organizationList.Add(item);
+                        }
+                    }
+                }
+            }
+
+            return organizationList;
         }
     }
 }
