@@ -11,7 +11,7 @@ namespace Altinn.Profile.Integrations.Register
         /// Data containing the urn of the organization with either orgNumber, partyId or PartyUuid.
         /// </summary>
         [JsonPropertyName("data")]
-        public string Data { get; set; }
+        public string? Data { get; init; }
 
         /// <summary>
         /// Set the ORgNumber in the Data property of the request.

@@ -36,6 +36,7 @@ public class RegisterClient : IRegisterClient
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _accessTokenGenerator = accessTokenGenerator ?? throw new ArgumentNullException(nameof(accessTokenGenerator));
+        ArgumentNullException.ThrowIfNull(settings);
         _httpClient.BaseAddress = new Uri(settings.Value.ApiRegisterEndpoint);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger), "Logger cannot be null.");
     }
@@ -67,7 +68,7 @@ public class RegisterClient : IRegisterClient
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("Failed to get main unit for organization {OrgNumber}. Status code: {StatusCode}", orgNumber, response.StatusCode);
+            _logger.LogError("Failed to get main unit for organization. Status code: {StatusCode}", response.StatusCode);
             return null;
         }
 
@@ -82,7 +83,7 @@ public class RegisterClient : IRegisterClient
         // The response is a list, but assuming the list contains only one item in all cases
         if (responseObject.Data.Count > 1)
         {
-            _logger.LogWarning("Get main units for organization {OrgNumber} returned multiple results. Using the first one.", orgNumber);
+            _logger.LogWarning("Get main units for organization returned multiple results. Using the first one.");
         }
 
         var mainUnitOrgNumber = responseObject.Data[0].OrganizationIdentifier;
