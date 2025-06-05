@@ -82,19 +82,19 @@ public class TelemetryTests(WebApplicationFactory<Program> factory)
         _meterProvider.Dispose();
 
         var addedOrgMetrics = metricItems
-            .Where(item => item.Name == "profile.organizationNotificationAddress.organization.added")
+            .Where(item => item.Name == "profile.organizationnotificationaddress.organization.added")
             .ToArray();
 
         var addedMetrics = metricItems
-            .Where(item => item.Name == "profile.organizationNotificationAddress.address.added")
+            .Where(item => item.Name == "profile.organizationnotificationaddress.address.added")
             .ToArray();
 
         var updatedMetrics = metricItems
-            .Where(item => item.Name == "profile.organizationNotificationAddress.address.updated")
+            .Where(item => item.Name == "profile.organizationnotificationaddress.address.updated")
             .ToArray();
 
         var deletedMetrics = metricItems
-            .Where(item => item.Name == "profile.organizationNotificationAddress.address.deleted")
+            .Where(item => item.Name == "profile.organizationnotificationaddress.address.deleted")
             .ToArray();
 
         Assert.Single(addedOrgMetrics);
