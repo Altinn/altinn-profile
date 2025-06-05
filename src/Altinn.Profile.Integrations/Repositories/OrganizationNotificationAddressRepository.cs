@@ -1,5 +1,6 @@
 ﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
+using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
@@ -10,10 +11,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Altinn.Profile.Integrations.Repositories;
 
 /// <inheritdoc />
-public class OrganizationNotificationAddressRepository(IDbContextFactory<ProfileDbContext> contextFactory, IMapper mapper) : IOrganizationNotificationAddressUpdater, IOrganizationNotificationAddressRepository
+public class OrganizationNotificationAddressRepository(IDbContextFactory<ProfileDbContext> contextFactory, IMapper mapper, Telemetry? telemetry) : IOrganizationNotificationAddressUpdater, IOrganizationNotificationAddressRepository
 {
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
     private readonly IMapper _mapper = mapper;
+    private readonly Telemetry? _telemetry = telemetry;
 
     /// <inheritdoc />
     public async Task<int> SyncNotificationAddressesAsync(NotificationAddressChangesLog organizationNotificationAddressChanges)
@@ -52,6 +54,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
         }
 
         databaseContext.Remove(entry);
+        _telemetry?.AddressDeleted();
 
         return await databaseContext.SaveChangesAsync();
     }
@@ -95,11 +98,13 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
         {
             var organizationNotificationAddress = DataMapper.PopulateOrganizationNotificationAddress(organization, address);
             databaseContext.NotificationAddresses.Add(organizationNotificationAddress);
+            _telemetry?.AddressAdded();
         }
         else
         {
             var updatedAddress = DataMapper.PopulateExistingOrganizationNotificationAddress(existingAddress, address);
             databaseContext.NotificationAddresses.Update(updatedAddress);
+            _telemetry?.AddressUpdated();
         }
 
         return await databaseContext.SaveChangesAsync();
@@ -133,7 +138,9 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
         organization.NotificationAddresses.Add(organizationNotificationAddress);
 
         await databaseContext.Organizations.AddAsync(organization);
-        
+        _telemetry?.OrganizationAdded();
+        _telemetry?.AddressAdded();
+
         return await databaseContext.SaveChangesAsync();
     }
 
