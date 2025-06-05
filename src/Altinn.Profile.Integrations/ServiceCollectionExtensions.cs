@@ -2,13 +2,14 @@
 
 using Altinn.ApiClients.Maskinporten.Extensions;
 using Altinn.ApiClients.Maskinporten.Services;
-
+using Altinn.Common.AccessTokenClient.Services;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Mappings;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.Persistence;
+using Altinn.Profile.Integrations.Register;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
@@ -62,6 +63,12 @@ public static class ServiceCollectionExtensions
         {
             throw new InvalidOperationException("Database connection string is not properly configured.");
         }
+
+        services.AddTransient<IAccessTokenGenerator, AccessTokenGenerator>();
+        services.AddTransient<ISigningCredentialsResolver, SigningCredentialsResolver>();
+
+        services.Configure<RegisterSettings>(config.GetSection(nameof(RegisterSettings)));
+        services.AddHttpClient<IRegisterClient, RegisterClient>();
 
         services.AddScoped<IPersonService, PersonRepository>();
         services.AddScoped<IPersonUpdater, PersonRepository>();

@@ -120,6 +120,46 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var actual = JsonSerializer.Deserialize<OrgNotificationAddressesResponse>(responseContent, _serializerOptions);
             Assert.Single(actual.ContactPointsList);
             Assert.Equal("123456789", actual.ContactPointsList[0].OrganizationNumber);
+            Assert.Equal("123456789", actual.ContactPointsList[0].AddressOrigin);
+            Assert.Single(actual.ContactPointsList[0].EmailList);
+            Assert.Equal(2, actual.ContactPointsList[0].MobileNumberList.Count);
+        }
+
+        [Fact]
+        public async Task PostLookup_WhenParentOrganizationFound_ReturnsOkWithSingleItemList()
+        {
+            // Arrange
+            OrgNotificationAddressRequest input = new()
+            {
+                OrganizationNumbers = ["333333333", "111111111"],
+            };
+
+            _webApplicationFactorySetup.RegisterClientMock
+                .Setup(r => r.GetMainUnit(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync("123456789");
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .SetupSequence(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.Where(o => input.OrganizationNumbers.Contains(o.OrganizationNumber)))
+                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == "123456789"))
+                .ReturnsAsync([]);
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/notificationaddresses/lookup")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<OrgNotificationAddressesResponse>(responseContent, _serializerOptions);
+            Assert.Single(actual.ContactPointsList);
+            Assert.Equal("333333333", actual.ContactPointsList[0].OrganizationNumber);
+            Assert.Equal("123456789", actual.ContactPointsList[0].AddressOrigin);
             Assert.Single(actual.ContactPointsList[0].EmailList);
             Assert.Equal(2, actual.ContactPointsList[0].MobileNumberList.Count);
         }
@@ -151,9 +191,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var actual = JsonSerializer.Deserialize<OrgNotificationAddressesResponse>(responseContent, _serializerOptions);
             Assert.Equal(2, actual.ContactPointsList.Count);
             Assert.Equal("987654321", actual.ContactPointsList[0].OrganizationNumber);
+            Assert.Equal("987654321", actual.ContactPointsList[0].AddressOrigin);
             Assert.Single(actual.ContactPointsList[0].EmailList);
             Assert.Empty(actual.ContactPointsList[0].MobileNumberList);
             Assert.Equal("123456789", actual.ContactPointsList[1].OrganizationNumber);
+            Assert.Equal("123456789", actual.ContactPointsList[1].AddressOrigin);
             Assert.Single(actual.ContactPointsList[1].EmailList);
             Assert.Equal(2, actual.ContactPointsList[1].MobileNumberList.Count);
         }
@@ -185,6 +227,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var actual = JsonSerializer.Deserialize<OrgNotificationAddressesResponse>(responseContent, _serializerOptions);
             Assert.Single(actual.ContactPointsList);
             Assert.Equal("222222222", actual.ContactPointsList[0].OrganizationNumber);
+            Assert.Equal("222222222", actual.ContactPointsList[0].AddressOrigin);
             Assert.Empty(actual.ContactPointsList[0].EmailList);
             Assert.Single(actual.ContactPointsList[0].MobileNumberList);
         }
