@@ -157,6 +157,7 @@ public partial class ProfileDbContext : DbContext
             entity.HasMany(e => e.Parties)
                     .WithOne(n => n.Group)
                     .HasForeignKey(e => e.GroupId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("fk_group_id");
         });
 
@@ -170,7 +171,7 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.UserId).IsRequired();
             entity.Property(e => e.EmailAddress).HasMaxLength(400);
             entity.Property(e => e.PhoneNumber).HasMaxLength(26);
-            entity.Property(e => e.LastChanged).HasDefaultValueSql("now()").ValueGeneratedOnAddOrUpdate();
+            entity.Property(e => e.LastChanged).HasDefaultValueSql("now()").ValueGeneratedOnAddOrUpdate().IsConcurrencyToken();
 
             entity.HasIndex(e => new { e.PartyUuid, e.UserId }, "ix_user_party_contact_info_party_uuid_user_id");
 
