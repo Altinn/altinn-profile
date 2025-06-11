@@ -63,6 +63,16 @@ public partial class ProfileDbContext : DbContext
     public virtual DbSet<PartyGroupAssociation> PartyGroupAssociations { get; set; }
 
     /// <summary>
+    /// The <see cref="DbSet{UserPartyContactInfo}"/> representing a users personal contact info for a party.
+    /// </summary>
+    public virtual DbSet<UserPartyContactInfo> UserPartyContactInfo { get; set; }
+
+    /// <summary>
+    /// The <see cref="DbSet{UserPartyContactInfoResource}"/> representing the association of a resource to a personal contact info for an organization.
+    /// </summary>
+    public virtual DbSet<UserPartyContactInfoResource> UserPartyContactInfoResource { get; set; }
+
+    /// <summary>
     /// Configures the schema needed for the context.
     /// </summary>
     /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -148,6 +158,34 @@ public partial class ProfileDbContext : DbContext
                     .WithOne(n => n.Group)
                     .HasForeignKey(e => e.GroupId)
                     .HasConstraintName("fk_group_id");
+        });
+
+        modelBuilder.Entity<UserPartyContactInfo>(entity =>
+        {
+            entity.ToTable("user_party_contact_info", "professional_notifications");
+
+            entity.HasKey(e => e.UserPartyContactInfoId).HasName("user_party_contact_info_pkey");
+            entity.Property(e => e.UserPartyContactInfoId).UseIdentityAlwaysColumn();
+            entity.Property(e => e.PartyUuid).IsRequired();
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.EmailAddress).HasMaxLength(400);
+            entity.Property(e => e.PhoneNumber).HasMaxLength(26);
+            entity.Property(e => e.LastChanged).HasDefaultValueSql("now()").ValueGeneratedOnAddOrUpdate();
+
+            entity.HasIndex(e => new { e.PartyUuid, e.UserId }, "ix_user_party_contact_info_party_uuid_user_id");
+
+            entity.HasMany(e => e.UserPartyContactInfoResources)
+                    .WithOne(n => n.UserPartyContactInfo)
+                    .HasForeignKey(e => e.UserPartyContactInfoId)
+                    .HasConstraintName("fk_user_party_contact_info_id");
+        });
+
+        modelBuilder.Entity<UserPartyContactInfoResource>(entity =>
+        {
+            entity.ToTable("user_party_contact_info_resource", "professional_notifications");
+
+            entity.HasKey(e => e.UserPartyContactInfoResourceId).HasName("user_party_contact_info_resource_pkey");
+            entity.Property(e => e.UserPartyContactInfoResourceId).UseIdentityAlwaysColumn();
         });
 
         OnModelCreatingPartial(modelBuilder);
