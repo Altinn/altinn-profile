@@ -13,7 +13,7 @@ CREATE TABLE professional_notifications.user_party_contact_info (
     CONSTRAINT user_party_contact_info_pkey PRIMARY KEY (user_party_contact_info_id)
 );
 
-CREATE TABLE professional_notifications.user_party_contact_info_resource (
+CREATE TABLE professional_notifications.user_party_contact_info_resources (
     user_party_contact_info_resource_id bigint GENERATED ALWAYS AS IDENTITY,
     user_party_contact_info_id bigint NOT NULL,
     resource_id text NOT NULL,
@@ -23,4 +23,4 @@ CREATE TABLE professional_notifications.user_party_contact_info_resource (
 
 CREATE INDEX ix_user_party_contact_info_party_uuid_user_id ON professional_notifications.user_party_contact_info (party_uuid, user_id);
 
-CREATE INDEX ix_user_party_contact_info_resource_user_party_contact_info_id ON professional_notifications.user_party_contact_info_resource (user_party_contact_info_id);
+CREATE INDEX ix_user_party_contact_info_resources_user_party_contact_info_id ON professional_notifications.user_party_contact_info_resources (user_party_contact_info_id);
