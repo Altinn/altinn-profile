@@ -3,7 +3,7 @@ CREATE SCHEMA IF NOT EXISTS professional_notifications;
 GRANT ALL ON SCHEMA professional_notifications TO platform_profile_admin;
 GRANT USAGE ON SCHEMA professional_notifications TO platform_profile;
 
-REATE TABLE professional_notifications.user_party_contact_info (
+CREATE TABLE professional_notifications.user_party_contact_info (
     user_party_contact_info_id bigint GENERATED ALWAYS AS IDENTITY,
     user_id integer NOT NULL,
     party_uuid uuid NOT NULL,
