@@ -70,7 +70,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             return 0;
         }
 
-        var organization = await GetOrganizationAsync(orgNumber);
+        var organization = await GetOrganizationDEAsync(orgNumber, CancellationToken.None);
         if (organization is null)
         {
             return await CreateOrganizationWithNotificationAddress(orgNumber, address);
@@ -111,7 +111,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    public async Task<OrganizationDE?> GetOrganizationAsync(string orgNumber)
+    public async Task<OrganizationDE?> GetOrganizationDEAsync(string orgNumber, CancellationToken cancellationToken)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
@@ -140,9 +140,9 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// <inheritdoc/>
     public async Task<Organization?> GetOrganizationAsync(string organizationNumber, CancellationToken cancellationToken)
     {
-        var organizations = await GetOrganizationsAsync([organizationNumber], cancellationToken);
+        var organizations = await GetOrganizationDEAsync(organizationNumber, cancellationToken);
 
-        return organizations.SingleOrDefault();
+        return _mapper.Map<Organization>(organizations);
     }
 
     /// <inheritdoc/>
