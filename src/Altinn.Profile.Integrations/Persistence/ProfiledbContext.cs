@@ -163,7 +163,7 @@ public partial class ProfileDbContext : DbContext
 
         modelBuilder.Entity<UserPartyContactInfo>(entity =>
         {
-            entity.ToTable("user_party_contact_info", "professional_notifications");
+            entity.ToTable("user_party_contact_info", "professional_notification_settings");
 
             entity.HasKey(e => e.UserPartyContactInfoId).HasName("user_party_contact_info_pkey");
             entity.Property(e => e.UserPartyContactInfoId).UseIdentityAlwaysColumn();
@@ -184,7 +184,7 @@ public partial class ProfileDbContext : DbContext
 
         modelBuilder.Entity<UserPartyContactInfoResource>(entity =>
         {
-            entity.ToTable("user_party_contact_info_resources", "professional_notifications");
+            entity.ToTable("user_party_contact_info_resources", "professional_notification_settings");
 
             entity.HasKey(e => e.UserPartyContactInfoResourceId).HasName("user_party_contact_info_resource_pkey");
             entity.Property(e => e.UserPartyContactInfoResourceId).UseIdentityAlwaysColumn();
