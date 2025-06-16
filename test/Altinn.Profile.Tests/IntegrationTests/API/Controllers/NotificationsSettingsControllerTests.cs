@@ -99,6 +99,24 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Contains("Notification addresses not found", responseContent);
         }
 
+        [Fact]
+        public async Task GetNotificationAddresses_WhenNoUserId_ReturnsUnauthorized()
+        {
+            // Arrange
+            var partyGuid = Guid.NewGuid();
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
         private static HttpRequestMessage CreateRequest(HttpMethod method, int userId, string requestUri)
         {
             HttpRequestMessage httpRequestMessage = new(method, requestUri);

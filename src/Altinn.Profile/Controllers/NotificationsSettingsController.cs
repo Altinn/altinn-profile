@@ -33,6 +33,11 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ProfessionalNotificationAddresses>> Get([FromRoute] Guid partyUuid, CancellationToken cancellationToken)
         {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
             var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
             if (validationResult != null)
             {
