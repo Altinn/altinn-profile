@@ -26,7 +26,8 @@ namespace Altinn.Profile.Controllers
         private readonly IOrganizationNotificationAddressesService _notificationAddressService = notificationAddressService;
 
         /// <summary>
-        /// Endpoint looking up the notification addresses for the organization provided in the lookup object in the request body
+        /// Endpoint looking up the notification addresses for the organization provided in the lookup object in the request body.
+        /// If the organization has no notification addresses registered, the main unit address will be returned if it exists.
         /// </summary>
         /// <returns>Returns an overview of the user registered notification addresses for the provided organization</returns>
         [HttpPost("lookup")]
@@ -53,7 +54,7 @@ namespace Altinn.Profile.Controllers
                 var contactPoints = new NotificationAddresses
                 {
                     OrganizationNumber = organization.OrganizationNumber,
-                    AddressOrigin = organization.GetAddressOrigin(),
+                    AddressOrigin = organization.AddressOrigin,
                 };
 
                 if (organization.NotificationAddresses?.Count > 0)

@@ -17,8 +17,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// <inheritdoc/>
         public async Task<(NotificationAddress Address, bool IsNew)> CreateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken)
         {
-            var orgs = await _orgRepository.GetOrganizationsAsync([organizationNumber], cancellationToken);
-            var org = orgs.FirstOrDefault();
+            var org = await _orgRepository.GetOrganizationAsync(organizationNumber, cancellationToken);
             org ??= new Organization { OrganizationNumber = organizationNumber, NotificationAddresses = [] };
 
             var existingAddress = org.NotificationAddresses?.FirstOrDefault(x => x.FullAddress == notificationAddress.FullAddress && x.AddressType == notificationAddress.AddressType);
@@ -42,8 +41,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// <param name="cancellationToken">To cancel the request before it is finished</param>
         public async Task<(NotificationAddress? Address, bool IsDuplicate)> UpdateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken)
         {
-            var orgs = await _orgRepository.GetOrganizationsAsync([organizationNumber], cancellationToken);
-            var org = orgs.FirstOrDefault();
+            var org = await _orgRepository.GetOrganizationAsync(organizationNumber, cancellationToken);
 
             if (org == null)
             {
@@ -77,8 +75,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// <param name="cancellationToken">To cancel the request before it is finished</param>
         public async Task<NotificationAddress?> DeleteNotificationAddress(string organizationNumber, int notificationAddressId, CancellationToken cancellationToken)
         {
-            var orgs = await _orgRepository.GetOrganizationsAsync([organizationNumber], cancellationToken);
-            var org = orgs.FirstOrDefault();
+            var org = await _orgRepository.GetOrganizationAsync(organizationNumber, cancellationToken);
 
             if (org == null)
             {
@@ -128,21 +125,17 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
                     break;  // No main unit found, skip to next organization
                 }
 
-                var mainUnitResult = await _orgRepository.GetOrganizationsAsync([mainUnit], cancellationToken);
-                if (mainUnitResult.Any())
+                var mainUnitResult = await _orgRepository.GetOrganizationAsync(mainUnit, cancellationToken);
+                if (mainUnitResult != null)
                 {
-                    // Should in theory only return one organization, but handling as a list for consistency
-                    foreach (var item in mainUnitResult)
+                    var orgWithMainUnitAddress = new Organization
                     {
-                        var orgWithMainUnitAddress = new Organization
-                        {
-                            OrganizationNumber = organization,
-                            AddressOrigin = item.OrganizationNumber,
-                            NotificationAddresses = item.NotificationAddresses
-                        };
+                        OrganizationNumber = organization,
+                        AddressOrigin = mainUnitResult.OrganizationNumber,
+                        NotificationAddresses = mainUnitResult.NotificationAddresses
+                    };
 
-                        organizationList.Add(orgWithMainUnitAddress);
-                    }
+                    organizationList.Add(orgWithMainUnitAddress);
                 }
             }
 

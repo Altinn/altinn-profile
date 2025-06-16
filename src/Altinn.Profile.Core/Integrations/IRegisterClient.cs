@@ -8,7 +8,7 @@
         /// <summary>
         /// Optimistically get the main unit for an organization based on its organization number.
         /// </summary>
-        /// <param name="orgNumber">Org number for the current organization</param>
+        /// <param name="orgNumber">Org number for the organization to look up a potential main unit for.</param>
         /// <param name="cancellationToken">Cancel the current request</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         Task<string?> GetMainUnit(string orgNumber, CancellationToken cancellationToken);

@@ -330,8 +330,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
 
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
-                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
+                .Setup(r => r.GetOrganizationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo));
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
             .Setup(r => r.CreateNotificationAddressAsync(It.IsAny<string>(), It.IsAny<NotificationAddress>(), It.IsAny<string>()))
             .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
@@ -450,8 +450,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
 
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
-                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
+                .Setup(r => r.GetOrganizationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo));
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.UpdateNotificationAddressAsync(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
                 .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
@@ -487,8 +487,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
 
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
-                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
+                .Setup(r => r.GetOrganizationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo));
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.UpdateNotificationAddressAsync(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
                 .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
@@ -664,8 +664,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
 
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
-                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
+                .Setup(r => r.GetOrganizationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo));
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
             .Setup(r => r.DeleteNotificationAddressAsync(It.IsAny<int>()))
             .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
@@ -697,8 +697,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
 
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
-                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNo));
+                .Setup(r => r.GetOrganizationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo));
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
             .Setup(r => r.DeleteNotificationAddressAsync(It.IsAny<int>()))
             .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());

@@ -34,22 +34,16 @@ public class RegisterClient : IRegisterClient
     /// <param name="logger">The logger</param>
     public RegisterClient(HttpClient httpClient, IOptions<RegisterSettings> settings, IAccessTokenGenerator accessTokenGenerator, ILogger<RegisterClient> logger)
     {
-        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _accessTokenGenerator = accessTokenGenerator ?? throw new ArgumentNullException(nameof(accessTokenGenerator));
-        ArgumentNullException.ThrowIfNull(settings);
+        _httpClient = httpClient;
+        _accessTokenGenerator = accessTokenGenerator;
         _httpClient.BaseAddress = new Uri(settings.Value.ApiRegisterEndpoint);
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger), "Logger cannot be null.");
+        _logger = logger;
     }
 
     /// <inheritdoc/>
     public async Task<string?> GetMainUnit(string orgNumber, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(orgNumber))
-        {
-            throw new ArgumentException("Organization number cannot be null or empty.", nameof(orgNumber));
-        }
-
-        var request = LookupMainUnitRequest.Create(orgNumber);
+        var request = new LookupMainUnitRequest(orgNumber);
         var json = JsonSerializer.Serialize(request, _options);
         var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -74,8 +68,8 @@ public class RegisterClient : IRegisterClient
 
         var responseData = await response.Content.ReadAsStringAsync(cancellationToken);
 
-        var responseObject = JsonSerializer.Deserialize<LookupMainUnitResponse>(responseData) ?? throw new InvalidOperationException("Failed to deserialize response from Register API.");
-        if (!(responseObject.Data?.Count > 0))
+        var responseObject = JsonSerializer.Deserialize<LookupMainUnitResponse>(responseData);
+        if (!(responseObject?.Data?.Count > 0))
         {
             return null;
         }

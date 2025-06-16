@@ -131,18 +131,24 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             OrgNotificationAddressRequest input = new()
             {
-                OrganizationNumbers = ["333333333", "111111111"],
+                OrganizationNumbers = ["333333333"],
             };
 
             _webApplicationFactorySetup.RegisterClientMock
                 .Setup(r => r.GetMainUnit(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync("123456789");
 
+            var childUnit = _testdata.Where(o => input.OrganizationNumbers.Contains(o.OrganizationNumber));
+            var parentUnit = _testdata.Where(o => o.OrganizationNumber == "123456789").First();
+
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
                 .SetupSequence(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(_testdata.Where(o => input.OrganizationNumbers.Contains(o.OrganizationNumber)))
-                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == "123456789"))
+                .ReturnsAsync(childUnit)
                 .ReturnsAsync([]);
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .SetupSequence(r => r.GetOrganizationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(parentUnit);
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/notificationaddresses/lookup")

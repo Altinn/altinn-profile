@@ -59,15 +59,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
         }
 
         [Fact]
-        public void Constructor_NullLogger_ThrowsArgumentNullException()
-        {
-            var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK));
-            var httpClient = new HttpClient(handler);
-            Assert.Throws<ArgumentNullException>(() =>
-                new RegisterClient(httpClient, _settingsMock.Object, _tokenGenMock.Object, null!));
-        }
-
-        [Fact]
         public void Constructor_BaseAddressIsSetFromSettings()
         {
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK));
@@ -121,8 +112,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
             {
                 Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
             };
-            HttpRequestMessage sentRequest = null;
-            var handler = CreateHandler(response, req => sentRequest = req);
+
+            var handler = CreateHandler(response);
             _httpClient = new HttpClient(handler);
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
@@ -134,12 +125,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
         }
 
         [Fact]
-        public async Task GetMainUnit_WhenRegisterReturns500_ReturnsNullAnLogsWarning()
+        public async Task GetMainUnit_WhenRegisterReturns500_ReturnsNull()
         {
             // Arrange
             var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
-            HttpRequestMessage sentRequest = null;
-            var handler = CreateHandler(response, req => sentRequest = req);
+            var handler = CreateHandler(response);
             _httpClient = new HttpClient(handler);
 
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);

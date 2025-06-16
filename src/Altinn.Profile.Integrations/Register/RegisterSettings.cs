@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Altinn.Profile.Integrations.Register
+﻿namespace Altinn.Profile.Integrations.Register
 {
     /// <summary>
     /// Configuration object used to hold settings for all Altinn Register integrations.

@@ -138,6 +138,19 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     }
 
     /// <inheritdoc/>
+    public async Task<Organization?> GetOrganizationAsync(string organizationNumber, CancellationToken cancellationToken)
+    {
+        var organizations = await GetOrganizationsAsync([organizationNumber], cancellationToken);
+
+        if (organizations.Count() > 1)
+        {
+            throw new InvalidOperationException($"Multiple organizations found for organization number {organizationNumber}. Expected only one organization.");
+        }
+
+        return organizations.FirstOrDefault();
+    }
+
+    /// <inheritdoc/>
     public async Task<IEnumerable<Organization>> GetOrganizationsAsync(List<string> organizationNumbers, CancellationToken cancellationToken)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
