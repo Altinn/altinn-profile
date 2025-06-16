@@ -142,12 +142,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     {
         var organizations = await GetOrganizationsAsync([organizationNumber], cancellationToken);
 
-        if (organizations.Count() > 1)
-        {
-            throw new InvalidOperationException($"Multiple organizations found for organization number {organizationNumber}. Expected only one organization.");
-        }
-
-        return organizations.FirstOrDefault();
+        return organizations.SingleOrDefault();
     }
 
     /// <inheritdoc/>
