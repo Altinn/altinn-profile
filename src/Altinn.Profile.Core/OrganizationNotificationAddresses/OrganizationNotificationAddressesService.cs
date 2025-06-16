@@ -122,7 +122,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 
                 if (mainUnit == null)
                 {
-                    break;  // No main unit found, skip to next organization
+                    continue;  // No main unit found, skip to next organization
                 }
 
                 var mainUnitResult = await _orgRepository.GetOrganizationAsync(mainUnit, cancellationToken);
