@@ -2,6 +2,7 @@
 #nullable disable
 
 using Altinn.Profile.Core.PartyGroups;
+using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Integrations.Entities;
 
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Integrations.Entities
+﻿namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 {
     /// <summary>
     /// Data model for the personal notification address for an organization

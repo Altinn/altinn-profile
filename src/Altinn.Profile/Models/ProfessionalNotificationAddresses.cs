@@ -1,15 +1,13 @@
-﻿namespace Altinn.Profile.Integrations.Entities
+﻿using System;
+using System.Collections.Generic;
+
+namespace Altinn.Profile.Models
 {
     /// <summary>
     /// Data model for the personal notification address for an organization
     /// </summary>
-    public class UserPartyContactInfo
+    public class ProfessionalNotificationAddresses
     {
-        /// <summary>
-        /// Id of the user party contact info
-        /// </summary>
-        public long UserPartyContactInfoId { get; set; }
-
         /// <summary>
         /// The user id of logged-in user for whom the specific contact information belongs to.
         /// </summary>
@@ -23,21 +21,16 @@
         /// <summary>
         /// The email address. May be null if no email address is set.
         /// </summary>
-        public string? EmailAddress { get; set; }
+        public string EmailAddress { get; set; }
 
         /// <summary>
         /// The phone number. May be null if no phone number is set. 
         /// </summary>
-        public string? PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; }
 
         /// <summary>
-        /// Date of last change
+        /// A list of resources that the user has registered to receive notifications for. The format is in URN. This is used to determine which resources the user can receive notifications for.
         /// </summary>
-        public DateTime LastChanged { get; set; }
-
-        /// <summary>
-        /// Gets or sets notification options chosen for specific services by the user for the contact info
-        /// </summary>
-        public List<UserPartyContactInfoResource>? UserPartyContactInfoResources { get; set; }
+        public List<string> ResourceIncludeList { get; set; } = [];
     }
 }
