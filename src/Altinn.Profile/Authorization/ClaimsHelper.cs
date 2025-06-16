@@ -9,7 +9,7 @@ namespace Altinn.Profile.Authorization
     /// <summary>
     /// Helper class for working with claims in the HTTP context.
     /// </summary>
-    public class ClaimsHelper
+    public static class ClaimsHelper
     {
         /// <summary>
         /// Attempts to retrieve the user ID from the claims in the provided HTTP context.

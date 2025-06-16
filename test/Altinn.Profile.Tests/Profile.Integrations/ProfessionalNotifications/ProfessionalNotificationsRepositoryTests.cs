@@ -54,7 +54,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             }
         }
 
-        private async Task SeedUserPartyContactInfo(int userId, Guid partyUuid, string? email = null, string? phone = null, List<UserPartyContactInfoResource>? resources = null)
+        private async Task SeedUserPartyContactInfo(int userId, Guid partyUuid, string email = null, string phone = null, List<UserPartyContactInfoResource> resources = null)
         {
             var contactInfo = new UserPartyContactInfo
             {
