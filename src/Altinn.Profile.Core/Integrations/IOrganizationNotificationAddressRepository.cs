@@ -11,7 +11,7 @@ public interface IOrganizationNotificationAddressRepository
     /// Fetches a single organization's notification addresses
     /// </summary>
     /// <returns>A <see cref="Task{TResult}"/> with an organization as value.</returns>
-    Task<Organization?> GetOrganizationAsync(string organizationNumbers, CancellationToken cancellationToken);
+    Task<Organization?> GetOrganizationAsync(string organizationNumber, CancellationToken cancellationToken);
 
     /// <summary>
     /// Fetches organizations notification addresses
