@@ -113,11 +113,11 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// </returns>
     public async Task<OrganizationDE?> GetOrganizationDEAsync(string orgNumber, CancellationToken cancellationToken)
     {
-        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
         return await databaseContext.Organizations
                 .Include(o => o.NotificationAddresses)
-                .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == orgNumber);
+                .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == orgNumber, cancellationToken);
     }
     
     private async Task<int> CreateOrganizationWithNotificationAddress(string orgNumber, Entry address)
