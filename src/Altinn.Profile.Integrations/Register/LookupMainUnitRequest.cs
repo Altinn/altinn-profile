@@ -14,7 +14,7 @@ namespace Altinn.Profile.Integrations.Register
         public string? Data { get; init; }
 
         /// <summary>
-        /// Set the ORgNumber in the Data property of the request.
+        /// Set the OrgNumber in the Data property of the request.
         /// </summary>
         /// <param name="orgNumber">Organization Number of the organization to lookup parent units for</param>
         public static LookupMainUnitRequest Create(string orgNumber)
