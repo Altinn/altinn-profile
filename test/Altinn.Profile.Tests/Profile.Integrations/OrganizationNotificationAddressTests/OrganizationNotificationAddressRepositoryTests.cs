@@ -228,6 +228,29 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task GetSingleOrganization_WhenFound_ReturnsWithNotificationAddresses()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        var orgNumberLookup = "123456789";
+
+        var expectedOrg1 = organizations
+            .Find(p => p.RegistryOrganizationNumber == "123456789");
+
+        // Act
+        var result = await _repository.GetOrganizationAsync(orgNumberLookup, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.IsType<Organization>(result);
+        Assert.NotEmpty(result.NotificationAddresses);
+        Assert.Equal(result.NotificationAddresses.Count, expectedOrg1.NotificationAddresses.Count);
+        Assert.Equal(result.OrganizationNumber, expectedOrg1.RegistryOrganizationNumber);
+    }
+
+    [Fact]
     public async Task GetOrganizations_WhenFound_ReturnsWithNotificationAddresses()
     {
         // Arrange
