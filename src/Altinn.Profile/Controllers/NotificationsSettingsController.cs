@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Altinn.Profile.Controllers
 {
     /// <summary>
-    /// Controller for organizing a users favorite parties
+    /// Controller for organizing the notification addresses a user has registered for parties
     /// </summary>
     /// <remarks>
     /// Initializes a new instance of the <see cref="NotificationsSettingsController"/> class.
@@ -42,6 +42,11 @@ namespace Altinn.Profile.Controllers
             if (validationResult != null)
             {
                 return validationResult;
+            }
+
+            if (partyUuid == Guid.Empty)
+            {
+                return BadRequest("Party UUID cannot be empty.");
             }
 
             var notificationAddress = await _professionalNotificationsService.GetNotificationAddresses(userId, partyUuid, cancellationToken);

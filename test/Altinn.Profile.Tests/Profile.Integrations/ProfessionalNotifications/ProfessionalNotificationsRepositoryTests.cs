@@ -28,7 +28,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             _dbContextFactory.Setup(f => f.CreateDbContext())
                 .Returns(new ProfileDbContext(options));
             _dbContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() => new ProfileDbContext(options));
+                .Returns<CancellationToken>(ct => Task.FromResult(new ProfileDbContext(options)));
 
             _databaseContext = _dbContextFactory.Object.CreateDbContext();
             _repository = new ProfessionalNotificationsRepository(_dbContextFactory.Object);

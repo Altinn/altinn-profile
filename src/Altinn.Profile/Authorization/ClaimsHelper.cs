@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using AltinnCore.Authentication.Constants;
-using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,7 +23,7 @@ namespace Altinn.Profile.Authorization
             userId = 0;
             string userIdString = context.User.Claims
                 .Where(c => c.Type == AltinnCoreClaimTypes.UserId)
-                .Select(c => c.Value).SingleOrDefault();
+                .Select(c => c.Value).FirstOrDefault();
 
             if (string.IsNullOrEmpty(userIdString))
             {

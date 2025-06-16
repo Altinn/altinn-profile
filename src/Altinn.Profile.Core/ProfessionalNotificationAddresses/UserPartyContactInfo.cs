@@ -47,7 +47,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         public List<UserPartyContactInfoResource>? UserPartyContactInfoResources { get; set; }
 
         /// <summary>
-        /// j   
+        /// Helper method to get the UserPartyContactInfoResources as a list of strings representing resource IDs.
         /// </summary>
         public List<string>? GetResourceIncludeList()
         {

@@ -16,9 +16,9 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <param name="partyUuid">The UUID of the party.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task<UserPartyContactInfo?> GetNotificationAddresses(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        public Task<UserPartyContactInfo?> GetNotificationAddresses(int userId, Guid partyUuid, CancellationToken cancellationToken)
         {
-            return await _professionalNotificationsRepository.GetNotificationAddresses(userId, partyUuid, cancellationToken);
+            return _professionalNotificationsRepository.GetNotificationAddresses(userId, partyUuid, cancellationToken);
         }
     }
 }

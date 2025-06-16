@@ -23,6 +23,6 @@
         /// <summary>
         /// The contact info the resource is associated with
         /// </summary>
-        public required virtual UserPartyContactInfo UserPartyContactInfo { get; set; }
+        public virtual UserPartyContactInfo? UserPartyContactInfo { get; set; }
     }
 }

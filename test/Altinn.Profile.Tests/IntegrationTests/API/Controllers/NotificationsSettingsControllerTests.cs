@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -15,19 +16,14 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class NotificationsSettingsControllerTests : IClassFixture<WebApplicationFactory<NotificationsSettingsController>>
+    public class NotificationsSettingsControllerTests(WebApplicationFactory<NotificationsSettingsController> factory) : IClassFixture<WebApplicationFactory<NotificationsSettingsController>>
     {
-        private readonly WebApplicationFactorySetup<NotificationsSettingsController> _webApplicationFactorySetup;
+        private readonly WebApplicationFactorySetup<NotificationsSettingsController> _webApplicationFactorySetup = new WebApplicationFactorySetup<NotificationsSettingsController>(factory);
 
         private readonly JsonSerializerOptions _serializerOptionsCamelCase = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
-
-        public NotificationsSettingsControllerTests(WebApplicationFactory<NotificationsSettingsController> factory)
-        {
-            _webApplicationFactorySetup = new WebApplicationFactorySetup<NotificationsSettingsController>(factory);
-        }
 
         [Fact]
         public async Task GetNotificationAddresses_WhenRepositoryReturnsValues_IsOk()
@@ -42,8 +38,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 PartyUuid = partyGuid,
                 EmailAddress = "test@example.com",
                 PhoneNumber = "12345678",
-                UserPartyContactInfoResources = null
+                UserPartyContactInfoResources = new List<UserPartyContactInfoResource>
+                {
+                    new() { ResourceId = "urn:altinn:resource:example" }
+                }
             };
+
+            var resource = 
 
             _webApplicationFactorySetup
                 .ProfessionalNotificationsRepositoryMock
@@ -70,6 +71,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(partyGuid, notificationAddresses.PartyUuid);
             Assert.Equal("test@example.com", notificationAddresses.EmailAddress);
             Assert.Equal("12345678", notificationAddresses.PhoneNumber);
+            Assert.NotNull(notificationAddresses.ResourceIncludeList);
+            Assert.Single(notificationAddresses.ResourceIncludeList);
+            Assert.Equal("urn:altinn:resource:example", notificationAddresses.ResourceIncludeList[0]);
         }
 
         [Fact]
