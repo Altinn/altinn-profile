@@ -24,7 +24,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
         [InlineData(null)]
         [InlineData("")]
         [InlineData("   ")]
-        public void Create_NullOrWhitespaceOrgNumber_ThrowsArgumentException(string? orgNumber)
+        public void Create_NullOrWhitespaceOrgNumber_ThrowsArgumentException(string orgNumber)
         {
             // Act & Assert
             var ex = Assert.Throws<ArgumentException>(() => LookupMainUnitRequest.Create(orgNumber!));
