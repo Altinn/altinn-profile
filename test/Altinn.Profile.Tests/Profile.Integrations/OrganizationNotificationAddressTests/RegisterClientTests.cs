@@ -30,7 +30,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
 
             _tokenGenMock = new Mock<IAccessTokenGenerator>();
             _tokenGenMock.Setup(t => t.GenerateAccessToken(It.IsAny<string>(), It.IsAny<string>()))
-                         .Returns((string)null);
+                         .Returns("token");
 
             _loggerMock = new Mock<ILogger<RegisterClient>>();
         }
@@ -130,6 +130,24 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
             var handler = CreateHandler(response);
             _httpClient = new HttpClient(handler);
 
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetMainUnit("111111111", CancellationToken.None);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetMainUnit_WhenNotAbleToGenerateToken_ReturnsNull()
+        {
+            // Arrange
+            var response = new HttpResponseMessage(HttpStatusCode.OK);
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler);
+            _tokenGenMock.Setup(t => t.GenerateAccessToken(It.IsAny<string>(), It.IsAny<string>()))
+                         .Returns((string)null); 
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
