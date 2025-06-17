@@ -43,7 +43,7 @@ public class RegisterClient : IRegisterClient
     /// <inheritdoc/>
     public async Task<string?> GetMainUnit(string orgNumber, CancellationToken cancellationToken)
     {
-        var request = LookupMainUnitRequest.Create(orgNumber);
+        var request = new LookupMainUnitRequest(orgNumber);
         var json = JsonSerializer.Serialize(request, _options);
         var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 
