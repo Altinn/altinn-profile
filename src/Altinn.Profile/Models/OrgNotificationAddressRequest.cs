@@ -20,9 +20,9 @@ namespace Altinn.Profile.Models
         /// <inheritdoc/>
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (OrganizationNumbers.Any(string.IsNullOrWhiteSpace))
+            if (OrganizationNumbers == null || OrganizationNumbers.Any(string.IsNullOrWhiteSpace))
             {
-                yield return new ValidationResult("organizationNumbers contains one or more invalid (null or whitespace) values", [nameof(OrganizationNumbers)]);
+                yield return new ValidationResult("organizationNumbers must provide a list of valid organization number values", [nameof(OrganizationNumbers)]);
             }
         }
     }
