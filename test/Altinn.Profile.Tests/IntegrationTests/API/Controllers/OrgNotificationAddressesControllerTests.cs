@@ -285,42 +285,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
-        [Fact]
-        public async Task PostLookup_WhenBodyIsEmptyString_Returns400()
-        {
-            // Arrange
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/notificationaddresses/lookup")
-            {
-                Content = new StringContent(JsonSerializer.Serialize(string.Empty, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
-            };
-
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        }
-
-        [Fact]
-        public async Task PostLookup_WhenBodyIsNull_Returns400()
-        {
-            string input = null;
-
-            // Arrange
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/notificationaddresses/lookup")
-            {
-                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
-            };
-
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        }
-
         [Theory]
         [InlineData(null)]
         [InlineData("")]
