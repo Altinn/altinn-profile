@@ -262,5 +262,30 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var actual = JsonSerializer.Deserialize<OrgNotificationAddressesResponse>(responseContent, _serializerOptions);
             Assert.Empty(actual.ContactPointsList);
         }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("   ")]
+        public async Task PostLookup_WhenOrgListContainsInvalidNos_Returns400(string invalidOrgNo)
+        {
+            // Arrange
+            OrgNotificationAddressRequest input = new()
+            {
+                OrganizationNumbers = ["aValidOrg", invalidOrgNo],
+            };
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/notificationaddresses/lookup")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
     }
 }
