@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Altinn.Profile.Controllers;
 
 /// <summary>
-/// This controller provides endpoint for accessing user registered notification addresses for organizations.
-/// The notification addresses are typically registered by users in a professional context.
+/// This controller provides an internal endpoint for accessing user-registered notification addresses
+/// for organizations. The notification addresses are typically registered by users in a professional context.
 /// </summary>
 /// <remarks>
 /// The endpoints are intended for internal consumption (e.g. Notifications) and do not require authenticated
@@ -22,30 +22,35 @@ namespace Altinn.Profile.Controllers;
 [Produces("application/json")]
 public class UnitContactPointController : ControllerBase
 {
-    private readonly IUnitContactPointsService _contactPointService;
+    private readonly IUnitContactPointsService _contactPointsService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UnitContactPointController"/> class.
     /// </summary>
+    /// <param name="contactPointsService">
+    /// A service implementation of <see cref="IUnitContactPointsService"/> that handles business logic
+    /// related to professional notification addresses.
+    /// </param>
     public UnitContactPointController(IUnitContactPointsService contactPointsService)
     {
-        _contactPointService = contactPointsService;
+        _contactPointsService = contactPointsService;
     }
 
     /// <summary>
-    /// Endpoint for looking up use registered notification addresses for the provided units in the
-    /// request body.
+    /// Endpoint for looking up user-registered notification addresses for the provided organizations and the
+    /// given resource id.
     /// </summary>
+    /// <param name="unitContactPointLookup">The search criteria.</param>
     /// <returns>
-    /// Returns a list of user registered notification addresses for the provided units.
+    /// Returns a list of user-registered notification addresses for the provided units.
     /// </returns>
     [HttpPost("lookup")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<UnitContactPointsList>> PostLookup(
         [FromBody] UnitContactPointLookup unitContactPointLookup)
-    {     
+    {
         Result<UnitContactPointsList, bool> result = 
-            await _contactPointService.GetUserRegisteredContactPoints(unitContactPointLookup);
+            await _contactPointsService.GetUserRegisteredContactPoints(unitContactPointLookup);
 
         return result.Match<ActionResult<UnitContactPointsList>>(
             success => Ok(success),
