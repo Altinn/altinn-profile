@@ -14,6 +14,7 @@ namespace Altinn.Profile.Models
         /// Gets or sets the list of organization numbers to lookup contact points for
         /// </summary>
         [JsonPropertyName("organizationNumbers")]
+        [Required]
         public List<string> OrganizationNumbers { get; set; } = [];
 
         /// <inheritdoc/>
