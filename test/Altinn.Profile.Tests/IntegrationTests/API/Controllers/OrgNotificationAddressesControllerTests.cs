@@ -272,7 +272,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             OrgNotificationAddressRequest input = new()
             {
-                OrganizationNumbers = ["aValidOrg", invalidOrgNo],
+                OrganizationNumbers = ["987654321", "aValidOrg", invalidOrgNo],
             };
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
