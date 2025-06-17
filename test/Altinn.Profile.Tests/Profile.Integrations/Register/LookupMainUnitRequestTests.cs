@@ -19,16 +19,5 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             Assert.NotNull(result);
             Assert.Equal($"urn:altinn:organization:identifier-no:{orgNumber}", result.Data);
         }
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("   ")]
-        public void Create_NullOrWhitespaceOrgNumber_ThrowsArgumentException(string orgNumber)
-        {
-            // Act & Assert
-            var ex = Assert.Throws<ArgumentException>(() => LookupMainUnitRequest.Create(orgNumber!));
-            Assert.Equal("Organization number cannot be null or empty. (Parameter 'orgNumber')", ex.Message);
-        }
     }
 }

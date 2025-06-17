@@ -19,11 +19,6 @@ namespace Altinn.Profile.Integrations.Register
         /// <param name="orgNumber">Organization Number of the organization to lookup parent units for</param>
         public static LookupMainUnitRequest Create(string orgNumber)
         {
-            if (string.IsNullOrWhiteSpace(orgNumber))
-            {
-                throw new ArgumentException("Organization number cannot be null or empty.", nameof(orgNumber));
-            }
-
             var request = new LookupMainUnitRequest
             {
                 Data = $"urn:altinn:organization:identifier-no:{orgNumber}"
