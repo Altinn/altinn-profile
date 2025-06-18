@@ -140,9 +140,9 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// <inheritdoc/>
     public async Task<Organization?> GetOrganizationAsync(string organizationNumber, CancellationToken cancellationToken)
     {
-        var organizations = await GetOrganizationDEAsync(organizationNumber, cancellationToken);
+        var organization = await GetOrganizationDEAsync(organizationNumber, cancellationToken);
 
-        return _mapper.Map<Organization>(organizations);
+        return _mapper.Map<Organization>(organization);
     }
 
     /// <inheritdoc/>

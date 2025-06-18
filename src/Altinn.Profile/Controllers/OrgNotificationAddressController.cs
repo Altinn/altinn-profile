@@ -37,7 +37,7 @@ namespace Altinn.Profile.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return ValidationProblem(ModelState);
             }
 
             var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses(orgContactPointLookup.OrganizationNumbers, cancellationToken, true);

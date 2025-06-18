@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Common.AccessTokenClient.Services;
@@ -21,10 +22,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
         private readonly Mock<ILogger<RegisterClient>> _loggerMock;
         private HttpClient _httpClient;
         private const string _testBaseUrl = "https://api.test.local/";
-        private readonly JsonSerializerOptions _serializerOptions = new()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        };
 
         public RegisterClientTests()
         {
@@ -94,8 +91,9 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
             Assert.Equal(HttpMethod.Post, sentRequest.Method);
             Assert.IsType<StringContent>(sentRequest.Content);
             var requestContent = await sentRequest.Content.ReadAsStringAsync();
-            var sentPayload = JsonSerializer.Deserialize<LookupMainUnitRequest>(requestContent, _serializerOptions);
-            Assert.Equal("urn:altinn:organization:identifier-no:111111111", sentPayload.Data);
+            JsonNode sentPayload = JsonNode.Parse(requestContent);
+            string sentData = (string)sentPayload["data"];
+            Assert.Equal("urn:altinn:organization:identifier-no:111111111", sentData);
             Assert.Equal(new Uri(_testBaseUrl + "v2/internal/parties/main-units"), sentRequest.RequestUri);
         }
 

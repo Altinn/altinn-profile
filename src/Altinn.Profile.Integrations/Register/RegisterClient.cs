@@ -50,7 +50,7 @@ public class RegisterClient : IRegisterClient
             return null;
         }
 
-        var request = LookupMainUnitRequest.Create(orgNumber);
+        var request = new LookupMainUnitRequest(orgNumber);
         var json = JsonSerializer.Serialize(request, _options);
         var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 

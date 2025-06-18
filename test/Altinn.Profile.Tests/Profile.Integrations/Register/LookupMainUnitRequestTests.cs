@@ -13,7 +13,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var orgNumber = "123456789";
 
             // Act
-            var result = LookupMainUnitRequest.Create(orgNumber);
+            var result = new LookupMainUnitRequest(orgNumber);
 
             // Assert
             Assert.NotNull(result);
