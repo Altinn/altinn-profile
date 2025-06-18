@@ -131,8 +131,18 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         [Fact]
         public async Task AddOrUpdateNotificationAddressAsync_WhenNew_ReturnsTrue()
         {
+            // Arrange 
+            int userId = 1;
+            Guid partyUuid = Guid.NewGuid();
+            var contactInfo = new UserPartyContactInfo
+            {
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = string.Empty
+            };
+
             // Act
-            var result = await _repository.AddOrUpdateNotificationAddressAsync(new UserPartyContactInfo(), CancellationToken.None);
+            var result = await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
 
             // Assert
             Assert.True(result);
@@ -141,7 +151,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         [Fact]
         public async Task AddOrUpdateNotificationAddressAsync_WhenAlreadyExists_ReturnsFalse()
         {
-            // arrange
+            // Arrange
             int userId = 1;
             Guid partyUuid = Guid.NewGuid();
             var contactInfo = new UserPartyContactInfo
@@ -170,7 +180,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         [Fact]
         public async Task AddOrUpdateNotificationAddressAsync_WhenRemovingResources_ReturnsFalse()
         {
-            // arrange
+            // Arrange
             int userId = 1;
             Guid partyUuid = Guid.NewGuid();
             var contactInfo = new UserPartyContactInfo
@@ -211,7 +221,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         [Fact]
         public async Task AddOrUpdateNotificationAddressAsync_WhenEditingResources_ReturnsFalse()
         {
-            // arrange
+            // Arrange
             int userId = 1;
             Guid partyUuid = Guid.NewGuid();
             var contactInfo = new UserPartyContactInfo
