@@ -15,14 +15,16 @@ namespace Altinn.Profile.Models
         /// </summary>
         [JsonPropertyName("organizationNumbers")]
         [Required]
-        public List<string> OrganizationNumbers { get; set; } = [];
+        public List<string> OrganizationNumbers { get; set; }
 
         /// <inheritdoc/>
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (OrganizationNumbers == null || OrganizationNumbers.Any(string.IsNullOrWhiteSpace))
+            if (OrganizationNumbers == null ||
+                OrganizationNumbers.Count == 0 ||
+                OrganizationNumbers.Any(string.IsNullOrWhiteSpace))
             {
-                yield return new ValidationResult("organizationNumbers must provide a list of valid organization number values", [nameof(OrganizationNumbers)]);
+                yield return new ValidationResult("OrganizationNumbers must contain a list of valid organization number values", [nameof(OrganizationNumbers)]);
             }
         }
     }

@@ -35,7 +35,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
             _loggerMock = new Mock<ILogger<RegisterClient>>();
         }
 
-        private static HttpMessageHandler CreateHandler(
+        private static Mock<HttpMessageHandler> CreateHandler(
             HttpResponseMessage response,
             Action<HttpRequestMessage> requestCallback = null,
             Action<CancellationToken> cancelCallback = null)
@@ -52,14 +52,14 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
                     cancelCallback?.Invoke(ct);
                     return response;
                 });
-            return handlerMock.Object;
+            return handlerMock;
         }
 
         [Fact]
         public void Constructor_BaseAddressIsSetFromSettings()
         {
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK));
-            _httpClient = new HttpClient(handler);
+            _httpClient = new HttpClient(handler.Object);
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
             Assert.Equal(new Uri(_testBaseUrl), _httpClient.BaseAddress);
         }
@@ -79,7 +79,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
             };
             HttpRequestMessage sentRequest = null;
             var handler = CreateHandler(response, req => sentRequest = req);
-            _httpClient = new HttpClient(handler);
+            _httpClient = new HttpClient(handler.Object);
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
@@ -112,7 +112,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
             };
 
             var handler = CreateHandler(response);
-            _httpClient = new HttpClient(handler);
+            _httpClient = new HttpClient(handler.Object);
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
@@ -128,7 +128,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
             // Arrange
             var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
             var handler = CreateHandler(response);
-            _httpClient = new HttpClient(handler);
+            _httpClient = new HttpClient(handler.Object);
 
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
@@ -145,7 +145,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
             // Arrange
             var response = new HttpResponseMessage(HttpStatusCode.OK);
             var handler = CreateHandler(response);
-            _httpClient = new HttpClient(handler);
+            _httpClient = new HttpClient(handler.Object);
             _tokenGenMock.Setup(t => t.GenerateAccessToken(It.IsAny<string>(), It.IsAny<string>()))
                          .Returns((string)null); 
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
@@ -155,6 +155,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
 
             // Assert
             Assert.Null(result);
+            handler.Protected().Verify("SendAsync", Times.Never(), ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>());
         }
     }
 }
