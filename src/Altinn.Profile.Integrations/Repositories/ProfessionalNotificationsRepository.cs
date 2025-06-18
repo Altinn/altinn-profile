@@ -47,6 +47,8 @@ namespace Altinn.Profile.Integrations.Repositories
                 existing.EmailAddress = contactInfo.EmailAddress;
                 existing.PhoneNumber = contactInfo.PhoneNumber;
                 existing.UserPartyContactInfoResources = contactInfo.UserPartyContactInfoResources;
+
+                // This is also adding, removing or updating the records in the UserPartyContactInfoResources collection, if any
                 databaseContext.UserPartyContactInfo.Update(existing);
                 wasAdded = false;
             }

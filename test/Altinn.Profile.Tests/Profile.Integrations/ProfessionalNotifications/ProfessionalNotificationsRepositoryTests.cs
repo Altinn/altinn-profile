@@ -158,5 +158,86 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             // Assert
             Assert.False(result);
         }
+
+        [Fact]
+        public async Task AddOrUpdateNotificationAddressAsync_WhenRemovingResources_ReturnsFalse()
+        {
+            // arrange
+            int userId = 1;
+            Guid partyUuid = Guid.NewGuid();
+            var contactInfo = new UserPartyContactInfo
+            {
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = string.Empty,
+                UserPartyContactInfoResources =
+                [
+                    new() { ResourceId = "res1" },
+                    new() { ResourceId = "res2" }
+                ]
+            };
+            var updatedContactInfo = new UserPartyContactInfo
+            {
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = "some@value.com",
+                UserPartyContactInfoResources =
+                [
+                    new() { ResourceId = "res1" } // Removing "res2"
+                ]
+            };
+            await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
+
+            // Act
+            var result = await _repository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, CancellationToken.None);
+            var storedValue = await _repository.GetNotificationAddress(userId, partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.False(result);
+            Assert.NotNull(storedValue);
+            Assert.Single(storedValue.UserPartyContactInfoResources);
+            Assert.Equal("res1", storedValue.UserPartyContactInfoResources[0].ResourceId);
+            Assert.Equal("some@value.com", storedValue.EmailAddress);
+        }
+
+        [Fact]
+        public async Task AddOrUpdateNotificationAddressAsync_WhenEditingResources_ReturnsFalse()
+        {
+            // arrange
+            int userId = 1;
+            Guid partyUuid = Guid.NewGuid();
+            var contactInfo = new UserPartyContactInfo
+            {
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = string.Empty,
+                UserPartyContactInfoResources =
+                [
+                    new() { ResourceId = "res1" },
+                ]
+            };
+            var updatedContactInfo = new UserPartyContactInfo
+            {
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = "some@value.com",
+                UserPartyContactInfoResources =
+                [
+                    new() { ResourceId = "res2" } 
+                ]
+            };
+            await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
+
+            // Act
+            var result = await _repository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, CancellationToken.None);
+            var storedValue = await _repository.GetNotificationAddress(userId, partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.False(result);
+            Assert.NotNull(storedValue);
+            Assert.Single(storedValue.UserPartyContactInfoResources);
+            Assert.Equal("res2", storedValue.UserPartyContactInfoResources[0].ResourceId);
+            Assert.Equal("some@value.com", storedValue.EmailAddress);
+        }
     }
 }

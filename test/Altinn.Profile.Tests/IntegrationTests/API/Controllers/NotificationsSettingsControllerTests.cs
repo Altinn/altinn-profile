@@ -122,6 +122,36 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
+        public async Task PutNotificationAddress_WhenContactInfoIsInvalid_ReturnsBadRequest()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+
+            var userPartyContactInfo = new ProfessionalNotificationAddressRequest
+            {
+                EmailAddress = "test@@example.com",
+                PhoneNumber = "++",
+                ResourceIncludeList = ["urn:altinn:resource:example"]
+            };
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(userPartyContactInfo, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
         public async Task PutNotificationAddress_WhenContactInfoIsNew_ReturnsCreated()
         {
             // Arrange
