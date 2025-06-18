@@ -139,7 +139,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync("123456789");
 
             var childUnit = _testdata.Where(o => input.OrganizationNumbers.Contains(o.OrganizationNumber));
-            var parentUnit = _testdata.Where(o => o.OrganizationNumber == "123456789").First();
+            var parentUnit = _testdata.First(o => o.OrganizationNumber == "123456789");
 
             _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
                 .SetupSequence(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))

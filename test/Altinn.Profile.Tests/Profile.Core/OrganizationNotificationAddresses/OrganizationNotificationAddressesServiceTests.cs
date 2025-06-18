@@ -119,7 +119,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             _repository.Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync([]);
             _repository.SetupSequence(r => r.GetOrganizationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == parentUnit).First());
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == parentUnit));
 
             _registerClient.Setup(r => r.GetMainUnit(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(parentUnit);
