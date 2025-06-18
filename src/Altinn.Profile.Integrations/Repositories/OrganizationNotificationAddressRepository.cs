@@ -73,7 +73,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             return 0;
         }
 
-        var organization = await GetOrganizationAsync(orgNumber);
+        var organization = await GetOrganizationDEAsync(orgNumber, CancellationToken.None);
         if (organization is null)
         {
             return await CreateOrganizationWithNotificationAddress(orgNumber, address);
@@ -116,13 +116,13 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    public async Task<OrganizationDE?> GetOrganizationAsync(string orgNumber)
+    public async Task<OrganizationDE?> GetOrganizationDEAsync(string orgNumber, CancellationToken cancellationToken)
     {
-        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
         return await databaseContext.Organizations
                 .Include(o => o.NotificationAddresses)
-                .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == orgNumber);
+                .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == orgNumber, cancellationToken);
     }
     
     private async Task<int> CreateOrganizationWithNotificationAddress(string orgNumber, Entry address)
@@ -142,6 +142,14 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
         _telemetry?.AddressAdded();
 
         return await databaseContext.SaveChangesAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<Organization?> GetOrganizationAsync(string organizationNumber, CancellationToken cancellationToken)
+    {
+        var organization = await GetOrganizationDEAsync(organizationNumber, cancellationToken);
+
+        return _mapper.Map<Organization>(organization);
     }
 
     /// <inheritdoc/>

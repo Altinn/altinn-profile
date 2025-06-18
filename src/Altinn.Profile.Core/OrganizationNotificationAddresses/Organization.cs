@@ -14,5 +14,16 @@
         /// A collection of notification addresses associated with this organization
         /// </summary>
         public List<NotificationAddress>? NotificationAddresses { get; set; }
+
+        private string _addressOrigin = string.Empty;
+
+        /// <summary>
+        /// OrganizationNumber of the organization where the address was found
+        /// </summary>
+        public string AddressOrigin
+        {
+            get => string.IsNullOrEmpty(_addressOrigin) ? OrganizationNumber : _addressOrigin;
+            init => _addressOrigin = value;
+        }
     }
 }

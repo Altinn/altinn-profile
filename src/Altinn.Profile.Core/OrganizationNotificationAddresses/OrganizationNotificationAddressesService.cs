@@ -7,16 +7,17 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
     /// </summary>
     /// <param name="orgRepository">The repository for organization notification addresses</param>
     /// <param name="updateClient">The client for updating organization notification addresses</param>
-    public class OrganizationNotificationAddressesService(IOrganizationNotificationAddressRepository orgRepository, IOrganizationNotificationAddressUpdateClient updateClient) : IOrganizationNotificationAddressesService
+    /// <param name="registerClient">The client for interacting with the register</param>
+    public class OrganizationNotificationAddressesService(IOrganizationNotificationAddressRepository orgRepository, IOrganizationNotificationAddressUpdateClient updateClient, IRegisterClient registerClient) : IOrganizationNotificationAddressesService
     {
         private readonly IOrganizationNotificationAddressRepository _orgRepository = orgRepository;
         private readonly IOrganizationNotificationAddressUpdateClient _updateClient = updateClient;
+        private readonly IRegisterClient _registerClient = registerClient;
 
         /// <inheritdoc/>
         public async Task<(NotificationAddress Address, bool IsNew)> CreateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken)
         {
-            var orgs = await _orgRepository.GetOrganizationsAsync([organizationNumber], cancellationToken);
-            var org = orgs.FirstOrDefault();
+            var org = await _orgRepository.GetOrganizationAsync(organizationNumber, cancellationToken);
             org ??= new Organization { OrganizationNumber = organizationNumber, NotificationAddresses = [] };
 
             var existingAddress = org.NotificationAddresses?.FirstOrDefault(x => x.FullAddress == notificationAddress.FullAddress && x.AddressType == notificationAddress.AddressType);
@@ -40,8 +41,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// <param name="cancellationToken">To cancel the request before it is finished</param>
         public async Task<(NotificationAddress? Address, bool IsDuplicate)> UpdateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken)
         {
-            var orgs = await _orgRepository.GetOrganizationsAsync([organizationNumber], cancellationToken);
-            var org = orgs.FirstOrDefault();
+            var org = await _orgRepository.GetOrganizationAsync(organizationNumber, cancellationToken);
 
             if (org == null)
             {
@@ -66,8 +66,8 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
 
             return (updatedNotificationAddress, false);
         }
-        
-         /// <summary>
+
+        /// <summary>
         /// Method for deleting a notification addresses for an organization. Data is written primarily to an <see cref="IOrganizationNotificationAddressUpdateClient"/> and lastly to the <see cref="IOrganizationNotificationAddressRepository"/>.
         /// </summary>
         /// <param name="organizationNumber">An organization number to indicate which organization to update addresses for</param>
@@ -75,8 +75,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// <param name="cancellationToken">To cancel the request before it is finished</param>
         public async Task<NotificationAddress?> DeleteNotificationAddress(string organizationNumber, int notificationAddressId, CancellationToken cancellationToken)
         {
-            var orgs = await _orgRepository.GetOrganizationsAsync([organizationNumber], cancellationToken);
-            var org = orgs.FirstOrDefault();
+            var org = await _orgRepository.GetOrganizationAsync(organizationNumber, cancellationToken);
 
             if (org == null)
             {
@@ -102,11 +101,45 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddresses(List<string> organizationNumbers, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddresses(List<string> organizationNumbers, CancellationToken cancellationToken, bool useAddressFromMainUnitIfEmpty = false)
         {
             var result = await _orgRepository.GetOrganizationsAsync(organizationNumbers, cancellationToken);
 
+            if (useAddressFromMainUnitIfEmpty)
+            {
+                return await GetOrganizationsWithNotificationAddressesFromMainUnit(organizationNumbers, [.. result], cancellationToken);
+            }
+
             return result;
+        }
+
+        private async Task<IEnumerable<Organization>> GetOrganizationsWithNotificationAddressesFromMainUnit(List<string> organizationNumbers, List<Organization> organizationList, CancellationToken cancellationToken)
+        {
+            var orgsMissingAddress = organizationNumbers.Except(organizationList.Select(o => o.OrganizationNumber));
+            foreach (var organization in orgsMissingAddress)
+            {
+                var mainUnit = await _registerClient.GetMainUnit(organization, cancellationToken);
+
+                if (mainUnit == null)
+                {
+                    continue;  // No main unit found, skip to next organization
+                }
+
+                var mainUnitResult = await _orgRepository.GetOrganizationAsync(mainUnit, cancellationToken);
+                if (mainUnitResult != null)
+                {
+                    var orgWithMainUnitAddress = new Organization
+                    {
+                        OrganizationNumber = organization,
+                        AddressOrigin = mainUnitResult.OrganizationNumber,
+                        NotificationAddresses = mainUnitResult.NotificationAddresses
+                    };
+
+                    organizationList.Add(orgWithMainUnitAddress);
+                }
+            }
+
+            return organizationList;
         }
     }
 }

@@ -14,24 +14,20 @@ namespace Altinn.Profile.Controllers
     /// <summary>
     /// Controller for organization notifications address API endpoints for internal consumption (e.g. Notifications) requiring neither authenticated user token nor access token authorization.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="OrgNotificationAddressController"/> class.
+    /// </remarks>
     [Route("profile/api/v1/organizations/notificationaddresses")]
     [ApiExplorerSettings(IgnoreApi = true)]
     [Consumes("application/json")]
     [Produces("application/json")]
-    public class OrgNotificationAddressController : ControllerBase
+    public class OrgNotificationAddressController(IOrganizationNotificationAddressesService notificationAddressService) : ControllerBase
     {
-        private readonly IOrganizationNotificationAddressesService _notificationAddressService;
+        private readonly IOrganizationNotificationAddressesService _notificationAddressService = notificationAddressService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OrgNotificationAddressController"/> class.
-        /// </summary>
-        public OrgNotificationAddressController(IOrganizationNotificationAddressesService notificationAddressService)
-        {
-            _notificationAddressService = notificationAddressService;
-        }
-
-        /// <summary>
-        /// Endpoint looking up the notification addresses for the organization provided in the lookup object in the request body
+        /// Endpoint looking up the notification addresses for the organization provided in the lookup object in the request body.
+        /// If the organization has no notification addresses registered, the main unit address will be returned if it exists.
         /// </summary>
         /// <returns>Returns an overview of the user registered notification addresses for the provided organization</returns>
         [HttpPost("lookup")]
@@ -41,10 +37,10 @@ namespace Altinn.Profile.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return ValidationProblem(ModelState);
             }
 
-            var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses(orgContactPointLookup.OrganizationNumbers, cancellationToken);
+            var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses(orgContactPointLookup.OrganizationNumbers, cancellationToken, true);
 
             OrgNotificationAddressesResponse result = MapResult(organizations);
             return Ok(result);
@@ -58,6 +54,7 @@ namespace Altinn.Profile.Controllers
                 var contactPoints = new NotificationAddresses
                 {
                     OrganizationNumber = organization.OrganizationNumber,
+                    AddressOrigin = organization.AddressOrigin,
                 };
 
                 if (organization.NotificationAddresses?.Count > 0)

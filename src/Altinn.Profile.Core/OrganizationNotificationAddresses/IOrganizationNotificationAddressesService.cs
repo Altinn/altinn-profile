@@ -26,8 +26,9 @@ public interface IOrganizationNotificationAddressesService
     /// </summary>
     /// <param name="organizationNumbers">A list of organization numbers to lookup contact points for</param>
     /// <param name="cancellationToken">To cancel the request before it is finished</param>
+    /// <param name="useAddressFromMainUnitIfEmpty">Indicates whether to use the address from the main unit if no addresses are registered for the organization</param>
     /// <returns>The notification addresses or a boolean if failure.</returns>
-    Task<IEnumerable<Organization>> GetOrganizationNotificationAddresses(List<string> organizationNumbers, CancellationToken cancellationToken);
+    Task<IEnumerable<Organization>> GetOrganizationNotificationAddresses(List<string> organizationNumbers, CancellationToken cancellationToken, bool useAddressFromMainUnitIfEmpty = false);
 
     /// <summary>
     /// Method for deleting a notification addresses for an organization
