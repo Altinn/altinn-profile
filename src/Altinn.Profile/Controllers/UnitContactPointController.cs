@@ -46,9 +46,16 @@ public class UnitContactPointController : ControllerBase
     /// </returns>
     [HttpPost("lookup")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Produces("application/json")]
     public async Task<ActionResult<UnitContactPointsList>> PostLookup(
         [FromBody] UnitContactPointLookup unitContactPointLookup)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         Result<UnitContactPointsList, bool> result = 
             await _contactPointsService.GetUserRegisteredContactPoints(unitContactPointLookup);
 
