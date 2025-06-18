@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Integrations.Entities
+﻿namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 {
     /// <summary>
     /// Data model for the personal notification address for an organization
@@ -23,6 +23,6 @@
         /// <summary>
         /// The contact info the resource is associated with
         /// </summary>
-        public required virtual UserPartyContactInfo UserPartyContactInfo { get; set; }
+        public virtual UserPartyContactInfo? UserPartyContactInfo { get; set; }
     }
 }

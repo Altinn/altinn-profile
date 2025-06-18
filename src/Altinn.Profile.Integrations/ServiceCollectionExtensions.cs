@@ -86,6 +86,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IOrganizationNotificationAddressSyncJob, OrganizationNotificationAddressUpdateJob>();
 
         services.AddScoped<IPartyGroupRepository, PartyGroupRepository>();
+        services.AddScoped<IProfessionalNotificationsRepository, ProfessionalNotificationsRepository>();
 
         services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
     }

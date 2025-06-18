@@ -51,6 +51,8 @@ public class WebApplicationFactorySetup<T>(WebApplicationFactory<T> webApplicati
 
     public Mock<IPartyGroupRepository> PartyGroupRepositoryMock { get; set; } = new();
 
+    public Mock<IProfessionalNotificationsRepository> ProfessionalNotificationsRepositoryMock { get; set; } = new();
+
     public HttpClient GetTestServerClient(IPDP pdp = null)
     {
         MemoryCache memoryCache = new(new MemoryCacheOptions());
@@ -82,6 +84,7 @@ public class WebApplicationFactorySetup<T>(WebApplicationFactory<T> webApplicati
                 services.AddSingleton(OrganizationNotificationAddressRepositoryMock.Object);
                 services.AddSingleton(RegisterClientMock.Object);
                 services.AddSingleton(PartyGroupRepositoryMock.Object);
+                services.AddSingleton(ProfessionalNotificationsRepositoryMock.Object);
 
                 if (pdp != null)
                 {
