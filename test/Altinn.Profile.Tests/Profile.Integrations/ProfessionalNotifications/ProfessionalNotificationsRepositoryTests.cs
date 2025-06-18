@@ -86,7 +86,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             await SeedUserPartyContactInfo(userId, partyUuid, "test@example.com", "12345678", resources);
 
             // Act
-            var result = await _repository.GetNotificationAddress(userId, partyUuid, CancellationToken.None);
+            var result = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
@@ -107,7 +107,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             Guid partyUuid = Guid.NewGuid();
 
             // Act
-            var result = await _repository.GetNotificationAddress(userId, partyUuid, CancellationToken.None);
+            var result = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
 
             // Assert
             Assert.Null(result);
@@ -125,7 +125,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
 
             // Act & Assert
             await Assert.ThrowsAsync<OperationCanceledException>(
-                () => _repository.GetNotificationAddress(userId, partyUuid, cts.Token));
+                () => _repository.GetNotificationAddressAsync(userId, partyUuid, cts.Token));
         }
 
         [Fact]
@@ -150,10 +150,18 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 PartyUuid = partyUuid,
                 EmailAddress = string.Empty
             };
+
+            var secondCcontactInfo = new UserPartyContactInfo
+            {
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = "updated@email.com"
+            };
+
             await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
 
             // Act
-            var result = await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
+            var result = await _repository.AddOrUpdateNotificationAddressAsync(secondCcontactInfo, CancellationToken.None);
 
             // Assert
             Assert.False(result);
@@ -190,7 +198,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
 
             // Act
             var result = await _repository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, CancellationToken.None);
-            var storedValue = await _repository.GetNotificationAddress(userId, partyUuid, CancellationToken.None);
+            var storedValue = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
 
             // Assert
             Assert.False(result);
@@ -230,7 +238,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
 
             // Act
             var result = await _repository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, CancellationToken.None);
-            var storedValue = await _repository.GetNotificationAddress(userId, partyUuid, CancellationToken.None);
+            var storedValue = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
 
             // Assert
             Assert.False(result);

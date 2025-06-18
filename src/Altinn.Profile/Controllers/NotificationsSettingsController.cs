@@ -56,7 +56,7 @@ namespace Altinn.Profile.Controllers
                 return BadRequest("Party UUID cannot be empty.");
             }
 
-            var notificationAddress = await _professionalNotificationsService.GetNotificationAddresses(userId, partyUuid, cancellationToken);
+            var notificationAddress = await _professionalNotificationsService.GetNotificationAddressAsync(userId, partyUuid, cancellationToken);
 
             if (notificationAddress == null)
             {
@@ -111,11 +111,11 @@ namespace Altinn.Profile.Controllers
                     ResourceId = resource
                 }).ToList()
             };
-            var added = await _professionalNotificationsService.AddOrUpdateNotificationAddressesAsync(userPartyContactInfo, cancellationToken);
+            var added = await _professionalNotificationsService.AddOrUpdateNotificationAddressAsync(userPartyContactInfo, cancellationToken);
 
             if (added)
             {
-                return Created($"profile/api/v1/users/current/notificationsettings/parties/{partyUuid}", null);
+                return CreatedAtAction(nameof(Get), new { partyUuid }, null);
             }
 
             return NoContent();

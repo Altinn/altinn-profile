@@ -48,7 +48,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _webApplicationFactorySetup
                 .ProfessionalNotificationsRepositoryMock
-                .Setup(x => x.GetNotificationAddress(UserId, partyGuid, It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(userPartyContactInfo);
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
@@ -85,7 +85,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _webApplicationFactorySetup
                 .ProfessionalNotificationsRepositoryMock
-                .Setup(x => x.GetNotificationAddress(UserId, partyGuid, It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((UserPartyContactInfo)null);
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();

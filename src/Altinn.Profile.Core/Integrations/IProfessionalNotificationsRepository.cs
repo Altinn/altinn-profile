@@ -14,11 +14,11 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="partyUuid">The UUID of the party.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task with the return value containing the identified notification addresses or null if there are none.</returns>
-        Task<UserPartyContactInfo?> GetNotificationAddress(int userId, Guid partyUuid, CancellationToken cancellationToken);
+        Task<UserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken);
 
         /// <summary>
         /// Adds a new or updates an existing notification address for a user and party.
-        /// Returns <c>true</c> if an existing record was updated, <c>false</c> if a new record was created.
+        /// Returns <c>true</c> if a new record was created, <c>false</c> if an existing record was updated.
         /// </summary>
         /// <param name="contactInfo">The contact info to be added</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>

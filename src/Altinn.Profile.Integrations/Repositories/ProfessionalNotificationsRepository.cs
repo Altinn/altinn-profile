@@ -11,7 +11,7 @@ namespace Altinn.Profile.Integrations.Repositories
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
         /// <inheritdoc/>
-        public async Task<UserPartyContactInfo?> GetNotificationAddress(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        public async Task<UserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
