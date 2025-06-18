@@ -1,17 +1,17 @@
 ﻿namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 {
     /// <summary>
-    /// Interface for managing professional notification addresses.
+    /// Represents an implementation contract for a business service that can handle professional notification addresses.
     /// </summary>
     public interface IProfessionalNotificationsService
     {
         /// <summary>
-        /// Retrieves the notification addresses for a given user and party.
+        /// Retrieves the notification addresses that the given user has associated with the given party.
         /// </summary>
         /// <param name="userId">The ID of the user.</param>
         /// <param name="partyUuid">The UUID of the party.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
+        /// <returns>A task with the return value containing the identified notification addresses or null if there are none.</returns>
         Task<UserPartyContactInfo?> GetNotificationAddresses(int userId, Guid partyUuid, CancellationToken cancellationToken);
     }
 }

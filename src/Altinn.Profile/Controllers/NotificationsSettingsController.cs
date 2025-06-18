@@ -13,16 +13,21 @@ namespace Altinn.Profile.Controllers
     /// <summary>
     /// Controller for organizing the notification addresses a user has registered for parties
     /// </summary>
-    /// <remarks>
-    /// Initializes a new instance of the <see cref="NotificationsSettingsController"/> class.
-    /// </remarks>
     [Authorize]
     [Route("profile/api/v1/users/current/notificationsettings")]
     [Consumes("application/json")]
     [Produces("application/json")]
-    public class NotificationsSettingsController(IProfessionalNotificationsService professionalNotificationsService) : ControllerBase
+    public class NotificationsSettingsController : ControllerBase
     {
-        private readonly IProfessionalNotificationsService _professionalNotificationsService = professionalNotificationsService;
+        private readonly IProfessionalNotificationsService _professionalNotificationsService;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NotificationsSettingsController"/> class.
+        /// </summary>
+        public NotificationsSettingsController(IProfessionalNotificationsService professionalNotificationsService)
+        {
+             _professionalNotificationsService = professionalNotificationsService;
+        }
 
         /// <summary>
         /// Get the notification addresses the current user has registered for a party
@@ -53,7 +58,7 @@ namespace Altinn.Profile.Controllers
 
             if (notificationAddress == null)
             {
-                return NotFound(new { Message = "Notification addresses not found for the specified user and party." });
+                return NotFound("Notification addresses not found for the specified user and party.");
             }
 
             var response = new ProfessionalNotificationAddresses
