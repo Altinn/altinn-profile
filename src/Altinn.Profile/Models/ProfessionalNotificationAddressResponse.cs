@@ -5,7 +5,7 @@ using System;
 namespace Altinn.Profile.Models
 {
     /// <summary>
-    /// Data model for the personal notification address for an organization
+    /// Response model for the professional notification address for an organization, also called personal notification address.
     /// </summary>
     public class ProfessionalNotificationAddressResponse : ProfessionalNotificationAddress
     {

@@ -76,7 +76,7 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
-        /// Get the notification addresses the current user has registered for a party
+        /// Add or update the notification addresses the current user has registered for a party
         /// </summary>
         [HttpPut("parties/{partyUuid:guid}")]
         [ProducesResponseType(StatusCodes.Status201Created)]

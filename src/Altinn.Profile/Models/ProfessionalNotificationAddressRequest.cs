@@ -1,13 +1,9 @@
 ﻿#nullable enable
 
-using System;
-using System.Collections.Generic;
-using Altinn.Profile.Validators;
-
 namespace Altinn.Profile.Models
 {
     /// <summary>
-    /// Data model for the personal notification address for an organization
+    /// Request model for the professional notification address for an organization, also called personal notification address.
     /// </summary>
     public class ProfessionalNotificationAddressRequest : ProfessionalNotificationAddress
     {

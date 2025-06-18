@@ -36,7 +36,7 @@ namespace Altinn.Profile.Validators
                 "Email" => _emailRegexPattern,
                 "Phone" => _phoneRegexPattern,
                 "CountryCode" => _countryCodeRegexPattern,
-                _ => string.Empty
+                _ => throw new ArgumentException($"Unknown input type: {inputType}", nameof(inputType)),
             };
         }
     }

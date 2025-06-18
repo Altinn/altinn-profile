@@ -44,8 +44,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 }
             };
 
-            var resource = 
-
             _webApplicationFactorySetup
                 .ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.GetNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
@@ -53,7 +51,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -90,7 +88,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            HttpRequestMessage httpRequestMessage = CreateGetRequest(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -225,9 +223,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
 
-        private static HttpRequestMessage CreateGetRequest(HttpMethod method, int userId, string requestUri)
+        private static HttpRequestMessage CreateGetRequest(int userId, string requestUri)
         {
-            HttpRequestMessage httpRequestMessage = new(method, requestUri);
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, requestUri);
             httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
             return httpRequestMessage;
         }
