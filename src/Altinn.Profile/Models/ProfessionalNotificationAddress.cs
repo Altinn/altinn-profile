@@ -2,32 +2,25 @@
 
 using System;
 using System.Collections.Generic;
+using Altinn.Profile.Validators;
 
 namespace Altinn.Profile.Models
 {
     /// <summary>
     /// Data model for the personal notification address for an organization
     /// </summary>
-    public class ProfessionalNotificationAddresses
+    public abstract class ProfessionalNotificationAddress
     {
-        /// <summary>
-        /// The user id of logged-in user for whom the specific contact information belongs to.
-        /// </summary>
-        public int UserId { get; set; }
-
-        /// <summary>
-        /// Id of the party
-        /// </summary>
-        public Guid PartyUuid { get; set; }
-
         /// <summary>
         /// The email address. May be null if no email address is set.
         /// </summary>
+        [CustomRegexForNotificationAddresses("ProfessionalEmail")]
         public string? EmailAddress { get; set; }
 
         /// <summary>
         /// The phone number. May be null if no phone number is set. 
         /// </summary>
+        [CustomRegexForNotificationAddresses("ProfessionalPhone")]
         public string? PhoneNumber { get; set; }
 
         /// <summary>
