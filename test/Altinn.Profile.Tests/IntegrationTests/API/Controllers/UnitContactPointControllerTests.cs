@@ -94,19 +94,22 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Theory]
-        [InlineData("not json")]
+        [InlineData("not deserialiable to input model")]
+        [InlineData("{\"organizationNumbers\":[null],\"resourceId\":null}")]
+        [InlineData("{\"organizationNumbers\":null,\"resourceId\":\"resurs\"}")]
         public async Task PostLookup_InvalidInputValues_ReturnsBadRequest(string input)
         {
             // Arrange
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
-                Content = new StringContent(
-                    JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+                Content = new StringContent(input, System.Text.Encoding.UTF8, "application/json")
             };
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            var responseContent = await response.Content.ReadAsStringAsync();
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
