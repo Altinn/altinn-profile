@@ -46,9 +46,43 @@ namespace Altinn.Profile.Integrations.Repositories
             {
                 existing.EmailAddress = contactInfo.EmailAddress;
                 existing.PhoneNumber = contactInfo.PhoneNumber;
-                existing.UserPartyContactInfoResources = contactInfo.UserPartyContactInfoResources;
 
-                // This is also adding, removing or updating the records in the UserPartyContactInfoResources collection, if any
+                // Synchronize the UserPartyContactInfoResources collection
+                var incomingResourceIds = contactInfo.UserPartyContactInfoResources?.Select(r => r.ResourceId).ToHashSet() ?? new HashSet<string>();
+                var existingResourceIds = existing.UserPartyContactInfoResources?.Select(r => r.ResourceId).ToHashSet() ?? new HashSet<string>();
+
+                // Remove resources that are no longer present
+                if (existing.UserPartyContactInfoResources?.Count > 0)
+                {
+                    var resourcesToRemove = existing.UserPartyContactInfoResources
+                        .Where(r => !incomingResourceIds.Contains(r.ResourceId))
+                        .ToList();
+
+                    foreach (var resourceToRemove in resourcesToRemove)
+                    {
+                        existing.UserPartyContactInfoResources.Remove(resourceToRemove);
+                    }
+                }
+
+                // Add new resources that don't exist yet
+                if (contactInfo.UserPartyContactInfoResources?.Count > 0)
+                {
+                    existing.UserPartyContactInfoResources ??= [];
+
+                    var newResources = contactInfo.UserPartyContactInfoResources
+                        .Where(r => !existingResourceIds.Contains(r.ResourceId))
+                        .ToList();
+
+                    foreach (var newResource in newResources)
+                    {
+                        existing.UserPartyContactInfoResources.Add(new UserPartyContactInfoResource
+                        {
+                            ResourceId = newResource.ResourceId,
+                            UserPartyContactInfoId = existing.UserPartyContactInfoId
+                        });
+                    }
+                }
+
                 databaseContext.UserPartyContactInfo.Update(existing);
                 wasAdded = false;
             }
