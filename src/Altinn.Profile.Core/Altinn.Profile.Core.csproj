@@ -12,8 +12,8 @@
   <ItemGroup>
     <PackageReference Include="Altinn.ApiClients.Maskinporten" Version="9.2.1" />
     <PackageReference Include="Altinn.Platform.Models" Version="1.6.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.5" />
-    <PackageReference Include="Scrutor" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
+    <PackageReference Include="Scrutor" Version="6.1.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)'=='Debug'">
