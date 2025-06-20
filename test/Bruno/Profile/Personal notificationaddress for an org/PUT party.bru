@@ -1,0 +1,25 @@
+meta {
+  name: PUT party
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{ProfileBaseAddress}}/api/v1/users/current/notificationsettings/parties/{{partyUuid}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "emailAddress": "test@test.no",
+    "phoneNumber": "+1234567890",
+    "resourceIncludeList": [
+      "some-val"
+    ]
+  }
+}
+
+script:pre-request {
+  bru.runRequest("TokenGenerator/end user token")
+}
