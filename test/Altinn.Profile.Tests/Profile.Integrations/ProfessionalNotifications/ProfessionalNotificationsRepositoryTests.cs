@@ -231,7 +231,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 EmailAddress = string.Empty,
                 UserPartyContactInfoResources =
                 [
-                    new() { ResourceId = "res1" },
+                    new() { ResourceId = "urn:altinn:resource:res1" },
                 ]
             };
             var updatedContactInfo = new UserPartyContactInfo
@@ -241,7 +241,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 EmailAddress = "some@value.com",
                 UserPartyContactInfoResources =
                 [
-                    new() { ResourceId = "res2" } 
+                    new() { ResourceId = "urn:altinn:resource:res2" } 
                 ]
             };
             await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
@@ -254,7 +254,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             Assert.False(result);
             Assert.NotNull(storedValue);
             Assert.Single(storedValue.UserPartyContactInfoResources);
-            Assert.Equal("res2", storedValue.UserPartyContactInfoResources[0].ResourceId);
+            Assert.Equal("urn:altinn:resource:res2", storedValue.UserPartyContactInfoResources[0].ResourceId);
             Assert.Equal("some@value.com", storedValue.EmailAddress);
         }
     }

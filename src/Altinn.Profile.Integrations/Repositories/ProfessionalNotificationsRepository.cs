@@ -24,6 +24,7 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
+
         public async Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
@@ -51,7 +52,7 @@ namespace Altinn.Profile.Integrations.Repositories
                 if (existing.UserPartyContactInfoResources?.Count > 0)
                 {
                     var resourcesToRemove = existing.UserPartyContactInfoResources
-                        .Where(r => !incomingResourceIds.Contains(r.ResourceId));
+                        .Where(r => !incomingResourceIds.Contains(r.ResourceId)).ToList();
 
                     foreach (var resourceToRemove in resourcesToRemove)
                     {

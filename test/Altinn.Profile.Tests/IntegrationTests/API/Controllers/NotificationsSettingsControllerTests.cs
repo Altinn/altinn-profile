@@ -10,6 +10,7 @@ using Altinn.Profile.Controllers;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
 using Xunit;
@@ -130,7 +131,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 EmailAddress = "test@@example.com",
                 PhoneNumber = "++",
-                ResourceIncludeList = ["urn:altinn:resource:example"]
+                ResourceIncludeList = ["example"]
             };
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
@@ -147,6 +148,56 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var content = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(content, _serializerOptionsCamelCase);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal("One or more validation errors occurred.", actual.Title);
+
+            Assert.Equal(2, actual.Errors.Count);
+            Assert.NotNull(actual.Errors["EmailAddress"]);
+            Assert.True(actual.Errors.TryGetValue("EmailAddress", out var message));
+            Assert.Contains("The field EmailAddress must match the regular expression", message[0]);
+        }
+
+        [Fact]
+        public async Task PutNotificationAddress_WhenResourcesIsInvalid_ReturnsBadRequest()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+
+            var userPartyContactInfo = new ProfessionalNotificationAddressRequest
+            {
+                EmailAddress = "test@example.com",
+                PhoneNumber = "+4798765432",
+                ResourceIncludeList = ["example"]
+            };
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(userPartyContactInfo, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var content = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(content, _serializerOptionsCamelCase);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal("One or more validation errors occurred.", actual.Title);
+
+            Assert.Single(actual.Errors);
+            Assert.NotNull(actual.Errors["ResourceIncludeList"]);
+            Assert.True(actual.Errors.TryGetValue("ResourceIncludeList", out var message));
+            Assert.Contains("ResourceIncludeList must contain valid URN values starting with 'urn:altinn:resource'", message[0]);
         }
 
         [Fact]
