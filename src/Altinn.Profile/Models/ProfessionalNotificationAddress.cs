@@ -37,7 +37,6 @@ namespace Altinn.Profile.Models
             {
                 yield return new ValidationResult("ResourceIncludeList must contain valid URN values starting with 'urn:altinn:resource'", [nameof(ResourceIncludeList)]);
             }
-
         }
     }
 }

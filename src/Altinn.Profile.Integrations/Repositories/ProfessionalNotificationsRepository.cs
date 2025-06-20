@@ -24,7 +24,6 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
-
         public async Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);

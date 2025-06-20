@@ -214,8 +214,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceIncludeList = ["urn:altinn:resource:example"]
             };
 
-            var resource =
-
             _webApplicationFactorySetup
                 .ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
