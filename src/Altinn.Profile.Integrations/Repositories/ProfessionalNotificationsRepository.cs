@@ -24,10 +24,6 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
-        /// <summary>
-        /// Adds a new or updates an existing notification address for a user and party.
-        /// Returns <c>true</c> if a new record was added, <c>false</c> if an existing record was updated.
-        /// </summary>
         public async Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
@@ -55,8 +51,7 @@ namespace Altinn.Profile.Integrations.Repositories
                 if (existing.UserPartyContactInfoResources?.Count > 0)
                 {
                     var resourcesToRemove = existing.UserPartyContactInfoResources
-                        .Where(r => !incomingResourceIds.Contains(r.ResourceId))
-                        .ToList();
+                        .Where(r => !incomingResourceIds.Contains(r.ResourceId));
 
                     foreach (var resourceToRemove in resourcesToRemove)
                     {
@@ -70,8 +65,7 @@ namespace Altinn.Profile.Integrations.Repositories
                     existing.UserPartyContactInfoResources ??= [];
 
                     var newResources = contactInfo.UserPartyContactInfoResources
-                        .Where(r => !existingResourceIds.Contains(r.ResourceId))
-                        .ToList();
+                        .Where(r => !existingResourceIds.Contains(r.ResourceId));
 
                     foreach (var newResource in newResources)
                     {

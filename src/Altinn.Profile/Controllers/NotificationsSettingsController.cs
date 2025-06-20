@@ -34,6 +34,8 @@ namespace Altinn.Profile.Controllers
         /// <summary>
         /// Get the notification addresses the current user has registered for a party
         /// </summary>
+        /// <param name="partyUuid">The UUID of the party for which the notification address is being set</param>
+        /// <param name="cancellationToken"> Cancellation token for the operation</param>
         [HttpGet("parties/{partyUuid:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -78,6 +80,9 @@ namespace Altinn.Profile.Controllers
         /// <summary>
         /// Add or update the notification addresses the current user has registered for a party
         /// </summary>
+        /// <param name="partyUuid">The UUID of the party for which the notification address is being set</param>
+        /// <param name="request"> The request containing the notification address details</param>
+        /// <param name="cancellationToken"> Cancellation token for the operation</param>
         [HttpPut("parties/{partyUuid:guid}")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
