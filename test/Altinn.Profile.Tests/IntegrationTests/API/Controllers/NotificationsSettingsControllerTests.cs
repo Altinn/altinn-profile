@@ -10,6 +10,7 @@ using Altinn.Profile.Controllers;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
 using Xunit;
@@ -26,7 +27,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         };
 
         [Fact]
-        public async Task GetNotificationAddresses_WhenRepositoryReturnsValues_IsOk()
+        public async Task GetNotificationAddress_WhenRepositoryReturnsValues_IsOk()
         {
             // Arrange
             const int UserId = 2516356;
@@ -44,16 +45,14 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 }
             };
 
-            var resource = 
-
             _webApplicationFactorySetup
                 .ProfessionalNotificationsRepositoryMock
-                .Setup(x => x.GetNotificationAddresses(UserId, partyGuid, It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(userPartyContactInfo);
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -64,7 +63,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             string responseContent = await response.Content.ReadAsStringAsync();
 
-            ProfessionalNotificationAddresses notificationAddresses = JsonSerializer.Deserialize<ProfessionalNotificationAddresses>(
+            ProfessionalNotificationAddressResponse notificationAddresses = JsonSerializer.Deserialize<ProfessionalNotificationAddressResponse>(
                 responseContent, _serializerOptionsCamelCase);
 
             Assert.Equal(UserId, notificationAddresses.UserId);
@@ -77,7 +76,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetNotificationAddresses_WhenRepositoryReturnsNull_ReturnsNotFound()
+        public async Task GetNotificationAddress_WhenRepositoryReturnsNull_ReturnsNotFound()
         {
             // Arrange
             const int UserId = 2516356;
@@ -85,12 +84,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _webApplicationFactorySetup
                 .ProfessionalNotificationsRepositoryMock
-                .Setup(x => x.GetNotificationAddresses(UserId, partyGuid, It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((UserPartyContactInfo)null);
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
-            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -104,7 +103,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetNotificationAddresses_WhenNoUserId_ReturnsUnauthorized()
+        public async Task GetNotificationAddress_WhenNoUserId_ReturnsUnauthorized()
         {
             // Arrange
             var partyGuid = Guid.NewGuid();
@@ -121,9 +120,167 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
-        private static HttpRequestMessage CreateRequest(HttpMethod method, int userId, string requestUri)
+        [Fact]
+        public async Task PutNotificationAddress_WhenContactInfoIsInvalid_ReturnsBadRequest()
         {
-            HttpRequestMessage httpRequestMessage = new(method, requestUri);
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+
+            var userPartyContactInfo = new ProfessionalNotificationAddressRequest
+            {
+                EmailAddress = "test@@example.com",
+                PhoneNumber = "++",
+                ResourceIncludeList = ["example"]
+            };
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(userPartyContactInfo, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var content = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(content, _serializerOptionsCamelCase);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal("One or more validation errors occurred.", actual.Title);
+
+            Assert.Equal(2, actual.Errors.Count);
+            Assert.NotNull(actual.Errors["EmailAddress"]);
+            Assert.True(actual.Errors.TryGetValue("EmailAddress", out var message));
+            Assert.Contains("The field EmailAddress must match the regular expression", message[0]);
+        }
+
+        [Fact]
+        public async Task PutNotificationAddress_WhenResourcesIsInvalid_ReturnsBadRequest()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+
+            var userPartyContactInfo = new ProfessionalNotificationAddressRequest
+            {
+                EmailAddress = "test@example.com",
+                PhoneNumber = "+4798765432",
+                ResourceIncludeList = ["example"]
+            };
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(userPartyContactInfo, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var content = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(content, _serializerOptionsCamelCase);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal("One or more validation errors occurred.", actual.Title);
+
+            Assert.Single(actual.Errors);
+            Assert.NotNull(actual.Errors["ResourceIncludeList"]);
+            Assert.True(actual.Errors.TryGetValue("ResourceIncludeList", out var message));
+            Assert.Contains("ResourceIncludeList must contain valid URN values starting with 'urn:altinn:resource'", message[0]);
+        }
+
+        [Fact]
+        public async Task PutNotificationAddress_WhenContactInfoIsNew_ReturnsCreated()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+
+            var userPartyContactInfo = new ProfessionalNotificationAddressRequest
+            {
+                EmailAddress = "test@example.com",
+                PhoneNumber = "12345678",
+                ResourceIncludeList = ["urn:altinn:resource:example"]
+            };
+
+            _webApplicationFactorySetup
+                .ProfessionalNotificationsRepositoryMock
+                .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(userPartyContactInfo, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task PutNotificationAddress_WhenContactInfoAlreadyExists_ReturnsNoContent()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+
+            var userPartyContactInfo = new ProfessionalNotificationAddressRequest
+            {
+                EmailAddress = "test@example.com",
+                PhoneNumber = "12345678",
+                ResourceIncludeList = ["urn:altinn:resource:example"]
+            };
+
+            var resource =
+
+            _webApplicationFactorySetup
+                .ProfessionalNotificationsRepositoryMock
+                .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(userPartyContactInfo, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
+
+        private static HttpRequestMessage CreateGetRequest(int userId, string requestUri)
+        {
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, requestUri);
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+            return httpRequestMessage;
+        }
+
+        private static HttpRequestMessage AddAuthHeadersToRequest(HttpRequestMessage httpRequestMessage, int userId)
+        {
             string token = PrincipalUtil.GetToken(userId);
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return httpRequestMessage;

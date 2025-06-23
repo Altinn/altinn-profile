@@ -10,9 +10,15 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
 
         /// <inheritdoc/>
-        public Task<UserPartyContactInfo?> GetNotificationAddresses(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        public Task<UserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
         {
-            return _professionalNotificationsRepository.GetNotificationAddresses(userId, partyUuid, cancellationToken);
+            return _professionalNotificationsRepository.GetNotificationAddressAsync(userId, partyUuid, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken)
+        {
+            return _professionalNotificationsRepository.AddOrUpdateNotificationAddressAsync(contactInfo, cancellationToken);
         }
     }
 }

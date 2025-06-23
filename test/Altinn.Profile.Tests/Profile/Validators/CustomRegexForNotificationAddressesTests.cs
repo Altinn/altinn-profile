@@ -5,6 +5,66 @@ namespace Altinn.Profile.Tests.Profile.Validators
 {
     public class CustomRegexForNotificationAddressesTests
     {
+        // Professional notification addresses
+        [Theory]
+        [InlineData("+4798765432")]
+        [InlineData("004798765432")]
+        [InlineData("98765432")]
+        [InlineData("98765")]
+        [InlineData("")]
+        [InlineData(null)]
+        public void CustomRegexForProfessional_WhenPhoneHasAllowedValues_ReturnsValidResult(string input)
+        {
+            var attribute = new CustomRegexForNotificationAddressesAttribute("ProfessionalPhone");
+
+            var validationResult = attribute.IsValid(input);
+
+            Assert.True(validationResult);
+        }
+
+        [Theory]
+        [InlineData(" ")]
+        [InlineData("error")]
+        [InlineData("+47")]
+        public void CustomRegexForProfessional_WhenPhoneHasInvalidValues_IsInvalid(string input)
+        {
+            var attribute = new CustomRegexForNotificationAddressesAttribute("ProfessionalPhone");
+
+            var validationResult = attribute.IsValid(input);
+
+            Assert.False(validationResult);
+        }
+
+        [Theory]
+        [InlineData("test@test.com")]
+        [InlineData("test-test@test.com")]
+        [InlineData("test.test@test.com")]
+        [InlineData("")]
+        [InlineData(null)]
+        public void CustomRegexForProfessional_WhenEmailHasAllowedValues_IsValid(string input)
+        {
+            var attribute = new CustomRegexForNotificationAddressesAttribute("ProfessionalEmail");
+
+            var validationResult = attribute.IsValid(input);
+
+            Assert.True(validationResult);
+        }
+
+        [Theory]
+        [InlineData(" ")]
+        [InlineData("98765432")]
+        [InlineData("test-test@@test.com")]
+        [InlineData("test@test..com")]
+        public void CustomRegexForProfessional_WhenEmailHasWrongFormat_IsInvalid(string input)
+        {
+            var attribute = new CustomRegexForNotificationAddressesAttribute("ProfessionalEmail");
+
+            var validationResult = attribute.IsValid(input);
+
+            Assert.False(validationResult);
+        }
+
+        // Organization notification addresses
         [Theory]
         [InlineData("98765432")]
         [InlineData("98765")]
