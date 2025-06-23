@@ -266,7 +266,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             Guid partyUuid = Guid.NewGuid();
             var resources = new List<UserPartyContactInfoResource>
             {
-                new() {
+                new() 
+                {
                     ResourceId = "res1",
                     UserPartyContactInfo = null! // Will be set by EF
                 }

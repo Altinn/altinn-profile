@@ -15,7 +15,7 @@ namespace Altinn.Profile.Controllers
     /// <summary>
     /// Controller for organizing the notification addresses a user has registered for parties
     /// </summary>
-    // [Authorize]
+    [Authorize]
     [Route("profile/api/v1/users/current/notificationsettings")]
     [Consumes("application/json")]
     [Produces("application/json")]
