@@ -24,5 +24,14 @@
         /// Returns <c>true</c> if a new record was added, <c>false</c> if an existing record was updated.
         /// </returns>
         Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Deletes the notification addresses that the given user has associated with the given party.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <param name="partyUuid">The UUID of the party.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        Task<UserPartyContactInfo?> DeleteNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken);
     }
 }

@@ -85,5 +85,26 @@ namespace Altinn.Profile.Integrations.Repositories
 
             return wasAdded;
         }
+
+        /// <inheritdoc/>
+        public async Task<UserPartyContactInfo?> DeleteNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        {
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+            var userPartyContactInfo = await databaseContext.UserPartyContactInfo
+                .AsNoTracking()
+                .Include(g => g.UserPartyContactInfoResources)
+                .FirstOrDefaultAsync(g => g.UserId == userId && g.PartyUuid == partyUuid, cancellationToken);
+
+            if (userPartyContactInfo == null)
+            {
+                return null;
+            }
+
+            databaseContext.UserPartyContactInfo.Remove(userPartyContactInfo);
+            await databaseContext.SaveChangesAsync(cancellationToken);
+
+            return userPartyContactInfo;
+        }
     }
 }
