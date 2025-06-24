@@ -37,6 +37,11 @@ namespace Altinn.Profile.Models
             {
                 yield return new ValidationResult("ResourceIncludeList must contain valid URN values starting with 'urn:altinn:resource'", [nameof(ResourceIncludeList)]);
             }
+
+            if (string.IsNullOrWhiteSpace(EmailAddress) && string.IsNullOrWhiteSpace(PhoneNumber))
+            {
+                yield return new ValidationResult("Use DELETE endpoint when deleting both EmailAddress and PhoneNumber.", [nameof(EmailAddress)]);
+            }
         }
     }
 }
