@@ -170,7 +170,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var userPartyContactInfo = new ProfessionalNotificationAddressRequest
             {
                 PhoneNumber = string.Empty,
-                ResourceIncludeList = ["example"]
+                ResourceIncludeList = ["urn:altinn:resource:example"]
             };
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
@@ -195,8 +195,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             Assert.Equal(2, actual.Errors.Count);
             Assert.NotNull(actual.Errors["EmailAddress"]);
+            Assert.NotNull(actual.Errors["PhoneNumber"]);
             Assert.True(actual.Errors.TryGetValue("EmailAddress", out var message));
-            Assert.Contains("Use DELETE endpoint when deleting both EmailAddress and PhoneNumber", message[0]);
+            Assert.Contains("The notification setting for a party must include either EmailAddress, PhoneNumber, or both.", message[0]);
         }
 
         [Theory]
