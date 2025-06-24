@@ -13,7 +13,6 @@ using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
-using OpenTelemetry.Resources;
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
@@ -163,7 +162,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         [Theory]
         [InlineData("example")]
-        [InlineData(null)] // Valid URN format
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")] // whitespace
+        [InlineData("urn:altinn:resource")]
         public async Task PutNotificationAddress_WhenResourcesIsInvalid_ReturnsBadRequest(string resource)
         {
             // Arrange
