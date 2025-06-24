@@ -199,8 +199,15 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Contains("Use DELETE endpoint when deleting both EmailAddress and PhoneNumber", message[0]);
         }
 
-        [Fact]
-        public async Task PutNotificationAddress_WhenResourcesIsInvalid_ReturnsBadRequest()
+        [Theory]
+        [InlineData("example")]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")] // whitespace
+        [InlineData("urn:altinn:resource")]
+        [InlineData("urn:altinn:resource:abc")] // Too short resource ID
+        [InlineData("urn:altinn:resource:some*resource")] // Contains invalid char
+        public async Task PutNotificationAddress_WhenResourcesIsInvalid_ReturnsBadRequest(string resource)
         {
             // Arrange
             const int UserId = 2516356;
@@ -210,7 +217,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 EmailAddress = "test@example.com",
                 PhoneNumber = "+4798765432",
-                ResourceIncludeList = ["example"]
+                ResourceIncludeList = [resource]
             };
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
@@ -236,11 +243,55 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Single(actual.Errors);
             Assert.NotNull(actual.Errors["ResourceIncludeList"]);
             Assert.True(actual.Errors.TryGetValue("ResourceIncludeList", out var message));
-            Assert.Contains("ResourceIncludeList must contain valid URN values starting with 'urn:altinn:resource'", message[0]);
+            Assert.Contains("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 4 or more characters of lowercase letter, number, underscore or hyphen", message[0]);
         }
 
         [Fact]
-        public async Task PutNotificationAddress_WhenContactInfoIsNew_ReturnsCreated()
+        public async Task PutNotificationAddress_WhenResourcesContainsDuplicates_ReturnsBadRequest()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+
+            var userPartyContactInfo = new ProfessionalNotificationAddressRequest
+            {
+                EmailAddress = "test@example.com",
+                PhoneNumber = "+4798765432",
+                ResourceIncludeList = ["urn:altinn:resource:example", "urn:altinn:resource:example"]
+            };
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(userPartyContactInfo, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var content = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(content, _serializerOptionsCamelCase);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal("One or more validation errors occurred.", actual.Title);
+
+            Assert.Single(actual.Errors);
+            Assert.NotNull(actual.Errors["ResourceIncludeList"]);
+            Assert.True(actual.Errors.TryGetValue("ResourceIncludeList", out var message));
+            Assert.Contains("ResourceIncludeList cannot contain duplicates", message[0]);
+        }
+
+        [Theory]
+        [InlineData("urn:altinn:resource:example")]
+        [InlineData("urn:altinn:resource:app_other_vale")]
+        [InlineData("urn:altinn:resource:ttd-resource-1")]
+
+        public async Task PutNotificationAddress_WhenContactInfoIsNew_ReturnsCreated(string resource)
         {
             // Arrange
             const int UserId = 2516356;
@@ -250,7 +301,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 EmailAddress = "test@example.com",
                 PhoneNumber = "12345678",
-                ResourceIncludeList = ["urn:altinn:resource:example"]
+                ResourceIncludeList = [resource]
             };
 
             _webApplicationFactorySetup
