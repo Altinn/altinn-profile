@@ -38,7 +38,7 @@ namespace Altinn.Profile.Models
         {
             if (ResourceIncludeList.Any(r => string.IsNullOrWhiteSpace(r) || !ResourceIdRegex().IsMatch(r)))
             {
-                yield return new ValidationResult("ResourceIncludeList must contain valid URN values starting with 'urn:altinn:resource'", [nameof(ResourceIncludeList)]);
+                yield return new ValidationResult("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 4 or more characters of lowercase letter, number, underscore or hyphen)", [nameof(ResourceIncludeList)]);
             }
 
             if (ResourceIncludeList.Count > ResourceIncludeList.Distinct().Count())
