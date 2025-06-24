@@ -166,6 +166,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData("")]
         [InlineData(" ")] // whitespace
         [InlineData("urn:altinn:resource")]
+        [InlineData("urn:altinn:resource:abc")] // Too short resource ID
         public async Task PutNotificationAddress_WhenResourcesIsInvalid_ReturnsBadRequest(string resource)
         {
             // Arrange
