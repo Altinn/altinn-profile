@@ -86,4 +86,31 @@ public class RegisterClient : IRegisterClient
         var mainUnitOrgNumber = responseObject.Data[0].OrganizationIdentifier;
         return mainUnitOrgNumber;
     }
+
+    /// <inheritdoc/>
+    public async Task<string?> GetPartyId(Guid partyUuid, CancellationToken cancellationToken)
+    {
+        var accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "profile");
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            _logger.LogError("Invalid access token generated for org main unit lookup.");
+            return null;
+        }
+
+        var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"v2/internal/parties/identifiers?uuids={partyUuid}");
+
+        requestMessage.Headers.Add("PlatformAccessToken", accessToken);
+
+        var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError("Failed to get partyId for party. Status code: {StatusCode}", response.StatusCode);
+            return null;
+        }
+
+        var responseData = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        return responseData;
+    }
 }
