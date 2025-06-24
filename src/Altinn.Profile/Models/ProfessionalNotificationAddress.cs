@@ -44,6 +44,7 @@ namespace Altinn.Profile.Models
             if (ResourceIncludeList.Count > ResourceIncludeList.Distinct().Count())
             {
                 yield return new ValidationResult("ResourceIncludeList cannot contain duplicates", [nameof(ResourceIncludeList)]);
+            }
 
             if (string.IsNullOrWhiteSpace(EmailAddress) && string.IsNullOrWhiteSpace(PhoneNumber))
             {
