@@ -18,6 +18,6 @@
         /// </summary>
         /// <param name="partyUuid" >The UUID of the party to look up.</param>
         /// <param name="cancellationToken">Cancel the current request</param>
-        Task<string?> GetPartyId(Guid partyUuid, CancellationToken cancellationToken);
+        Task<int?> GetPartyId(Guid partyUuid, CancellationToken cancellationToken);
     }
 }

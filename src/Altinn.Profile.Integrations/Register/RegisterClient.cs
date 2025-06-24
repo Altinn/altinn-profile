@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Altinn.Common.AccessTokenClient.Services;
@@ -88,7 +89,7 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
-    public async Task<string?> GetPartyId(Guid partyUuid, CancellationToken cancellationToken)
+    public async Task<int?> GetPartyId(Guid partyUuid, CancellationToken cancellationToken)
     {
         var accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "profile");
         if (string.IsNullOrEmpty(accessToken))
@@ -109,8 +110,8 @@ public class RegisterClient : IRegisterClient
             return null;
         }
 
-        var responseData = await response.Content.ReadAsStringAsync(cancellationToken);
+        var responseData = await response.Content.ReadFromJsonAsync<PartyIdentifiersResponse>(cancellationToken);
 
-        return responseData;
+        return responseData?.PartyId;
     }
 }

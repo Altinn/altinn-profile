@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Altinn.Authorization.ABAC.Xacml.JsonProfile;
 using Altinn.Common.PEP.Authorization;
-using Altinn.Common.PEP.Helpers;
-using Altinn.Common.PEP.Interfaces;
 using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Integrations.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -22,14 +20,15 @@ namespace Altinn.Profile.Authorization
     /// Initializes a new instance of the <see cref="ResourceAccessHandler"/> class.
     /// </remarks>
     /// <param name="httpContextAccessor">The http context accessor</param>
-    /// <param name="pdp">The pdp</param>
+    /// <param name="authClient">The client to access authorization api</param>
+    /// <param name="registerClient">The client to access register api</param>
     public class PartyAccessHandler(
         IHttpContextAccessor httpContextAccessor,
-        IPDP pdp, IRegisterClient registerclient) : AuthorizationHandler<ResourceAccessRequirement>
+        IAuthorizationClient authClient, IRegisterClient registerClient) : AuthorizationHandler<ResourceAccessRequirement>
     {
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-        private readonly IPDP _pdp = pdp;
-        private readonly IRegisterClient _registerClient = registerclient;
+        private readonly IAuthorizationClient _authorizationClient = authClient;
+        private readonly IRegisterClient _registerClient = registerClient;
         private const string _partyUuid = "partyUuid";
 
         /// <summary>
@@ -45,20 +44,19 @@ namespace Altinn.Profile.Authorization
             var routeData = httpContext.GetRouteData();
             Guid partyUuid = Guid.Parse(routeData.Values[_partyUuid] as string);
 
-            var partyId = _registerClient.GetPartyId(partyUuid, CancellationToken.None);
+            var partyId = await _registerClient.GetPartyId(partyUuid, CancellationToken.None);
 
-            XacmlJsonRequestRoot request = AuthorizationHelper.CreateDecisionRequest(context, requirement, httpContext.GetRouteData());
+            if (partyId == null)
+            {
+                context.Fail();
+                return;
+            }
 
             ClaimsHelper.TryGetUserIdFromClaims(httpContext, out int userId);
 
-            XacmlJsonResponse response = await _pdp.Validate(partyId, userId);
+            bool valid = await _authorizationClient.ValidateSelectedParty(userId, (int)partyId, CancellationToken.None);
 
-            if (response?.Response == null)
-            {
-                throw new InvalidOperationException("The PDP response is null.");
-            }
-
-            if (DecisionHelper.ValidatePdpDecision(response.Response, context.User))
+            if (valid)
             {
                 context.Succeed(requirement);
             }
