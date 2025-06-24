@@ -33,9 +33,14 @@ namespace Altinn.Profile.Models
         /// <inheritdoc/>
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (ResourceIncludeList.Any(r => !r.StartsWith("urn:altinn:resource")))
+            if (ResourceIncludeList.Any(r => string.IsNullOrWhiteSpace(r) || !r.StartsWith("urn:altinn:resource:")))
             {
                 yield return new ValidationResult("ResourceIncludeList must contain valid URN values starting with 'urn:altinn:resource'", [nameof(ResourceIncludeList)]);
+            }
+
+            if (ResourceIncludeList.Count > ResourceIncludeList.Distinct().Count())
+            {
+                yield return new ValidationResult("ResourceIncludeList cannot contain duplicates", [nameof(ResourceIncludeList)]);
             }
         }
     }
