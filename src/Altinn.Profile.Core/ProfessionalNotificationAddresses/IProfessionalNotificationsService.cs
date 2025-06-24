@@ -31,7 +31,7 @@
         /// <param name="userId">The ID of the user.</param>
         /// <param name="partyUuid">The UUID of the party.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <returns>A task with the return value containing the identified notification addresses or null if there are none.</returns>
         Task<UserPartyContactInfo?> DeleteNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken);
     }
 }
