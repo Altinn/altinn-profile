@@ -243,7 +243,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Single(actual.Errors);
             Assert.NotNull(actual.Errors["ResourceIncludeList"]);
             Assert.True(actual.Errors.TryGetValue("ResourceIncludeList", out var message));
-            Assert.Contains("ResourceIncludeList must contain valid URN values starting with 'urn:altinn:resource'", message[0]);
+            Assert.Contains("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 4 or more characters of lowercase letter, number, underscore or hyphen", message[0]);
         }
 
         [Fact]
@@ -286,8 +286,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Contains("ResourceIncludeList cannot contain duplicates", message[0]);
         }
 
-        [Fact]
-        public async Task PutNotificationAddress_WhenContactInfoIsNew_ReturnsCreated()
+        [Theory]
+        [InlineData("urn:altinn:resource:example")]
+        [InlineData("urn:altinn:resource:app_other_vale")]
+        [InlineData("urn:altinn:resource:ttd-resource-1")]
+
+        public async Task PutNotificationAddress_WhenContactInfoIsNew_ReturnsCreated(string resource)
         {
             // Arrange
             const int UserId = 2516356;
@@ -297,7 +301,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 EmailAddress = "test@example.com",
                 PhoneNumber = "12345678",
-                ResourceIncludeList = ["urn:altinn:resource:example"]
+                ResourceIncludeList = [resource]
             };
 
             _webApplicationFactorySetup
