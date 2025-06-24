@@ -44,6 +44,10 @@ namespace Altinn.Profile.Models
             if (ResourceIncludeList.Count > ResourceIncludeList.Distinct().Count())
             {
                 yield return new ValidationResult("ResourceIncludeList cannot contain duplicates", [nameof(ResourceIncludeList)]);
+
+            if (string.IsNullOrWhiteSpace(EmailAddress) && string.IsNullOrWhiteSpace(PhoneNumber))
+            {
+                yield return new ValidationResult("Use DELETE endpoint when deleting both EmailAddress and PhoneNumber.", [nameof(EmailAddress)]);
             }
         }
 

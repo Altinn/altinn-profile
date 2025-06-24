@@ -20,5 +20,11 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         {
             return _professionalNotificationsRepository.AddOrUpdateNotificationAddressAsync(contactInfo, cancellationToken);
         }
+
+        /// <inheritdoc/>
+        public Task<UserPartyContactInfo?> DeleteNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        {
+            return _professionalNotificationsRepository.DeleteNotificationAddressAsync(userId, partyUuid, cancellationToken);
+        }
     }
 }

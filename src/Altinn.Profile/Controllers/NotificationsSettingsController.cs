@@ -125,5 +125,42 @@ namespace Altinn.Profile.Controllers
 
             return NoContent();
         }
+
+        /// <summary>
+        /// Delete the notification addresses the current user has registered for a party
+        /// </summary>
+        /// <param name="partyUuid">The UUID of the party for which the notification address is being deleted</param>
+        /// <param name="cancellationToken"> Cancellation token for the operation</param>
+        [HttpDelete("parties/{partyUuid:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ProfessionalNotificationAddressResponse>> Delete([FromRoute] Guid partyUuid, CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            if (partyUuid == Guid.Empty)
+            {
+                return BadRequest("Party UUID cannot be empty.");
+            }
+
+            var notificationAddress = await _professionalNotificationsService.DeleteNotificationAddressAsync(userId, partyUuid, cancellationToken);
+
+            if (notificationAddress == null)
+            {
+                return NotFound("Notification addresses not found for the specified user and party.");
+            }
+
+            return Ok();
+        }
     }
 }
