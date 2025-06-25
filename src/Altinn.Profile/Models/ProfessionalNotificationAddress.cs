@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Altinn.Profile.Validators;
 
 namespace Altinn.Profile.Models
@@ -11,8 +12,10 @@ namespace Altinn.Profile.Models
     /// <summary>
     /// Data model for the professional notification address for an organization, also called personal notification address.
     /// </summary>
-    public abstract class ProfessionalNotificationAddress :IValidatableObject
+    public abstract partial class ProfessionalNotificationAddress :IValidatableObject
     {
+        private const string _resourceIdRegex = "^urn:altinn:resource:[a-z0-9_-]{4,}$";
+
         /// <summary>
         /// The email address. May be null if no email address is set.
         /// </summary>
@@ -33,10 +36,23 @@ namespace Altinn.Profile.Models
         /// <inheritdoc/>
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (ResourceIncludeList.Any(r => !r.StartsWith("urn:altinn:resource")))
+            if (ResourceIncludeList.Any(r => string.IsNullOrWhiteSpace(r) || !ResourceIdRegex().IsMatch(r)))
             {
-                yield return new ValidationResult("ResourceIncludeList must contain valid URN values starting with 'urn:altinn:resource'", [nameof(ResourceIncludeList)]);
+                yield return new ValidationResult("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 4 or more characters of lowercase letter, number, underscore or hyphen", [nameof(ResourceIncludeList)]);
+            }
+
+            if (ResourceIncludeList.Count > ResourceIncludeList.Distinct().Count())
+            {
+                yield return new ValidationResult("ResourceIncludeList cannot contain duplicates", [nameof(ResourceIncludeList)]);
+            }
+
+            if (string.IsNullOrWhiteSpace(EmailAddress) && string.IsNullOrWhiteSpace(PhoneNumber))
+            {
+                yield return new ValidationResult("The notification setting for a party must include either EmailAddress, PhoneNumber, or both.", [nameof(EmailAddress), nameof(PhoneNumber)]);
             }
         }
+
+        [GeneratedRegex(_resourceIdRegex)]
+        private static partial Regex ResourceIdRegex();
     }
 }

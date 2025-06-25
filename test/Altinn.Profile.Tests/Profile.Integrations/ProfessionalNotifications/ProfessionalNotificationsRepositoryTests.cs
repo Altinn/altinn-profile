@@ -257,5 +257,53 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             Assert.Equal("urn:altinn:resource:res2", storedValue.UserPartyContactInfoResources[0].ResourceId);
             Assert.Equal("some@value.com", storedValue.EmailAddress);
         }
+
+        [Fact]
+        public async Task DeleteNotificationAddress_WhenExists_ReturnsContactInfoWithResources()
+        {
+            // Arrange
+            int userId = 1;
+            Guid partyUuid = Guid.NewGuid();
+            var resources = new List<UserPartyContactInfoResource>
+            {
+                new() 
+                {
+                    ResourceId = "res1",
+                    UserPartyContactInfo = null! // Will be set by EF
+                }
+            };
+            await SeedUserPartyContactInfo(userId, partyUuid, "test@example.com", "12345678", resources);
+
+            // Act
+            var result = await _repository.DeleteNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+
+            var shouldBeEmpty = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(userId, result.UserId);
+            Assert.Equal(partyUuid, result.PartyUuid);
+            Assert.Equal("test@example.com", result.EmailAddress);
+            Assert.Equal("12345678", result.PhoneNumber);
+            Assert.NotNull(result.UserPartyContactInfoResources);
+            Assert.Single(result.UserPartyContactInfoResources);
+            Assert.Equal("res1", result.UserPartyContactInfoResources[0].ResourceId);
+
+            Assert.Null(shouldBeEmpty); // Ensure the contact info is deleted
+        }
+
+        [Fact]
+        public async Task DeleteNotificationAddress_WhenNotExists_ReturnsNull()
+        {
+            // Arrange
+            int userId = 2;
+            Guid partyUuid = Guid.NewGuid();
+
+            // Act
+            var result = await _repository.DeleteNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.Null(result);
+        }
     }
 }
