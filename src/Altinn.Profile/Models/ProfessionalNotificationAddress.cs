@@ -48,7 +48,7 @@ namespace Altinn.Profile.Models
 
             if (string.IsNullOrWhiteSpace(EmailAddress) && string.IsNullOrWhiteSpace(PhoneNumber))
             {
-                yield return new ValidationResult("Use DELETE endpoint when deleting both EmailAddress and PhoneNumber.", [nameof(EmailAddress)]);
+                yield return new ValidationResult("The notification setting for a party must include either EmailAddress, PhoneNumber, or both.", [nameof(EmailAddress), nameof(PhoneNumber)]);
             }
         }
 
