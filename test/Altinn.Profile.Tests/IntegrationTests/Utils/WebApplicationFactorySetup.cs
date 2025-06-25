@@ -4,6 +4,7 @@ using System.Net.Http;
 using Altinn.Common.AccessToken.Services;
 using Altinn.Common.PEP.Interfaces;
 using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Integrations.Authorization;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.SblBridge;
@@ -40,6 +41,8 @@ public class WebApplicationFactorySetup<T>(WebApplicationFactory<T> webApplicati
     public Mock<IOrganizationNotificationAddressUpdateClient> OrganizationNotificationAddressUpdateClientMock { get; set; } = new();
 
     public Mock<IRegisterClient> RegisterClientMock { get; set; } = new();
+
+    public Mock<IAuthorizationClient> AuthorizationClientMock { get; set; } = new();
 
     public Mock<ILogger<UnitProfileClient>> UnitProfileClientLogger { get; set; } = new();
 
@@ -83,6 +86,7 @@ public class WebApplicationFactorySetup<T>(WebApplicationFactory<T> webApplicati
                 services.AddSingleton(OrganizationNotificationAddressUpdateClientMock.Object);
                 services.AddSingleton(OrganizationNotificationAddressRepositoryMock.Object);
                 services.AddSingleton(RegisterClientMock.Object);
+                services.AddSingleton(AuthorizationClientMock.Object);
                 services.AddSingleton(PartyGroupRepositoryMock.Object);
                 services.AddSingleton(ProfessionalNotificationsRepositoryMock.Object);
 

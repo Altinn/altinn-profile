@@ -26,6 +26,15 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
+        private void SetupAuthHandler(WebApplicationFactorySetup<NotificationsSettingsController> _webApplicationFactorySetup, Guid partyGuid, int UserId, bool access = true)
+        {
+            _webApplicationFactorySetup.RegisterClientMock.Setup(x => x.GetPartyId(partyGuid, It.IsAny<CancellationToken>()))
+    .ReturnsAsync((int)partyGuid.GetHashCode()); // Simulate party ID retrieval
+            _webApplicationFactorySetup.AuthorizationClientMock
+                .Setup(x => x.ValidateSelectedParty(UserId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(access);
+        }
+
         [Fact]
         public async Task GetNotificationAddress_WhenRepositoryReturnsValues_IsOk()
         {
@@ -49,6 +58,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.GetNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(userPartyContactInfo);
+            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
@@ -86,6 +96,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.GetNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((UserPartyContactInfo)null);
+            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
@@ -121,6 +132,36 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
+        public async Task PutNotificationAddress_WhenUserIDoesNotHaveAccess_ReturnForbidden()
+        {
+            // Arrange
+            var partyGuid = Guid.NewGuid();
+            var userId = 2516356;
+
+            var userPartyContactInfo = new ProfessionalNotificationAddressRequest
+            {
+                EmailAddress = "test@example.com",
+                PhoneNumber = "+4798765432",
+            };
+
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, userId, false);
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(userPartyContactInfo, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+
+        [Fact]
         public async Task PutNotificationAddress_WhenContactInfoIsInvalid_ReturnsBadRequest()
         {
             // Arrange
@@ -132,7 +173,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 EmailAddress = "test@@example.com",
                 PhoneNumber = "++",
                 ResourceIncludeList = ["example"]
-            };
+            }; 
+            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
@@ -173,6 +215,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 PhoneNumber = "+4798765432",
                 ResourceIncludeList = ["example"]
             };
+            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
@@ -218,6 +261,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
+            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
@@ -248,8 +292,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 PhoneNumber = "12345678",
                 ResourceIncludeList = ["urn:altinn:resource:example"]
             };
-
-            var resource =
+            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
 
             _webApplicationFactorySetup
                 .ProfessionalNotificationsRepositoryMock

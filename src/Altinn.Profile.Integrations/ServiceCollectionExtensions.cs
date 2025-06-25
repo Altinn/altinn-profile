@@ -4,6 +4,7 @@ using Altinn.ApiClients.Maskinporten.Extensions;
 using Altinn.ApiClients.Maskinporten.Services;
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Integrations.Authorization;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Mappings;
@@ -69,6 +70,7 @@ public static class ServiceCollectionExtensions
 
         services.Configure<RegisterSettings>(config.GetSection(nameof(RegisterSettings)));
         services.AddHttpClient<IRegisterClient, RegisterClient>();
+        services.AddHttpClient<IAuthorizationClient, AuthorizationClient>();
 
         services.AddScoped<IPersonService, PersonRepository>();
         services.AddScoped<IPersonUpdater, PersonRepository>();

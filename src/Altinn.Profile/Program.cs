@@ -183,6 +183,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         .AddPolicy(AuthConstants.UserPartyAccess, policy => policy.Requirements.Add(new PartyAccessRequirement()));
 
     services.AddScoped<IAuthorizationHandler, OrgResourceAccessHandler>();
+    services.AddScoped<IAuthorizationHandler, PartyAccessHandler>();
 
     services.AddCoreServices(config);
     services.AddRegisterService(config);

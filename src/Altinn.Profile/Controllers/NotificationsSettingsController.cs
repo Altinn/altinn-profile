@@ -39,6 +39,7 @@ namespace Altinn.Profile.Controllers
         [HttpGet("parties/{partyUuid:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ProfessionalNotificationAddressResponse>> Get([FromRoute] Guid partyUuid, CancellationToken cancellationToken)
         {
@@ -87,6 +88,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> Put([FromRoute] Guid partyUuid, [FromBody] ProfessionalNotificationAddressRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)

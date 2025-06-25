@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Altinn.Common.PEP.Authorization;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -17,14 +16,14 @@ namespace Altinn.Profile.Authorization
     /// in asp.net core
     /// </summary>
     /// <remarks>
-    /// Initializes a new instance of the <see cref="ResourceAccessHandler"/> class.
+    /// Initializes a new instance of the <see cref="PartyAccessHandler"/> class.
     /// </remarks>
     /// <param name="httpContextAccessor">The http context accessor</param>
     /// <param name="authClient">The client to access authorization api</param>
     /// <param name="registerClient">The client to access register api</param>
     public class PartyAccessHandler(
         IHttpContextAccessor httpContextAccessor,
-        IAuthorizationClient authClient, IRegisterClient registerClient) : AuthorizationHandler<ResourceAccessRequirement>
+        IAuthorizationClient authClient, IRegisterClient registerClient) : AuthorizationHandler<PartyAccessRequirement>
     {
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
         private readonly IAuthorizationClient _authorizationClient = authClient;
@@ -38,7 +37,7 @@ namespace Altinn.Profile.Authorization
         /// <param name="context">The context</param>
         /// <param name="requirement">The requirement</param>
         /// <returns>A Task</returns>
-        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, ResourceAccessRequirement requirement)
+        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PartyAccessRequirement requirement)
         {
             HttpContext httpContext = _httpContextAccessor.HttpContext;
             var routeData = httpContext.GetRouteData();
