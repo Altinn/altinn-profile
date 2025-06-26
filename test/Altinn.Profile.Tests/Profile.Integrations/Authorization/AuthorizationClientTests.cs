@@ -1,0 +1,151 @@
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using Altinn.Common.PEP.Configuration;
+using Altinn.Profile.Integrations.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
+using Moq;
+using Moq.Protected;
+using Xunit;
+
+namespace Altinn.Profile.Tests.Profile.Integrations.Authorization
+{
+    public class AuthorizationClientTests
+    {
+        private const string AuthEndpoint = "https://auth.test.local/";
+        private readonly Mock<IOptions<PlatformSettings>> _settingsMock;
+        private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
+
+        public AuthorizationClientTests()
+        {
+            _settingsMock = new Mock<IOptions<PlatformSettings>>();
+            _settingsMock.Setup(s => s.Value).Returns(new PlatformSettings { ApiAuthorizationEndpoint = AuthEndpoint });
+            _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+        }
+
+        private static Mock<HttpMessageHandler> CreateHandler(HttpResponseMessage response, Action<HttpRequestMessage> requestCallback = null)
+        {
+            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+            handlerMock.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync((HttpRequestMessage req, CancellationToken ct) =>
+                {
+                    requestCallback?.Invoke(req);
+                    return response;
+                });
+            return handlerMock;
+        }
+
+        [Fact]
+        public async Task ValidateSelectedParty_Success_ReturnsTrue()
+        {
+            // Arrange
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = JsonContent.Create(true)
+            };
+            var handler = CreateHandler(response, req =>
+            {
+                Assert.Equal(HttpMethod.Get, req.Method);
+                Assert.Contains("parties/42/validate?userid=21", req.RequestUri.ToString());
+                Assert.True(req.Headers.Contains("Authorization"));
+            });
+            var httpClient = new HttpClient(handler.Object);
+
+            var context = new DefaultHttpContext();
+            context.Request.Headers[HeaderNames.Authorization] = "Bearer testtoken";
+            _httpContextAccessorMock.Setup(a => a.HttpContext).Returns(context);
+
+            var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object);
+
+            // Act
+            var result = await client.ValidateSelectedParty(21, 42);
+
+            // Assert
+            Assert.True(result);
+        }
+
+        [Fact]
+        public async Task ValidateSelectedParty_UnsuccessfulStatus_ReturnsFalse()
+        {
+            // Arrange
+            var response = new HttpResponseMessage(HttpStatusCode.Forbidden);
+            var handler = CreateHandler(response);
+            var httpClient = new HttpClient(handler.Object);
+
+            var context = new DefaultHttpContext();
+            context.Request.Headers[HeaderNames.Authorization] = "Bearer testtoken";
+            _httpContextAccessorMock.Setup(a => a.HttpContext).Returns(context);
+
+            var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object);
+
+            // Act
+            var result = await client.ValidateSelectedParty(21, 42);
+
+            // Assert
+            Assert.False(result);
+        }
+
+        [Fact]
+        public async Task ValidateSelectedParty_DeserializationFails_ReturnsFalse()
+        {
+            // Arrange
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("not a bool", System.Text.Encoding.UTF8, "application/json")
+            };
+            var handler = CreateHandler(response);
+            var httpClient = new HttpClient(handler.Object);
+
+            var context = new DefaultHttpContext();
+            context.Request.Headers[HeaderNames.Authorization] = "Bearer testtoken";
+            _httpContextAccessorMock.Setup(a => a.HttpContext).Returns(context);
+
+            var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object);
+
+            // Act
+            var result = await client.ValidateSelectedParty(21, 42);
+
+            // Assert
+            Assert.False(result);
+        }
+
+        [Fact]
+        public async Task ValidateSelectedParty_NoAuthorizationHeader_ReturnsTrue()
+        {
+            // Arrange
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = JsonContent.Create(true)
+            };
+            var handler = CreateHandler(response, req =>
+            {
+                Assert.True(req.Headers.Contains("Authorization"));
+                Assert.Equal(string.Empty, req.Headers.GetValues("Authorization").ToString());
+            });
+            var httpClient = new HttpClient(handler.Object);
+
+            var context = new DefaultHttpContext();
+
+            // No Authorization header set
+            _httpContextAccessorMock.Setup(a => a.HttpContext).Returns(context);
+
+            var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object);
+
+            // Act
+            var result = await client.ValidateSelectedParty(21, 42);
+
+            // Assert
+            Assert.True(result); // The API returns true, so the method should return true even if the header is empty
+        }
+    }
+}

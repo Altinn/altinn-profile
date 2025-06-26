@@ -8,11 +8,11 @@
         /// <summary>
         /// The party id.
         /// </summary>
-        public required int PartyId { get; init; }
+        public int PartyId { get; init; }
 
         /// <summary>
         /// The party uuid.
         /// </summary>
-        public required Guid PartyUuid { get; init; }
+        public Guid PartyUuid { get; init; }
     }
 }

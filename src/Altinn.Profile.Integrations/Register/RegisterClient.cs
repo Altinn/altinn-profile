@@ -112,6 +112,17 @@ public class RegisterClient : IRegisterClient
 
         var responseData = await response.Content.ReadFromJsonAsync<List<PartyIdentifiersResponse>>(cancellationToken);
 
+        if (!(responseData?.Count > 0))
+        {
+            return null;
+        }
+
+        // The response is a list, but assuming the list contains only one item in all cases
+        if (responseData?.Count > 1)
+        {
+            _logger.LogWarning("Get partyId for organization returned multiple results. Using the first one.");
+        }
+
         return responseData?[0].PartyId;
     }
 }

@@ -216,6 +216,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             };
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
 
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
             {
@@ -305,6 +306,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             };
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
 
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
             {
@@ -417,6 +419,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.DeleteNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((UserPartyContactInfo)null);
+            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
@@ -444,6 +447,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.DeleteNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new UserPartyContactInfo());
+            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 
