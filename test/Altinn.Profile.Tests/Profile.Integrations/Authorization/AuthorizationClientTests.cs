@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Altinn.Common.PEP.Configuration;
 using Altinn.Profile.Integrations.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Moq;
@@ -21,12 +22,14 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Authorization
         private const string AuthEndpoint = "https://auth.test.local/";
         private readonly Mock<IOptions<PlatformSettings>> _settingsMock;
         private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
+        private readonly Mock<ILogger<AuthorizationClient>> _logger;
 
         public AuthorizationClientTests()
         {
             _settingsMock = new Mock<IOptions<PlatformSettings>>();
             _settingsMock.Setup(s => s.Value).Returns(new PlatformSettings { ApiAuthorizationEndpoint = AuthEndpoint });
             _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+            _logger = new Mock<ILogger<AuthorizationClient>>();
         }
 
         private static Mock<HttpMessageHandler> CreateHandler(HttpResponseMessage response, Action<HttpRequestMessage> requestCallback = null)
@@ -65,7 +68,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Authorization
             context.Request.Headers[HeaderNames.Authorization] = "Bearer testtoken";
             _httpContextAccessorMock.Setup(a => a.HttpContext).Returns(context);
 
-            var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object);
+            var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object, _logger.Object);
 
             // Act
             var result = await client.ValidateSelectedParty(21, 42);
@@ -86,7 +89,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Authorization
             context.Request.Headers[HeaderNames.Authorization] = "Bearer testtoken";
             _httpContextAccessorMock.Setup(a => a.HttpContext).Returns(context);
 
-            var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object);
+            var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object, _logger.Object);
 
             // Act
             var result = await client.ValidateSelectedParty(21, 42);
@@ -110,7 +113,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Authorization
             context.Request.Headers[HeaderNames.Authorization] = "Bearer testtoken";
             _httpContextAccessorMock.Setup(a => a.HttpContext).Returns(context);
 
-            var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object);
+            var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object, _logger.Object);
 
             // Act
             var result = await client.ValidateSelectedParty(21, 42);
@@ -120,14 +123,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Authorization
         }
 
         [Fact]
-        public async Task ValidateSelectedParty_NoAuthorizationHeader_ReturnsTrue()
+        public async Task ValidateSelectedParty_NoAuthorizationHeader_ReturnsFalse()
         {
             // Arrange
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = JsonContent.Create(true)
-            };
-            var handler = CreateHandler(response, req =>
+            var handler = CreateHandler(null, req =>
             {
                 Assert.True(req.Headers.Contains("Authorization"));
                 Assert.Equal(string.Empty, req.Headers.GetValues("Authorization").ToString());
@@ -139,13 +138,13 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Authorization
             // No Authorization header set
             _httpContextAccessorMock.Setup(a => a.HttpContext).Returns(context);
 
-            var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object);
+            var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object, _logger.Object);
 
             // Act
             var result = await client.ValidateSelectedParty(21, 42);
 
             // Assert
-            Assert.True(result); // The API returns true, so the method should return true even if the header is empty
+            Assert.False(result);
         }
     }
 }
