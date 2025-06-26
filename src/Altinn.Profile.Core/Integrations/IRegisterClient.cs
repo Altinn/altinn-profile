@@ -14,7 +14,7 @@
         Task<string?> GetMainUnit(string orgNumber, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Get prtyId for a party based on its UUID.
+        /// Get partyId for a party based on its UUID.
         /// </summary>
         /// <param name="partyUuid" >The UUID of the party to look up.</param>
         /// <param name="cancellationToken">Cancel the current request</param>

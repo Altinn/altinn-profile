@@ -98,7 +98,7 @@ public class RegisterClient : IRegisterClient
             return null;
         }
 
-        var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"v2/internal/parties/identifiers?uuids={partyUuid}");
+        var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"v1/parties/identifiers?uuids={partyUuid}");
 
         requestMessage.Headers.Add("PlatformAccessToken", accessToken);
 
@@ -110,8 +110,8 @@ public class RegisterClient : IRegisterClient
             return null;
         }
 
-        var responseData = await response.Content.ReadFromJsonAsync<PartyIdentifiersResponse>(cancellationToken);
+        var responseData = await response.Content.ReadFromJsonAsync<List<PartyIdentifiersResponse>>(cancellationToken);
 
-        return responseData?.PartyId;
+        return responseData?[0].PartyId;
     }
 }

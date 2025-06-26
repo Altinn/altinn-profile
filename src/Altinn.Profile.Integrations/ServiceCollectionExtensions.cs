@@ -2,6 +2,7 @@
 
 using Altinn.ApiClients.Maskinporten.Extensions;
 using Altinn.ApiClients.Maskinporten.Services;
+using Altinn.Common.AccessTokenClient.Configuration;
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Authorization;
@@ -65,6 +66,7 @@ public static class ServiceCollectionExtensions
             throw new InvalidOperationException("Database connection string is not properly configured.");
         }
 
+        services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
         services.AddTransient<IAccessTokenGenerator, AccessTokenGenerator>();
         services.AddTransient<ISigningCredentialsResolver, SigningCredentialsResolver>();
 
