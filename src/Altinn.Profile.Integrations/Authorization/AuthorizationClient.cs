@@ -1,11 +1,10 @@
-﻿using Altinn.Common.AccessTokenClient.Services;
+﻿using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 using Altinn.Common.PEP.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace Altinn.Profile.Integrations.Authorization;
 
