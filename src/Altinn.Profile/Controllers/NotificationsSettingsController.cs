@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +14,7 @@ namespace Altinn.Profile.Controllers
     /// <summary>
     /// Controller for organizing the notification addresses a user has registered for parties
     /// </summary>
-    [Authorize]
+    [Authorize(Policy = AuthConstants.UserPartyAccess)]
     [Route("profile/api/v1/users/current/notificationsettings")]
     [Consumes("application/json")]
     [Produces("application/json")]
@@ -39,6 +38,7 @@ namespace Altinn.Profile.Controllers
         [HttpGet("parties/{partyUuid:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ProfessionalNotificationAddressResponse>> Get([FromRoute] Guid partyUuid, CancellationToken cancellationToken)
         {
@@ -87,6 +87,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> Put([FromRoute] Guid partyUuid, [FromBody] ProfessionalNotificationAddressRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)

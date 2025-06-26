@@ -12,5 +12,12 @@
         /// <param name="cancellationToken">Cancel the current request</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         Task<string?> GetMainUnit(string orgNumber, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get partyId for a party based on its UUID.
+        /// </summary>
+        /// <param name="partyUuid" >The UUID of the party to look up.</param>
+        /// <param name="cancellationToken">Cancel the current request</param>
+        Task<int?> GetPartyId(Guid partyUuid, CancellationToken cancellationToken);
     }
 }

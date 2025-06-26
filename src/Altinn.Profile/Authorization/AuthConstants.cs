@@ -19,5 +19,10 @@
         /// Policy name for writing organization notification addresses
         /// </summary>
         public const string OrgNotificationAddress_Write = "OrgNotificationAddress_Write";
+
+        /// <summary>
+        /// Policy name for reading user notification addresses and favorites
+        /// </summary>
+        public const string UserPartyAccess = "UserId_Party_Access";
     }
 }
