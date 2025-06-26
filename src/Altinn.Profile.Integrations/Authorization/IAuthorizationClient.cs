@@ -12,6 +12,6 @@
         /// <param name="partyId">The party id.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns> Boolean indicating whether or not the user can represent the selected party.</returns>
-        Task<bool> ValidateSelectedParty(int userId, int partyId, CancellationToken cancellationToken);
+        Task<bool> ValidateSelectedParty(int userId, int partyId, CancellationToken cancellationToken = default);
     }
 }

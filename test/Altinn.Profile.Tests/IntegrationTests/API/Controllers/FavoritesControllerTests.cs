@@ -33,7 +33,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(new Group { Parties = [new PartyGroupAssociation { PartyUuid = Guid.NewGuid() }, new PartyGroupAssociation { PartyUuid = Guid.NewGuid() }], Name = "__favoritter__" });
         }
 
-        private void SetupAuthHandler(WebApplicationFactorySetup<FavoritesController> _webApplicationFactorySetup, Guid partyGuid, int UserId, bool access = true)
+        private static void SetupAuthHandler(WebApplicationFactorySetup<FavoritesController> _webApplicationFactorySetup, Guid partyGuid, int UserId, bool access = true)
         {
             _webApplicationFactorySetup.RegisterClientMock.Setup(x => x.GetPartyId(partyGuid, It.IsAny<CancellationToken>()))
     .ReturnsAsync((int)partyGuid.GetHashCode()); // Simulate party ID retrieval

@@ -26,7 +26,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        private void SetupAuthHandler(WebApplicationFactorySetup<NotificationsSettingsController> _webApplicationFactorySetup, Guid partyGuid, int UserId, bool access = true)
+        private static void SetupAuthHandler(WebApplicationFactorySetup<NotificationsSettingsController> _webApplicationFactorySetup, Guid partyGuid, int UserId, bool access = true)
         {
             _webApplicationFactorySetup.RegisterClientMock.Setup(x => x.GetPartyId(partyGuid, It.IsAny<CancellationToken>()))
     .ReturnsAsync((int)partyGuid.GetHashCode()); // Simulate party ID retrieval
@@ -173,7 +173,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 EmailAddress = "test@@example.com",
                 PhoneNumber = "++",
                 ResourceIncludeList = ["example"]
-            }; 
+            };
             SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
