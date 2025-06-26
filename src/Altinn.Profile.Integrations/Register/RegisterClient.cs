@@ -94,7 +94,7 @@ public class RegisterClient : IRegisterClient
         var accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "profile");
         if (string.IsNullOrEmpty(accessToken))
         {
-            _logger.LogError("Invalid access token generated for org main unit lookup.");
+            _logger.LogError("Invalid access token generated for party ID lookup.");
             return null;
         }
 

@@ -41,7 +41,12 @@ namespace Altinn.Profile.Authorization
         {
             HttpContext httpContext = _httpContextAccessor.HttpContext;
             var routeData = httpContext.GetRouteData();
-            Guid partyUuid = Guid.Parse(routeData.Values[_partyUuid] as string);
+
+            if (routeData?.Values[_partyUuid] is not string partyUuidString || !Guid.TryParse(partyUuidString, out Guid partyUuid))
+            {
+                 context.Fail();
+                 return;
+            }
 
             var partyId = await _registerClient.GetPartyId(partyUuid, CancellationToken.None);
 
@@ -51,7 +56,12 @@ namespace Altinn.Profile.Authorization
                 return;
             }
 
-            ClaimsHelper.TryGetUserIdFromClaims(httpContext, out int userId);
+            var claimsResult = ClaimsHelper.TryGetUserIdFromClaims(httpContext, out int userId);
+            if (claimsResult != null)
+            {
+                context.Fail();
+                return;
+            }
 
             bool valid = await _authorizationClient.ValidateSelectedParty(userId, (int)partyId, CancellationToken.None);
 
