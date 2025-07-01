@@ -1,13 +1,3 @@
-using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Controllers;
-using Altinn.Profile.Core.ProfessionalNotificationAddresses;
-using Altinn.Profile.Models;
-using Altinn.Profile.Tests.IntegrationTests.Mocks;
-using Altinn.Profile.Tests.IntegrationTests.Utils;
-using Altinn.Profile.Tests.Testdata;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Moq;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -17,6 +7,15 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Altinn.Platform.Profile.Models;
+using Altinn.Profile.Controllers;
+using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Models;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
+using Altinn.Profile.Tests.IntegrationTests.Utils;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Moq;
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
