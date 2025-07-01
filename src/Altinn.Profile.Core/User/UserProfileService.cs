@@ -13,7 +13,7 @@ public class UserProfileService : IUserProfileService
     /// <summary>
     /// Initializes a new instance of the <see cref="UserProfileService"/> class.
     /// </summary>
-    /// <param name="userProfileRepo">The user profile client available through DI</param>
+    /// <param name="userProfileClient">The user profile client available through DI</param>
     public UserProfileService(IUserProfileClient userProfileClient)
     {
         _userProfileClient = userProfileClient;
