@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Altinn.Profile.Integrations.Notifications
+﻿namespace Altinn.Profile.Integrations.Notifications
 {
     /// <summary>
     /// Represents a request to order an email notification.

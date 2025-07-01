@@ -12,7 +12,7 @@ namespace Altinn.Profile.Integrations.Notifications;
 /// An HTTP client to interact with the Altinn notifications service.
 /// </summary>
 /// <remarks>
-/// Initializes a new instance of the <see cref="INotificationsClient"/> class.
+/// Initializes a new instance of the <see cref="NotificationsClient"/> class.
 /// </remarks>
 public class NotificationsClient : INotificationsClient
 {
@@ -94,7 +94,7 @@ public class NotificationsClient : INotificationsClient
         var accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "profile");
         if (string.IsNullOrEmpty(accessToken))
         {
-            _logger.LogError("Invalid access token generated for org main unit lookup.");
+            _logger.LogError("Invalid access token generated for notification order.");
             return;
         }
 
@@ -111,7 +111,8 @@ public class NotificationsClient : INotificationsClient
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("Failed to send order request. Status code: {StatusCode}", response.StatusCode);
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            _logger.LogError("Failed to send order request. Status code: {StatusCode}, Response: {ResponseContent}", response.StatusCode, responseContent);
         }
     }
 }

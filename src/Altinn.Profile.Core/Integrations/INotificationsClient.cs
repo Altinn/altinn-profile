@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Altinn.Profile.Core.Integrations
+﻿namespace Altinn.Profile.Core.Integrations
 {
     /// <summary>
     /// Interface for sending notifications such as SMS and email orders.

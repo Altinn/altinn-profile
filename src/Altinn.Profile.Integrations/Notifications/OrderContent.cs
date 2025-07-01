@@ -70,7 +70,6 @@
         /// </summary>
         /// <param name="language">The language code ("en", "nb", or "nn").</param>
         /// <returns>The SMS message template in the specified language.</returns>
-        /// <exception cref="ArgumentException">Thrown if the language is not supported.</exception>
         public static string GetSmsContent(string language)
         {
             return language switch
@@ -88,7 +87,6 @@
         /// </summary>
         /// <param name="language">The language code ("en", "nb", or "nn").</param>
         /// <returns>The email subject in the specified language.</returns>
-        /// <exception cref="ArgumentException">Thrown if the language is not supported.</exception>
         public static string GetEmailSubject(string language)
         {
             return language switch
@@ -107,7 +105,6 @@
         /// <param name="language">The language code ("en", "nb", or "nn").</param>
         /// <param name="reporteeName">The name to insert into the email body template.</param>
         /// <returns>The email body in the specified language with the reportee name inserted.</returns>
-        /// <exception cref="ArgumentException">Thrown if the language is not supported.</exception>
         public static string GetEmailBody(string language, string reporteeName)
         {
             string bodyTemplate = language switch
@@ -126,7 +123,6 @@
         /// </summary>
         /// <param name="language">The language code ("en", "nb", or "nn").</param>
         /// <returns>The temporary email body in the specified language.</returns>
-        /// <exception cref="ArgumentException">Thrown if the language is not supported.</exception>
         public static string GetTmpEmailBody(string language)
         {
             return language switch
