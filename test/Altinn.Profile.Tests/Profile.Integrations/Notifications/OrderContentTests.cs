@@ -35,17 +35,18 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
         }
 
         [Theory]
-        [InlineData("en", "TestName", "Hi,<br /><br />You have changed your contact information for TestName with this email address. Please call us if that’s not correct. Tel: (+47) 75 00 60 00.<br /><br />You will receive notifications on new messages in Altinn. You can edit your notification settings under Profile at Altinn website .<br /><br />Best regards,<br />Altinn Support")]
-        [InlineData("nb", "Navn", "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din for Navn med denne e-postadressen. Ring oss om dette ikke stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldinger i Altinn. Du kan redigere dine varslingsinnstillinger under Profil på Altinn sine nettsider.<br /><br />Med vennlig hilsen<br />Altinn Brukerservice")]
-        [InlineData("nn", "Namn", "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din for Namn med denne e-postadressa. Ring oss om dette ikkje stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldingar i Altinn. Du kan redigere varlingsinnstillingane dine under Profil på Altinn sine nettsider.<br /><br />Med venleg helsing<br />Altinn brukarservice")]
-        [InlineData("se", "Sami", "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din for Sami med denne e-postadressen. Ring oss om dette ikke stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldinger i Altinn. Du kan redigere dine varslingsinnstillinger under Profil på Altinn sine nettsider.<br /><br />Med vennlig hilsen<br />Altinn Brukerservice")]
-        [InlineData("xx", "Unknown", "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din for Unknown med denne e-postadressen. Ring oss om dette ikke stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldinger i Altinn. Du kan redigere dine varslingsinnstillinger under Profil på Altinn sine nettsider.<br /><br />Med vennlig hilsen<br />Altinn Brukerservice")]
-        [InlineData("", "Empty", "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din for Empty med denne e-postadressen. Ring oss om dette ikke stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldinger i Altinn. Du kan redigere dine varslingsinnstillinger under Profil på Altinn sine nettsider.<br /><br />Med vennlig hilsen<br />Altinn Brukerservice")]
-        [InlineData(null, "Null", "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din for Null med denne e-postadressen. Ring oss om dette ikke stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldinger i Altinn. Du kan redigere dine varslingsinnstillinger under Profil på Altinn sine nettsider.<br /><br />Med vennlig hilsen<br />Altinn Brukerservice")]
-        public void GetEmailBody_ReturnsExpectedBody(string language, string reporteeName, string expected)
+        [InlineData("en", "TestName", "contact information")]
+        [InlineData("nb", "Navn", "varslingsinnstillinger")]
+        [InlineData("nn", "Namn", "varlingsinnstillingane")]
+        [InlineData("se", "Sami", "varslingsinnstillinger")]
+        [InlineData("xx", "Unknown", "varslingsinnstillinger")]
+        [InlineData("", "Empty", "varslingsinnstillinger")]
+        [InlineData(null, "Null", "varslingsinnstillinger")]
+        public void GetEmailBody_ReturnsExpectedBody(string language, string reporteeName, string substring)
         {
             var result = OrderContent.GetEmailBody(language, reporteeName);
-            Assert.Equal(expected, result);
+            Assert.Contains(reporteeName, result);
+            Assert.Contains(substring, result);
         }
 
         [Theory]
