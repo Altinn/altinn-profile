@@ -30,24 +30,35 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 
             if (mobileNumberChanged || emailChanged)
             {
-                var userProfileResult = await _userProfileClient.GetUser(contactInfo.UserId);
-
-                var language = userProfileResult.Match<string>(
-                    userProfile => userProfile.ProfileSettingPreference.Language,
-                    _ => "nb");
-
-                if (mobileNumberChanged)
-                {
-                    await _notificationsClient.SendSmsOrder(contactInfo.PhoneNumber!, language, CancellationToken.None);
-                }
-
-                if (emailChanged)
-                {
-                    await _notificationsClient.SendEmailOrder(contactInfo.EmailAddress!, language, CancellationToken.None);
-                }
+                await HandleNotificationAddressChangedAsync(contactInfo, mobileNumberChanged, emailChanged);
             }
 
             return isAdded;
+        }
+
+        /// <summary>
+        /// Handles sending notifications when the mobile number or email address has changed.
+        /// </summary>
+        /// <param name="contactInfo">The updated contact info.</param>
+        /// <param name="mobileNumberChanged">Indicates if the mobile number has changed.</param>
+        /// <param name="emailChanged">Indicates if the email address has changed.</param>
+        private async Task HandleNotificationAddressChangedAsync(UserPartyContactInfo contactInfo, bool mobileNumberChanged, bool emailChanged)
+        {
+            var userProfileResult = await _userProfileClient.GetUser(contactInfo.UserId);
+
+            var language = userProfileResult.Match<string>(
+                userProfile => userProfile.ProfileSettingPreference.Language,
+                _ => "nb");
+
+            if (mobileNumberChanged)
+            {
+                await _notificationsClient.SendSmsOrder(contactInfo.PhoneNumber!, language, CancellationToken.None);
+            }
+
+            if (emailChanged)
+            {
+                await _notificationsClient.SendEmailOrder(contactInfo.EmailAddress!, language, CancellationToken.None);
+            }
         }
 
         /// <inheritdoc/>

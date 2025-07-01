@@ -23,6 +23,7 @@ public class NotificationsClient : INotificationsClient
     private readonly JsonSerializerOptions _options = new()
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
     /// <summary>
@@ -97,8 +98,7 @@ public class NotificationsClient : INotificationsClient
             return;
         }
 
-        var json = JsonSerializer.Serialize(jsonString, _options);
-        var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+        var stringContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
         var requestMessage = new HttpRequestMessage(HttpMethod.Post, "v1/future/orders")
         {

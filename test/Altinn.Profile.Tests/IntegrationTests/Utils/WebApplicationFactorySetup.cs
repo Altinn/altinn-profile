@@ -41,6 +41,8 @@ public class WebApplicationFactorySetup<T>(WebApplicationFactory<T> webApplicati
 
     public Mock<IRegisterClient> RegisterClientMock { get; set; } = new();
 
+    public Mock<INotificationsClient> NotificationsClientMock { get; set; } = new();
+
     public Mock<ILogger<UnitProfileClient>> UnitProfileClientLogger { get; set; } = new();
 
     public Mock<IOptions<SblBridgeSettings>> SblBridgeSettingsOptions { get; set; } = new();
@@ -83,6 +85,7 @@ public class WebApplicationFactorySetup<T>(WebApplicationFactory<T> webApplicati
                 services.AddSingleton(OrganizationNotificationAddressUpdateClientMock.Object);
                 services.AddSingleton(OrganizationNotificationAddressRepositoryMock.Object);
                 services.AddSingleton(RegisterClientMock.Object);
+                services.AddSingleton(NotificationsClientMock.Object);
                 services.AddSingleton(PartyGroupRepositoryMock.Object);
                 services.AddSingleton(ProfessionalNotificationsRepositoryMock.Object);
 
