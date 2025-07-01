@@ -108,7 +108,7 @@
         /// <param name="reporteeName">The name to insert into the email body template.</param>
         /// <returns>The email body in the specified language with the reportee name inserted.</returns>
         /// <exception cref="ArgumentException">Thrown if the language is not supported.</exception>
-        private static string GetEmailBody(string language, string reporteeName)
+        public static string GetEmailBody(string language, string reporteeName)
         {
             string bodyTemplate = language switch
             {
