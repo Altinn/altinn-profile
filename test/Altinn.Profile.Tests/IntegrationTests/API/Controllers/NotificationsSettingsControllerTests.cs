@@ -31,10 +31,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         private void SetupSblMock()
         {
-            DelegatingHandlerStub messageHandler = new(async (request, token) =>
+            DelegatingHandlerStub messageHandler = new((request, token) =>
             {
                 UserProfile userProfile = new UserProfile { ProfileSettingPreference = new ProfileSettingPreference { Language = "nb" } };
-                return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+                return Task.FromResult(new HttpResponseMessage() { Content = JsonContent.Create(userProfile) });
             });
             _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
         }

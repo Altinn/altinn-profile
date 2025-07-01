@@ -112,7 +112,6 @@ public class NotificationsClient : INotificationsClient
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogError("Failed to send order request. Status code: {StatusCode}", response.StatusCode);
-            return;
         }
     }
 }

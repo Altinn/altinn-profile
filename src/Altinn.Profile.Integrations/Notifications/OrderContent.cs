@@ -3,7 +3,7 @@
     /// <summary>
     /// Provides localized content templates for notification messages (SMS and email) in Altinn.
     /// </summary>
-    public class OrderContent
+    public static class OrderContent
     {
         /// <summary>
         /// English SMS message template for notifying users about updated contact information.
@@ -79,7 +79,7 @@
                 "nb" => OrderContent.SmsNo,
                 "nn" => OrderContent.SmsNn,
                 "se" => OrderContent.SmsNo, // Sami is treated as Norwegian Bokmål
-                _ => throw new ArgumentException("Unsupported language", nameof(language)),
+                _ => OrderContent.SmsNo,
             };
         }
 
@@ -97,18 +97,18 @@
                 "nb" => OrderContent.EmailSubjectNo,
                 "nn" => OrderContent.EmailSubjectNn,
                 "se" => OrderContent.EmailSubjectNo, // Sami is treated as Norwegian Bokmål
-                _ => throw new ArgumentException("Unsupported language", nameof(language)),
+                _ => OrderContent.EmailSubjectNo,
             };
         }
 
         /// <summary>
-        /// Gets the email body template for the specified language, replacing the reportee name placeholder.
+        /// Gets the email body template for the specified language, replacing the reportee name placeholder. Not to be used yet.
         /// </summary>
         /// <param name="language">The language code ("en", "nb", or "nn").</param>
         /// <param name="reporteeName">The name to insert into the email body template.</param>
         /// <returns>The email body in the specified language with the reportee name inserted.</returns>
         /// <exception cref="ArgumentException">Thrown if the language is not supported.</exception>
-        public static string GetEmailBody(string language, string reporteeName)
+        private static string GetEmailBody(string language, string reporteeName)
         {
             string bodyTemplate = language switch
             {
@@ -116,7 +116,7 @@
                 "nb" => OrderContent.EmailBodyNo,
                 "nn" => OrderContent.EmailBodyNn,
                 "se" => OrderContent.EmailBodyNo, // Sami is treated as Norwegian Bokmål
-                _ => throw new ArgumentException("Unsupported language", nameof(language)),
+                _ => OrderContent.EmailBodyNo,
             };
             return bodyTemplate.Replace("$reporteeName$", reporteeName);
         }
@@ -135,7 +135,7 @@
                 "nb" => OrderContent.EmailBodyTmpNo,
                 "nn" => OrderContent.EmailBodyTmpNn,
                 "se" => OrderContent.EmailBodyTmpNo, // Sami is treated as Norwegian Bokmål
-                _ => throw new ArgumentException("Unsupported language", nameof(language)),
+                _ => OrderContent.EmailBodyTmpNo,
             };
         }
     }
