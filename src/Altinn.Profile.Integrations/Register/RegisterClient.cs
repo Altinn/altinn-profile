@@ -112,7 +112,7 @@ public class RegisterClient : IRegisterClient
 
         var responseData = await response.Content.ReadFromJsonAsync<List<PartyIdentifiersResponse>>(cancellationToken);
 
-        if (!(responseData?.Count > 0))
+        if (responseData is null or { Count: 0 })
         {
             return null;
         }

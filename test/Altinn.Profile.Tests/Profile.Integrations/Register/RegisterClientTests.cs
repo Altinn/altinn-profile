@@ -160,7 +160,38 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
         }
 
         [Fact]
-        public async Task GetPartyId_Success_ReturnsPartyId()
+        public async Task GetPartyId_WhenValidAccessToken_SetsUpHttpClientCorrectly()
+        {
+            // Arrange
+            var partyUuid = Guid.NewGuid();
+            var expectedPartyId = 12345;
+            var responseContent = JsonSerializer.Serialize(new List<PartyIdentifiersResponse>
+            {
+                new() { PartyId = expectedPartyId }
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            HttpRequestMessage sentRequest = null;
+            var handler = CreateHandler(response, req => sentRequest = req);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetPartyId(partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(HttpMethod.Get, sentRequest.Method);
+            Assert.Contains("v1/parties/identifiers?uuids=" + partyUuid.ToString(), sentRequest.RequestUri.ToString());
+            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
+        }
+
+        [Fact]
+        public async Task GetPartyId_WhenClientRespondsSuccessfully_ReturnsPartyId()
         {
             // Arrange
             var partyUuid = Guid.NewGuid();
@@ -186,9 +217,36 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             // Assert
             Assert.NotNull(result);
             Assert.Equal(expectedPartyId, result);
-            Assert.Equal(HttpMethod.Get, sentRequest.Method);
-            Assert.Contains(partyUuid.ToString(), sentRequest.RequestUri.ToString());
-            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
+        }
+
+        [Fact]
+        public async Task GetPartyId_WhenRegisterResponseHasMultipleElements_ReturnsFirst()
+        {
+            // Arrange
+            var partyUuid = Guid.NewGuid();
+            var expectedPartyId = 12345;
+            var responseContent = JsonSerializer.Serialize(new List<PartyIdentifiersResponse>
+            {
+                new() { PartyId = expectedPartyId },
+                new() { PartyId = 67890 } // Additional entry to simulate multiple results
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            HttpRequestMessage sentRequest = null;
+            var handler = CreateHandler(response, req => sentRequest = req);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetPartyId(partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedPartyId, result);
         }
 
         [Fact]

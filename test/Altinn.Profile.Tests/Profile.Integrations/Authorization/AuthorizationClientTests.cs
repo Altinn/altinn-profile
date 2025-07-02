@@ -19,7 +19,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Authorization
 {
     public class AuthorizationClientTests
     {
-        private const string AuthEndpoint = "https://auth.test.local/";
+        private const string _authEndpoint = "https://auth.test.local/";
         private readonly Mock<IOptions<PlatformSettings>> _settingsMock;
         private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
         private readonly Mock<ILogger<AuthorizationClient>> _logger;
@@ -27,7 +27,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Authorization
         public AuthorizationClientTests()
         {
             _settingsMock = new Mock<IOptions<PlatformSettings>>();
-            _settingsMock.Setup(s => s.Value).Returns(new PlatformSettings { ApiAuthorizationEndpoint = AuthEndpoint });
+            _settingsMock.Setup(s => s.Value).Returns(new PlatformSettings { ApiAuthorizationEndpoint = _authEndpoint });
             _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
             _logger = new Mock<ILogger<AuthorizationClient>>();
         }
@@ -49,7 +49,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Authorization
         }
 
         [Fact]
-        public async Task ValidateSelectedParty_Success_ReturnsTrue()
+        public async Task ValidateSelectedParty_WhenAuthClientValidatesSuccessfully_ReturnsTrue()
         {
             // Arrange
             var response = new HttpResponseMessage(HttpStatusCode.OK)

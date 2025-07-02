@@ -15,6 +15,7 @@ namespace Altinn.Profile.Integrations.Authorization;
 public class AuthorizationClient
     : IAuthorizationClient
 {
+    // Using JsonSerializerOptions.Web to ensure that the serialization settings are camelCase and case insensitive.
     private static readonly JsonSerializerOptions _options = JsonSerializerOptions.Web;
     private readonly HttpClient _authClient;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -70,6 +71,7 @@ public class AuthorizationClient
         }
         catch (JsonException)
         {
+            _logger.LogWarning("Problem reading response from authorization api in ValidateSelectedParty.");
             return false;
         }
 

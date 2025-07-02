@@ -28,8 +28,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         private static void SetupAuthHandler(WebApplicationFactorySetup<NotificationsSettingsController> _webApplicationFactorySetup, Guid partyGuid, int UserId, bool access = true)
         {
-            _webApplicationFactorySetup.RegisterClientMock.Setup(x => x.GetPartyId(partyGuid, It.IsAny<CancellationToken>()))
-    .ReturnsAsync((int)partyGuid.GetHashCode()); // Simulate party ID retrieval
+            _webApplicationFactorySetup.RegisterClientMock
+                .Setup(x => x.GetPartyId(partyGuid, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((int)partyGuid.GetHashCode()); // Simulate party ID retrieval
             _webApplicationFactorySetup.AuthorizationClientMock
                 .Setup(x => x.ValidateSelectedParty(UserId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(access);

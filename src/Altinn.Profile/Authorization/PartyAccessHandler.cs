@@ -10,8 +10,8 @@ using Microsoft.AspNetCore.Routing;
 namespace Altinn.Profile.Authorization
 {
     /// <summary>
-    /// AuthorizationHandler that is created for handling access to api with organizationNumber in path.
-    /// Authorizes based om ResourceAccessRequirement and organization number from route
+    /// AuthorizationHandler that is created for determining if a user has an association with a given party.
+    /// Authorizes based om PartyAccessRequirement and partyUuid from route
     /// <see href="https://docs.asp.net/en/latest/security/authorization/policies.html"/> for details about authorization
     /// in asp.net core
     /// </summary>
@@ -56,8 +56,8 @@ namespace Altinn.Profile.Authorization
                 return;
             }
 
-            var claimsResult = ClaimsHelper.TryGetUserIdFromClaims(httpContext, out int userId);
-            if (claimsResult != null)
+            var error = ClaimsHelper.TryGetUserIdFromClaims(httpContext, out int userId);
+            if (error != null)
             {
                 context.Fail();
                 return;
