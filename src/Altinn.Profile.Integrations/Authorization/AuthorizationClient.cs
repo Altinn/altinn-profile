@@ -64,16 +64,7 @@ public class AuthorizationClient
             return false; 
         }
 
-        bool result;
-        try
-        {
-            result = await response.Content.ReadFromJsonAsync<bool>(_options, cancellationToken);
-        }
-        catch (JsonException)
-        {
-            _logger.LogWarning("Problem reading response from authorization api in ValidateSelectedParty.");
-            return false;
-        }
+        var result = await response.Content.ReadFromJsonAsync<bool>(_options, cancellationToken);
 
         return result;
     }

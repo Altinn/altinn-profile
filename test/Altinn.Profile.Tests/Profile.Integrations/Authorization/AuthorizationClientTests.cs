@@ -99,7 +99,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Authorization
         }
 
         [Fact]
-        public async Task ValidateSelectedParty_DeserializationFails_ReturnsFalse()
+        public async Task ValidateSelectedParty_DeserializationFails_ThrowsException()
         {
             // Arrange
             var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -115,11 +115,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Authorization
 
             var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object, _logger.Object);
 
-            // Act
-            var result = await client.ValidateSelectedParty(21, 42);
-
-            // Assert
-            Assert.False(result);
+            // Act & assert
+            await Assert.ThrowsAsync<JsonException>(() => client.ValidateSelectedParty(21, 42));
         }
 
         [Fact]
