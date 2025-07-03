@@ -1,3 +1,5 @@
+import { stopIterationOnFail } from "./errorhandler.js";
+
 // Base URLs for the Altinn platform across different environments.
 const baseUrls = {
     prod: "altinn.no",
@@ -30,5 +32,5 @@ export const profileUrl = {
     favorites: `https://platform.${baseUrl}/profile/api/v1/users/current/party-groups/favorites`,
     modifyFavorites: (partyUuid) => `https://platform.${baseUrl}/profile/api/v1/users/current/party-groups/favorites/${partyUuid}`,
     organization: (orgNo) => `https://platform.${baseUrl}/profile/api/v1/organizations/${orgNo}/notificationaddresses/mandatory`,
-    personalNotificationaddresses: (partyId) => `https://platform.${baseUrl}/profile/api/v1/users/current/notificationsettings/parties//${partyId}`,
+    personalNotificationaddresses: (partyUuid) => `https://platform.${baseUrl}/profile/api/v1/users/current/notificationsettings/parties/${partyUuid}`,
 }

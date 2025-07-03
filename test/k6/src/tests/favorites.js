@@ -58,7 +58,7 @@ function addFavorites(data) {
     );
 
     let success = check(response, {
-        'PUT favorites: 200 OK': (r) => r.status === 201,
+        'PUT favorites: 201 Created': (r) => r.status === 201,
     });
 
     stopIterationOnFail("PUT favorites failed", success);
@@ -75,7 +75,7 @@ function removeFavorites(data) {
     );
 
     let success = check(response, {
-        'DELETE favorites: 200 OK': (r) => r.status === 204,
+        'DELETE favorites: 204 No Content': (r) => r.status === 204,
     });
 
     stopIterationOnFail("DELETE favorites failed", success);
