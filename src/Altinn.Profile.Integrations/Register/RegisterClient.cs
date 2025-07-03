@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Altinn.Common.AccessTokenClient.Services;
@@ -85,5 +86,43 @@ public class RegisterClient : IRegisterClient
 
         var mainUnitOrgNumber = responseObject.Data[0].OrganizationIdentifier;
         return mainUnitOrgNumber;
+    }
+
+    /// <inheritdoc/>
+    public async Task<int?> GetPartyId(Guid partyUuid, CancellationToken cancellationToken)
+    {
+        var accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "profile");
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            _logger.LogError("Invalid access token generated for party ID lookup.");
+            return null;
+        }
+
+        var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"v1/parties/identifiers?uuids={partyUuid}");
+
+        requestMessage.Headers.Add("PlatformAccessToken", accessToken);
+
+        var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError("Failed to get partyId for party. Status code: {StatusCode}", response.StatusCode);
+            return null;
+        }
+
+        var responseData = await response.Content.ReadFromJsonAsync<List<PartyIdentifiersResponse>>(cancellationToken);
+
+        if (responseData is null or { Count: 0 })
+        {
+            return null;
+        }
+
+        // The response is a list, but assuming the list contains only one item in all cases
+        if (responseData.Count > 1)
+        {
+            _logger.LogWarning("Get partyId for party returned multiple results. Using the first one.");
+        }
+
+        return responseData[0].PartyId;
     }
 }
