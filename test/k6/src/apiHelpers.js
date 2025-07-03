@@ -37,6 +37,19 @@ export function buildQueryParametersForEndpoint(queryparams) {
 }
 
 /**
+ * Build a header object with Basic token
+ * @param {string} token - The Basic token
+ * @returns {Object} A header object with Authorization set to Basic token
+ */
+export function buildHeaderWithBasic(token) {
+    return {
+        headers: {
+            Authorization: `Basic ${token}`
+        }
+    };
+}
+
+/**
  * Build a header object with Bearer token
  * @param {string} token - The Bearer token
  * @returns {Object} A header object with Authorization set to Bearer token
