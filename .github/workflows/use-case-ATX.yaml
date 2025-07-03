@@ -20,6 +20,16 @@ jobs:
         with:
           filename: test/k6/src/tests/favorites.js
           flags: -e env=${{ vars.ENV }} -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} -e userID=${{ secrets.USERID }} -e partyId=${{ secrets.PARTYID }} -e pid=${{ secrets.PID }} -e partyUuid=b${{ secrets.PARTYUUID }}
+      - name: Run notification settings use case tests
+        uses: grafana/k6-action@e4714b734f2b0afaabeb7b4a69142745548ab9ec # v0.3.1
+        with:
+          filename: test/k6/src/tests/notification-settings.js
+          flags: -e env=${{ vars.ENV }} -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} -e userID=${{ secrets.USERID }} -e partyId=${{ secrets.PARTYID }} -e pid=${{ secrets.PID }} -e partyUuid=b${{ secrets.PARTYUUID }}
+      - name: Run org notification addresses use case tests
+        uses: grafana/k6-action@e4714b734f2b0afaabeb7b4a69142745548ab9ec # v0.3.1
+        with:
+          filename: test/k6/src/tests/org-notification-addresses.js
+          flags: -e env=${{ vars.ENV }} -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} -e userID=${{ secrets.USERID }} -e partyId=${{ secrets.PARTYID }} -e pid=${{ secrets.PID }} -e orgNo=b${{ secrets.ORGNO }}
       - name: Build failure report
         if: failure()
         run: |

@@ -32,5 +32,5 @@ export const profileUrl = {
     favorites: `https://platform.${baseUrl}/profile/api/v1/users/current/party-groups/favorites`,
     modifyFavorites: (partyUuid) => `https://platform.${baseUrl}/profile/api/v1/users/current/party-groups/favorites/${partyUuid}`,
     organization: (orgNo) => `https://platform.${baseUrl}/profile/api/v1/organizations/${orgNo}/notificationaddresses/mandatory`,
-    personalNotificationaddresses: (partyUuid) => `https://platform.${baseUrl}/profile/api/v1/users/current/notificationsettings/parties/${partyUuid}`,
+    personalNotificationAddresses: (partyUuid) => `https://platform.${baseUrl}/profile/api/v1/users/current/notificationsettings/parties/${partyUuid}`,
 }

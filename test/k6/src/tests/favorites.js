@@ -60,7 +60,7 @@ function addFavorites(data) {
     let success = check(response, {
         'PUT favorites: 201 Created or 204 No Content': (r) => r.status === 201 || r.status === 204,
     });
-    console.log(response);
+
     stopIterationOnFail("PUT favorites failed", success);
 }
 
