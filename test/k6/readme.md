@@ -68,10 +68,10 @@ $> podman compose run k6 run /src/tests/favorites.js \
 
 
 ## Load tests
+> [!WARNING]  
+> Load testing is not supported yet.
 
 The same tests can be used to run load and performance tests. These can be executed as described above, but with additional parameters like `--vus` (virtual users) and `--duration` or `--iterations`. 
-
-You can also disable the `runFullTestSet` parameter (or set it to `false`).
 
 For example:
 

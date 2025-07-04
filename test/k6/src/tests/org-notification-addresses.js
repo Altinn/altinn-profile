@@ -132,5 +132,4 @@ export default function (data) {
 
     updateOrgNotificationAddresses(data, addressId);
     removeOrgNotificationAddresses(data, addressId);
-
 }
