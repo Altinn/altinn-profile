@@ -76,15 +76,3 @@ export function buildHeaderWithBearerAndContentType(token) {
     };
 }
 
-/**
- * Build a header object with specified Content-Type
- * @param {string} contentType - The Content-Type value
- * @returns {Object} A header object with Content-Type set to the specified value
- */
-export function buildHeaderWithContentType(contentType) {
-    return {
-        headers: {
-            "Content-Type": contentType
-        }
-    };
-}

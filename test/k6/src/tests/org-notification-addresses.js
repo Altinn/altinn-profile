@@ -6,10 +6,12 @@ import { stopIterationOnFail } from "../errorhandler.js";
 
 // Eksempel på bruk:
 // podman compose run k6 run /src/tests/org-notification-addresses.js \
-//   -e baseUrl=https://localhost:5000 \
+//   -e env=*** \
 //   -e tokenGeneratorUserName=*** \
 //   -e tokenGeneratorUserPwd=*** \
-//   -e tokenGeneratorUrl=https://localhost:5001/api/v1/token \
+//   -e userID=*** \
+//   -e partyId=*** \
+//   -e pid=*** \
 //   -e orgNo=***
 
 export let options = {
