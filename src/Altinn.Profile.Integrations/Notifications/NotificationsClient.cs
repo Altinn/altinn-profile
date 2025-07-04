@@ -42,11 +42,12 @@ public class NotificationsClient : INotificationsClient
     }
 
     /// <inheritdoc/>
-    public async Task OrderSms(string phoneNumber, string languageCode, CancellationToken cancellationToken)
+    public async Task OrderSms(string phoneNumber, Guid partyUuid, string languageCode, CancellationToken cancellationToken)
     {
         var request = new SmsOrderRequest
         {
             IdempotencyId = Guid.NewGuid().ToString(),
+            SendersReference = partyUuid.ToString(),
             Recipient = new Recipient
             {
                 RecipientSms = new RecipientSms
@@ -66,11 +67,12 @@ public class NotificationsClient : INotificationsClient
     }
 
     /// <inheritdoc/>
-    public async Task OrderEmail(string emailAddress, string languageCode, CancellationToken cancellationToken)
+    public async Task OrderEmail(string emailAddress, Guid partyUuid, string languageCode, CancellationToken cancellationToken)
     {
         var request = new EmailOrderRequest
         {
             IdempotencyId = Guid.NewGuid().ToString(),
+            SendersReference = partyUuid.ToString(),
             Recipient = new EmailRecipient
             {
                 RecipientEmail = new RecipientEmail

@@ -52,12 +52,12 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 
             if (mobileNumberChanged)
             {
-                await _notificationsClient.OrderSms(contactInfo.PhoneNumber!, language, CancellationToken.None);
+                await _notificationsClient.OrderSms(contactInfo.PhoneNumber!, contactInfo.PartyUuid, language, CancellationToken.None);
             }
 
             if (emailChanged)
             {
-                await _notificationsClient.OrderEmail(contactInfo.EmailAddress!, language, CancellationToken.None);
+                await _notificationsClient.OrderEmail(contactInfo.EmailAddress!, contactInfo.PartyUuid, language, CancellationToken.None);
             }
         }
 
