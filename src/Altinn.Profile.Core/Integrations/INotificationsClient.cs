@@ -12,7 +12,7 @@
         /// <param name="languageCode">The language code for the SMS content.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task SendSmsOrder(string phoneNumber, string languageCode, CancellationToken cancellationToken);
+        Task OrderSms(string phoneNumber, string languageCode, CancellationToken cancellationToken);
 
         /// <summary>
         /// Sends an email order to the specified email address.
@@ -21,6 +21,6 @@
         /// <param name="languageCode">The language code for the email content.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task SendEmailOrder(string emailAddress, string languageCode, CancellationToken cancellationToken);
+        Task OrderEmail(string emailAddress, string languageCode, CancellationToken cancellationToken);
     }
 }

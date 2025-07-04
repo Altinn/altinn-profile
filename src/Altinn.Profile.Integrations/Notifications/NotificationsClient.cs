@@ -42,7 +42,7 @@ public class NotificationsClient : INotificationsClient
     }
 
     /// <inheritdoc/>
-    public async Task SendSmsOrder(string phoneNumber, string languageCode, CancellationToken cancellationToken)
+    public async Task OrderSms(string phoneNumber, string languageCode, CancellationToken cancellationToken)
     {
         var request = new SmsOrderRequest
         {
@@ -66,7 +66,7 @@ public class NotificationsClient : INotificationsClient
     }
 
     /// <inheritdoc/>
-    public async Task SendEmailOrder(string emailAddress, string languageCode, CancellationToken cancellationToken)
+    public async Task OrderEmail(string emailAddress, string languageCode, CancellationToken cancellationToken)
     {
         var request = new EmailOrderRequest
         {

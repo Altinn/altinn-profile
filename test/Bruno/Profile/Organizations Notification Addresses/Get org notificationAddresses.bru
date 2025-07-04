@@ -16,5 +16,5 @@ headers {
 }
 
 script:pre-request {
-  bru.runRequest("TokenGenerator/end user token")
+  await bru.runRequest("TokenGenerator/end user token")
 }

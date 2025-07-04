@@ -66,7 +66,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.SendSmsOrder("12345678", "nb", CancellationToken.None);
+            await client.OrderSms("12345678", "nb", CancellationToken.None);
 
             // Assert
             Assert.NotNull(sentRequest);
@@ -90,7 +90,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.SendEmailOrder("test@example.com", "en", CancellationToken.None);
+            await client.OrderEmail("test@example.com", "en", CancellationToken.None);
 
             // Assert
             Assert.NotNull(sentRequest);
@@ -115,7 +115,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.SendSmsOrder("12345678", "nb", CancellationToken.None);
+            await client.OrderSms("12345678", "nb", CancellationToken.None);
 
             // Assert
             _loggerMock.Verify(
@@ -140,7 +140,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.SendSmsOrder("12345678", "nb", CancellationToken.None);
+            await client.OrderSms("12345678", "nb", CancellationToken.None);
 
             // Assert
             _loggerMock.Verify(
