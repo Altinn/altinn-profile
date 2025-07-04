@@ -42,6 +42,8 @@ public class WebApplicationFactorySetup<T>(WebApplicationFactory<T> webApplicati
 
     public Mock<IRegisterClient> RegisterClientMock { get; set; } = new();
 
+    public Mock<INotificationsClient> NotificationsClientMock { get; set; } = new();
+
     public Mock<IAuthorizationClient> AuthorizationClientMock { get; set; } = new();
 
     public Mock<ILogger<UnitProfileClient>> UnitProfileClientLogger { get; set; } = new();
@@ -86,6 +88,7 @@ public class WebApplicationFactorySetup<T>(WebApplicationFactory<T> webApplicati
                 services.AddSingleton(OrganizationNotificationAddressUpdateClientMock.Object);
                 services.AddSingleton(OrganizationNotificationAddressRepositoryMock.Object);
                 services.AddSingleton(RegisterClientMock.Object);
+                services.AddSingleton(NotificationsClientMock.Object);
                 services.AddSingleton(AuthorizationClientMock.Object);
                 services.AddSingleton(PartyGroupRepositoryMock.Object);
                 services.AddSingleton(ProfessionalNotificationsRepositoryMock.Object);
@@ -101,7 +104,7 @@ public class WebApplicationFactorySetup<T>(WebApplicationFactory<T> webApplicati
 
                 // Using the real/actual implementation of IUserProfileService, but with a mocked message handler.
                 // Haven't found any other ways of injecting a mocked message handler to simulate SBL Bridge.
-                services.AddSingleton<IUserProfileRepository>(
+                services.AddSingleton<IUserProfileClient>(
                     new UserProfileClient(
                         new HttpClient(SblBridgeHttpMessageHandler),
                         UserProfileClientLogger.Object,

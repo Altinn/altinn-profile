@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Altinn.Platform.Profile.Models;
 using Altinn.Profile.Controllers;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Models;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -25,6 +28,16 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
+
+        private void SetupSblMock()
+        {
+            DelegatingHandlerStub messageHandler = new((request, token) =>
+            {
+                UserProfile userProfile = new UserProfile { ProfileSettingPreference = new ProfileSettingPreference { Language = "nb" } };
+                return Task.FromResult(new HttpResponseMessage() { Content = JsonContent.Create(userProfile) });
+            });
+            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
+        }
 
         private static void SetupAuthHandler(WebApplicationFactorySetup<NotificationsSettingsController> _webApplicationFactorySetup, Guid partyGuid, int UserId, bool access = true)
         {
@@ -59,6 +72,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.GetNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(userPartyContactInfo);
+
+            SetupSblMock();
             SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
@@ -97,6 +112,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.GetNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((UserPartyContactInfo)null);
+            SetupSblMock();
             SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
@@ -355,6 +371,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
+            SetupSblMock();
             SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
@@ -392,6 +409,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
+            SetupSblMock();
 
             HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
 

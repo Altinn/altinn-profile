@@ -5,7 +5,7 @@ namespace Altinn.Profile.Core.Integrations;
 /// <summary>
 /// Interface for accessing user profile services.
 /// </summary>
-public interface IUserProfileRepository
+public interface IUserProfileClient
 {
     /// <summary>
     /// Retrieves a user profile based on the user's social security number (SSN).

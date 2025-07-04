@@ -11,9 +11,9 @@ using Microsoft.Extensions.Options;
 namespace Altinn.Profile.Integrations.SblBridge.User.Profile;
 
 /// <summary>
-/// Represents an implementation of <see cref="IUserProfileRepository"/> using SBLBridge to obtain profile information.
+/// Represents an implementation of <see cref="IUserProfileClient"/> using SBLBridge to obtain profile information.
 /// </summary>
-public class UserProfileClient : IUserProfileRepository
+public class UserProfileClient : IUserProfileClient
 {
     private readonly ILogger<UserProfileClient> _logger;
     private readonly HttpClient _client;

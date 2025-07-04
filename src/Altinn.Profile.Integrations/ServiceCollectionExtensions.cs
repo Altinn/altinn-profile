@@ -9,6 +9,7 @@ using Altinn.Profile.Integrations.Authorization;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Mappings;
+using Altinn.Profile.Integrations.Notifications;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Register;
@@ -42,7 +43,7 @@ public static class ServiceCollectionExtensions
             ?? throw new ArgumentNullException(nameof(config), "Required SblBridgeSettings is missing from application configuration");
 
         services.Configure<SblBridgeSettings>(config.GetSection(nameof(SblBridgeSettings)));
-        services.AddHttpClient<IUserProfileRepository, UserProfileClient>();
+        services.AddHttpClient<IUserProfileClient, UserProfileClient>();
         services.AddHttpClient<IUnitProfileRepository, UnitProfileClient>();
     }
 
@@ -72,6 +73,8 @@ public static class ServiceCollectionExtensions
 
         services.Configure<RegisterSettings>(config.GetSection(nameof(RegisterSettings)));
         services.AddHttpClient<IRegisterClient, RegisterClient>();
+        services.Configure<NotificationsSettings>(config.GetSection(nameof(NotificationsSettings)));
+        services.AddHttpClient<INotificationsClient, NotificationsClient>();
         services.AddHttpClient<IAuthorizationClient, AuthorizationClient>();
 
         services.AddScoped<IPersonService, PersonRepository>();
