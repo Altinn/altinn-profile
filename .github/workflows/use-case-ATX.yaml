@@ -4,6 +4,9 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '*/15 * * * *'
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened]
 
 jobs:
   test:
@@ -33,7 +36,7 @@ jobs:
       - name: Build failure report
         if: failure()
         run: |
-          report=":warning: PRofile use case test failure in ${{ matrix.environment }} :warning: \n"
+          report=":warning: Profile use case test failure in ${{ matrix.environment }} :warning: \n"
           report+="\n Workflow available here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           echo "stepreport="$report >> $GITHUB_ENV
       - name: Report failure to Slack
