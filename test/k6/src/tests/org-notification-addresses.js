@@ -125,10 +125,11 @@ function removeOrgNotificationAddresses(data, addressId) {
  * @param {Object} data - The data object containing runFullTestSet and other test data.
  */
 export default function (data) {
-    getOrgNotificationAddresses(data);
 
     var link = addOrgNotificationAddresses(data);
     let addressId = link.split('/').pop();
+    getOrgNotificationAddresses(data);
+
     updateOrgNotificationAddresses(data, addressId);
     removeOrgNotificationAddresses(data, addressId);
 
