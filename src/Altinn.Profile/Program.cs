@@ -179,9 +179,11 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddAuthorizationBuilder()
         .AddPolicy(AuthConstants.PlatformAccess, policy => policy.Requirements.Add(new AccessTokenRequirement()))
         .AddPolicy(AuthConstants.OrgNotificationAddress_Read, policy => policy.Requirements.Add(new ResourceAccessRequirement("read", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
-        .AddPolicy(AuthConstants.OrgNotificationAddress_Write, policy => policy.Requirements.Add(new ResourceAccessRequirement("write", "altinn-profil-api-varslingsdaresser-for-virksomheter")));
+        .AddPolicy(AuthConstants.OrgNotificationAddress_Write, policy => policy.Requirements.Add(new ResourceAccessRequirement("write", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
+        .AddPolicy(AuthConstants.UserPartyAccess, policy => policy.Requirements.Add(new PartyAccessRequirement()));
 
     services.AddScoped<IAuthorizationHandler, OrgResourceAccessHandler>();
+    services.AddScoped<IAuthorizationHandler, PartyAccessHandler>();
 
     services.AddCoreServices(config);
     services.AddRegisterService(config);
