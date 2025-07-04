@@ -37,6 +37,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 return Task.FromResult(new HttpResponseMessage() { Content = JsonContent.Create(userProfile) });
             });
             _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
+        }
 
         private static void SetupAuthHandler(WebApplicationFactorySetup<NotificationsSettingsController> _webApplicationFactorySetup, Guid partyGuid, int UserId, bool access = true)
         {
