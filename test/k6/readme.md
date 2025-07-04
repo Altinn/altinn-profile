@@ -71,7 +71,6 @@ $> podman compose run k6 run /src/tests/favorites.js \
     -e userID=*** \
     -e pid=*** \
     -e partyId=*** \
-    -e pid=*** \
     -e partyUuid=***
 ```
 
