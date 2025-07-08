@@ -22,6 +22,7 @@ using Altinn.Profile.Integrations.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Wolverine.EntityFrameworkCore;
 
 namespace Altinn.Profile.Integrations;
 
@@ -95,7 +96,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPartyGroupRepository, PartyGroupRepository>();
         services.AddScoped<IProfessionalNotificationsRepository, ProfessionalNotificationsRepository>();
 
-        services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
+        services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention(), ServiceLifetime.Singleton);
     }
 
     /// <summary>

@@ -44,6 +44,9 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Wolverine;
+using Wolverine.EntityFrameworkCore;
+using Wolverine.Postgresql;
 
 ILogger logger;
 
@@ -56,6 +59,8 @@ SetConfigurationProviders(builder.Configuration);
 ConfigureApplicationLogging(builder.Logging);
 
 ConfigureServices(builder.Services, builder.Configuration);
+
+ConfigureWolverine(builder);
 
 WebApplication app = builder.Build();
 
@@ -265,6 +270,22 @@ void Configure()
 
     app.MapControllers();
     app.MapHealthChecks("/health");
+}
+
+void ConfigureWolverine(WebApplicationBuilder builder)
+{
+    builder.UseWolverine(opts =>
+    {
+        var connStr = builder.Configuration.GetDatabaseConnectionString();
+        
+        // You'll need to independently tell Wolverine where and how to 
+        // store messages as part of the transactional inbox/outbox
+        opts.PersistMessagesWithPostgresql(connStr);
+    
+        // Adding EF Core transactional middleware, saga support,
+        // and EF Core support for Wolverine storage operations
+        opts.UseEntityFrameworkCoreTransactions();
+    });
 }
 
 /// <summary>
