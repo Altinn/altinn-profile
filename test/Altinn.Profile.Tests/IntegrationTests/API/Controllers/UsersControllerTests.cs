@@ -349,24 +349,6 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
     }
 
     [Fact]
-    public async Task GetUsersByUuid_AsUser_UserAuthenticatedMissingPlatformAccesToken_ReturnsForbidden()
-    {
-        // Arrange
-        const int userId = 20000009;
-        Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
-
-        HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/byuuid/{userUuid}");
-
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-
-        // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-
-        // Assert
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
-    }
-
-    [Fact]
     public async Task GetUsersByUuid_AsUser_SblBridgeReturnsNotFound_ResponseNotFound()
     {
         // Arrange

@@ -193,19 +193,20 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
 static void AddPlatformAccessTokenAuthorization(IServiceCollection services, IConfiguration config)
 {
+    services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
+
     // Using a negative toggle because we want the default behavior to be enabled.
     // Intended use is to turn off the platform access token authorization in development.
     // See appsettings.Development.json
     if (config.GetValue<bool>("PlatformAccessTokenAuthorization:Disabled"))
     {
-        return;
+        services.AddSingleton<IAuthorizationHandler, PlatformAccessTokenAlwaysSuccessHandler>();
     }
-
-    // Settings for AccessTokenClient is added somewhere else.
-    services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
-
-    services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProvider>();
-    services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
+    else
+    {
+        services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProvider>();
+        services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
+    }
 
     services.AddAuthorizationBuilder()
         .AddPolicy(AuthConstants.PlatformAccess, policy => policy.Requirements.Add(new AccessTokenRequirement()));
