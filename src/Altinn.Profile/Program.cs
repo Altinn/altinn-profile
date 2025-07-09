@@ -147,7 +147,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddSingleton(config);
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-    AddPlatformAccessTokenAuthorzation(services, config);
+    AddPlatformAccessTokenAuthorization(services, config);
 
     services.AddHttpClient<AuthorizationApiClient>();
     services.AddSingleton<IPDP, PDPAppSI>();
@@ -191,7 +191,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
 }
 
-static void AddPlatformAccessTokenAuthorzation(IServiceCollection services, IConfiguration config)
+static void AddPlatformAccessTokenAuthorization(IServiceCollection services, IConfiguration config)
 {
     // Using a negative toggle because we want the default behavior to be enabled.
     // Intended use is to turn off the platform access token authorization in development.
