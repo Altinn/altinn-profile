@@ -142,14 +142,12 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
     services.Configure<GeneralSettings>(config.GetSection("GeneralSettings"));
     services.Configure<KeyVaultSettings>(config.GetSection("kvSetting"));
-    services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
     services.Configure<PlatformSettings>(config.GetSection("PlatformSettings"));
-    
-    services.AddSingleton(config);
 
-    services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
+    services.AddSingleton(config);
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-    services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProvider>();
+
+    AddPlatformAccessTokenAuthorzation(services, config);
 
     services.AddHttpClient<AuthorizationApiClient>();
     services.AddSingleton<IPDP, PDPAppSI>();
@@ -177,7 +175,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         });
 
     services.AddAuthorizationBuilder()
-        .AddPolicy(AuthConstants.PlatformAccess, policy => policy.Requirements.Add(new AccessTokenRequirement()))
         .AddPolicy(AuthConstants.OrgNotificationAddress_Read, policy => policy.Requirements.Add(new ResourceAccessRequirement("read", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
         .AddPolicy(AuthConstants.OrgNotificationAddress_Write, policy => policy.Requirements.Add(new ResourceAccessRequirement("write", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
         .AddPolicy(AuthConstants.UserPartyAccess, policy => policy.Requirements.Add(new PartyAccessRequirement()));
@@ -192,6 +189,26 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddProblemDetails();
 
     services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
+}
+
+static void AddPlatformAccessTokenAuthorzation(IServiceCollection services, IConfiguration config)
+{
+    // Using a negative toggle because we want the default behavior to be enabled.
+    // Intended use is to turn off the platform access token authorization in development.
+    // See appsettings.Development.json
+    if (config.GetValue<bool>("PlatformAccessTokenAuthorization:Disabled"))
+    {
+        return;
+    }
+
+    // Settings for AccessTokenClient is added somewhere else.
+    services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
+
+    services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProvider>();
+    services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
+
+    services.AddAuthorizationBuilder()
+        .AddPolicy(AuthConstants.PlatformAccess, policy => policy.Requirements.Add(new AccessTokenRequirement()));
 }
 
 static void AddAzureMonitorTelemetryExporters(IServiceCollection services, IConfiguration config)
