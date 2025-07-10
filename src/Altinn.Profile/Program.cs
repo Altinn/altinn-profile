@@ -19,6 +19,7 @@ using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
+using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Telemetry;
 
 using AltinnCore.Authentication.JwtCookie;
@@ -30,6 +31,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -92,7 +94,7 @@ void SetConfigurationProviders(ConfigurationManager config)
 
     if (!string.IsNullOrEmpty(keyVaultUri))
     {
-        config.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential());
+        //// config.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential());
     }
 }
 
@@ -281,10 +283,12 @@ void ConfigureWolverine(WebApplicationBuilder builder)
         // You'll need to independently tell Wolverine where and how to 
         // store messages as part of the transactional inbox/outbox
         opts.PersistMessagesWithPostgresql(connStr);
-    
+
         // Adding EF Core transactional middleware, saga support,
         // and EF Core support for Wolverine storage operations
         opts.UseEntityFrameworkCoreTransactions();
+
+        opts.Policies.UseDurableLocalQueues();
     });
 }
 
