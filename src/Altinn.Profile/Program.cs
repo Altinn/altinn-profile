@@ -19,19 +19,17 @@ using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
-using Altinn.Profile.Integrations.Persistence;
+using Altinn.Profile.Integrations.Handlers;
 using Altinn.Profile.Telemetry;
 
 using AltinnCore.Authentication.JwtCookie;
 
-using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.Exporter;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -46,6 +44,7 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
+
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
 using Wolverine.Postgresql;
@@ -289,6 +288,8 @@ void ConfigureWolverine(WebApplicationBuilder builder)
         opts.UseEntityFrameworkCoreTransactions();
 
         opts.Policies.UseDurableLocalQueues();
+
+        opts.Discovery.IncludeAssembly(typeof(ChangeInFavoritesEventHandler).Assembly);
     });
 }
 

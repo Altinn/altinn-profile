@@ -6,16 +6,17 @@ using Altinn.Profile.Integrations.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 using Wolverine;
+using Wolverine.EntityFrameworkCore;
 
 namespace Altinn.Profile.Integrations.Repositories
 {
     /// <summary>
     /// Defines a repository for operations related to a users groups of parties.
     /// </summary>
-    public class PartyGroupRepository(IDbContextFactory<ProfileDbContext> contextFactory, IMessageBus messageBus) : IPartyGroupRepository
+    public class PartyGroupRepository(IDbContextFactory<ProfileDbContext> contextFactory, IDbContextOutbox outbox) : IPartyGroupRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
-        private readonly IMessageBus _messageBus = messageBus;
+        private readonly IDbContextOutbox _outbox = outbox;
 
         /// <inheritdoc />
         public async Task<Group?> GetFavorites(int userId, CancellationToken cancellationToken)
@@ -62,9 +63,11 @@ namespace Altinn.Profile.Integrations.Repositories
 
             databaseContext.PartyGroupAssociations.Add(partyGroupAssociation);
 
-            await _messageBus.PublishAsync(new ChangeInFavoritesEvent(userId, partyUuid));
-            
-            // await databaseContext.SaveChangesAsync(cancellationToken);
+            _outbox.Enroll(databaseContext);
+
+            await _outbox.PublishAsync(new ChangeInFavoritesEvent(userId, partyUuid));
+
+            await outbox.SaveChangesAndFlushMessagesAsync();
 
             return true;
         }

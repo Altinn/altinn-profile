@@ -1,4 +1,5 @@
 using Altinn.Profile.Integrations.Events;
+
 using Wolverine.Attributes;
 
 namespace Altinn.Profile.Integrations.Handlers;
@@ -6,7 +7,7 @@ namespace Altinn.Profile.Integrations.Handlers;
 /// <summary>
 /// Represents an event that indicates a change in a user's favorites.
 /// </summary>
-public class ChangeInFavoritesEventHandler
+public static class ChangeInFavoritesEventHandler
 {
     /// <summary>
     /// Handle an event that indicates a change in a user's favorites.
@@ -14,7 +15,7 @@ public class ChangeInFavoritesEventHandler
     [Transactional]
     public static async Task Handle(ChangeInFavoritesEvent changeEvent)
     {
-        Console.WriteLine("ChangeInFavoritesEventHandler.Handle: changeEvent = ", changeEvent.ToString());
+        Console.WriteLine("ChangeInFavoritesEventHandler.Handle: changeEvent = {0}", changeEvent.ToString());
         await Task.CompletedTask;
     }
 }
