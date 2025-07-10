@@ -62,9 +62,9 @@ namespace Altinn.Profile.Integrations.Repositories
 
             databaseContext.PartyGroupAssociations.Add(partyGroupAssociation);
 
-            await databaseContext.SaveChangesAsync(cancellationToken);
-
             await _messageBus.PublishAsync(new ChangeInFavoritesEvent(userId, partyUuid));
+            
+            // await databaseContext.SaveChangesAsync(cancellationToken);
 
             return true;
         }
