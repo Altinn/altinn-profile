@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 
 using Wolverine;
-
+using Wolverine.EntityFrameworkCore;
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
@@ -23,7 +23,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
         private readonly ProfileDbContext _databaseContext;
         private readonly PartyGroupRepository _repository;
         private readonly Mock<IDbContextFactory<ProfileDbContext>> _databaseContextFactory;
-        private readonly Mock<IMessageBus> _messageBusMock = new();
+        private readonly Mock<IDbContextOutbox> _dbContextOutboxMock = new();
 
         public PartyGroupRepositoryTests()
         {
@@ -39,7 +39,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             _databaseContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => new ProfileDbContext(databaseContextOptions));
 
-            _repository = new PartyGroupRepository(_databaseContextFactory.Object, _messageBusMock.Object);
+            _repository = new PartyGroupRepository(_databaseContextFactory.Object, _dbContextOutboxMock.Object);
 
             _databaseContext = _databaseContextFactory.Object.CreateDbContext();
         }
