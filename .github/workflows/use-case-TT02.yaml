@@ -1,0 +1,45 @@
+name: Use Case - TT02
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
+
+jobs:
+  test:
+    environment: TT02
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Run favorites use case tests
+        uses: grafana/k6-action@e4714b734f2b0afaabeb7b4a69142745548ab9ec # v0.3.1
+        with:
+          filename: test/k6/src/tests/favorites.js
+          flags: -e env=${{ vars.ENV }} -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} -e userID=${{ secrets.USERID }} -e partyId=${{ secrets.PARTYID }} -e pid=${{ secrets.PID }} -e partyUuid=${{ secrets.PARTYUUID }}
+      - name: Run notification settings use case tests
+        uses: grafana/k6-action@e4714b734f2b0afaabeb7b4a69142745548ab9ec # v0.3.1
+        with:
+          filename: test/k6/src/tests/notification-settings.js
+          flags: -e env=${{ vars.ENV }} -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} -e userID=${{ secrets.USERID }} -e partyId=${{ secrets.PARTYID }} -e pid=${{ secrets.PID }} -e partyUuid=${{ secrets.PARTYUUID }}
+      - name: Run org notification addresses use case tests
+        uses: grafana/k6-action@e4714b734f2b0afaabeb7b4a69142745548ab9ec # v0.3.1
+        with:
+          filename: test/k6/src/tests/org-notification-addresses.js
+          flags: -e env=${{ vars.ENV }} -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} -e userID=${{ secrets.USERID }} -e partyId=${{ secrets.PARTYID }} -e pid=${{ secrets.PID }} -e orgNo=${{ secrets.ORGNO }}
+      - name: Build failure report
+        if: failure()
+        run: |
+          report=":warning: Profile use case test failure in ${{ vars.ENV }} :warning: \n"
+          report+="\n Workflow available here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "stepreport="$report >> $GITHUB_ENV
+      - name: Report failure to Slack
+        if: failure()
+        id: slack
+        uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52 # v2.1.0
+        with:
+          webhook-type: incoming-webhook
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL_PROD }}
+          payload: |
+            {
+              "text": "${{ env.stepreport }}"
+            }
