@@ -5,12 +5,12 @@ using Wolverine.Attributes;
 namespace Altinn.Profile.Integrations.Handlers;
 
 /// <summary>
-/// Represents an event that indicates a change in a user's favorites.
+/// Handler for the event where a party has been removed from a user's favorites.
 /// </summary>
 public static class FavoriteRemovedEventHandler
 {
     /// <summary>
-    /// Handle an event that indicates a change in a user's favorites.
+    /// Handles the event
     /// </summary>
     [Transactional]
     public static async Task Handle(FavoriteRemovedEvent changeEvent)
