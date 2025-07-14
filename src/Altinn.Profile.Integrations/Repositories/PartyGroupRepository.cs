@@ -61,7 +61,7 @@ namespace Altinn.Profile.Integrations.Repositories
 
             databaseContext.PartyGroupAssociations.Add(partyGroupAssociation);
 
-            ChangeInFavoritesEvent NotifyFavoriteAdded() => new(userId, partyUuid);
+            FavoriteAddedEvent NotifyFavoriteAdded() => new(userId, partyUuid, RegistrationTimestamp: DateTime.Now);
 
             await NotifyAndSave(databaseContext, NotifyFavoriteAdded, cancellationToken);
 
@@ -86,10 +86,10 @@ namespace Altinn.Profile.Integrations.Repositories
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
             databaseContext.Groups.Add(favoriteGroup);
 
-            ChangeInFavoritesEvent NotifyFavoriteAdded() => new(userId, partyUuid);
+            FavoriteAddedEvent NotifyFavoriteAdded() => new(userId, partyUuid, RegistrationTimestamp: DateTime.Now);
 
             await NotifyAndSave(databaseContext, eventRaiser: NotifyFavoriteAdded, cancellationToken);
-
+            
             return true;
         }
 
@@ -113,7 +113,7 @@ namespace Altinn.Profile.Integrations.Repositories
 
             databaseContext.PartyGroupAssociations.Remove(partyGroupAssociation);
 
-            ChangeInFavoritesEvent NotifyFavoriteDeleted() => new(userId, partyUuid);
+            FavoriteRemovedEvent NotifyFavoriteDeleted() => new(userId, partyUuid, partyGroupAssociation.Created);
             await NotifyAndSave(databaseContext, eventRaiser: NotifyFavoriteDeleted, cancellationToken);
 
             return true;

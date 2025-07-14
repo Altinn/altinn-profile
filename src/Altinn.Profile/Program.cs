@@ -289,7 +289,7 @@ void ConfigureWolverine(WebApplicationBuilder builder)
 
         opts.Policies.UseDurableLocalQueues();
 
-        opts.Discovery.IncludeAssembly(typeof(ChangeInFavoritesEventHandler).Assembly);
+        opts.Discovery.IncludeAssembly(typeof(FavoriteAddedEventHandler).Assembly);
     });
 }
 

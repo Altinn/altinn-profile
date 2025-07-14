@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.PartyGroups;
+using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
 
@@ -126,9 +127,13 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             _databaseContext.Groups.AddRange(
                 new Group
                 {
-                    Name = "Group A", GroupId = 1, IsFavorite = true, UserId = userId, Parties = [
+                    Name = "Group A",
+                    GroupId = 1,
+                    IsFavorite = true,
+                    UserId = userId,
+                    Parties = [
                     new PartyGroupAssociation { PartyUuid = partyUuid, AssociationId = 1, Created = DateTime.Now, GroupId = 1 },
-                    new PartyGroupAssociation { PartyUuid = Guid.NewGuid(), AssociationId = 2, Created = DateTime.Now, GroupId = 1 }] 
+                    new PartyGroupAssociation { PartyUuid = Guid.NewGuid(), AssociationId = 2, Created = DateTime.Now, GroupId = 1 }]
                 },
                 new Group { Name = "Group B", GroupId = 2, IsFavorite = false, UserId = userId },
                 new Group { Name = "Group C", GroupId = 3, IsFavorite = false, UserId = 2 });
@@ -180,8 +185,15 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             var userId = 1;
             var partyUuid = Guid.NewGuid();
 
+            FavoriteAddedEvent actualEventRaised = null;
+            Action<FavoriteAddedEvent, DeliveryOptions> eventRaisingCallback = (ev, opts) => actualEventRaised = ev;
+            MockDbContextOutbox(eventRaisingCallback);
+
+            var preRunDateTime = DateTime.Now;
+
             // Act
             var added = await _repository.AddPartyToFavorites(userId, partyUuid, CancellationToken.None);
+            var postRunDateTime = DateTime.Now;
 
             // Assert
             Assert.True(added);
@@ -191,6 +203,14 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             Assert.NotNull(favoriteGroup);
             Assert.Single(favoriteGroup.Parties);
             Assert.Equal(partyUuid, favoriteGroup.Parties[0].PartyUuid);
+
+            Assert.NotNull(actualEventRaised);
+            Assert.Equal(userId, actualEventRaised.UserId);
+            Assert.Equal(partyUuid, actualEventRaised.PartyUuid);
+
+            var isRegistrationTimestampInExpectedRange = preRunDateTime < actualEventRaised.RegistrationTimestamp && actualEventRaised.RegistrationTimestamp < postRunDateTime;
+            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<FavoriteAddedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
+            Assert.True(isRegistrationTimestampInExpectedRange);
         }
 
         [Fact]
@@ -204,8 +224,14 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
 
             await _databaseContext.SaveChangesAsync();
 
+            FavoriteAddedEvent actualEventRaised = null;
+            Action<FavoriteAddedEvent, DeliveryOptions> eventRaisingCallback = (ev, opts) => actualEventRaised = ev;
+            MockDbContextOutbox(eventRaisingCallback);
+            var preRunDateTime = DateTime.Now;
+
             // Act
             var added = await _repository.AddPartyToFavorites(userId, partyUuid, CancellationToken.None);
+            var postRunDateTime = DateTime.Now;
 
             // Assert
             Assert.True(added);
@@ -215,6 +241,14 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             Assert.NotNull(favoriteGroup);
             Assert.Single(favoriteGroup.Parties);
             Assert.Equal(partyUuid, favoriteGroup.Parties[0].PartyUuid);
+
+            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<FavoriteAddedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
+            Assert.NotNull(actualEventRaised);
+            Assert.Equal(userId, actualEventRaised.UserId);
+            Assert.Equal(partyUuid, actualEventRaised.PartyUuid);
+
+            var isRegistrationTimestampInExpectedRange = preRunDateTime < actualEventRaised.RegistrationTimestamp && actualEventRaised.RegistrationTimestamp < postRunDateTime;
+            Assert.True(isRegistrationTimestampInExpectedRange);
         }
 
         [Fact]
@@ -233,11 +267,17 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             _databaseContext.Groups.AddRange(CreateFavoriteGroup(userId, 1, parties: [association]));
             await _databaseContext.SaveChangesAsync();
 
+            FavoriteAddedEvent actualEventRaised = null;
+            Action<FavoriteAddedEvent, DeliveryOptions> eventRaisingCallback = (ev, opts) => actualEventRaised = ev;
+            MockDbContextOutbox(eventRaisingCallback);
+
             // Act
             var added = await _repository.AddPartyToFavorites(userId, partyUuid, CancellationToken.None);
 
             // Assert
             Assert.False(added);
+            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<FavoriteAddedEvent>(), It.IsAny<DeliveryOptions>()), Times.Never);
+            Assert.Null(actualEventRaised);
         }
 
         [Fact]
@@ -247,11 +287,17 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             var userId = 1;
             var partyUuid = Guid.NewGuid();
 
+            FavoriteRemovedEvent actualEventRaised = null;
+            Action<FavoriteRemovedEvent, DeliveryOptions> eventRaisingCallback = (ev, opts) => actualEventRaised = ev;
+            MockDbContextOutbox(eventRaisingCallback);
+
             // Act
             var deleted = await _repository.DeleteFromFavorites(userId, partyUuid, CancellationToken.None);
 
             // Assert
             Assert.False(deleted);
+            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<FavoriteRemovedEvent>(), It.IsAny<DeliveryOptions>()), Times.Never);
+            Assert.Null(actualEventRaised);
         }
 
         [Fact]
@@ -263,11 +309,17 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             _databaseContext.Groups.AddRange(CreateFavoriteGroup(userId, 1, parties: []));
             await _databaseContext.SaveChangesAsync();
 
+            FavoriteRemovedEvent actualEventRaised = null;
+            Action<FavoriteRemovedEvent, DeliveryOptions> eventRaisingCallback = (ev, opts) => actualEventRaised = ev;
+            MockDbContextOutbox(eventRaisingCallback);
+
             // Act
             var deleted = await _repository.DeleteFromFavorites(userId, partyUuid, CancellationToken.None);
 
             // Assert
             Assert.False(deleted);
+            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<FavoriteRemovedEvent>(), It.IsAny<DeliveryOptions>()), Times.Never);
+            Assert.Null(actualEventRaised);
         }
 
         [Fact]
@@ -276,15 +328,20 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             // Arrange
             var userId = 1;
             var partyUuid = Guid.NewGuid();
+            var fooCreationTime = DateTime.Now;
             var association = new PartyGroupAssociation
             {
                 PartyUuid = partyUuid,
                 AssociationId = 1,
-                Created = DateTime.Now,
+                Created = fooCreationTime,
                 GroupId = 1
             };
             _databaseContext.Groups.AddRange(CreateFavoriteGroup(userId, 1, parties: [association]));
             await _databaseContext.SaveChangesAsync();
+
+            FavoriteRemovedEvent actualEventRaised = null;
+            Action<FavoriteRemovedEvent, DeliveryOptions> eventRaisingCallback = (ev, opts) => actualEventRaised = ev;
+            MockDbContextOutbox(eventRaisingCallback);
 
             // Act
             var deleted = await _repository.DeleteFromFavorites(userId, partyUuid, CancellationToken.None);
@@ -296,6 +353,12 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
 
             Assert.NotNull(favoriteGroup);
             Assert.Empty(favoriteGroup.Parties);
+
+            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<FavoriteRemovedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
+            Assert.NotNull(actualEventRaised);
+            Assert.Equal(userId, actualEventRaised.UserId);
+            Assert.Equal(partyUuid, actualEventRaised.PartyUuid);
+            Assert.Equal(fooCreationTime, actualEventRaised.CreationTimestamp);
         }
 
         private static Group CreateFavoriteGroup(int userId, int groupId, string name = "Group A", List<PartyGroupAssociation> parties = null)
@@ -308,6 +371,29 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
                 UserId = userId,
                 Parties = parties ?? []
             };
+        }
+        
+        private void MockDbContextOutbox<TEvent>(Action<TEvent, DeliveryOptions> callback)
+        {
+            DbContext context = null;
+
+            _dbContextOutboxMock
+                .Setup(mock => mock.Enroll(It.IsAny<DbContext>()))
+                .Callback<DbContext>(ctx =>
+                {
+                    context = ctx;
+                });
+
+            _dbContextOutboxMock
+                .Setup(mock => mock.SaveChangesAndFlushMessagesAsync(It.IsAny<CancellationToken>()))
+                .Returns(async () =>
+                {
+                    await context.SaveChangesAsync();
+                });
+
+            _dbContextOutboxMock
+                .Setup(mock => mock.PublishAsync(It.IsAny<TEvent>(), null))
+                .Callback(callback);
         }
     }
 }
