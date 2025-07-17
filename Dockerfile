@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0.302-alpine3.22@sha256:35c77bbcd86b3153f9d7d6b2e88ae99d300e5a570cf2827501c0ba8b0aacdf08 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0.302-alpine3.22@sha256:329088c6945f917af6492ebe58b74c9720e1cf7e8e2bcbf62e04ab3232e18e7c AS build
 WORKDIR /app
 
 COPY src/Altinn.Profile/*.csproj ./src/Altinn.Profile/
