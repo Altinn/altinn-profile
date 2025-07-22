@@ -23,7 +23,7 @@ using Altinn.Profile.Integrations.Handlers;
 using Altinn.Profile.Telemetry;
 
 using AltinnCore.Authentication.JwtCookie;
-
+using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.Exporter;
 
 using Microsoft.AspNetCore.Authorization;
@@ -93,7 +93,7 @@ void SetConfigurationProviders(ConfigurationManager config)
 
     if (!string.IsNullOrEmpty(keyVaultUri))
     {
-        //// config.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential());
+        config.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential());
     }
 }
 
