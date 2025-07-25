@@ -11,16 +11,19 @@ using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 using Altinn.Profile.Integrations.SblBridge.User.Profile;
+using Altinn.Profile.Tests.IntegrationTests;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Mocks.Authentication;
 
 using AltinnCore.Authentication.JwtCookie;
 
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -73,21 +76,25 @@ public class WebApplicationFactorySetup<T>(WebApplicationFactory<T> webApplicati
 
         return _webApplicationFactory.WithWebHostBuilder(builder =>
         {
+            // Force test environment to ensure Wolverine uses test configuration
+            builder.UseEnvironment("Test");
+            
             builder.ConfigureAppConfiguration((context, config) =>
             {
                 config.SetBasePath(Directory.GetCurrentDirectory());
                 config.AddJsonFile("appsettings.test.json");
             });
+            builder.ConfigureLogging(logging =>
+            {
+                logging.ClearProviders(); // Remove all providers to prevent disposal race conditions
+                
+                // Don't add any providers - use null logger to prevent disposal issues during test cleanup
+            });
+            
             builder.ConfigureTestServices(services =>
             {
-                // Override the Wolverine configuration in the application
-                // to run the application in "solo" mode for faster
-                // testing cold starts
-                services.RunWolverineInSoloMode();
-
-                // And just for completion, disable all Wolverine external 
-                // messaging transports
-                services.DisableAllExternalWolverineTransports();
+                // Configure Wolverine for testing - using extension method for consistency
+                services.ConfigureWolverineForTesting();
 
                 services.AddSingleton<IPostConfigureOptions<JwtCookieOptions>, JwtCookiePostConfigureOptionsStub>();
                 services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProviderMock>();

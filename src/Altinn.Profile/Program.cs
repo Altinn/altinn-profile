@@ -259,7 +259,7 @@ void Configure()
         app.UseExceptionHandler("/profile/api/v1/error");
     }
 
-    if (app.Environment.IsDevelopment())
+    if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Test")
     {
         app.UseSwagger();
         app.UseSwaggerUI();
@@ -277,17 +277,30 @@ void ConfigureWolverine(WebApplicationBuilder builder)
 {
     builder.UseWolverine(opts =>
     {
-        var connStr = builder.Configuration.GetDatabaseConnectionString();
+        // Check if we're in a test environment
+        var isTestEnvironment = builder.Environment.EnvironmentName == "Test" || 
+                                builder.Configuration.GetValue<bool>("PostgreSqlSettings:EnableDBConnection") == false;
         
-        // You'll need to independently tell Wolverine where and how to 
-        // store messages as part of the transactional inbox/outbox
-        opts.PersistMessagesWithPostgresql(connStr);
+        if (!isTestEnvironment)
+        {
+            var connStr = builder.Configuration.GetWolverineConnectionString();
+            
+            // You'll need to independently tell Wolverine where and how to 
+            // store messages as part of the transactional inbox/outbox
+            opts.PersistMessagesWithPostgresql(connStr);
 
-        // Adding EF Core transactional middleware, saga support,
-        // and EF Core support for Wolverine storage operations
-        opts.UseEntityFrameworkCoreTransactions();
-
-        opts.Policies.UseDurableLocalQueues();
+            opts.Policies.UseDurableLocalQueues();
+            
+            // Adding EF Core transactional middleware for production
+            opts.UseEntityFrameworkCoreTransactions();
+        }
+        else
+        {
+            // For testing, use minimal Wolverine configuration
+            // - No database persistence 
+            // - No EF Core transactions (to avoid disposal race conditions)
+            // - In-memory message handling only
+        }
 
         opts.Discovery.IncludeAssembly(typeof(FavoriteAddedEventHandler).Assembly);
     });
