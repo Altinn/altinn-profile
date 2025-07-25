@@ -3,6 +3,7 @@ using System.Net.Http;
 
 using Altinn.Common.AccessToken.Services;
 using Altinn.Common.PEP.Interfaces;
+
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Authorization;
 using Altinn.Profile.Integrations.ContactRegister;
@@ -24,6 +25,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Moq;
+
+using Wolverine;
 
 namespace Altinn.Profile.Tests.IntegrationTests.Utils;
 
@@ -77,6 +80,15 @@ public class WebApplicationFactorySetup<T>(WebApplicationFactory<T> webApplicati
             });
             builder.ConfigureTestServices(services =>
             {
+                // Override the Wolverine configuration in the application
+                // to run the application in "solo" mode for faster
+                // testing cold starts
+                services.RunWolverineInSoloMode();
+
+                // And just for completion, disable all Wolverine external 
+                // messaging transports
+                services.DisableAllExternalWolverineTransports();
+
                 services.AddSingleton<IPostConfigureOptions<JwtCookieOptions>, JwtCookiePostConfigureOptionsStub>();
                 services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProviderMock>();
                 services.AddSingleton<IMemoryCache>(memoryCache);

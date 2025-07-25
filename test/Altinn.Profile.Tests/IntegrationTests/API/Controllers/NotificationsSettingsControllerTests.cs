@@ -7,22 +7,26 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Controllers;
+
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
+
 using Moq;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class NotificationsSettingsControllerTests(WebApplicationFactory<NotificationsSettingsController> factory) : IClassFixture<WebApplicationFactory<NotificationsSettingsController>>
+    public class NotificationsSettingsControllerTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
     {
-        private readonly WebApplicationFactorySetup<NotificationsSettingsController> _webApplicationFactorySetup = new WebApplicationFactorySetup<NotificationsSettingsController>(factory);
+        private readonly WebApplicationFactorySetup<Program> _webApplicationFactorySetup = new WebApplicationFactorySetup<Program>(factory);
 
         private readonly JsonSerializerOptions _serializerOptionsCamelCase = new()
         {
@@ -39,7 +43,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
         }
 
-        private static void SetupAuthHandler(WebApplicationFactorySetup<NotificationsSettingsController> _webApplicationFactorySetup, Guid partyGuid, int UserId, bool access = true)
+        private static void SetupAuthHandler(WebApplicationFactorySetup<Program> _webApplicationFactorySetup, Guid partyGuid, int UserId, bool access = true)
         {
             _webApplicationFactorySetup.RegisterClientMock
                 .Setup(x => x.GetPartyId(partyGuid, It.IsAny<CancellationToken>()))

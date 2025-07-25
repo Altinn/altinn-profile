@@ -6,7 +6,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-using Altinn.Profile.Controllers;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
@@ -19,9 +18,9 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class UnitContactPointControllerTests : IClassFixture<WebApplicationFactory<UnitContactPointController>>
+    public class UnitContactPointControllerTests : IClassFixture<WebApplicationFactory<Program>>
     {
-        private readonly WebApplicationFactorySetup<UnitContactPointController> _webApplicationFactorySetup;
+        private readonly WebApplicationFactorySetup<Program> _webApplicationFactorySetup;
 
         private readonly JsonSerializerOptions _serializerOptions = new()
         {
@@ -29,9 +28,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             PropertyNameCaseInsensitive = true
         };
 
-        public UnitContactPointControllerTests(WebApplicationFactory<UnitContactPointController> factory)
+        public UnitContactPointControllerTests(WebApplicationFactory<Program> factory)
         {
-            _webApplicationFactorySetup = new WebApplicationFactorySetup<UnitContactPointController>(factory);
+            _webApplicationFactorySetup = new WebApplicationFactorySetup<Program>(factory);
 
             _webApplicationFactorySetup.SblBridgeHttpMessageHandler = new DelegatingHandlerStub(async (request, token) =>
                 {

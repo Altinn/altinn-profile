@@ -6,20 +6,21 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Altinn.Profile.Controllers;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
 using Microsoft.AspNetCore.Mvc.Testing;
+
 using Moq;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class OrgNotificationAddressesControllerTests : IClassFixture<WebApplicationFactory<OrgNotificationAddressController>>
+    public class OrgNotificationAddressesControllerTests : IClassFixture<WebApplicationFactory<Program>>
     {
-        private readonly WebApplicationFactorySetup<OrgNotificationAddressController> _webApplicationFactorySetup;
+        private readonly WebApplicationFactorySetup<Program> _webApplicationFactorySetup;
 
         private readonly JsonSerializerOptions _serializerOptions = new()
         {
@@ -28,9 +29,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         private readonly List<Organization> _testdata;
 
-        public OrgNotificationAddressesControllerTests(WebApplicationFactory<OrgNotificationAddressController> factory)
+        public OrgNotificationAddressesControllerTests(WebApplicationFactory<Program> factory)
         {
-            _webApplicationFactorySetup = new WebApplicationFactorySetup<OrgNotificationAddressController>(factory);
+            _webApplicationFactorySetup = new WebApplicationFactorySetup<Program>(factory);
             _testdata = [
                 new()
                 {
