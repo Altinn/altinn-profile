@@ -1,32 +1,26 @@
+#nullable enable
+
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
-using Altinn.Profile.Controllers;
-using Altinn.Profile.Tests.IntegrationTests.Utils;
-
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
-public class ErrorHandlingTests : IClassFixture<WebApplicationFactory<ErrorController>>
+public class ErrorHandlingTests(ProfileWebApplicationFactory<Program> factory) 
+    : IClassFixture<ProfileWebApplicationFactory<Program>>
 {
-    private readonly WebApplicationFactorySetup<ErrorController> _webApplicationFactorySetup;
-
-    public ErrorHandlingTests(WebApplicationFactory<ErrorController> factory)
-    {
-        _webApplicationFactorySetup = new WebApplicationFactorySetup<ErrorController>(factory);
-    }
+    private readonly ProfileWebApplicationFactory<Program> _factory = factory;
 
     [Fact]
     public async Task GetError_ReturnsInternalServerError()
     {
         // Arrange
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, "/profile/api/v1/error");
 
@@ -36,8 +30,8 @@ public class ErrorHandlingTests : IClassFixture<WebApplicationFactory<ErrorContr
         // Assert
         Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
-        ProblemDetails problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+        ProblemDetails? problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
 
-        Assert.StartsWith("An error occurred", problemDetails.Title);
+        Assert.StartsWith("An error occurred", problemDetails?.Title);
     }
 }

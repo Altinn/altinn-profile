@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Controllers;
+
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
@@ -20,18 +20,18 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
-public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFactory<UserProfileInternalController>>
+public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFactory<Program>>
 {
-    private readonly WebApplicationFactorySetup<UserProfileInternalController> _webApplicationFactorySetup;
+    private readonly WebApplicationFactorySetup<Program> _webApplicationFactorySetup;
 
     private readonly JsonSerializerOptions serializerOptionsCamelCase = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public UserProfileInternalControllerTests(WebApplicationFactory<UserProfileInternalController> factory)
+    public UserProfileInternalControllerTests(WebApplicationFactory<Program> factory)
     {
-        _webApplicationFactorySetup = new WebApplicationFactorySetup<UserProfileInternalController>(factory);
+        _webApplicationFactorySetup = new WebApplicationFactorySetup<Program>(factory);
 
         SblBridgeSettings sblBrideSettings = new() { ApiProfileEndpoint = "http://localhost/" };
         _webApplicationFactorySetup.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);

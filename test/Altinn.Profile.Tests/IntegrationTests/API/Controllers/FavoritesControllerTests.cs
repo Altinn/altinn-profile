@@ -5,35 +5,38 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Altinn.Profile.Controllers;
+
 using Altinn.Profile.Core.PartyGroups;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
+
 using Microsoft.AspNetCore.Mvc.Testing;
+
 using Moq;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class FavoritesControllerTests : IClassFixture<WebApplicationFactory<FavoritesController>>
+    public class FavoritesControllerTests : IClassFixture<WebApplicationFactory<Program>>
     {
-        private readonly WebApplicationFactorySetup<FavoritesController> _webApplicationFactorySetup;
+        private readonly WebApplicationFactorySetup<Program> _webApplicationFactorySetup;
 
         private readonly JsonSerializerOptions _serializerOptionsCamelCase = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public FavoritesControllerTests(WebApplicationFactory<FavoritesController> factory)
+        public FavoritesControllerTests(WebApplicationFactory<Program> factory)
         {
-            _webApplicationFactorySetup = new WebApplicationFactorySetup<FavoritesController>(factory);
+            _webApplicationFactorySetup = new WebApplicationFactorySetup<Program>(factory);
 
             _webApplicationFactorySetup.PartyGroupRepositoryMock
                 .Setup(x => x.GetFavorites(It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Group { Parties = [new PartyGroupAssociation { PartyUuid = Guid.NewGuid() }, new PartyGroupAssociation { PartyUuid = Guid.NewGuid() }], Name = "__favoritter__" });
         }
 
-        private static void SetupAuthHandler(WebApplicationFactorySetup<FavoritesController> _webApplicationFactorySetup, Guid partyGuid, int UserId, bool access = true)
+        private static void SetupAuthHandler(WebApplicationFactorySetup<Program> _webApplicationFactorySetup, Guid partyGuid, int UserId, bool access = true)
         {
             _webApplicationFactorySetup.RegisterClientMock
                 .Setup(x => x.GetPartyId(partyGuid, It.IsAny<CancellationToken>()))

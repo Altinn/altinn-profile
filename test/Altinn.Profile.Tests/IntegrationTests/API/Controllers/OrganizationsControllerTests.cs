@@ -7,24 +7,27 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Altinn.Authorization.ABAC.Xacml.JsonProfile;
 using Altinn.Common.PEP.Interfaces;
-using Altinn.Profile.Controllers;
+
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 using Microsoft.AspNetCore.Mvc.Testing;
+
 using Moq;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class OrganizationsControllerTests : IClassFixture<WebApplicationFactory<OrganizationsController>>
+    public class OrganizationsControllerTests : IClassFixture<WebApplicationFactory<Program>>
     {
-        private readonly WebApplicationFactorySetup<OrganizationsController> _webApplicationFactorySetup;
+        private readonly WebApplicationFactorySetup<Program> _webApplicationFactorySetup;
 
         private readonly JsonSerializerOptions _serializerOptions = new()
         {
@@ -33,9 +36,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         private readonly List<Organization> _testdata;
 
-        public OrganizationsControllerTests(WebApplicationFactory<OrganizationsController> factory)
+        public OrganizationsControllerTests(WebApplicationFactory<Program> factory)
         {
-            _webApplicationFactorySetup = new WebApplicationFactorySetup<OrganizationsController>(factory);
+            _webApplicationFactorySetup = new WebApplicationFactorySetup<Program>(factory);
             _testdata = [
                 new()
                 {
