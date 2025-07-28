@@ -21,8 +21,6 @@ public class FavoriteAddedEventHandler(IUserFavoriteClient client)
     [Transactional]
     public async Task Handle(FavoriteAddedEvent changeEvent)
     {
-        Console.WriteLine("ChangeInFavoritesEventHandler.Handle: changeEvent = {0}", changeEvent.ToString());
-
         var request = new FavoriteChangedRequest
         {
             UserId = changeEvent.UserId,
@@ -33,7 +31,5 @@ public class FavoriteAddedEventHandler(IUserFavoriteClient client)
 
         // Using SBLBridge to update favorites in A2
         await _userFavoriteClient.UpdateFavorites(request);
-
-        await Task.CompletedTask;
     }
 }
