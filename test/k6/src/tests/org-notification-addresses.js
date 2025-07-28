@@ -30,13 +30,15 @@ export let options = {
 export function setup() {
     const orgNo = __ENV.orgNo;
     const token = generateToken(config.tokenGenerator.getPersonalToken);
+
     const envSuffix = __ENV.env.slice(-1);
-    const suffix = Number.isInteger(envSuffix) ? envSuffix : 0;
+    const numericSuffix = parseInt(envSuffix);
+    const suffix = Number.isInteger(numericSuffix) ? envSuffix : 0;
+
     const address = {
         phone: "9999999" + suffix,
         countryCode: "+47"
     }
-
     const updateAddress = {
         email: "noreply" + suffix + "@altinn.no"
     }
