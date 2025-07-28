@@ -33,7 +33,7 @@ export function setup() {
     const envSuffix = __ENV.env.slice(-1);
     const suffix = Number.isInteger(envSuffix) ? envSuffix : 0;
     const address = {
-        phone: "1999999" + suffix,
+        phone: "9999999" + suffix,
         countryCode: "+47"
     }
 
