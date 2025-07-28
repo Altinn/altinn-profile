@@ -26,14 +26,15 @@ export let options = {
 export function setup() {
     const orgNo = __ENV.orgNo;
     const token = generateToken(config.tokenGenerator.getPersonalToken);
-
+    const envSuffix = __ENV.env.slice(-1);
+    const suffix = Number.isInteger(envSuffix) ? envSuffix : 0;
     const address = {
-        phone: "99999994",
+        phone: "1999999" + suffix,
         countryCode: "+47"
     }
 
     const updateAddress = {
-        email: "noreply1@altinn.no"
+        email: "noreply" + suffix + "@altinn.no"
     }
 
     return {
@@ -76,10 +77,11 @@ function addOrgNotificationAddresses(data) {
     let success = check(response, {
         'POST org notification addresses: 201 Created or 200 Ok': (r) => r.status === 201 || r.status === 200,
     });
-    const selfLink = response.headers["Location"];
 
     stopIterationOnFail("POST org notification addresses failed", success);
-    return selfLink;
+    const id = JSON.parse(response.body).notificationAddressId;
+
+    return id;
 }
 
 /**
@@ -128,8 +130,7 @@ function removeOrgNotificationAddresses(data, addressId) {
  */
 export default function (data) {
 
-    var link = addOrgNotificationAddresses(data);
-    let addressId = link.split('/').pop();
+    var addressId = addOrgNotificationAddresses(data);
     getOrgNotificationAddresses(data);
 
     updateOrgNotificationAddresses(data, addressId);
