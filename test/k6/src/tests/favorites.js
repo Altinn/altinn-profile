@@ -17,6 +17,10 @@ import { stopIterationOnFail } from "../errorhandler.js";
 export let options = {
     vus: 1,
     iterations: 1,
+    thresholds: {
+        // Checks rate should be 100%. Raise error if any check has failed.
+        checks: ['rate>=1']
+    }
 };
 
 /**
