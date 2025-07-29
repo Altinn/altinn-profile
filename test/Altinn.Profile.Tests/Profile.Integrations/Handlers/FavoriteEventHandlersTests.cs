@@ -1,9 +1,11 @@
-using System;
-using System.Threading.Tasks;
 using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Handlers;
+using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.User.Favorites;
+using Microsoft.Extensions.Options;
 using Moq;
+using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.Handlers
@@ -19,8 +21,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Handlers
             mockClient.Setup(c => c.UpdateFavorites(It.IsAny<FavoriteChangedRequest>()))
                 .Callback<FavoriteChangedRequest>(req => capturedRequest = req)
                 .Returns(Task.CompletedTask);
+            var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
+            settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2 = true });
 
-            var handler = new FavoriteAddedEventHandler(mockClient.Object);
+            var handler = new FavoriteAddedEventHandler(mockClient.Object, settingsMock.Object);
 
             var evt = new FavoriteAddedEvent(42, Guid.NewGuid(), DateTime.UtcNow);
 
@@ -37,6 +41,25 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Handlers
         }
 
         [Fact]
+        public async Task FavoriteAddedEventHandler_DoesNotCallUpdateFavorites_WhenUpdateA2IsFalse()
+        {
+            // Arrange
+            var mockClient = new Mock<IUserFavoriteClient>();
+            var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
+            settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2 = false });
+
+            var handler = new FavoriteAddedEventHandler(mockClient.Object, settingsMock.Object);
+
+            var evt = new FavoriteAddedEvent(42, Guid.NewGuid(), DateTime.UtcNow);
+
+            // Act
+            await handler.Handle(evt);
+
+            // Assert
+            mockClient.Verify(c => c.UpdateFavorites(It.IsAny<FavoriteChangedRequest>()), Times.Never);
+        }
+
+        [Fact]
         public async Task FavoriteRemovedEventHandler_CallsUpdateFavorites_WithCorrectRequest()
         {
             // Arrange
@@ -46,14 +69,15 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Handlers
                 .Callback<FavoriteChangedRequest>(req => capturedRequest = req)
                 .Returns(Task.CompletedTask);
 
-            var handler = new FavoriteRemovedEventHandler(mockClient.Object);
+            var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
+            settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2 = true });
 
-            var evt = new FavoriteRemovedEvent(UserId: 99, PartyUuid: Guid.NewGuid(), DateTime.Today);
+            var handler = new FavoriteRemovedEventHandler(mockClient.Object, settingsMock.Object);
+
+            var evt = new FavoriteRemovedEvent(UserId: 99, PartyUuid: Guid.NewGuid(), DateTime.Today, DateTime.Now);
 
             // Act
-            var before = DateTime.UtcNow;
             await handler.Handle(evt);
-            var after = DateTime.UtcNow;
 
             // Assert
             mockClient.Verify(c => c.UpdateFavorites(It.IsAny<FavoriteChangedRequest>()), Times.Once);
@@ -61,9 +85,26 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Handlers
             Assert.Equal(evt.UserId, capturedRequest.UserId);
             Assert.Equal("delete", capturedRequest.ChangeType);
             Assert.Equal(evt.PartyUuid, capturedRequest.PartyUuid);
+            Assert.Equal(evt.DeletionTimestamp, capturedRequest.ChangeDateTime, TimeSpan.FromSeconds(1));
+        }
 
-            // ChangeDateTime should be between before and after
-            Assert.True(capturedRequest.ChangeDateTime >= before && capturedRequest.ChangeDateTime <= after);
+        [Fact]
+        public async Task FavoriteRemovedEventHandler_DoesNotCallUpdateFavorites_WhenUpdateA2IsFalse()
+        {
+            // Arrange
+            var mockClient = new Mock<IUserFavoriteClient>();
+            var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
+            settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2 = false });
+
+            var handler = new FavoriteRemovedEventHandler(mockClient.Object, settingsMock.Object);
+
+            var evt = new FavoriteRemovedEvent(UserId: 99, PartyUuid: Guid.NewGuid(), DateTime.Today, DateTime.Now);
+
+            // Act
+            await handler.Handle(evt);
+
+            // Assert
+            mockClient.Verify(c => c.UpdateFavorites(It.IsAny<FavoriteChangedRequest>()), Times.Never);
         }
     }
 }

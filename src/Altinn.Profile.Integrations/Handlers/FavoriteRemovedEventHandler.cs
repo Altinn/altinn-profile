@@ -1,5 +1,7 @@
 using Altinn.Profile.Integrations.Events;
+using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.User.Favorites;
+using Microsoft.Extensions.Options;
 using Wolverine.Attributes;
 
 namespace Altinn.Profile.Integrations.Handlers;
@@ -8,9 +10,11 @@ namespace Altinn.Profile.Integrations.Handlers;
 /// Handler for the event where a party has been removed from a user's favorites.
 /// </summary>
 /// <param name="client">The favorites client</param>
-public class FavoriteRemovedEventHandler(IUserFavoriteClient client)
+/// <param name="settings">Config to indicate if the handler should update Altinn 2</param>
+public class FavoriteRemovedEventHandler(IUserFavoriteClient client, IOptions<SblBridgeSettings> settings)
 {
     private readonly IUserFavoriteClient _userFavoriteClient = client;
+    private readonly bool _updatea2 = settings.Value.UpdateA2;
 
     /// <summary>
     /// Handles the event
@@ -18,6 +22,11 @@ public class FavoriteRemovedEventHandler(IUserFavoriteClient client)
     [Transactional]
     public async Task Handle(FavoriteRemovedEvent changeEvent)
     {
+        if (!_updatea2)
+        {
+            return;
+        }
+
         var request = new FavoriteChangedRequest
         {
             UserId = changeEvent.UserId,
