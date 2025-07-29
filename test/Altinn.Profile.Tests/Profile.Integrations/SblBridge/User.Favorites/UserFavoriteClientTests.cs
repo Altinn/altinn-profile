@@ -112,7 +112,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.User.Favorites
                 ChangeDateTime = DateTime.UtcNow
             };
             var errorMessage = "Something went wrong";
-            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError)
+            var response = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
                 Content = new StringContent(errorMessage, Encoding.UTF8, "text/plain")
             };
@@ -132,6 +132,40 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.User.Favorites
                     null,
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()), 
                 Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateFavorites_WhenResponseIsInternalServerError_ThrowsException()
+        {
+            // Arrange
+            var request = new FavoriteChangedRequest
+            {
+                ChangeType = "delete",
+                UserId = 456,
+                PartyUuid = Guid.NewGuid(),
+                ChangeDateTime = DateTime.UtcNow
+            };
+            var errorMessage = "Something went wrong";
+            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError)
+            {
+                Content = new StringContent(errorMessage, Encoding.UTF8, "text/plain")
+            };
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new UserFavoriteClient(_httpClient, _loggerMock.Object, _settingsMock.Object);
+
+            // Act
+            await Assert.ThrowsAsync<InternalServerErrorException>(() => client.UpdateFavorites(request));
+
+            // Assert
+            _loggerMock.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Unexpected response")),
+                    null,
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Never);
         }
     }
 }

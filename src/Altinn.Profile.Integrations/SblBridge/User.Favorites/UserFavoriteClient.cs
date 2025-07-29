@@ -41,10 +41,15 @@ public class UserFavoriteClient : IUserFavoriteClient
 
         if (!response.IsSuccessStatusCode)
         {
+            if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+            {
+                throw new InternalServerErrorException("Internal server error while updating favorites.");
+            }
+
             _logger.LogError(
-                "// UserFavoriteClient // UpdateFavorites // Unexpected response. Failed with {StatusCode} and message {Message}",
-                response.StatusCode,
-                await response.Content.ReadAsStringAsync());
+    "// UserFavoriteClient // UpdateFavorites // Unexpected response. Failed with {StatusCode} and message {Message}",
+    response.StatusCode,
+    await response.Content.ReadAsStringAsync());
 
             return;
         }

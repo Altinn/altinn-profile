@@ -1,11 +1,11 @@
+using System;
+using System.Threading.Tasks;
 using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Handlers;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.User.Favorites;
 using Microsoft.Extensions.Options;
 using Moq;
-using System;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.Handlers
