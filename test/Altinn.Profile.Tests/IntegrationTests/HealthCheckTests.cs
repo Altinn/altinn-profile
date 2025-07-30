@@ -1,30 +1,23 @@
+#nullable enable
+
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-
-using Altinn.Profile.Health;
-using Altinn.Profile.Tests.IntegrationTests.Utils;
-
-using Microsoft.AspNetCore.Mvc.Testing;
 
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests;
 
-public class HealthCheckTests : IClassFixture<WebApplicationFactory<HealthCheck>>
+public class HealthCheckTests(ProfileWebApplicationFactory<Program> factory) 
+    : IClassFixture<ProfileWebApplicationFactory<Program>>
 {
-    private readonly WebApplicationFactorySetup<HealthCheck> _webApplicationFactorySetup;
-
-    public HealthCheckTests(WebApplicationFactory<HealthCheck> factory)
-    {
-        _webApplicationFactorySetup = new WebApplicationFactorySetup<HealthCheck>(factory);
-    }
+    private readonly ProfileWebApplicationFactory<Program> _factory = factory;
 
     [Fact]
     public async Task GetHealth_ReturnsOk()
     {
         // Arrange
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "/health");
 

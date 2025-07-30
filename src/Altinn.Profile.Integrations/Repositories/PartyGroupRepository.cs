@@ -1,14 +1,18 @@
 ﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.PartyGroups;
+using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
+
 using Microsoft.EntityFrameworkCore;
+
+using Wolverine.EntityFrameworkCore;
 
 namespace Altinn.Profile.Integrations.Repositories
 {
     /// <summary>
     /// Defines a repository for operations related to a users groups of parties.
     /// </summary>
-    public class PartyGroupRepository(IDbContextFactory<ProfileDbContext> contextFactory) : IPartyGroupRepository
+    public class PartyGroupRepository(IDbContextFactory<ProfileDbContext> contextFactory, IDbContextOutbox DBContextOutbox) : EFCoreTransactionalOutbox(DBContextOutbox), IPartyGroupRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
@@ -57,11 +61,13 @@ namespace Altinn.Profile.Integrations.Repositories
 
             databaseContext.PartyGroupAssociations.Add(partyGroupAssociation);
 
-            await databaseContext.SaveChangesAsync(cancellationToken);
+            FavoriteAddedEvent NotifyFavoriteAdded() => new(userId, partyUuid, RegistrationTimestamp: DateTime.Now);
+
+            await NotifyAndSave(databaseContext, NotifyFavoriteAdded, cancellationToken);
 
             return true;
         }
-
+        
         private async Task<bool> CreateFavoriteGroupWithAssociation(int userId, Guid partyUuid, CancellationToken cancellationToken)
         {
             var partyGroupAssociation = new PartyGroupAssociation
@@ -80,8 +86,10 @@ namespace Altinn.Profile.Integrations.Repositories
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
             databaseContext.Groups.Add(favoriteGroup);
 
-            await databaseContext.SaveChangesAsync(cancellationToken);
+            FavoriteAddedEvent NotifyFavoriteAdded() => new(userId, partyUuid, RegistrationTimestamp: DateTime.Now);
 
+            await NotifyAndSave(databaseContext, eventRaiser: NotifyFavoriteAdded, cancellationToken);
+            
             return true;
         }
 
@@ -104,7 +112,9 @@ namespace Altinn.Profile.Integrations.Repositories
             var partyGroupAssociation = favoriteGroup.Parties.First(p => p.PartyUuid == partyUuid);
 
             databaseContext.PartyGroupAssociations.Remove(partyGroupAssociation);
-            await databaseContext.SaveChangesAsync(cancellationToken);
+
+            FavoriteRemovedEvent NotifyFavoriteDeleted() => new(userId, partyUuid, partyGroupAssociation.Created);
+            await NotifyAndSave(databaseContext, eventRaiser: NotifyFavoriteDeleted, cancellationToken);
 
             return true;
         }
