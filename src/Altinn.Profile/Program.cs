@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
-
 using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.Common.AccessToken.Services;
@@ -11,7 +10,6 @@ using Altinn.Common.PEP.Clients;
 using Altinn.Common.PEP.Configuration;
 using Altinn.Common.PEP.Implementation;
 using Altinn.Common.PEP.Interfaces;
-
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Configuration;
 using Altinn.Profile.Core.Extensions;
@@ -20,12 +18,12 @@ using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Handlers;
+using Altinn.Profile.Integrations.SblBridge.User.Favorites;
 using Altinn.Profile.Telemetry;
-
 using AltinnCore.Authentication.JwtCookie;
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.Exporter;
-
+using JasperFx.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -37,16 +35,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-
 using Swashbuckle.AspNetCore.SwaggerGen;
-
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
+using Wolverine.ErrorHandling;
 using Wolverine.Postgresql;
 
 ILogger logger;
@@ -290,6 +286,10 @@ void ConfigureWolverine(WebApplicationBuilder builder)
         opts.Policies.UseDurableLocalQueues();
 
         opts.Discovery.IncludeAssembly(typeof(FavoriteAddedEventHandler).Assembly);
+
+        opts
+            .OnException<InternalServerErrorException>()
+            .RetryWithCooldown(50.Milliseconds(), 100.Milliseconds(), 250.Milliseconds());
     });
 }
 
