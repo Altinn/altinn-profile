@@ -3,7 +3,6 @@
     /// <summary>
     /// Represents an exception that occurs when an internal server error is encountered.
     /// </summary>
-    [Serializable]
     public class InternalServerErrorException : Exception
     {
         /// <summary>
