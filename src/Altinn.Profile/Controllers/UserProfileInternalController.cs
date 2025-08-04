@@ -47,7 +47,7 @@ public class UserProfileInternalController : Controller
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserProfile>> Get([FromBody] UserProfileLookup userProfileLookup)
     {
-        if (ModelState.IsValid == false)
+        if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
@@ -93,7 +93,7 @@ public class UserProfileInternalController : Controller
     [Produces("application/json")]
     public async Task<ActionResult<List<UserProfile>>> GetList([FromBody] List<Guid> userUuidList)
     {
-        if (ModelState.IsValid == false)
+        if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
