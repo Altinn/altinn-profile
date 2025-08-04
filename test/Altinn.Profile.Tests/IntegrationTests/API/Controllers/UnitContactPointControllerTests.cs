@@ -7,20 +7,16 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.Unit.ContactPoints;
-using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
-using Altinn.Profile.Tests.IntegrationTests.Utils;
-
-using Microsoft.AspNetCore.Mvc.Testing;
 
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class UnitContactPointControllerTests : IClassFixture<WebApplicationFactory<Program>>
+    public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicationFactory<Program>>
     {
-        private readonly WebApplicationFactorySetup<Program> _webApplicationFactorySetup;
+        private readonly ProfileWebApplicationFactory<Program> _factory;
 
         private readonly JsonSerializerOptions _serializerOptions = new()
         {
@@ -28,19 +24,16 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             PropertyNameCaseInsensitive = true
         };
 
-        public UnitContactPointControllerTests(WebApplicationFactory<Program> factory)
+        public UnitContactPointControllerTests(ProfileWebApplicationFactory<Program> factory)
         {
-            _webApplicationFactorySetup = new WebApplicationFactorySetup<Program>(factory);
+            _factory = factory;
 
-            _webApplicationFactorySetup.SblBridgeHttpMessageHandler = new DelegatingHandlerStub(async (request, token) =>
-                {
-                    string requestString = await request.Content.ReadAsStringAsync(token);
-                    UnitContactPointLookup lookup = JsonSerializer.Deserialize<UnitContactPointLookup>(requestString, _serializerOptions);
-                    return GetSBlResponseFromSBL(lookup.OrganizationNumbers[0]);
-                });
-
-            SblBridgeSettings sblBrideSettings = new() { ApiProfileEndpoint = "http://localhost/" };
-            _webApplicationFactorySetup.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);
+            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+            {
+                string requestString = await request.Content.ReadAsStringAsync(token);
+                UnitContactPointLookup lookup = JsonSerializer.Deserialize<UnitContactPointLookup>(requestString, _serializerOptions);
+                return GetSBlResponseFromSBL(lookup.OrganizationNumbers[0]);
+            });
         }
 
         [Fact]
@@ -53,7 +46,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceId = "app_ttd_apps-test"
             };
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -79,7 +72,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceId = "app_ttd_apps-test"
             };
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -99,7 +92,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task PostLookup_InvalidInputValues_ReturnsBadRequest(string input)
         {
             // Arrange
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
                 Content = new StringContent(input, System.Text.Encoding.UTF8, "application/json")

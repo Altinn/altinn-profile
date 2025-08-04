@@ -6,35 +6,29 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+
 using Altinn.Platform.Profile.Models;
 
-using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Models;
-using Altinn.Profile.Tests.IntegrationTests.Mocks;
-using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Altinn.Profile.Tests.Testdata;
-
-using Microsoft.AspNetCore.Mvc.Testing;
 
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
-public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFactory<Program>>
+public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplicationFactory<Program>>
 {
-    private readonly WebApplicationFactorySetup<Program> _webApplicationFactorySetup;
-
     private readonly JsonSerializerOptions serializerOptionsCamelCase = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public UserProfileInternalControllerTests(WebApplicationFactory<Program> factory)
-    {
-        _webApplicationFactorySetup = new WebApplicationFactorySetup<Program>(factory);
+    private readonly ProfileWebApplicationFactory<Program> _factory;
 
-        SblBridgeSettings sblBrideSettings = new() { ApiProfileEndpoint = "http://localhost/" };
-        _webApplicationFactorySetup.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);
+    public UserProfileInternalControllerTests(ProfileWebApplicationFactory<Program> factory)
+    {
+        _factory = factory;
+        _factory.MemoryCache.Clear();
     }
 
     [Fact]
@@ -44,18 +38,17 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
         const int UserId = 2516356;
 
         HttpRequestMessage sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { UserId = UserId });
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -85,18 +78,17 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
         Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
 
         HttpRequestMessage sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { UserUuid = userUuid });
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -125,7 +117,7 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
         List<Guid> userUuids = new List<Guid> { new("cc86d2c7-1695-44b0-8e82-e633243fdf31"), new("4c3b4909-eb17-45d5-bde1-256e065e196a") };
 
         HttpRequestMessage sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
@@ -137,11 +129,10 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
 
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfiles) };
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/listbyuuid", userUuids);
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -175,19 +166,18 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
         List<Guid> userUuids = new List<Guid> { new("cc86d2c7-1695-44b0-8e82-e633243fdf31"), new("4c3b4909-eb17-45d5-bde1-256e065e196a") };
 
         HttpRequestMessage sblRequest = null;
-        DelegatingHandlerStub messageHandler = new((request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             List<UserProfile> userProfiles = new List<UserProfile>();
 
-            return Task.FromResult(new HttpResponseMessage() { Content = JsonContent.Create(userProfiles) });
+            return await Task.FromResult(new HttpResponseMessage() { Content = JsonContent.Create(userProfiles) });
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/listbyuuid", userUuids);
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -215,7 +205,7 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/listbyuuid", userUuids);
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -231,17 +221,16 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
         const int UserId = 2222222;
 
         HttpRequestMessage sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { UserId = UserId });
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -261,17 +250,16 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
         Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
 
         HttpRequestMessage sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { UserUuid = userUuid });
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -291,17 +279,16 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
         const int UserId = 2222222;
 
         HttpRequestMessage sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable });
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { UserId = UserId });
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -321,17 +308,16 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
         Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
 
         HttpRequestMessage sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable });
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { UserUuid = userUuid });
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -350,18 +336,17 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
         // Arrange
         const string Ssn = "01017512345";
         HttpRequestMessage sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>("2516356");
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Ssn = Ssn });
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -394,17 +379,16 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
         // Arrange
         const string Ssn = "01017512345";
         HttpRequestMessage sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Ssn = Ssn });
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -427,17 +411,16 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
         // Arrange
         const string Ssn = "01017512345";
         HttpRequestMessage sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable });
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Ssn = Ssn });
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -461,18 +444,17 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
         const string Username = "OrstaECUser";
 
         HttpRequestMessage sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(Username);
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Username = Username });
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -502,17 +484,16 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
         const string Username = "NonExistingUsername";
 
         HttpRequestMessage sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Username = Username });
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -532,17 +513,16 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
         const string Username = "OrstaECUser";
 
         HttpRequestMessage sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable });
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Username = Username });
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -563,7 +543,7 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", emptyInputModel);
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -580,7 +560,7 @@ public class UserProfileInternalControllerTests : IClassFixture<WebApplicationFa
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", nullInputModel);
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);

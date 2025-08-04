@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Models;
-using Altinn.Profile.Tests.IntegrationTests.Utils;
-
-using Microsoft.AspNetCore.Mvc.Testing;
 
 using Moq;
 
@@ -18,9 +15,9 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class OrgNotificationAddressesControllerTests : IClassFixture<WebApplicationFactory<Program>>
+    public class OrgNotificationAddressesControllerTests : IClassFixture<ProfileWebApplicationFactory<Program>>
     {
-        private readonly WebApplicationFactorySetup<Program> _webApplicationFactorySetup;
+        private readonly ProfileWebApplicationFactory<Program> _factory;
 
         private readonly JsonSerializerOptions _serializerOptions = new()
         {
@@ -29,9 +26,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         private readonly List<Organization> _testdata;
 
-        public OrgNotificationAddressesControllerTests(WebApplicationFactory<Program> factory)
+        public OrgNotificationAddressesControllerTests(ProfileWebApplicationFactory<Program> factory)
         {
-            _webApplicationFactorySetup = new WebApplicationFactorySetup<Program>(factory);
             _testdata = [
                 new()
                 {
@@ -90,8 +86,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                         }
                     ]
                 }
+            ];
 
-                ];
+            _factory = factory;
+            _factory.RegisterClientMock.Reset();
+            _factory.OrganizationNotificationAddressRepositoryMock.Reset();
         }
 
         [Fact]
@@ -103,10 +102,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 OrganizationNumbers = ["123456789", "111111111"],
             };
 
-            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+            _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.Where(o => input.OrganizationNumbers.Contains(o.OrganizationNumber)));
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+
+            HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/notificationaddresses/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -135,23 +135,23 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 OrganizationNumbers = ["333333333"],
             };
 
-            _webApplicationFactorySetup.RegisterClientMock
+            _factory.RegisterClientMock
                 .Setup(r => r.GetMainUnit(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync("123456789");
 
             var childUnit = _testdata.Where(o => input.OrganizationNumbers.Contains(o.OrganizationNumber));
             var parentUnit = _testdata.First(o => o.OrganizationNumber == "123456789");
 
-            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+            _factory.OrganizationNotificationAddressRepositoryMock
                 .SetupSequence(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(childUnit)
                 .ReturnsAsync([]);
 
-            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+            _factory.OrganizationNotificationAddressRepositoryMock
                 .SetupSequence(r => r.GetOrganizationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(parentUnit);
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/notificationaddresses/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -180,10 +180,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 OrganizationNumbers = ["123456789", "987654321"],
             };
 
-            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+            _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.Where(o => input.OrganizationNumbers.Contains(o.OrganizationNumber)));
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/notificationaddresses/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -216,10 +216,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 OrganizationNumbers = ["222222222"],
             };
 
-            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+            _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.Where(o => input.OrganizationNumbers.Contains(o.OrganizationNumber)));
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/notificationaddresses/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -248,7 +248,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 OrganizationNumbers = ["error-org"],
             };
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/notificationaddresses/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -273,7 +273,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 OrganizationNumbers = null
             };
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/notificationaddresses/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -295,7 +295,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 OrganizationNumbers = []
             };
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/notificationaddresses/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -320,7 +320,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 OrganizationNumbers = ["987654321", "aValidOrg", invalidOrgNo],
             };
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/organizations/notificationaddresses/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")

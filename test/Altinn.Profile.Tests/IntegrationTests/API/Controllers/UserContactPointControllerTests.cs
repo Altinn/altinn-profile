@@ -10,37 +10,33 @@ using Altinn.Platform.Profile.Models;
 using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Models;
-using Altinn.Profile.Tests.IntegrationTests.Mocks;
-using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Altinn.Profile.Tests.Testdata;
-
-using Microsoft.AspNetCore.Mvc.Testing;
 
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
-public class UserContactPointControllerTests : IClassFixture<WebApplicationFactory<Program>>
+public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicationFactory<Program>>
 {
-    private readonly WebApplicationFactorySetup<Program> _webApplicationFactorySetup;
+    private readonly ProfileWebApplicationFactory<Program> _factory;
 
     private readonly JsonSerializerOptions _serializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public UserContactPointControllerTests(WebApplicationFactory<Program> factory)
+    public UserContactPointControllerTests(ProfileWebApplicationFactory<Program> factory)
     {
-        _webApplicationFactorySetup = new WebApplicationFactorySetup<Program>(factory);
+        _factory = factory;
 
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = new DelegatingHandlerStub(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             string ssn = await request.Content.ReadAsStringAsync(token);
             return await GetSBlResponseForSsn(ssn);
         });
 
         SblBridgeSettings sblBrideSettings = new() { ApiProfileEndpoint = "http://localhost/" };
-        _webApplicationFactorySetup.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);
+        _factory.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);
     }
 
     [Fact]
@@ -49,7 +45,7 @@ public class UserContactPointControllerTests : IClassFixture<WebApplicationFacto
         // Arrange
         UserContactDetailsLookupCriteria input = new();
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/availability");
 
         httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json");
@@ -73,7 +69,7 @@ public class UserContactPointControllerTests : IClassFixture<WebApplicationFacto
             NationalIdentityNumbers = new List<string>() { "01025101037" }
         };
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/availability");
 
         httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json");
@@ -98,7 +94,7 @@ public class UserContactPointControllerTests : IClassFixture<WebApplicationFacto
             NationalIdentityNumbers = new List<string>() { "01025101037", "99999999999" }
         };
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/availability");
 
         httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json");
@@ -123,7 +119,7 @@ public class UserContactPointControllerTests : IClassFixture<WebApplicationFacto
             NationalIdentityNumbers = new List<string>() { }
         };
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/lookup");
 
         httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json");
@@ -147,7 +143,7 @@ public class UserContactPointControllerTests : IClassFixture<WebApplicationFacto
             NationalIdentityNumbers = new List<string>() { "01025101037", "99999999999" }
         };
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/lookup");
 
         httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json");
@@ -172,7 +168,7 @@ public class UserContactPointControllerTests : IClassFixture<WebApplicationFacto
             NationalIdentityNumbers = new List<string>() { "01025101037" }
         };
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/lookup");
 
         httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json");

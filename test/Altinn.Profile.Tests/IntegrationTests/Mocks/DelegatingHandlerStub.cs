@@ -8,7 +8,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.Mocks;
 
 public class DelegatingHandlerStub : DelegatingHandler
 {
-    private readonly Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> _handlerFunc;
+    private Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> _handlerFunc;
 
     public DelegatingHandlerStub()
     {
@@ -16,6 +16,11 @@ public class DelegatingHandlerStub : DelegatingHandler
     }
 
     public DelegatingHandlerStub(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handlerFunc)
+    {
+        _handlerFunc = handlerFunc;
+    }
+
+    public void ChangeHandlerFunction(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handlerFunc)
     {
         _handlerFunc = handlerFunc;
     }
