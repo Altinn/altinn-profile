@@ -85,7 +85,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Handlers
             Assert.Equal(evt.UserId, capturedRequest.UserId);
             Assert.Equal("delete", capturedRequest.ChangeType);
             Assert.Equal(evt.PartyUuid, capturedRequest.PartyUuid);
-            Assert.Equal(evt.DeletionTimestamp, capturedRequest.ChangeDateTime, TimeSpan.FromSeconds(1));
+            Assert.Equal(evt.EventTimestamp, capturedRequest.ChangeDateTime, TimeSpan.FromSeconds(1));
         }
 
         [Fact]

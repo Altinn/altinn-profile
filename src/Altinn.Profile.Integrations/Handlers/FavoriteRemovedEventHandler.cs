@@ -32,7 +32,7 @@ public class FavoriteRemovedEventHandler(IUserFavoriteClient client, IOptions<Sb
             UserId = changeEvent.UserId,
             ChangeType = "delete",
             PartyUuid = changeEvent.PartyUuid,
-            ChangeDateTime = changeEvent.DeletionTimestamp,
+            ChangeDateTime = changeEvent.EventTimestamp,
         };
 
         // Using SBLBridge to update favorites in A2

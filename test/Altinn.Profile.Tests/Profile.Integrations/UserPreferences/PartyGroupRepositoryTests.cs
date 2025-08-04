@@ -189,11 +189,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             Action<FavoriteAddedEvent, DeliveryOptions> eventRaisingCallback = (ev, opts) => actualEventRaised = ev;
             MockDbContextOutbox(eventRaisingCallback);
 
-            var preRunDateTime = DateTime.Now;
+            var preRunDateTime = DateTime.UtcNow;
 
             // Act
             var added = await _repository.AddPartyToFavorites(userId, partyUuid, CancellationToken.None);
-            var postRunDateTime = DateTime.Now;
+            var postRunDateTime = DateTime.UtcNow;
 
             // Assert
             Assert.True(added);
@@ -227,11 +227,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             FavoriteAddedEvent actualEventRaised = null;
             Action<FavoriteAddedEvent, DeliveryOptions> eventRaisingCallback = (ev, opts) => actualEventRaised = ev;
             MockDbContextOutbox(eventRaisingCallback);
-            var preRunDateTime = DateTime.Now;
+            var preRunDateTime = DateTime.UtcNow;
 
             // Act
             var added = await _repository.AddPartyToFavorites(userId, partyUuid, CancellationToken.None);
-            var postRunDateTime = DateTime.Now;
+            var postRunDateTime = DateTime.UtcNow;
 
             // Assert
             Assert.True(added);
