@@ -166,7 +166,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             return [];
         }
 
-        return foundOrganizations.Select(OrganizationMapper.MapFromDataEntity);
+        return foundOrganizations.Select(OrganizationMapper.MapFromDataEntity).Where(org => org != null)!;
     }
 
     /// <inheritdoc/>
