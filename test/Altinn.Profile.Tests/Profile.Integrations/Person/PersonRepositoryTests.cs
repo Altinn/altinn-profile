@@ -5,13 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
-using Altinn.Profile.Integrations.Mappings;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Tests.Profile.Integrations.Extensions;
 using Altinn.Profile.Tests.Testdata;
-
-using AutoMapper;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -34,12 +31,6 @@ public class PersonRepositoryTests : IDisposable
 
     public PersonRepositoryTests()
     {
-        var mockMapper = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile(new PersonContactPreferencesProfile());
-            });
-        var mapper = mockMapper.CreateMapper();
-
         var databaseContextOptions = new DbContextOptionsBuilder<ProfileDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -52,7 +43,7 @@ public class PersonRepositoryTests : IDisposable
         _databaseContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new ProfileDbContext(databaseContextOptions));
 
-        _personRepository = new PersonRepository(mapper, _databaseContextFactory.Object, null);
+        _personRepository = new PersonRepository(_databaseContextFactory.Object, null);
 
         _personContactAndReservationTestData = new List<Person>(PersonTestData.GetContactAndReservationTestData());
 

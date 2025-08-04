@@ -8,9 +8,8 @@ using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Entities;
+using Altinn.Profile.Integrations.Mappings;
 using Altinn.Profile.Integrations.Persistence;
-
-using AutoMapper;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -24,16 +23,11 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// <remarks>
 /// Initializes a new instance of the <see cref="PersonRepository"/> class.
 /// </remarks>
-/// <param name="mapper">The mapper instance used for object-object mapping.</param>
 /// <param name="contextFactory">The factory for creating database context instances.</param>
 /// <param name="telemetry">The application <see cref="Telemetry"/> instance.</param>
-/// <exception cref="ArgumentNullException">
-/// Thrown when the <paramref name="mapper"/>, or <paramref name="contextFactory"/> is null.
-/// </exception>
-public class PersonRepository(IMapper mapper, IDbContextFactory<ProfileDbContext> contextFactory, Telemetry? telemetry)
+public class PersonRepository(IDbContextFactory<ProfileDbContext> contextFactory, Telemetry? telemetry)
     : IPersonUpdater, IPersonService
 {
-    private readonly IMapper _mapper = mapper;
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
     private readonly Telemetry? _telemetry = telemetry;
 
@@ -58,7 +52,7 @@ public class PersonRepository(IMapper mapper, IDbContextFactory<ProfileDbContext
 
         List<Person> people = await databaseContext.People.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync();
 
-        var asContactPreferences = people.Select(_mapper.Map<PersonContactPreferences>);
+        var asContactPreferences = people.Select(PersonContactPreferencesMapper.Map);
         return asContactPreferences.ToImmutableList();
     }
 
@@ -81,7 +75,7 @@ public class PersonRepository(IMapper mapper, IDbContextFactory<ProfileDbContext
 
         foreach (PersonContactPreferencesSnapshot contactPreferenceSnapshot in distinctContactPreferences)
         {
-            Person person = _mapper.Map<Person>(contactPreferenceSnapshot);
+            Person person = PersonMapper.Map(contactPreferenceSnapshot);
 
             Person? existingPerson = await databaseContext.People.FirstOrDefaultAsync(e => e.FnumberAk == person.FnumberAk);
 

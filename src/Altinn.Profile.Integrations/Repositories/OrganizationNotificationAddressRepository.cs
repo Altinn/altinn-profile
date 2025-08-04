@@ -2,19 +2,18 @@
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.Entities;
+using Altinn.Profile.Integrations.Mappings;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Integrations.Persistence;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Altinn.Profile.Integrations.Repositories;
 
 /// <inheritdoc />
-public class OrganizationNotificationAddressRepository(IDbContextFactory<ProfileDbContext> contextFactory, IMapper mapper, Telemetry? telemetry) : IOrganizationNotificationAddressUpdater, IOrganizationNotificationAddressRepository
+public class OrganizationNotificationAddressRepository(IDbContextFactory<ProfileDbContext> contextFactory, Telemetry? telemetry) : IOrganizationNotificationAddressUpdater, IOrganizationNotificationAddressRepository
 {
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
-    private readonly IMapper _mapper = mapper;
     private readonly Telemetry? _telemetry = telemetry;
 
     /// <inheritdoc />
@@ -149,7 +148,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     {
         var organization = await GetOrganizationDEAsync(organizationNumber, cancellationToken);
 
-        return _mapper.Map<Organization>(organization);
+        return OrganizationMapper.MapFromDataEntity(organization);
     }
 
     /// <inheritdoc/>
@@ -167,7 +166,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             return [];
         }
 
-        return foundOrganizations.Select(_mapper.Map<Organization>);
+        return foundOrganizations.Select(OrganizationMapper.MapFromDataEntity);
     }
 
     /// <inheritdoc/>
@@ -192,7 +191,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         await databaseContext.SaveChangesAsync();
 
-        return _mapper.Map<NotificationAddress>(organizationNotificationAddress);
+        return OrganizationMapper.MapFromDataEntity(organizationNotificationAddress);
     }
 
     /// <inheritdoc/>
@@ -212,7 +211,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         await databaseContext.SaveChangesAsync();
 
-        return _mapper.Map<NotificationAddress>(notificationAddressDE);
+        return OrganizationMapper.MapFromDataEntity(notificationAddressDE);
     }
     
     /// <inheritdoc/>
@@ -228,6 +227,6 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         await databaseContext.SaveChangesAsync();
 
-        return _mapper.Map<NotificationAddress>(notificationAddressDE);
+        return OrganizationMapper.MapFromDataEntity(notificationAddressDE);
     }
 }
