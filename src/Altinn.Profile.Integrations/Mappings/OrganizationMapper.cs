@@ -13,7 +13,7 @@ public static class OrganizationMapper
     /// </summary>
     /// <param name="dataEntity">The <see cref="OrganizationDE"/> instance to map from.</param>
     /// <returns>A mapped <see cref="Organization"/> instance.</returns>
-    public static Organization MapFromDataEntity(OrganizationDE? dataEntity)
+    public static Organization? MapFromDataEntity(OrganizationDE? dataEntity)
     {
         if (dataEntity == null)
         {

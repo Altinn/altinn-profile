@@ -1,6 +1,5 @@
 using System;
 using Altinn.Profile.Integrations.ContactRegister;
-using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Mappings;
 using Xunit;
 
@@ -97,7 +96,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Mappings
             // Act
             var result = typeof(PersonMapper)
                 .GetMethod("GetContactDetail", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
-                .Invoke(null, new object[] { snapshot, new Func<PersonContactDetailsSnapshot, string?>(d => d.Email) });
+                .Invoke(null, new object[] { snapshot, new Func<PersonContactDetailsSnapshot, string>(d => d.Email) });
 
             // Assert
             Assert.Equal("foo@bar.com", result);
@@ -115,7 +114,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Mappings
             // Act
             var result = typeof(PersonMapper)
                 .GetMethod("GetContactDetail", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
-                .Invoke(null, new object[] { snapshot, new Func<PersonContactDetailsSnapshot, string?>(d => d.Email) });
+                .Invoke(null, new object[] { snapshot, new Func<PersonContactDetailsSnapshot, string>(d => d.Email) });
 
             // Assert
             Assert.Null(result);
@@ -156,7 +155,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Mappings
             // Act
             var result = typeof(PersonMapper)
                 .GetMethod("GetContactDetailDate", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
-                .Invoke(null, new object[] { snapshot, new Func<PersonContactDetailsSnapshot, DateTime?>(d => d.EmailLastVerified) });
+                .Invoke(null, [snapshot, new Func<PersonContactDetailsSnapshot, DateTime?>(d => d.EmailLastVerified)]);
 
             // Assert
             Assert.Null(result);
@@ -178,7 +177,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Mappings
             // Act
             var result = typeof(PersonMapper)
                 .GetMethod("GetContactDetailDate", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
-                .Invoke(null, new object[] { snapshot, new Func<PersonContactDetailsSnapshot, DateTime?>(d => d.EmailLastVerified) });
+                .Invoke(null, [snapshot, new Func<PersonContactDetailsSnapshot, DateTime?>(d => d.EmailLastVerified)]);
 
             // Assert
             Assert.Null(result);
