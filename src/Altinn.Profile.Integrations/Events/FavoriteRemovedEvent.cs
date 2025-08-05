@@ -6,7 +6,9 @@ namespace Altinn.Profile.Integrations.Events;
 /// <param name="UserId">The unique identifier of the user whose favorites has changed. Must be a positive integer.</param>
 /// <param name="PartyUuid">The unique identifier of the party that was removed from the user's favorites.</param>
 /// <param name="CreationTimestamp">Creation timestamp for the favorite</param>
+/// <param name="EventTimestamp">Deletion timestamp for the favorite</param>
 public record FavoriteRemovedEvent(
     int UserId,
     Guid PartyUuid,
-    DateTime CreationTimestamp);
+    DateTime CreationTimestamp,
+    DateTime EventTimestamp);
