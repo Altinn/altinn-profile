@@ -7,9 +7,6 @@ using System.Threading.Tasks;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
-using Altinn.Profile.Tests.IntegrationTests.Utils;
-
-using Microsoft.AspNetCore.Mvc.Testing;
 
 using Moq;
 
@@ -17,13 +14,15 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
-public class TriggerControllerTests : IClassFixture<WebApplicationFactory<Program>>
+public class TriggerControllerTests : IClassFixture<ProfileWebApplicationFactory<Program>>
 {
-    private readonly WebApplicationFactorySetup<Program> _webApplicationFactorySetup;
+    private readonly ProfileWebApplicationFactory<Program> _factory;
 
-    public TriggerControllerTests(WebApplicationFactory<Program> factory)
+    public TriggerControllerTests(ProfileWebApplicationFactory<Program> factory)
     {
-        _webApplicationFactorySetup = new WebApplicationFactorySetup<Program>(factory);
+        _factory = factory;
+        _factory.ContactRegisterServiceMock.Reset();
+        _factory.OrganizationNotificationAddressSyncClientMock.Reset();
     }
 
     [Fact]
@@ -34,10 +33,10 @@ public class TriggerControllerTests : IClassFixture<WebApplicationFactory<Progra
         { 
             ContactPreferencesSnapshots = ImmutableList.Create<PersonContactPreferencesSnapshot>() 
         };
-        _webApplicationFactorySetup.ContactRegisterServiceMock.Setup(
+        _factory.ContactRegisterServiceMock.Setup(
             c => c.GetContactDetailsChangesAsync(It.IsAny<string>(), It.IsAny<long>())).ReturnsAsync(changeLog);
 
-        var client = _webApplicationFactorySetup.GetTestServerClient();
+        var client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest("/profile/api/v1/trigger/syncpersonchanges");
 
@@ -56,10 +55,10 @@ public class TriggerControllerTests : IClassFixture<WebApplicationFactory<Progra
         {
             OrganizationNotificationAddressList = new List<Entry>(),
         };
-        _webApplicationFactorySetup.OrganizationNotificationAddressSyncClientMock.Setup(
+        _factory.OrganizationNotificationAddressSyncClientMock.Setup(
             c => c.GetAddressChangesAsync(It.IsAny<string>())).ReturnsAsync(changes);
 
-        var client = _webApplicationFactorySetup.GetTestServerClient();
+        var client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest("/profile/api/v1/trigger/syncorgchanges");
 
@@ -74,9 +73,9 @@ public class TriggerControllerTests : IClassFixture<WebApplicationFactory<Progra
     public async Task SyncOrgChanges_WhenSomethingsGoesWrong_ReturnsInternalServerError()
     {
         // Arrange
-        _webApplicationFactorySetup.OrganizationNotificationAddressSyncClientMock.Setup(
+        _factory.OrganizationNotificationAddressSyncClientMock.Setup(
             c => c.GetAddressChangesAsync(It.IsAny<string>())).ThrowsAsync(new OrganizationNotificationAddressChangesException("Something went wrong"));
-        var client = _webApplicationFactorySetup.GetTestServerClient();
+        var client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest("/profile/api/v1/trigger/syncorgchanges");
 

@@ -60,6 +60,9 @@ dotnet_naming_rule.non_field_members_should_be_pascal_case.severity = suggestion
 dotnet_naming_rule.non_field_members_should_be_pascal_case.symbols = non_field_members
 dotnet_naming_rule.non_field_members_should_be_pascal_case.style = pascal_case
 
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = true
+
 # Symbol specifications
 
 dotnet_naming_symbols.interface.applicable_kinds = interface
