@@ -5,6 +5,7 @@ using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
@@ -16,12 +17,14 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 /// </remarks>
 /// <param name="httpClient">The HTTP client to interact with KoFuVi.</param>
 /// <param name="organizationNotificationAddressSettings">Settings for http client with base addresses</param>
+/// <param name="logger">The logger</param>
 public class OrganizationNotificationAddressHttpClient(
-    HttpClient httpClient, OrganizationNotificationAddressSettings organizationNotificationAddressSettings) 
+    HttpClient httpClient, OrganizationNotificationAddressSettings organizationNotificationAddressSettings, ILogger<OrganizationNotificationAddressHttpClient> logger) 
     : IOrganizationNotificationAddressSyncClient, IOrganizationNotificationAddressUpdateClient
 {
     private readonly HttpClient _httpClient = httpClient;
     private readonly OrganizationNotificationAddressSettings _organizationNotificationAddressSettings = organizationNotificationAddressSettings;
+    private readonly ILogger<OrganizationNotificationAddressHttpClient> _logger = logger;
     private readonly JsonSerializerOptions _options = new()
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
@@ -41,7 +44,7 @@ public class OrganizationNotificationAddressHttpClient(
     }
 
     /// <inheritdoc/>
-    public async Task<NotificationAddressChangesLog> GetAddressChangesAsync(string endpointUrl)
+    public async Task<NotificationAddressChangesLog?> GetAddressChangesAsync(string endpointUrl)
     {
         if (!endpointUrl.IsValidUrl())
         {
@@ -54,7 +57,8 @@ public class OrganizationNotificationAddressHttpClient(
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new OrganizationNotificationAddressChangesException($"Failed to retrieve contact details changes. StatusCode: {response.StatusCode}");
+            _logger.LogError("Failed to retrieve contact details changes. StatusCode: {StatusCode}", response.StatusCode);
+            return null;
         }
 
         var responseData = await response.Content.ReadAsStringAsync();
