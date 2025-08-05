@@ -12,7 +12,9 @@ namespace Altinn.Profile.Integrations.Repositories
     /// <summary>
     /// Defines a repository for operations related to a users groups of parties.
     /// </summary>
-    public class PartyGroupRepository(IDbContextFactory<ProfileDbContext> contextFactory, IDbContextOutbox DBContextOutbox) : EFCoreTransactionalOutbox(DBContextOutbox), IPartyGroupRepository
+    public class PartyGroupRepository(
+        IDbContextFactory<ProfileDbContext> contextFactory, IDbContextOutbox databaseContextOutbox) 
+        : EFCoreTransactionalOutbox(databaseContextOutbox), IPartyGroupRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
