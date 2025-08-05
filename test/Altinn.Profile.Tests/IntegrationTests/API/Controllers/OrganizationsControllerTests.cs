@@ -414,22 +414,24 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             var orgNo = "123456789";
             const int UserId = 2516356;
-            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
 
-            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+            _factory.PdpMock
+                .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
+                .ReturnsAsync(new XacmlJsonResponse { Response = [new XacmlJsonResult { Decision = "Permit" }] });
+            _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo));
-            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+            _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.CreateNotificationAddressAsync(It.IsAny<string>(), It.IsAny<NotificationAddress>(), It.IsAny<string>()))
                 .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
-            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+            _factory.OrganizationNotificationAddressUpdateClientMock
+                .Setup(c => c.CreateNewNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync("123456789");
+            _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.RestoreNotificationAddress(It.IsAny<int>(), It.IsAny<string>()))
                 .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.Last());
 
-            _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock.Setup(
-                c => c.CreateNewNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
-                .ReturnsAsync("123456789");
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+            HttpClient client = _factory.CreateClient();
 
             var input = new NotificationAddressModel { Email = "existing@test.com" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
@@ -577,7 +579,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task UpdateMandatory_WhenTryingToUpdateToAlreadyExistingAddress_ReturnsConfict()
+        public async Task UpdateMandatory_WhenTryingToUpdateToAlreadyExistingAddress_ReturnsConflict()
         {
             // Arrange
             var orgNo = "123456789";
@@ -622,22 +624,25 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             var orgNo = "123456789";
             const int UserId = 2516356;
-            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
 
-            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+            _factory.PdpMock
+                .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
+                .ReturnsAsync(new XacmlJsonResponse { Response = [new XacmlJsonResult { Decision = "Permit" }] });
+            _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo));
-            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+            _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.UpdateNotificationAddressAsync(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
                 .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
-            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+            _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.RestoreNotificationAddress(It.IsAny<int>(), It.IsAny<string>()))
                 .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.Last());
 
-            _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock
+            _factory.OrganizationNotificationAddressUpdateClientMock
                 .Setup(c => c.UpdateNotificationAddress(It.IsAny<string>(), It.IsAny<NotificationAddress>(), It.IsAny<string>()))
                 .ReturnsAsync("2");
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+
+            HttpClient client = _factory.CreateClient();
 
             var input = new NotificationAddressModel { Email = "existing@test.com" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/2")
