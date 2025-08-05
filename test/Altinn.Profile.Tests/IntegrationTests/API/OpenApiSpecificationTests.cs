@@ -1,29 +1,23 @@
+#nullable enable
+
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Altinn.Profile.Configuration;
-using Altinn.Profile.Tests.IntegrationTests.Utils;
-
-using Microsoft.AspNetCore.Mvc.Testing;
 
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API;
 
-public class OpenApiSpecificationTests : IClassFixture<WebApplicationFactory<GeneralSettings>>
+public class OpenApiSpecificationTests(ProfileWebApplicationFactory<Program> factory) 
+    : IClassFixture<ProfileWebApplicationFactory<Program>>
 {
-    private readonly WebApplicationFactorySetup<GeneralSettings> _webApplicationFactorySetup;
-
-    public OpenApiSpecificationTests(WebApplicationFactory<GeneralSettings> factory)
-    {
-        _webApplicationFactorySetup = new WebApplicationFactorySetup<GeneralSettings>(factory);
-    }
+    private readonly ProfileWebApplicationFactory<Program> _factory = factory;
 
     [Fact]
     public async Task GetOpenApiSpecification_ReturnsOk()
     {
         // Arrange
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, "/swagger");
 

@@ -9,4 +9,9 @@ public class SblBridgeSettings
     /// Gets or sets the SBL Bridge Profile API endpoint
     /// </summary>
     public string ApiProfileEndpoint { get; set; } = string.Empty;
+
+    /// <summary>
+    /// A feature flag indicating whether to update A2 when updating favorites
+    /// </summary>
+    public bool UpdateA2 { get; set; }
 }

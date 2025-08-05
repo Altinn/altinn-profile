@@ -10,33 +10,27 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Controllers;
 using Altinn.Profile.Integrations.SblBridge;
-using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Altinn.Profile.Tests.Testdata;
-
-using Microsoft.AspNetCore.Mvc.Testing;
 
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
-public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersController>>
+public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<Program>>
 {
-    private readonly WebApplicationFactorySetup<UsersController> _webApplicationFactorySetup;
+    private readonly ProfileWebApplicationFactory<Program> _factory;
 
     private readonly JsonSerializerOptions _serializerOptionsCamelCase = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public UsersControllerTests(WebApplicationFactory<UsersController> factory)
+    public UsersControllerTests(ProfileWebApplicationFactory<Program> factory)
     {
-        _webApplicationFactorySetup = new WebApplicationFactorySetup<UsersController>(factory);
-
-        SblBridgeSettings sblBrideSettings = new() { ApiProfileEndpoint = "http://localhost/" };
-        _webApplicationFactorySetup.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);
+        _factory = factory;
+        _factory.MemoryCache.Clear();
     }
 
     [Fact]
@@ -46,16 +40,15 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         const int UserId = 2516356;
 
         HttpRequestMessage? sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "/profile/api/v1/users/current");
 
@@ -93,7 +86,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         string token = PrincipalUtil.GetOrgToken("ttd");
         httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -116,7 +109,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         string token = PrincipalUtil.GetSystemUserToken(Guid.NewGuid());
         httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -135,20 +128,19 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         const int UserId = 2516356;
 
         HttpRequestMessage? sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -180,21 +172,20 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         const int UserId = 2516356;
 
         HttpRequestMessage? sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/{UserId}");
         string token = PrincipalUtil.GetOrgToken("ttd");
         httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -226,21 +217,20 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         const int UserId = 2516356;
 
         HttpRequestMessage? sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/{UserId}");
         string token = PrincipalUtil.GetSystemUserToken(Guid.NewGuid());
         httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -276,21 +266,20 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         const int UserId = 2516356;
 
         HttpRequestMessage? sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/{UserId}");
         string token = PrincipalUtil.GetInvalidSystemUserToken(Guid.NewGuid());
         httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -309,20 +298,18 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
 
         HttpRequestMessage? sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
-
         HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/byuuid/{userUuid}");
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -357,7 +344,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/byuuid/{userUuid}");
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -374,19 +361,18 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
 
         HttpRequestMessage? sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/byuuid/{userUuid}");
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -409,7 +395,7 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -425,19 +411,18 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         const int UserId = 2222222;
 
         HttpRequestMessage? sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -457,19 +442,18 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
         const int UserId = 2222222;
 
         HttpRequestMessage? sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable });
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -487,21 +471,20 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
     {
         // Arrange
         HttpRequestMessage? sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>("2516356");
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
         HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -537,20 +520,19 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
     {
         // Arrange
         HttpRequestMessage? sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
         HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -574,20 +556,19 @@ public class UsersControllerTests : IClassFixture<WebApplicationFactory<UsersCon
     {
         // Arrange
         HttpRequestMessage? sblRequest = null;
-        DelegatingHandlerStub messageHandler = new(async (request, token) =>
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
             return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable });
         });
-        _webApplicationFactorySetup.SblBridgeHttpMessageHandler = messageHandler;
 
         StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
         HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
 
-        HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+        HttpClient client = _factory.CreateClient();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
