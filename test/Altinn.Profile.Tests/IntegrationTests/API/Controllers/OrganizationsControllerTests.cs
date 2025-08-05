@@ -77,7 +77,16 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                             Domain = "+47",
                             AddressType = AddressType.SMS,
                             NotificationAddressID = 3
-                        }
+                        },
+                        new()
+                        {
+                            FullAddress = "existing@test.com",
+                            Address = "existing",
+                            Domain = "test.com",
+                            AddressType = AddressType.Email,
+                            NotificationAddressID = 4,
+                            IsSoftDeleted = true
+                        },
                     ]
                 }
                 ];
@@ -356,6 +365,46 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.IsType<NotificationAddressResponse>(actual);
         }
 
+        [Fact]
+        public async Task CreateMandatory_WhenAddressAlreadyExistsButIsSoftDeleted_ReturnsOkResult()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo));
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.CreateNotificationAddressAsync(It.IsAny<string>(), It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.RestoreNotificationAddress(It.IsAny<int>(), It.IsAny<string>()))
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.Last());
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock.Setup(
+                c => c.CreateNewNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync("123456789");
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+
+            var input = new NotificationAddressModel { Email = "existing@test.com" };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<NotificationAddressResponse>(responseContent, _serializerOptions);
+            Assert.IsType<NotificationAddressResponse>(actual);
+        }
+
         [Theory]
         [InlineData("test")] // Invalid email
         [InlineData("test@.com")] // Invalid email
@@ -512,6 +561,48 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var actual = JsonSerializer.Deserialize<ProblemDetails>(responseContent, _serializerOptions);
             Assert.IsType<ProblemDetails>(actual);
             Assert.Equal($"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1", actual.Instance);
+        }
+
+        [Fact]
+        public async Task UpdateMandatory_WhenTryingToUpdateToSoftDeletedAddress_ReturnsOkWithNewId()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+            Mock<IPDP> pdpMock = GetPDPMockWithResponse("Permit");
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo));
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.UpdateNotificationAddressAsync(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
+            _webApplicationFactorySetup.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.RestoreNotificationAddress(It.IsAny<int>(), It.IsAny<string>()))
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.Last());
+
+            _webApplicationFactorySetup.OrganizationNotificationAddressUpdateClientMock
+                .Setup(c => c.UpdateNotificationAddress(It.IsAny<string>(), It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync("2");
+            HttpClient client = _webApplicationFactorySetup.GetTestServerClient(pdpMock.Object);
+
+            var input = new NotificationAddressModel { Email = "existing@test.com" };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/2")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<NotificationAddressResponse>(responseContent, _serializerOptions);
+            Assert.IsType<NotificationAddressResponse>(actual);
+            Assert.Equal(4, actual.NotificationAddressId); // Should return the ID of the restored address
+            Assert.NotEqual(2, actual.NotificationAddressId); // Should not return the ID of the updated address
         }
 
         [Fact]

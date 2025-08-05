@@ -21,12 +21,18 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
             org ??= new Organization { OrganizationNumber = organizationNumber, NotificationAddresses = [] };
 
             var existingAddress = org.NotificationAddresses?.FirstOrDefault(x => x.FullAddress == notificationAddress.FullAddress && x.AddressType == notificationAddress.AddressType);
-            if (existingAddress != null)
+            if (existingAddress is { IsSoftDeleted : not true })
             {
                 return (existingAddress, false);
             }
 
             var registryId = await _updateClient.CreateNewNotificationAddress(notificationAddress, organizationNumber);
+
+            if (existingAddress is { IsSoftDeleted : true })
+            {
+                var restoredAddress = await _orgRepository.RestoreNotificationAddress(existingAddress.NotificationAddressID, registryId);
+                return (restoredAddress, true);
+            }
 
             var updatedNotificationAddress = await _orgRepository.CreateNotificationAddressAsync(organizationNumber, notificationAddress, registryId);
 
@@ -55,12 +61,18 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
             }
 
             var duplicateAddress = org.NotificationAddresses?.FirstOrDefault(x => x.FullAddress == notificationAddress.FullAddress && x.AddressType == notificationAddress.AddressType);
-            if (duplicateAddress != null)
+            if (duplicateAddress is { IsSoftDeleted : not true })
             {
                 return (duplicateAddress, true);
             }
 
             var registryId = await _updateClient.UpdateNotificationAddress(existingNotificationAddress.RegistryID, notificationAddress, organizationNumber);
+
+            if (duplicateAddress is { IsSoftDeleted: true })
+            {
+                var restoredAddress = await _orgRepository.RestoreNotificationAddress(duplicateAddress.NotificationAddressID, registryId);
+                return (restoredAddress, false);
+            }
 
             var updatedNotificationAddress = await _orgRepository.UpdateNotificationAddressAsync(notificationAddress, registryId);
 
