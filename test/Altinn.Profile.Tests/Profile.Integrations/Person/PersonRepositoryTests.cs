@@ -1,22 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Core.Person.ContactPreferences;
+using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Entities;
-using Altinn.Profile.Integrations.Mappings;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Tests.Profile.Integrations.Extensions;
 using Altinn.Profile.Tests.Testdata;
-
-using AutoMapper;
-
 using Microsoft.EntityFrameworkCore;
-
 using Moq;
-
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations;
@@ -34,12 +30,6 @@ public class PersonRepositoryTests : IDisposable
 
     public PersonRepositoryTests()
     {
-        var mockMapper = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile(new PersonContactPreferencesProfile());
-            });
-        var mapper = mockMapper.CreateMapper();
-
         var databaseContextOptions = new DbContextOptionsBuilder<ProfileDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -52,7 +42,7 @@ public class PersonRepositoryTests : IDisposable
         _databaseContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new ProfileDbContext(databaseContextOptions));
 
-        _personRepository = new PersonRepository(mapper, _databaseContextFactory.Object, null);
+        _personRepository = new PersonRepository(_databaseContextFactory.Object, null);
 
         _personContactAndReservationTestData = new List<Person>(PersonTestData.GetContactAndReservationTestData());
 
@@ -158,5 +148,131 @@ public class PersonRepositoryTests : IDisposable
         Assert.Equal(expected.LanguageCode, actual.LanguageCode);
         Assert.Equal(expected.Email, actual.Email);
         Assert.Equal(expected.MobileNumber, actual.MobileNumber);
+    }
+
+    [Fact]
+    public async Task SyncPersonContactPreferencesAsync_AddsNewPerson_WhenNotExists()
+    {
+        // Arrange
+        var snapshot = new PersonContactPreferencesSnapshot
+        {
+            PersonIdentifier = "99999999999",
+            Language = "NO",
+            Reservation = "JA",
+            ContactDetailsSnapshot = new PersonContactDetailsSnapshot
+            {
+                Email = "newperson@example.com",
+                MobileNumber = "12345678",
+                EmailLastUpdated = DateTime.UtcNow.AddDays(-1),
+                EmailLastVerified = DateTime.UtcNow,
+                MobileNumberLastUpdated = DateTime.UtcNow.AddDays(-2),
+                MobileNumberLastVerified = DateTime.UtcNow.AddDays(-1)
+            }
+        };
+
+        var log = new ContactRegisterChangesLog
+        {
+            ContactPreferencesSnapshots = ImmutableList.Create(snapshot)
+        };
+
+        // Act
+        var result = await _personRepository.SyncPersonContactPreferencesAsync(log);
+
+        // Assert
+        Assert.Equal(1, result);
+        var person = _databaseContext.People.SingleOrDefault(p => p.FnumberAk == "99999999999");
+        Assert.NotNull(person);
+        Assert.Equal("NO", person.LanguageCode);
+        Assert.Equal("newperson@example.com", person.EmailAddress);
+        Assert.Equal("12345678", person.MobilePhoneNumber);
+        Assert.True(person.Reservation);
+    }
+
+    [Fact]
+    public async Task SyncPersonContactPreferencesAsync_UpdatesExistingPerson_WhenExists()
+    {
+        // Arrange
+        var existing = new Person
+        {
+            FnumberAk = "88888888888",
+            LanguageCode = "EN",
+            Reservation = false,
+            EmailAddress = "old@example.com",
+            MobilePhoneNumber = "88888888"
+        };
+        _databaseContext.People.Add(existing);
+        _databaseContext.SaveChanges();
+
+        var snapshot = new PersonContactPreferencesSnapshot
+        {
+            PersonIdentifier = "88888888888",
+            Language = "NO",
+            Reservation = "JA",
+            ContactDetailsSnapshot = new PersonContactDetailsSnapshot
+            {
+                Email = "updated@example.com",
+                MobileNumber = "77777777",
+                EmailLastUpdated = DateTime.UtcNow.AddDays(-1),
+                EmailLastVerified = DateTime.UtcNow,
+                MobileNumberLastUpdated = DateTime.UtcNow.AddDays(-2),
+                MobileNumberLastVerified = DateTime.UtcNow.AddDays(-1)
+            }
+        };
+
+        var log = new ContactRegisterChangesLog
+        {
+            ContactPreferencesSnapshots = ImmutableList.Create(snapshot)
+        };
+
+        // Act
+        var result = await _personRepository.SyncPersonContactPreferencesAsync(log);
+
+        // Assert
+        Assert.Equal(1, result);
+        var personList = await _personRepository.GetContactPreferencesAsync(["88888888888"]);
+        var person = personList.FirstOrDefault();
+        Assert.NotNull(person);
+        Assert.Equal("NO", person.LanguageCode);
+        Assert.Equal("updated@example.com", person.Email);
+        Assert.Equal("77777777", person.MobileNumber);
+        Assert.True(person.IsReserved);
+    }
+
+    [Fact]
+    public async Task SyncPersonContactPreferencesAsync_DoesNothing_WhenSnapshotsIsEmpty()
+    {
+        // Arrange
+        var log = new ContactRegisterChangesLog
+        {
+            ContactPreferencesSnapshots = ImmutableList<PersonContactPreferencesSnapshot>.Empty
+        };
+
+        // Act
+        var result = await _personRepository.SyncPersonContactPreferencesAsync(log);
+
+        // Assert
+        Assert.Equal(0, result);
+    }
+
+    [Fact]
+    public async Task SyncPersonContactPreferencesAsync_ThrowsArgumentNullException_WhenLogIsNull()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(() =>
+            _personRepository.SyncPersonContactPreferencesAsync(null!));
+    }
+
+    [Fact]
+    public async Task SyncPersonContactPreferencesAsync_ThrowsArgumentNullException_WhenSnapshotsIsNull()
+    {
+        // Arrange
+        var log = new ContactRegisterChangesLog
+        {
+            ContactPreferencesSnapshots = null
+        };
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(() =>
+            _personRepository.SyncPersonContactPreferencesAsync(log));
     }
 }
