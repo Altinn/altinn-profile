@@ -140,7 +140,7 @@ function removeOrgNotificationAddresses(data, addressId) {
  */
 export default function (data) {
 
-    const addressId = addOrgNotificationAddresses(data);
+    let addressId = addOrgNotificationAddresses(data);
     getOrgNotificationAddresses(data);
 
     addressId = updateOrgNotificationAddresses(data, addressId);
