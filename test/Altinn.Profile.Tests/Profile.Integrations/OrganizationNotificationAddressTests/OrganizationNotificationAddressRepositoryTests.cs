@@ -406,6 +406,62 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         Assert.True(updatedAddress.IsSoftDeleted);
     }
 
+    [Fact]
+    public async Task RestoreNotificationAddress_WhenSoftDeleted_RestoresAndReturnsNotificationAddress()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        // Soft-delete an address first
+        var notificationAddressId = notificationAddresses.First().NotificationAddressID;
+        await _repository.DeleteNotificationAddressAsync(notificationAddressId);
+
+        // Act
+        var registryId = "restored-registry-id";
+        var restored = await _repository.RestoreNotificationAddress(notificationAddressId, registryId);
+
+        // Assert
+        Assert.NotNull(restored);
+        Assert.False(restored.IsSoftDeleted ?? true);
+        Assert.Equal(registryId, restored.RegistryID);
+    }
+
+    [Fact]
+    public async Task RestoreNotificationAddress_WhenNotSoftDeleted_StillReturnsNotificationAddressWithUpdatedRegistryId()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        var notificationAddressId = notificationAddresses.First().NotificationAddressID;
+        var originalRegistryId = notificationAddresses.First().RegistryID;
+
+        // Act
+        var newRegistryId = "new-registry-id";
+        var restored = await _repository.RestoreNotificationAddress(notificationAddressId, newRegistryId);
+
+        // Assert
+        Assert.NotNull(restored);
+        Assert.False(restored.IsSoftDeleted ?? true);
+        Assert.Equal(newRegistryId, restored.RegistryID);
+        Assert.NotEqual(originalRegistryId, restored.RegistryID);
+    }
+
+    [Fact]
+    public async Task RestoreNotificationAddress_WhenAddressDoesNotExist_ThrowsException()
+    {
+        // Arrange
+        var nonExistentId = 999999;
+        var registryId = "any-registry-id";
+
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        {
+            await _repository.RestoreNotificationAddress(nonExistentId, registryId);
+        });
+    }
+
     private static void AssertRegisterProperties(OrganizationDE expected, OrganizationDE actual)
     {
         Assert.Equal(expected.RegistryOrganizationNumber, actual.RegistryOrganizationNumber);
