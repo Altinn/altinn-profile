@@ -16,6 +16,7 @@ using Altinn.Profile.Integrations.Register;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
+using Altinn.Profile.Integrations.SblBridge.User.Favorites;
 using Altinn.Profile.Integrations.SblBridge.User.Profile;
 using Altinn.Profile.Integrations.Services;
 
@@ -45,6 +46,7 @@ public static class ServiceCollectionExtensions
         services.Configure<SblBridgeSettings>(config.GetSection(nameof(SblBridgeSettings)));
         services.AddHttpClient<IUserProfileClient, UserProfileClient>();
         services.AddHttpClient<IUnitProfileRepository, UnitProfileClient>();
+        services.AddHttpClient<IUserFavoriteClient, UserFavoriteClient>();
     }
 
     /// <summary>

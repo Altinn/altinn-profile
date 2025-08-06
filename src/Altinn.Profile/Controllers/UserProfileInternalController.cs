@@ -47,11 +47,16 @@ public class UserProfileInternalController : Controller
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserProfile>> Get([FromBody] UserProfileLookup userProfileLookup)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         Result<UserProfile, bool> result;
 
-        if (userProfileLookup != null && userProfileLookup.UserId != 0)
+        if (userProfileLookup != null && userProfileLookup.UserId.HasValue && userProfileLookup.UserId != 0)
         {
-            result = await _userProfileService.GetUser(userProfileLookup.UserId);
+            result = await _userProfileService.GetUser((int)userProfileLookup.UserId);
         }
         else if (userProfileLookup?.UserUuid != null)
         {
@@ -88,6 +93,11 @@ public class UserProfileInternalController : Controller
     [Produces("application/json")]
     public async Task<ActionResult<List<UserProfile>>> GetList([FromBody] List<Guid> userUuidList)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         if (userUuidList == null || userUuidList.Count == 0)
         {
             return BadRequest();

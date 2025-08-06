@@ -5,42 +5,37 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Altinn.Profile.Controllers;
+
 using Altinn.Profile.Core.PartyGroups;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
-using Microsoft.AspNetCore.Mvc.Testing;
+
 using Moq;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class FavoritesControllerTests : IClassFixture<WebApplicationFactory<FavoritesController>>
+    public class FavoritesControllerTests : IClassFixture<ProfileWebApplicationFactory<Program>>
     {
-        private readonly WebApplicationFactorySetup<FavoritesController> _webApplicationFactorySetup;
-
         private readonly JsonSerializerOptions _serializerOptionsCamelCase = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public FavoritesControllerTests(WebApplicationFactory<FavoritesController> factory)
-        {
-            _webApplicationFactorySetup = new WebApplicationFactorySetup<FavoritesController>(factory);
+        private readonly ProfileWebApplicationFactory<Program> _factory;
 
-            _webApplicationFactorySetup.PartyGroupRepositoryMock
+        public FavoritesControllerTests(ProfileWebApplicationFactory<Program> factory)
+        {
+            _factory = factory;
+            _factory.PartyGroupRepositoryMock.Reset();
+            _factory.PartyGroupRepositoryMock
                 .Setup(x => x.GetFavorites(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Group { Parties = [new PartyGroupAssociation { PartyUuid = Guid.NewGuid() }, new PartyGroupAssociation { PartyUuid = Guid.NewGuid() }], Name = "__favoritter__" });
-        }
-
-        private static void SetupAuthHandler(WebApplicationFactorySetup<FavoritesController> _webApplicationFactorySetup, Guid partyGuid, int UserId, bool access = true)
-        {
-            _webApplicationFactorySetup.RegisterClientMock
-                .Setup(x => x.GetPartyId(partyGuid, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((int)partyGuid.GetHashCode()); // Simulate party ID retrieval
-            _webApplicationFactorySetup.AuthorizationClientMock
-                .Setup(x => x.ValidateSelectedParty(UserId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(access);
+                .ReturnsAsync(new Group
+                {
+                    Parties = [new PartyGroupAssociation { PartyUuid = Guid.NewGuid() }, new PartyGroupAssociation { PartyUuid = Guid.NewGuid() }],
+                    Name = "__favoritter__"
+                });
         }
 
         [Fact]
@@ -49,7 +44,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             const int UserId = 2516356;
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
 
             HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, "profile/api/v1/users/current/party-groups/favorites");
 
@@ -74,11 +69,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             const int UserId = 2516356;
 
-            _webApplicationFactorySetup.PartyGroupRepositoryMock
+            _factory.PartyGroupRepositoryMock
                 .Setup(x => x.GetFavorites(It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Group { Parties = [], Name = "__favoritter__" });
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
 
             HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, "profile/api/v1/users/current/party-groups/favorites");
 
@@ -103,11 +98,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             const int UserId = 2516356;
 
-            _webApplicationFactorySetup.PartyGroupRepositoryMock
+            _factory.PartyGroupRepositoryMock
                 .Setup(x => x.GetFavorites(It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Group)null);
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
 
             HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, "profile/api/v1/users/current/party-groups/favorites");
 
@@ -133,12 +128,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int UserId = 2516356;
             var partyGuid = Guid.NewGuid();
 
-            _webApplicationFactorySetup.PartyGroupRepositoryMock
+            _factory.PartyGroupRepositoryMock
                             .Setup(x => x.AddPartyToFavorites(It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                             .ReturnsAsync(false);
-            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
+            SetupAuthHandler(_factory, partyGuid, UserId);
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
 
             HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Put, UserId, $"profile/api/v1/users/current/party-groups/favorites/{partyGuid}");
 
@@ -157,12 +152,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int UserId = 2516356;
             var partyGuid = Guid.NewGuid();
 
-            _webApplicationFactorySetup.PartyGroupRepositoryMock
+            _factory.PartyGroupRepositoryMock
                             .Setup(x => x.AddPartyToFavorites(It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                             .ReturnsAsync(true);
-            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
+            SetupAuthHandler(_factory, partyGuid, UserId);
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
 
             HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Put, UserId, $"profile/api/v1/users/current/party-groups/favorites/{partyGuid}");
 
@@ -181,12 +176,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int UserId = 2516356;
             var partyGuid = Guid.Empty;
 
-            _webApplicationFactorySetup.PartyGroupRepositoryMock
+            _factory.PartyGroupRepositoryMock
                             .Setup(x => x.AddPartyToFavorites(It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                             .ReturnsAsync(true);
-            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
+            SetupAuthHandler(_factory, partyGuid, UserId);
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
 
             HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Put, UserId, $"profile/api/v1/users/current/party-groups/favorites/{partyGuid}");
 
@@ -205,12 +200,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int UserId = 2516356;
             var partyGuid = Guid.NewGuid();
 
-            _webApplicationFactorySetup.PartyGroupRepositoryMock
+            _factory.PartyGroupRepositoryMock
                             .Setup(x => x.DeleteFromFavorites(It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                             .ReturnsAsync(true);
-            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
+            SetupAuthHandler(_factory, partyGuid, UserId);
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
 
             HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/party-groups/favorites/{partyGuid}");
 
@@ -229,12 +224,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int UserId = 2516356;
             var partyGuid = Guid.NewGuid();
 
-            _webApplicationFactorySetup.PartyGroupRepositoryMock
+            _factory.PartyGroupRepositoryMock
                             .Setup(x => x.DeleteFromFavorites(It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                             .ReturnsAsync(false);
-            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
+            SetupAuthHandler(_factory, partyGuid, UserId);
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
+            HttpClient client = _factory.CreateClient();
 
             HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/party-groups/favorites/{partyGuid}");
 
@@ -253,8 +248,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int UserId = 2516356;
             var partyGuid = Guid.Empty;
 
-            HttpClient client = _webApplicationFactorySetup.GetTestServerClient();
-            SetupAuthHandler(_webApplicationFactorySetup, partyGuid, UserId);
+            SetupAuthHandler(_factory, partyGuid, UserId);
+
+            HttpClient client = _factory.CreateClient();
 
             HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/party-groups/favorites/{partyGuid}");
 
@@ -272,6 +268,19 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string token = PrincipalUtil.GetToken(userId);
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return httpRequestMessage;
+        }
+
+        private static void SetupAuthHandler(ProfileWebApplicationFactory<Program> factory, Guid partyGuid, int UserId, bool access = true)
+        {
+            factory.RegisterClientMock.Reset();
+            factory.RegisterClientMock
+                .Setup(x => x.GetPartyId(partyGuid, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((int)partyGuid.GetHashCode()); // Simulate party ID retrieval
+
+            factory.AuthorizationClientMock.Reset();
+            factory.AuthorizationClientMock
+                .Setup(x => x.ValidateSelectedParty(UserId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(access);
         }
     }
 }

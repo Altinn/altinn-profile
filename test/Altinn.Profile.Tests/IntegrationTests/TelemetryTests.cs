@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Altinn.Profile.Tests.IntegrationTests.Utils;
-
-using Microsoft.AspNetCore.Mvc.Testing;
-
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 
@@ -14,10 +10,10 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests;
 
-public class TelemetryTests(WebApplicationFactory<Program> factory) 
-    : IClassFixture<WebApplicationFactory<Program>>, IDisposable
+public class TelemetryTests(ProfileWebApplicationFactory<Program> factory) 
+    : IClassFixture<ProfileWebApplicationFactory<Program>>, IDisposable
 {
-    private readonly WebApplicationFactorySetup<Program> _webApplicationFactorySetup = new(factory);
+    private readonly ProfileWebApplicationFactory<Program> _factory = factory;
 
     private MeterProvider _meterProvider;
 
@@ -31,7 +27,7 @@ public class TelemetryTests(WebApplicationFactory<Program> factory)
             .AddInMemoryExporter(metricItems)
             .Build();
 
-        using (var client = _webApplicationFactorySetup.GetTestServerClient())
+        using (var client = _factory.WithWebHostBuilder(builder => { }).CreateClient())
         {
             // We need to call any endpoint that includes some telemetry.
             using var response = 
@@ -67,7 +63,7 @@ public class TelemetryTests(WebApplicationFactory<Program> factory)
             .AddInMemoryExporter(metricItems)
             .Build();
 
-        using (var client = _webApplicationFactorySetup.GetTestServerClient())
+        using (var client = _factory.WithWebHostBuilder(builder => { }).CreateClient())
         {
             // We need to call any endpoint that includes some telemetry.
             using var response =

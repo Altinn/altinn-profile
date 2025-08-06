@@ -69,6 +69,11 @@ public class UsersController : Controller
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserProfile>> Get([FromRoute] Guid userUuid)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         Result<UserProfile, bool> result = await _userProfileService.GetUserByUuid(userUuid);
 
         return result.Match<ActionResult<UserProfile>>(
