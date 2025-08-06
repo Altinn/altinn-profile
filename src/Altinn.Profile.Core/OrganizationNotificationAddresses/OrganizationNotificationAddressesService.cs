@@ -71,6 +71,8 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
             if (duplicateAddress is { IsSoftDeleted: true })
             {
                 var restoredAddress = await _orgRepository.RestoreNotificationAddress(duplicateAddress.NotificationAddressID, registryId);
+                await _orgRepository.DeleteNotificationAddressAsync(existingNotificationAddress.NotificationAddressID);
+
                 return (restoredAddress, false);
             }
 
