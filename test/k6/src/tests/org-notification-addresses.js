@@ -14,7 +14,7 @@ import { stopIterationOnFail } from "../errorhandler.js";
 //   -e pid=*** \
 //   -e orgNo=***
 
-export let options = {
+export const options = {
     vus: 1,
     iterations: 1,
     thresholds: {
@@ -136,7 +136,7 @@ function removeOrgNotificationAddresses(data, addressId) {
  */
 export default function (data) {
 
-    var addressId = addOrgNotificationAddresses(data);
+    const addressId = addOrgNotificationAddresses(data);
     getOrgNotificationAddresses(data);
 
     updateOrgNotificationAddresses(data, addressId);

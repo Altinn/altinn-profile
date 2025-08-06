@@ -14,7 +14,7 @@ public class UserProfileLookup
     /// <summary>
     /// Gets or sets the users UserId if the lookup is to be performed based on this identifier
     /// </summary>
-    public int UserId { get; set; }
+    public int? UserId { get; set; }
     
     /// <summary>
     /// Gets or sets the users UserUuid if the lookup is to be performed based on this identifier

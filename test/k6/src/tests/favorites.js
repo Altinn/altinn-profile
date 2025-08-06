@@ -14,7 +14,7 @@ import { stopIterationOnFail } from "../errorhandler.js";
 //   -e pid=*** \
 //   -e partyUuid=***
 
-export let options = {
+export const options = {
     vus: 1,
     iterations: 1,
     thresholds: {
