@@ -244,6 +244,6 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         await databaseContext.SaveChangesAsync();
 
-        return _mapper.Map<NotificationAddress>(notificationAddressDE);
+        return OrganizationMapper.MapFromDataEntity(notificationAddressDE);
     }
 }
