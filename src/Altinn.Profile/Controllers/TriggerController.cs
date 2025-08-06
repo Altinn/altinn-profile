@@ -58,12 +58,12 @@ public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJo
 }
 
 /// <summary>
-/// Controller responsible for managing changes in contact preferences for one or more persons.
+/// Controller responsible for managing changes in organization notification addresses.
 /// </summary>
 /// <remarks>
-/// Initializes a new instance of the <see cref="TriggerController"/> class.
+/// Initializes a new instance of the <see cref="TriggerOrgSyncController"/> class.
 /// </remarks>
-/// <param name="orgUpdateJob">The service for retrieving the notificationaddresses for organizations.</param>
+/// <param name="orgUpdateJob">The service for retrieving the notification addresses for organizations.</param>
 /// <param name="logger">A logger to log detailed information.</param>
 [ApiController]
 [ApiExplorerSettings(IgnoreApi = true)]
