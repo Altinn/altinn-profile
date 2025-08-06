@@ -51,7 +51,7 @@ public class UserProfileClient : IUserProfileClient
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("Getting user {userId} failed with {statusCode}", userId, response.StatusCode);
+            _logger.LogError("Getting user {UserId} failed with {StatusCode}", userId, response.StatusCode);
             return false;
         }
 
@@ -90,7 +90,7 @@ public class UserProfileClient : IUserProfileClient
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("Getting user {userUuid} failed with {StatusCode}", userUuid, response.StatusCode);
+            _logger.LogError("Getting user {UserUuid} failed with {StatusCode}", userUuid, response.StatusCode);
             return false;
         }
 

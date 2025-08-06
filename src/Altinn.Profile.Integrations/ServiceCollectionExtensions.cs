@@ -84,9 +84,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMetadataRepository, MetadataRepository>();
         services.AddScoped<IContactRegisterUpdateJob, ContactRegisterUpdateJob>();
 
-        services.AddAutoMapper(typeof(PersonMappingProfile), typeof(PersonContactPreferencesProfile));
-        services.AddAutoMapper(typeof(OrganizationMappingProfile));
-
         services.AddSingleton<INationalIdentityNumberChecker, NationalIdentityNumberChecker>();
 
         services.AddScoped<IOrganizationNotificationAddressUpdater, OrganizationNotificationAddressRepository>();
