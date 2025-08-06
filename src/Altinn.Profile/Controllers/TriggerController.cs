@@ -22,7 +22,7 @@ namespace Altinn.Profile.Controllers;
 [ApiExplorerSettings(IgnoreApi = true)]
 [Consumes("application/json")]
 [Produces("application/json")]
-[Route("profile/api/v1/trigger")]
+[Route("profile/api/v1/trigger/syncpersonchanges")]
 public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJob, IOrganizationNotificationAddressSyncJob orgUpdateJob, ILogger<TriggerController> logger) : ControllerBase
 {
     private readonly ILogger<TriggerController> _logger = logger;
@@ -37,7 +37,7 @@ public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJo
     /// </returns>
     /// <response code="200">Starting the synchronization work was successful.</response>
     /// <response code="500">An error occurred while starting the synchronization.</response>
-    [HttpGet("syncpersonchanges")]
+    [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> SyncChanges()
@@ -69,10 +69,10 @@ public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJo
 [ApiExplorerSettings(IgnoreApi = true)]
 [Consumes("application/json")]
 [Produces("application/json")]
-[Route("profile/api/v1/trigger")]
-public class TriggerORgSyncController(IOrganizationNotificationAddressSyncJob orgUpdateJob, ILogger<TriggerController> logger) : ControllerBase
+[Route("profile/api/v1/trigger/syncorgchanges")]
+public class TriggerOrgSyncController(IOrganizationNotificationAddressSyncJob orgUpdateJob, ILogger<TriggerOrgSyncController> logger) : ControllerBase
 {
-    private readonly ILogger<TriggerController> _logger = logger;
+    private readonly ILogger<TriggerOrgSyncController> _logger = logger;
     private readonly IOrganizationNotificationAddressSyncJob _orgUpdateJob = orgUpdateJob;
 
     /// <summary>
@@ -83,7 +83,7 @@ public class TriggerORgSyncController(IOrganizationNotificationAddressSyncJob or
     /// </returns>
     /// <response code="200">Starting the synchronization work was successful.</response>
     /// <response code="500">An error occurred while starting the synchronization.</response>
-    [HttpGet("syncorgchanges")]
+    [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> SyncOrgChanges()
