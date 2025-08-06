@@ -55,6 +55,25 @@ public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJo
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while synchronizing the changes.");
         }
     }
+}
+
+/// <summary>
+/// Controller responsible for managing changes in contact preferences for one or more persons.
+/// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="TriggerController"/> class.
+/// </remarks>
+/// <param name="orgUpdateJob">The service for retrieving the notificationaddresses for organizations.</param>
+/// <param name="logger">A logger to log detailed information.</param>
+[ApiController]
+[ApiExplorerSettings(IgnoreApi = true)]
+[Consumes("application/json")]
+[Produces("application/json")]
+[Route("profile/api/v1/trigger")]
+public class TriggerORgSyncController(IOrganizationNotificationAddressSyncJob orgUpdateJob, ILogger<TriggerController> logger) : ControllerBase
+{
+    private readonly ILogger<TriggerController> _logger = logger;
+    private readonly IOrganizationNotificationAddressSyncJob _orgUpdateJob = orgUpdateJob;
 
     /// <summary>
     /// Synchronizes the notification addresses for organizations.
