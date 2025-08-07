@@ -55,9 +55,9 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
             }
 
             var existingNotificationAddress = org.NotificationAddresses?.FirstOrDefault(n => n.NotificationAddressID == notificationAddress.NotificationAddressID);
-            if (existingNotificationAddress == null)
+            if (existingNotificationAddress is null or { IsSoftDeleted : true })
             {
-                return (existingNotificationAddress, false);
+                return (null, false);
             }
 
             var duplicateAddress = org.NotificationAddresses?.FirstOrDefault(x => x.FullAddress == notificationAddress.FullAddress && x.AddressType == notificationAddress.AddressType);
