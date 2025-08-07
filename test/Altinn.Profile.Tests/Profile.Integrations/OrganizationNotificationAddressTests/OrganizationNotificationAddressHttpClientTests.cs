@@ -7,6 +7,7 @@ using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -15,8 +16,9 @@ namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddr
 public class OrganizationNotificationAddressHttpClientTests
 {
     private readonly Mock<HttpMessageHandler> _messageHandler = new();
+    private readonly Mock<ILogger<OrganizationNotificationAddressHttpClient>> _loggerMock = new();
 
-    private static OrganizationNotificationAddressHttpClient CreateHttpClient(HttpResponseMessage mockResponse = null)
+    private OrganizationNotificationAddressHttpClient CreateHttpClient(HttpResponseMessage mockResponse = null)
     {
         HttpClient httpClient;
         if (mockResponse != null)
@@ -29,7 +31,7 @@ public class OrganizationNotificationAddressHttpClientTests
             httpClient = new HttpClient();
         }
 
-        return new OrganizationNotificationAddressHttpClient(httpClient, new OrganizationNotificationAddressSettings() { UpdateEndpoint = "https://example.com" });
+        return new OrganizationNotificationAddressHttpClient(httpClient, new OrganizationNotificationAddressSettings() { UpdateEndpoint = "https://example.com" }, _loggerMock.Object);
     }
 
     [Fact]
@@ -108,7 +110,7 @@ public class OrganizationNotificationAddressHttpClientTests
     }
 
     [Fact]
-    public async Task GetAddressChangesAsync_WhenNotSuccessResponse_Throws()
+    public async Task GetAddressChangesAsync_WhenNotSuccessResponse_ReturnsNull()
     {
         // Arrange
         var mockResponse = new HttpResponseMessage
@@ -118,8 +120,11 @@ public class OrganizationNotificationAddressHttpClientTests
 
         var client = CreateHttpClient(mockResponse);
 
-        // Act and Assert
-        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.GetAddressChangesAsync("http://example.com"));
+        // Act
+        var changelog = await client.GetAddressChangesAsync("http://example.com");
+
+        // Assert
+        Assert.Null(changelog);
     }
 
     [Fact]

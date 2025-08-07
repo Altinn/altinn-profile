@@ -47,7 +47,7 @@ public class ContactRegisterUpdateJob(
         {
             long previousChangeNumber = await _metadataRepository.GetLatestChangeNumberAsync();
 
-            ContactRegisterChangesLog changesLog = await _contactRegisterHttpClient.GetContactDetailsChangesAsync(_contactRegisterSettings.ChangesLogEndpoint, previousChangeNumber);
+            ContactRegisterChangesLog? changesLog = await _contactRegisterHttpClient.GetContactDetailsChangesAsync(_contactRegisterSettings.ChangesLogEndpoint, previousChangeNumber);
 
             if (changesLog == null)
             {

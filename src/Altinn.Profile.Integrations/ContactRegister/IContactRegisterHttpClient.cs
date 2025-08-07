@@ -13,5 +13,5 @@ public interface IContactRegisterHttpClient
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    Task<ContactRegisterChangesLog> GetContactDetailsChangesAsync(string endpointUrl, long startingIdentifier);
+    Task<ContactRegisterChangesLog?> GetContactDetailsChangesAsync(string endpointUrl, long startingIdentifier);
 }

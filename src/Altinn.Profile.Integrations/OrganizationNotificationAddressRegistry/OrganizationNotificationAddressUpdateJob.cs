@@ -41,19 +41,19 @@ public class OrganizationNotificationAddressUpdateJob(
         {
             _logger.LogInformation("Fetch data from brreg at url: {FullUrl}", fullUrl);
 
-            NotificationAddressChangesLog changesLog = await _organizationNotificationAddressHttpClient.GetAddressChangesAsync(fullUrl);
+            NotificationAddressChangesLog? changesLog = await _organizationNotificationAddressHttpClient.GetAddressChangesAsync(fullUrl);
 
-            var noChangesSinceLastCheck = changesLog.OrganizationNotificationAddressList == null || changesLog.OrganizationNotificationAddressList?.Count == 0;
+            var noChangesSinceLastCheck = changesLog?.OrganizationNotificationAddressList == null || changesLog.OrganizationNotificationAddressList?.Count == 0;
             if (noChangesSinceLastCheck)
             {
                 break;
             }
 
-            int updatedRowsCount = await _notificationAddressUpdater.SyncNotificationAddressesAsync(changesLog);
+            int updatedRowsCount = await _notificationAddressUpdater.SyncNotificationAddressesAsync(changesLog!);
 
             if (updatedRowsCount > 0)
             {
-                var lastUpdatedTimestamp = changesLog.OrganizationNotificationAddressList![^1].Updated;
+                var lastUpdatedTimestamp = changesLog!.OrganizationNotificationAddressList![^1].Updated;
                 await _metadataRepository.UpdateLatestChangeTimestampAsync(lastUpdatedTimestamp);
             }
             else

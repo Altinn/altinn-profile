@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Altinn.Profile.Core.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Altinn.Profile.Integrations.ContactRegister;
 
@@ -10,14 +11,17 @@ namespace Altinn.Profile.Integrations.ContactRegister;
 public class ContactRegisterHttpClient : IContactRegisterHttpClient
 {
     private readonly HttpClient _httpClient;
+    private readonly ILogger<ContactRegisterHttpClient> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ContactRegisterHttpClient"/> class.
     /// </summary>
     /// <param name="httpClient">The HTTP client to interact with the contact register.</param>
-    public ContactRegisterHttpClient(HttpClient httpClient)
+    /// <param name="logger">The logger</param>
+    public ContactRegisterHttpClient(HttpClient httpClient, ILogger<ContactRegisterHttpClient> logger)
     {
         _httpClient = httpClient;
+        _logger = logger;
     }
 
     /// <summary>
@@ -29,7 +33,7 @@ public class ContactRegisterHttpClient : IContactRegisterHttpClient
     /// A task that represents the asynchronous operation with the returned values.
     /// </returns>
     /// <exception cref="System.ArgumentException">The URL is invalid. - endpointUrl</exception>
-    public async Task<ContactRegisterChangesLog> GetContactDetailsChangesAsync(string endpointUrl, long startingIdentifier)
+    public async Task<ContactRegisterChangesLog?> GetContactDetailsChangesAsync(string endpointUrl, long startingIdentifier)
     {
         if (!endpointUrl.IsValidUrl())
         {
@@ -50,7 +54,8 @@ public class ContactRegisterHttpClient : IContactRegisterHttpClient
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new ContactAndReservationChangesException("Failed to retrieve contact details changes.");
+            _logger.LogError("Failed to retrieve contact details changes. Received status code {StatusCode}.", response.StatusCode);
+            return null;
         }
 
         var responseData = await response.Content.ReadAsStringAsync();
