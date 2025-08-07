@@ -619,6 +619,42 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
+        public async Task UpdateMandatory_WhenTryingToUpdateSoftDeletedgAddress_ReturnsNotFound()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+
+            _factory.PdpMock
+                .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
+                .ReturnsAsync(new XacmlJsonResponse { Response = [new XacmlJsonResult { Decision = "Permit" }] });
+            _factory.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo));
+            _factory.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.UpdateNotificationAddressAsync(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
+            _factory.OrganizationNotificationAddressUpdateClientMock
+                .Setup(c => c.UpdateNotificationAddress(It.IsAny<string>(), It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ReturnsAsync("2");
+
+            HttpClient client = _factory.CreateClient();
+
+            var input = new NotificationAddressModel { Email = "test@test.com" };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/4")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
         public async Task UpdateMandatory_WhenTryingToUpdateToSoftDeletedAddress_ReturnsOkWithNewId()
         {
             // Arrange
