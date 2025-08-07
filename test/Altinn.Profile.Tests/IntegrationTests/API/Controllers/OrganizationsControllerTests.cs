@@ -447,7 +447,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
             string responseContent = await response.Content.ReadAsStringAsync();
             var actual = JsonSerializer.Deserialize<NotificationAddressResponse>(responseContent, _serializerOptions);
-            Assert.IsType<NotificationAddressResponse>(actual);
+            Assert.NotNull(actual);
         }
 
         [Theory]
@@ -619,7 +619,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task UpdateMandatory_WhenTryingToUpdateSoftDeletedgAddress_ReturnsNotFound()
+        public async Task UpdateMandatory_WhenTryingToUpdateSoftDeletedAddress_ReturnsNotFound()
         {
             // Arrange
             var orgNo = "123456789";
@@ -694,7 +694,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             string responseContent = await response.Content.ReadAsStringAsync();
             var actual = JsonSerializer.Deserialize<NotificationAddressResponse>(responseContent, _serializerOptions);
-            Assert.IsType<NotificationAddressResponse>(actual);
+            Assert.NotNull(actual);
             Assert.Equal(4, actual.NotificationAddressId); // Should return the ID of the restored address
             Assert.NotEqual(2, actual.NotificationAddressId); // Should not return the ID of the updated address
         }
