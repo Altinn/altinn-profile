@@ -36,4 +36,12 @@ public interface IOrganizationNotificationAddressRepository
     /// </summary>
     /// <returns>A <see cref="Task{TResult}"/> with the notification address as value.</returns>
     Task<NotificationAddress> UpdateNotificationAddressAsync(NotificationAddress notificationAddress, string registryId);
+
+    /// <summary>
+    /// Restores a previously soft deleted notification address for an organization.
+    /// </summary>
+    /// <param name="notificationAddressId">The ID of the notification address to restore.</param>
+    /// <param name="registryId">The registry identifier associated with the notification address.</param>
+    /// <returns>The restored <see cref="NotificationAddress"/>.</returns>
+    Task<NotificationAddress> RestoreNotificationAddress(int notificationAddressId, string registryId);
 }

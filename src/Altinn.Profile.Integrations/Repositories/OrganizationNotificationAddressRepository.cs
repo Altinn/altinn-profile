@@ -229,4 +229,21 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         return OrganizationMapper.MapFromDataEntity(notificationAddressDE);
     }
+
+    /// <inheritdoc/>
+    public async Task<NotificationAddress> RestoreNotificationAddress(int notificationAddressId, string registryId)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+
+        var notificationAddressDE = await databaseContext.NotificationAddresses.FirstAsync(n => n.NotificationAddressID == notificationAddressId);
+
+        notificationAddressDE.IsSoftDeleted = false;
+        notificationAddressDE.RegistryID = registryId;
+
+        databaseContext.NotificationAddresses.Update(notificationAddressDE);
+
+        await databaseContext.SaveChangesAsync();
+
+        return OrganizationMapper.MapFromDataEntity(notificationAddressDE);
+    }
 }

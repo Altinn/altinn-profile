@@ -71,7 +71,7 @@ function getOrgNotificationAddresses(data) {
 /**
  * Adds an org notification address.
  * @param {Object} data - The data object containing orgNo and token.
- * @returns {string} The selfLink of the created address.
+ * @returns {string} The id of the created address.
  */
 function addOrgNotificationAddresses(data) {
     const response = orgNotificationAddressesApi.addOrgNotificationAddresses(
@@ -94,6 +94,7 @@ function addOrgNotificationAddresses(data) {
  * Updates an org notification address.
  * @param {Object} data - The data object containing orgNo and token.
  * @param {string} addressId - The id of the address to update.
+ * @returns {string} The id of the created address.
  */
 function updateOrgNotificationAddresses(data, addressId) {
     const response = orgNotificationAddressesApi.updateOrgNotificationAddresses(
@@ -108,6 +109,9 @@ function updateOrgNotificationAddresses(data, addressId) {
     });
 
     stopIterationOnFail("PUT org notification addresses failed", success);
+    const id = JSON.parse(response.body).notificationAddressId;
+
+    return id;
 }
 
 /**
@@ -136,9 +140,9 @@ function removeOrgNotificationAddresses(data, addressId) {
  */
 export default function (data) {
 
-    const addressId = addOrgNotificationAddresses(data);
+    let addressId = addOrgNotificationAddresses(data);
     getOrgNotificationAddresses(data);
 
-    updateOrgNotificationAddresses(data, addressId);
+    addressId = updateOrgNotificationAddresses(data, addressId);
     removeOrgNotificationAddresses(data, addressId);
 }
