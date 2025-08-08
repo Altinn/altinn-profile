@@ -46,6 +46,11 @@ public class UsersController : Controller
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserProfile>> Get(int userID)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         if (userID == 0)
         {
             return NotFound();

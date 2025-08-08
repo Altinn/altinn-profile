@@ -22,7 +22,7 @@ namespace Altinn.Profile.Controllers;
 [ApiExplorerSettings(IgnoreApi = true)]
 [Consumes("application/json")]
 [Produces("application/json")]
-[Route("profile/api/v1/trigger")]
+[Route("profile/api/v1/trigger/syncpersonchanges")]
 public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJob, IOrganizationNotificationAddressSyncJob orgUpdateJob, ILogger<TriggerController> logger) : ControllerBase
 {
     private readonly ILogger<TriggerController> _logger = logger;
@@ -37,7 +37,7 @@ public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJo
     /// </returns>
     /// <response code="200">Starting the synchronization work was successful.</response>
     /// <response code="500">An error occurred while starting the synchronization.</response>
-    [HttpGet("syncpersonchanges")]
+    [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> SyncChanges()
@@ -55,6 +55,25 @@ public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJo
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while synchronizing the changes.");
         }
     }
+}
+
+/// <summary>
+/// Controller responsible for managing changes in organization notification addresses.
+/// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="TriggerOrgSyncController"/> class.
+/// </remarks>
+/// <param name="orgUpdateJob">The service for retrieving the notification addresses for organizations.</param>
+/// <param name="logger">A logger to log detailed information.</param>
+[ApiController]
+[ApiExplorerSettings(IgnoreApi = true)]
+[Consumes("application/json")]
+[Produces("application/json")]
+[Route("profile/api/v1/trigger/syncorgchanges")]
+public class TriggerOrgSyncController(IOrganizationNotificationAddressSyncJob orgUpdateJob, ILogger<TriggerOrgSyncController> logger) : ControllerBase
+{
+    private readonly ILogger<TriggerOrgSyncController> _logger = logger;
+    private readonly IOrganizationNotificationAddressSyncJob _orgUpdateJob = orgUpdateJob;
 
     /// <summary>
     /// Synchronizes the notification addresses for organizations.
@@ -64,7 +83,7 @@ public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJo
     /// </returns>
     /// <response code="200">Starting the synchronization work was successful.</response>
     /// <response code="500">An error occurred while starting the synchronization.</response>
-    [HttpGet("syncorgchanges")]
+    [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> SyncOrgChanges()
