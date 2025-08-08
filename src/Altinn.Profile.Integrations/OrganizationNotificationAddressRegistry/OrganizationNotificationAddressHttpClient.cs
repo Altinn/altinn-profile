@@ -72,6 +72,11 @@ public class OrganizationNotificationAddressHttpClient(
     /// <inheritdoc/>
     public async Task<string> CreateNewNotificationAddress(NotificationAddress notificationAddress, string organizationNumber)
     {
+        if (notificationAddress.IsSynthetic)
+        {
+            return notificationAddress.NotificationAddressID.ToString();
+        }
+
         var request = DataMapper.MapToRegistryRequest(notificationAddress, organizationNumber);
         var json = JsonSerializer.Serialize(request, _options);
         string command = "/define";
@@ -84,6 +89,11 @@ public class OrganizationNotificationAddressHttpClient(
     /// <inheritdoc/>
     public async Task<string> UpdateNotificationAddress(string registryId, NotificationAddress notificationAddress, string organizationNumber)
     {
+        if (notificationAddress.IsSynthetic)
+        {
+            return notificationAddress.NotificationAddressID.ToString();
+        }
+
         ArgumentException.ThrowIfNullOrWhiteSpace(registryId);
 
         var request = DataMapper.MapToRegistryRequest(notificationAddress, organizationNumber);
@@ -97,12 +107,17 @@ public class OrganizationNotificationAddressHttpClient(
     }
 
     /// <inheritdoc/>
-    public async Task<string> DeleteNotificationAddress(string notificationAddressRegistryId)
+    public async Task<string> DeleteNotificationAddress(NotificationAddress notificationAddress)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(notificationAddressRegistryId);
+        if (notificationAddress.IsSynthetic)
+        {
+            return notificationAddress.NotificationAddressID.ToString();
+        }
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(notificationAddress.RegistryID);
 
         // Using /replace/ with empty payload as per API requirements for deletion
-        string command = @"/replace/" + notificationAddressRegistryId;
+        string command = @"/replace/" + notificationAddress.RegistryID;
         string json = string.Empty;
 
         var responseObject = await PostAsync(json, command);

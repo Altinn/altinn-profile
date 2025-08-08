@@ -245,9 +245,10 @@ public class OrganizationNotificationAddressHttpClientTests
         };
 
         var client = CreateHttpClient(mockResponse);
+        var notificationAddress = new NotificationAddress() { RegistryID = Guid.NewGuid().ToString("N") };
 
         // Act
-        var addressId = await client.DeleteNotificationAddress(Guid.NewGuid().ToString("N"));
+        var addressId = await client.DeleteNotificationAddress(notificationAddress);
 
         // Assert
         Assert.IsType<string>(addressId);

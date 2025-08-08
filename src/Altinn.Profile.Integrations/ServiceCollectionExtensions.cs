@@ -5,8 +5,10 @@ using Altinn.ApiClients.Maskinporten.Services;
 using Altinn.Common.AccessTokenClient.Configuration;
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.Authorization;
 using Altinn.Profile.Integrations.ContactRegister;
+using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Mappings;
 using Altinn.Profile.Integrations.Notifications;
@@ -94,7 +96,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPartyGroupRepository, PartyGroupRepository>();
         services.AddScoped<IProfessionalNotificationsRepository, ProfessionalNotificationsRepository>();
 
-        services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
+        services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString)
+        .UseSnakeCaseNamingConvention()
+        .UseAsyncSeeding(SeedSyntheticData));
     }
 
     /// <summary>
@@ -131,5 +135,34 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(organizationNotificationAddressSettings);
         services.AddScoped<IOrganizationNotificationAddressSyncClient, OrganizationNotificationAddressHttpClient>();
         services.AddScoped<IOrganizationNotificationAddressUpdateClient, OrganizationNotificationAddressHttpClient>();
+    }
+
+    private static async Task SeedSyntheticData(DbContext context, bool seed, CancellationToken cancellationToken)
+    {
+        var testData = await context.Set<OrganizationDE>().FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == "810889802", cancellationToken: cancellationToken);
+        if (testData == null)
+        {
+            var org = new OrganizationDE
+            {
+                RegistryOrganizationNumber = "810889802",
+                NotificationAddresses = [],
+            };
+            var notificationAddress = new NotificationAddressDE
+            {
+                RegistryOrganizationId = org.RegistryOrganizationId,
+                Address = "somevalue",
+                Domain = "digdir.no",
+                FullAddress = "somevalue@digdir.no",
+                AddressType = AddressType.Email,
+                CreatedDateTime = DateTime.UtcNow,
+                UpdateSource = UpdateSource.Synthetic,
+                HasRegistryAccepted = true,
+                RegistryID = "1",
+            };
+            org.NotificationAddresses.Add(notificationAddress);
+            context.Set<OrganizationDE>().Add(org);
+
+            await context.SaveChangesAsync(cancellationToken);
+        }
     }
 }
