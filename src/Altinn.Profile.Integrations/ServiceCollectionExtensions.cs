@@ -98,7 +98,8 @@ public static class ServiceCollectionExtensions
 
         services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString)
         .UseSnakeCaseNamingConvention()
-        .UseAsyncSeeding(SeedSyntheticData));
+        .UseAsyncSeeding(SeedSyntheticDataAsync)
+        .UseSeeding(SeedSyntheticData));
     }
 
     /// <summary>
@@ -137,7 +138,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IOrganizationNotificationAddressUpdateClient, OrganizationNotificationAddressHttpClient>();
     }
 
-    private static async Task SeedSyntheticData(DbContext context, bool seed, CancellationToken cancellationToken)
+    private static async Task SeedSyntheticDataAsync(DbContext context, bool seed, CancellationToken cancellationToken)
     {
         var testData = await context.Set<OrganizationDE>().FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == "810889802", cancellationToken: cancellationToken);
         if (testData == null)
@@ -161,8 +162,39 @@ public static class ServiceCollectionExtensions
             };
             org.NotificationAddresses.Add(notificationAddress);
             context.Set<OrganizationDE>().Add(org);
+            context.Set<NotificationAddressDE>().Add(notificationAddress);
 
             await context.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    private static void SeedSyntheticData(DbContext context, bool seed)
+    {
+        var testData = context.Set<OrganizationDE>().FirstOrDefault(o => o.RegistryOrganizationNumber == "810889802");
+        if (testData == null)
+        {
+            var org = new OrganizationDE
+            {
+                RegistryOrganizationNumber = "810889802",
+                NotificationAddresses = [],
+            };
+            var notificationAddress = new NotificationAddressDE
+            {
+                RegistryOrganizationId = org.RegistryOrganizationId,
+                Address = "somevalue",
+                Domain = "digdir.no",
+                FullAddress = "somevalue@digdir.no",
+                AddressType = AddressType.Email,
+                CreatedDateTime = DateTime.UtcNow,
+                UpdateSource = UpdateSource.Synthetic,
+                HasRegistryAccepted = true,
+                RegistryID = "1",
+            };
+            org.NotificationAddresses.Add(notificationAddress);
+            context.Set<OrganizationDE>().Add(org);
+            context.Set<NotificationAddressDE>().Add(notificationAddress);
+
+            context.SaveChanges();
         }
     }
 }
