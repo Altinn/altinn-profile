@@ -5,12 +5,15 @@ using Altinn.ApiClients.Maskinporten.Services;
 using Altinn.Common.AccessTokenClient.Configuration;
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.Authorization;
 using Altinn.Profile.Integrations.ContactRegister;
+using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Mappings;
 using Altinn.Profile.Integrations.Notifications;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Register;
 using Altinn.Profile.Integrations.Repositories;
@@ -94,7 +97,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPartyGroupRepository, PartyGroupRepository>();
         services.AddScoped<IProfessionalNotificationsRepository, ProfessionalNotificationsRepository>();
 
-        services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
+        var testData = config.GetTestData();
+        services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString)
+        .UseSnakeCaseNamingConvention()
+        .UseAsyncSeeding(async (context, _, cancellationToken) => await SeedSyntheticDataAsync(context, _, testData, cancellationToken))
+        .UseSeeding((context, _) => SeedSyntheticData(context, _, testData)));
     }
 
     /// <summary>
@@ -131,5 +138,69 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(organizationNotificationAddressSettings);
         services.AddScoped<IOrganizationNotificationAddressSyncClient, OrganizationNotificationAddressHttpClient>();
         services.AddScoped<IOrganizationNotificationAddressUpdateClient, OrganizationNotificationAddressHttpClient>();
+    }
+
+    private static async Task SeedSyntheticDataAsync(DbContext context, bool seed, OrganizationDE org, CancellationToken cancellationToken)
+    {
+        var testData = await context.Set<OrganizationDE>().FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == org.RegistryOrganizationNumber, cancellationToken: cancellationToken);
+        if (testData == null)
+        {
+            context.Set<OrganizationDE>().Add(org);
+            context.Set<NotificationAddressDE>().AddRange(org.NotificationAddresses);
+
+            await context.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    private static void SeedSyntheticData(DbContext context, bool seed, OrganizationDE org)
+    {
+        var testData = context.Set<OrganizationDE>().FirstOrDefault(o => o.RegistryOrganizationNumber == org.RegistryOrganizationNumber);
+        if (testData == null)
+        {
+            context.Set<OrganizationDE>().Add(org);
+            context.Set<NotificationAddressDE>().AddRange(org.NotificationAddresses);
+
+            context.SaveChanges();
+        }
+    }
+
+    private static OrganizationDE GetTestData(this IConfiguration config)
+    {
+        var testDataSettings = new OrganizationTestData();
+        config.GetSection("OrganizationNotificationAddressSettings").Bind(testDataSettings);
+
+        var org = new OrganizationDE
+        {
+            RegistryOrganizationNumber = testDataSettings.OrganizationNumber,
+            NotificationAddresses = [],
+        };
+        var notificationAddress = new NotificationAddressDE
+        {
+            RegistryOrganizationId = org.RegistryOrganizationId,
+            Address = testDataSettings.EmailAddress,
+            Domain = testDataSettings.EmailDomain,
+            FullAddress = testDataSettings.EmailAddress + "@" + testDataSettings.EmailDomain,
+            AddressType = AddressType.Email,
+            CreatedDateTime = DateTime.UtcNow,
+            UpdateSource = UpdateSource.Synthetic,
+            HasRegistryAccepted = true,
+            RegistryID = "1",
+        };
+        var notificationAddress2 = new NotificationAddressDE
+        {
+            RegistryOrganizationId = org.RegistryOrganizationId,
+            Address = testDataSettings.PhoneNumber,
+            Domain = testDataSettings.PhoneCountryCode,
+            FullAddress = testDataSettings.PhoneCountryCode + testDataSettings.PhoneNumber,
+            AddressType = AddressType.SMS,
+            CreatedDateTime = DateTime.UtcNow,
+            UpdateSource = UpdateSource.Synthetic,
+            HasRegistryAccepted = true,
+            RegistryID = "2",
+        };
+        org.NotificationAddresses.Add(notificationAddress);
+        org.NotificationAddresses.Add(notificationAddress2);
+
+        return org;
     }
 }
