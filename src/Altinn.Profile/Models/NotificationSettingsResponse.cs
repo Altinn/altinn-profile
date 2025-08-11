@@ -7,7 +7,7 @@ namespace Altinn.Profile.Models
     /// <summary>
     /// Response model for the professional notification address for an organization, also called personal notification address.
     /// </summary>
-    public class ProfessionalNotificationAddressResponse : ProfessionalNotificationAddress
+    public class NotificationSettingsResponse : ProfessionalNotificationAddress
     {
         /// <summary>
         /// The user id of logged-in user for whom the specific contact information belongs to.

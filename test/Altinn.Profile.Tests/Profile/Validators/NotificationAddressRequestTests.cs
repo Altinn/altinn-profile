@@ -1,15 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
+
 using Altinn.Profile.Models;
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Validators
 {
-    public class NotificationAddressModelTests
+    public class NotificationAddressRequestTests
     {
         [Fact]
-        public void NotificationAddressModel_WhenBothEmailAndPhoneIsGiven_ReturnsValidationResults()
+        public void NotificationAddressRequest_WhenBothEmailAndPhoneIsGiven_ReturnsValidationResults()
         {
-            var model = new NotificationAddressModel { Email = "test@test.com", Phone = "98765432" };
+            var model = new NotificationAddressRequest { Email = "test@test.com", Phone = "98765432" };
             var validationContext = new ValidationContext(model);
 
             var validationResult = model.Validate(validationContext);
@@ -18,9 +19,9 @@ namespace Altinn.Profile.Tests.Profile.Validators
         }
 
         [Fact]
-        public void NotificationAddressModel_WhenNeitherEmailAndPhoneIsGiven_ReturnsValidationResults()
+        public void NotificationAddressRequest_WhenNeitherEmailAndPhoneIsGiven_ReturnsValidationResults()
         {
-            var model = new NotificationAddressModel { };
+            var model = new NotificationAddressRequest { };
             var validationContext = new ValidationContext(model);
 
             var validationResult = model.Validate(validationContext);
@@ -29,9 +30,9 @@ namespace Altinn.Profile.Tests.Profile.Validators
         }
 
         [Fact]
-        public void NotificationAddressModel_WhenEmailAndPhoneIsEmptyOrWhiteSpace_ReturnsValidationResults()
+        public void NotificationAddressRequest_WhenEmailAndPhoneIsEmptyOrWhiteSpace_ReturnsValidationResults()
         {
-            var model = new NotificationAddressModel { Email = string.Empty, Phone = " " };
+            var model = new NotificationAddressRequest { Email = string.Empty, Phone = " " };
             var validationContext = new ValidationContext(model);
 
             var validationResult = model.Validate(validationContext);
@@ -40,9 +41,9 @@ namespace Altinn.Profile.Tests.Profile.Validators
         }
 
         [Fact]
-        public void NotificationAddressModel_WhenOnlyValidationEmailIsGiven_ReturnsNoValidationResults()
+        public void NotificationAddressRequest_WhenOnlyValidationEmailIsGiven_ReturnsNoValidationResults()
         {
-            var model = new NotificationAddressModel { Email = "test@test.com" };
+            var model = new NotificationAddressRequest { Email = "test@test.com" };
             var validationContext = new ValidationContext(model);
 
             var validationResult = model.Validate(validationContext);
@@ -51,9 +52,9 @@ namespace Altinn.Profile.Tests.Profile.Validators
         }
 
         [Fact]
-        public void NotificationAddressModel_WhenOnlyValidPhoneIsGiven_ReturnsValidationResults()
+        public void NotificationAddressRequest_WhenOnlyValidPhoneIsGiven_ReturnsValidationResults()
         {
-            var model = new NotificationAddressModel { Phone = "98765432", Email = string.Empty };
+            var model = new NotificationAddressRequest { Phone = "98765432", Email = string.Empty };
             var validationContext = new ValidationContext(model);
 
             var validationResult = model.Validate(validationContext);
@@ -62,9 +63,9 @@ namespace Altinn.Profile.Tests.Profile.Validators
         }
 
         [Fact]
-        public void NotificationAddressModel_WhenValidPhoneAndCountryCodeIsGiven_ReturnsNoValidationResults()
+        public void NotificationAddressRequest_WhenValidPhoneAndCountryCodeIsGiven_ReturnsNoValidationResults()
         {
-            var model = new NotificationAddressModel { Phone = "98765432", CountryCode = "+47" };
+            var model = new NotificationAddressRequest { Phone = "98765432", CountryCode = "+47" };
             var validationContext = new ValidationContext(model);
 
             var validationResult = model.Validate(validationContext);
@@ -73,9 +74,9 @@ namespace Altinn.Profile.Tests.Profile.Validators
         }
 
         [Fact]
-        public void NotificationAddressModel_WhenTooShortPhoneIsGiven_ReturnsValidationResults()
+        public void NotificationAddressRequest_WhenTooShortPhoneIsGiven_ReturnsValidationResults()
         {
-            var model = new NotificationAddressModel { CountryCode = "+47", Phone = "9876543" };
+            var model = new NotificationAddressRequest { CountryCode = "+47", Phone = "9876543" };
             var validationContext = new ValidationContext(model);
 
             var validationResult = model.Validate(validationContext);
@@ -91,9 +92,9 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData("62345678")]
         [InlineData("72345678")]
         [InlineData("82345678")]
-        public void NotificationAddressModel_WhenNorwegianPhoneNotLedBy4Or9_ReturnsValidationResults(string phone)
+        public void NotificationAddressRequest_WhenNorwegianPhoneNotLedBy4Or9_ReturnsValidationResults(string phone)
         {
-            var model = new NotificationAddressModel { CountryCode = "+47", Phone = phone };
+            var model = new NotificationAddressRequest { CountryCode = "+47", Phone = phone };
             var validationContext = new ValidationContext(model);
 
             var validationResult = model.Validate(validationContext);
@@ -108,9 +109,9 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData("+48", "229876543")] // Valid Polish phone number
         [InlineData("+44", "07198765432")] // Valid UK phone number
         [InlineData("+1", "2125554567")] // Valid US phone number
-        public void NotificationAddressModel_WhenValidInternationalNumber_ReturnsNoValidationResults(string countryCode, string phone)
+        public void NotificationAddressRequest_WhenValidInternationalNumber_ReturnsNoValidationResults(string countryCode, string phone)
         {
-            var model = new NotificationAddressModel { CountryCode = countryCode, Phone = phone };
+            var model = new NotificationAddressRequest { CountryCode = countryCode, Phone = phone };
             var validationContext = new ValidationContext(model);
 
             var validationResult = model.Validate(validationContext);
@@ -119,9 +120,9 @@ namespace Altinn.Profile.Tests.Profile.Validators
         }
 
         [Fact]
-        public void NotificationAddressModel_WhenValidInternationalPhoneIsGiven_ReturnsNoValidationResults()
+        public void NotificationAddressRequest_WhenValidInternationalPhoneIsGiven_ReturnsNoValidationResults()
         {
-            var model = new NotificationAddressModel { CountryCode = "+1", Phone = "2125551234", Email = string.Empty };
+            var model = new NotificationAddressRequest { CountryCode = "+1", Phone = "2125551234", Email = string.Empty };
             var validationContext = new ValidationContext(model);
 
             var validationResult = model.Validate(validationContext);
@@ -130,9 +131,9 @@ namespace Altinn.Profile.Tests.Profile.Validators
         }
 
         [Fact]
-        public void NotificationAddressModel_WhenOnlyCountryCodeIsGiven_ReturnsValidationResults()
+        public void NotificationAddressRequest_WhenOnlyCountryCodeIsGiven_ReturnsValidationResults()
         {
-            var model = new NotificationAddressModel { CountryCode = "+47" };
+            var model = new NotificationAddressRequest { CountryCode = "+47" };
             var validationContext = new ValidationContext(model);
 
             var validationResult = model.Validate(validationContext);
@@ -141,9 +142,9 @@ namespace Altinn.Profile.Tests.Profile.Validators
         }
 
         [Fact]
-        public void NotificationAddressModel_WhenCountryCodeAndEmailIsGiven_ReturnsValidationResults()
+        public void NotificationAddressRequest_WhenCountryCodeAndEmailIsGiven_ReturnsValidationResults()
         {
-            var model = new NotificationAddressModel { CountryCode = "+47", Email = "test@test.com" };
+            var model = new NotificationAddressRequest { CountryCode = "+47", Email = "test@test.com" };
             var validationContext = new ValidationContext(model);
 
             var validationResult = model.Validate(validationContext);

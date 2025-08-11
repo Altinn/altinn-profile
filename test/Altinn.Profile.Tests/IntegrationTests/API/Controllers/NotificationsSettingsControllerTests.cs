@@ -72,7 +72,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             string responseContent = await response.Content.ReadAsStringAsync();
 
-            ProfessionalNotificationAddressResponse notificationAddresses = JsonSerializer.Deserialize<ProfessionalNotificationAddressResponse>(
+            NotificationSettingsResponse notificationAddresses = JsonSerializer.Deserialize<NotificationSettingsResponse>(
                 responseContent, _serializerOptionsCamelCase);
 
             Assert.Equal(UserId, notificationAddresses.UserId);
@@ -138,7 +138,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var partyGuid = Guid.NewGuid();
             var userId = 2516356;
 
-            var userPartyContactInfo = new ProfessionalNotificationAddressRequest
+            var userPartyContactInfo = new NotificationSettingsRequest
             {
                 EmailAddress = "test@example.com",
                 PhoneNumber = "+4798765432",
@@ -168,7 +168,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int UserId = 2516356;
             var partyGuid = Guid.NewGuid();
 
-            var userPartyContactInfo = new ProfessionalNotificationAddressRequest
+            var userPartyContactInfo = new NotificationSettingsRequest
             {
                 EmailAddress = "test@@example.com",
                 PhoneNumber = "++",
@@ -209,7 +209,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int UserId = 2516356;
             var partyGuid = Guid.NewGuid();
 
-            var userPartyContactInfo = new ProfessionalNotificationAddressRequest
+            var userPartyContactInfo = new NotificationSettingsRequest
             {
                 PhoneNumber = string.Empty,
                 ResourceIncludeList = ["urn:altinn:resource:example"]
@@ -257,7 +257,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int UserId = 2516356;
             var partyGuid = Guid.NewGuid();
 
-            var userPartyContactInfo = new ProfessionalNotificationAddressRequest
+            var userPartyContactInfo = new NotificationSettingsRequest
             {
                 EmailAddress = "test@example.com",
                 PhoneNumber = "+4798765432",
@@ -298,7 +298,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int UserId = 2516356;
             var partyGuid = Guid.NewGuid();
 
-            var userPartyContactInfo = new ProfessionalNotificationAddressRequest
+            var userPartyContactInfo = new NotificationSettingsRequest
             {
                 EmailAddress = "test@example.com",
                 PhoneNumber = "+4798765432",
@@ -343,7 +343,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int UserId = 2516356;
             var partyGuid = Guid.NewGuid();
 
-            var userPartyContactInfo = new ProfessionalNotificationAddressRequest
+            var userPartyContactInfo = new NotificationSettingsRequest
             {
                 EmailAddress = "test@example.com",
                 PhoneNumber = "12345678",
@@ -379,7 +379,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int UserId = 2516356;
             var partyGuid = Guid.NewGuid();
 
-            var userPartyContactInfo = new ProfessionalNotificationAddressRequest
+            var userPartyContactInfo = new NotificationSettingsRequest
             {
                 EmailAddress = "test@example.com",
                 PhoneNumber = "12345678",

@@ -40,7 +40,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ProfessionalNotificationAddressResponse>> Get([FromRoute] Guid partyUuid, CancellationToken cancellationToken)
+        public async Task<ActionResult<NotificationSettingsResponse>> Get([FromRoute] Guid partyUuid, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -65,7 +65,7 @@ namespace Altinn.Profile.Controllers
                 return NotFound("Notification addresses not found for the specified user and party.");
             }
 
-            var response = new ProfessionalNotificationAddressResponse
+            var response = new NotificationSettingsResponse
             {
                 UserId = notificationAddress.UserId,
                 PartyUuid = notificationAddress.PartyUuid,
@@ -88,7 +88,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult> Put([FromRoute] Guid partyUuid, [FromBody] ProfessionalNotificationAddressRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult> Put([FromRoute] Guid partyUuid, [FromBody] NotificationSettingsRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -136,7 +136,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ProfessionalNotificationAddressResponse>> Delete([FromRoute] Guid partyUuid, CancellationToken cancellationToken)
+        public async Task<ActionResult<NotificationSettingsResponse>> Delete([FromRoute] Guid partyUuid, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
