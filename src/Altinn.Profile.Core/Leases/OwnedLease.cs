@@ -8,7 +8,7 @@ namespace Altinn.Profile.Core.Leases;
 /// <summary>
 /// An owned lease that auto-renews and releases the lease when disposed.
 /// </summary>
-internal sealed partial class OwnedLease
+public sealed partial class OwnedLease
     : IAsyncDisposable
 {
     /// <summary>
