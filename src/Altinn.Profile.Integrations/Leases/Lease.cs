@@ -8,7 +8,7 @@
         /// <summary>
         /// Gets or sets the unique identifier for the lease.
         /// </summary>
-        public string Id { get; set; }
+        public required string Id { get; set; }
 
         /// <summary>
         /// Gets or sets the cancellationToken associated with the lease.
