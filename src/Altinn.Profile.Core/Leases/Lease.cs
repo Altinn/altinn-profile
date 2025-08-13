@@ -17,9 +17,8 @@ public sealed class Lease
 
     private static CancellationToken CreateCancelledToken()
     {
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
         cts.Cancel();
-
         return cts.Token;
     }
 

@@ -170,7 +170,7 @@ public partial class PostgresqlLeaseProvider
 
         async static Task<LeaseAcquireResult> UpsertLeaseInner(ILeaseRepository leaseRepository, Lease upsert, DateTimeOffset now, Func<LeaseInfo, bool>? filter, CancellationToken cancellationToken)
         {
-            var result = await leaseRepository.UpsertLease(upsert, now, null, cancellationToken);
+            var result = await leaseRepository.UpsertLease(upsert, now, filter, cancellationToken);
             if (result is null)
             {
                 result = await leaseRepository.GetFailedLeaseResult(upsert.Id, cancellationToken);

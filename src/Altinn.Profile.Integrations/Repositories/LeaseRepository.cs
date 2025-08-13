@@ -79,7 +79,7 @@ namespace Altinn.Profile.Integrations.Repositories
             return LeaseAcquireResult.Failed(lease.Expires, lease.Acquired, lease.Released);
         }
 
-        private LeaseAcquireResult GetLeaseAcquireResult(Lease lease)
+        private static LeaseAcquireResult GetLeaseAcquireResult(Lease lease)
         {
             var leaseTicket = new LeaseTicket(lease.Id, lease.Token, lease.Expires);
             return LeaseAcquireResult.Acquired(leaseTicket, lease.Acquired, lease.Released);
