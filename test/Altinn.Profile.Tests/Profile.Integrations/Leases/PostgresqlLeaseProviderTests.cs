@@ -1,11 +1,17 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Core.Leases;
 using Altinn.Profile.Integrations.Leases;
 using Altinn.Profile.Integrations.Repositories;
+
+using Humanizer.Localisation;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
+
 using Xunit;
 
 using Lease = Altinn.Profile.Integrations.Leases.Lease;
@@ -31,11 +37,19 @@ public class PostgresqlLeaseProviderTests
         var leaseId = "lease1";
         var duration = TimeSpan.FromSeconds(10);
         var now = _timeProvider.GetUtcNow();
-        var ticket = new LeaseTicket(leaseId, Guid.NewGuid(), now + duration);
+        var token = Guid.NewGuid();
+        var ticket = new LeaseTicket(leaseId, token, now + duration);
         var expectedResult = LeaseAcquireResult.Acquired(ticket, now, now);
 
         _leaseRepositoryMock
             .Setup(r => r.UpsertLease(It.IsAny<Lease>(), It.IsAny<DateTimeOffset>(), It.IsAny<Func<LeaseInfo, bool>>(), It.IsAny<CancellationToken>()))
+            .Callback<Lease, DateTimeOffset, Func<LeaseInfo, bool>, CancellationToken>((lease, now, filter, ct) =>
+            {
+                Assert.Equal(leaseId, lease.Id);
+                Assert.Equal(now + duration, lease.Expires);
+                Assert.NotNull(lease.Acquired);
+                Assert.Null(lease.Released);
+            })
             .ReturnsAsync(expectedResult);
 
         // Act

@@ -115,7 +115,10 @@ public sealed partial class OwnedLease
     private bool IsDisposed
         => Volatile.Read(ref _disposed) is not null;
 
-    private void Tick()
+    /// <summary>
+    /// Renews the lease if it is still active, or cancels the lease if renewal fails.
+    /// </summary>
+    internal void Tick()
     {
         if (IsDisposed || Token.IsCancellationRequested)
         {

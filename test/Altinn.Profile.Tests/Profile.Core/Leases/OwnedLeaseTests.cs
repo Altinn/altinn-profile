@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
+namespace Altinn.Profile.Tests.Profile.Core.Leases;
+
 public class OwnedLeaseTests
 {
     private readonly Mock<ILeaseProvider> _leaseProviderMock = new();
@@ -69,9 +71,7 @@ public class OwnedLeaseTests
 
         // Act
         // Simulate timer callback
-        typeof(OwnedLease)
-            .GetMethod("Tick", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
-            .Invoke(lease, null);
+        lease.Tick();
 
         await lease.TickTask; // Wait for renewal
 
@@ -91,9 +91,7 @@ public class OwnedLeaseTests
         var lease = CreateOwnedLease(ticket);
 
         // Act
-        typeof(OwnedLease)
-            .GetMethod("Tick", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
-            .Invoke(lease, null);
+        lease.Tick();
 
         await lease.TickTask;
 
