@@ -4,6 +4,7 @@
 using Altinn.Profile.Core.PartyGroups;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Integrations.Entities;
+using Altinn.Profile.Integrations.Leases;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -72,6 +73,11 @@ public partial class ProfileDbContext : DbContext
     /// The <see cref="DbSet{UserPartyContactInfoResource}"/> representing the association of a resource to a personal contact info for an organization.
     /// </summary>
     public virtual DbSet<UserPartyContactInfoResource> UserPartyContactInfoResources { get; set; }
+
+    /// <summary>
+    /// The <see cref="DbSet{Lease}"/> representing a users organization of parties in a named group.
+    /// </summary>
+    public virtual DbSet<Lease> Lease { get; set; }
 
     /// <summary>
     /// Configures the schema needed for the context.
@@ -189,6 +195,18 @@ public partial class ProfileDbContext : DbContext
 
             entity.HasKey(e => e.UserPartyContactInfoResourceId).HasName("user_party_contact_info_resource_pkey");
             entity.Property(e => e.UserPartyContactInfoResourceId).UseIdentityAlwaysColumn();
+        });
+
+        modelBuilder.Entity<Lease>(entity =>
+        {
+            entity.ToTable("lease", "lease");
+            entity.HasKey(e => e.Id).HasName("lease_id_pkey");
+            entity.Property(e => e.Id).IsRequired();
+            entity.Property(e => e.Token).IsRequired();
+            entity.Property(e => e.Expires).IsRequired();
+            entity.Property(e => e.Acquired).IsRequired(false);
+            entity.Property(e => e.Released).IsRequired(false);
+            entity.HasIndex(e => e.Id, "ix_lease_id").IsUnique();
         });
 
         OnModelCreatingPartial(modelBuilder);
