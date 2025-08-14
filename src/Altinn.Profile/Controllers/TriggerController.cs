@@ -16,14 +16,13 @@ namespace Altinn.Profile.Controllers;
 /// Initializes a new instance of the <see cref="TriggerController"/> class.
 /// </remarks>
 /// <param name="contactRegisterUpdateJob">The service for retrieving the contact details.</param>
-/// <param name="orgUpdateJob">The service for retrieving the notificationaddresses for organizations.</param>
 /// <param name="logger">A logger to log detailed information.</param>
 [ApiController]
 [ApiExplorerSettings(IgnoreApi = true)]
 [Consumes("application/json")]
 [Produces("application/json")]
 [Route("profile/api/v1/trigger/syncpersonchanges")]
-public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJob, IOrganizationNotificationAddressSyncJob orgUpdateJob, ILogger<TriggerController> logger) : ControllerBase
+public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJob, ILogger<TriggerController> logger) : ControllerBase
 {
     private readonly ILogger<TriggerController> _logger = logger;
     private readonly IContactRegisterUpdateJob _contactRegisterUpdateJob = contactRegisterUpdateJob;
