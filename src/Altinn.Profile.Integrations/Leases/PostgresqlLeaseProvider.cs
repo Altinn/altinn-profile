@@ -73,8 +73,8 @@ public partial class PostgresqlLeaseProvider
             Id = leaseId,
             Token = token,
             Expires = expires,
-            Acquired = null,
-            Released = now,
+            Acquired = now,
+            Released = null, // Don't update Released when acquiring
         };
         var result = await UpsertLease(lease, now, filter, cancellationToken);
 
@@ -103,8 +103,8 @@ public partial class PostgresqlLeaseProvider
             Id = leaseId,
             Token = token,
             Expires = expires,
-            Acquired = null,
-            Released = null,
+            Acquired = null, // Don't update Acquired when renewing
+            Released = null, // Don't update Released when renewing
         };
         var result = await UpsertLease(leaseUpsert, now, null, cancellationToken);
 
@@ -133,7 +133,7 @@ public partial class PostgresqlLeaseProvider
             Id = leaseId,
             Token = token,
             Expires = expires,
-            Acquired = null,
+            Acquired = null, // Don't update Acquired when releasing
             Released = now,
         };
 
@@ -171,11 +171,6 @@ public partial class PostgresqlLeaseProvider
         async static Task<LeaseAcquireResult> UpsertLeaseInner(ILeaseRepository leaseRepository, Lease upsert, DateTimeOffset now, Func<LeaseInfo, bool>? filter, CancellationToken cancellationToken)
         {
             var result = await leaseRepository.UpsertLease(upsert, now, filter, cancellationToken);
-            if (result is null)
-            {
-                result = await leaseRepository.GetFailedLeaseResult(upsert.Id, cancellationToken);
-            }
-
             return result;
         }
     }

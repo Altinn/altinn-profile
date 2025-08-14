@@ -20,38 +20,79 @@ namespace Altinn.Profile.Integrations.Repositories
         public async Task<LeaseAcquireResult> UpsertLease(Lease lease, DateTimeOffset now, Func<LeaseInfo, bool>? filter, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
-            Lease? existingLease = await databaseContext.Lease.FirstOrDefaultAsync(l => l.Id == lease.Id, cancellationToken);
-            LeaseAcquireResult result;
-
-            if (existingLease is not null)
+            
+            // Start transaction with RepeatableRead isolation level (equivalent to Register)
+            using var transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
+            
+            try
             {
-                if (existingLease.Token == lease.Token || existingLease.Expires <= now)
+                // Get existing lease
+                Lease? existingLease = await databaseContext.Lease
+                    .FirstOrDefaultAsync(l => l.Id == lease.Id, cancellationToken);
+
+                LeaseAcquireResult result;
+
+                if (existingLease is not null)
                 {
-                    existingLease.Token = lease.Token;
-                    existingLease.Expires = lease.Expires;
-                    existingLease.Acquired = lease.Acquired ?? existingLease.Acquired;
-                    existingLease.Released = lease.Released ?? existingLease.Released;
+                    // Update only if token matches or lease has expired
+                    if (existingLease.Token == lease.Token || existingLease.Expires <= now)
+                    {
+                        existingLease.Token = lease.Token;
+                        existingLease.Expires = lease.Expires;
+                        existingLease.Acquired = lease.Acquired ?? existingLease.Acquired;
+                        existingLease.Released = lease.Released ?? existingLease.Released;
 
-                    databaseContext.Lease.Update(existingLease);
+                        databaseContext.Lease.Update(existingLease);
+                    }
                 }
-            }
-            else
-            {
-                databaseContext.Lease.Add(lease);
-            }
+                else
+                {
+                    databaseContext.Lease.Add(lease);
+                }
 
-            await databaseContext.SaveChangesAsync(cancellationToken);
+                await databaseContext.SaveChangesAsync(cancellationToken);
 
-            if (filter is null || filter(new LeaseInfo { LastAcquiredAt = existingLease?.Acquired, LastReleasedAt = existingLease?.Released, LeaseId = lease.Id }))
-            {
-                result = GetLeaseAcquireResult(lease);
-            }
-            else
-            {
-                result = LeaseAcquireResult.Failed(existingLease?.Expires ?? DateTimeOffset.MinValue, existingLease?.Acquired, existingLease?.Released);
-            }
+                // Check filter before commit
+                if (filter is null || filter(new LeaseInfo 
+                { 
+                    LastAcquiredAt = existingLease?.Acquired, 
+                    LastReleasedAt = existingLease?.Released, 
+                    LeaseId = lease.Id 
+                }))
+                {
+                    // Use updated values from database if lease exists
+                    if (existingLease is not null)
+                    {
+                        result = GetLeaseAcquireResult(existingLease);
+                    }
+                    else
+                    {
+                        result = GetLeaseAcquireResult(lease);
+                    }
+                }
+                else
+                {
+                    // Rollback transaction if filter fails
+                    await transaction.RollbackAsync(cancellationToken);
+                    
+                    result = LeaseAcquireResult.Failed(
+                        existingLease?.Expires ?? DateTimeOffset.MinValue, 
+                        existingLease?.Acquired, 
+                        existingLease?.Released);
+                    
+                    return result;
+                }
 
-            return result;
+                // Commit transaction if everything is OK
+                await transaction.CommitAsync(cancellationToken);
+                return result;
+            }
+            catch
+            {
+                // Rollback on error
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
         }
 
         /// <summary>

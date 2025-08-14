@@ -2,13 +2,15 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Altinn.Profile.Core.Leases;
-using Altinn.Profile.Integrations.Leases;
+
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
+
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+
 using Moq;
+
 using Xunit;
 
 using Lease = Altinn.Profile.Integrations.Leases.Lease;
@@ -19,8 +21,9 @@ public class LeaseRepositoryTests
 {
     private static DbContextOptions<ProfileDbContext> CreateInMemoryOptions()
         => new DbContextOptionsBuilder<ProfileDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+        .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+                    .Options;
 
     private static LeaseRepository CreateRepository(ProfileDbContext db)
     {
