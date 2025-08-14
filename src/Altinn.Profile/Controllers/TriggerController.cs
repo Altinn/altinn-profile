@@ -27,7 +27,6 @@ public class TriggerController(IContactRegisterUpdateJob contactRegisterUpdateJo
 {
     private readonly ILogger<TriggerController> _logger = logger;
     private readonly IContactRegisterUpdateJob _contactRegisterUpdateJob = contactRegisterUpdateJob;
-    private readonly IOrganizationNotificationAddressSyncJob _orgUpdateJob = orgUpdateJob;
 
     /// <summary>
     /// Synchronizes the changes in the contact details for persons.
