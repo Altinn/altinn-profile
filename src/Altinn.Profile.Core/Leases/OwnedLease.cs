@@ -176,7 +176,14 @@ public sealed partial class OwnedLease
         static async ValueTask<LeaseReleaseResult> ReleaseInner(OwnedLease lease, CancellationToken cancellationToken)
         {
             await lease.DisposeAsync().AsTask().WaitAsync(cancellationToken);
-            return await lease.Release(cancellationToken);
+            
+            // After disposal, _releaseResult should be set
+            if (lease._releaseResult is { } releaseResult)
+            {
+                return releaseResult;
+            }
+
+            throw new InvalidOperationException("Release result was not set after disposal");
         }
     }
 

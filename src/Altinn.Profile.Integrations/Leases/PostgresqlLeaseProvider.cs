@@ -66,7 +66,7 @@ public partial class PostgresqlLeaseProvider
     {
         var now = _timeProvider.GetUtcNow();
         var expires = now + duration;
-        var token = Guid.Empty;
+        var token = Guid.NewGuid();
 
         var lease = new Lease 
         {

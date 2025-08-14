@@ -10,7 +10,7 @@ using Lease = Altinn.Profile.Integrations.Leases.Lease;
 namespace Altinn.Profile.Integrations.Repositories
 {
     /// <summary>
-    /// Defines a repository for operations related to a users groups of parties.
+    /// A repository for lease operations.
     /// </summary>
     public class LeaseRepository(IDbContextFactory<ProfileDbContext> contextFactory) : ILeaseRepository
     {
@@ -22,7 +22,7 @@ namespace Altinn.Profile.Integrations.Repositories
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
             
             // Start transaction with RepeatableRead isolation level (equivalent to Register)
-            using var transaction = await databaseContext.Database.BeginTransactionAsync(cancellationToken);
+            using var transaction = await databaseContext.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead, cancellationToken);
             
             try
             {
