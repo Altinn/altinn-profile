@@ -110,7 +110,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<NotificationAddressResponse>> CreateNotificationAddress([FromRoute] string organizationNumber, [FromBody] NotificationAddressModel request, CancellationToken cancellationToken)
+        public async Task<ActionResult<NotificationAddressResponse>> CreateNotificationAddress([FromRoute] string organizationNumber, [FromBody] NotificationAddressRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -149,7 +149,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-        public async Task<ActionResult<NotificationAddressResponse>> UpdateNotificationAddress([FromRoute] string organizationNumber, [FromRoute] int notificationAddressId, [FromBody] NotificationAddressModel request, CancellationToken cancellationToken)
+        public async Task<ActionResult<NotificationAddressResponse>> UpdateNotificationAddress([FromRoute] string organizationNumber, [FromRoute] int notificationAddressId, [FromBody] NotificationAddressRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
