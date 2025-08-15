@@ -107,7 +107,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
                 throw new InvalidOperationException("Cannot delete the last notification address");
             }
 
-            await _updateClient.DeleteNotificationAddress(notificationAddress.RegistryID);
+            await _updateClient.DeleteNotificationAddress(notificationAddress);
 
             var updatedNotificationAddress = await _orgRepository.DeleteNotificationAddressAsync(notificationAddress.NotificationAddressID);
 

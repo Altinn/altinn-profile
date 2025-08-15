@@ -8,7 +8,6 @@ using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Authorization;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Extensions;
-using Altinn.Profile.Integrations.Mappings;
 using Altinn.Profile.Integrations.Notifications;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.Persistence;
@@ -94,7 +93,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPartyGroupRepository, PartyGroupRepository>();
         services.AddScoped<IProfessionalNotificationsRepository, ProfessionalNotificationsRepository>();
 
-        services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
+        services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString)
+        .UseSnakeCaseNamingConvention());
     }
 
     /// <summary>

@@ -44,7 +44,8 @@ public static class OrganizationMapper
             NotificationName = dataEntity.NotificationName,
             RegistryID = dataEntity.RegistryID,
             IsSoftDeleted = dataEntity.IsSoftDeleted,
-            HasRegistryAccepted = dataEntity.HasRegistryAccepted
+            HasRegistryAccepted = dataEntity.HasRegistryAccepted,
+            IsSynthetic = dataEntity.UpdateSource == UpdateSource.Synthetic,
         };
     }
 }

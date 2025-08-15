@@ -31,9 +31,9 @@ public interface IOrganizationNotificationAddressUpdateClient
     /// <summary>
     /// Deletes a notification address from the registry
     /// </summary>
-    /// <param name="notificationAddressRegistryId">The id of the notification address to be deleted.</param>
+    /// <param name="notificationAddress">The notification address to be deleted.</param>
     /// <returns>
     /// A task that represents the asynchronous operation with the registry's addressId as return value.
     /// </returns>
-    Task<string> DeleteNotificationAddress(string notificationAddressRegistryId);
+    Task<string> DeleteNotificationAddress(NotificationAddress notificationAddress);
 }

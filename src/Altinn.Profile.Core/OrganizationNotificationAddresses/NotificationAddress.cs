@@ -51,5 +51,10 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         /// A value indicating whether the endpoint has been accepted and received from kofuvi registry 
         /// </summary>
         public bool? HasRegistryAccepted { get; init; }
+
+        /// <summary>
+        /// A value indicating whether the address is a synthetic address for testing purposes.
+        /// </summary>
+        public bool IsSynthetic { get; init;  }
     }
 }
