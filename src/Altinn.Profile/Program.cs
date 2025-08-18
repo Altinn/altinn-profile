@@ -18,6 +18,7 @@ using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Handlers;
+using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.User.Favorites;
 using Altinn.Profile.Telemetry;
 using AltinnCore.Authentication.JwtCookie;
