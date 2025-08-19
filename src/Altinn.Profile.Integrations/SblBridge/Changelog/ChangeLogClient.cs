@@ -52,9 +52,8 @@ public class ChangeLogClient : IChangeLogClient
             }
 
             _logger.LogError(
-                "// ChangeLogClient // GetChangeLog // Unexpected response. Failed with {StatusCode} and message {Message}",
-                response.StatusCode,
-                await response.Content.ReadAsStringAsync(cancellationToken));
+                "// ChangeLogClient // GetChangeLog // Unexpected response. Failed with {StatusCode}",
+                response.StatusCode);
 
             return null;
         }
