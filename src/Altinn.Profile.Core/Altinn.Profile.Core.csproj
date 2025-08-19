@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <PackageReference Include="Altinn.ApiClients.Maskinporten" Version="9.2.1" />
-    <PackageReference Include="Altinn.Platform.Models" Version="1.6.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.7" />
     <PackageReference Include="Scrutor" Version="6.1.0" />
   </ItemGroup>
@@ -24,6 +23,10 @@
     <AdditionalFiles Include="..\..\stylecop.json">
       <Link>stylecop.json</Link>
     </AdditionalFiles>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Altinn.Profile.Models\Altinn.Profile.Models.csproj" />
   </ItemGroup>
 
 </Project>

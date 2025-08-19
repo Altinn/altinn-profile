@@ -1,4 +1,4 @@
-using Altinn.Platform.Profile.Models;
+using Altinn.Profile.Models;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;

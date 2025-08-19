@@ -2,9 +2,9 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Web;
-using Altinn.Platform.Profile.Models;
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

@@ -7,9 +7,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-using Altinn.Platform.Profile.Models;
-
 using Altinn.Profile.Models;
+
 using Altinn.Profile.Tests.Testdata;
 
 using Xunit;

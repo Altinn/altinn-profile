@@ -1,5 +1,5 @@
-﻿using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Core.Integrations;
+﻿using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Models;
 using Microsoft.Extensions.Options;
 
 namespace Altinn.Profile.Core.User.ContactPoints;
