@@ -1,14 +1,9 @@
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
-using Npgsql.Internal;
 
 namespace Altinn.Profile.Integrations.SblBridge.Changelog;
 
@@ -37,18 +32,17 @@ public class ChangeLogClient : IChangeLogClient
         _client.BaseAddress = new Uri(settings.Value.ApiProfileEndpoint);
         _serializerOptions = new JsonSerializerOptions
         {
-            WriteIndented = true,
             PropertyNameCaseInsensitive = true,
-            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
+            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: true) }
         };
     }
 
     /// <inheritdoc/>
-    public async Task<ChangeLog?> GetChangeLog(int changeId, DataType dataType)
+    public async Task<ChangeLog?> GetChangeLog(int changeId, DataType dataType, CancellationToken cancellationToken)
     {
         string endpoint = $"profilechangelog?fromChangeId={changeId}&dataType={dataType}";
 
-        HttpResponseMessage response = await _client.GetAsync(endpoint);
+        HttpResponseMessage response = await _client.GetAsync(endpoint, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -60,12 +54,12 @@ public class ChangeLogClient : IChangeLogClient
             _logger.LogError(
                 "// ChangeLogClient // GetChangeLog // Unexpected response. Failed with {StatusCode} and message {Message}",
                 response.StatusCode,
-                await response.Content.ReadAsStringAsync());
+                await response.Content.ReadAsStringAsync(cancellationToken));
 
             return null;
         }
 
-        string content = await response.Content.ReadAsStringAsync();
+        string content = await response.Content.ReadAsStringAsync(cancellationToken);
         ChangeLog changeLog = JsonSerializer.Deserialize<ChangeLog>(content, _serializerOptions)!;
 
         return changeLog;

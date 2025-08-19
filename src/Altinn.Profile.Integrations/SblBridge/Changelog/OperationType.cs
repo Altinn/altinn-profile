@@ -12,17 +12,17 @@ namespace Altinn.Profile.Integrations.SblBridge.Changelog
     public enum OperationType
     {
         /// <summary>
-        /// A profile data element were created.
+        /// A profile data element was created.
         /// </summary>
         Insert,
 
         /// <summary>
-        /// A profile data element were updated.
+        /// A profile data element was updated.
         /// </summary>
         Update,
 
         /// <summary>
-        /// A profile data element were deleted.
+        /// A profile data element was deleted.
         /// </summary>
         Delete
     }
