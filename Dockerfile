@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0.304-alpine3.22@sha256:13bcf0489c133ab4b285
 WORKDIR /app
 
 COPY src/Altinn.Profile/*.csproj ./src/Altinn.Profile/
+COPY src/Altinn.Profile.Models/*.csproj ./src/Altinn.Profile.Models/
 COPY src/Altinn.Profile.Core/*.csproj ./src/Altinn.Profile.Core/
 COPY src/Altinn.Profile.Integrations/*.csproj ./src/Altinn.Profile.Integrations/
 
