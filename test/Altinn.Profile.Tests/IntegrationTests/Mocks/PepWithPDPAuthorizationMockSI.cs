@@ -230,7 +230,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.Mocks
             if (File.Exists(rolesPath))
             {
                 string content = File.ReadAllText(rolesPath);
-                roles = (List<Role>)JsonConvert.DeserializeObject(content, typeof(List<Role>));
+                roles = JsonConvert.DeserializeObject<List<Role>>(content);
             }
 
             return Task.FromResult(roles);

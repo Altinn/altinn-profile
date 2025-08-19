@@ -37,7 +37,7 @@ public class UserContactPointService : IUserContactPointsService
                 {
                     availabilityResult.AvailabilityList.Add(new UserContactPointAvailability()
                     {
-                        NationalIdentityNumber = profile.Party.SSN,
+                        NationalIdentityNumber = profile.Party?.SSN ?? string.Empty,
                         EmailRegistered = !string.IsNullOrEmpty(profile.Email),
                         MobileNumberRegistered = !string.IsNullOrEmpty(profile.PhoneNumber),
                         IsReserved = profile.IsReserved

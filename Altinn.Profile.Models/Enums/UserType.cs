@@ -3,7 +3,7 @@
     /// <summary>
     /// Enumeration for the available user types
     /// </summary>
-    public enum UserType : int
+    public enum UserType
     {
         /// <summary>
         /// User type has not been specified
