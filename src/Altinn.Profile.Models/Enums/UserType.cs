@@ -21,7 +21,7 @@
         SelfIdentified = 2,
 
         /// <summary>
-        /// User Type is EnterpriseIdentified Identified User.
+        /// User Type is Enterprise Identified User.
         /// </summary>
         EnterpriseIdentified = 3,
 

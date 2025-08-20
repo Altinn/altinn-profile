@@ -8,6 +8,10 @@
         /// <summary>
         /// Sets the user's language preference in Altinn.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Design",
+            "S2376:Write-only properties should not be used",
+            Justification = "Write-only alias used to support incoming JSON 'languageType' while avoiding duplicate serialization output. Value is stored in Language.")]
         public string LanguageType
         {
             set
