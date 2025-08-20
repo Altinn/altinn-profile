@@ -8,8 +8,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Altinn.Platform.Profile.Models;
-
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;

@@ -1,14 +1,11 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-
-using Altinn.Platform.Profile.Models;
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.User;
-
+using Altinn.Profile.Models;
 using AltinnCore.Authentication.Constants;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
