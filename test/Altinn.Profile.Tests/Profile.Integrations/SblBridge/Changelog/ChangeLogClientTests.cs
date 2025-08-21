@@ -73,12 +73,13 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.Changelog
             var client = new ChangeLogClient(_httpClient, _loggerMock.Object, _settingsMock.Object);
 
             // Act
-            await client.GetChangeLog(1, DataType.Favorites, CancellationToken.None);
+            await client.GetChangeLog(DateTime.MinValue, DataType.Favorites, CancellationToken.None);
 
             // Assert
             Assert.NotNull(sentRequest);
             Assert.Equal(HttpMethod.Get, sentRequest.Method);
-            Assert.Equal(new Uri(_testBaseUrl + "profilechangelog?fromChangeId=1&dataType=Favorites"), sentRequest.RequestUri);
+            Assert.Equal(new Uri(_testBaseUrl + "profilechangelog?fromTimestamp=0001-01-01T00:00:00.0000000Z&dataType=Favorites"), sentRequest.RequestUri);
+            Assert.Equal(DateTime.MinValue, DateTime.Parse("0001-01-01T00:00:00.0000000Z").ToUniversalTime());
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -104,7 +105,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.Changelog
             var client = new ChangeLogClient(_httpClient, _loggerMock.Object, _settingsMock.Object);
 
             // Act
-            await client.GetChangeLog(1, DataType.Favorites, CancellationToken.None);
+            await client.GetChangeLog(DateTime.MinValue, DataType.Favorites, CancellationToken.None);
 
             // Assert
             _loggerMock.Verify(
@@ -131,7 +132,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.Changelog
             var client = new ChangeLogClient(_httpClient, _loggerMock.Object, _settingsMock.Object);
 
             // Act
-            await Assert.ThrowsAsync<InternalServerErrorException>(() => client.GetChangeLog(1, DataType.Favorites, CancellationToken.None));
+            await Assert.ThrowsAsync<InternalServerErrorException>(() => client.GetChangeLog(DateTime.MinValue, DataType.Favorites, CancellationToken.None));
 
             // Assert
             _loggerMock.Verify(

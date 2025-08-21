@@ -38,9 +38,9 @@ public class ChangeLogClient : IChangeLogClient
     }
 
     /// <inheritdoc/>
-    public async Task<ChangeLog?> GetChangeLog(int changeId, DataType dataType, CancellationToken cancellationToken)
+    public async Task<ChangeLog?> GetChangeLog(DateTime changeDate, DataType dataType, CancellationToken cancellationToken)
     {
-        string endpoint = $"profilechangelog?fromChangeId={changeId}&dataType={dataType}";
+        string endpoint = $"profilechangelog?fromTimestamp={changeDate:yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ}&dataType={dataType}";
 
         HttpResponseMessage response = await _client.GetAsync(endpoint, cancellationToken);
 
