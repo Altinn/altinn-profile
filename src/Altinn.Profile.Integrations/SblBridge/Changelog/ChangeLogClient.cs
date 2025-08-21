@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -40,9 +41,10 @@ public class ChangeLogClient : IChangeLogClient
     /// <inheritdoc/>
     public async Task<ChangeLog?> GetChangeLog(DateTime changeDate, DataType dataType, CancellationToken cancellationToken)
     {
-        string endpoint = $"profilechangelog?fromTimestamp={changeDate:yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ}&dataType={dataType}";
+        var utc = ConvertToUtc(changeDate);
 
-        HttpResponseMessage response = await _client.GetAsync(endpoint, cancellationToken);
+        string endpoint = $"profilechangelog?fromTimestamp={utc:yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ}&dataType={dataType}";
+        using HttpResponseMessage response = await _client.GetAsync(endpoint, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -62,5 +64,15 @@ public class ChangeLogClient : IChangeLogClient
         ChangeLog changeLog = JsonSerializer.Deserialize<ChangeLog>(content, _serializerOptions)!;
 
         return changeLog;
+    }
+
+    private static DateTime ConvertToUtc(DateTime changeDate)
+    {
+        return changeDate.Kind switch
+        {
+            DateTimeKind.Utc => changeDate,
+            DateTimeKind.Local => changeDate.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(changeDate, DateTimeKind.Utc)
+        };
     }
 }

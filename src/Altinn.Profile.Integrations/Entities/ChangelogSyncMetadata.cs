@@ -16,7 +16,7 @@ namespace Altinn.Profile.Integrations.Entities
         /// </summary>
         [StringLength(32)]
         [Required]
-        public string? LastChangedId { get; set; }
+        public required string LastChangedId { get; set; }
 
         /// <summary>
         /// The time and date if last sync with changes

@@ -82,7 +82,7 @@ public partial class ProfileDbContext : DbContext
     /// <summary>
     /// The <see cref="DbSet{ChangelogSyncMetadata}"/> timestamp for last changelog sync from date for a data-type.
     /// </summary>
-    public virtual DbSet<RegistrySyncMetadata> ChangelogSyncMetadata { get; set; }
+    public virtual DbSet<ChangelogSyncMetadata> ChangelogSyncMetadata { get; set; }
 
     /// <summary>
     /// Configures the schema needed for the context.
