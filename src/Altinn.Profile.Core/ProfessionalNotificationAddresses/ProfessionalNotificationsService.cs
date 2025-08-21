@@ -1,5 +1,4 @@
-﻿using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Core.Integrations;
+﻿using Altinn.Profile.Core.Integrations;
 
 namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 {

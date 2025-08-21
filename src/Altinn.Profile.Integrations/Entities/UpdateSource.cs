@@ -19,5 +19,10 @@
         /// UpdateOrigin Type is KoFuVi
         /// </summary>
         KoFuVi = 2,
+
+        /// <summary>
+        /// Data is syntetically generated for testing purposes.
+        /// </summary>
+        Synthetic = 3,
     }
 }

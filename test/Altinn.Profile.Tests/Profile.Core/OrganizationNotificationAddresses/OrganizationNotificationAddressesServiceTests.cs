@@ -216,7 +216,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
             _repository.Setup(r => r.GetOrganizationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == "123456789"));
 
-            _updateClient.Setup(c => c.DeleteNotificationAddress(It.IsAny<string>()))
+            _updateClient.Setup(c => c.DeleteNotificationAddress(It.IsAny<NotificationAddress>()))
                 .ReturnsAsync("registry-id");
 
             _repository.Setup(r => r.DeleteNotificationAddressAsync(It.IsAny<int>()))

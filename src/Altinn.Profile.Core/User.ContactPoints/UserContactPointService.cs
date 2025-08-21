@@ -1,5 +1,5 @@
-﻿using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Core.Integrations;
+﻿using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Models;
 using Microsoft.Extensions.Options;
 
 namespace Altinn.Profile.Core.User.ContactPoints;
@@ -37,7 +37,7 @@ public class UserContactPointService : IUserContactPointsService
                 {
                     availabilityResult.AvailabilityList.Add(new UserContactPointAvailability()
                     {
-                        NationalIdentityNumber = profile.Party.SSN,
+                        NationalIdentityNumber = profile.Party?.SSN ?? string.Empty,
                         EmailRegistered = !string.IsNullOrEmpty(profile.Email),
                         MobileNumberRegistered = !string.IsNullOrEmpty(profile.PhoneNumber),
                         IsReserved = profile.IsReserved

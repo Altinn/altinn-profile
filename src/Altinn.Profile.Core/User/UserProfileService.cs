@@ -1,5 +1,5 @@
-﻿using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Core.Integrations;
+﻿using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Models;
 
 namespace Altinn.Profile.Core.User;
 

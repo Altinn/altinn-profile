@@ -9,8 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-using Altinn.Platform.Profile.Models;
-using Altinn.Profile.Integrations.SblBridge;
+using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Altinn.Profile.Tests.Testdata;
 
@@ -71,7 +70,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal(UserId, actualUser.UserId);
         Assert.Equal("sophie", actualUser.UserName);
         Assert.Equal("Sophie Salt", actualUser.Party.Name);
-        Assert.Equal("Sophie", actualUser.Party.Person.FirstName);
+        Assert.Equal("Sophie", actualUser.Party.Person?.FirstName);
         Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
     }
 
@@ -161,7 +160,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal(UserId, actualUser.UserId);
         Assert.Equal("sophie", actualUser.UserName);
         Assert.Equal("Sophie Salt", actualUser.Party.Name);
-        Assert.Equal("Sophie", actualUser.Party.Person.FirstName);
+        Assert.Equal("Sophie", actualUser.Party.Person?.FirstName);
         Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
     }
 
@@ -206,7 +205,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal(UserId, actualUser.UserId);
         Assert.Equal("sophie", actualUser.UserName);
         Assert.Equal("Sophie Salt", actualUser.Party.Name);
-        Assert.Equal("Sophie", actualUser.Party.Person.FirstName);
+        Assert.Equal("Sophie", actualUser.Party.Person?.FirstName);
         Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
     }
 
@@ -251,7 +250,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal(UserId, actualUser.UserId);
         Assert.Equal("sophie", actualUser.UserName);
         Assert.Equal("Sophie Salt", actualUser.Party.Name);
-        Assert.Equal("Sophie", actualUser.Party.Person.FirstName);
+        Assert.Equal("Sophie", actualUser.Party.Person?.FirstName);
         Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
     }
 
@@ -331,7 +330,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal(userUuid, actualUser.UserUuid);
         Assert.Equal("LEO WILHELMSEN", actualUser.Party.Name);
         Assert.Equal(userUuid, actualUser.Party.PartyUuid);
-        Assert.Equal("LEO", actualUser.Party.Person.FirstName);
+        Assert.Equal("LEO", actualUser.Party.Person?.FirstName);
         Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
     }
 
@@ -511,7 +510,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal(2516356, actualUser.UserId);
         Assert.Equal("sophie", actualUser.UserName);
         Assert.Equal("Sophie Salt", actualUser.Party.Name);
-        Assert.Equal("Sophie", actualUser.Party.Person.FirstName);
+        Assert.Equal("Sophie", actualUser.Party.Person?.FirstName);
         Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
     }
 

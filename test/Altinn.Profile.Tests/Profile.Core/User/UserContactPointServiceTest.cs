@@ -1,13 +1,12 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Altinn.Platform.Profile.Models;
+
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Core.User;
 using Altinn.Profile.Core.User.ContactPoints;
+using Altinn.Profile.Models;
 using Altinn.Profile.Tests.Testdata;
 
 using Microsoft.Extensions.Options;

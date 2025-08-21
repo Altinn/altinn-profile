@@ -1,4 +1,4 @@
-﻿using Altinn.Platform.Profile.Models;
+﻿using Altinn.Profile.Models;
 
 namespace Altinn.Profile.Core.User;
 

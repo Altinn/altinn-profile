@@ -313,7 +313,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressModel { Email = "unique@test.com" };
+            var input = new NotificationAddressRequest { Email = "unique@test.com" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -352,7 +352,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressModel { Phone = "91234567", CountryCode = "+47" };
+            var input = new NotificationAddressRequest { Phone = "91234567", CountryCode = "+47" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -391,7 +391,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressModel { Email = "test@test.com" };
+            var input = new NotificationAddressRequest { Email = "test@test.com" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -433,7 +433,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressModel { Email = "existing@test.com" };
+            var input = new NotificationAddressRequest { Email = "existing@test.com" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -469,7 +469,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressModel { Email = email };
+            var input = new NotificationAddressRequest { Email = email };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -510,7 +510,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressModel { Phone = phone, CountryCode = countryCode };
+            var input = new NotificationAddressRequest { Phone = phone, CountryCode = countryCode };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -561,7 +561,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressModel { Email = "unique@test.com" };
+            var input = new NotificationAddressRequest { Email = "unique@test.com" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -600,7 +600,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressModel { Email = "test@test.com" };
+            var input = new NotificationAddressRequest { Email = "test@test.com" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/2")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -640,7 +640,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressModel { Email = "test@test.com" };
+            var input = new NotificationAddressRequest { Email = "test@test.com" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/4")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -680,7 +680,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressModel { Email = "existing@test.com" };
+            var input = new NotificationAddressRequest { Email = "existing@test.com" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/2")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -715,7 +715,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressModel { Email = "test@test.com" };
+            var input = new NotificationAddressRequest { Email = "test@test.com" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/100")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -745,7 +745,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressModel { Email = "test@test.com" };
+            var input = new NotificationAddressRequest { Email = "test@test.com" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/100")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -778,7 +778,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressModel { Email = email };
+            var input = new NotificationAddressRequest { Email = email };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -819,7 +819,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressModel { Phone = phone, CountryCode = countryCode };
+            var input = new NotificationAddressRequest { Phone = phone, CountryCode = countryCode };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -865,7 +865,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.DeleteNotificationAddressAsync(It.IsAny<int>()))
                 .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
             _factory.OrganizationNotificationAddressUpdateClientMock
-                .Setup(c => c.DeleteNotificationAddress(It.IsAny<string>()))
+                .Setup(c => c.DeleteNotificationAddress(It.IsAny<NotificationAddress>()))
                 .ReturnsAsync("2");
 
             HttpClient client = _factory.CreateClient();
@@ -900,7 +900,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.DeleteNotificationAddressAsync(It.IsAny<int>()))
                 .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
             _factory.OrganizationNotificationAddressUpdateClientMock
-                .Setup(c => c.DeleteNotificationAddress(It.IsAny<string>()))
+                .Setup(c => c.DeleteNotificationAddress(It.IsAny<NotificationAddress>()))
                 .ReturnsAsync("2");
 
             HttpClient client = _factory.CreateClient();
@@ -934,7 +934,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressModel { Email = "test@test.com" };
+            var input = new NotificationAddressRequest { Email = "test@test.com" };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Delete, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1")
             {
                 Content = JsonContent.Create(input, options: _serializerOptions)

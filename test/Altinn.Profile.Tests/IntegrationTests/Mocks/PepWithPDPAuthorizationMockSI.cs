@@ -13,7 +13,6 @@ using Altinn.Authorization.ABAC.Xacml.JsonProfile;
 using Altinn.Common.PEP.Helpers;
 using Altinn.Common.PEP.Interfaces;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
-using Authorization.Platform.Authorization.Models;
 using Newtonsoft.Json;
 
 namespace Altinn.Profile.Tests.IntegrationTests.Mocks
@@ -231,7 +230,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.Mocks
             if (File.Exists(rolesPath))
             {
                 string content = File.ReadAllText(rolesPath);
-                roles = (List<Role>)JsonConvert.DeserializeObject(content, typeof(List<Role>));
+                roles = JsonConvert.DeserializeObject<List<Role>>(content);
             }
 
             return Task.FromResult(roles);
