@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using Altinn.Platform.Profile.Models;
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.User;
 using Altinn.Profile.Models;

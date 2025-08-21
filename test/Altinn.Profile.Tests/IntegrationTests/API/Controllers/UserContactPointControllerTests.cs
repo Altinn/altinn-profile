@@ -5,8 +5,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-using Altinn.Platform.Profile.Models;
-
 using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Models;
