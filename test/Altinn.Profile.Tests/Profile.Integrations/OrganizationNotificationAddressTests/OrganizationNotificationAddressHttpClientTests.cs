@@ -172,6 +172,23 @@ public class OrganizationNotificationAddressHttpClientTests
     }
 
     [Fact]
+    public async Task CreateNewAddress_WhenSynthetic_DoesNothing()
+    {
+        // Arrange
+        var client = CreateHttpClient(null);
+
+        var notificationAddress = new NotificationAddress() { IsSynthetic = true, RegistryID = Guid.NewGuid().ToString("N"), NotificationAddressID = 0 };
+
+        // Act
+        var addressId = await client.CreateNewNotificationAddress(notificationAddress, "123456789");
+
+        // Assert
+        Assert.Equal(notificationAddress.NotificationAddressID.ToString(), addressId);
+
+        _messageHandler.VerifyAll();
+    }
+
+    [Fact]
     public async Task UpdateAddress_WhenSomethingGoesWrong_ThrowsException()
     {
         // Arrange
@@ -239,6 +256,22 @@ public class OrganizationNotificationAddressHttpClientTests
     }
 
     [Fact]
+    public async Task UpdateAddress_WhenSynthetic_DoesNothing()
+    {
+        // Arrange
+        var client = CreateHttpClient(null);
+
+        var notificationAddress = new NotificationAddress() { IsSynthetic = true, NotificationAddressID = 0 };
+
+        // Act
+        var addressId = await client.UpdateNotificationAddress(Guid.NewGuid().ToString("N"), notificationAddress, "123456789");
+
+        // Assert
+        Assert.Equal(notificationAddress.NotificationAddressID.ToString(), addressId);
+        _messageHandler.VerifyAll();
+    }
+
+    [Fact]
     public async Task DeleteAddress_WhenValid_Success()
     {
         // Arrange
@@ -250,12 +283,28 @@ public class OrganizationNotificationAddressHttpClientTests
         };
 
         var client = CreateHttpClient(mockResponse);
+        var notificationAddress = new NotificationAddress() { RegistryID = Guid.NewGuid().ToString("N") };
 
         // Act
-        var addressId = await client.DeleteNotificationAddress(Guid.NewGuid().ToString("N"));
+        var addressId = await client.DeleteNotificationAddress(notificationAddress);
 
         // Assert
         Assert.IsType<string>(addressId);
+        _messageHandler.VerifyAll();
+    }
+
+    [Fact]
+    public async Task DeleteAddress_WhenSynthetic_DoesNothing()
+    {
+        // Arrange
+        var client = CreateHttpClient(null);
+        var notificationAddress = new NotificationAddress() { RegistryID = Guid.NewGuid().ToString("N"), NotificationAddressID = 0, IsSynthetic = true };
+
+        // Act
+        var addressId = await client.DeleteNotificationAddress(notificationAddress);
+
+        // Assert
+        Assert.Equal(notificationAddress.NotificationAddressID.ToString(), addressId);
         _messageHandler.VerifyAll();
     }
 }

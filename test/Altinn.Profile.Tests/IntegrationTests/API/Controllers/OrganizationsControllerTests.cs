@@ -865,7 +865,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.DeleteNotificationAddressAsync(It.IsAny<int>()))
                 .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
             _factory.OrganizationNotificationAddressUpdateClientMock
-                .Setup(c => c.DeleteNotificationAddress(It.IsAny<string>()))
+                .Setup(c => c.DeleteNotificationAddress(It.IsAny<NotificationAddress>()))
                 .ReturnsAsync("2");
 
             HttpClient client = _factory.CreateClient();
@@ -900,7 +900,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.DeleteNotificationAddressAsync(It.IsAny<int>()))
                 .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == orgNo).NotificationAddresses.First());
             _factory.OrganizationNotificationAddressUpdateClientMock
-                .Setup(c => c.DeleteNotificationAddress(It.IsAny<string>()))
+                .Setup(c => c.DeleteNotificationAddress(It.IsAny<NotificationAddress>()))
                 .ReturnsAsync("2");
 
             HttpClient client = _factory.CreateClient();
