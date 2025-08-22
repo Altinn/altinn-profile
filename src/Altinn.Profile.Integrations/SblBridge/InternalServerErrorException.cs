@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Integrations.SblBridge.User.Favorites
+﻿namespace Altinn.Profile.Integrations.SblBridge
 {
     /// <summary>
     /// Represents an exception that occurs when an internal server error is encountered.
