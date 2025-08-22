@@ -13,11 +13,11 @@ public class ChangelogSyncMetadataRepository(IDbContextFactory<ProfileDbContext>
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
     /// <inheritdoc />
-    public async Task<DateTime?> GetLatestSyncTimestampAsync(DataType dataType)
+    public async Task<DateTime?> GetLatestSyncTimestampAsync(DataType dataType, CancellationToken cancellationToken)
     {
-        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var lastSync = await databaseContext.ChangelogSyncMetadata.FirstOrDefaultAsync(e => e.DataType == dataType);
+        var lastSync = await databaseContext.ChangelogSyncMetadata.FirstOrDefaultAsync(e => e.DataType == dataType, cancellationToken);
         if (lastSync == null)
         {
             return null;

@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Altinn.Profile.Core\Altinn.Profile.Core.csproj" />
     <ProjectReference Include="..\Altinn.Profile.Integrations\Altinn.Profile.Integrations.csproj" />
+	<ProjectReference Include="..\ServiceDefaults.Jobs\Altinn.Authorization.ServiceDefaults.Jobs.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)'=='Debug'">
