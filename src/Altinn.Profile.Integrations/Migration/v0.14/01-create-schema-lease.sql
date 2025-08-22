@@ -20,3 +20,7 @@ CREATE TABLE lease.lease (
 );
 
 CREATE UNIQUE INDEX ix_lease_id ON lease.lease (id);
+
+GRANT DELETE, INSERT, SELECT, UPDATE  ON TABLE lease.changelog_sync_metadata TO platform_profile;
+
+GRANT DELETE, INSERT, SELECT, UPDATE  ON TABLE lease.lease TO platform_profile;
