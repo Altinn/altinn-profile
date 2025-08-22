@@ -13,7 +13,7 @@ public interface IChangelogSyncMetadataRepository
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    Task<DateTime?> GetLatestSyncTimestampAsync(DataType dataType);
+    Task<DateTime?> GetLatestSyncTimestampAsync(DataType dataType, CancellationToken cancellationToken);
 
     /// <summary>
     /// Asynchronously updates the latest sync timestamp in the metadata repository.
