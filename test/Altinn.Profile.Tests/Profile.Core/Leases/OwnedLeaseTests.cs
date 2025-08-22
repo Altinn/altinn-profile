@@ -1,7 +1,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Altinn.Profile.Core.Leases;
+
+using Altinn.Authorization.ServiceDefaults.Leases;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
