@@ -85,7 +85,7 @@ function addOrgNotificationAddresses(data) {
     });
 
     if (!success) {
-        console.error(`POST org notification addresses failed with status ${response.status}": ${JSON.stringify(response.body)}`);
+        console.error(`POST org notification addresses failed with status ${response.status}: ${response.body}`);
     }
 
     stopIterationOnFail("POST org notification addresses failed", success);
@@ -117,7 +117,7 @@ function updateOrgNotificationAddresses(data, addressId) {
     }
 
     if (!success) {
-        console.error(`PUT org notification addresses failed with status ${response.status}": ${JSON.stringify(response.body)}`);
+        console.error(`PUT org notification addresses failed with status ${response.status}: ${response.body}`);
     }
 
     stopIterationOnFail("PUT org notification addresses failed", success);
@@ -144,7 +144,7 @@ function removeOrgNotificationAddresses(data, addressId) {
     });
 
     if (!success) {
-        console.error(`DELETE org notification addresses failed with status ${response.status}": ${JSON.stringify(response.body)}`);
+        console.error(`DELETE org notification addresses failed with status ${response.status}: ${response.body}`);
     }
 
     stopIterationOnFail("DELETE org notification addresses failed", success);
