@@ -2,6 +2,8 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
+
+using Altinn.Authorization.ServiceDefaults.Leases;
 using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.Common.AccessToken.Services;
@@ -11,20 +13,30 @@ using Altinn.Common.PEP.Configuration;
 using Altinn.Common.PEP.Implementation;
 using Altinn.Common.PEP.Interfaces;
 using Altinn.Profile.Authorization;
+using Altinn.Profile.Changelog;
 using Altinn.Profile.Configuration;
 using Altinn.Profile.Core.Extensions;
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Handlers;
+using Altinn.Profile.Integrations.Leases;
+using Altinn.Profile.Integrations.Register;
+using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.SblBridge;
+using Altinn.Profile.Integrations.SblBridge.Changelog;
 using Altinn.Profile.Integrations.SblBridge.User.Favorites;
 using Altinn.Profile.Telemetry;
+
 using AltinnCore.Authentication.JwtCookie;
+
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.Exporter;
+
 using JasperFx.Core;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -36,11 +48,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+
 using Swashbuckle.AspNetCore.SwaggerGen;
+
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
 using Wolverine.ErrorHandling;
@@ -195,6 +210,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddProblemDetails();
 
     services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
+
+    SetupImportJobs(services, config);
 }
 
 static void AddAzureMonitorTelemetryExporters(IServiceCollection services, IConfiguration config)
@@ -292,6 +309,26 @@ void ConfigureWolverine(WebApplicationBuilder builder)
             .OnException<InternalServerErrorException>()
             .RetryWithCooldown(50.Milliseconds(), 100.Milliseconds(), 250.Milliseconds());
     });
+}
+
+void SetupImportJobs(IServiceCollection services, IConfiguration config)
+{
+    services.AddHttpClient<IChangeLogClient, ChangeLogClient>();
+    services.AddScoped<IChangelogSyncMetadataRepository, ChangelogSyncMetadataRepository>();
+    services.AddSingleton<ILeaseProvider, PostgresqlLeaseProvider>();
+    services.AddSingleton<ILeaseRepository, LeaseRepository>();
+    services.AddLeaseManager();
+
+    if (config.GetValue<bool>("ImportJobSettings:FavoritesImportEnabled"))
+    {
+        services.AddScoped<IFavoriteSyncRepository, FavoriteSyncRepository>();
+
+        services.AddRecurringJob<FavoriteImportJob>(settings =>
+        {
+            settings.LeaseName = LeaseNames.A2FavoriteImport;
+            settings.Interval = TimeSpan.FromMinutes(1);
+        });
+    }
 }
 
 /// <summary>
