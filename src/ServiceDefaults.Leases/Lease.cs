@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Altinn.Profile.Core.Leases;
+namespace Altinn.Authorization.ServiceDefaults.Leases;
 
 /// <summary>
 /// Result from calling <see cref="LeaseManager.AcquireLease(string, CancellationToken)"/>, either a

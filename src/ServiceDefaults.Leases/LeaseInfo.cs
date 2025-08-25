@@ -1,6 +1,6 @@
 ﻿#nullable enable
 
-namespace Altinn.Profile.Core.Leases;
+namespace Altinn.Authorization.ServiceDefaults.Leases;
 
 /// <summary>
 /// Information about a lease.

@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Altinn.Profile.Core\Altinn.Profile.Core.csproj" />
+    <ProjectReference Include="..\ServiceDefaults.Leases\Altinn.Authorization.ServiceDefaults.Leases.csproj" />
     <InternalsVisibleTo Include="Altinn.Profile.Tests" />
   </ItemGroup>
 
