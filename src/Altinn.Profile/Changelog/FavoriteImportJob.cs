@@ -75,6 +75,11 @@ namespace Altinn.Profile.Changelog
                 foreach (var change in page.ProfileChangeLogList)
                 {
                     var favorite = Favorite.Deserialize(change.DataObject);
+                    if (favorite == null)
+                    {
+                        _logger.LogWarning("Failed to deserialize favorite change log item with id {ChangeId}", change.ProfileChangeLogId);
+                        continue;
+                    }
 
                     if (change.OperationType == OperationType.Insert)
                     {
