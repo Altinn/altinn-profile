@@ -16,19 +16,16 @@ using Altinn.Profile.Authorization;
 using Altinn.Profile.Changelog;
 using Altinn.Profile.Configuration;
 using Altinn.Profile.Core.Extensions;
-using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Handlers;
 using Altinn.Profile.Integrations.Leases;
-using Altinn.Profile.Integrations.Register;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.Changelog;
-using Altinn.Profile.Integrations.SblBridge.User.Favorites;
-using Altinn.Profile.Telemetry;
+using Altinn.Profile.Middleware;
 
 using AltinnCore.Authentication.JwtCookie;
 
