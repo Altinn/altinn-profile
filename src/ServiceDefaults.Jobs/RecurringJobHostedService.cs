@@ -5,14 +5,13 @@ using System.Diagnostics.Metrics;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks.Sources;
-using Altinn.Authorization.ServiceDefaults.Jobs;
 using Altinn.Authorization.ServiceDefaults.Leases;
 using CommunityToolkit.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Altinn.Register.Jobs;
+namespace Altinn.Authorization.ServiceDefaults.Jobs;
 
 /// <summary>
 /// A hosted service that runs recurring jobs.
@@ -62,10 +61,10 @@ internal sealed partial class RecurringJobHostedService
         IEnumerable<JobRegistration> registrations,
         IEnumerable<IJobCondition> conditions)
     {
-        _jobsStarted = telemetry.CreateCounter<int>("register.jobs.started", unit: "jobs", description: "The number of jobs that have been started");
-        _jobsFailed = telemetry.CreateCounter<int>("register.jobs.failed", unit: "jobs", description: "The number of jobs that have failed");
-        _jobsSucceeded = telemetry.CreateCounter<int>("register.jobs.succeeded", unit: "jobs", description: "The number of jobs that have succeeded");
-        _jobsSkipped = telemetry.CreateCounter<int>("register.jobs.skipped", unit: "jobs", description: "The number of jobs that have been skipped");
+        _jobsStarted = telemetry.CreateCounter<int>("profile.jobs.started", unit: "jobs", description: "The number of jobs that have been started");
+        _jobsFailed = telemetry.CreateCounter<int>("profile.jobs.failed", unit: "jobs", description: "The number of jobs that have failed");
+        _jobsSucceeded = telemetry.CreateCounter<int>("profile.jobs.succeeded", unit: "jobs", description: "The number of jobs that have succeeded");
+        _jobsSkipped = telemetry.CreateCounter<int>("profile.jobs.skipped", unit: "jobs", description: "The number of jobs that have been skipped");
 
         _timeProvider = timeProvider;
         _leaseManager = leaseManager;

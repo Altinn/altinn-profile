@@ -1,5 +1,5 @@
 ﻿using Altinn.Authorization.ServiceDefaults.Jobs;
-using Altinn.Register.Jobs;
+
 using CommunityToolkit.Diagnostics;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
