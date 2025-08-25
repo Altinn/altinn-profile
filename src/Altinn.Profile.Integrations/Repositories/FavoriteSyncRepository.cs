@@ -62,6 +62,8 @@ namespace Altinn.Profile.Integrations.Repositories
 
             databaseContext.PartyGroupAssociations.Add(partyGroupAssociation);
 
+            await databaseContext.SaveChangesAsync(cancellationToken);
+
             return true;
         }
 
@@ -83,7 +85,8 @@ namespace Altinn.Profile.Integrations.Repositories
 
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
             databaseContext.Groups.Add(favoriteGroup);
-            
+            await databaseContext.SaveChangesAsync(cancellationToken);
+
             return true;
         }
 
@@ -106,6 +109,7 @@ namespace Altinn.Profile.Integrations.Repositories
             var partyGroupAssociation = favoriteGroup.Parties.First(p => p.PartyUuid == partyUuid);
 
             databaseContext.PartyGroupAssociations.Remove(partyGroupAssociation);
+            await databaseContext.SaveChangesAsync(cancellationToken);
 
             return true;
         }

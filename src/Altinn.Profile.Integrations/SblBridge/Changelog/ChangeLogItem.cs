@@ -68,9 +68,9 @@ public class ChangeLogItem
         public Guid PartyUuid { get; set; }
 
         /// <summary>
-        /// This method will generate a JSON representation of the <see cref="Favorite"/> object.
+        /// This method will deserialize a JSON representation of the <see cref="Favorite"/> object.
         /// </summary>
-        /// <returns>JSON serialized version of the current object.</returns>
+        /// <returns>JSON deserialized version of the current object.</returns>
         public static Favorite? Deserialize(string data)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings

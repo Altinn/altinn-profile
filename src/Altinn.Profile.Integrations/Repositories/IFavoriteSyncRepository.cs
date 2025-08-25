@@ -1,7 +1,7 @@
 ﻿namespace Altinn.Profile.Integrations.Repositories
 {
     /// <summary>
-    /// Interface to delete or insert favorites to the DB without natifying A2
+    /// Interface to delete or insert favorites to the DB without notifying A2
     /// </summary>
     public interface IFavoriteSyncRepository
     {
