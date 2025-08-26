@@ -18,10 +18,5 @@
   <ItemGroup>
     <ProjectReference Include="..\ServiceDefaults.Leases\Altinn.Authorization.ServiceDefaults.Leases.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <InternalsVisibleTo Include="Altinn.Register.Tests" />
-    <InternalsVisibleTo Include="Altinn.Register.Persistence.Tests" />
-  </ItemGroup>
 		
 </Project>

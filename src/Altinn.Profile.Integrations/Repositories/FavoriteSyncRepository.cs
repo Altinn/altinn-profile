@@ -37,17 +37,18 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<bool> AddPartyToFavorites(int userId, Guid partyUuid, DateTime created, CancellationToken cancellationToken)
+        public async Task AddPartyToFavorites(int userId, Guid partyUuid, DateTime created, CancellationToken cancellationToken)
         {
             var favoriteGroup = await GetFavorites(userId, cancellationToken);
             if (favoriteGroup == null)
             {
-                return await CreateFavoriteGroupWithAssociation(userId, partyUuid, created, cancellationToken);
+                await CreateFavoriteGroupWithAssociation(userId, partyUuid, created, cancellationToken);
+                return;
             }
 
             if (favoriteGroup.Parties.Any(p => p.PartyUuid == partyUuid))
             {
-                return false;
+                return;
             }
 
             var partyGroupAssociation = new PartyGroupAssociation
@@ -64,7 +65,7 @@ namespace Altinn.Profile.Integrations.Repositories
 
             await databaseContext.SaveChangesAsync(cancellationToken);
 
-            return true;
+            return;
         }
 
         private async Task<bool> CreateFavoriteGroupWithAssociation(int userId, Guid partyUuid, DateTime created, CancellationToken cancellationToken)
@@ -91,19 +92,19 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<bool> DeleteFromFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        public async Task DeleteFromFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
             var favoriteGroup = await databaseContext.Groups.Include(g => g.Parties).Where(g => g.UserId == userId && g.IsFavorite).FirstOrDefaultAsync(cancellationToken);
             if (favoriteGroup == null)
             {
-                return false;
+                return;
             }
 
             if (!favoriteGroup.Parties.Any(p => p.PartyUuid == partyUuid))
             {
-                return false;
+                return;
             }
 
             var partyGroupAssociation = favoriteGroup.Parties.First(p => p.PartyUuid == partyUuid);
@@ -111,7 +112,7 @@ namespace Altinn.Profile.Integrations.Repositories
             databaseContext.PartyGroupAssociations.Remove(partyGroupAssociation);
             await databaseContext.SaveChangesAsync(cancellationToken);
 
-            return true;
+            return;
         }
     }
 }
