@@ -12,13 +12,17 @@ namespace Altinn.Profile.Integrations.Repositories
     /// <summary>
     /// Defines a repository for operations related to a users groups of parties.
     /// </summary>
-    public class FavoriteSyncRepository(
-        IDbContextFactory<ProfileDbContext> contextFactory, IDbContextOutbox databaseContextOutbox) 
-        : EFCoreTransactionalOutbox(databaseContextOutbox), IFavoriteSyncRepository
+    public class FavoriteSyncRepository(IDbContextFactory<ProfileDbContext> contextFactory) : IFavoriteSyncRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
-        private async Task<Group?> GetFavorites(int userId, CancellationToken cancellationToken)
+        /// <summary>
+        /// Get a users favorite group.
+        /// </summary>
+        /// <param name="userId">Id of the user</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        internal async Task<Group?> GetFavorites(int userId, CancellationToken cancellationToken)
         {
             var groups = await GetGroups(userId, true, cancellationToken);
 
