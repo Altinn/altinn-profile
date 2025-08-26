@@ -113,9 +113,9 @@ public class ChangeLogItem
         public string[] ServiceOptions { get; set; } = [];
 
         /// <summary>
-        /// This method will deserilize the JSON representation of the <see cref="ProfessionalNotificationSettings"/> object.
+        /// This method will deserialize the JSON representation of the <see cref="ProfessionalNotificationSettings"/> object.
         /// </summary>
-        /// <returns>JSON serialized version of the current object.</returns>
+        /// <returns>The object deserialized from JSON.</returns>
         public static ProfessionalNotificationSettings? Deserialize(string data)
         {
             JsonSerializerSettings settings = new()

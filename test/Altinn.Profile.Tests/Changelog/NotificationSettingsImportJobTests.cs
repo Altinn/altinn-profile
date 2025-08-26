@@ -16,8 +16,6 @@ using Moq;
 
 using Xunit;
 
-using static Altinn.Profile.Integrations.SblBridge.Changelog.ChangeLogItem;
-
 namespace Altinn.Profile.Tests.Changelog;
 
 public class NotificationSettingsImportJobTests
@@ -45,7 +43,6 @@ public class NotificationSettingsImportJobTests
         var expectedPartyUuid = Guid.Parse("00000000-0000-0000-0000-000000000042");
         var expectedEmail = "test@example.com";
         var expectedPhone = "12345678";
-        var expectedServiceOptions = new[] { "service1", "service2" };
         var notificationSettingJson = $"{{\"userId\": {expectedUserId}, \"partyUuid\": \"{expectedPartyUuid}\", \"phoneNumber\": \"{expectedPhone}\", \"email\": \"{expectedEmail}\", \"serviceOptions\": [\"\"]}}";
         var changeLogItem = new ChangeLogItem
         {
@@ -70,7 +67,7 @@ public class NotificationSettingsImportJobTests
             .ReturnsAsync(() =>
             {
                 callCount++;
-                return callCount == 1 ? changeLog : new ChangeLog { ProfileChangeLogList = new List<ChangeLogItem>() };
+                return callCount == 1 ? changeLog : new ChangeLog { ProfileChangeLogList = [] };
             });
 
         // Setup notification repo to expect an add or update
@@ -107,6 +104,12 @@ public class NotificationSettingsImportJobTests
                 u.UserPartyContactInfoResources != null), 
                 It.IsAny<CancellationToken>()),
             Times.Once);
+
+        changelogSyncMetadataRepository.Verify(
+            r => r.UpdateLatestChangeTimestampAsync(
+            It.IsAny<DateTime>(),
+            DataType.ProfessionalNotificationSettings),
+            Times.AtLeastOnce);
 
         changeLogClient.Verify(
             c => c.GetChangeLog(It.IsAny<DateTime>(), DataType.ProfessionalNotificationSettings, It.IsAny<CancellationToken>()),
