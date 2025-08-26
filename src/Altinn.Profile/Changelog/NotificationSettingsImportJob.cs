@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Authorization.ServiceDefaults.Jobs;
+using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.SblBridge.Changelog;
@@ -22,7 +24,7 @@ namespace Altinn.Profile.Changelog
         private readonly TimeProvider _timeProvider;
         private readonly IChangeLogClient _changeLogClient;
         private readonly IChangelogSyncMetadataRepository _changelogSyncMetadataRepository;
-        private readonly INotificationSettingSyncRepository _notificationSettingSyncRepository;
+        private readonly IProfessionalNotificationsRepository _notificationSettingSyncRepository;
         private readonly Telemetry _telemetry;
 
         /// <summary>
@@ -32,8 +34,8 @@ namespace Altinn.Profile.Changelog
             ILogger<NotificationSettingImportJob> logger,
             IChangeLogClient changeLogClient,
             TimeProvider timeProvider,
-            IChangelogSyncMetadataRepository changelogSyncMetadataRepository, 
-            INotificationSettingSyncRepository notificationSettingSyncRepository,
+            IChangelogSyncMetadataRepository changelogSyncMetadataRepository,
+            IProfessionalNotificationsRepository notificationSettingSyncRepository,
             Telemetry telemetry = null)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -81,13 +83,23 @@ namespace Altinn.Profile.Changelog
                         continue;
                     }
 
-                    if (change.OperationType == OperationType.Insert)
+                    if (change.OperationType is OperationType.Insert or OperationType.Update)
                     {
-                        await _notificationSettingSyncRepository.AddPartyToNotificationSettings(notificationSetting.UserId, notificationSetting.PartyUuid, change.ChangeDatetime, cancellationToken);
+                        var userPartyContactInfo = new UserPartyContactInfo
+                        {
+                            UserId = notificationSetting.UserId,
+                            PartyUuid = notificationSetting.PartyUuid,
+                            EmailAddress = notificationSetting.Email,
+                            PhoneNumber = notificationSetting.PhoneNumber,
+                            LastChanged = change.ChangeDatetime,
+                            UserPartyContactInfoResources = notificationSetting.ServiceOptions?.Where(r => !string.IsNullOrWhiteSpace(r)).Select(r => new UserPartyContactInfoResource { ResourceId = r }).ToList()
+                        };
+
+                        await _notificationSettingSyncRepository.AddOrUpdateNotificationAddressAsync(userPartyContactInfo, cancellationToken);
                     }
                     else if (change.OperationType == OperationType.Delete)
                     {
-                        await _notificationSettingSyncRepository.DeleteFromNotificationSettings(notificationSetting.UserId, notificationSetting.PartyUuid, cancellationToken);
+                        await _notificationSettingSyncRepository.DeleteNotificationAddressAsync(notificationSetting.UserId, notificationSetting.PartyUuid, cancellationToken);
                     }
                 }
 

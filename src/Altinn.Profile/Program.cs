@@ -326,6 +326,15 @@ void SetupImportJobs(IServiceCollection services, IConfiguration config)
             settings.Interval = TimeSpan.FromMinutes(1);
         });
     }
+
+    if (config.GetValue<bool>("ImportJobSettings:NotificationSettingsImportEnabled"))
+    {
+        services.AddRecurringJob<NotificationSettingImportJob>(settings =>
+        {
+            settings.LeaseName = LeaseNames.A2NotificationSettingImport;
+            settings.Interval = TimeSpan.FromMinutes(1);
+        });
+    }
 }
 
 /// <summary>
