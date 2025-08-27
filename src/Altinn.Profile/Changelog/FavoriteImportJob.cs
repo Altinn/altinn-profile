@@ -81,6 +81,7 @@ namespace Altinn.Profile.Changelog
                         continue;
                     }
 
+                    change.ChangeDatetime = change.ChangeDatetime.ToUniversalTime();
                     if (change.OperationType == OperationType.Insert)
                     {
                         await _favoriteSyncRepository.AddPartyToFavorites(favorite.UserId, favorite.PartyUuid, change.ChangeDatetime, cancellationToken);

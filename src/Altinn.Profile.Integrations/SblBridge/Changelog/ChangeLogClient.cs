@@ -41,7 +41,7 @@ public class ChangeLogClient : IChangeLogClient
     /// <inheritdoc/>
     public async Task<ChangeLog?> GetChangeLog(DateTime changeDate, DataType dataType, CancellationToken cancellationToken)
     {
-        var utc = ConvertToUtc(changeDate);
+        var utc = ConvertToLocal(changeDate);
 
         string endpoint = $"profilechangelog?fromTimestamp={utc:yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ}&dataType={dataType}";
         using HttpResponseMessage response = await _client.GetAsync(endpoint, cancellationToken);
@@ -66,13 +66,13 @@ public class ChangeLogClient : IChangeLogClient
         return changeLog;
     }
 
-    private static DateTime ConvertToUtc(DateTime changeDate)
+    private static DateTime ConvertToLocal(DateTime changeDate)
     {
         return changeDate.Kind switch
         {
-            DateTimeKind.Utc => changeDate,
-            DateTimeKind.Local => changeDate.ToUniversalTime(),
-            _ => DateTime.SpecifyKind(changeDate, DateTimeKind.Utc)
+            DateTimeKind.Utc => changeDate.ToLocalTime(),
+            DateTimeKind.Local => changeDate,
+            _ => DateTime.SpecifyKind(changeDate, DateTimeKind.Local)
         };
     }
 }
