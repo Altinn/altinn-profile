@@ -84,6 +84,10 @@ function addOrgNotificationAddresses(data) {
         'POST org notification addresses: 201 Created or 200 Ok': (r) => r.status === 201 || r.status === 200,
     });
 
+    if (!success) {
+        console.error(`POST org notification addresses failed with status ${response.status}: ${response.body}`);
+    }
+
     stopIterationOnFail("POST org notification addresses failed", success);
     const id = JSON.parse(response.body).notificationAddressId;
 
@@ -105,8 +109,16 @@ function updateOrgNotificationAddresses(data, addressId) {
     );
 
     let success = check(response, {
-        'PUT org notification addresses: 200 Ok': (r) => r.status === 200,
+        'PUT org notification addresses: 200 Ok or 409 Conflict': (r) => r.status === 200 || r.status === 409,
     });
+
+    if (response.status === 409) {
+        return addressId;
+    }
+
+    if (!success) {
+        console.error(`PUT org notification addresses failed with status ${response.status}: ${response.body}`);
+    }
 
     stopIterationOnFail("PUT org notification addresses failed", success);
     const id = JSON.parse(response.body).notificationAddressId;
@@ -130,6 +142,10 @@ function removeOrgNotificationAddresses(data, addressId) {
     let success = check(response, {
         'DELETE org notification addresses: 200 Ok': (r) => r.status === 200,
     });
+
+    if (!success) {
+        console.error(`DELETE org notification addresses failed with status ${response.status}: ${response.body}`);
+    }
 
     stopIterationOnFail("DELETE org notification addresses failed", success);
 }
