@@ -1,4 +1,6 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+
 using CommunityToolkit.Diagnostics;
 
 namespace Altinn.Authorization.ServiceDefaults.Jobs;
@@ -6,6 +8,7 @@ namespace Altinn.Authorization.ServiceDefaults.Jobs;
 /// <summary>
 /// A registration for a job.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public abstract class JobRegistration(
     string? leaseName,
     TimeSpan interval,

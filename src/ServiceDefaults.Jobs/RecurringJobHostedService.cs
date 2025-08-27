@@ -16,6 +16,7 @@ namespace Altinn.Authorization.ServiceDefaults.Jobs;
 /// <summary>
 /// A hosted service that runs recurring jobs.
 /// </summary>
+[ExcludeFromCodeCoverage]
 internal sealed partial class RecurringJobHostedService
     : IHostedLifecycleService
     , IDisposable
@@ -127,6 +128,7 @@ internal sealed partial class RecurringJobHostedService
     public void Dispose()
     {
         _stoppingCts?.Cancel();
+        _stoppingCts?.Dispose();
     }
 
     private async Task StopScheduler(CancellationToken cancellationToken)
