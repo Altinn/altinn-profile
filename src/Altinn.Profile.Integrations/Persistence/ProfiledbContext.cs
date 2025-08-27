@@ -80,6 +80,11 @@ public partial class ProfileDbContext : DbContext
     public virtual DbSet<Lease> Lease { get; set; }
 
     /// <summary>
+    /// The <see cref="DbSet{ChangelogSyncMetadata}"/> timestamp for last changelog sync from date for a data-type.
+    /// </summary>
+    public virtual DbSet<ChangelogSyncMetadata> ChangelogSyncMetadata { get; set; }
+
+    /// <summary>
     /// Configures the schema needed for the context.
     /// </summary>
     /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -127,6 +132,7 @@ public partial class ProfileDbContext : DbContext
                     .HasForeignKey(e => e.RegistryOrganizationId)
                     .HasConstraintName("fk_organization_id");
         });
+
         modelBuilder.Entity<RegistrySyncMetadata>(entity =>
         {
             entity.HasKey(e => e.LastChangedId).HasName("registry_sync_metadata_pkey");
@@ -207,6 +213,11 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.Acquired).IsRequired(false);
             entity.Property(e => e.Released).IsRequired(false);
             entity.HasIndex(e => e.Id, "ix_lease_id").IsUnique();
+        });
+
+        modelBuilder.Entity<ChangelogSyncMetadata>(entity =>
+        {
+            entity.HasKey(e => e.LastChangedId).HasName("changelog_sync_metadata_pkey");
         });
 
         OnModelCreatingPartial(modelBuilder);
