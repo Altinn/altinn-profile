@@ -176,18 +176,25 @@ public class FavoriteSyncRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task DeleteFromFavorites_NoOpIfGroupNotFound()
+    public async Task DeleteFromFavorites_IfGroupNotFound_ShouldNotThrow()
     {
         // Arrange
         var userId = 5;
         var partyUuid = Guid.NewGuid();
 
         // Act & Assert (should not throw)
-        await _repository.DeleteFromFavorites(userId, partyUuid, CancellationToken.None);
+        try
+        {
+            await _repository.DeleteFromFavorites(userId, partyUuid, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            Assert.Fail("Expected no exception, but got: " + ex.Message);
+        }
     }
 
     [Fact]
-    public async Task DeleteFromFavorites_NoOpIfPartyNotFound()
+    public async Task DeleteFromFavorites_IfPartyNotFound_ShuldNotThrow()
     {
         // Arrange
         var userId = 6;
@@ -206,6 +213,13 @@ public class FavoriteSyncRepositoryTests : IDisposable
         await _databaseContext.SaveChangesAsync();
 
         // Act & Assert (should not throw)
-        await _repository.DeleteFromFavorites(userId, partyUuid, CancellationToken.None);
+        try
+        {
+            await _repository.DeleteFromFavorites(userId, partyUuid, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            Assert.Fail("Expected no exception, but got: " + ex.Message);
+        }
     }
 }

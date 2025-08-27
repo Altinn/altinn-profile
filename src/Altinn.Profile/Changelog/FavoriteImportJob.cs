@@ -45,7 +45,7 @@ namespace Altinn.Profile.Changelog
         }
 
         /// <inheritdoc/>
-        protected override async Task RunAsync(CancellationToken cancellationToken)
+        protected override async Task RunAsync(CancellationToken cancellationToken = default)
         {
             var start = _timeProvider.GetTimestamp();
             Log.StartingFavoritesImport(_logger);
@@ -92,7 +92,7 @@ namespace Altinn.Profile.Changelog
                     }
                 }
 
-                var lastChange = page.ProfileChangeLogList.Last().ChangeDatetime;
+                var lastChange = page.ProfileChangeLogList[^1].ChangeDatetime;
                 await _changelogSyncMetadataRepository.UpdateLatestChangeTimestampAsync(lastChange, DataType.Favorites);
             }
         }
@@ -111,7 +111,7 @@ namespace Altinn.Profile.Changelog
 
                 yield return response;
 
-                from = response.ProfileChangeLogList.Last().ChangeDatetime;
+                from = response.ProfileChangeLogList[^1].ChangeDatetime;
             }
         }
 
