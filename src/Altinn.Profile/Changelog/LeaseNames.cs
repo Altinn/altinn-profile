@@ -9,5 +9,10 @@
         /// Lease name for <see cref="FavoriteImportJob"/>.
         /// </summary>
         internal const string A2FavoriteImport = "a2-favorites-import";
+
+        /// <summary>
+        /// Lease name for <see cref="NotificationSettingImportJob"/>.
+        /// </summary>
+        internal const string A2NotificationSettingImport = "a2-notification-settings-import";
     }
 }
