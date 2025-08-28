@@ -83,6 +83,7 @@ namespace Altinn.Profile.Changelog
                         continue;
                     }
 
+                    change.ChangeDatetime = change.ChangeDatetime.ToUniversalTime();
                     if (change.OperationType is OperationType.Insert or OperationType.Update)
                     {
                         var userPartyContactInfo = new UserPartyContactInfo
@@ -103,7 +104,7 @@ namespace Altinn.Profile.Changelog
                     }
                 }
 
-                var lastChange = page.ProfileChangeLogList.Last().ChangeDatetime;
+                var lastChange = page.ProfileChangeLogList[^1].ChangeDatetime;
                 await _changelogSyncMetadataRepository.UpdateLatestChangeTimestampAsync(lastChange, DataType.ProfessionalNotificationSettings);
             }
         }
@@ -122,7 +123,7 @@ namespace Altinn.Profile.Changelog
 
                 yield return response;
 
-                from = response.ProfileChangeLogList.Last().ChangeDatetime;
+                from = response.ProfileChangeLogList[^1].ChangeDatetime;
             }
         }
 
