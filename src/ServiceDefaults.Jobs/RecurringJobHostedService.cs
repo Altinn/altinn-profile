@@ -128,7 +128,6 @@ internal sealed partial class RecurringJobHostedService
     public void Dispose()
     {
         _stoppingCts?.Cancel();
-        _stoppingCts?.Dispose();
     }
 
     private async Task StopScheduler(CancellationToken cancellationToken)
