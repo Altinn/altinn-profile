@@ -11,7 +11,7 @@ public enum DataType
     Favorites,
 
     /// <summary>
-    /// The change happened to professional notification settings.
+    /// The change happened to professional notification settings. Must use the same name as in A2.
     /// </summary>
-    ProfessionalNotificationSettings
+    ReporteeNotificationSettings
 }

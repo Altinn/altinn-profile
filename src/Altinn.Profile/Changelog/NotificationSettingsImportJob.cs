@@ -62,7 +62,7 @@ namespace Altinn.Profile.Changelog
 
         private async Task RunNotificationSettingsImport(CancellationToken cancellationToken)
         {
-            var lastChangeDate = await _changelogSyncMetadataRepository.GetLatestSyncTimestampAsync(DataType.ProfessionalNotificationSettings, cancellationToken);
+            var lastChangeDate = await _changelogSyncMetadataRepository.GetLatestSyncTimestampAsync(DataType.ReporteeNotificationSettings, cancellationToken);
 
             var changes = GetChangeLogPage(lastChangeDate ?? DateTime.MinValue, cancellationToken);
 
@@ -105,7 +105,7 @@ namespace Altinn.Profile.Changelog
                 }
 
                 var lastChange = page.ProfileChangeLogList[^1].ChangeDatetime;
-                await _changelogSyncMetadataRepository.UpdateLatestChangeTimestampAsync(lastChange, DataType.ProfessionalNotificationSettings);
+                await _changelogSyncMetadataRepository.UpdateLatestChangeTimestampAsync(lastChange, DataType.ReporteeNotificationSettings);
             }
         }
 
@@ -114,7 +114,7 @@ namespace Altinn.Profile.Changelog
             ChangeLog response;
             while (true)
             {
-                response = await _changeLogClient.GetChangeLog(from, DataType.ProfessionalNotificationSettings, cancellationToken);
+                response = await _changeLogClient.GetChangeLog(from, DataType.ReporteeNotificationSettings, cancellationToken);
 
                 if (response == null || response.ProfileChangeLogList.Count == 0)
                 {

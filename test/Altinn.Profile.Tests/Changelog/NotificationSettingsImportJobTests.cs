@@ -35,7 +35,7 @@ public class NotificationSettingsImportJobTests
 
         // Setup metadata repo to return a last sync date
         changelogSyncMetadataRepository
-            .Setup(r => r.GetLatestSyncTimestampAsync(DataType.ProfessionalNotificationSettings, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetLatestSyncTimestampAsync(DataType.ReporteeNotificationSettings, It.IsAny<CancellationToken>()))
             .ReturnsAsync(testChangeDate);
 
         // Setup a fake notification setting and changelog item
@@ -49,7 +49,7 @@ public class NotificationSettingsImportJobTests
             ProfileChangeLogId = 1,
             ChangeDatetime = DateTime.UtcNow,
             OperationType = OperationType.Insert,
-            DataType = DataType.ProfessionalNotificationSettings,
+            DataType = DataType.ReporteeNotificationSettings,
             DataObject = notificationSettingJson,
             ChangeSource = 2,
             LoggedDateTime = DateTime.UtcNow
@@ -63,7 +63,7 @@ public class NotificationSettingsImportJobTests
         // Setup the client to return the changelog once, then an empty list
         var callCount = 0;
         changeLogClient
-            .Setup(c => c.GetChangeLog(It.IsAny<DateTime>(), DataType.ProfessionalNotificationSettings, It.IsAny<CancellationToken>()))
+            .Setup(c => c.GetChangeLog(It.IsAny<DateTime>(), DataType.ReporteeNotificationSettings, It.IsAny<CancellationToken>()))
             .ReturnsAsync(() =>
             {
                 callCount++;
@@ -108,11 +108,11 @@ public class NotificationSettingsImportJobTests
         changelogSyncMetadataRepository.Verify(
             r => r.UpdateLatestChangeTimestampAsync(
             It.IsAny<DateTime>(),
-            DataType.ProfessionalNotificationSettings),
+            DataType.ReporteeNotificationSettings),
             Times.AtLeastOnce);
 
         changeLogClient.Verify(
-            c => c.GetChangeLog(It.IsAny<DateTime>(), DataType.ProfessionalNotificationSettings, It.IsAny<CancellationToken>()),
+            c => c.GetChangeLog(It.IsAny<DateTime>(), DataType.ReporteeNotificationSettings, It.IsAny<CancellationToken>()),
             Times.AtLeastOnce);
     }
 
