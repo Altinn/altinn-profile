@@ -12,14 +12,17 @@ namespace Altinn.Profile.Integrations.Repositories
     /// <summary>
     /// Defines a repository for operations related to a users groups of parties.
     /// </summary>
-    public class PartyGroupRepository(
-        IDbContextFactory<ProfileDbContext> contextFactory, IDbContextOutbox databaseContextOutbox) 
-        : EFCoreTransactionalOutbox(databaseContextOutbox), IPartyGroupRepository
+    public class FavoriteSyncRepository(IDbContextFactory<ProfileDbContext> contextFactory) : IFavoriteSyncRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
-        /// <inheritdoc />
-        public async Task<Group?> GetFavorites(int userId, CancellationToken cancellationToken)
+        /// <summary>
+        /// Get a users favorite group.
+        /// </summary>
+        /// <param name="userId">Id of the user</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        internal async Task<Group?> GetFavorites(int userId, CancellationToken cancellationToken)
         {
             var groups = await GetGroups(userId, true, cancellationToken);
 
@@ -28,8 +31,7 @@ namespace Altinn.Profile.Integrations.Repositories
             return favorites;
         }
 
-        /// <inheritdoc/>
-        public async Task<List<Group>> GetGroups(int userId, bool filterOnlyFavorite, CancellationToken cancellationToken)
+        private async Task<List<Group>> GetGroups(int userId, bool filterOnlyFavorite, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
@@ -39,23 +41,25 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<bool> AddPartyToFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        public async Task AddPartyToFavorites(int userId, Guid partyUuid, DateTime created, CancellationToken cancellationToken)
         {
             var favoriteGroup = await GetFavorites(userId, cancellationToken);
             if (favoriteGroup == null)
             {
-                return await CreateFavoriteGroupWithAssociation(userId, partyUuid, cancellationToken);
+                await CreateFavoriteGroupWithAssociation(userId, partyUuid, created, cancellationToken);
+                return;
             }
 
             if (favoriteGroup.Parties.Any(p => p.PartyUuid == partyUuid))
             {
-                return false;
+                return;
             }
 
             var partyGroupAssociation = new PartyGroupAssociation
             {
                 PartyUuid = partyUuid,
                 GroupId = favoriteGroup.GroupId,
+                Created = created
             };
             favoriteGroup.Parties.Add(partyGroupAssociation);
 
@@ -63,18 +67,15 @@ namespace Altinn.Profile.Integrations.Repositories
 
             databaseContext.PartyGroupAssociations.Add(partyGroupAssociation);
 
-            FavoriteAddedEvent NotifyFavoriteAdded() => new(userId, partyUuid, RegistrationTimestamp: DateTime.UtcNow);
-
-            await NotifyAndSave(databaseContext, NotifyFavoriteAdded, cancellationToken);
-
-            return true;
+            await databaseContext.SaveChangesAsync(cancellationToken);
         }
 
-        private async Task<bool> CreateFavoriteGroupWithAssociation(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        private async Task<bool> CreateFavoriteGroupWithAssociation(int userId, Guid partyUuid, DateTime created, CancellationToken cancellationToken)
         {
             var partyGroupAssociation = new PartyGroupAssociation
             {
                 PartyUuid = partyUuid,
+                Created = created
             };
 
             var favoriteGroup = new Group
@@ -87,38 +88,31 @@ namespace Altinn.Profile.Integrations.Repositories
 
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
             databaseContext.Groups.Add(favoriteGroup);
-
-            FavoriteAddedEvent NotifyFavoriteAdded() => new(userId, partyUuid, RegistrationTimestamp: DateTime.UtcNow);
-
-            await NotifyAndSave(databaseContext, eventRaiser: NotifyFavoriteAdded, cancellationToken);
+            await databaseContext.SaveChangesAsync(cancellationToken);
 
             return true;
         }
 
         /// <inheritdoc/>
-        public async Task<bool> DeleteFromFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        public async Task DeleteFromFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
             var favoriteGroup = await databaseContext.Groups.Include(g => g.Parties).Where(g => g.UserId == userId && g.IsFavorite).FirstOrDefaultAsync(cancellationToken);
             if (favoriteGroup == null)
             {
-                return false;
+                return;
             }
 
             if (!favoriteGroup.Parties.Any(p => p.PartyUuid == partyUuid))
             {
-                return false;
+                return;
             }
 
             var partyGroupAssociation = favoriteGroup.Parties.First(p => p.PartyUuid == partyUuid);
 
             databaseContext.PartyGroupAssociations.Remove(partyGroupAssociation);
-
-            FavoriteRemovedEvent NotifyFavoriteDeleted() => new(userId, partyUuid, partyGroupAssociation.Created, DateTime.UtcNow);
-            await NotifyAndSave(databaseContext, eventRaiser: NotifyFavoriteDeleted, cancellationToken);
-
-            return true;
+            await databaseContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

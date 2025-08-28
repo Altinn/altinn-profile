@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 
-using Altinn.Profile.Core.Leases;
-using Altinn.Profile.Integrations.Leases;
+using Altinn.Authorization.ServiceDefaults.Leases;
 
 using Lease = Altinn.Profile.Integrations.Leases.Lease;
 

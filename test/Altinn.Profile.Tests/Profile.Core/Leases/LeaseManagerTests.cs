@@ -1,8 +1,9 @@
 using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Altinn.Profile.Core.Leases;
+
+using Altinn.Authorization.ServiceDefaults.Leases;
+
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -54,7 +55,6 @@ public class LeaseManagerTests
         Assert.Equal(leaseId, lease.LeaseId);
         Assert.True(lease.Acquired);
         Assert.Equal(expires, lease.Expires);
-        Assert.NotNull(lease.Inner);
     }
 
     [Fact]
@@ -82,7 +82,6 @@ public class LeaseManagerTests
         Assert.Equal(leaseId, lease.LeaseId);
         Assert.False(lease.Acquired);
         Assert.Equal(expires, lease.Expires);
-        Assert.Null(lease.Inner);
     }
 
     [Fact]
