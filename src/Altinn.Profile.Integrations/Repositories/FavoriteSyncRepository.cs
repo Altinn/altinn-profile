@@ -68,8 +68,6 @@ namespace Altinn.Profile.Integrations.Repositories
             databaseContext.PartyGroupAssociations.Add(partyGroupAssociation);
 
             await databaseContext.SaveChangesAsync(cancellationToken);
-
-            return;
         }
 
         private async Task<bool> CreateFavoriteGroupWithAssociation(int userId, Guid partyUuid, DateTime created, CancellationToken cancellationToken)
@@ -115,8 +113,6 @@ namespace Altinn.Profile.Integrations.Repositories
 
             databaseContext.PartyGroupAssociations.Remove(partyGroupAssociation);
             await databaseContext.SaveChangesAsync(cancellationToken);
-
-            return;
         }
     }
 }

@@ -47,7 +47,7 @@ namespace Altinn.Profile.Changelog
         }
 
         /// <inheritdoc/>
-        protected override async Task RunAsync(CancellationToken cancellationToken)
+        protected override async Task RunAsync(CancellationToken cancellationToken = default)
         {
             var start = _timeProvider.GetTimestamp();
             Log.StartingNotificationSettingsImport(_logger);
