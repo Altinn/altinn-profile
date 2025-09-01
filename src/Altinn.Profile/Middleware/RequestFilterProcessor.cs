@@ -14,7 +14,7 @@ using Microsoft.Extensions.Primitives;
 
 using OpenTelemetry;
 
-namespace Altinn.Profile.Telemetry
+namespace Altinn.Profile.Middleware
 {
     /// <summary>
     /// Filter for requests (and child dependencies) that should not be logged.

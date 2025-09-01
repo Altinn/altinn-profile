@@ -1,6 +1,6 @@
 ﻿#nullable enable
 
-namespace Altinn.Profile.Core.Leases;
+namespace Altinn.Authorization.ServiceDefaults.Leases;
 
 /// <summary>
 /// A provider of leases. Leases are a synchronization primitive that can be used to ensure

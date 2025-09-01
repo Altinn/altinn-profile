@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Altinn.Profile.Core.Leases;
+namespace Altinn.Authorization.ServiceDefaults.Leases;
 
 /// <summary>
 /// Transient manager for leases.

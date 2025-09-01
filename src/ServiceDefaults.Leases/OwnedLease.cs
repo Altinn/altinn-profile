@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace Altinn.Profile.Core.Leases;
+namespace Altinn.Authorization.ServiceDefaults.Leases;
 
 /// <summary>
 /// An owned lease that auto-renews and releases the lease when disposed.

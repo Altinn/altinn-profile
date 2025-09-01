@@ -1,6 +1,6 @@
 ﻿#nullable enable
 
-using Altinn.Profile.Core.Leases;
+using Altinn.Authorization.ServiceDefaults.Leases;
 using Altinn.Profile.Integrations.Repositories;
 
 using Microsoft.Extensions.Logging;

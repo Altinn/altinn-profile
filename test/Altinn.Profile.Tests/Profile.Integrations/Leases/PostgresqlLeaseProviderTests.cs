@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Altinn.Profile.Core.Leases;
+using Altinn.Authorization.ServiceDefaults.Leases;
 using Altinn.Profile.Integrations.Leases;
 using Altinn.Profile.Integrations.Repositories;
 
