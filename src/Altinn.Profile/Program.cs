@@ -26,7 +26,6 @@ using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.Changelog;
 using Altinn.Profile.Middleware;
-
 using AltinnCore.Authentication.JwtCookie;
 
 using Azure.Identity;

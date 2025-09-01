@@ -19,7 +19,7 @@ partial class Telemetry
     /// <returns>The started activity.</returns>
     public Activity? StartA2ImportJob(string jobName)
     {
-        var activity = ActivitySource.StartActivity($"{ActivityPrefix}.{jobName}");
+        var activity = ActivitySource.StartActivity($"A2ImportJob.{jobName}");
         return activity;
     }
 

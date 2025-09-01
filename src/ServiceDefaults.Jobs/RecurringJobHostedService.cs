@@ -16,6 +16,7 @@ namespace Altinn.Authorization.ServiceDefaults.Jobs;
 /// <summary>
 /// A hosted service that runs recurring jobs.
 /// </summary>
+[ExcludeFromCodeCoverage]
 internal sealed partial class RecurringJobHostedService
     : IHostedLifecycleService
     , IDisposable
