@@ -142,7 +142,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             };
 
             // Act
-            var result = await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, false, CancellationToken.None);
+            var result = await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
 
             // Assert
             Assert.True(result);
@@ -168,10 +168,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 EmailAddress = "updated@email.com"
             };
 
-            await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, false, CancellationToken.None);
+            await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
 
             // Act
-            var result = await _repository.AddOrUpdateNotificationAddressAsync(secondCcontactInfo, false, CancellationToken.None);
+            var result = await _repository.AddOrUpdateNotificationAddressAsync(secondCcontactInfo, CancellationToken.None);
 
             // Assert
             Assert.False(result);
@@ -204,10 +204,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                     new() { ResourceId = "res1" } // Removing "res2"
                 ]
             };
-            await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, false, CancellationToken.None);
+            await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
 
             // Act
-            var result = await _repository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, false, CancellationToken.None);
+            var result = await _repository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, CancellationToken.None);
             var storedValue = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
 
             // Assert
@@ -244,10 +244,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                     new() { ResourceId = "urn:altinn:resource:res2" } 
                 ]
             };
-            await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, false, CancellationToken.None);
+            await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
 
             // Act
-            var result = await _repository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, false, CancellationToken.None);
+            var result = await _repository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, CancellationToken.None);
             var storedValue = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
 
             // Assert

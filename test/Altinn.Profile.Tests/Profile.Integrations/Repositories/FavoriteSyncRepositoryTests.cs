@@ -168,11 +168,42 @@ public class FavoriteSyncRepositoryTests : IDisposable
         await _databaseContext.SaveChangesAsync();
 
         // Act
-        await _repository.DeleteFromFavorites(userId, partyUuid, CancellationToken.None);
+        await _repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(1), CancellationToken.None);
 
         // Assert
         var updatedGroup = await _repository.GetFavorites(userId, CancellationToken.None);
         Assert.Empty(updatedGroup.Parties);
+    }
+
+    [Fact]
+    public async Task DeleteFromFavorites_WhenDeletedIsBeforeCreated_ShouldNotDelete()
+    {
+        // Arrange
+        var userId = 4;
+        var partyUuid = Guid.NewGuid();
+        var created = DateTime.UtcNow;
+
+        var group = new Group
+        {
+            GroupId = 1,
+            UserId = userId,
+            IsFavorite = true,
+            Name = "Favorites",
+            Parties = new List<PartyGroupAssociation>
+            {
+                new PartyGroupAssociation { PartyUuid = partyUuid, Created = created }
+            }
+        };
+
+        _databaseContext.Groups.Add(group);
+        await _databaseContext.SaveChangesAsync();
+
+        // Act
+        await _repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(-1), CancellationToken.None);
+
+        // Assert
+        var updatedGroup = await _repository.GetFavorites(userId, CancellationToken.None);
+        Assert.NotEmpty(updatedGroup.Parties);
     }
 
     [Fact]
@@ -185,7 +216,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         // Act & Assert (should not throw)
         try
         {
-            await _repository.DeleteFromFavorites(userId, partyUuid, CancellationToken.None);
+            await _repository.DeleteFromFavorites(userId, partyUuid, DateTime.Now, CancellationToken.None);
         }
         catch (Exception ex)
         {
@@ -215,7 +246,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         // Act & Assert (should not throw)
         try
         {
-            await _repository.DeleteFromFavorites(userId, partyUuid, CancellationToken.None);
+            await _repository.DeleteFromFavorites(userId, partyUuid, DateTime.Now, CancellationToken.None);
         }
         catch (Exception ex)
         {

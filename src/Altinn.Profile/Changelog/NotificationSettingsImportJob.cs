@@ -96,7 +96,7 @@ namespace Altinn.Profile.Changelog
                             UserPartyContactInfoResources = notificationSetting.ServiceOptions?.Where(r => !string.IsNullOrWhiteSpace(r)).Select(r => new UserPartyContactInfoResource { ResourceId = r }).ToList()
                         };
 
-                        await _notificationSettingSyncRepository.AddOrUpdateNotificationAddressAsync(userPartyContactInfo, true, cancellationToken);
+                        await _notificationSettingSyncRepository.AddOrUpdateNotificationAddressFromSyncAsync(userPartyContactInfo, cancellationToken);
                     }
                     else if (change.OperationType == OperationType.Delete)
                     {

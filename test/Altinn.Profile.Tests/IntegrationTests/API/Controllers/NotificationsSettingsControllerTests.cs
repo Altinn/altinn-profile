@@ -349,7 +349,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             };
 
             _factory.ProfessionalNotificationsRepositoryMock
-                .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.Is<bool>(x => x == false), It.IsAny<CancellationToken>()))
+                .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
             SetupSblMock();
             SetupAuthHandler(_factory, partyGuid, UserId);
@@ -387,7 +387,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory
                 .ProfessionalNotificationsRepositoryMock
-                .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.Is<bool>(x => x == false), It.IsAny<CancellationToken>()))
+                .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
             SetupSblMock();
 

@@ -72,14 +72,13 @@ public class NotificationSettingsImportJobTests
 
         // Setup notification repo to expect an add or update
         notificationSettingSyncRepository
-            .Setup(r => r.AddOrUpdateNotificationAddressAsync(
+            .Setup(r => r.AddOrUpdateNotificationAddressFromSyncAsync(
                 It.Is<UserPartyContactInfo>(u =>
                 u.UserId == expectedUserId &&
                 u.PartyUuid == expectedPartyUuid &&
                 u.EmailAddress == expectedEmail &&
                 u.PhoneNumber == expectedPhone &&
                 u.UserPartyContactInfoResources != null),
-                It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
@@ -96,14 +95,13 @@ public class NotificationSettingsImportJobTests
 
         // Assert
         notificationSettingSyncRepository.Verify(
-            r => r.AddOrUpdateNotificationAddressAsync(
+            r => r.AddOrUpdateNotificationAddressFromSyncAsync(
                 It.Is<UserPartyContactInfo>(u =>
                 u.UserId == expectedUserId &&
                 u.PartyUuid == expectedPartyUuid &&
                 u.EmailAddress == expectedEmail &&
                 u.PhoneNumber == expectedPhone &&
                 u.UserPartyContactInfoResources != null),
-                It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
