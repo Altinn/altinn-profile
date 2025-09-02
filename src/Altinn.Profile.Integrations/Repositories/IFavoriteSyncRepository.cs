@@ -13,6 +13,6 @@
         /// <summary>
         /// Removes a party from the favorites group for a given user
         /// </summary>
-        Task DeleteFromFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken);
+        Task DeleteFromFavorites(int userId, Guid partyUuid, DateTime deleted, CancellationToken cancellationToken);
     }
 }

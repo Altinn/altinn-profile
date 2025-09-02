@@ -36,7 +36,7 @@ namespace Altinn.Profile.Integrations.Repositories
             bool wasAdded;
             if (existing == null)
             {
-                contactInfo.LastChanged = updateFromImport ? contactInfo.LastChanged : DateTime.Now;
+                contactInfo.LastChanged = updateFromImport ? contactInfo.LastChanged : DateTime.UtcNow;
                 databaseContext.UserPartyContactInfo.Add(contactInfo);
                 wasAdded = true;
             }
@@ -45,7 +45,7 @@ namespace Altinn.Profile.Integrations.Repositories
                 existing.EmailAddress = contactInfo.EmailAddress;
                 existing.PhoneNumber = contactInfo.PhoneNumber;
 
-                existing.LastChanged = updateFromImport ? contactInfo.LastChanged : DateTime.Now;
+                existing.LastChanged = updateFromImport ? contactInfo.LastChanged : DateTime.UtcNow;
 
                 // Synchronize the UserPartyContactInfoResources collection
                 var incomingResourceIds = contactInfo.UserPartyContactInfoResources?.Select(r => r.ResourceId).ToHashSet() ?? new HashSet<string>();
