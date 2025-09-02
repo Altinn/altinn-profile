@@ -79,6 +79,7 @@ public class NotificationSettingsImportJobTests
                 u.EmailAddress == expectedEmail &&
                 u.PhoneNumber == expectedPhone &&
                 u.UserPartyContactInfoResources != null),
+                It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
@@ -101,7 +102,8 @@ public class NotificationSettingsImportJobTests
                 u.PartyUuid == expectedPartyUuid &&
                 u.EmailAddress == expectedEmail &&
                 u.PhoneNumber == expectedPhone &&
-                u.UserPartyContactInfoResources != null), 
+                u.UserPartyContactInfoResources != null),
+                It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
 

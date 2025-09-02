@@ -21,11 +21,12 @@ namespace Altinn.Profile.Core.Integrations
         /// Returns <c>true</c> if a new record was created, <c>false</c> if an existing record was updated.
         /// </summary>
         /// <param name="contactInfo">The contact info to be added</param>
+        /// <param name="updateFromImport">If true, the LastChanged property will be set to the value in contactInfo. </param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A <see cref="Task"/> containing a boolean value indicating if the value was added or not.         
         /// Returns <c>true</c> if a new record was added, <c>false</c> if an existing record was updated.
         /// </returns>
-        Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken);
+        Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, bool updateFromImport = false, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Deletes the notification addresses that the given user has associated with the given party.
