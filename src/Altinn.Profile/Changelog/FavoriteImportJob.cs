@@ -88,7 +88,7 @@ namespace Altinn.Profile.Changelog
                     }
                     else if (change.OperationType == OperationType.Delete)
                     {
-                        await _favoriteSyncRepository.DeleteFromFavorites(favorite.UserId, favorite.PartyUuid, cancellationToken);
+                        await _favoriteSyncRepository.DeleteFromFavorites(favorite.UserId, favorite.PartyUuid, change.ChangeDatetime, cancellationToken);
                     }
                 }
 

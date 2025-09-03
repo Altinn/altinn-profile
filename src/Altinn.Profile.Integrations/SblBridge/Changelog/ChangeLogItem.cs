@@ -73,12 +73,57 @@ public class ChangeLogItem
         /// <returns>JSON deserialized version of the current object.</returns>
         public static Favorite? Deserialize(string data)
         {
-            JsonSerializerSettings settings = new JsonSerializerSettings
+            JsonSerializerSettings settings = new()
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             };
 
             return JsonConvert.DeserializeObject<Favorite>(data, settings);
+        }
+    }
+
+    /// <summary>
+    /// Represents the updated data of a notification setting for logging purposes.
+    /// </summary>
+    public class ProfessionalNotificationSettings
+    {
+        /// <summary>
+        /// Gets or sets the id of the user that made a change to professional notification settings.
+        /// </summary>
+        public int UserId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the uuid of the party that the user either added or removed from their professional notification settings.
+        /// </summary>
+        public Guid PartyUuid { get; set; }
+
+        /// <summary>
+        /// Gets or sets the phone number to use for SMS notifications.
+        /// </summary>
+        public string? PhoneNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the email address to use for email notifications.
+        /// </summary>
+        public string? Email { get; set; }
+
+        /// <summary>
+        /// Gets or sets the service options for which the reportee wants to receive notifications.
+        /// </summary>  
+        public string[] ServiceOptions { get; set; } = [];
+
+        /// <summary>
+        /// This method will deserialize the JSON representation of the <see cref="ProfessionalNotificationSettings"/> object.
+        /// </summary>
+        /// <returns>The object deserialized from JSON.</returns>
+        public static ProfessionalNotificationSettings? Deserialize(string data)
+        {
+            JsonSerializerSettings settings = new()
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
+
+            return JsonConvert.DeserializeObject<ProfessionalNotificationSettings>(data, settings);
         }
     }
 }

@@ -94,7 +94,7 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task DeleteFromFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        public async Task DeleteFromFavorites(int userId, Guid partyUuid, DateTime deleted, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
@@ -110,6 +110,10 @@ namespace Altinn.Profile.Integrations.Repositories
             }
 
             var partyGroupAssociation = favoriteGroup.Parties.First(p => p.PartyUuid == partyUuid);
+            if (partyGroupAssociation.Created > deleted)
+            {
+                return;
+            }
 
             databaseContext.PartyGroupAssociations.Remove(partyGroupAssociation);
             await databaseContext.SaveChangesAsync(cancellationToken);

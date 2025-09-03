@@ -7,6 +7,7 @@ using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Leases;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Altinn.Profile.Integrations.Persistence;
 
@@ -184,7 +185,7 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.UserId).IsRequired();
             entity.Property(e => e.EmailAddress).HasMaxLength(400);
             entity.Property(e => e.PhoneNumber).HasMaxLength(26);
-            entity.Property(e => e.LastChanged).HasDefaultValueSql("now()").ValueGeneratedOnAddOrUpdate().IsConcurrencyToken();
+            entity.Property(e => e.LastChanged).IsConcurrencyToken();
 
             entity.HasIndex(e => new { e.PartyUuid, e.UserId }, "ix_user_party_contact_info_party_uuid_user_id");
 

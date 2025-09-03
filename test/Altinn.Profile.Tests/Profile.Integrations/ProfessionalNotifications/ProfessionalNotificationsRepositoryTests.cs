@@ -305,5 +305,228 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             // Assert
             Assert.Null(result);
         }
+
+        [Fact]
+        public async Task AddOrUpdateNotificationAddressFromSyncAsync_WhenNew_AddsContactInfo()
+        {
+            // Arrange
+            int userId = 10;
+            Guid partyUuid = Guid.NewGuid();
+            var contactInfo = new UserPartyContactInfo
+            {
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = "sync@new.com",
+                PhoneNumber = "99999999",
+                UserPartyContactInfoResources = new List<UserPartyContactInfoResource>
+                {
+                    new() { ResourceId = "sync-res1" }
+                }
+            };
+
+            // Act
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(contactInfo, CancellationToken.None);
+            var stored = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(stored);
+            Assert.Equal("sync@new.com", stored.EmailAddress);
+            Assert.Equal("99999999", stored.PhoneNumber);
+            Assert.Single(stored.UserPartyContactInfoResources);
+            Assert.Equal("sync-res1", stored.UserPartyContactInfoResources[0].ResourceId);
+        }
+
+        [Fact]
+        public async Task AddOrUpdateNotificationAddressFromSyncAsync_WhenExists_UpdatesContactInfo()
+        {
+            // Arrange
+            int userId = 11;
+            Guid partyUuid = Guid.NewGuid();
+            var original = new UserPartyContactInfo
+            {
+                LastChanged = DateTime.UtcNow.AddDays(-1),
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = "original@sync.com",
+                PhoneNumber = "11111111",
+                UserPartyContactInfoResources = new List<UserPartyContactInfoResource>
+                {
+                    new() { ResourceId = "sync-res2" }
+                }
+            };
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(original, CancellationToken.None);
+
+            var updated = new UserPartyContactInfo
+            {
+                LastChanged = DateTime.UtcNow,
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = "updated@sync.com",
+                PhoneNumber = "22222222",
+                UserPartyContactInfoResources = new List<UserPartyContactInfoResource>
+                {
+                    new() { ResourceId = "sync-res3" }
+                }
+            };
+
+            // Act
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(updated, CancellationToken.None);
+            var stored = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(stored);
+            Assert.Equal("updated@sync.com", stored.EmailAddress);
+            Assert.Equal("22222222", stored.PhoneNumber);
+            Assert.Single(stored.UserPartyContactInfoResources);
+            Assert.Equal("sync-res3", stored.UserPartyContactInfoResources[0].ResourceId);
+        }
+
+        [Fact]
+        public async Task AddOrUpdateNotificationAddressFromSyncAsync_WhenUpdateISOlderThanCurrent_DoesNothing()
+        {
+            // Arrange
+            int userId = 11;
+            Guid partyUuid = Guid.NewGuid();
+            var original = new UserPartyContactInfo
+            {
+                LastChanged = DateTime.UtcNow,
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = "original@sync.com",
+                PhoneNumber = "11111111",
+                UserPartyContactInfoResources = new List<UserPartyContactInfoResource>
+                {
+                    new() { ResourceId = "sync-res2" }
+                }
+            };
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(original, CancellationToken.None);
+
+            var updated = new UserPartyContactInfo
+            {
+                LastChanged = DateTime.UtcNow.AddDays(-1),
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = "updated@sync.com",
+                PhoneNumber = "22222222",
+                UserPartyContactInfoResources = new List<UserPartyContactInfoResource>
+                {
+                    new() { ResourceId = "sync-res3" }
+                }
+            };
+
+            // Act
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(updated, CancellationToken.None);
+            var stored = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(stored);
+            Assert.Equal("original@sync.com", stored.EmailAddress);
+            Assert.Equal("11111111", stored.PhoneNumber);
+            Assert.Single(stored.UserPartyContactInfoResources);
+            Assert.Equal("sync-res2", stored.UserPartyContactInfoResources[0].ResourceId);
+        }
+
+        [Fact]
+        public async Task AddOrUpdateNotificationAddressFromSyncAsync_WhenRemovingResources_RemovesResource()
+        {
+            // Arrange
+            int userId = 12;
+            Guid partyUuid = Guid.NewGuid();
+            var contactInfo = new UserPartyContactInfo
+            {
+                LastChanged = DateTime.UtcNow.AddDays(-1),
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = "remove@sync.com",
+                UserPartyContactInfoResources = new List<UserPartyContactInfoResource>
+                {
+                    new() { ResourceId = "sync-res4" },
+                    new() { ResourceId = "sync-res5" }
+                }
+            };
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(contactInfo, CancellationToken.None);
+
+            var updated = new UserPartyContactInfo
+            {
+                LastChanged = DateTime.UtcNow,
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = "remove@sync.com",
+                UserPartyContactInfoResources = new List<UserPartyContactInfoResource>
+                {
+                    new() { ResourceId = "sync-res4" } // "sync-res5" removed
+                }
+            };
+
+            // Act
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(updated, CancellationToken.None);
+            var stored = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(stored);
+            Assert.Single(stored.UserPartyContactInfoResources);
+            Assert.Equal("sync-res4", stored.UserPartyContactInfoResources[0].ResourceId);
+        }
+
+        [Fact]
+        public async Task AddOrUpdateNotificationAddressFromSyncAsync_WhenEditingResources_UpdatesResource()
+        {
+            // Arrange
+            int userId = 13;
+            Guid partyUuid = Guid.NewGuid();
+            var contactInfo = new UserPartyContactInfo
+            {
+                UserId = userId,
+                PartyUuid = partyUuid,
+                LastChanged = DateTime.UtcNow.AddDays(-1),
+                EmailAddress = "edit@sync.com",
+                UserPartyContactInfoResources = new List<UserPartyContactInfoResource>
+                {
+                    new() { ResourceId = "sync-res6" }
+                }
+            };
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(contactInfo, CancellationToken.None);
+
+            var updated = new UserPartyContactInfo
+            {
+                LastChanged = DateTime.UtcNow,
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = "edit@sync.com",
+                UserPartyContactInfoResources = new List<UserPartyContactInfoResource>
+                {
+                    new() { ResourceId = "sync-res7" }
+                }
+            };
+
+            // Act
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(updated, CancellationToken.None);
+            var stored = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(stored);
+            Assert.Single(stored.UserPartyContactInfoResources);
+            Assert.Equal("sync-res7", stored.UserPartyContactInfoResources[0].ResourceId);
+        }
+
+        [Fact]
+        public async Task AddOrUpdateNotificationAddressFromSyncAsync_WhenCancellationRequested_ThrowsOperationCanceledException()
+        {
+            // Arrange
+            int userId = 14;
+            Guid partyUuid = Guid.NewGuid();
+            var contactInfo = new UserPartyContactInfo
+            {
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = "cancel@sync.com"
+            };
+            var cts = new CancellationTokenSource();
+            cts.Cancel();
+
+            // Act & Assert
+            await Assert.ThrowsAsync<OperationCanceledException>(
+                () => _repository.AddOrUpdateNotificationAddressFromSyncAsync(contactInfo, cts.Token));
+        }
     }
 }
