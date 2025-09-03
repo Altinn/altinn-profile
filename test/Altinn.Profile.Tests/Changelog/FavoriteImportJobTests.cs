@@ -90,6 +90,82 @@ public class FavoriteImportJobTests
             Times.AtLeastOnce);
     }
 
+    [Fact]
+    public async Task RunAsync_WhenChangelogDeletes_ProcessesChangeLogFromClient()
+    {
+        // Arrange
+        var logger = Mock.Of<ILogger<FavoriteImportJob>>();
+        var timeProvider = TimeProvider.System;
+
+        var changeLogClient = new Mock<IChangeLogClient>();
+        var changelogSyncMetadataRepository = new Mock<IChangelogSyncMetadataRepository>();
+        var favoriteSyncRepository = new Mock<IFavoriteSyncRepository>();
+
+        var testChangeDate = DateTime.UtcNow.AddDays(-1);
+
+        // Setup metadata repo to return a last sync date
+        changelogSyncMetadataRepository
+            .Setup(r => r.GetLatestSyncTimestampAsync(DataType.Favorites, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(testChangeDate);
+
+        // Setup a fake favorite and changelog item
+        var expectedUserId = 1;
+        var expectedPartyUuid = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        var favoriteJson = $"{{\"userId\":{expectedUserId},\"partyUuid\":\"{expectedPartyUuid}\"}}";
+        var changeLogItem = new ChangeLogItem
+        {
+            ProfileChangeLogId = 1,
+            ChangeDatetime = DateTime.UtcNow,
+            OperationType = OperationType.Delete,
+            DataType = DataType.Favorites,
+            DataObject = favoriteJson,
+            ChangeSource = 2,
+            LoggedDateTime = DateTime.UtcNow
+        };
+
+        var changeLog = new ChangeLog
+        {
+            ProfileChangeLogList = new List<ChangeLogItem> { changeLogItem }
+        };
+
+        // Setup the client to return the changelog once, then an empty list
+        var callCount = 0;
+        changeLogClient
+            .Setup(c => c.GetChangeLog(It.IsAny<DateTime>(), DataType.Favorites, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                callCount++;
+                return callCount == 1 ? changeLog : new ChangeLog { ProfileChangeLogList = new List<ChangeLogItem>() };
+            });
+
+        // Setup favorite repo to expect an add
+        favoriteSyncRepository
+            .Setup(r => r.DeleteFromFavorites(expectedUserId, expectedPartyUuid, changeLogItem.ChangeDatetime, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        var job = new TestableFavoriteImportJob(
+            logger,
+            changeLogClient.Object,
+            timeProvider,
+            changelogSyncMetadataRepository.Object,
+            favoriteSyncRepository.Object,
+            null);
+
+        // Act
+        await job.InvokeRunAsync(CancellationToken.None);
+
+        // Assert
+        favoriteSyncRepository.Verify(
+            r =>
+            r.DeleteFromFavorites(expectedUserId, expectedPartyUuid, changeLogItem.ChangeDatetime, It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        changeLogClient.Verify(
+            c =>
+            c.GetChangeLog(It.IsAny<DateTime>(), DataType.Favorites, It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce);
+    }
+
     private class TestableFavoriteImportJob : FavoriteImportJob
     {
         public TestableFavoriteImportJob(
