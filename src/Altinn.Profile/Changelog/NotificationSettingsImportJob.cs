@@ -93,7 +93,7 @@ namespace Altinn.Profile.Changelog
                             EmailAddress = notificationSetting.Email,
                             PhoneNumber = notificationSetting.PhoneNumber,
                             LastChanged = change.ChangeDatetime,
-                            UserPartyContactInfoResources = notificationSetting.ServiceOptions?.Where(r => !string.IsNullOrWhiteSpace(r)).Select(r => new UserPartyContactInfoResource { ResourceId = r }).ToList()
+                            UserPartyContactInfoResources = GetResourceIds(notificationSetting.ServiceOptions)
                         };
 
                         await _notificationSettingSyncRepository.AddOrUpdateNotificationAddressFromSyncAsync(userPartyContactInfo, cancellationToken);
@@ -107,6 +107,11 @@ namespace Altinn.Profile.Changelog
                 var lastChange = page.ProfileChangeLogList[^1].ChangeDatetime;
                 await _changelogSyncMetadataRepository.UpdateLatestChangeTimestampAsync(lastChange, DataType.ReporteeNotificationSettings);
             }
+        }
+
+        private static List<UserPartyContactInfoResource> GetResourceIds(string[] serviceOptions)
+        {
+            return serviceOptions?.Where(r => !string.IsNullOrWhiteSpace(r)).Select(r => new UserPartyContactInfoResource { ResourceId = "urn:altinn:resource:" + r }).ToList();   
         }
 
         private async IAsyncEnumerable<ChangeLog> GetChangeLogPage(DateTime from, [EnumeratorCancellation] CancellationToken cancellationToken)

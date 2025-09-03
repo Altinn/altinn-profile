@@ -43,7 +43,7 @@ public class NotificationSettingsImportJobTests
         var expectedPartyUuid = Guid.Parse("00000000-0000-0000-0000-000000000042");
         var expectedEmail = "test@example.com";
         var expectedPhone = "12345678";
-        var notificationSettingJson = $"{{\"userId\": {expectedUserId}, \"partyUuid\": \"{expectedPartyUuid}\", \"phoneNumber\": \"{expectedPhone}\", \"email\": \"{expectedEmail}\", \"serviceOptions\": [\"\"]}}";
+        var notificationSettingJson = $"{{\"userId\": {expectedUserId}, \"partyUuid\": \"{expectedPartyUuid}\", \"phoneNumber\": \"{expectedPhone}\", \"email\": \"{expectedEmail}\", \"serviceOptions\": [\"1234\"]}}";
         var changeLogItem = new ChangeLogItem
         {
             ProfileChangeLogId = 1,
