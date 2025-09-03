@@ -29,5 +29,13 @@ namespace Altinn.Profile.Integrations.Entities
         /// </summary>
         [Required]
         public DataType DataType { get; set; }
+
+        /// <summary>
+        /// Nanosecond part of the LastChangedDateTime
+        /// <!-- This is needed because DateTime in C# supports up to 100-nanosecond precision 10^-7 -->
+        /// <!-- PostgreSQL does not support nanosecond precision, so precision 10^-6-->
+        /// </summary>
+        [Required]
+        public int Nanosecond { get; set; }
     }
 }
