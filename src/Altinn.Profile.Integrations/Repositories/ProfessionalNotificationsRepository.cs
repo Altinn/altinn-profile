@@ -92,8 +92,6 @@ namespace Altinn.Profile.Integrations.Repositories
             }
 
             await databaseContext.SaveChangesAsync(cancellationToken);
-
-            return;
         }
 
         private static void HandleResourcesChange(UserPartyContactInfo contactInfo, UserPartyContactInfo existing)

@@ -28,7 +28,8 @@ public class ChangelogSyncMetadataRepository(IDbContextFactory<ProfileDbContext>
 
         // Reconstruct the DateTime with nanoseconds
         // AddTicks takes 100 nanoseconds per tick
-        lastSync.LastChangedDateTime = lastSync.LastChangedDateTime.AddTicks(lastSync.Nanosecond / 100);
+        var ticks = lastSync.Nanosecond / 100;
+        lastSync.LastChangedDateTime = lastSync.LastChangedDateTime.AddTicks(ticks);
         return lastSync.LastChangedDateTime;
     }
 
