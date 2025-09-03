@@ -17,7 +17,10 @@ public class ChangelogSyncMetadataRepository(IDbContextFactory<ProfileDbContext>
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var lastSync = await databaseContext.ChangelogSyncMetadata.FirstOrDefaultAsync(e => e.DataType == dataType, cancellationToken);
+        var lastSync = await databaseContext.ChangelogSyncMetadata
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.DataType == dataType, cancellationToken);
+
         if (lastSync == null)
         {
             return null;

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.PartyGroups;
 using Altinn.Profile.Models;
-using AltinnCore.Authentication.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

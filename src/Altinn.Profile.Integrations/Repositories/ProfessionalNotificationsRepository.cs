@@ -61,7 +61,7 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<bool> AddOrUpdateNotificationAddressFromSyncAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken = default)
+        public async Task AddOrUpdateNotificationAddressFromSyncAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken = default)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
@@ -69,18 +69,16 @@ namespace Altinn.Profile.Integrations.Repositories
                 .Include(g => g.UserPartyContactInfoResources)
                 .FirstOrDefaultAsync(g => g.UserId == contactInfo.UserId && g.PartyUuid == contactInfo.PartyUuid, cancellationToken);
 
-            bool wasAdded;
             if (existing == null)
             {
                 databaseContext.UserPartyContactInfo.Add(contactInfo);
-                wasAdded = true;
             }
             else
             {
                 if (contactInfo.LastChanged <= existing.LastChanged)
                 {
                     // No update needed as the existing record is more recent
-                    return false;
+                    return;
                 }
 
                 existing.EmailAddress = contactInfo.EmailAddress;
@@ -91,12 +89,11 @@ namespace Altinn.Profile.Integrations.Repositories
                 HandleResourcesChange(contactInfo, existing);
 
                 databaseContext.UserPartyContactInfo.Update(existing);
-                wasAdded = false;
             }
 
             await databaseContext.SaveChangesAsync(cancellationToken);
 
-            return wasAdded;
+            return;
         }
 
         private static void HandleResourcesChange(UserPartyContactInfo contactInfo, UserPartyContactInfo existing)

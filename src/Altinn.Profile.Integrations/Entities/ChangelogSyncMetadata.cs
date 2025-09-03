@@ -36,6 +36,7 @@ namespace Altinn.Profile.Integrations.Entities
         /// <!-- PostgreSQL does not support nanosecond precision, so precision 10^-6-->
         /// </summary>
         [Required]
+        [Range(0, 900)]
         public int Nanosecond { get; set; }
     }
 }

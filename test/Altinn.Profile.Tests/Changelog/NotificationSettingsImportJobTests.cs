@@ -80,7 +80,7 @@ public class NotificationSettingsImportJobTests
                 u.PhoneNumber == expectedPhone &&
                 u.UserPartyContactInfoResources != null),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+            .Returns(Task.CompletedTask);
 
         var job = new TestableNotificationSettingImportJob(
             logger,
