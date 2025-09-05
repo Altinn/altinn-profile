@@ -114,7 +114,7 @@ namespace Altinn.Profile.Controllers
                 PhoneNumber = request.PhoneNumber,
                 UserPartyContactInfoResources = request.ResourceIncludeList?.Select(resource => new UserPartyContactInfoResource
                 {
-                    ResourceId = resource
+                    ResourceId = ResourceIdFormatter.GetSanitizedResourceId(resource)
                 }).ToList()
             };
             var added = await _professionalNotificationsService.AddOrUpdateNotificationAddressAsync(userPartyContactInfo, cancellationToken);
