@@ -19,24 +19,17 @@ namespace Altinn.Profile.Integrations.Entities
         public required string LastChangedId { get; set; }
 
         /// <summary>
-        /// The time and date if last sync with changes
-        /// </summary>
-        [Required]
-        public DateTime LastChangedDateTime { get; set; }
-
-        /// <summary>
         /// What dataType this metadata is for.
         /// </summary>
         [Required]
         public DataType DataType { get; set; }
 
         /// <summary>
-        /// Nanosecond part of the LastChangedDateTime
-        /// <!-- This is needed because DateTime in C# supports up to 100-nanosecond precision 10^-7 -->
-        /// <!-- PostgreSQL does not support nanosecond precision, so precision 10^-6-->
+        /// The number of ticks (100 nanoseconds each) representing the last change time.
+        /// This is needed because DateTime in C# supports up to 100-nanosecond precision 10^-7
+        /// PostgreSQL does not support nanosecond precision, so precision 10^-6
         /// </summary>
         [Required]
-        [Range(0, 900)]
-        public int Nanosecond { get; set; }
+        public long LastChangeTicks { get; set; }
     }
 }

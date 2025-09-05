@@ -26,17 +26,15 @@ public class ChangelogSyncMetadataRepository(IDbContextFactory<ProfileDbContext>
             return null;
         }
 
-        // Reconstruct the DateTime with nanoseconds
-        // AddTicks takes 100 nanoseconds per tick
-        var ticks = lastSync.Nanosecond / 100;
-        lastSync.LastChangedDateTime = lastSync.LastChangedDateTime.AddTicks(ticks);
-        return lastSync.LastChangedDateTime;
+        var lastChangeDate = new DateTime(lastSync.LastChangeTicks, DateTimeKind.Utc);
+        return lastChangeDate;
     }
 
     /// <inheritdoc />
     public async Task<DateTime> UpdateLatestChangeTimestampAsync(DateTime updated, DataType dataType)
     {
-        var nano = updated.Nanosecond;
+        var ticks = updated.Ticks; // Get the datetime in ticks to keep precision of 100 nanoseconds
+
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
         var lastSync = await databaseContext.ChangelogSyncMetadata.FirstOrDefaultAsync(e => e.DataType == dataType);
         if (lastSync == null)
@@ -44,16 +42,14 @@ public class ChangelogSyncMetadataRepository(IDbContextFactory<ProfileDbContext>
             lastSync = new Entities.ChangelogSyncMetadata
             {
                 LastChangedId = Guid.NewGuid().ToString("N"),
-                LastChangedDateTime = updated,
                 DataType = dataType,
-                Nanosecond = nano
+                LastChangeTicks = ticks,
             };
             databaseContext.ChangelogSyncMetadata.Add(lastSync);
         }
         else
         {
-            lastSync.LastChangedDateTime = updated;
-            lastSync.Nanosecond = nano;
+            lastSync.LastChangeTicks = ticks;
             databaseContext.ChangelogSyncMetadata.Update(lastSync);
         }
 
