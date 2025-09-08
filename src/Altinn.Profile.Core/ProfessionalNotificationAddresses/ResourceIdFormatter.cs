@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
+﻿namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 {
     /// <summary>
     /// Provides methods for formatting and sanitizing resource IDs for professional notification addresses.
     /// </summary>
-    public class ResourceIdFormatter
+    public static class ResourceIdFormatter
     {
-        private readonly static string Prefix = "urn:altinn:resource:";
+        private readonly static string _prefix = "urn:altinn:resource:";
 
         /// <summary>
         /// Removes the standard resource prefix from the given resource ID, if present, and trims whitespace.
@@ -27,7 +21,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                 return string.Empty;
             }
 
-            return trimmedResourceId.StartsWith(Prefix, StringComparison.Ordinal) ? trimmedResourceId[Prefix.Length..] : trimmedResourceId;
+            return trimmedResourceId.StartsWith(_prefix, StringComparison.Ordinal) ? trimmedResourceId[_prefix.Length..] : trimmedResourceId;
         }
 
         /// <summary>
@@ -45,6 +39,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                 return string.Empty;
             }
 
-            return trimmedResourceId.StartsWith(Prefix, StringComparison.Ordinal) ? trimmedResourceId : $"{Prefix}{trimmedResourceId}";
-        }    }
+            return trimmedResourceId.StartsWith(_prefix, StringComparison.Ordinal) ? trimmedResourceId : $"{_prefix}{trimmedResourceId}";
+        }
+    }
 }
