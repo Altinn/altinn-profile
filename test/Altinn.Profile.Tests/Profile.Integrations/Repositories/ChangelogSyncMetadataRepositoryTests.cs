@@ -72,6 +72,22 @@ public class ChangelogSyncMetadataRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task GetLatestSyncTimestampAsync_WhenEntry_ReturnsTimestamp()
+    {
+        // Arrange
+        var timestamp = DateTime.UtcNow;
+        var dataType = DataType.ReporteeNotificationSettings;
+        await _repository.UpdateLatestChangeTimestampAsync(timestamp, dataType);
+
+        // Act
+        var updatedTime = await _repository.GetLatestSyncTimestampAsync(dataType, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(updatedTime);
+        Assert.Equal(timestamp, updatedTime);
+    }
+
+    [Fact]
     public async Task UpdateLatestChangeTimestampAsync_AddsAndReturnsUpdatedTime()
     {
         // Arrange
