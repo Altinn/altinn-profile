@@ -31,8 +31,7 @@ namespace Altinn.Profile.Tests.Profile.Core.ProfessionalNotificationAddresses
         public void AddPrefixToResourceId_ReturnsExpected(string input, string expected)
         {
             // Handle null input for AddPrefixToResourceId (method expects non-null, but trims and checks whitespace)
-            var safeInput = input ?? string.Empty;
-            var result = ResourceIdFormatter.AddPrefixToResourceId(safeInput);
+            var result = ResourceIdFormatter.AddPrefixToResourceId(input);
             Assert.Equal(expected, result);
         }
     }

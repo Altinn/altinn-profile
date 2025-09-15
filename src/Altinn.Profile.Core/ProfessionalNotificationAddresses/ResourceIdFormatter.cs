@@ -30,9 +30,9 @@
         /// </summary>
         /// <param name="resourceId">The resource ID to which the prefix should be added.</param>
         /// <returns>The resource ID with the standard prefix, or an empty string if input is null or whitespace.</returns>
-        public static string AddPrefixToResourceId(string resourceId)
+        public static string AddPrefixToResourceId(string? resourceId)
         {
-            var trimmedResourceId = resourceId.Trim();
+            var trimmedResourceId = resourceId?.Trim();
 
             if (string.IsNullOrWhiteSpace(trimmedResourceId))
             {
