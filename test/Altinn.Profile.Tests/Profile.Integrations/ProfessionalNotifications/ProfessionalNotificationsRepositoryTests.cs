@@ -2,11 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
+
 using Microsoft.EntityFrameworkCore;
+
 using Moq;
+
+using Wolverine;
+using Wolverine.EntityFrameworkCore;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
@@ -17,6 +25,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         private readonly ProfileDbContext _databaseContext;
         private readonly ProfessionalNotificationsRepository _repository;
         private readonly Mock<IDbContextFactory<ProfileDbContext>> _dbContextFactory;
+        private readonly Mock<IDbContextOutbox> _dbContextOutboxMock = new();
 
         public ProfessionalNotificationsRepositoryTests()
         {
@@ -31,7 +40,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 .Returns<CancellationToken>(ct => Task.FromResult(new ProfileDbContext(options)));
 
             _databaseContext = _dbContextFactory.Object.CreateDbContext();
-            _repository = new ProfessionalNotificationsRepository(_dbContextFactory.Object);
+            _repository = new ProfessionalNotificationsRepository(_dbContextFactory.Object, _dbContextOutboxMock.Object);
         }
 
         public void Dispose()
@@ -52,6 +61,29 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
 
                 _isDisposed = true;
             }
+        }
+
+        private void MockDbContextOutbox<TEvent>(Action<TEvent, DeliveryOptions> callback)
+        {
+            DbContext context = null;
+
+            _dbContextOutboxMock
+                .Setup(mock => mock.Enroll(It.IsAny<DbContext>()))
+                .Callback<DbContext>(ctx =>
+                {
+                    context = ctx;
+                });
+
+            _dbContextOutboxMock
+                .Setup(mock => mock.SaveChangesAndFlushMessagesAsync(It.IsAny<CancellationToken>()))
+                .Returns(async () =>
+                {
+                    await context.SaveChangesAsync();
+                });
+
+            _dbContextOutboxMock
+                .Setup(mock => mock.PublishAsync(It.IsAny<TEvent>(), null))
+                .Callback(callback);
         }
 
         private async Task SeedUserPartyContactInfo(int userId, Guid partyUuid, string email = null, string phone = null, List<UserPartyContactInfoResource> resources = null)
@@ -168,6 +200,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 EmailAddress = "updated@email.com"
             };
 
+            ProfessionalNotificationAddressAddedEvent actualEventRaised = null;
+            Action<ProfessionalNotificationAddressAddedEvent, DeliveryOptions> eventRaisingCallback = (ev, opts) => actualEventRaised = ev;
+            MockDbContextOutbox(eventRaisingCallback);
+
             await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
 
             // Act
@@ -181,6 +217,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         public async Task AddOrUpdateNotificationAddressAsync_WhenRemovingResources_ReturnsFalse()
         {
             // Arrange
+            ProfessionalNotificationAddressAddedEvent actualEventRaised = null;
+            Action<ProfessionalNotificationAddressAddedEvent, DeliveryOptions> eventRaisingCallback = (ev, opts) => actualEventRaised = ev;
+            MockDbContextOutbox(eventRaisingCallback);
+
             int userId = 1;
             Guid partyUuid = Guid.NewGuid();
             var contactInfo = new UserPartyContactInfo
@@ -221,6 +261,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         [Fact]
         public async Task AddOrUpdateNotificationAddressAsync_WhenEditingResources_ReturnsFalse()
         {
+            ProfessionalNotificationAddressAddedEvent actualEventRaised = null;
+            Action<ProfessionalNotificationAddressAddedEvent, DeliveryOptions> eventRaisingCallback = (ev, opts) => actualEventRaised = ev;
+            MockDbContextOutbox(eventRaisingCallback);
+
             // Arrange
             int userId = 1;
             Guid partyUuid = Guid.NewGuid();
@@ -262,6 +306,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         public async Task DeleteNotificationAddress_WhenExists_ReturnsContactInfoWithResources()
         {
             // Arrange
+            ProfessionalNotificationAddressAddedEvent actualEventRaised = null;
+            Action<ProfessionalNotificationAddressAddedEvent, DeliveryOptions> eventRaisingCallback = (ev, opts) => actualEventRaised = ev;
+            MockDbContextOutbox(eventRaisingCallback);
+
             int userId = 1;
             Guid partyUuid = Guid.NewGuid();
             var resources = new List<UserPartyContactInfoResource>

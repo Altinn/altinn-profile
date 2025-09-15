@@ -92,6 +92,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IPartyGroupRepository, PartyGroupRepository>();
         services.AddScoped<IProfessionalNotificationsRepository, ProfessionalNotificationsRepository>();
+        services.AddScoped<IProfessionalNotificationSyncRepository, ProfessionalNotificationsRepository>();
 
         services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString)
         .UseSnakeCaseNamingConvention());
