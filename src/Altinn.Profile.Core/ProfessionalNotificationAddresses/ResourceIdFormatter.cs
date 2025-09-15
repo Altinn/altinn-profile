@@ -5,7 +5,7 @@
     /// </summary>
     public static class ResourceIdFormatter
     {
-        private readonly static string _prefix = "urn:altinn:resource:";
+        private const string _prefix = "urn:altinn:resource:";
 
         /// <summary>
         /// Removes the standard resource prefix from the given resource ID, if present, and trims whitespace.

@@ -112,10 +112,11 @@ namespace Altinn.Profile.Controllers
                 PartyUuid = partyUuid,
                 EmailAddress = request.EmailAddress,
                 PhoneNumber = request.PhoneNumber,
-                UserPartyContactInfoResources = request.ResourceIncludeList?.Select(resource => new UserPartyContactInfoResource
-                {
-                    ResourceId = ResourceIdFormatter.GetSanitizedResourceId(resource)
-                }).ToList()
+                UserPartyContactInfoResources = request.ResourceIncludeList?
+                    .Select(resource => ResourceIdFormatter.GetSanitizedResourceId(resource))
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Select(s => new UserPartyContactInfoResource { ResourceId = s })
+                    .ToList()
             };
             var added = await _professionalNotificationsService.AddOrUpdateNotificationAddressAsync(userPartyContactInfo, cancellationToken);
 

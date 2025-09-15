@@ -51,7 +51,10 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// </summary>
         public List<string>? GetResourceIncludeList()
         {
-            return UserPartyContactInfoResources?.Select(x => ResourceIdFormatter.AddPrefixToResourceId(x.ResourceId)).ToList();
+            return UserPartyContactInfoResources?
+                .Select(x => ResourceIdFormatter.AddPrefixToResourceId(x.ResourceId))
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .ToList();
         }
     }
 }
