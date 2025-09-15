@@ -46,7 +46,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 PhoneNumber = "12345678",
                 UserPartyContactInfoResources = new List<UserPartyContactInfoResource>
                 {
-                    new() { ResourceId = "urn:altinn:resource:example" }
+                    new() { ResourceId = "app_example" }
                 }
             };
 
@@ -79,7 +79,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal("12345678", notificationAddresses.PhoneNumber);
             Assert.NotNull(notificationAddresses.ResourceIncludeList);
             Assert.Single(notificationAddresses.ResourceIncludeList);
-            Assert.Equal("urn:altinn:resource:example", notificationAddresses.ResourceIncludeList[0]);
+            Assert.Equal("urn:altinn:resource:app_example", notificationAddresses.ResourceIncludeList[0]);
         }
 
         [Fact]
@@ -331,11 +331,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Theory]
-        [InlineData("urn:altinn:resource:example")]
-        [InlineData("urn:altinn:resource:app_other_vale")]
-        [InlineData("urn:altinn:resource:ttd-resource-1")]
+        [InlineData("urn:altinn:resource:example", "example")]
+        [InlineData("urn:altinn:resource:app_other_vale", "app_other_vale")]
+        [InlineData("urn:altinn:resource:ttd-resource-1", "ttd-resource-1")]
 
-        public async Task PutNotificationAddress_WhenContactInfoIsNew_ReturnsCreated(string resource)
+        public async Task PutNotificationAddress_WhenContactInfoIsNew_ReturnsCreated(string resourceUrn, string sanitizedResourceId)
         {
             // Arrange
             const int UserId = 2516356;
@@ -345,7 +345,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 EmailAddress = "test@example.com",
                 PhoneNumber = "12345678",
-                ResourceIncludeList = [resource]
+                ResourceIncludeList = [resourceUrn]
             };
 
             _factory.ProfessionalNotificationsRepositoryMock
@@ -368,6 +368,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+            _factory.ProfessionalNotificationsRepositoryMock.Verify(
+                x => x.AddOrUpdateNotificationAddressAsync(
+                    It.Is<UserPartyContactInfo>(info =>
+                        info.UserPartyContactInfoResources.Count == 1 && info.UserPartyContactInfoResources[0].ResourceId == sanitizedResourceId),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
         }
 
         [Fact]
