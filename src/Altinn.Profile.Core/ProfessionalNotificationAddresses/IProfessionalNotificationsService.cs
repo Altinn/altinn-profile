@@ -15,6 +15,14 @@
         Task<UserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Retrieves all notification addresses for all parties for the specified user.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task with the return value containing the list of identified notification addresses or an empty list if there are none.</returns>
+        Task<IList<UserPartyContactInfo>> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Adds a new or updates an existing notification address for a user and party.
         /// Returns <c>true</c> if a new record was created, <c>false</c> if an existing record was updated.
         /// </summary>
