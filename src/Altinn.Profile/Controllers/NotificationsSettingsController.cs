@@ -85,7 +85,7 @@ namespace Altinn.Profile.Controllers
         [HttpGet("parties")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<IList<NotificationSettingsResponse>>> GetAll(CancellationToken cancellationToken)
+        public async Task<ActionResult<List<NotificationSettingsResponse>>> GetAll(CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {

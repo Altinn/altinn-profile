@@ -18,7 +18,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         }
 
         /// <inheritdoc/>
-        public async Task<IList<UserPartyContactInfo>> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken)
+        public async Task<List<UserPartyContactInfo>> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken)
         {
             // Delegates to repository, implement repository method if not present
             return await _professionalNotificationsRepository.GetAllNotificationAddressesForUserAsync(userId, cancellationToken);
