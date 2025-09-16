@@ -168,7 +168,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(contactInfos);
         
             SetupSblMock();
+            
+            // Authorize both parties for the user
             SetupAuthHandler(_factory, partyGuid1, UserId);
+            SetupAuthHandler(_factory, partyGuid2, UserId);
         
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties");
