@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         public NotificationsSettingsController(IProfessionalNotificationsService professionalNotificationsService)
         {
-             _professionalNotificationsService = professionalNotificationsService;
+            _professionalNotificationsService = professionalNotificationsService;
         }
 
         /// <summary>
@@ -73,6 +74,40 @@ namespace Altinn.Profile.Controllers
                 PhoneNumber = notificationAddress.PhoneNumber,
                 ResourceIncludeList = notificationAddress.GetResourceIncludeList(),
             };
+
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Get the notification addresses the current user has registered for all parties
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        [HttpGet("parties")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<IList<NotificationSettingsResponse>>> GetAll(CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            var notificationAddresses = await _professionalNotificationsService.GetAllNotificationAddressesAsync(userId, cancellationToken);
+
+            var response = notificationAddresses.Select(notificationAddress => new NotificationSettingsResponse
+            {
+                UserId = notificationAddress.UserId,
+                PartyUuid = notificationAddress.PartyUuid,
+                EmailAddress = notificationAddress.EmailAddress,
+                PhoneNumber = notificationAddress.PhoneNumber,
+                ResourceIncludeList = notificationAddress.GetResourceIncludeList(),
+            }).ToList();
 
             return Ok(response);
         }
