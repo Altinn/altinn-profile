@@ -85,6 +85,7 @@ namespace Altinn.Profile.Controllers
         /// <param name="cancellationToken">Cancellation token for the operation</param>
         [HttpGet("parties")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<List<NotificationSettingsResponse>>> GetAll(CancellationToken cancellationToken)
         {

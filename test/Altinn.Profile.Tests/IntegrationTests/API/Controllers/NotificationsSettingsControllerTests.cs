@@ -176,13 +176,19 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetAllNotificationAddresses_WhenNoUserId_ReturnsUnauthorized()
+        public async Task GetAllNotificationAddresses_WhenNoUserId_ReturnsBadRequest()
         {
             HttpClient client = _factory.CreateClient();
+
+            string token = PrincipalUtil.GetSystemUserToken(Guid.NewGuid());
+            
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, "profile/api/v1/users/current/notificationsettings/parties");
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-            Assert.NotNull(response);
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+
+            // Assert for BadRequest (400) if ClaimsHelper fails
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
