@@ -21,7 +21,7 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class NotificationsSettingsControllerTests(ProfileWebApplicationFactory<Program> factory) 
+    public class NotificationsSettingsControllerTests(ProfileWebApplicationFactory<Program> factory)
         : IClassFixture<ProfileWebApplicationFactory<Program>>
     {
         private readonly ProfileWebApplicationFactory<Program> _factory = factory;
@@ -127,6 +127,78 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetAllNotificationAddresses_WhenRepositoryReturnsEmpty_IsOkWithEmptyList()
+        {
+            const int UserId = 2516356;
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(x => x.GetAllNotificationAddressesForUserAsync(UserId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<UserPartyContactInfo>());
+            SetupSblMock();
+            
+            // SetupAuthHandler(_factory, Guid.NewGuid(), UserId);
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, "profile/api/v1/users/current/notificationsettings/parties");
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            Assert.NotNull(response);
+            Assert.True(response.IsSuccessStatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var addresses = JsonSerializer.Deserialize<List<NotificationSettingsResponse>>(responseContent, _serializerOptionsCamelCase);
+            Assert.Empty(addresses);
+        }
+
+        [Fact]
+        public async Task GetAllNotificationAddresses_WhenRepositoryReturnsMultiple_IsOkWithList()
+        {
+            const int UserId = 2516356;
+            var infos = new List<UserPartyContactInfo>
+            {
+                new UserPartyContactInfo { UserId = UserId, PartyUuid = Guid.NewGuid(), EmailAddress = "a@b.com", PhoneNumber = "1", UserPartyContactInfoResources = new List<UserPartyContactInfoResource> { new UserPartyContactInfoResource { ResourceId = "urn:altinn:resource:one" } } },
+                new UserPartyContactInfo { UserId = UserId, PartyUuid = Guid.NewGuid(), EmailAddress = "c@d.com", PhoneNumber = "2", UserPartyContactInfoResources = new List<UserPartyContactInfoResource> { new UserPartyContactInfoResource { ResourceId = "urn:altinn:resource:two" } } }
+            };
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(x => x.GetAllNotificationAddressesForUserAsync(UserId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(infos);
+            SetupSblMock();
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, "profile/api/v1/users/current/notificationsettings/parties");
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            Assert.NotNull(response);
+            Assert.True(response.IsSuccessStatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var addresses = JsonSerializer.Deserialize<List<NotificationSettingsResponse>>(responseContent, _serializerOptionsCamelCase);
+            Assert.Equal(2, addresses.Count);
+            Assert.Equal("a@b.com", addresses[0].EmailAddress);
+            Assert.Equal("c@d.com", addresses[1].EmailAddress);
+        }
+
+        [Fact]
+        public async Task GetAllNotificationAddresses_WhenNoUserId_ReturnsUnauthorized()
+        {
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, "profile/api/v1/users/current/notificationsettings/parties");
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetAllNotificationAddresses_WhenRepositoryThrowsException_ReturnsServerError()
+        {
+            const int UserId = 2516356;
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(x => x.GetAllNotificationAddressesForUserAsync(UserId, It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("fail"));
+            SetupSblMock();
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, "profile/api/v1/users/current/notificationsettings/parties");
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
         [Fact]
