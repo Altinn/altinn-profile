@@ -3,9 +3,7 @@ using System.Threading.Tasks;
 using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Handlers;
 using Altinn.Profile.Integrations.SblBridge;
-using Altinn.Profile.Integrations.SblBridge.User.Favorites;
 using Microsoft.Extensions.Options;
-using Moq;
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.Handlers;
@@ -13,7 +11,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Handlers;
 public class NotificationSettingsAddedHandlerTests
 {
     [Fact]
-    public async Task Handle_UpdateA2False_DoesNothing()
+    public async Task Handle_UpdateA2False_CompletesWithoutException()
     {
         // Arrange
         var settings = Options.Create(new SblBridgeSettings { UpdateA2 = false });
@@ -26,12 +24,13 @@ public class NotificationSettingsAddedHandlerTests
             PhoneNumber: "+4712345678",
             ResourceIds: ["resource1", "resource2"]);
 
-        // Act
-        await handler.Handle(evt);
+        // Act & Assert
+        var exception = await Record.ExceptionAsync(() => handler.Handle(evt));
+        Assert.Null(exception);
     }
 
     [Fact]
-    public async Task Handle_UpdateA2True_CompletesSuccessfully()
+    public async Task Handle_UpdateA2True_CompletesWithoutException()
     {
         // Arrange
         var settings = Options.Create(new SblBridgeSettings { UpdateA2 = true });
@@ -44,7 +43,8 @@ public class NotificationSettingsAddedHandlerTests
             PhoneNumber: "+4798765432",
             ResourceIds: ["resourceA", "resourceB"]);
 
-        // Act
-        await handler.Handle(evt);
+        // Act & Assert
+        var exception = await Record.ExceptionAsync(() => handler.Handle(evt));
+        Assert.Null(exception);
     }
 }
