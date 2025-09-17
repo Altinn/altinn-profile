@@ -16,9 +16,8 @@ public class NotificationSettingsUpdatedHandlerTests
     public async Task Handle_UpdateA2False_DoesNothing()
     {
         // Arrange
-        var clientMock = new Mock<IUserFavoriteClient>();
         var settings = Options.Create(new SblBridgeSettings { UpdateA2 = false });
-        var handler = new NotificationSettingsUpdatedHandler(clientMock.Object, settings);
+        var handler = new NotificationSettingsUpdatedHandler(settings);
         var evt = new NotificationSettingsUpdatedEvent(
             UserId: 789,
             PartyUuid: Guid.NewGuid(),
@@ -26,22 +25,18 @@ public class NotificationSettingsUpdatedHandlerTests
             EventTimestamp: DateTime.UtcNow,
             EmailAddress: "updateduser@example.com",
             PhoneNumber: "+4711122233",
-            ResourceIds: new[] { "resourceX", "resourceY" });
+            ResourceIds: ["resourceX", "resourceY"]);
 
         // Act
         await handler.Handle(evt);
-
-        // Assert
-        clientMock.VerifyNoOtherCalls();
     }
 
     [Fact]
     public async Task Handle_UpdateA2True_CompletesSuccessfully()
     {
         // Arrange
-        var clientMock = new Mock<IUserFavoriteClient>();
         var settings = Options.Create(new SblBridgeSettings { UpdateA2 = true });
-        var handler = new NotificationSettingsUpdatedHandler(clientMock.Object, settings);
+        var handler = new NotificationSettingsUpdatedHandler(settings);
         var evt = new NotificationSettingsUpdatedEvent(
             UserId: 1011,
             PartyUuid: Guid.NewGuid(),
@@ -49,12 +44,9 @@ public class NotificationSettingsUpdatedHandlerTests
             EventTimestamp: DateTime.UtcNow,
             EmailAddress: "anotherupdateduser@example.com",
             PhoneNumber: "+4799988877",
-            ResourceIds: new[] { "resourceZ", "resourceW" });
+            ResourceIds: ["resourceZ", "resourceW"]);
 
         // Act
         await handler.Handle(evt);
-
-        // Assert
-        clientMock.VerifyNoOtherCalls();
     }
 }

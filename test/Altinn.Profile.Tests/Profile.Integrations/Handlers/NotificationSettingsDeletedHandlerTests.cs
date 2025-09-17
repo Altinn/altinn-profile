@@ -16,9 +16,8 @@ public class NotificationSettingsDeletedHandlerTests
     public async Task Handle_UpdateA2False_DoesNothing()
     {
         // Arrange
-        var clientMock = new Mock<IUserFavoriteClient>();
         var settings = Options.Create(new SblBridgeSettings { UpdateA2 = false });
-        var handler = new NotificationSettingsDeletedHandler(clientMock.Object, settings);
+        var handler = new NotificationSettingsDeletedHandler(settings);
         var evt = new NotificationSettingsDeletedEvent(
             UserId: 2022,
             PartyUuid: Guid.NewGuid(),
@@ -27,18 +26,14 @@ public class NotificationSettingsDeletedHandlerTests
 
         // Act
         await handler.Handle(evt);
-
-        // Assert
-        clientMock.VerifyNoOtherCalls();
     }
 
     [Fact]
     public async Task Handle_UpdateA2True_CompletesSuccessfully()
     {
         // Arrange
-        var clientMock = new Mock<IUserFavoriteClient>();
         var settings = Options.Create(new SblBridgeSettings { UpdateA2 = true });
-        var handler = new NotificationSettingsDeletedHandler(clientMock.Object, settings);
+        var handler = new NotificationSettingsDeletedHandler(settings);
         var evt = new NotificationSettingsDeletedEvent(
             UserId: 2023,
             PartyUuid: Guid.NewGuid(),
@@ -47,8 +42,5 @@ public class NotificationSettingsDeletedHandlerTests
 
         // Act
         await handler.Handle(evt);
-
-        // Assert
-        clientMock.VerifyNoOtherCalls();
     }
 }

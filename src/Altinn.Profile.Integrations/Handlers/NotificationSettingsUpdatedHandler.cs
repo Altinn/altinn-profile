@@ -12,11 +12,9 @@ namespace Altinn.Profile.Integrations.Handlers;
 /// <remarks>
 /// Constructor for NotificationSettingsUpdatedHandler
 /// </remarks>
-/// <param name="client">The favorites client</param>
 /// <param name="settings">Config to indicate if the handler should update Altinn 2</param>
-public class NotificationSettingsUpdatedHandler(IUserFavoriteClient client, IOptions<SblBridgeSettings> settings)
+public class NotificationSettingsUpdatedHandler(IOptions<SblBridgeSettings> settings)
 {
-    private readonly IUserFavoriteClient _userFavoriteClient = client;
     private readonly bool _updatea2 = settings.Value.UpdateA2;
 
     /// <summary>

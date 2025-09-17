@@ -1,6 +1,5 @@
 using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.SblBridge;
-using Altinn.Profile.Integrations.SblBridge.User.Favorites;
 using Microsoft.Extensions.Options;
 using Wolverine.Attributes;
 
@@ -12,11 +11,9 @@ namespace Altinn.Profile.Integrations.Handlers;
 /// <remarks>
 /// Constructor for NotificationSettingsAddedHandler
 /// </remarks>
-/// <param name="client">The favorites client</param>
 /// <param name="settings">Config to indicate if the handler should update Altinn 2</param>
-public class NotificationSettingsAddedHandler(IUserFavoriteClient client, IOptions<SblBridgeSettings> settings)
+public class NotificationSettingsAddedHandler(IOptions<SblBridgeSettings> settings)
 {
-    private readonly IUserFavoriteClient _userFavoriteClient = client;
     private readonly bool _updatea2 = settings.Value.UpdateA2;
 
     /// <summary>
