@@ -29,5 +29,7 @@ public class NotificationSettingsAddedHandler(IUserFavoriteClient client, IOptio
         {
             return;
         }
+
+        await Task.CompletedTask;
     }
 }

@@ -29,5 +29,7 @@ public class NotificationSettingsDeletedHandler(IUserFavoriteClient client, IOpt
         {
             return;
         }
+
+        await Task.CompletedTask;
     }
 }
