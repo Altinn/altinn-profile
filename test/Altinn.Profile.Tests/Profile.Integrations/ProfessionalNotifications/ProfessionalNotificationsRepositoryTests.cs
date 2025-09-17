@@ -200,9 +200,9 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 EmailAddress = "updated@email.com"
             };
 
-            ProfessionalNotificationAddressAddedEvent actualEventRaised = null;
-            void EventRaisingCallback(ProfessionalNotificationAddressAddedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
-            MockDbContextOutbox((Action<ProfessionalNotificationAddressAddedEvent, DeliveryOptions>)EventRaisingCallback);
+            NotificationSettingsAddedEvent actualEventRaised = null;
+            void EventRaisingCallback(NotificationSettingsAddedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
+            MockDbContextOutbox((Action<NotificationSettingsAddedEvent, DeliveryOptions>)EventRaisingCallback);
 
             await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
 
@@ -211,17 +211,17 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
 
             // Assert
             Assert.False(result);
-            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<ProfessionalNotificationAddressAddedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
-            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<ProfessionalNotificationAddressUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
+            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<NotificationSettingsAddedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
+            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<NotificationSettingsUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
         }
 
         [Fact]
         public async Task AddOrUpdateNotificationAddressAsync_WhenRemovingResources_ReturnsFalse()
         {
             // Arrange
-            ProfessionalNotificationAddressAddedEvent actualEventRaised = null;
-            void EventRaisingCallback(ProfessionalNotificationAddressAddedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
-            MockDbContextOutbox((Action<ProfessionalNotificationAddressAddedEvent, DeliveryOptions>)EventRaisingCallback);
+            NotificationSettingsAddedEvent actualEventRaised = null;
+            void EventRaisingCallback(NotificationSettingsAddedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
+            MockDbContextOutbox((Action<NotificationSettingsAddedEvent, DeliveryOptions>)EventRaisingCallback);
 
             int userId = 1;
             Guid partyUuid = Guid.NewGuid();
@@ -259,16 +259,16 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             Assert.Equal("res1", storedValue.UserPartyContactInfoResources[0].ResourceId);
             Assert.Equal("some@value.com", storedValue.EmailAddress);
 
-            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<ProfessionalNotificationAddressAddedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
-            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<ProfessionalNotificationAddressUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
+            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<NotificationSettingsAddedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
+            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<NotificationSettingsUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
         }
 
         [Fact]
         public async Task AddOrUpdateNotificationAddressAsync_WhenEditingResources_ReturnsFalse()
         {
-            ProfessionalNotificationAddressAddedEvent actualEventRaised = null;
-            void EventRaisingCallback(ProfessionalNotificationAddressAddedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
-            MockDbContextOutbox((Action<ProfessionalNotificationAddressAddedEvent, DeliveryOptions>)EventRaisingCallback);
+            NotificationSettingsAddedEvent actualEventRaised = null;
+            void EventRaisingCallback(NotificationSettingsAddedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
+            MockDbContextOutbox((Action<NotificationSettingsAddedEvent, DeliveryOptions>)EventRaisingCallback);
 
             // Arrange
             int userId = 1;
@@ -306,17 +306,17 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             Assert.Equal("urn:altinn:resource:res2", storedValue.UserPartyContactInfoResources[0].ResourceId);
             Assert.Equal("some@value.com", storedValue.EmailAddress);
 
-            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<ProfessionalNotificationAddressAddedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
-            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<ProfessionalNotificationAddressUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
+            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<NotificationSettingsAddedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
+            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<NotificationSettingsUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteNotificationAddress_WhenExists_ReturnsContactInfoWithResources()
         {
             // Arrange
-            ProfessionalNotificationAddressDeletedEvent actualDeleteEventRaised = null;
-            void DeleteEventRaisingCallback(ProfessionalNotificationAddressDeletedEvent ev, DeliveryOptions opts) => actualDeleteEventRaised = ev;
-            MockDbContextOutbox((Action<ProfessionalNotificationAddressDeletedEvent, DeliveryOptions>)DeleteEventRaisingCallback);
+            NotificationSettingsDeletedEvent actualDeleteEventRaised = null;
+            void DeleteEventRaisingCallback(NotificationSettingsDeletedEvent ev, DeliveryOptions opts) => actualDeleteEventRaised = ev;
+            MockDbContextOutbox((Action<NotificationSettingsDeletedEvent, DeliveryOptions>)DeleteEventRaisingCallback);
 
             int userId = 1;
             Guid partyUuid = Guid.NewGuid();
@@ -347,7 +347,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
 
             Assert.Null(shouldBeEmpty); // Ensure the contact info is deleted
 
-            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<ProfessionalNotificationAddressDeletedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
+            _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<NotificationSettingsDeletedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
         }
 
         [Fact]

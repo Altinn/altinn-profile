@@ -7,7 +7,7 @@
     /// <param name="PartyUuid">The unique identifier of the party.</param>
     /// <param name="CreationTimestamp">The timestamp when the event was created.</param>
     /// <param name="EventTimestamp">The timestamp when the event occurred.</param>
-    public record ProfessionalNotificationAddressDeletedEvent(
+    public record NotificationSettingsDeletedEvent(
         int UserId,
         Guid PartyUuid,
         DateTime CreationTimestamp,

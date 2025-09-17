@@ -44,7 +44,7 @@ namespace Altinn.Profile.Integrations.Repositories
                 databaseContext.UserPartyContactInfo.Add(contactInfo);
                 wasAdded = true;
 
-                ProfessionalNotificationAddressAddedEvent NotifyAddressAdded() => new(contactInfo.UserId, contactInfo.PartyUuid, DateTime.UtcNow);
+                NotificationSettingsAddedEvent NotifyAddressAdded() => new(contactInfo.UserId, contactInfo.PartyUuid, DateTime.UtcNow, contactInfo.EmailAddress, contactInfo.PhoneNumber, contactInfo.UserPartyContactInfoResources?.Select(r => r.ResourceId.ToString()).ToArray());
                 await NotifyAndSave(databaseContext, NotifyAddressAdded, cancellationToken);
             }
             else
@@ -58,7 +58,7 @@ namespace Altinn.Profile.Integrations.Repositories
 
                 databaseContext.UserPartyContactInfo.Update(existing);
                 wasAdded = false;
-                ProfessionalNotificationAddressUpdatedEvent NotifyAddressUpdated() => new(contactInfo.UserId, contactInfo.PartyUuid, existing.LastChanged, DateTime.UtcNow);
+                NotificationSettingsUpdatedEvent NotifyAddressUpdated() => new(contactInfo.UserId, contactInfo.PartyUuid, existing.LastChanged, DateTime.UtcNow, contactInfo.EmailAddress, contactInfo.PhoneNumber, contactInfo.UserPartyContactInfoResources?.Select(r => r.ResourceId.ToString()).ToArray());
                 await NotifyAndSave(databaseContext, NotifyAddressUpdated, cancellationToken);
             }
 
@@ -82,7 +82,7 @@ namespace Altinn.Profile.Integrations.Repositories
 
             databaseContext.UserPartyContactInfo.Remove(userPartyContactInfo);
 
-            ProfessionalNotificationAddressDeletedEvent NotifyAddressDeleted() => new(userId, partyUuid, userPartyContactInfo.LastChanged, DateTime.UtcNow);
+            NotificationSettingsDeletedEvent NotifyAddressDeleted() => new(userId, partyUuid, userPartyContactInfo.LastChanged, DateTime.UtcNow);
             await NotifyAndSave(databaseContext, NotifyAddressDeleted, cancellationToken);
 
             return userPartyContactInfo;
