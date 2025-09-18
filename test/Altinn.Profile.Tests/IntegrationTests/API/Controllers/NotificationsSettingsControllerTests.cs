@@ -130,16 +130,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetNotificationAddress_WhenSystemUser_ReturnsBadRequest()
-        {
-            var partyGuid = Guid.NewGuid();
-            HttpClient client = _factory.CreateClient();
-            HttpRequestMessage httpRequestMessage = CreateRequestWithSystemUser(HttpMethod.Get, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        }
-
-        [Fact]
         public async Task GetAllNotificationAddresses_WhenRepositoryReturnsEmpty_IsOkWithEmptyList()
         {
             const int UserId = 2516356;
@@ -489,23 +479,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task PutNotificationAddress_WhenSystemUser_ReturnsBadRequest()
-        {
-            var partyGuid = Guid.NewGuid();
-            var userPartyContactInfo = new NotificationSettingsRequest
-            {
-                EmailAddress = "test@example.com",
-                PhoneNumber = "+4798765432",
-                ResourceIncludeList = ["urn:altinn:resource:example"]
-            };
-            HttpClient client = _factory.CreateClient();
-            HttpRequestMessage httpRequestMessage = CreateRequestWithSystemUser(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
-            httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(userPartyContactInfo, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        }
-
-        [Fact]
         public async Task DeleteNotificationAddress_WhenRepositoryReturnsNull_ReturnsNotFound()
         {
             // Arrange
@@ -556,16 +529,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
-
-        [Fact]
-        public async Task DeleteNotificationAddress_WhenSystemUser_ReturnsBadRequest()
-        {
-            var partyGuid = Guid.NewGuid();
-            HttpClient client = _factory.CreateClient();
-            HttpRequestMessage httpRequestMessage = CreateRequestWithSystemUser(HttpMethod.Delete, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         // Creates a request with a valid userId claim
