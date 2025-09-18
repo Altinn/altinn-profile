@@ -22,7 +22,7 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="userId">The ID of the user.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task with the return value containing a list of notification addresses.</returns>
-        Task<List<UserPartyContactInfo>> GetAllNotificationAddressesForUserAsync(int userId, CancellationToken cancellationToken);
+        Task<IReadOnlyList<UserPartyContactInfo>> GetAllNotificationAddressesForUserAsync(int userId, CancellationToken cancellationToken);
 
         /// <summary>
         /// Adds a new or updates an existing notification address for a user and party.

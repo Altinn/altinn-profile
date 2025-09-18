@@ -86,8 +86,9 @@ namespace Altinn.Profile.Controllers
         [HttpGet("parties")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<List<NotificationSettingsResponse>>> GetAll(CancellationToken cancellationToken)
+        public async Task<ActionResult<IReadOnlyList<NotificationSettingsResponse>>> GetAll(CancellationToken cancellationToken)
         {
             var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
             if (validationResult != null)

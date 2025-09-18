@@ -172,6 +172,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var addresses = JsonSerializer.Deserialize<List<NotificationSettingsResponse>>(responseContent, _serializerOptionsCamelCase);
             Assert.Equal(2, addresses.Count);
             Assert.Equal("a@b.com", addresses[0].EmailAddress);
+            Assert.Single(addresses[0].ResourceIncludeList);
+            Assert.Equal("urn:altinn:resource:one", addresses[0].ResourceIncludeList[0]);
             Assert.Equal("c@d.com", addresses[1].EmailAddress);
         }
 
