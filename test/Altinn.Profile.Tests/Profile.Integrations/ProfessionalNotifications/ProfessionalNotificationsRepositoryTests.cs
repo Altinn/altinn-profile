@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
@@ -7,6 +8,7 @@ using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
@@ -129,6 +131,49 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         }
 
         [Fact]
+        public async Task GetAllNotificationAddressesForUserAsync_WhenMultipleExist_ReturnsAllContactInfos()
+        {
+            // Arrange
+            int userId = 42;
+            Guid partyUuid1 = Guid.NewGuid();
+            Guid partyUuid2 = Guid.NewGuid();
+
+            var resources1 = new List<UserPartyContactInfoResource>
+            {
+                new UserPartyContactInfoResource { ResourceId = "resA" }
+            };
+            var resources2 = new List<UserPartyContactInfoResource>
+            {
+                new UserPartyContactInfoResource { ResourceId = "resB" }
+            };
+
+            await SeedUserPartyContactInfo(userId, partyUuid1, "first@example.com", "11111111", resources1);
+            await SeedUserPartyContactInfo(userId, partyUuid2, "second@example.com", "22222222", resources2);
+
+            // Act
+            var result = await _repository.GetAllNotificationAddressesForUserAsync(userId, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+
+            var first = result.FirstOrDefault(c => c.PartyUuid == partyUuid1);
+            var second = result.FirstOrDefault(c => c.PartyUuid == partyUuid2);
+
+            Assert.NotNull(first);
+            Assert.Equal("first@example.com", first.EmailAddress);
+            Assert.Equal("11111111", first.PhoneNumber);
+            Assert.Single(first.UserPartyContactInfoResources);
+            Assert.Equal("resA", first.UserPartyContactInfoResources[0].ResourceId);
+
+            Assert.NotNull(second);
+            Assert.Equal("second@example.com", second.EmailAddress);
+            Assert.Equal("22222222", second.PhoneNumber);
+            Assert.Single(second.UserPartyContactInfoResources);
+            Assert.Equal("resB", second.UserPartyContactInfoResources[0].ResourceId);
+        }
+
+        [Fact]
         public async Task AddOrUpdateNotificationAddressAsync_WhenNew_ReturnsTrue()
         {
             // Arrange 
@@ -241,7 +286,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 EmailAddress = "some@value.com",
                 UserPartyContactInfoResources =
                 [
-                    new() { ResourceId = "urn:altinn:resource:res2" } 
+                    new() { ResourceId = "urn:altinn:resource:res2" }
                 ]
             };
             await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
@@ -266,7 +311,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             Guid partyUuid = Guid.NewGuid();
             var resources = new List<UserPartyContactInfoResource>
             {
-                new() 
+                new()
                 {
                     ResourceId = "res1",
                     UserPartyContactInfo = null! // Will be set by EF

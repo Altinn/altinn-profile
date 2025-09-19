@@ -12,7 +12,7 @@ public record NotificationAddressChangesLog
     /// The collection of snapshots representing the changes to notification addresses of an organization.
     /// </summary>
     [JsonPropertyName("entries")]
-    public IList<Entry>? OrganizationNotificationAddressList { get; init; }
+    public List<Entry>? OrganizationNotificationAddressList { get; init; }
 
     /// <summary>
     /// The title of this change log page.

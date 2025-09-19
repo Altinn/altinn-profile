@@ -1,0 +1,1 @@
+CREATE INDEX ix_user_party_contact_info_user_id ON professional_notification_settings.user_party_contact_info (user_id);
