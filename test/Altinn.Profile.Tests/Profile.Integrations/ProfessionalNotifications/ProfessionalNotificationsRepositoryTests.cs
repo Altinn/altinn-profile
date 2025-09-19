@@ -78,7 +78,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 .Setup(mock => mock.SaveChangesAndFlushMessagesAsync(It.IsAny<CancellationToken>()))
                 .Returns(async () =>
                 {
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(CancellationToken.None);
                 });
 
             _dbContextOutboxMock

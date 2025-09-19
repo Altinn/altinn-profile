@@ -71,7 +71,6 @@ namespace Altinn.Profile.Integrations.Repositories
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
             var userPartyContactInfo = await databaseContext.UserPartyContactInfo
-                .AsNoTracking()
                 .Include(g => g.UserPartyContactInfoResources)
                 .FirstOrDefaultAsync(g => g.UserId == userId && g.PartyUuid == partyUuid, cancellationToken);
 
@@ -165,7 +164,6 @@ namespace Altinn.Profile.Integrations.Repositories
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
             var userPartyContactInfo = await databaseContext.UserPartyContactInfo
-                .AsNoTracking()
                 .Include(g => g.UserPartyContactInfoResources)
                 .FirstOrDefaultAsync(g => g.UserId == userId && g.PartyUuid == partyUuid, cancellationToken);
 
