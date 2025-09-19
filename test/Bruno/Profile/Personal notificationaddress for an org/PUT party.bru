@@ -5,17 +5,17 @@ meta {
 }
 
 put {
-  url: {{ProfileBaseAddress}}/api/v1/users/current/notificationsettings/parties/{{partyUuid}}
+  url: {{ProfileBaseAddress}}/api/v1/users/current/notificationsettings/parties/acd3c57c-d5a9-4b09-b97a-f304b4ac61fe
   body: json
   auth: inherit
 }
 
 body:json {
   {
-    "emailAddress": "test@test.no",
+    "emailAddress": "sigrid.bratsberg@digdir.no",
     "phoneNumber": "+1234567890",
     "resourceIncludeList": [
-      "some-val"
+      "urn:altinn:resource:app_apps-test"
     ]
   }
 }
