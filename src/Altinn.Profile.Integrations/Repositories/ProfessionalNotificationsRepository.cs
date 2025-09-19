@@ -1,15 +1,17 @@
-﻿using System.Security.Cryptography.Pkcs;
-
-using Altinn.Profile.Core.Integrations;
+﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;
 
+using Wolverine.EntityFrameworkCore;
+
 namespace Altinn.Profile.Integrations.Repositories
 {
     /// <inheritdoc/>
-    public class ProfessionalNotificationsRepository(IDbContextFactory<ProfileDbContext> contextFactory) : IProfessionalNotificationsRepository
+    public class ProfessionalNotificationsRepository(IDbContextFactory<ProfileDbContext> contextFactory, IDbContextOutbox databaseContextOutbox) 
+        : EFCoreTransactionalOutbox(databaseContextOutbox), IProfessionalNotificationsRepository, IProfessionalNotificationSyncRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
@@ -27,6 +29,21 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
+        public async Task<IReadOnlyList<UserPartyContactInfo>> GetAllNotificationAddressesForUserAsync(int userId, CancellationToken cancellationToken)
+        {
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+            var contactInfos = await databaseContext.UserPartyContactInfo
+                .AsNoTracking()
+                .Include(g => g.UserPartyContactInfoResources)
+                .AsSplitQuery()
+                .Where(g => g.UserId == userId)
+                .ToListAsync(cancellationToken);
+
+            return contactInfos;
+        }
+
+        /// <inheritdoc/>
         public async Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken = default)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
@@ -41,6 +58,9 @@ namespace Altinn.Profile.Integrations.Repositories
                 contactInfo.LastChanged = DateTime.UtcNow;
                 databaseContext.UserPartyContactInfo.Add(contactInfo);
                 wasAdded = true;
+
+                NotificationSettingsAddedEvent NotifyAddressAdded() => new(contactInfo.UserId, contactInfo.PartyUuid, DateTime.UtcNow, contactInfo.EmailAddress, contactInfo.PhoneNumber, contactInfo.UserPartyContactInfoResources?.Select(r => r.ResourceId.ToString()).ToArray());
+                await NotifyAndSave(databaseContext, NotifyAddressAdded, cancellationToken);
             }
             else
             {
@@ -53,11 +73,33 @@ namespace Altinn.Profile.Integrations.Repositories
 
                 databaseContext.UserPartyContactInfo.Update(existing);
                 wasAdded = false;
+                NotificationSettingsUpdatedEvent NotifyAddressUpdated() => new(contactInfo.UserId, contactInfo.PartyUuid, existing.LastChanged, DateTime.UtcNow, contactInfo.EmailAddress, contactInfo.PhoneNumber, contactInfo.UserPartyContactInfoResources?.Select(r => r.ResourceId.ToString()).ToArray());
+                await NotifyAndSave(databaseContext, NotifyAddressUpdated, cancellationToken);
             }
 
-            await databaseContext.SaveChangesAsync(cancellationToken);
-
             return wasAdded;
+        }
+
+        /// <inheritdoc/>
+        public async Task<UserPartyContactInfo?> DeleteNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        {
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+            var userPartyContactInfo = await databaseContext.UserPartyContactInfo
+                .Include(g => g.UserPartyContactInfoResources)
+                .FirstOrDefaultAsync(g => g.UserId == userId && g.PartyUuid == partyUuid, cancellationToken);
+
+            if (userPartyContactInfo == null)
+            {
+                return null;
+            }
+
+            databaseContext.UserPartyContactInfo.Remove(userPartyContactInfo);
+
+            NotificationSettingsDeletedEvent NotifyAddressDeleted() => new(userId, partyUuid, userPartyContactInfo.LastChanged, DateTime.UtcNow);
+            await NotifyAndSave(databaseContext, NotifyAddressDeleted, cancellationToken);
+
+            return userPartyContactInfo;
         }
 
         /// <inheritdoc/>
@@ -132,12 +174,11 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<UserPartyContactInfo?> DeleteNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        public async Task<UserPartyContactInfo?> DeleteNotificationAddressFromSyncAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
             var userPartyContactInfo = await databaseContext.UserPartyContactInfo
-                .AsNoTracking()
                 .Include(g => g.UserPartyContactInfoResources)
                 .FirstOrDefaultAsync(g => g.UserId == userId && g.PartyUuid == partyUuid, cancellationToken);
 

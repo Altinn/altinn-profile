@@ -188,6 +188,7 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.LastChanged).IsConcurrencyToken();
 
             entity.HasIndex(e => new { e.PartyUuid, e.UserId }, "ix_user_party_contact_info_party_uuid_user_id");
+            entity.HasIndex(e => e.UserId, "ix_user_party_contact_info_user_id");
 
             entity.HasMany(e => e.UserPartyContactInfoResources)
                     .WithOne(n => n.UserPartyContactInfo)

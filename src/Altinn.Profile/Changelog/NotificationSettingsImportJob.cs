@@ -24,7 +24,7 @@ namespace Altinn.Profile.Changelog
         private readonly TimeProvider _timeProvider;
         private readonly IChangeLogClient _changeLogClient;
         private readonly IChangelogSyncMetadataRepository _changelogSyncMetadataRepository;
-        private readonly IProfessionalNotificationsRepository _notificationSettingSyncRepository;
+        private readonly IProfessionalNotificationSyncRepository _notificationSettingSyncRepository;
         private readonly Telemetry _telemetry;
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Altinn.Profile.Changelog
             IChangeLogClient changeLogClient,
             TimeProvider timeProvider,
             IChangelogSyncMetadataRepository changelogSyncMetadataRepository,
-            IProfessionalNotificationsRepository notificationSettingSyncRepository,
+            IProfessionalNotificationSyncRepository notificationSettingSyncRepository,
             Telemetry telemetry = null)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -100,7 +100,7 @@ namespace Altinn.Profile.Changelog
                     }
                     else if (change.OperationType == OperationType.Delete)
                     {
-                        await _notificationSettingSyncRepository.DeleteNotificationAddressAsync(notificationSetting.UserId, notificationSetting.PartyUuid, cancellationToken);
+                        await _notificationSettingSyncRepository.DeleteNotificationAddressFromSyncAsync(notificationSetting.UserId, notificationSetting.PartyUuid, cancellationToken);
                     }
                 }
 
