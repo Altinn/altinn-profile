@@ -29,7 +29,7 @@ public class NotificationSettingsImportJobTests
 
         var changeLogClient = new Mock<IChangeLogClient>();
         var changelogSyncMetadataRepository = new Mock<IChangelogSyncMetadataRepository>();
-        var notificationSettingSyncRepository = new Mock<IProfessionalNotificationsRepository>();
+        var notificationSettingSyncRepository = new Mock<IProfessionalNotificationSyncRepository>();
 
         var testChangeDate = DateTime.UtcNow.AddDays(-1);
 
@@ -123,7 +123,7 @@ public class NotificationSettingsImportJobTests
             IChangeLogClient changeLogClient,
             TimeProvider timeProvider,
             IChangelogSyncMetadataRepository changelogSyncMetadataRepository,
-            IProfessionalNotificationsRepository notificationSettingSyncRepository,
+            IProfessionalNotificationSyncRepository notificationSettingSyncRepository,
             Telemetry telemetry = null)
             : base(logger, changeLogClient, timeProvider, changelogSyncMetadataRepository, notificationSettingSyncRepository, telemetry)
         {

@@ -36,15 +36,6 @@ namespace Altinn.Profile.Core.Integrations
         Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Adds a new or updates an existing notification address for a user and party.
-        /// </summary>
-        /// <param name="contactInfo">The contact info to be added</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A <see cref="Task"/> containing a boolean value indicating if the value was added or not.         
-        /// </returns>
-        Task AddOrUpdateNotificationAddressFromSyncAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken = default);
-
-        /// <summary>
         /// Deletes the notification addresses that the given user has associated with the given party.
         /// </summary>
         /// <param name="userId">The ID of the user.</param>
