@@ -6,7 +6,7 @@
     public class NotificationSettingsChangedRequest
     {
         /// <summary>
-        /// Gets or sets the type of change. Supported values are "insert" and "delete".
+        /// Gets or sets the type of change. Supported values are "insert", "update" and "delete".
         /// </summary>
         public required string ChangeType { get; set; }
 
@@ -16,29 +16,33 @@
         public DateTime ChangeDateTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the id of the user that made a change to reportee notification settings.
+        /// Gets or sets the ID of the user.
         /// </summary>
         public int UserId { get; set; }
 
         /// <summary>
-        /// Gets or sets the uuid of the party that the user either added or removed from their reportee notification settings.
+        /// Gets or sets the UUID of the added or removed favorite party.
         /// </summary>
         public Guid PartyUuid { get; set; }
 
         /// <summary>
-        /// Gets or sets the phone number to use for SMS notifications.
-        /// </summary>
-        public string? PhoneNumber { get; set; }
-
-        /// <summary>
-        /// Gets or sets the email address to use for email notifications.
+        /// Gets or sets the Email endpoint of the reportee specific to a user
         /// </summary>
         public string? Email { get; set; }
 
         /// <summary>
-        /// Gets or sets the service options for which the reportee wants to receive notifications.
-        /// </summary>  
-        public string[]? ServiceOptions { get; set; }
+        /// Gets or sets the Phone number endpoint of the reportee specific to a user
+        /// </summary>
+        public string? PhoneNumber { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Last modified timestamp of the reportee specific to a user
+        /// </summary>
+        public DateTime LastModified { get; set; }
+
+        /// <summary>
+        /// Gets or sets notification options chosen for specific services by the user for the reportee
+        /// </summary>
+        public string[]? ServiceNotificationOptions { get; set; }
     }
 }

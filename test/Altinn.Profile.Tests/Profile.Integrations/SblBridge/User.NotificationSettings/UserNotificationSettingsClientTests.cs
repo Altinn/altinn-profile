@@ -71,7 +71,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.User.NotificationS
                 PartyUuid = Guid.NewGuid(),
                 PhoneNumber = "+4712345678",
                 Email = "user@example.com",
-                ServiceOptions = new[] { "option1", "option2" }
+                ServiceNotificationOptions = new[] { "option1", "option2" }
             };
             var response = new HttpResponseMessage(HttpStatusCode.OK);
             HttpRequestMessage sentRequest = null;
@@ -95,7 +95,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.User.NotificationS
             Assert.Equal(request.PartyUuid, sentPayload.PartyUuid);
             Assert.Equal(request.PhoneNumber, sentPayload.PhoneNumber);
             Assert.Equal(request.Email, sentPayload.Email);
-            Assert.Equal(request.ServiceOptions, sentPayload.ServiceOptions);
+            Assert.Equal(request.ServiceNotificationOptions, sentPayload.ServiceNotificationOptions);
             _loggerMock.Verify(
                 x => x.Log(
                     LogLevel.Error,
@@ -118,7 +118,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.User.NotificationS
                 PartyUuid = Guid.NewGuid(),
                 PhoneNumber = "+4798765432",
                 Email = "other@example.com",
-                ServiceOptions = new[] { "optionA" }
+                ServiceNotificationOptions = new[] { "optionA" }
             };
             var errorMessage = "Something went wrong";
             var response = new HttpResponseMessage(HttpStatusCode.BadRequest)
@@ -155,7 +155,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.User.NotificationS
                 PartyUuid = Guid.NewGuid(),
                 PhoneNumber = null,
                 Email = null,
-                ServiceOptions = null
+                ServiceNotificationOptions = null
             };
             var errorMessage = "Internal server error";
             var response = new HttpResponseMessage(HttpStatusCode.InternalServerError)
