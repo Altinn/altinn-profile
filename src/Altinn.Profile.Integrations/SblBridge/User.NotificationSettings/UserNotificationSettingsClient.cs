@@ -36,14 +36,14 @@ public class UserNotificationSettingsClient : IUserNotificationSettingsClient
         string endpoint = $"users/reporteenotificationendpoint/update";
 
         StringContent requestBody = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
-
+        
         HttpResponseMessage response = await _client.PostAsync(endpoint, requestBody);
 
         if (!response.IsSuccessStatusCode)
         {
             if (response.StatusCode is HttpStatusCode.InternalServerError or HttpStatusCode.ServiceUnavailable)
             {
-                throw new InternalServerErrorException("Received error response while updating favorites.");
+                throw new InternalServerErrorException("Received error response while updating notification settings.");
             }
 
             _logger.LogError(
