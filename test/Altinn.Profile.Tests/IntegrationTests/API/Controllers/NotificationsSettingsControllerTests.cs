@@ -21,7 +21,7 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class NotificationsSettingsControllerTests(ProfileWebApplicationFactory<Program> factory) 
+    public class NotificationsSettingsControllerTests(ProfileWebApplicationFactory<Program> factory)
         : IClassFixture<ProfileWebApplicationFactory<Program>>
     {
         private readonly ProfileWebApplicationFactory<Program> _factory = factory;
@@ -46,7 +46,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 PhoneNumber = "12345678",
                 UserPartyContactInfoResources = new List<UserPartyContactInfoResource>
                 {
-                    new() { ResourceId = "urn:altinn:resource:example" }
+                    new() { ResourceId = "app_example" }
                 }
             };
 
@@ -59,7 +59,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
+            HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -79,7 +79,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal("12345678", notificationAddresses.PhoneNumber);
             Assert.NotNull(notificationAddresses.ResourceIncludeList);
             Assert.Single(notificationAddresses.ResourceIncludeList);
-            Assert.Equal("urn:altinn:resource:example", notificationAddresses.ResourceIncludeList[0]);
+            Assert.Equal("urn:altinn:resource:app_example", notificationAddresses.ResourceIncludeList[0]);
         }
 
         [Fact]
@@ -98,7 +98,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
+            HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -127,6 +127,78 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetAllNotificationAddresses_WhenRepositoryReturnsEmpty_IsOkWithEmptyList()
+        {
+            const int UserId = 2516356;
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(x => x.GetAllNotificationAddressesForUserAsync(UserId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<UserPartyContactInfo>());
+            SetupSblMock();
+            
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Get, UserId, "profile/api/v1/users/current/notificationsettings/parties");
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            Assert.NotNull(response);
+            Assert.True(response.IsSuccessStatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var addresses = JsonSerializer.Deserialize<List<NotificationSettingsResponse>>(responseContent, _serializerOptionsCamelCase);
+            Assert.Empty(addresses);
+        }
+
+        [Fact]
+        public async Task GetAllNotificationAddresses_WhenRepositoryReturnsMultiple_IsOkWithList()
+        {
+            const int UserId = 2516356;
+            var infos = new List<UserPartyContactInfo>
+            {
+                new UserPartyContactInfo { UserId = UserId, PartyUuid = Guid.NewGuid(), EmailAddress = "a@b.com", PhoneNumber = "1", UserPartyContactInfoResources = new List<UserPartyContactInfoResource> { new UserPartyContactInfoResource { ResourceId = "one" } } },
+                new UserPartyContactInfo { UserId = UserId, PartyUuid = Guid.NewGuid(), EmailAddress = "c@d.com", PhoneNumber = "2", UserPartyContactInfoResources = new List<UserPartyContactInfoResource> { new UserPartyContactInfoResource { ResourceId = "two" } } }
+            };
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(x => x.GetAllNotificationAddressesForUserAsync(UserId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(infos);
+            SetupSblMock();
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Get, UserId, "profile/api/v1/users/current/notificationsettings/parties");
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            Assert.NotNull(response);
+            Assert.True(response.IsSuccessStatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var addresses = JsonSerializer.Deserialize<List<NotificationSettingsResponse>>(responseContent, _serializerOptionsCamelCase);
+            Assert.Equal(2, addresses.Count);
+            Assert.Equal("a@b.com", addresses[0].EmailAddress);
+            Assert.Single(addresses[0].ResourceIncludeList);
+            Assert.Equal("urn:altinn:resource:one", addresses[0].ResourceIncludeList[0]);
+            Assert.Equal("c@d.com", addresses[1].EmailAddress);
+        }
+
+        [Fact]
+        public async Task GetAllNotificationAddresses_WhenRepositoryThrowsException_ReturnsServerError()
+        {
+            const int UserId = 2516356;
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(x => x.GetAllNotificationAddressesForUserAsync(UserId, It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("fail"));
+            SetupSblMock();
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Get, UserId, "profile/api/v1/users/current/notificationsettings/parties");
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetAllNotificationAddresses_WhenSystemUser_ReturnsBadRequest()
+        {
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateRequestWithSystemUser(HttpMethod.Get, "profile/api/v1/users/current/notificationsettings/parties");
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
@@ -331,11 +403,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Theory]
-        [InlineData("urn:altinn:resource:example")]
-        [InlineData("urn:altinn:resource:app_other_vale")]
-        [InlineData("urn:altinn:resource:ttd-resource-1")]
+        [InlineData("urn:altinn:resource:example", "example")]
+        [InlineData("urn:altinn:resource:app_other_vale", "app_other_vale")]
+        [InlineData("urn:altinn:resource:ttd-resource-1", "ttd-resource-1")]
 
-        public async Task PutNotificationAddress_WhenContactInfoIsNew_ReturnsCreated(string resource)
+        public async Task PutNotificationAddress_WhenContactInfoIsNew_ReturnsCreated(string resourceUrn, string sanitizedResourceId)
         {
             // Arrange
             const int UserId = 2516356;
@@ -345,7 +417,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 EmailAddress = "test@example.com",
                 PhoneNumber = "12345678",
-                ResourceIncludeList = [resource]
+                ResourceIncludeList = [resourceUrn]
             };
 
             _factory.ProfessionalNotificationsRepositoryMock
@@ -368,6 +440,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+            _factory.ProfessionalNotificationsRepositoryMock.Verify(
+                x => x.AddOrUpdateNotificationAddressAsync(
+                    It.Is<UserPartyContactInfo>(info =>
+                        info.UserPartyContactInfoResources.Count == 1 && info.UserPartyContactInfoResources[0].ResourceId == sanitizedResourceId),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
         }
 
         [Fact]
@@ -422,7 +501,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
+            HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -450,7 +529,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
+            HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -460,10 +539,20 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
-        private static HttpRequestMessage CreateRequest(HttpMethod method, int userId, string requestUri)
+        // Creates a request with a valid userId claim
+        private static HttpRequestMessage CreateRequestWithUserId(HttpMethod method, int userId, string requestUri)
         {
             HttpRequestMessage httpRequestMessage = new(method, requestUri);
             httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+            return httpRequestMessage;
+        }
+
+        // Creates a request with a system user token (no userId claim)
+        private static HttpRequestMessage CreateRequestWithSystemUser(HttpMethod method, string requestUri)
+        {
+            string token = PrincipalUtil.GetSystemUserToken(Guid.NewGuid());
+            HttpRequestMessage httpRequestMessage = new(method, requestUri);
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return httpRequestMessage;
         }
 

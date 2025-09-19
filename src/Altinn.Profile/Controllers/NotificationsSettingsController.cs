@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace Altinn.Profile.Controllers
     /// <summary>
     /// Controller for organizing the notification addresses a user has registered for parties
     /// </summary>
-    [Authorize(Policy = AuthConstants.UserPartyAccess)]
+    [Authorize]
     [Route("profile/api/v1/users/current/notificationsettings")]
     [Consumes("application/json")]
     [Produces("application/json")]
@@ -27,7 +28,7 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         public NotificationsSettingsController(IProfessionalNotificationsService professionalNotificationsService)
         {
-             _professionalNotificationsService = professionalNotificationsService;
+            _professionalNotificationsService = professionalNotificationsService;
         }
 
         /// <summary>
@@ -35,6 +36,7 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         /// <param name="partyUuid">The UUID of the party for which the notification address is being set</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
+        [Authorize(Policy = AuthConstants.UserPartyAccess)]
         [HttpGet("parties/{partyUuid:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -78,11 +80,43 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
+        /// Get the notification addresses the current user has registered for all parties
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        [HttpGet("parties")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<IReadOnlyList<NotificationSettingsResponse>>> GetAll(CancellationToken cancellationToken)
+        {
+            var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            var notificationAddresses = await _professionalNotificationsService.GetAllNotificationAddressesAsync(userId, cancellationToken);
+
+            var response = notificationAddresses.Select(notificationAddress => new NotificationSettingsResponse
+            {
+                UserId = notificationAddress.UserId,
+                PartyUuid = notificationAddress.PartyUuid,
+                EmailAddress = notificationAddress.EmailAddress,
+                PhoneNumber = notificationAddress.PhoneNumber,
+                ResourceIncludeList = notificationAddress.GetResourceIncludeList(),
+            }).ToList();
+
+            return Ok(response);
+        }
+
+        /// <summary>
         /// Add or update the notification addresses the current user has registered for a party
         /// </summary>
         /// <param name="partyUuid">The UUID of the party for which the notification address is being set</param>
         /// <param name="request"> The request containing the notification address details</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
+        [Authorize(Policy = AuthConstants.UserPartyAccess)]
         [HttpPut("parties/{partyUuid:guid}")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -112,10 +146,11 @@ namespace Altinn.Profile.Controllers
                 PartyUuid = partyUuid,
                 EmailAddress = request.EmailAddress,
                 PhoneNumber = request.PhoneNumber,
-                UserPartyContactInfoResources = request.ResourceIncludeList?.Select(resource => new UserPartyContactInfoResource
-                {
-                    ResourceId = resource
-                }).ToList()
+                UserPartyContactInfoResources = request.ResourceIncludeList?
+                    .Select(resource => ResourceIdFormatter.GetSanitizedResourceId(resource))
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Select(s => new UserPartyContactInfoResource { ResourceId = s })
+                    .ToList()
             };
             var added = await _professionalNotificationsService.AddOrUpdateNotificationAddressAsync(userPartyContactInfo, cancellationToken);
 
@@ -132,6 +167,7 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         /// <param name="partyUuid">The UUID of the party for which the notification address is being deleted</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
+        [Authorize(Policy = AuthConstants.UserPartyAccess)]
         [HttpDelete("parties/{partyUuid:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
