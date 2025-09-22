@@ -48,7 +48,6 @@ public class NotificationSettingsUpdatedHandlerTests
         Assert.Equal(evt.EventTimestamp, capturedRequest.ChangeDateTime, TimeSpan.FromSeconds(1));
         Assert.Equal(evt.EmailAddress, capturedRequest.Email);
         Assert.Equal(evt.PhoneNumber, capturedRequest.PhoneNumber);
-        Assert.Equal(evt.EventTimestamp, capturedRequest.LastModified, TimeSpan.FromSeconds(1));
         Assert.Equal(evt.ResourceIds, capturedRequest.ServiceNotificationOptions);
     }
 

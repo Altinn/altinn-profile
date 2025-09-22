@@ -36,11 +36,6 @@
         public string? PhoneNumber { get; set; }
 
         /// <summary>
-        /// Gets or sets the Last modified timestamp of the reportee specific to a user
-        /// </summary>
-        public DateTime LastModified { get; set; }
-
-        /// <summary>
         /// Gets or sets notification options chosen for specific services by the user for the reportee
         /// </summary>
         public string[]? ServiceNotificationOptions { get; set; }

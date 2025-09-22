@@ -45,7 +45,6 @@ public class NotificationSettingsDeletedHandlerTests
         Assert.Equal(evt.EventTimestamp, capturedRequest.ChangeDateTime, TimeSpan.FromSeconds(1));
         Assert.Null(capturedRequest.Email);
         Assert.Null(capturedRequest.PhoneNumber);
-        Assert.Equal(evt.EventTimestamp, capturedRequest.LastModified, TimeSpan.FromSeconds(1));
         Assert.Null(capturedRequest.ServiceNotificationOptions);
     }
 

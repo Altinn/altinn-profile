@@ -38,7 +38,6 @@ public class NotificationSettingsDeletedHandler(IUserNotificationSettingsClient 
             ChangeType = "delete",
             PartyUuid = changeEvent.PartyUuid,
             ChangeDateTime = changeEvent.EventTimestamp,
-            LastModified = changeEvent.EventTimestamp,
         };
 
         // Using SBLBridge to update notification settings (ReporteeEndpoints) in A2

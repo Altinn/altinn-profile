@@ -41,7 +41,6 @@ public class NotificationSettingsUpdatedHandler(IUserNotificationSettingsClient 
             ChangeDateTime = changeEvent.EventTimestamp,
             Email = changeEvent.EmailAddress,
             PhoneNumber = changeEvent.PhoneNumber,
-            LastModified = changeEvent.EventTimestamp,
             ServiceNotificationOptions = changeEvent.ResourceIds,
         };
 
