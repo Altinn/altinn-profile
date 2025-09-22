@@ -13,6 +13,8 @@ public class UserNotificationSettingsClient : IUserNotificationSettingsClient
 {
     private readonly ILogger<UserNotificationSettingsClient> _logger;
     private readonly HttpClient _client;
+    private const string _timezone = "W. Europe Standard Time";
+    TimeZoneInfo _timezoneInfo = TimeZoneInfo.FindSystemTimeZoneById(_timezone);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserNotificationSettingsClient"/> class
@@ -38,6 +40,8 @@ public class UserNotificationSettingsClient : IUserNotificationSettingsClient
         StringContent requestBody = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
         
         HttpResponseMessage response = await _client.PostAsync(endpoint, requestBody);
+
+        _logger.LogInformation("// UserNotificationSettingsClient // UpdateNotificationSettings // Request to SBLBridge with body {RequestBody}", await requestBody.ReadAsStringAsync());
 
         if (!response.IsSuccessStatusCode)
         {
