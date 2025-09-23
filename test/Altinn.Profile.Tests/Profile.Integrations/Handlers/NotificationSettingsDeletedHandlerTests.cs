@@ -23,7 +23,7 @@ public class NotificationSettingsDeletedHandlerTests
             .Returns(Task.CompletedTask);
 
         var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
-        settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2 = true });
+        settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2NotificationSettings = true });
 
         var handler = new NotificationSettingsDeletedHandler(mockClient.Object, settingsMock.Object);
 
@@ -54,7 +54,7 @@ public class NotificationSettingsDeletedHandlerTests
         // Arrange
         var mockClient = new Mock<IUserNotificationSettingsClient>();
         var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
-        settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2 = false });
+        settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2NotificationSettings = false });
 
         var handler = new NotificationSettingsDeletedHandler(mockClient.Object, settingsMock.Object);
 

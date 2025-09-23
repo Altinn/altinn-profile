@@ -14,7 +14,7 @@ namespace Altinn.Profile.Integrations.Handlers;
 public class FavoriteRemovedEventHandler(IUserFavoriteClient client, IOptions<SblBridgeSettings> settings)
 {
     private readonly IUserFavoriteClient _userFavoriteClient = client;
-    private readonly bool _updateA2 = settings.Value.UpdateA2;
+    private readonly bool _updateA2 = settings.Value.UpdateA2Favorites;
 
     /// <summary>
     /// Handles the event
