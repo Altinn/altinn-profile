@@ -135,6 +135,43 @@ public class LeaseRepositoryTests
     }
 
     [Fact]
+    public async Task UpsertLease_Fails_WhenLeaseAlreadyExists()
+    {
+        // Arrange
+        var options = CreateInMemoryOptions();
+        await using var db = new ProfileDbContext(options);
+        var repo = CreateRepository(db);
+
+        var lease = new Lease
+        {
+            Id = "lease3",
+            Token = Guid.NewGuid(),
+            Expires = DateTimeOffset.UtcNow.AddMinutes(1),
+            Acquired = DateTimeOffset.UtcNow.AddMinutes(-2),
+            Released = null
+        };
+        db.Lease.Add(lease);
+        await db.SaveChangesAsync();
+
+        var newToken = Guid.NewGuid();
+        var updatedLease = new Lease
+        {
+            Id = lease.Id,
+            Token = newToken,
+            Expires = DateTimeOffset.UtcNow.AddMinutes(5),
+            Acquired = DateTimeOffset.UtcNow,
+            Released = null
+        };
+
+        // Act
+        var result = await repo.UpsertLease(updatedLease, DateTimeOffset.UtcNow, null, CancellationToken.None);
+
+        // Assert
+        Assert.False(result.IsLeaseAcquired);
+        Assert.Null(result.Lease);
+    }
+
+    [Fact]
     public async Task UpsertLease_Fails_WhenFilterReturnsFalse()
     {
         // Arrange

@@ -44,6 +44,12 @@ namespace Altinn.Profile.Integrations.Repositories
 
                         databaseContext.Lease.Update(existingLease);
                     }
+                    else
+                    {
+                        // Lease is held by another token and has not expired
+                        result = LeaseAcquireResult.Failed(existingLease.Expires, existingLease.Acquired, existingLease.Released);
+                        return result;
+                    }
                 }
                 else
                 {
