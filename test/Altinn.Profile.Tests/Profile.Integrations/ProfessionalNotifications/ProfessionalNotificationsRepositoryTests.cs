@@ -16,6 +16,9 @@ using Moq;
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
 using Xunit;
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
+using Altinn.Profile.Core.Telemetry;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
 {
@@ -628,6 +631,130 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             // Act & Assert
             await Assert.ThrowsAsync<OperationCanceledException>(
                 () => _repository.AddOrUpdateNotificationAddressFromSyncAsync(contactInfo, cts.Token));
+        }
+
+        // --- Telemetry meter tests ---
+
+        [Fact]
+        public async Task AddOrUpdateNotificationAddressFromSyncAsync_EmitsNotificationAddressAddedMetric()
+        {
+            var metricItems = new List<Metric>();
+            using var meterProvider = Sdk.CreateMeterProviderBuilder()
+                .AddMeter("platform-profile")
+                .AddInMemoryExporter(metricItems)
+                .Build();
+
+            var telemetry = new Telemetry();
+            var repository = new ProfessionalNotificationsRepository(_dbContextFactory.Object, _dbContextOutboxMock.Object, telemetry);
+
+            int userId = 1001;
+            Guid partyUuid = Guid.NewGuid();
+            var contactInfo = new UserPartyContactInfo
+            {
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = "added@example.com",
+                PhoneNumber = "12345678",
+                LastChanged = DateTime.UtcNow,
+                UserPartyContactInfoResources = new List<UserPartyContactInfoResource>()
+            };
+
+            await repository.AddOrUpdateNotificationAddressFromSyncAsync(contactInfo, CancellationToken.None);
+
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            meterProvider.Dispose();
+
+            var addedMetrics = metricItems
+                .Where(item => item.Name == "profile.notificationsettings.added")
+                .ToArray();
+
+            Assert.Single(addedMetrics);
+        }
+
+        [Fact]
+        public async Task AddOrUpdateNotificationAddressFromSyncAsync_EmitsNotificationAddressUpdatedMetric()
+        {
+            var metricItems = new List<Metric>();
+            using var meterProvider = Sdk.CreateMeterProviderBuilder()
+                .AddMeter("platform-profile")
+                .AddInMemoryExporter(metricItems)
+                .Build();
+
+            var telemetry = new Telemetry();
+            var repository = new ProfessionalNotificationsRepository(_dbContextFactory.Object, _dbContextOutboxMock.Object, telemetry);
+
+            int userId = 1002;
+            Guid partyUuid = Guid.NewGuid();
+            var original = new UserPartyContactInfo
+            {
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = "original@example.com",
+                PhoneNumber = "11111111",
+                LastChanged = DateTime.UtcNow.AddMinutes(-10),
+                UserPartyContactInfoResources = new List<UserPartyContactInfoResource>()
+            };
+            _databaseContext.UserPartyContactInfo.Add(original);
+            await _databaseContext.SaveChangesAsync();
+
+            var updated = new UserPartyContactInfo
+            {
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = "updated@example.com",
+                PhoneNumber = "22222222",
+                LastChanged = DateTime.UtcNow,
+                UserPartyContactInfoResources = new List<UserPartyContactInfoResource>()
+            };
+
+            await repository.AddOrUpdateNotificationAddressFromSyncAsync(updated, CancellationToken.None);
+
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            meterProvider.Dispose();
+
+            var updatedMetrics = metricItems
+                .Where(item => item.Name == "profile.notificationsettings.updated")
+                .ToArray();
+
+            Assert.Single(updatedMetrics);
+        }
+
+        [Fact]
+        public async Task DeleteNotificationAddressFromSyncAsync_EmitsNotificationAddressDeletedMetric()
+        {
+            var metricItems = new List<Metric>();
+            using var meterProvider = Sdk.CreateMeterProviderBuilder()
+                .AddMeter("platform-profile")
+                .AddInMemoryExporter(metricItems)
+                .Build();
+
+            var telemetry = new Telemetry();
+            var repository = new ProfessionalNotificationsRepository(_dbContextFactory.Object, _dbContextOutboxMock.Object, telemetry);
+
+            int userId = 1003;
+            Guid partyUuid = Guid.NewGuid();
+            var contactInfo = new UserPartyContactInfo
+            {
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = "delete@example.com",
+                PhoneNumber = "33333333",
+                LastChanged = DateTime.UtcNow,
+                UserPartyContactInfoResources = new List<UserPartyContactInfoResource>()
+            };
+            _databaseContext.UserPartyContactInfo.Add(contactInfo);
+            await _databaseContext.SaveChangesAsync();
+
+            await repository.DeleteNotificationAddressFromSyncAsync(userId, partyUuid, CancellationToken.None);
+
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            meterProvider.Dispose();
+
+            var deletedMetrics = metricItems
+                .Where(item => item.Name == "profile.notificationsettings.deleted")
+                .ToArray();
+
+            Assert.Single(deletedMetrics);
         }
     }
 }

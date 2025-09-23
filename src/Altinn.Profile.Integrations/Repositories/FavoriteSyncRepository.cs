@@ -88,6 +88,7 @@ namespace Altinn.Profile.Integrations.Repositories
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
             databaseContext.Groups.Add(favoriteGroup);
             await databaseContext.SaveChangesAsync(cancellationToken);
+            _telemetry?.FavoriteAdded();
 
             return true;
         }

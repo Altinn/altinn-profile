@@ -1,12 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Core.PartyGroups;
+using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.Repositories;
@@ -252,5 +257,71 @@ public class FavoriteSyncRepositoryTests : IDisposable
         {
             Assert.Fail("Expected no exception, but got: " + ex.Message);
         }
+    }
+
+    [Fact]
+    public async Task AddPartyToFavorites_EmitsFavoriteAddedMetric()
+    {
+        var metricItems = new List<Metric>();
+        using var meterProvider = Sdk.CreateMeterProviderBuilder()
+            .AddMeter("platform-profile")
+            .AddInMemoryExporter(metricItems)
+            .Build();
+
+        var telemetry = new Telemetry();
+        var repository = new FavoriteSyncRepository(_databaseContextFactory.Object, telemetry);
+
+        var userId = 10;
+        var partyUuid = Guid.NewGuid();
+        var created = DateTime.UtcNow;
+
+        await repository.AddPartyToFavorites(userId, partyUuid, created, CancellationToken.None);
+
+        // We need to let End callback execute as it is executed AFTER response was returned.
+        // In unit tests environment there may be a lot of parallel unit tests executed, so
+        // giving some breezing room for the End callback to complete
+        await Task.Delay(TimeSpan.FromSeconds(1));
+
+        meterProvider.Dispose();
+
+        var favoriteAddedMetrics = metricItems
+            .Where(item => item.Name == "profile.favorites.added")
+            .ToArray();
+
+        Assert.Single(favoriteAddedMetrics);
+    }
+
+    [Fact]
+    public async Task DeleteFromFavorites_EmitsFavoriteDeletedMetric()
+    {
+        var metricItems = new List<Metric>();
+        using var meterProvider = Sdk.CreateMeterProviderBuilder()
+            .AddMeter("platform-profile")
+            .AddInMemoryExporter(metricItems)
+            .Build();
+
+        var telemetry = new Telemetry();
+        var repository = new FavoriteSyncRepository(_databaseContextFactory.Object, telemetry);
+
+        var userId = 11;
+        var partyUuid = Guid.NewGuid();
+        var created = DateTime.UtcNow;
+
+        // Add first so we can delete
+        await repository.AddPartyToFavorites(userId, partyUuid, created, CancellationToken.None);
+        await repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(1), CancellationToken.None);
+
+        // We need to let End callback execute as it is executed AFTER response was returned.
+        // In unit tests environment there may be a lot of parallel unit tests executed, so
+        // giving some breezing room for the End callback to complete
+        await Task.Delay(TimeSpan.FromSeconds(1));
+
+        meterProvider.Dispose();
+
+        var favoriteDeletedMetrics = metricItems
+            .Where(item => item.Name == "profile.favorites.deleted")
+            .ToArray();
+
+        Assert.Single(favoriteDeletedMetrics);
     }
 }
