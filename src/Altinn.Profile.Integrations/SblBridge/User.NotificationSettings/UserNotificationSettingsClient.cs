@@ -15,9 +15,6 @@ public class UserNotificationSettingsClient : IUserNotificationSettingsClient
 {
     private readonly ILogger<UserNotificationSettingsClient> _logger;
     private readonly HttpClient _client;
-    //private const string _timezone = "W. Europe Standard Time";
-    //TimeZoneInfo _timezoneInfo = TimeZoneInfo.FindSystemTimeZoneById(_timezone);
-    ReadOnlyCollection<TimeZoneInfo> timeZones = TimeZoneInfo.GetSystemTimeZones();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserNotificationSettingsClient"/> class
@@ -43,12 +40,6 @@ public class UserNotificationSettingsClient : IUserNotificationSettingsClient
         StringContent requestBody = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
         
         HttpResponseMessage response = await _client.PostAsync(endpoint, requestBody);
-
-        _logger.LogInformation("Available timezones:");
-        foreach (var tz in timeZones.Where(t => t.DisplayName.Contains("+01")))
-        {
-            _logger.LogInformation(tz.Id + ", Display name: "+ tz.DisplayName);
-        }
 
         if (!response.IsSuccessStatusCode)
         {
