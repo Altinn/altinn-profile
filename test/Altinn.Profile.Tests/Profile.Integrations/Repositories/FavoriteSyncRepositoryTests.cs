@@ -268,7 +268,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
             .AddInMemoryExporter(metricItems)
             .Build();
 
-        var telemetry = new Telemetry();
+        using var telemetry = new Telemetry();
         var repository = new FavoriteSyncRepository(_databaseContextFactory.Object, telemetry);
 
         var userId = 10;
@@ -277,12 +277,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
 
         await repository.AddPartyToFavorites(userId, partyUuid, created, CancellationToken.None);
 
-        // We need to let End callback execute as it is executed AFTER response was returned.
-        // In unit tests environment there may be a lot of parallel unit tests executed, so
-        // giving some breezing room for the End callback to complete
-        await Task.Delay(TimeSpan.FromSeconds(1));
-
-        meterProvider.Dispose();
+        meterProvider.ForceFlush();
 
         var favoriteAddedMetrics = metricItems
             .Where(item => item.Name == "profile.favorites.added")
@@ -300,7 +295,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
             .AddInMemoryExporter(metricItems)
             .Build();
 
-        var telemetry = new Telemetry();
+        using var telemetry = new Telemetry();
         var repository = new FavoriteSyncRepository(_databaseContextFactory.Object, telemetry);
 
         var userId = 11;
@@ -311,12 +306,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         await repository.AddPartyToFavorites(userId, partyUuid, created, CancellationToken.None);
         await repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(1), CancellationToken.None);
 
-        // We need to let End callback execute as it is executed AFTER response was returned.
-        // In unit tests environment there may be a lot of parallel unit tests executed, so
-        // giving some breezing room for the End callback to complete
-        await Task.Delay(TimeSpan.FromSeconds(1));
-
-        meterProvider.Dispose();
+        meterProvider.ForceFlush();
 
         var favoriteDeletedMetrics = metricItems
             .Where(item => item.Name == "profile.favorites.deleted")

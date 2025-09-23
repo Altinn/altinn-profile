@@ -639,7 +639,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 .AddInMemoryExporter(metricItems)
                 .Build();
 
-            var telemetry = new Telemetry();
+            using var telemetry = new Telemetry();
             var repository = new ProfessionalNotificationsRepository(_dbContextFactory.Object, _dbContextOutboxMock.Object, telemetry);
 
             int userId = 1001;
@@ -655,9 +655,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             };
 
             await repository.AddOrUpdateNotificationAddressFromSyncAsync(contactInfo, CancellationToken.None);
-
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            meterProvider.Dispose();
+            
+            meterProvider.ForceFlush();
 
             var addedMetrics = metricItems
                 .Where(item => item.Name == "profile.notificationsettings.added")
@@ -675,7 +674,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 .AddInMemoryExporter(metricItems)
                 .Build();
 
-            var telemetry = new Telemetry();
+            using var telemetry = new Telemetry();
             var repository = new ProfessionalNotificationsRepository(_dbContextFactory.Object, _dbContextOutboxMock.Object, telemetry);
 
             int userId = 1002;
@@ -704,8 +703,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
 
             await repository.AddOrUpdateNotificationAddressFromSyncAsync(updated, CancellationToken.None);
 
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            meterProvider.Dispose();
+            meterProvider.ForceFlush();
 
             var updatedMetrics = metricItems
                 .Where(item => item.Name == "profile.notificationsettings.updated")
@@ -723,7 +721,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 .AddInMemoryExporter(metricItems)
                 .Build();
 
-            var telemetry = new Telemetry();
+            using var telemetry = new Telemetry();
             var repository = new ProfessionalNotificationsRepository(_dbContextFactory.Object, _dbContextOutboxMock.Object, telemetry);
 
             int userId = 1003;
@@ -742,8 +740,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
 
             await repository.DeleteNotificationAddressFromSyncAsync(userId, partyUuid, CancellationToken.None);
 
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            meterProvider.Dispose();
+            meterProvider.ForceFlush();
 
             var deletedMetrics = metricItems
                 .Where(item => item.Name == "profile.notificationsettings.deleted")
