@@ -1,20 +1,18 @@
-﻿using Altinn.Profile.Core.Integrations;
-using Altinn.Profile.Core.PartyGroups;
-using Altinn.Profile.Integrations.Events;
+﻿using Altinn.Profile.Core.PartyGroups;
+using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;
-
-using Wolverine.EntityFrameworkCore;
 
 namespace Altinn.Profile.Integrations.Repositories
 {
     /// <summary>
     /// Defines a repository for operations related to a users groups of parties.
     /// </summary>
-    public class FavoriteSyncRepository(IDbContextFactory<ProfileDbContext> contextFactory) : IFavoriteSyncRepository
+    public class FavoriteSyncRepository(IDbContextFactory<ProfileDbContext> contextFactory, Telemetry? telemetry) : IFavoriteSyncRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
+        private readonly Telemetry? _telemetry = telemetry;
 
         /// <summary>
         /// Get a users favorite group.
@@ -68,6 +66,7 @@ namespace Altinn.Profile.Integrations.Repositories
             databaseContext.PartyGroupAssociations.Add(partyGroupAssociation);
 
             await databaseContext.SaveChangesAsync(cancellationToken);
+            _telemetry?.FavoriteAdded();
         }
 
         private async Task<bool> CreateFavoriteGroupWithAssociation(int userId, Guid partyUuid, DateTime created, CancellationToken cancellationToken)
@@ -117,6 +116,8 @@ namespace Altinn.Profile.Integrations.Repositories
 
             databaseContext.PartyGroupAssociations.Remove(partyGroupAssociation);
             await databaseContext.SaveChangesAsync(cancellationToken);
+
+            _telemetry?.FavoriteDeleted();
         }
     }
 }

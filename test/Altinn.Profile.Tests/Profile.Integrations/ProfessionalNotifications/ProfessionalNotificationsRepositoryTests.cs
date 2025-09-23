@@ -40,7 +40,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 .Returns<CancellationToken>(ct => Task.FromResult(new ProfileDbContext(options)));
 
             _databaseContext = _dbContextFactory.Object.CreateDbContext();
-            _repository = new ProfessionalNotificationsRepository(_dbContextFactory.Object, _dbContextOutboxMock.Object);
+            _repository = new ProfessionalNotificationsRepository(_dbContextFactory.Object, _dbContextOutboxMock.Object, null);
         }
 
         public void Dispose()

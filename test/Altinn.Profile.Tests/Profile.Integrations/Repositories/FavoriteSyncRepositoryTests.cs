@@ -33,7 +33,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         _databaseContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new ProfileDbContext(options));
 
-        _repository = new FavoriteSyncRepository(_databaseContextFactory.Object);
+        _repository = new FavoriteSyncRepository(_databaseContextFactory.Object, null);
 
         _databaseContext = _databaseContextFactory.Object.CreateDbContext();
     }
