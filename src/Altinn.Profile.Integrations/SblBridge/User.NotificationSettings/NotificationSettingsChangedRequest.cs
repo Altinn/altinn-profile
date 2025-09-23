@@ -1,7 +1,7 @@
 ﻿namespace Altinn.Profile.Integrations.SblBridge.User.NotificationSettings
 {
     /// <summary>
-    /// Describes an change to notification settings in SBLBridge. 
+    /// Describes a change to notification settings in SBLBridge. 
     /// </summary>
     public class NotificationSettingsChangedRequest
     {
@@ -21,7 +21,7 @@
         public int UserId { get; set; }
 
         /// <summary>
-        /// Gets or sets the UUID of the added or removed favorite party.
+        /// Gets or sets the UUID of the reportee party the settings apply to
         /// </summary>
         public Guid PartyUuid { get; set; }
 

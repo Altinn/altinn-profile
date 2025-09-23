@@ -33,7 +33,7 @@ public class NotificationSettingsAddedHandlerTests
             EventTimestamp: DateTime.UtcNow,
             EmailAddress: "anotheruser@example.com",
             PhoneNumber: "+4798765432",
-            ResourceIds: new[] { "resourceA", "resourceB" });
+            ResourceIds: ["resourceA", "resourceB"]);
 
         // Act
         await handler.Handle(evt);
@@ -66,7 +66,7 @@ public class NotificationSettingsAddedHandlerTests
             EventTimestamp: DateTime.UtcNow,
             EmailAddress: "user@example.com",
             PhoneNumber: "+4712345678",
-            ResourceIds: new[] { "resource1", "resource2" });
+            ResourceIds: ["resourceA", "resourceB"]);
 
         // Act
         await handler.Handle(evt);

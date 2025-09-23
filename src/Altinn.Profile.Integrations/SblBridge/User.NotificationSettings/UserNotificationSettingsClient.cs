@@ -49,9 +49,7 @@ public class UserNotificationSettingsClient : IUserNotificationSettingsClient
             }
 
             _logger.LogError(
-                "// UserNotificationSettingsClient // UpdateNotificationSettings // Unexpected response. Failed with {StatusCode} and message {Message}",
-                response.StatusCode,
-                await response.Content.ReadAsStringAsync());
+                "// UserNotificationSettingsClient // UpdateNotificationSettings // Unexpected response. Failed with {StatusCode}.", response.StatusCode);
 
             return;
         }

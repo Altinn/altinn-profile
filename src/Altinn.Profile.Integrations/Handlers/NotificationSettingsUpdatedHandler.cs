@@ -19,7 +19,7 @@ namespace Altinn.Profile.Integrations.Handlers;
 /// <param name="settings">Config to indicate if the handler should update Altinn 2</param>
 public class NotificationSettingsUpdatedHandler(IUserNotificationSettingsClient userNotificationSettingsClient, IOptions<SblBridgeSettings> settings)
 {
-    private readonly bool _updatea2 = settings.Value.UpdateA2;
+    private readonly bool _updateA2 = settings.Value.UpdateA2;
     private readonly IUserNotificationSettingsClient _userNotificationSettingsClient = userNotificationSettingsClient;
 
     /// <summary>
@@ -28,7 +28,7 @@ public class NotificationSettingsUpdatedHandler(IUserNotificationSettingsClient 
     [Transactional]
     public async Task Handle(NotificationSettingsUpdatedEvent changeEvent)
     {
-        if (!_updatea2)
+        if (!_updateA2)
         {
             return;
         }
@@ -36,7 +36,7 @@ public class NotificationSettingsUpdatedHandler(IUserNotificationSettingsClient 
         var request = new NotificationSettingsChangedRequest
         {
             UserId = changeEvent.UserId,
-            ChangeType = "update",
+            ChangeType = ChangeType.Update,
             PartyUuid = changeEvent.PartyUuid,
             ChangeDateTime = changeEvent.EventTimestamp,
             Email = changeEvent.EmailAddress,

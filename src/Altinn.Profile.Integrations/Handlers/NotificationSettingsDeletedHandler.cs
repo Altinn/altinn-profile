@@ -18,7 +18,7 @@ namespace Altinn.Profile.Integrations.Handlers;
 /// <param name="settings">Config to indicate if the handler should update Altinn 2</param>
 public class NotificationSettingsDeletedHandler(IUserNotificationSettingsClient userNotificationSettingsClient, IOptions<SblBridgeSettings> settings)
 {
-    private readonly bool _updatea2 = settings.Value.UpdateA2;
+    private readonly bool _updateA2 = settings.Value.UpdateA2;
     private readonly IUserNotificationSettingsClient _userNotificationSettingsClient = userNotificationSettingsClient;
 
     /// <summary>
@@ -27,7 +27,7 @@ public class NotificationSettingsDeletedHandler(IUserNotificationSettingsClient 
     [Transactional]
     public async Task Handle(NotificationSettingsDeletedEvent changeEvent)
     {
-        if (!_updatea2)
+        if (!_updateA2)
         {
             return;
         }
@@ -35,7 +35,7 @@ public class NotificationSettingsDeletedHandler(IUserNotificationSettingsClient 
         var request = new NotificationSettingsChangedRequest
         {
             UserId = changeEvent.UserId,
-            ChangeType = "delete",
+            ChangeType = ChangeType.Delete,
             PartyUuid = changeEvent.PartyUuid,
             ChangeDateTime = changeEvent.EventTimestamp,
         };
