@@ -635,7 +635,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         {
             var metricItems = new List<Metric>();
             using var meterProvider = Sdk.CreateMeterProviderBuilder()
-                .AddMeter("platform-profile")
+                .AddMeter(Telemetry.AppName)
                 .AddInMemoryExporter(metricItems)
                 .Build();
 
@@ -651,18 +651,21 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 EmailAddress = "added@example.com",
                 PhoneNumber = "12345678",
                 LastChanged = DateTime.UtcNow,
-                UserPartyContactInfoResources = new List<UserPartyContactInfoResource>()
+                UserPartyContactInfoResources = []
             };
 
             await repository.AddOrUpdateNotificationAddressFromSyncAsync(contactInfo, CancellationToken.None);
             
             meterProvider.ForceFlush();
 
-            var addedMetrics = metricItems
-                .Where(item => item.Name == "profile.notificationsettings.added")
-                .ToArray();
+            var addedMetric = metricItems.Single(item => item.Name == Telemetry.Metrics.CreateName("notificationsettings.added"));
+            long sum = 0;
+            foreach (ref readonly var p in addedMetric.GetMetricPoints())
+            {
+                sum += p.GetSumLong();
+            }
 
-            Assert.Single(addedMetrics);
+            Assert.Equal(1, sum);
         }
 
         [Fact]
@@ -670,7 +673,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         {
             var metricItems = new List<Metric>();
             using var meterProvider = Sdk.CreateMeterProviderBuilder()
-                .AddMeter("platform-profile")
+                .AddMeter(Telemetry.AppName)
                 .AddInMemoryExporter(metricItems)
                 .Build();
 
@@ -705,11 +708,14 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
 
             meterProvider.ForceFlush();
 
-            var updatedMetrics = metricItems
-                .Where(item => item.Name == "profile.notificationsettings.updated")
-                .ToArray();
+            var updatedMetric = metricItems.Single(item => item.Name == Telemetry.Metrics.CreateName("notificationsettings.updated"));
+            long sum = 0;
+            foreach (ref readonly var p in updatedMetric.GetMetricPoints())
+            {
+                sum += p.GetSumLong();
+            }
 
-            Assert.Single(updatedMetrics);
+            Assert.Equal(1, sum);
         }
 
         [Fact]
@@ -717,7 +723,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         {
             var metricItems = new List<Metric>();
             using var meterProvider = Sdk.CreateMeterProviderBuilder()
-                .AddMeter("platform-profile")
+                .AddMeter(Telemetry.AppName)
                 .AddInMemoryExporter(metricItems)
                 .Build();
 
@@ -742,11 +748,14 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
 
             meterProvider.ForceFlush();
 
-            var deletedMetrics = metricItems
-                .Where(item => item.Name == "profile.notificationsettings.deleted")
-                .ToArray();
+            var notificationsettingsDeleted = metricItems.Single(item => item.Name == Telemetry.Metrics.CreateName("notificationsettings.deleted"));
+            long sum = 0;
+            foreach (ref readonly var p in notificationsettingsDeleted.GetMetricPoints())
+            {
+                sum += p.GetSumLong();
+            }
 
-            Assert.Single(deletedMetrics);
+            Assert.Equal(1, sum);
         }
     }
 }

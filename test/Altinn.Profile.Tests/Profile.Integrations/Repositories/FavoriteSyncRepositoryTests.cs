@@ -264,7 +264,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
     {
         var metricItems = new List<Metric>();
         using var meterProvider = Sdk.CreateMeterProviderBuilder()
-            .AddMeter("platform-profile")
+            .AddMeter(Telemetry.AppName)
             .AddInMemoryExporter(metricItems)
             .Build();
 
@@ -279,11 +279,14 @@ public class FavoriteSyncRepositoryTests : IDisposable
 
         meterProvider.ForceFlush();
 
-        var favoriteAddedMetrics = metricItems
-            .Where(item => item.Name == "profile.favorites.added")
-            .ToArray();
+        var favoriteAdded = metricItems.Single(item => item.Name == Telemetry.Metrics.CreateName("favorites.added"));
+        long addedSum = 0;
+        foreach (ref readonly var p in favoriteAdded.GetMetricPoints())
+        {
+            addedSum += p.GetSumLong();
+        }
 
-        Assert.Single(favoriteAddedMetrics);
+        Assert.Equal(1, addedSum);
     }
 
     [Fact]
@@ -291,7 +294,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
     {
         var metricItems = new List<Metric>();
         using var meterProvider = Sdk.CreateMeterProviderBuilder()
-            .AddMeter("platform-profile")
+            .AddMeter(Telemetry.AppName)
             .AddInMemoryExporter(metricItems)
             .Build();
 
@@ -308,10 +311,13 @@ public class FavoriteSyncRepositoryTests : IDisposable
 
         meterProvider.ForceFlush();
 
-        var favoriteDeletedMetrics = metricItems
-            .Where(item => item.Name == "profile.favorites.deleted")
-            .ToArray();
+        var favoriteDeleted = metricItems.Single(item => item.Name == Telemetry.Metrics.CreateName("favorites.deleted"));
+        long sum = 0;
+        foreach (ref readonly var p in favoriteDeleted.GetMetricPoints())
+        {
+            sum += p.GetSumLong();
+        }
 
-        Assert.Single(favoriteDeletedMetrics);
+        Assert.Equal(1, sum);
     }
 }
