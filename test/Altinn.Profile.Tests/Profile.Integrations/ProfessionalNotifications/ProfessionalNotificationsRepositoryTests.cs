@@ -3,22 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
-
 using Microsoft.EntityFrameworkCore;
-
 using Moq;
-
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
 using Xunit;
-using OpenTelemetry;
-using OpenTelemetry.Metrics;
-using Altinn.Profile.Core.Telemetry;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
 {
@@ -634,7 +630,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         }
 
         // --- Telemetry meter tests ---
-
         [Fact]
         public async Task AddOrUpdateNotificationAddressFromSyncAsync_EmitsNotificationAddressAddedMetric()
         {
