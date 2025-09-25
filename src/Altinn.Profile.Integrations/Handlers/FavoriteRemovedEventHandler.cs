@@ -14,7 +14,7 @@ namespace Altinn.Profile.Integrations.Handlers;
 public class FavoriteRemovedEventHandler(IUserFavoriteClient client, IOptions<SblBridgeSettings> settings)
 {
     private readonly IUserFavoriteClient _userFavoriteClient = client;
-    private readonly bool _updatea2 = settings.Value.UpdateA2;
+    private readonly bool _updateA2 = settings.Value.UpdateA2Favorites;
 
     /// <summary>
     /// Handles the event
@@ -22,7 +22,7 @@ public class FavoriteRemovedEventHandler(IUserFavoriteClient client, IOptions<Sb
     [Transactional]
     public async Task Handle(FavoriteRemovedEvent changeEvent)
     {
-        if (!_updatea2)
+        if (!_updateA2)
         {
             return;
         }
@@ -30,7 +30,7 @@ public class FavoriteRemovedEventHandler(IUserFavoriteClient client, IOptions<Sb
         var request = new FavoriteChangedRequest
         {
             UserId = changeEvent.UserId,
-            ChangeType = "delete",
+            ChangeType = ChangeType.Delete,
             PartyUuid = changeEvent.PartyUuid,
             ChangeDateTime = changeEvent.EventTimestamp,
         };

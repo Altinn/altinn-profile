@@ -22,7 +22,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Handlers
                 .Callback<FavoriteChangedRequest>(req => capturedRequest = req)
                 .Returns(Task.CompletedTask);
             var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
-            settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2 = true });
+            settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2Favorites = true });
 
             var handler = new FavoriteAddedEventHandler(mockClient.Object, settingsMock.Object);
 
@@ -46,7 +46,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Handlers
             // Arrange
             var mockClient = new Mock<IUserFavoriteClient>();
             var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
-            settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2 = false });
+            settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2Favorites = false });
 
             var handler = new FavoriteAddedEventHandler(mockClient.Object, settingsMock.Object);
 
@@ -70,7 +70,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Handlers
                 .Returns(Task.CompletedTask);
 
             var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
-            settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2 = true });
+            settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2Favorites = true });
 
             var handler = new FavoriteRemovedEventHandler(mockClient.Object, settingsMock.Object);
 
@@ -94,7 +94,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Handlers
             // Arrange
             var mockClient = new Mock<IUserFavoriteClient>();
             var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
-            settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2 = false });
+            settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2Favorites = false });
 
             var handler = new FavoriteRemovedEventHandler(mockClient.Object, settingsMock.Object);
 

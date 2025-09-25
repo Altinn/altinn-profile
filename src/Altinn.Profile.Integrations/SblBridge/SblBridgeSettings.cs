@@ -13,5 +13,10 @@ public class SblBridgeSettings
     /// <summary>
     /// A feature flag indicating whether to update A2 when updating favorites
     /// </summary>
-    public bool UpdateA2 { get; set; }
+    public bool UpdateA2Favorites { get; set; }
+
+    /// <summary>
+    /// A feature flag indicating whether to update A2 when updating notification settings
+    /// </summary>
+    public bool UpdateA2NotificationSettings { get; set; }
 }

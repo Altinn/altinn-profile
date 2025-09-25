@@ -16,6 +16,7 @@ using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 using Altinn.Profile.Integrations.SblBridge.User.Favorites;
+using Altinn.Profile.Integrations.SblBridge.User.NotificationSettings;
 using Altinn.Profile.Integrations.SblBridge.User.Profile;
 using Altinn.Profile.Integrations.Services;
 
@@ -46,6 +47,7 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<IUserProfileClient, UserProfileClient>();
         services.AddHttpClient<IUnitProfileRepository, UnitProfileClient>();
         services.AddHttpClient<IUserFavoriteClient, UserFavoriteClient>();
+        services.AddHttpClient<IUserNotificationSettingsClient, UserNotificationSettingsClient>();
     }
 
     /// <summary>
