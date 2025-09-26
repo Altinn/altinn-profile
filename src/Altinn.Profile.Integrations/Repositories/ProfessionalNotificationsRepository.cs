@@ -1,5 +1,6 @@
 ﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
 
@@ -10,10 +11,11 @@ using Wolverine.EntityFrameworkCore;
 namespace Altinn.Profile.Integrations.Repositories
 {
     /// <inheritdoc/>
-    public class ProfessionalNotificationsRepository(IDbContextFactory<ProfileDbContext> contextFactory, IDbContextOutbox databaseContextOutbox) 
+    public class ProfessionalNotificationsRepository(IDbContextFactory<ProfileDbContext> contextFactory, IDbContextOutbox databaseContextOutbox, Telemetry? telemetry) 
         : EFCoreTransactionalOutbox(databaseContextOutbox), IProfessionalNotificationsRepository, IProfessionalNotificationSyncRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
+        private readonly Telemetry? _telemetry = telemetry;
 
         /// <inheritdoc/>
         public async Task<UserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
@@ -114,6 +116,7 @@ namespace Altinn.Profile.Integrations.Repositories
             if (existing == null)
             {
                 databaseContext.UserPartyContactInfo.Add(contactInfo);
+                _telemetry?.NotificationAddressAdded();
             }
             else
             {
@@ -131,6 +134,7 @@ namespace Altinn.Profile.Integrations.Repositories
                 HandleResourcesChange(contactInfo, existing);
 
                 databaseContext.UserPartyContactInfo.Update(existing);
+                _telemetry?.NotificationAddressUpdated();
             }
 
             await databaseContext.SaveChangesAsync(cancellationToken);
@@ -189,6 +193,7 @@ namespace Altinn.Profile.Integrations.Repositories
 
             databaseContext.UserPartyContactInfo.Remove(userPartyContactInfo);
             await databaseContext.SaveChangesAsync(cancellationToken);
+            _telemetry?.NotificationAddressDeleted();
 
             return userPartyContactInfo;
         }

@@ -1,12 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Core.PartyGroups;
+using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.Repositories;
@@ -33,7 +38,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         _databaseContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new ProfileDbContext(options));
 
-        _repository = new FavoriteSyncRepository(_databaseContextFactory.Object);
+        _repository = new FavoriteSyncRepository(_databaseContextFactory.Object, null);
 
         _databaseContext = _databaseContextFactory.Object.CreateDbContext();
     }
@@ -252,5 +257,67 @@ public class FavoriteSyncRepositoryTests : IDisposable
         {
             Assert.Fail("Expected no exception, but got: " + ex.Message);
         }
+    }
+
+    [Fact]
+    public async Task AddPartyToFavorites_EmitsFavoriteAddedMetric()
+    {
+        var metricItems = new List<Metric>();
+        using var meterProvider = Sdk.CreateMeterProviderBuilder()
+            .AddMeter(Telemetry.AppName)
+            .AddInMemoryExporter(metricItems)
+            .Build();
+
+        using var telemetry = new Telemetry();
+        var repository = new FavoriteSyncRepository(_databaseContextFactory.Object, telemetry);
+
+        var userId = 10;
+        var partyUuid = Guid.NewGuid();
+        var created = DateTime.UtcNow;
+
+        await repository.AddPartyToFavorites(userId, partyUuid, created, CancellationToken.None);
+
+        meterProvider.ForceFlush();
+
+        var favoriteAdded = metricItems.Single(item => item.Name == Telemetry.Metrics.CreateName("favorites.added"));
+        long addedSum = 0;
+        foreach (ref readonly var p in favoriteAdded.GetMetricPoints())
+        {
+            addedSum += p.GetSumLong();
+        }
+
+        Assert.Equal(1, addedSum);
+    }
+
+    [Fact]
+    public async Task DeleteFromFavorites_EmitsFavoriteDeletedMetric()
+    {
+        var metricItems = new List<Metric>();
+        using var meterProvider = Sdk.CreateMeterProviderBuilder()
+            .AddMeter(Telemetry.AppName)
+            .AddInMemoryExporter(metricItems)
+            .Build();
+
+        using var telemetry = new Telemetry();
+        var repository = new FavoriteSyncRepository(_databaseContextFactory.Object, telemetry);
+
+        var userId = 11;
+        var partyUuid = Guid.NewGuid();
+        var created = DateTime.UtcNow;
+
+        // Add first so we can delete
+        await repository.AddPartyToFavorites(userId, partyUuid, created, CancellationToken.None);
+        await repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(1), CancellationToken.None);
+
+        meterProvider.ForceFlush();
+
+        var favoriteDeleted = metricItems.Single(item => item.Name == Telemetry.Metrics.CreateName("favorites.deleted"));
+        long sum = 0;
+        foreach (ref readonly var p in favoriteDeleted.GetMetricPoints())
+        {
+            sum += p.GetSumLong();
+        }
+
+        Assert.Equal(1, sum);
     }
 }

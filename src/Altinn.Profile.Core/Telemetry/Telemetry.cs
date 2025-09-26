@@ -79,6 +79,8 @@ public sealed partial class Telemetry : IDisposable
 
             InitContactRegisterUpdateJob(context);
             InitOrganizationNotificationAddressUpdateJob(context);
+            InitNotificationSettingImportJob(context);
+            InitFavoriteImportJob(context);
 
             // NOTE: This Telemetry class is registered as a singleton
             // Metrics could be kept in fields of the respective objects that use them for instrumentation
