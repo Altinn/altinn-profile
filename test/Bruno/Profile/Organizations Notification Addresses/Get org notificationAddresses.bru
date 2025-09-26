@@ -10,11 +10,6 @@ get {
   auth: inherit
 }
 
-headers {
-  Authorization: Bearer {{BearerToken}}
-  ~PlatformAccessToken: {{AccessToken}}
-}
-
 script:pre-request {
   await bru.runRequest("TokenGenerator/portal user")
 }
