@@ -1,13 +1,13 @@
 meta {
-  name: Get org notificationAddresses
+  name: Email address
   type: http
-  seq: 1
+  seq: 4
 }
 
-get {
+post {
   url: {{ProfileBaseAddress}}/api/v1/organizations/{{orgNumber}}/notificationaddresses/mandatory
-  body: none
-  auth: none
+  body: json
+  auth: bearer
 }
 
 headers {
@@ -15,6 +15,12 @@ headers {
   ~PlatformAccessToken: {{AccessToken}}
 }
 
-script:pre-request {
-  await bru.runRequest("TokenGenerator/end user token")
+auth:bearer {
+  token: {{BearerToken}}
+}
+
+body:json {
+  {
+      "email": "wvjckqug@sharklasers.com"
+  }
 }

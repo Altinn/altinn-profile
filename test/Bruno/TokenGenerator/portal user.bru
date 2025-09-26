@@ -1,18 +1,18 @@
 meta {
-  name: end user token
+  name: portal user
   type: http
   seq: 3
 }
 
 get {
-  url: {{TokenGeneratorBaseUrl}}/api/GetPersonalToken?env={{Environment}}&scopes=altinn:events.subscribe&userId={{userId}}&partyId={{partyId}}&pid={{pid}}
+  url: {{TokenGeneratorBaseUrl}}/api/GetPersonalToken?env={{Environment}}&scopes=altinn:portal/enduser&userId={{userId}}&partyId={{partyId}}&pid={{pid}}
   body: none
   auth: basic
 }
 
 params:query {
   env: {{Environment}}
-  scopes: altinn:events.subscribe
+  scopes: altinn:portal/enduser
   userId: {{userId}}
   partyId: {{partyId}}
   pid: {{pid}}
