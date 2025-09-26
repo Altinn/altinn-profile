@@ -29,6 +29,7 @@ script:post-response {
   // Check if the response contains a valid token
   if (!data || data.trim() === '') {
     console.error('Failed to retrieve a valid bearer token');
+    return;
   }
   
   bru.setEnvVar("BearerToken", data);
