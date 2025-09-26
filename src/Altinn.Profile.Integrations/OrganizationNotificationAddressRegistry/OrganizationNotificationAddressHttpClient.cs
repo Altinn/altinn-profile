@@ -57,7 +57,7 @@ public class OrganizationNotificationAddressHttpClient(
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("Failed to retrieve contact details changes. StatusCode: {StatusCode}", response.StatusCode);
+            _logger.LogError("Failed to retrieve organizations notification address changes. StatusCode: {StatusCode}", response.StatusCode);
             return null;
         }
 
