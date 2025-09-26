@@ -1,15 +1,17 @@
 meta {
-  name: Get org notificationAddresses
+  name: Email address
   type: http
-  seq: 1
+  seq: 4
 }
 
-get {
+post {
   url: {{ProfileBaseAddress}}/api/v1/organizations/{{Party_OrgNo}}/notificationaddresses/mandatory
-  body: none
+  body: json
   auth: inherit
 }
 
-script:pre-request {
-  await bru.runRequest("TokenGenerator/portal user")
+body:json {
+  {
+      "email": "wvjckqug@sharklasers.com"
+  }
 }

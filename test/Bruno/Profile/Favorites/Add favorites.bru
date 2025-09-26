@@ -5,11 +5,11 @@ meta {
 }
 
 put {
-  url: {{ProfileBaseAddress}}/api/v1/users/current/party-groups/favorites/{{partyUuid}}
+  url: {{ProfileBaseAddress}}/api/v1/users/current/party-groups/favorites/{{Party_PartyUuid}}
   body: json
   auth: inherit
 }
 
 script:pre-request {
-  await bru.runRequest("TokenGenerator/end user token")
+  await bru.runRequest("TokenGenerator/portal user")
 }

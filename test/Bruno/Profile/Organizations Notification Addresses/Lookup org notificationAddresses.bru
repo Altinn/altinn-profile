@@ -1,17 +1,13 @@
 meta {
   name: Lookup org notificationAddresses
   type: http
-  seq: 5
+  seq: 7
 }
 
 post {
   url: {{ProfileBaseAddress}}/api/v1/organizations/notificationaddresses/lookup
   body: json
-  auth: bearer
-}
-
-auth:bearer {
-  token: {{AccessToken}}
+  auth: inherit
 }
 
 body:json {
