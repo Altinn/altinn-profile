@@ -5,7 +5,7 @@ meta {
 }
 
 put {
-  url: {{ProfileBaseAddress}}/api/v1/users/current/notificationsettings/parties/{{partyUuid}}
+  url: {{ProfileBaseAddress}}/api/v1/users/current/notificationsettings/parties/{{Party_PartyUuid}}
   body: json
   auth: inherit
 }
@@ -15,12 +15,11 @@ body:json {
     "emailAddress": "test@test.no",
     "phoneNumber": "+1234567890",
     "resourceIncludeList": [
-      "urn:altinn:resource:some-val",
       "urn:altinn:resource:app_ttd_storage-end-to-end"
     ]
   }
 }
 
 script:pre-request {
-  await bru.runRequest("TokenGenerator/end user token")
+  await bru.runRequest("TokenGenerator/portal user")
 }

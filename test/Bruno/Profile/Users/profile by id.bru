@@ -7,7 +7,7 @@ meta {
 get {
   url: {{ProfileBaseAddress}}/api/v1/users/current
   body: none
-  auth: bearer
+  auth: inherit
 }
 
 headers {
@@ -15,6 +15,7 @@ headers {
   PlatformAccessToken: {{AccessToken}}
 }
 
-auth:bearer {
-  token: {{BearerToken}}
+script:pre-request {
+  await bru.runRequest("TokenGenerator/portal user")
+  
 }

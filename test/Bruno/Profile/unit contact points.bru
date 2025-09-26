@@ -1,21 +1,21 @@
 meta {
   name: unit contact points
   type: http
-  seq: 1
+  seq: 2
 }
 
 post {
-  url: {{ProfileBaseAddress}}/profile/api/v1/units/contactpoint/lookup
+  url: {{ProfileBaseAddress}}/profile/api/v1/contact/details/lookup
   body: json
-  auth: bearer
-}
-
-auth:bearer {
-  token: {{BearerToken}}
+  auth: inherit
 }
 
 body:json {
   {
-      "OrganizationNumbers": [ "313731596" ]
+    "organizationNumbers": [
+      "310604771",
+      "312508729"
+    ],
+    "resourceId": "app_ttd_apps-test"
   }
 }

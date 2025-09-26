@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{TokenGeneratorBaseUrl}}/api/GetPersonalToken?env={{Environment}}&scopes=altinn:portal/enduser&userId={{userId}}&partyId={{partyId}}&pid={{pid}}
+  url: {{TokenGeneratorBaseUrl}}/api/GetPersonalToken?env={{Environment}}&scopes=altinn:portal/enduser&userId={{AuthN_UserId}}&partyId={{AuthN_PartyId}}&pid={{AuthN_Pid}}
   body: none
   auth: basic
 }
@@ -13,9 +13,9 @@ get {
 params:query {
   env: {{Environment}}
   scopes: altinn:portal/enduser
-  userId: {{userId}}
-  partyId: {{partyId}}
-  pid: {{pid}}
+  userId: {{AuthN_UserId}}
+  partyId: {{AuthN_PartyId}}
+  pid: {{AuthN_Pid}}
 }
 
 auth:basic {
@@ -24,13 +24,12 @@ auth:basic {
 }
 
 script:post-response {
-  
   let data = res.getBody();
   
   // Check if the response contains a valid token
   if (!data || data.trim() === '') {
-    console.error('Failed to retrieve a valid token');
-    return;
+    console.error('Failed to retrieve a valid bearer token');
   }
-  bru.setEnvVar("BearerToken",data);
+  
+  bru.setEnvVar("BearerToken", data);
 }

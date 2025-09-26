@@ -7,11 +7,7 @@ meta {
 post {
   url: {{ProfileBaseAddress}}/api/v1/organizations/notificationaddresses/lookup
   body: json
-  auth: bearer
-}
-
-auth:bearer {
-  token: {{AccessToken}}
+  auth: inherit
 }
 
 body:json {

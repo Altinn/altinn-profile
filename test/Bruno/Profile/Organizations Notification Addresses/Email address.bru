@@ -5,18 +5,14 @@ meta {
 }
 
 post {
-  url: {{ProfileBaseAddress}}/api/v1/organizations/{{orgNumber}}/notificationaddresses/mandatory
+  url: {{ProfileBaseAddress}}/api/v1/organizations/{{Party_OrgNo}}/notificationaddresses/mandatory
   body: json
-  auth: bearer
+  auth: inherit
 }
 
 headers {
   Authorization: Bearer {{BearerToken}}
   ~PlatformAccessToken: {{AccessToken}}
-}
-
-auth:bearer {
-  token: {{BearerToken}}
 }
 
 body:json {

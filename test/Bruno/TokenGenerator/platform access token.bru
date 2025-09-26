@@ -20,11 +20,14 @@ auth:basic {
   password: {{TokenGeneratorPassword}}
 }
 
-tests {
-  bru.setEnvVar("AccessToken", responseBody);
+script:post-response {
+  let data = res.getBody();
   
-  test("Generated token successfully", () => {
-      expect(res.getStatus()).to.equal(200);
-  });
+  // Check if the response contains a valid token
+  if (!data || data.trim() === '') {
+    console.error('Failed to retrieve a valid platform access token');
+    return;
+  }
   
+  bru.setEnvVar("AccessToken", data);
 }

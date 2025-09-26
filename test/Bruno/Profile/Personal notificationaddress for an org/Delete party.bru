@@ -5,11 +5,11 @@ meta {
 }
 
 delete {
-  url: {{ProfileBaseAddress}}/api/v1/users/current/notificationsettings/parties/{{partyUuid}}
+  url: {{ProfileBaseAddress}}/api/v1/users/current/notificationsettings/parties/{{Party_PartyUuid}}
   body: none
   auth: inherit
 }
 
 script:pre-request {
-  await bru.runRequest("TokenGenerator/end user token")
+  await bru.runRequest("TokenGenerator/portal user")
 }

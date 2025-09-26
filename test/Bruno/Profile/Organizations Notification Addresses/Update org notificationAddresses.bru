@@ -5,9 +5,9 @@ meta {
 }
 
 put {
-  url: {{ProfileBaseAddress}}/api/v1/organizations/{{orgNumber}}/notificationaddresses/mandatory/120695
+  url: {{ProfileBaseAddress}}/api/v1/organizations/{{Party_OrgNo}}/notificationaddresses/mandatory/120695
   body: json
-  auth: none
+  auth: inherit
 }
 
 headers {
@@ -22,5 +22,5 @@ body:json {
 }
 
 script:pre-request {
-  bru.runRequest("TokenGenerator/end user token")
+  await bru.runRequest("TokenGenerator/portal user")
 }
