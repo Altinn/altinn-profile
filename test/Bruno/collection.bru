@@ -1,6 +1,5 @@
 meta {
   name: Altinn 3
-  seq: 1
 }
 
 auth {
@@ -11,14 +10,31 @@ auth:bearer {
   token: {{BearerToken}}
 }
 
-vars:pre-request {
-  userId: 20010858
-  partyId: 50067466
-  pid: 18874198354
-  orgNumber: 312508729
-  partyUuid: b82320a2-e34d-47bb-8fb3-e6122a50087c
-}
-
 docs {
   Collection of request examples and tests for Altinn 3 API.
+  
+  # Working test data
+
+  ## Persons
+  
+  Test persons with their correct identifiers in each environment. Primarily used for the
+  AuthN_ variables to generate bearer tokens.
+
+  | Person      | Env  | UserId   | PartyId  | PartyUuid                            |
+  | ----------- | ---- | -------- | -------  | ------------------------------------ |
+  | 17902349936 | at22 | 20885478 | 51118947 | b8a3981b-9948-4109-88a9-679d90c4ab37 |
+  |             | at23 | 20462603 | 50891883 | 629fa2c0-27cd-40a2-ac6a-99bdf374dba2 |
+  |             | at24 | 20245418 | 51074789 | 3155a6c7-0967-4c31-9cb3-0afe525d5899 |
+  
+  ## Organizations
+
+  Test organizations with their correct identifiers in each environment as well as "CEO" for
+  the organization. Primarily used for the Party_ variables as "selected" party for the 
+  authenticated user.
+
+  | Organization | Env  | PartyId  | PartyUuid                            | "CEO"       |
+  | ------------ | ---- | -------- | ------------------------------------ | ----------- |
+  | 313605590    | at22 | 51643854 | 8027a287-e3f1-42ad-bb50-57b4c4584f13 | 17902349936 |
+  |              | at23 | 51519644 | 4a1cfef9-82e1-4be9-96b9-b99f116f8350 |             |
+  |              | at24 | 51605705 | e0347436-a499-49aa-b651-8c67c3c8d17e |             |
 }
