@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,6 +34,18 @@ namespace Altinn.Profile.Middleware
 
         private static readonly FrozenDictionary<string, Action<Claim, Activity>> _claimActions = InitClaimActions();
 
+        /// <summary>
+        /// Builds a case-insensitive map of claim type names to actions that apply relevant user tags to an Activity.
+        /// </summary>
+        /// <returns>
+        /// A FrozenDictionary where keys are claim type strings (case-insensitive) and values are actions that set activity tags:
+        /// - <c>AltinnCoreClaimTypes.UserId</c> -> sets <c>user.id</c>
+        /// - <c>AltinnCoreClaimTypes.PartyID</c> -> sets <c>user.party.id</c>
+        /// - <c>AltinnCoreClaimTypes.AuthenticationLevel</c> -> sets <c>user.authentication.level</c>
+        /// - <c>AltinnCoreClaimTypes.Org</c> -> sets <c>user.application.owner.id</c>
+        /// - <c>AltinnCoreClaimTypes.OrgNumber</c> -> sets <c>user.organization.number</c>
+        /// - <c>authorization_details</c> -> attempts to deserialize a <c>SystemUserClaim</c> and, if successful, sets <c>user.system.id</c> (first system user id) and <c>user.system.owner.number</c>; deserialization errors are ignored.
+        /// </returns>
         private static FrozenDictionary<string, Action<Claim, Activity>> InitClaimActions()
         {
             var actions = new Dictionary<string, Action<Claim, Activity>>(StringComparer.OrdinalIgnoreCase)
