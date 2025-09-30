@@ -234,14 +234,12 @@ public partial class ProfileDbContext : DbContext
 
             entity.HasKey(e => e.UserId).HasName("user_id_pkey");
             entity.Property(e => e.UserId).IsRequired();
-            entity.Property<int>(e => e.LanguageType).IsRequired();
+            entity.Property<LanguageType>(e => e.LanguageType).IsRequired();
             entity.Property<bool>(e => e.DoNotPromptForParty).IsRequired();
             entity.Property<Guid>(e => e.PreselectedPartyUuid).IsRequired();
             entity.Property<bool>(e => e.ShowClientUnits).IsRequired();
             entity.Property<bool>(e => e.ShouldShowSubEntities).IsRequired();
             entity.Property<bool>(e => e.ShouldShowDeletedEntities).IsRequired();
-
-            entity.HasIndex(e => e.UserId, "ix_portal_settings_user_id").IsUnique();
         });
 
         OnModelCreatingPartial(modelBuilder);

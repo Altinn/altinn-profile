@@ -11,9 +11,9 @@
         public int UserId { get; set; }
 
         /// <summary>
-        /// The foreign key for the language type.
+        /// The language the user has selected in Altinn portal.
         /// </summary>
-        public int LanguageType { get; set; }
+        public LanguageType LanguageType { get; set; }
 
         /// <summary>
         /// Indicates whether the user should not be prompted for party selection.
