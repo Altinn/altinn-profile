@@ -8,21 +8,21 @@
         /// <summary>
         /// Norwegian Bokmål language.
         /// </summary>
-        Bokmål,
+        Bokmål = 0,
 
         /// <summary>
         /// Norwegian Nynorsk language.
         /// </summary>
-        Nynorsk,
+        Nynorsk = 1,
 
         /// <summary>
         /// English language.
         /// </summary>
-        Engelsk,
+        Engelsk = 2,
 
         /// <summary>
         /// Sami language.
         /// </summary>
-        Samisk
+        Samisk = 3
     }
 }

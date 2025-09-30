@@ -236,7 +236,7 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.UserId).IsRequired();
             entity.Property<LanguageType>(e => e.LanguageType).IsRequired();
             entity.Property<bool>(e => e.DoNotPromptForParty).IsRequired();
-            entity.Property<Guid>(e => e.PreselectedPartyUuid).IsRequired();
+            entity.Property<Guid?>(e => e.PreselectedPartyUuid);
             entity.Property<bool>(e => e.ShowClientUnits).IsRequired();
             entity.Property<bool>(e => e.ShouldShowSubEntities).IsRequired();
             entity.Property<bool>(e => e.ShouldShowDeletedEntities).IsRequired();

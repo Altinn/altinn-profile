@@ -23,7 +23,7 @@
         /// <summary>
         /// The UUID of the preselected party.
         /// </summary>
-        public Guid PreselectedPartyUuid { get; set; }
+        public Guid? PreselectedPartyUuid { get; set; }
 
         /// <summary>
         /// Indicates whether client units should be shown.
