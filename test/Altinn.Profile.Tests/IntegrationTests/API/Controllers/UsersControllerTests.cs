@@ -257,9 +257,10 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     [Fact]
     public async Task GetUsersById_AsInvalidSystemUser_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
     {
-        //// The content of the bearer token is invalid, but the profile doesn't check the content of the token. It's only
-        //// checking that the token is valid by verifying the signature. The purpose of the test is to trigger an
-        //// exception during telemetry enrichment from the claims principal.
+        //// The content of the bearer token is invalid, but Profile doesn't check the content of the token. It's only
+        //// checking that the token is valid by verifying the signature. The purpose of the test is to ensure we can
+        //// handle an exception during deserialization of an invalid authorization_details claims value. The request
+        //// processing should continue as normal.
 
         // Arrange
         const int UserId = 2516356;

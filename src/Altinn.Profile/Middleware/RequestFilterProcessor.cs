@@ -77,9 +77,16 @@ namespace Altinn.Profile.Middleware
                     "authorization_details",
                     static (claim, activity) =>
                     {
-                        SystemUserClaim claimValue = JsonSerializer.Deserialize<SystemUserClaim>(claim.Value);
-                        activity.SetTag("user.system.id", claimValue?.Systemuser_id[0] ?? null);
-                        activity.SetTag("user.system.owner.number", claimValue?.Systemuser_org.ID ?? null);
+                        try
+                        {
+                            SystemUserClaim claimValue = JsonSerializer.Deserialize<SystemUserClaim>(claim.Value);
+                            activity.SetTag("user.system.id", claimValue?.Systemuser_id[0] ?? null);
+                            activity.SetTag("user.system.owner.number", claimValue?.Systemuser_org.ID ?? null);
+                        }
+                        catch
+                        {
+                            // Ignore all exceptions.
+                        }
                     }
                 },
             };
