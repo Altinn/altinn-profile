@@ -1,7 +1,9 @@
 ﻿using System.Linq;
-using Altinn.Profile.Core.OrganizationNotificationAddresses;
 
-namespace Altinn.Profile.Models
+using Altinn.Profile.Core.OrganizationNotificationAddresses;
+using Altinn.Profile.Models;
+
+namespace Altinn.Profile.Mappers
 {
     /// <summary>
     /// Extension class to map from Notification address input model 
