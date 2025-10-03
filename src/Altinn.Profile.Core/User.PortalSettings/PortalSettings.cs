@@ -17,11 +17,12 @@
 
         /// <summary>
         /// Indicates whether the user should not be prompted for party selection.
+        /// CCan be set without using PreselectedPartyUuid.
         /// </summary>
         public bool DoNotPromptForParty { get; set; }
 
         /// <summary>
-        /// The UUID of the preselected party.
+        /// The UUID of the preselected party.Optional.
         /// </summary>
         public Guid? PreselectedPartyUuid { get; set; }
 
