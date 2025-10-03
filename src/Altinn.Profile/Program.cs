@@ -334,6 +334,15 @@ void SetupImportJobs(IServiceCollection services, IConfiguration config)
             settings.Interval = TimeSpan.FromMinutes(1);
         });
     }
+
+    if (config.GetValue<bool>("ImportJobSettings:PortalSettingsImportEnabled"))
+    {
+        services.AddRecurringJob<PortalSettingImportJob>(settings =>
+        {
+            settings.LeaseName = LeaseNames.A2PortalSettingImport;
+            settings.Interval = TimeSpan.FromMinutes(1);
+        });
+    }
 }
 
 /// <summary>
