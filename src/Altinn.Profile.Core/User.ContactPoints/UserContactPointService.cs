@@ -11,16 +11,14 @@ public class UserContactPointService : IUserContactPointsService
 {
     private readonly IUserProfileService _userProfileService;
     private readonly IPersonService _personService;
-    private readonly bool _enablePersonService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserContactPointService"/> class.
     /// </summary>
-    public UserContactPointService(IUserProfileService userProfileService, IPersonService personService, IOptions<CoreSettings> settings)
+    public UserContactPointService(IUserProfileService userProfileService, IPersonService personService)
     {
         _userProfileService = userProfileService;
         _personService = personService;
-        _enablePersonService = settings.Value.EnableLocalKrrFetch;
     }
 
     /// <inheritdoc/>
@@ -54,43 +52,19 @@ public class UserContactPointService : IUserContactPointsService
     {
         UserContactPointsList resultList = new();
 
-        if (_enablePersonService)
-        {
-            var preferencesForContacts = await _personService.GetContactPreferencesAsync(nationalIdentityNumbers);
+        var preferencesForContacts = await _personService.GetContactPreferencesAsync(nationalIdentityNumbers);
 
-            preferencesForContacts.ForEach(contactPreference =>
-            {
-                resultList.ContactPointsList.Add(
-                    new UserContactPoints()
-                    {
-                        NationalIdentityNumber = contactPreference.NationalIdentityNumber,
-                        Email = contactPreference.Email,
-                        MobileNumber = contactPreference.MobileNumber,
-                        IsReserved = contactPreference.IsReserved,
-                    });
-            });
-        }
-        else
+        preferencesForContacts.ForEach(contactPreference =>
         {
-            foreach (var nationalIdentityNumber in nationalIdentityNumbers)
-            {
-                Result<UserProfile, bool> result = await _userProfileService.GetUser(nationalIdentityNumber);
-
-                result.Match(
-                    profile =>
-                    {
-                        resultList.ContactPointsList.Add(
-                            new UserContactPoints()
-                            {
-                                NationalIdentityNumber = profile.Party.SSN,
-                                Email = profile.Email,
-                                MobileNumber = profile.PhoneNumber,
-                                IsReserved = profile.IsReserved,
-                            });
-                    },
-                    _ => { });
-            }
-        }
+            resultList.ContactPointsList.Add(
+                new UserContactPoints()
+                {
+                    NationalIdentityNumber = contactPreference.NationalIdentityNumber,
+                    Email = contactPreference.Email,
+                    MobileNumber = contactPreference.MobileNumber,
+                    IsReserved = contactPreference.IsReserved,
+                });
+        });
 
         return resultList;
     }

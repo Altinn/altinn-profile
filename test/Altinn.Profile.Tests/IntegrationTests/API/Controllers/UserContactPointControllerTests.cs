@@ -182,7 +182,7 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         Assert.NotEmpty(actual.ContactPointsList[0].Email);
     }
 
-    private async Task<HttpResponseMessage> GetSBlResponseForSsn(string ssn)
+    private async Task<HttpResponseMessage> GetStoredDataForSsn(string ssn)
     {
         UserProfile userProfile;
 
