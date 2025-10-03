@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.User.ContactPoints;
@@ -51,14 +52,14 @@ public class UserContactPointController : ControllerBase
     /// <returns>Returns an overview of the contact points for the user</returns>
     [HttpPost("lookup")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<UserContactPointsList>> PostLookup([FromBody] UserContactDetailsLookupCriteria userContactPointLookup)
+    public async Task<ActionResult<UserContactPointsList>> PostLookup([FromBody] UserContactDetailsLookupCriteria userContactPointLookup, CancellationToken cancellationToken)
     {
         if (userContactPointLookup.NationalIdentityNumbers.Count == 0)
         {
             return Ok(new UserContactPointsList());
         }
  
-        UserContactPointsList userContactPointsList = await _contactPointService.GetContactPoints(userContactPointLookup.NationalIdentityNumbers);
+        UserContactPointsList userContactPointsList = await _contactPointService.GetContactPoints(userContactPointLookup.NationalIdentityNumbers, cancellationToken);
         return Ok(userContactPointsList);
     }
 }

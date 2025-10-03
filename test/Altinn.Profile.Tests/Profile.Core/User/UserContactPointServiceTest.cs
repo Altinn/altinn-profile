@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core;
@@ -61,7 +62,7 @@ public class UserContactPointServiceTest
         };
         _userProfileServiceMock.Setup(m => m.GetUser(userProfileA.Party.SSN)).ReturnsAsync(userProfileA);
         _userProfileServiceMock.Setup(m => m.GetUser(userProfileB.Party.SSN)).ReturnsAsync(userProfileB);
-        _personServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>())).ReturnsAsync([contactPreferencesA, contactPreferencesB]);
+        _personServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>())).ReturnsAsync([contactPreferencesA, contactPreferencesB]);
 
         return [expectedUserContactPointA, expectedUserContactPointB];
     }
@@ -78,7 +79,8 @@ public class UserContactPointServiceTest
             [
                 expectedUsers[0].NationalIdentityNumber,
                 expectedUsers[1].NationalIdentityNumber
-            ]);
+            ],
+            CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess, "Expected a success result");
@@ -92,7 +94,7 @@ public class UserContactPointServiceTest
             },
             _ => { });
 
-        _personServiceMock.Verify(service => service.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>()), Times.Exactly(1));
+        _personServiceMock.Verify(service => service.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()), Times.Exactly(1));
     }
 
     [Fact]
@@ -107,7 +109,8 @@ public class UserContactPointServiceTest
             [
                 expectedUsers[0].NationalIdentityNumber,
                 expectedUsers[1].NationalIdentityNumber
-            ]);
+            ],
+            CancellationToken.None);
 
         // Assert
         result.Match(

@@ -1,14 +1,20 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Runtime.Intrinsics.X86;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
+using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.Testdata;
+
+using Moq;
 
 using Xunit;
 
@@ -35,6 +41,25 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
 
         SblBridgeSettings sblBrideSettings = new() { ApiProfileEndpoint = "http://localhost/" };
         _factory.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);
+    }
+
+    public async Task SeedTestData(string ssn)
+    {
+        // Seed test data
+        var user1 = await GetStoredDataForSsn(ssn);
+
+        _factory.PersonServiceMock
+        .Setup(s => s.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+        .ReturnsAsync(new List<PersonContactPreferences>
+            {
+                new()
+                {
+                    NationalIdentityNumber = ssn,
+                    Email = user1.Email,
+                    IsReserved = user1.IsReserved,
+                    LanguageCode = user1.ProfileSettingPreference.Language
+                }
+            }.ToImmutableList());
     }
 
     [Fact]
@@ -92,6 +117,8 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
             NationalIdentityNumbers = new List<string>() { "01025101037", "99999999999" }
         };
 
+        var user = await GetStoredDataForSsn("01025101037");
+
         HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/availability");
 
@@ -140,6 +167,7 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         {
             NationalIdentityNumbers = new List<string>() { "01025101037", "99999999999" }
         };
+        await SeedTestData("01025101037");
 
         HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/lookup");
@@ -165,6 +193,7 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         {
             NationalIdentityNumbers = new List<string>() { "01025101037" }
         };
+        await SeedTestData("01025101037");
 
         HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/lookup");
@@ -182,7 +211,24 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         Assert.NotEmpty(actual.ContactPointsList[0].Email);
     }
 
-    private async Task<HttpResponseMessage> GetStoredDataForSsn(string ssn)
+    private async Task<UserProfile> GetStoredDataForSsn(string ssn)
+    {
+        UserProfile userProfile;
+
+        switch (ssn)
+        {
+            case "01025101037":
+                userProfile = await TestDataLoader.Load<UserProfile>("2001606");
+                return userProfile;
+            case "01025101038":
+                userProfile = await TestDataLoader.Load<UserProfile>("2001607");
+                return userProfile;
+            default:
+                return null;
+        }
+    }
+
+    private async Task<HttpResponseMessage> GetSBlResponseForSsn(string ssn)
     {
         UserProfile userProfile;
 

@@ -48,11 +48,11 @@ public class UserContactPointService : IUserContactPointsService
     }
 
     /// <inheritdoc/>
-    public async Task<UserContactPointsList> GetContactPoints(List<string> nationalIdentityNumbers)
+    public async Task<UserContactPointsList> GetContactPoints(List<string> nationalIdentityNumbers, CancellationToken cancellationToken)
     {
         UserContactPointsList resultList = new();
 
-        var preferencesForContacts = await _personService.GetContactPreferencesAsync(nationalIdentityNumbers);
+        var preferencesForContacts = await _personService.GetContactPreferencesAsync(nationalIdentityNumbers, cancellationToken);
 
         preferencesForContacts.ForEach(contactPreference =>
         {
