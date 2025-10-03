@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using System;
 using System.IO;
@@ -84,6 +84,10 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
             });
     }
 
+    /// <summary>
+    /// Configure the test web host with test-specific configuration, mocked services, and HTTP clients wired to the test message handler.
+    /// </summary>
+    /// <param name="builder">The web host builder used to configure application configuration and services for integration tests.</param>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureAppConfiguration((context, config) =>

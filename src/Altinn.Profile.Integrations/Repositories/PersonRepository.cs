@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using System.Collections.Immutable;
 
@@ -39,7 +39,13 @@ public class PersonRepository(IDbContextFactory<ProfileDbContext> contextFactory
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a an <see cref="ImmutableList{T}"/> of <see cref="PersonContactPreferences"/> objects representing the contact details of the persons.
     /// </returns>
-    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="nationalIdentityNumbers"/> is null.</exception>
+    /// <summary>
+    /// Retrieves contact preferences for the specified national identity numbers.
+    /// </summary>
+    /// <param name="nationalIdentityNumbers">A collection of national identity numbers (matched against Person.FnumberAk).</param>
+    /// <param name="cancellationToken">Cancellation token used for database operations.</param>
+    /// <returns>An immutable list of PersonContactPreferences for persons whose FnumberAk is in <paramref name="nationalIdentityNumbers"/>; empty if none match.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="nationalIdentityNumbers"/> is null.</exception>
     public async Task<ImmutableList<PersonContactPreferences>> GetContactPreferencesAsync(IEnumerable<string> nationalIdentityNumbers, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(nationalIdentityNumbers);

@@ -49,7 +49,11 @@ public class UserContactPointController : ControllerBase
     /// <summary>
     /// Endpoint looking up the contact points for the user connected to the provided national identity number in the request body  
     /// </summary>
-    /// <returns>Returns an overview of the contact points for the user</returns>
+    /// <summary>
+    /// Lookup contact points for users identified by the provided national identity numbers.
+    /// </summary>
+    /// <param name="userContactPointLookup">Lookup criteria containing the list of national identity numbers to query.</param>
+    /// <returns>A UserContactPointsList containing contact points for the requested users; returns an empty list when no identity numbers are supplied or no contact points are found.</returns>
     [HttpPost("lookup")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<UserContactPointsList>> PostLookup([FromBody] UserContactDetailsLookupCriteria userContactPointLookup, CancellationToken cancellationToken)

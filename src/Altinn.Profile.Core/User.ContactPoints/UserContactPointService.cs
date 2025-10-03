@@ -1,4 +1,4 @@
-﻿using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Models;
 using Microsoft.Extensions.Options;
 
@@ -14,6 +14,8 @@ public class UserContactPointService : IUserContactPointsService
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserContactPointService"/> class.
+    /// <summary>
+    /// Initializes a new instance of UserContactPointService with the required user profile and person services.
     /// </summary>
     public UserContactPointService(IUserProfileService userProfileService, IPersonService personService)
     {
@@ -47,7 +49,12 @@ public class UserContactPointService : IUserContactPointsService
         return availabilityResult;
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Retrieves contact point details for the specified national identity numbers.
+    /// </summary>
+    /// <param name="nationalIdentityNumbers">The national identity numbers to retrieve contact points for.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A UserContactPointsList containing contact point entries for each retrieved contact preference.</returns>
     public async Task<UserContactPointsList> GetContactPoints(List<string> nationalIdentityNumbers, CancellationToken cancellationToken)
     {
         UserContactPointsList resultList = new();
