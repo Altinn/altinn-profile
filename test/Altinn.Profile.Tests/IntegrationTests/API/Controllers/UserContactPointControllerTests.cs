@@ -43,7 +43,7 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         _factory.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);
     }
 
-    public async Task SeedTestData(string ssn)
+    private async Task SeedTestData(string ssn)
     {
         // Seed test data
         var user1 = await GetStoredDataForSsn(ssn);
@@ -211,7 +211,7 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         Assert.NotEmpty(actual.ContactPointsList[0].Email);
     }
 
-    private async Task<UserProfile> GetStoredDataForSsn(string ssn)
+    private static async Task<UserProfile> GetStoredDataForSsn(string ssn)
     {
         UserProfile userProfile;
 
