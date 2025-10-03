@@ -5,8 +5,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Authorization.ServiceDefaults.Jobs;
-using Altinn.Profile.Core.Integrations;
-using Altinn.Profile.Core.ProfessionalPortalAddresses;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.SblBridge.Changelog;
@@ -24,7 +22,6 @@ namespace Altinn.Profile.Changelog
         private readonly TimeProvider _timeProvider;
         private readonly IChangeLogClient _changeLogClient;
         private readonly IChangelogSyncMetadataRepository _changelogSyncMetadataRepository;
-        private readonly IPortalSettingsSyncRepository _portalSettingSyncRepository;
         private readonly Telemetry _telemetry;
 
         /// <summary>
@@ -35,14 +32,12 @@ namespace Altinn.Profile.Changelog
             IChangeLogClient changeLogClient,
             TimeProvider timeProvider,
             IChangelogSyncMetadataRepository changelogSyncMetadataRepository,
-            IPortalSettingsSyncRepository PortalSettingSyncRepository,
             Telemetry telemetry = null)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _changeLogClient = changeLogClient ?? throw new ArgumentNullException(nameof(changeLogClient));
             _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
             _changelogSyncMetadataRepository = changelogSyncMetadataRepository ?? throw new ArgumentNullException(nameof(changelogSyncMetadataRepository));
-            _portalSettingSyncRepository = PortalSettingSyncRepository ?? throw new ArgumentNullException(nameof(PortalSettingSyncRepository));
             _telemetry = telemetry;
         }
 
@@ -62,7 +57,7 @@ namespace Altinn.Profile.Changelog
 
         private async Task RunPortalSettingsImport(CancellationToken cancellationToken)
         {
-            var lastChangeDate = await _changelogSyncMetadataRepository.GetLatestSyncTimestampAsync(DataType.ReporteePortalSettings, cancellationToken);
+            var lastChangeDate = await _changelogSyncMetadataRepository.GetLatestSyncTimestampAsync(DataType.PortalSettingPreferences, cancellationToken);
 
             var changes = GetChangeLogPage(lastChangeDate ?? DateTime.MinValue, cancellationToken);
 
@@ -76,8 +71,8 @@ namespace Altinn.Profile.Changelog
 
                 foreach (var change in page.ProfileChangeLogList)
                 {
-                    var portalSetting = professionalPortalSettings.Deserialize(change.DataObject);
-                    if (PortalSetting == null)
+                    var portalSetting = PortalSettings.Deserialize(change.DataObject);
+                    if (portalSetting == null)
                     {
                         _logger.LogWarning("Failed to deserialize PortalSetting change log item with id {ChangeId}", change.ProfileChangeLogId);
                         continue;
@@ -86,26 +81,16 @@ namespace Altinn.Profile.Changelog
                     change.ChangeDatetime = change.ChangeDatetime.ToUniversalTime();
                     if (change.OperationType is OperationType.Insert or OperationType.Update)
                     {
-                        var userPartyContactInfo = new UserPartyContactInfo
-                        {
-                            UserId = PortalSetting.UserId,
-                            PartyUuid = PortalSetting.PartyUuid,
-                            EmailAddress = PortalSetting.Email,
-                            PhoneNumber = PortalSetting.PhoneNumber,
-                            LastChanged = change.ChangeDatetime,
-                            UserPartyContactInfoResources = PortalSetting.ServiceOptions?.Where(r => !string.IsNullOrWhiteSpace(r)).Select(r => new UserPartyContactInfoResource { ResourceId = r }).ToList()
-                        };
-
-                        await _PortalSettingSyncRepository.AddOrUpdatePortalAddressFromSyncAsync(userPartyContactInfo, cancellationToken);
+                        // Do nothing
                     }
                     else if (change.OperationType == OperationType.Delete)
                     {
-                        await _PortalSettingSyncRepository.DeletePortalAddressFromSyncAsync(PortalSetting.UserId, PortalSetting.PartyUuid, cancellationToken);
+                        // Do nothing
                     }
                 }
 
                 var lastChange = page.ProfileChangeLogList[^1].ChangeDatetime;
-                await _changelogSyncMetadataRepository.UpdateLatestChangeTimestampAsync(lastChange, DataType.ReporteePortalSettings);
+                await _changelogSyncMetadataRepository.UpdateLatestChangeTimestampAsync(lastChange, DataType.PortalSettingPreferences);
             }
         }
 
@@ -114,7 +99,7 @@ namespace Altinn.Profile.Changelog
             ChangeLog response;
             while (true)
             {
-                response = await _changeLogClient.GetChangeLog(from, DataType.ReporteePortalSettings, cancellationToken);
+                response = await _changeLogClient.GetChangeLog(from, DataType.PortalSettingPreferences, cancellationToken);
 
                 if (response == null || response.ProfileChangeLogList.Count == 0)
                 {
