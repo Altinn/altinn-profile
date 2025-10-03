@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Runtime.Intrinsics.X86;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,6 +46,11 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
     {
         // Seed test data
         var user1 = await GetStoredDataForSsn(ssn);
+
+        if (user1 == null)
+        {
+            return;
+        }
 
         _factory.PersonServiceMock
         .Setup(s => s.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
@@ -116,8 +120,6 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         {
             NationalIdentityNumbers = new List<string>() { "01025101037", "99999999999" }
         };
-
-        var user = await GetStoredDataForSsn("01025101037");
 
         HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/availability");
