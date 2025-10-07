@@ -75,7 +75,7 @@ public class PersonRepositoryTests : IDisposable
     public async Task GetContactDetailsAsync_WhenFound_ReturnsContactInfo()
     {
         // Act
-        var matches = await _personRepository.GetContactPreferencesAsync(["17111933790"]);
+        var matches = await _personRepository.GetContactPreferencesAsync(["17111933790"], CancellationToken.None);
         var matchedPersonContactPreferences = matches[0];
 
         var expectedPerson = _personContactAndReservationTestData
@@ -90,7 +90,7 @@ public class PersonRepositoryTests : IDisposable
     public async Task GetContactDetailsAsync_WhenMultipleContactsFound_ReturnsMultipleContacts()
     {
         // Act
-        var matchedPersonContactPreferences = await _personRepository.GetContactPreferencesAsync(["24064316776", "11044314101"]);
+        var matchedPersonContactPreferences = await _personRepository.GetContactPreferencesAsync(["24064316776", "11044314101"], CancellationToken.None);
 
         var expectedPersons = _personContactAndReservationTestData
             .Where(e => e.FnumberAk == "24064316776" || e.FnumberAk == "11044314101")
@@ -112,7 +112,7 @@ public class PersonRepositoryTests : IDisposable
     public async Task GetContactDetailsAsync_WhenNoNationalIdentityNumbersProvided_ReturnsEmpty()
     {
         // Act
-        var matchedPersonContactPreferences = await _personRepository.GetContactPreferencesAsync([]);
+        var matchedPersonContactPreferences = await _personRepository.GetContactPreferencesAsync([], It.IsAny<CancellationToken>());
 
         // Assert
         Assert.Empty(matchedPersonContactPreferences);
@@ -122,7 +122,7 @@ public class PersonRepositoryTests : IDisposable
     public async Task GetContactDetailsAsync_WhenNoneFound_ReturnsEmpty()
     {
         // Act
-        var matchedPersonContactPreferences = await _personRepository.GetContactPreferencesAsync(["nonexistent1", "nonexistent2"]);
+        var matchedPersonContactPreferences = await _personRepository.GetContactPreferencesAsync(["nonexistent1", "nonexistent2"], CancellationToken.None);
 
         // Assert
         Assert.Empty(matchedPersonContactPreferences);
@@ -134,7 +134,7 @@ public class PersonRepositoryTests : IDisposable
         // Act
         var expectedPerson = _personContactAndReservationTestData.Find(e => e.FnumberAk == "28026698350");
 
-        var matchedPersonContactPreferences = await _personRepository.GetContactPreferencesAsync(["28026698350", "nonexistent2"]);
+        var matchedPersonContactPreferences = await _personRepository.GetContactPreferencesAsync(["28026698350", "nonexistent2"], CancellationToken.None);
 
         // Assert invalid result
         Assert.Single(matchedPersonContactPreferences);
@@ -229,7 +229,7 @@ public class PersonRepositoryTests : IDisposable
 
         // Assert
         Assert.Equal(1, result);
-        var personList = await _personRepository.GetContactPreferencesAsync(["88888888888"]);
+        var personList = await _personRepository.GetContactPreferencesAsync(["88888888888"], It.IsAny<CancellationToken>());
         var person = personList.FirstOrDefault();
         Assert.NotNull(person);
         Assert.Equal("NO", person.LanguageCode);

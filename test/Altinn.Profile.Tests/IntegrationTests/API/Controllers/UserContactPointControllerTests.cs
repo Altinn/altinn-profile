@@ -1,14 +1,21 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Runtime.Intrinsics.X86;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
+using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.Testdata;
+
+using Moq;
 
 using Xunit;
 
@@ -35,6 +42,33 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
 
         SblBridgeSettings sblBrideSettings = new() { ApiProfileEndpoint = "http://localhost/" };
         _factory.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);
+    }
+
+    private async Task SeedTestData(string[] ssnList)
+    {
+        var users = new Dictionary<string, UserProfile>();
+        foreach (string ssn in ssnList)
+        {
+            // Seed test data
+            var user = await GetStoredDataForSsn(ssn);
+
+            if (user == null)
+            {
+                continue;
+            }
+
+            users.Add(ssn, user);
+        }
+
+        _factory.PersonServiceMock
+                .Setup(s => s.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync([.. users.Select(u => new PersonContactPreferences
+                {
+                    NationalIdentityNumber = u.Key,
+                    Email = u.Value.Email, 
+                    IsReserved = u.Value.IsReserved,
+                    LanguageCode = u.Value.ProfileSettingPreference.Language
+                })]);
     }
 
     [Fact]
@@ -138,8 +172,35 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         // Arrange       
         UserContactDetailsLookupCriteria input = new()
         {
-            NationalIdentityNumbers = new List<string>() { "01025101037", "99999999999" }
+            NationalIdentityNumbers = new List<string>() { "01025101037", "01025101038", "99999999999" }
         };
+        await SeedTestData(["01025101037", "01025101038"]);
+
+        HttpClient client = _factory.CreateClient();
+        HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/lookup");
+
+        httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json");
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        string responseContent = await response.Content.ReadAsStringAsync();
+        var actual = JsonSerializer.Deserialize<UserContactPointsList>(responseContent, _serializerOptions);
+        Assert.Equal(2, actual.ContactPointsList.Count);
+        Assert.NotEmpty(actual.ContactPointsList[0].Email);
+    }
+
+    [Fact]
+    public async Task PostLookup_SingleUser_DetailsReturned()
+    {
+        // Arrange       
+        UserContactDetailsLookupCriteria input = new()
+        {
+            NationalIdentityNumbers = new List<string>() { "01025101037" }
+        };
+        await SeedTestData(["01025101037"]);
 
         HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/lookup");
@@ -157,29 +218,21 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         Assert.NotEmpty(actual.ContactPointsList[0].Email);
     }
 
-    [Fact]
-    public async Task PostLookup_SingleUser_DetailsReturned()
+    private static async Task<UserProfile> GetStoredDataForSsn(string ssn)
     {
-        // Arrange       
-        UserContactDetailsLookupCriteria input = new()
+        UserProfile userProfile;
+
+        switch (ssn)
         {
-            NationalIdentityNumbers = new List<string>() { "01025101037" }
-        };
-
-        HttpClient client = _factory.CreateClient();
-        HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/lookup");
-
-        httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json");
-
-        // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-
-        // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        string responseContent = await response.Content.ReadAsStringAsync();
-        var actual = JsonSerializer.Deserialize<UserContactPointsList>(responseContent, _serializerOptions);
-        Assert.Single(actual.ContactPointsList);
-        Assert.NotEmpty(actual.ContactPointsList[0].Email);
+            case "01025101037":
+                userProfile = await TestDataLoader.Load<UserProfile>("2001606");
+                return userProfile;
+            case "01025101038":
+                userProfile = await TestDataLoader.Load<UserProfile>("2001607");
+                return userProfile;
+            default:
+                return null;
+        }
     }
 
     private async Task<HttpResponseMessage> GetSBlResponseForSsn(string ssn)

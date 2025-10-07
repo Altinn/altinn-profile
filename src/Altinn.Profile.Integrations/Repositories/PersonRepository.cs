@@ -35,22 +35,23 @@ public class PersonRepository(IDbContextFactory<ProfileDbContext> contextFactory
     /// Asynchronously retrieves the contact details for multiple persons by their national identity numbers.
     /// </summary>
     /// <param name="nationalIdentityNumbers">A collection of national identity numbers to look up.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a an <see cref="ImmutableList{T}"/> of <see cref="PersonContactPreferences"/> objects representing the contact details of the persons.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="nationalIdentityNumbers"/> is null.</exception>
-    public async Task<ImmutableList<PersonContactPreferences>> GetContactPreferencesAsync(IEnumerable<string> nationalIdentityNumbers)
+    public async Task<ImmutableList<PersonContactPreferences>> GetContactPreferencesAsync(IEnumerable<string> nationalIdentityNumbers, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(nationalIdentityNumbers);
 
         if (!nationalIdentityNumbers.Any())
         {
-            return ImmutableList<PersonContactPreferences>.Empty;
+            return [];
         }
 
-        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
-        List<Person> people = await databaseContext.People.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync();
+        List<Person> people = await databaseContext.People.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync(cancellationToken);
 
         var asContactPreferences = people.Select(PersonContactPreferencesMapper.Map);
         return asContactPreferences.ToImmutableList();
