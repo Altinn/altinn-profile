@@ -233,7 +233,7 @@ public partial class ProfileDbContext : DbContext
             entity.ToTable("profile_settings", "user_preferences");
 
             entity.HasKey(e => e.UserId).HasName("user_id_pkey");
-            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.UserId).IsRequired().ValueGeneratedNever();
             entity.Property<LanguageType>(e => e.LanguageType).IsRequired();
             entity.Property<bool>(e => e.DoNotPromptForParty).IsRequired();
             entity.Property<Guid?>(e => e.PreselectedPartyUuid);
