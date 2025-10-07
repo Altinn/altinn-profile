@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Core.User.PortalSettings
+﻿namespace Altinn.Profile.Core.User.ProfileSettings
 {
     /// <summary>
     /// Represents the supported language types for the user portal.

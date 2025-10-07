@@ -1,9 +1,9 @@
-﻿namespace Altinn.Profile.Core.User.PortalSettings
+﻿namespace Altinn.Profile.Core.User.ProfileSettings
 {
     /// <summary>
     /// Represents user-specific portal settings and preferences.
     /// </summary>
-    public class PortalSettings
+    public class ProfileSettings
     {
         /// <summary>
         /// The id of the user.
@@ -17,12 +17,12 @@
 
         /// <summary>
         /// Indicates whether the user should not be prompted for party selection.
-        /// CCan be set without using PreselectedPartyUuid.
+        /// Can be set without using PreselectedPartyUuid.
         /// </summary>
         public bool DoNotPromptForParty { get; set; }
 
         /// <summary>
-        /// The UUID of the preselected party.Optional.
+        /// The UUID of the preselected party. Optional.
         /// </summary>
         public Guid? PreselectedPartyUuid { get; set; }
 
@@ -40,5 +40,10 @@
         /// Indicates whether deleted entities should be shown.
         /// </summary>
         public bool ShouldShowDeletedEntities { get; set; }
+
+        /// <summary>
+        /// The users last timestamp for ignoring the UnitProfile update
+        /// </summary>
+        public DateTime? IgnoreUnitProfileDateTime { get; set; }
     }
 }

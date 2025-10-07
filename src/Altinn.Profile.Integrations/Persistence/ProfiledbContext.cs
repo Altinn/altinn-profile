@@ -3,7 +3,7 @@
 
 using Altinn.Profile.Core.PartyGroups;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
-using Altinn.Profile.Core.User.PortalSettings;
+using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Leases;
 
@@ -89,7 +89,7 @@ public partial class ProfileDbContext : DbContext
     /// <summary>
     /// The <see cref="DbSet{PortalSettings}"/> representing the portal settings for users.
     /// </summary>
-    public virtual DbSet<PortalSettings> PortalSettings { get; set; }
+    public virtual DbSet<ProfileSettings> PortalSettings { get; set; }
 
     /// <summary>
     /// Configures the schema needed for the context.
@@ -228,9 +228,9 @@ public partial class ProfileDbContext : DbContext
             entity.HasKey(e => e.LastChangedId).HasName("changelog_sync_metadata_pkey");
         });
 
-        modelBuilder.Entity<Altinn.Profile.Core.User.PortalSettings.PortalSettings>(entity =>
+        modelBuilder.Entity<ProfileSettings>(entity =>
         {
-            entity.ToTable("portal_settings", "user_preferences");
+            entity.ToTable("profile_settings", "user_preferences");
 
             entity.HasKey(e => e.UserId).HasName("user_id_pkey");
             entity.Property(e => e.UserId).IsRequired();
@@ -240,6 +240,7 @@ public partial class ProfileDbContext : DbContext
             entity.Property<bool>(e => e.ShowClientUnits).IsRequired();
             entity.Property<bool>(e => e.ShouldShowSubEntities).IsRequired();
             entity.Property<bool>(e => e.ShouldShowDeletedEntities).IsRequired();
+            entity.Property<DateTime?>(e => e.IgnoreUnitProfileDateTime);
         });
 
         OnModelCreatingPartial(modelBuilder);
