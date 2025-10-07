@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Runtime.Intrinsics.X86;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,28 +44,31 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         _factory.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);
     }
 
-    private async Task SeedTestData(string ssn)
+    private async Task SeedTestData(string[] ssnList)
     {
-        // Seed test data
-        var user1 = await GetStoredDataForSsn(ssn);
-
-        if (user1 == null)
+        var users = new Dictionary<string, UserProfile>();
+        foreach (string ssn in ssnList)
         {
-            return;
+            // Seed test data
+            var user = await GetStoredDataForSsn(ssn);
+
+            if (user == null)
+            {
+                continue;
+            }
+
+            users.Add(ssn, user);
         }
 
         _factory.PersonServiceMock
-        .Setup(s => s.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-        .ReturnsAsync(new List<PersonContactPreferences>
-            {
-                new()
+                .Setup(s => s.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync([.. users.Select(u => new PersonContactPreferences
                 {
-                    NationalIdentityNumber = ssn,
-                    Email = user1.Email,
-                    IsReserved = user1.IsReserved,
-                    LanguageCode = user1.ProfileSettingPreference.Language
-                }
-            }.ToImmutableList());
+                    NationalIdentityNumber = u.Key,
+                    Email = u.Value.Email, 
+                    IsReserved = u.Value.IsReserved,
+                    LanguageCode = u.Value.ProfileSettingPreference.Language
+                })]);
     }
 
     [Fact]
@@ -167,9 +172,9 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         // Arrange       
         UserContactDetailsLookupCriteria input = new()
         {
-            NationalIdentityNumbers = new List<string>() { "01025101037", "99999999999" }
+            NationalIdentityNumbers = new List<string>() { "01025101037", "01025101038", "99999999999" }
         };
-        await SeedTestData("01025101037");
+        await SeedTestData(["01025101037", "01025101038"]);
 
         HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/lookup");
@@ -183,7 +188,7 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         string responseContent = await response.Content.ReadAsStringAsync();
         var actual = JsonSerializer.Deserialize<UserContactPointsList>(responseContent, _serializerOptions);
-        Assert.Single(actual.ContactPointsList);
+        Assert.Equal(2, actual.ContactPointsList.Count);
         Assert.NotEmpty(actual.ContactPointsList[0].Email);
     }
 
@@ -195,7 +200,7 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         {
             NationalIdentityNumbers = new List<string>() { "01025101037" }
         };
-        await SeedTestData("01025101037");
+        await SeedTestData(["01025101037"]);
 
         HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/lookup");
