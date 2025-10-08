@@ -31,7 +31,6 @@ namespace Altinn.Profile.Integrations.Repositories.A2Sync
                 existing.ShouldShowDeletedEntities = profileSettings.ShouldShowDeletedEntities;
                 existing.IgnoreUnitProfileDateTime = profileSettings.IgnoreUnitProfileDateTime;
 
-                databaseContext.ProfileSettings.Update(existing);
                 await databaseContext.SaveChangesAsync();
                 _telemetry?.ProfileSettingsUpdated();
             }

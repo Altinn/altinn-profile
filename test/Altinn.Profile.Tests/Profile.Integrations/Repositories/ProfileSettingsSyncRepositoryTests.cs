@@ -19,7 +19,6 @@ public class ProfileSettingsSyncRepositoryTests : IDisposable
 {
     private bool _isDisposed;
     private readonly ProfileDbContext _databaseContext;
-    private readonly ProfileSettingsSyncRepository _repository;
     private readonly Mock<IDbContextFactory<ProfileDbContext>> _databaseContextFactory;
 
     public ProfileSettingsSyncRepositoryTests()
@@ -35,8 +34,6 @@ public class ProfileSettingsSyncRepositoryTests : IDisposable
 
         _databaseContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(_databaseContext);
-
-        _repository = new ProfileSettingsSyncRepository(_databaseContextFactory.Object, null);
 
         _databaseContext = _databaseContextFactory.Object.CreateDbContext();
     }
@@ -147,9 +144,9 @@ public class ProfileSettingsSyncRepositoryTests : IDisposable
         meterProvider.ForceFlush();
 
         // Assert
-        var profileSettignsUpdated = metricItems.Single(item => item.Name == Telemetry.Metrics.CreateName("profilesettings.updated"));
+        var profileSettingsUpdated = metricItems.Single(item => item.Name == Telemetry.Metrics.CreateName("profilesettings.updated"));
         long updatedSum = 0;
-        foreach (ref readonly var p in profileSettignsUpdated.GetMetricPoints())
+        foreach (ref readonly var p in profileSettingsUpdated.GetMetricPoints())
         {
             updatedSum += p.GetSumLong();
         }

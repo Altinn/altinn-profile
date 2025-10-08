@@ -143,17 +143,17 @@ partial class Telemetry
         internal const string ActivityPrefix = "ProfileSettings";
 
         /// <summary>
-        /// The name of the metric for the number of favorites added through the sync job.
+        /// The name of the metric for the number of profileSettings added through the sync job.
         /// </summary>
         internal static readonly string MetricNameProfileSettingsAdded = MetricName("added");
 
         /// <summary>
-        /// The name of the metric for the number of favorites added through the sync job.
+        /// The name of the metric for the number of profileSettings added through the sync job.
         /// </summary>
         internal static readonly string MetricNameProfileSettingsUpdated = MetricName("updated");
 
         /// <summary>
-        /// The name of the metric for the number of favorites deleted through the sync job.
+        /// The name of the metric for the number of profileSettings deleted through the sync job.
         /// </summary>
         internal static readonly string MetricNameProfileSettingsDeleted = MetricName("deleted");
 
