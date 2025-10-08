@@ -105,6 +105,7 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
+        /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
         public async Task AddOrUpdateNotificationAddressFromSyncAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken = default)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
@@ -178,6 +179,7 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
+        /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
         public async Task<UserPartyContactInfo?> DeleteNotificationAddressFromSyncAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);

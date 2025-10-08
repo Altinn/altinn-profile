@@ -14,6 +14,7 @@ namespace Altinn.Profile.Integrations.Handlers;
 /// </remarks>
 /// <param name="client">The favorites client</param>
 /// <param name="settings">Config to indicate if the handler should update Altinn 2</param>
+/// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
 public class FavoriteAddedEventHandler(IUserFavoriteClient client, IOptions<SblBridgeSettings> settings)
 {
     private readonly IUserFavoriteClient _userFavoriteClient = client;

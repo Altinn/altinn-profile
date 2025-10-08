@@ -3,6 +3,7 @@
     /// <summary>
     /// Interface to delete or insert favorites to the DB without notifying A2
     /// </summary>
+    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     public interface IFavoriteSyncRepository
     {
         /// <summary>

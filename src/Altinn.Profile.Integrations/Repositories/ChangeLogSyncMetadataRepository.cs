@@ -8,6 +8,7 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// <summary>
 /// Defines a repository for operations related to Changelog sync metadata.
 /// </summary>
+/// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
 public class ChangelogSyncMetadataRepository(IDbContextFactory<ProfileDbContext> contextFactory) : IChangelogSyncMetadataRepository
 {
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;

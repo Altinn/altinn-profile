@@ -18,6 +18,7 @@ namespace Altinn.Profile.Changelog
     /// <summary>
     /// A job that imports notificationSettings from A2.
     /// </summary>
+    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     public partial class NotificationSettingImportJob : Job
     {
         private readonly ILogger<NotificationSettingImportJob> _logger;

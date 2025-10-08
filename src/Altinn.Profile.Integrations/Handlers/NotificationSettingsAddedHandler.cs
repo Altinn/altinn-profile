@@ -16,6 +16,7 @@ namespace Altinn.Profile.Integrations.Handlers;
 /// </remarks>
 /// <param name="userNotificationSettingsClient">The notification settings client</param>
 /// <param name="settings">Config to indicate if the handler should update Altinn 2</param>
+/// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
 public class NotificationSettingsAddedHandler(IUserNotificationSettingsClient userNotificationSettingsClient, IOptions<SblBridgeSettings> settings)
 {
     private readonly bool _updateA2 = settings.Value.UpdateA2NotificationSettings;

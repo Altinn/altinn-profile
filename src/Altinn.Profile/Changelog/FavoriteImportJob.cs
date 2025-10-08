@@ -16,6 +16,7 @@ namespace Altinn.Profile.Changelog
     /// <summary>
     /// A job that imports favorites from A2.
     /// </summary>
+    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     public partial class FavoriteImportJob : Job
     {
         private readonly ILogger<FavoriteImportJob> _logger;

@@ -10,6 +10,7 @@ namespace Altinn.Authorization.ServiceDefaults.Leases;
 /// acquired lease or a failed lease-acquire result. Check <see cref="Acquired"/> to see if the lease
 /// was acquired or not.
 /// </summary>
+/// <remarks>Project can be removed when Altinn2 is decommissioned</remarks>
 public sealed class Lease
     : IAsyncDisposable
 {

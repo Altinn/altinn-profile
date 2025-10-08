@@ -7,6 +7,7 @@ namespace Altinn.Profile.Integrations.Repositories
     /// <summary>
     /// Adds support for transactional outbox for repositories that persist using EF Core
     /// </summary>
+    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     public abstract class EFCoreTransactionalOutbox(IDbContextOutbox contextOutbox)
     {
         private readonly IDbContextOutbox _outbox = contextOutbox;
