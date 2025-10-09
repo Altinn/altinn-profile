@@ -9,9 +9,6 @@ namespace Altinn.Profile.Integrations.Handlers;
 /// <summary>
 /// Handler for the event where a party has been added to a user's favorites.
 /// </summary>
-/// <remarks>
-/// Constructor for FavoriteAddedEventHandler
-/// </remarks>
 /// <param name="client">The favorites client</param>
 /// <param name="settings">Config to indicate if the handler should update Altinn 2</param>
 /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
