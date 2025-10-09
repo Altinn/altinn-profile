@@ -9,6 +9,7 @@ namespace Altinn.Profile.Integrations.Repositories
     /// <summary>
     /// Defines a repository for operations related to a users groups of parties.
     /// </summary>
+    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     public class FavoriteSyncRepository(IDbContextFactory<ProfileDbContext> contextFactory, Telemetry? telemetry) : IFavoriteSyncRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;

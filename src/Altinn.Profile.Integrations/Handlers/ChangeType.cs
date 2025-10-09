@@ -3,6 +3,7 @@
     /// <summary>
     /// Provides constants for different types of changes.
     /// </summary>
+    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     public static class ChangeType
     {
         /// <summary>

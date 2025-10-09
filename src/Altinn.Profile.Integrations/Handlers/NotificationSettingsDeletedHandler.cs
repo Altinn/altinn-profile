@@ -11,11 +11,9 @@ namespace Altinn.Profile.Integrations.Handlers;
 /// <summary>
 /// Handler for the event where the user deletes their notification settings for a party.
 /// </summary>
-/// <remarks>
-/// Constructor for NotificationSettingsDeletedHandler
-/// </remarks>
 /// <param name="userNotificationSettingsClient">The notification settings client</param>
 /// <param name="settings">Config to indicate if the handler should update Altinn 2</param>
+/// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
 public class NotificationSettingsDeletedHandler(IUserNotificationSettingsClient userNotificationSettingsClient, IOptions<SblBridgeSettings> settings)
 {
     private readonly bool _updateA2 = settings.Value.UpdateA2NotificationSettings;

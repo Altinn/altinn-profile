@@ -9,6 +9,7 @@ namespace Altinn.Profile.Integrations.Repositories
     /// <summary>
     /// Defines a repository for Lease operations.
     /// </summary>
+    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     public interface ILeaseRepository
     {
         /// <summary>

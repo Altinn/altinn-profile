@@ -7,6 +7,7 @@
     /// <param name="PartyUuid">The unique identifier of the party.</param>
     /// <param name="CreationTimestamp">The timestamp when the event was created.</param>
     /// <param name="EventTimestamp">The timestamp when the event occurred.</param>
+    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     public record NotificationSettingsDeletedEvent(
         int UserId,
         Guid PartyUuid,

@@ -3,6 +3,7 @@
     /// <summary>
     /// Lease names for register.
     /// </summary>
+    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     internal static class LeaseNames
     {
         /// <summary>

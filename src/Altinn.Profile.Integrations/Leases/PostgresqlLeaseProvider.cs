@@ -16,6 +16,7 @@ namespace Altinn.Profile.Integrations.Leases;
 /// Implementation of <see cref="ILeaseProvider"/> that uses a postgresql database
 /// as lease storage.
 /// </summary>
+/// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
 public partial class PostgresqlLeaseProvider
     : ILeaseProvider
 {

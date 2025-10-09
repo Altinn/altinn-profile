@@ -3,6 +3,7 @@
     /// <summary>
     /// Represents the settings for the changelog import jobs.
     /// </summary>
+    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     public class ImportJobSettings
     {
         /// <summary>

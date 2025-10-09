@@ -5,6 +5,7 @@ namespace Altinn.Profile.Integrations.Repositories
     /// <summary>
     /// Represents an implementation contract for a repository that can handle professional notification addresses.
     /// </summary>
+    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     public interface IProfessionalNotificationSyncRepository
     {
         /// <summary>

@@ -3,6 +3,7 @@
 /// <summary>
 /// Base class for jobs that can be run on a schedule or on host lifecycle events.
 /// </summary>
+/// <remarks>Project can be removed when Altinn2 is decommissioned</remarks>
 public abstract class Job
     : IJob
 {

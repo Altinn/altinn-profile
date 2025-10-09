@@ -12,6 +12,7 @@ namespace Altinn.Profile.Integrations.Repositories
     /// <summary>
     /// A repository for lease operations.
     /// </summary>
+    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     public class LeaseRepository(IDbContextFactory<ProfileDbContext> contextFactory) : ILeaseRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;

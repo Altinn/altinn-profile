@@ -8,6 +8,7 @@ namespace Altinn.Profile.Integrations.Entities
     /// <summary>
     /// Table of metadata for last changelog sync batch
     /// </summary>
+    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     [Table("changelog_sync_metadata", Schema = "lease")]
     public class ChangelogSyncMetadata
     {

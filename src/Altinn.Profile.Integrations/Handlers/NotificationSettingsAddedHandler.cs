@@ -12,7 +12,7 @@ namespace Altinn.Profile.Integrations.Handlers;
 /// Handler for the event where the user adds their notification settings for a party.
 /// </summary>
 /// <remarks>
-/// Constructor for NotificationSettingsAddedHandler
+/// Can be removed when Altinn2 is decommissioned.
 /// </remarks>
 /// <param name="userNotificationSettingsClient">The notification settings client</param>
 /// <param name="settings">Config to indicate if the handler should update Altinn 2</param>

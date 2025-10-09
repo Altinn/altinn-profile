@@ -10,6 +10,7 @@
     /// <param name="EmailAddress">The emailAddress of the notificationSettings</param>
     /// <param name="PhoneNumber">The phoneNumber of the notificationSettings</param>
     /// <param name="ResourceIds">Optional, the selected resourceIds of the notificationSettings</param>
+    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     public record NotificationSettingsUpdatedEvent(
         int UserId,
         Guid PartyUuid,
