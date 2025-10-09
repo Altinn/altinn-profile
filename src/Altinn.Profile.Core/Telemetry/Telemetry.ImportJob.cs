@@ -57,17 +57,17 @@ partial class Telemetry
     }
 
     /// <summary>
-    /// Increments the counter for the number of  ProfileSettings deleted.
+    /// Increments the counter for the number of ProfileSettings deleted.
     /// </summary>
     public void ProfileSettingsDeleted() => _counters[MetricNameProfileSettingsDeleted].Add(1);
 
     /// <summary>
-    /// Increments the counter for the number of  ProfileSettings updated.
+    /// Increments the counter for the number of ProfileSettings updated.
     /// </summary>
     public void ProfileSettingsUpdated() => _counters[MetricNameProfileSettingsUpdated].Add(1);
 
     /// <summary>
-    /// Increments the counter for the number of  ProfileSettings added.
+    /// Increments the counter for the number of ProfileSettings added.
     /// </summary>
     public void ProfileSettingsAdded() => _counters[MetricNameProfileSettingsAdded].Add(1);
 
@@ -148,7 +148,7 @@ partial class Telemetry
         internal static readonly string MetricNameProfileSettingsAdded = MetricName("added");
 
         /// <summary>
-        /// The name of the metric for the number of profileSettings added through the sync job.
+        /// The name of the metric for the number of profileSettings updated through the sync job.
         /// </summary>
         internal static readonly string MetricNameProfileSettingsUpdated = MetricName("updated");
 

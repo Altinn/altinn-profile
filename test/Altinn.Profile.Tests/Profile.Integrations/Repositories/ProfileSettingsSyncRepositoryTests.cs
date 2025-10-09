@@ -30,7 +30,7 @@ public class ProfileSettingsSyncRepositoryTests : IDisposable
 
         _databaseContextFactory = new Mock<IDbContextFactory<ProfileDbContext>>();
         _databaseContextFactory.Setup(f => f.CreateDbContext())
-            .Returns(new ProfileDbContext(options));
+            .Returns(_databaseContext);
 
         _databaseContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(_databaseContext);
