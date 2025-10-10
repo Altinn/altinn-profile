@@ -87,7 +87,7 @@ public partial class ProfileDbContext : DbContext
     public virtual DbSet<ChangelogSyncMetadata> ChangelogSyncMetadata { get; set; }
 
     /// <summary>
-    /// The <see cref="DbSet{ProfileSettings}"/> representing the portal settings for users.
+    /// The <see cref="DbSet{ProfileSettings}"/> representing the profile settings for users.
     /// </summary>
     public virtual DbSet<ProfileSettings> ProfileSettings { get; set; }
 
