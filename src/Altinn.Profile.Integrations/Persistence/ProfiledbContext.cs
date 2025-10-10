@@ -234,7 +234,7 @@ public partial class ProfileDbContext : DbContext
 
             entity.HasKey(e => e.UserId).HasName("user_id_pkey");
             entity.Property(e => e.UserId).IsRequired().ValueGeneratedNever();
-            entity.Property<LanguageType>(e => e.LanguageType).IsRequired();
+            entity.Property<string>(e => e.LanguageType).HasMaxLength(2).IsRequired();
             entity.Property<bool>(e => e.DoNotPromptForParty).IsRequired();
             entity.Property<Guid?>(e => e.PreselectedPartyUuid);
             entity.Property<bool>(e => e.ShowClientUnits).IsRequired();

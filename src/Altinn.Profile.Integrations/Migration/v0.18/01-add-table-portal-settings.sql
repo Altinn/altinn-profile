@@ -1,6 +1,6 @@
 CREATE TABLE user_preferences.profile_settings (
     user_id integer NOT NULL,
-    language_type integer NOT NULL,
+    language_type character varying(2) NOT NULL,
     do_not_prompt_for_party boolean NOT NULL,
     preselected_party_uuid uuid,
     show_client_units boolean NOT NULL,

@@ -13,7 +13,7 @@
         /// <summary>
         /// The language the user has selected in Altinn portal.
         /// </summary>
-        public LanguageType LanguageType { get; set; }
+        public required string LanguageType { get; set; }
 
         /// <summary>
         /// Indicates whether the user should not be prompted for party selection.
