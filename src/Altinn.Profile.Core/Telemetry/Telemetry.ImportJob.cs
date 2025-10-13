@@ -146,9 +146,6 @@ partial class Telemetry
         /// </summary>
         internal static readonly string MetricNameProfileSettingsUpdated = MetricName("updated");
 
-        /// <summary>
-        /// The name of the metric for the number of profileSettings deleted through the sync job.
-        /// </summary>
         private static string MetricName(string name) => Metrics.CreateName($"profilesettings.{name}");
     }
 }
