@@ -20,6 +20,7 @@ namespace Altinn.Profile.Changelog
     /// <summary>
     /// A job that imports ProfileSettings from A2.
     /// </summary>
+    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     public partial class ProfileSettingImportJob : Job
     {
         private readonly ILogger<ProfileSettingImportJob> _logger;
