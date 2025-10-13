@@ -2,6 +2,7 @@ using System.Diagnostics;
 
 using static Altinn.Profile.Core.Telemetry.Telemetry.Favorites;
 using static Altinn.Profile.Core.Telemetry.Telemetry.NotificationSettings;
+using static Altinn.Profile.Core.Telemetry.Telemetry.ProfileSettings;
 
 namespace Altinn.Profile.Core.Telemetry;
 
@@ -48,6 +49,22 @@ partial class Telemetry
     /// </summary>
     public void NotificationAddressAdded() => _counters[MetricNameNotificationSettingsAdded].Add(1);
 
+    private void InitProfileSettingImportJob(InitContext context)
+    {
+        InitMetricCounter(context, MetricNameProfileSettingsAdded, init: static m => m.Add(0));
+        InitMetricCounter(context, MetricNameProfileSettingsUpdated, init: static m => m.Add(0));
+    }
+
+    /// <summary>
+    /// Increments the counter for the number of ProfileSettings updated.
+    /// </summary>
+    public void ProfileSettingsUpdated() => _counters[MetricNameProfileSettingsUpdated].Add(1);
+
+    /// <summary>
+    /// Increments the counter for the number of ProfileSettings added.
+    /// </summary>
+    public void ProfileSettingsAdded() => _counters[MetricNameProfileSettingsAdded].Add(1);
+
     /// <summary>
     /// Starts a telemetry activity for the contact registry update job.
     /// </summary>
@@ -59,12 +76,12 @@ partial class Telemetry
     }
 
     /// <summary>
-    /// This class holds a set of constants for the telemetry metrics of the organization notification address update job.
+    /// This class holds a set of constants for the telemetry metrics of the favorites sync job.
     /// </summary>
     internal static class Favorites
     {
         /// <summary>
-        /// The prefix for all telemetry activities related to the organization notification address registry.
+        /// The prefix for all telemetry activities related to the favorites sync.
         /// </summary>
         internal const string ActivityPrefix = "Favorites";
 
@@ -82,12 +99,12 @@ partial class Telemetry
     }
 
     /// <summary>
-    /// This class holds a set of constants for the telemetry metrics of the organization notification address update job.
+    /// This class holds a set of constants for the telemetry metrics of the notification settings sync job.
     /// </summary>
     internal static class NotificationSettings
     {
         /// <summary>
-        /// The prefix for all telemetry activities related to the organization notification address registry.
+        /// The prefix for all telemetry activities related to the notification settings sync.
         /// </summary>
         internal const string ActivityPrefix = "NotificationSettings";
 
@@ -107,5 +124,31 @@ partial class Telemetry
         internal static readonly string MetricNameNotificationSettingsDeleted = MetricName("deleted");
 
         private static string MetricName(string name) => Metrics.CreateName($"notificationsettings.{name}");
+    }
+
+    /// <summary>
+    /// This class holds a set of constants for the telemetry metrics of the profile settings sync job.
+    /// </summary>
+    internal static class ProfileSettings
+    {
+        /// <summary>
+        /// The prefix for all telemetry activities related to the profile settings sync.
+        /// </summary>
+        internal const string ActivityPrefix = "ProfileSettings";
+
+        /// <summary>
+        /// The name of the metric for the number of profileSettings added through the sync job.
+        /// </summary>
+        internal static readonly string MetricNameProfileSettingsAdded = MetricName("added");
+
+        /// <summary>
+        /// The name of the metric for the number of profileSettings updated through the sync job.
+        /// </summary>
+        internal static readonly string MetricNameProfileSettingsUpdated = MetricName("updated");
+
+        /// <summary>
+        /// The name of the metric for the number of profileSettings deleted through the sync job.
+        /// </summary>
+        private static string MetricName(string name) => Metrics.CreateName($"profilesettings.{name}");
     }
 }
