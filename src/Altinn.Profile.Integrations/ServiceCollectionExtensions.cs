@@ -13,6 +13,7 @@ using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Register;
 using Altinn.Profile.Integrations.Repositories;
+using Altinn.Profile.Integrations.Repositories.A2Sync;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 using Altinn.Profile.Integrations.SblBridge.User.Favorites;
@@ -96,6 +97,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ProfessionalNotificationsRepository>();
         services.AddScoped<IProfessionalNotificationsRepository>(sp => sp.GetRequiredService<ProfessionalNotificationsRepository>());
         services.AddScoped<IProfessionalNotificationSyncRepository>(sp => sp.GetRequiredService<ProfessionalNotificationsRepository>());
+        services.AddScoped<IProfileSettingsSyncRepository, ProfileSettingsSyncRepository>();
 
         services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString)
         .UseSnakeCaseNamingConvention());
