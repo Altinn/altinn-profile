@@ -26,14 +26,13 @@ public class ProfileSettingsSyncRepositoryTests : IDisposable
         var options = new DbContextOptionsBuilder<ProfileDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
-        _databaseContext = new ProfileDbContext(options);
 
         _databaseContextFactory = new Mock<IDbContextFactory<ProfileDbContext>>();
         _databaseContextFactory.Setup(f => f.CreateDbContext())
-            .Returns(_databaseContext);
+            .Returns(new ProfileDbContext(options));
 
         _databaseContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(_databaseContext);
+            .ReturnsAsync(new ProfileDbContext(options));
 
         _databaseContext = _databaseContextFactory.Object.CreateDbContext();
     }
