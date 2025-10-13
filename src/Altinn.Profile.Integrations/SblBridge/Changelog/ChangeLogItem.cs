@@ -126,4 +126,65 @@ public class ChangeLogItem
             return JsonConvert.DeserializeObject<ProfessionalNotificationSettings>(data, settings);
         }
     }
+
+    /// <summary>
+    /// Represents the updated data of a portal setting.
+    /// </summary>
+    public class PortalSettings
+    {
+        /// <summary>
+        /// The id of the user.
+        /// </summary>
+        public int UserId { get; set; }
+
+        /// <summary>
+        /// The language the user has selected in Altinn portal.
+        /// </summary>
+        public int LanguageType { get; set; }
+
+        /// <summary>
+        /// Indicates whether the user should not be prompted for party selection.
+        /// CCan be set without using PreselectedPartyUuid.
+        /// </summary>
+        [JsonConverter(typeof(IntToBoolConverter))]
+        public bool DoNotPromptForParty { get; set; }
+
+        /// <summary>
+        /// The UUID of the preselected party.Optional.
+        /// </summary>
+        [JsonConverter(typeof(StringToNullableGuidConverter))]
+        public Guid? PreselectedPartyUuid { get; set; }
+
+        /// <summary>
+        /// Indicates whether client units should be shown.
+        /// </summary>
+        [JsonConverter(typeof(IntToBoolConverter))]
+        public bool ShowClientUnits { get; set; }
+
+        /// <summary>
+        /// Indicates whether sub-entities should be shown.
+        /// </summary>
+        [JsonConverter(typeof(IntToBoolConverter))]
+        public bool ShouldShowSubEntities { get; set; }
+
+        /// <summary>
+        /// Indicates whether deleted entities should be shown.
+        /// </summary>
+        [JsonConverter(typeof(IntToBoolConverter))]
+        public bool ShouldShowDeletedEntities { get; set; }
+
+        /// <summary>
+        /// This method will deserialize the JSON representation of the <see cref="PortalSettings"/> object.
+        /// </summary>
+        /// <returns>The object deserialized from JSON.</returns>
+        public static PortalSettings? Deserialize(string data)
+        {
+            JsonSerializerSettings settings = new()
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
+
+            return JsonConvert.DeserializeObject<PortalSettings>(data, settings);
+        }
+    }
 }
