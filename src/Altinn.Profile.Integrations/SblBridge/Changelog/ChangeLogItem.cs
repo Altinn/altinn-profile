@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Altinn.Profile.Integrations.SblBridge.Changelog.Converters;
+
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace Altinn.Profile.Integrations.SblBridge.Changelog;
@@ -144,13 +146,13 @@ public class ChangeLogItem
 
         /// <summary>
         /// Indicates whether the user should not be prompted for party selection.
-        /// CCan be set without using PreselectedPartyUuid.
+        /// Can be set without using PreselectedPartyUuid.
         /// </summary>
         [JsonConverter(typeof(IntToBoolConverter))]
         public bool DoNotPromptForParty { get; set; }
 
         /// <summary>
-        /// The UUID of the preselected party.Optional.
+        /// The UUID of the preselected party. Optional.
         /// </summary>
         [JsonConverter(typeof(StringToNullableGuidConverter))]
         public Guid? PreselectedPartyUuid { get; set; }

@@ -42,11 +42,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.Changelog
             var json = @"{
                 ""userId"": 20000018,
                 ""languageType"": 1044,
-                ""doNotPromptForParty"": 0,
+                ""doNotPromptForParty"": false,
                 ""preselectedPartyUuid"": ""8491ed2a-7716-4df1-ac18-bbfc0334f79d"",
-                ""showClientUnits"": 0,
-                ""shouldShowSubEntities"": 1,
-                ""shouldShowDeletedEntities"": 0,
+                ""showClientUnits"": false,
+                ""shouldShowSubEntities"": true,
+                ""shouldShowDeletedEntities"": false,
                 ""ignoreUnitProfileDateTime"": null
             }";
 

@@ -1,11 +1,11 @@
 ﻿using Newtonsoft.Json;
 
-namespace Altinn.Profile.Integrations.SblBridge.Changelog
+namespace Altinn.Profile.Integrations.SblBridge.Changelog.Converters
 {
     /// <summary>
     /// Converts between integer values (1/0) and boolean values for JSON serialization and deserialization.
     /// </summary>
-    public class IntToBoolConverter : Newtonsoft.Json.JsonConverter
+    public class IntToBoolConverter : JsonConverter
     {
         /// <summary>
         /// Determines whether this converter can convert the specified object type.
@@ -34,12 +34,9 @@ namespace Altinn.Profile.Integrations.SblBridge.Changelog
 
             if (reader.TokenType == JsonToken.Boolean)
             {
-                // Fix CS8605: Unboxing a possibly null value.
-                // Use reader.Value as bool? and check for null before unboxing.
-                bool? boolValue = reader.Value as bool?;
-                if (boolValue.HasValue)
+                if (reader.Value is bool b)
                 {
-                    return boolValue.Value;
+                    return b;
                 }
 
                 throw new JsonSerializationException("Expected non-null boolean value");
@@ -56,7 +53,7 @@ namespace Altinn.Profile.Integrations.SblBridge.Changelog
         /// <param name="serializer">The calling serializer.</param>
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            writer.WriteValue((value is bool b && b) ? 1 : 0);
+            writer.WriteValue(value is bool b && b ? 1 : 0);
         }
     }
 }
