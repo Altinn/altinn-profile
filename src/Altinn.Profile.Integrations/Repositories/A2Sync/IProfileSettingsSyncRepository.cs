@@ -1,6 +1,6 @@
 ﻿using Altinn.Profile.Core.User.ProfileSettings;
 
-namespace Altinn.Profile.Integrations.Repositories
+namespace Altinn.Profile.Integrations.Repositories.A2Sync
 {
     /// <summary>
     /// Defines methods for synchronizing profile settings with Altinn2

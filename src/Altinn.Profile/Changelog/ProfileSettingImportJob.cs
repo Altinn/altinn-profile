@@ -4,40 +4,47 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Altinn.Authorization.ServiceDefaults.Jobs;
 using Altinn.Profile.Core.Telemetry;
-using Altinn.Profile.Integrations.Repositories;
+using Altinn.Profile.Core.User.ProfileSettings;
+using Altinn.Profile.Integrations.Repositories.A2Sync;
 using Altinn.Profile.Integrations.SblBridge.Changelog;
+
 using Microsoft.Extensions.Logging;
+
 using static Altinn.Profile.Integrations.SblBridge.Changelog.ChangeLogItem;
 
 namespace Altinn.Profile.Changelog
 {
     /// <summary>
-    /// A job that imports PortalSettings from A2.
+    /// A job that imports ProfileSettings from A2.
     /// </summary>
-    public partial class PortalSettingImportJob : Job
+    public partial class ProfileSettingImportJob : Job
     {
-        private readonly ILogger<PortalSettingImportJob> _logger;
+        private readonly ILogger<ProfileSettingImportJob> _logger;
         private readonly TimeProvider _timeProvider;
         private readonly IChangeLogClient _changeLogClient;
         private readonly IChangelogSyncMetadataRepository _changelogSyncMetadataRepository;
         private readonly Telemetry _telemetry;
+        private readonly IProfileSettingsSyncRepository _profileSettingsSyncRepository;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PortalSettingImportJob"/> class.
+        /// Initializes a new instance of the <see cref="ProfileSettingImportJob"/> class.
         /// </summary>
-        public PortalSettingImportJob(
-            ILogger<PortalSettingImportJob> logger,
+        public ProfileSettingImportJob(
+            ILogger<ProfileSettingImportJob> logger,
             IChangeLogClient changeLogClient,
             TimeProvider timeProvider,
             IChangelogSyncMetadataRepository changelogSyncMetadataRepository,
+            IProfileSettingsSyncRepository profileSettingsSyncRepository,
             Telemetry telemetry = null)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _changeLogClient = changeLogClient ?? throw new ArgumentNullException(nameof(changeLogClient));
             _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
             _changelogSyncMetadataRepository = changelogSyncMetadataRepository ?? throw new ArgumentNullException(nameof(changelogSyncMetadataRepository));
+            _profileSettingsSyncRepository = profileSettingsSyncRepository ?? throw new ArgumentNullException(nameof(profileSettingsSyncRepository));
             _telemetry = telemetry;
         }
 
@@ -45,17 +52,17 @@ namespace Altinn.Profile.Changelog
         protected override async Task RunAsync(CancellationToken cancellationToken = default)
         {
             var start = _timeProvider.GetTimestamp();
-            Log.StartingPortalSettingsImport(_logger);
+            Log.StartingProfileSettingsImport(_logger);
 
-            using var activity = _telemetry?.StartA2ImportJob("PortalSettings");
+            using var activity = _telemetry?.StartA2ImportJob("ProfileSettings");
 
-            await RunPortalSettingsImport(cancellationToken);
+            await RunProfileSettingsImport(cancellationToken);
             var duration = _timeProvider.GetElapsedTime(start);
 
-            Log.FinishedPortalSettingsImport(_logger, duration);
+            Log.FinishedProfileSettingsImport(_logger, duration);
         }
 
-        private async Task RunPortalSettingsImport(CancellationToken cancellationToken)
+        private async Task RunProfileSettingsImport(CancellationToken cancellationToken)
         {
             var lastChangeDate = await _changelogSyncMetadataRepository.GetLatestSyncTimestampAsync(DataType.PortalSettingPreferences, cancellationToken);
 
@@ -74,18 +81,26 @@ namespace Altinn.Profile.Changelog
                     var portalSetting = PortalSettings.Deserialize(change.DataObject);
                     if (portalSetting == null)
                     {
-                        _logger.LogWarning("Failed to deserialize PortalSetting change log item with id {ChangeId}", change.ProfileChangeLogId);
+                        _logger.LogWarning("Failed to deserialize ProfileSetting change log item with id {ChangeId}", change.ProfileChangeLogId);
                         continue;
                     }
+
+                    var profileSettings = new ProfileSettings
+                    {
+                        LanguageType = LanguageType.GetFromAltinn2Code(portalSetting.LanguageType),
+                        UserId = portalSetting.UserId,
+                        DoNotPromptForParty = portalSetting.DoNotPromptForParty,
+                        PreselectedPartyUuid = portalSetting.PreselectedPartyUuid,
+                        ShowClientUnits = portalSetting.ShowClientUnits,
+                        ShouldShowSubEntities = portalSetting.ShouldShowSubEntities,
+                        ShouldShowDeletedEntities = portalSetting.ShouldShowDeletedEntities,
+                        IgnoreUnitProfileDateTime = portalSetting.IgnoreUnitProfileDateTime?.ToUniversalTime(),
+                    };
 
                     change.ChangeDatetime = change.ChangeDatetime.ToUniversalTime();
                     if (change.OperationType is OperationType.Insert or OperationType.Update)
                     {
-                        // Do nothing
-                    }
-                    else if (change.OperationType == OperationType.Delete)
-                    {
-                        // Do nothing
+                        await _profileSettingsSyncRepository.UpdateProfileSettings(profileSettings);
                     }
                 }
 
@@ -114,11 +129,11 @@ namespace Altinn.Profile.Changelog
 
         private static partial class Log
         {
-            [LoggerMessage(3, LogLevel.Information, "Starting PortalSettings import.")]
-            public static partial void StartingPortalSettingsImport(ILogger logger);
+            [LoggerMessage(3, LogLevel.Information, "Starting ProfileSettings import.")]
+            public static partial void StartingProfileSettingsImport(ILogger logger);
 
-            [LoggerMessage(4, LogLevel.Information, "Finished PortalSettings import in {Duration}.")]
-            public static partial void FinishedPortalSettingsImport(ILogger logger, TimeSpan duration);
+            [LoggerMessage(4, LogLevel.Information, "Finished ProfileSettings import in {Duration}.")]
+            public static partial void FinishedProfileSettingsImport(ILogger logger, TimeSpan duration);
         }
     }
 }

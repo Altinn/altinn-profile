@@ -4,11 +4,14 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Altinn.Authorization.ServiceDefaults.Jobs;
 using Altinn.Profile.Core.Telemetry;
-using Altinn.Profile.Integrations.Repositories;
+using Altinn.Profile.Integrations.Repositories.A2Sync;
 using Altinn.Profile.Integrations.SblBridge.Changelog;
+
 using Microsoft.Extensions.Logging;
+
 using static Altinn.Profile.Integrations.SblBridge.Changelog.ChangeLogItem;
 
 namespace Altinn.Profile.Changelog

@@ -39,6 +39,7 @@
 
   <ItemGroup>
     <None Remove="appsettings.test.json" />
+    <None Remove="Changelog\ProfileSettingImportJobTests.cs~RFe453f7.TMP" />
   </ItemGroup>
 
   <ItemGroup>

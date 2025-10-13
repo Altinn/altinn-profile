@@ -174,6 +174,12 @@ public class ChangeLogItem
         public bool ShouldShowDeletedEntities { get; set; }
 
         /// <summary>
+        /// The users last timestamp for ignoring the UnitProfile update
+        /// </summary>
+        [JsonConverter(typeof(NullableDateTimeConverter))]
+        public DateTime? IgnoreUnitProfileDateTime { get; set; }
+
+        /// <summary>
         /// This method will deserialize the JSON representation of the <see cref="PortalSettings"/> object.
         /// </summary>
         /// <returns>The object deserialized from JSON.</returns>

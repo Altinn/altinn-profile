@@ -1,31 +1,37 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using Newtonsoft.Json;
 
 namespace Altinn.Profile.Integrations.SblBridge.Changelog
 {
     /// <summary>
-    /// Converts a JSON string to a nullable Guid and vice versa.
+    /// Converts a JSON string to a nullable DateTime and vice versa.
     /// </summary>
-    public class StringToNullableGuidConverter : JsonConverter
+    public class NullableDateTimeConverter : JsonConverter
     {
         /// <summary>
         /// Determines whether this converter can convert the specified object type.
         /// </summary>
         /// <param name="objectType">The type of the object to check.</param>
-        /// <returns><c>true</c> if the object type is nullable <see cref="Guid"/>; otherwise, <c>false</c>.</returns>
+        /// <returns><c>true</c> if the object type is nullable <see cref="DateTime"/>; otherwise, <c>false</c>.</returns>
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(Guid?);
+            return objectType == typeof(DateTime?);
         }
 
         /// <summary>
-        /// Reads the JSON representation of a nullable Guid.
+        /// Reads the JSON representation of a nullable DateTime.
         /// </summary>
         /// <param name="reader">The <see cref="JsonReader"/> to read from.</param>
         /// <param name="objectType">Type of the object.</param>
         /// <param name="existingValue">The existing value of object being read.</param>
         /// <param name="serializer">The calling serializer.</param>
         /// <returns>
-        /// A <see cref="Guid"/> value if the string is a valid Guid; otherwise, <c>null</c>.
+        /// A <see cref="DateTime"/> value if the string is a valid DateTime; otherwise, <c>null</c>.
         /// </returns>
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
@@ -37,19 +43,19 @@ namespace Altinn.Profile.Integrations.SblBridge.Changelog
                     return null;
                 }
 
-                if (Guid.TryParse(str, out var guid))
+                if (DateTime.TryParse(str, out var dateTime))
                 {
-                    return guid;
+                    return dateTime;
                 }
 
-                throw new JsonSerializationException($"Invalid Guid format: {str}");
+                throw new JsonSerializationException($"Invalid DateTime format: {str}");
             }
 
             return null;
         }
 
         /// <summary>
-        /// Writes the JSON representation of a nullable Guid.
+        /// Writes the JSON representation of a nullable DateTime.
         /// </summary>
         /// <param name="writer">The <see cref="JsonWriter"/> to write to.</param>
         /// <param name="value">The value to write. Can be <c>null</c>.</param>
@@ -62,7 +68,7 @@ namespace Altinn.Profile.Integrations.SblBridge.Changelog
             }
             else
             {
-                writer.WriteValue(((Guid)value).ToString());
+                writer.WriteValue(((DateTime)value).ToString());
             }
         }
     }

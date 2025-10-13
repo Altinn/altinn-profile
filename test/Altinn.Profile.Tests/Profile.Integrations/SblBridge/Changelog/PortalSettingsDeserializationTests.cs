@@ -6,7 +6,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.Changelog
     public class PortalSettingsDeserializationTests
     {
         [Fact]
-        public void Deserialize_ValidJson_ReturnsExpectedPortalSettings()
+        public void Deserialize_ValidJson_ReturnsExpectedProfileSettings()
         {
             // Arrange
             var json = @"{
@@ -16,7 +16,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.Changelog
                 ""preselectedPartyUuid"": """",
                 ""showClientUnits"": 0,
                 ""shouldShowSubEntities"": 1,
-                ""shouldShowDeletedEntities"": 0
+                ""shouldShowDeletedEntities"": 0,
+                ""ignoreUnitProfileDateTime"": """"
             }";
 
             // Act
@@ -31,10 +32,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.Changelog
             Assert.False(result.ShowClientUnits);
             Assert.True(result.ShouldShowSubEntities);
             Assert.False(result.ShouldShowDeletedEntities);
+            Assert.Null(result.IgnoreUnitProfileDateTime);
         }
 
         [Fact]
-        public void Deserialize_ValidJsonWithPreselectedPartyUuid_ReturnsExpectedPortalSettings()
+        public void Deserialize_ValidJsonWithPreselectedPartyUuid_ReturnsExpectedProfileSettings()
         {
             // Arrange
             var json = @"{
@@ -44,7 +46,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.Changelog
                 ""preselectedPartyUuid"": ""8491ed2a-7716-4df1-ac18-bbfc0334f79d"",
                 ""showClientUnits"": 0,
                 ""shouldShowSubEntities"": 1,
-                ""shouldShowDeletedEntities"": 0
+                ""shouldShowDeletedEntities"": 0,
+                ""ignoreUnitProfileDateTime"": null
             }";
 
             // Act
@@ -59,6 +62,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.Changelog
             Assert.False(result.ShowClientUnits);
             Assert.True(result.ShouldShowSubEntities);
             Assert.False(result.ShouldShowDeletedEntities);
+            Assert.Null(result.IgnoreUnitProfileDateTime);
         }
     }
 }

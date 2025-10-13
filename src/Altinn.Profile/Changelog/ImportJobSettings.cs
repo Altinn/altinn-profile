@@ -19,6 +19,6 @@
         /// <summary>
         /// Gets or sets a value indicating whether the portal settings import is enabled.
         /// </summary>
-        public bool PortalSettingsImportEnabled { get; set; } = false;
+        public bool ProfileSettingsImportEnabled { get; set; } = false;
     }
 }

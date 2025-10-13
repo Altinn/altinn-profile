@@ -17,8 +17,8 @@
         internal const string A2NotificationSettingImport = "a2-notification-settings-import";
 
         /// <summary>
-        /// Lease name for <see cref="PortalSettingImportJob"/>.
+        /// Lease name for <see cref="ProfileSettingImportJob"/>.
         /// </summary>
-        internal const string A2PortalSettingImport = "a2-portal-settings-import";
+        internal const string A2ProfileSettingImport = "a2-portal-settings-import";
     }
 }

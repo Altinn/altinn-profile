@@ -1,6 +1,6 @@
 ﻿using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 
-namespace Altinn.Profile.Integrations.Repositories
+namespace Altinn.Profile.Integrations.Repositories.A2Sync
 {
     /// <summary>
     /// Represents an implementation contract for a repository that can handle professional notification addresses.

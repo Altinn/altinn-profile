@@ -3,6 +3,7 @@ using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
+using Altinn.Profile.Integrations.Repositories.A2Sync;
 
 using Microsoft.EntityFrameworkCore;
 

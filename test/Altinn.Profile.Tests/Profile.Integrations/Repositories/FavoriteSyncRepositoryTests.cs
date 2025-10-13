@@ -3,15 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Core.PartyGroups;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.Persistence;
-using Altinn.Profile.Integrations.Repositories;
+using Altinn.Profile.Integrations.Repositories.A2Sync;
+
 using Microsoft.EntityFrameworkCore;
+
 using Moq;
 
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.Repositories;
