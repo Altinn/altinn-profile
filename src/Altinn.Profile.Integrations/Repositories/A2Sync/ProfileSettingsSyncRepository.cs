@@ -9,7 +9,7 @@ namespace Altinn.Profile.Integrations.Repositories.A2Sync
     /// <summary>
     /// Repository for synchronizing profile settings with Altinn2
     /// </summary>
-    public class ProfileSettingsSyncRepository(IDbContextFactory<ProfileDbContext> contextFactory, Telemetry telemetry) : IProfileSettingsSyncRepository
+    public class ProfileSettingsSyncRepository(IDbContextFactory<ProfileDbContext> contextFactory, Telemetry? telemetry) : IProfileSettingsSyncRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
         private readonly Telemetry? _telemetry = telemetry;
