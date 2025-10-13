@@ -26,14 +26,13 @@ public class ProfileSettingsSyncRepositoryTests : IDisposable
         var options = new DbContextOptionsBuilder<ProfileDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
-        _databaseContext = new ProfileDbContext(options);
 
         _databaseContextFactory = new Mock<IDbContextFactory<ProfileDbContext>>();
         _databaseContextFactory.Setup(f => f.CreateDbContext())
-            .Returns(_databaseContext);
+            .Returns(new ProfileDbContext(options));
 
         _databaseContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(_databaseContext);
+            .ReturnsAsync(new ProfileDbContext(options));
 
         _databaseContext = _databaseContextFactory.Object.CreateDbContext();
     }
@@ -79,7 +78,8 @@ public class ProfileSettingsSyncRepositoryTests : IDisposable
             ShowClientUnits = true,
             ShouldShowSubEntities = false,
             ShouldShowDeletedEntities = false,
-            IgnoreUnitProfileDateTime = DateTime.Now
+            IgnoreUnitProfileDateTime = DateTime.Now,
+            LanguageType = "en"
         };
 
         // Act
@@ -122,7 +122,8 @@ public class ProfileSettingsSyncRepositoryTests : IDisposable
             ShowClientUnits = false,
             ShouldShowSubEntities = false,
             ShouldShowDeletedEntities = false,
-            IgnoreUnitProfileDateTime = null
+            IgnoreUnitProfileDateTime = null,
+            LanguageType = "en"
         };
         _databaseContext.ProfileSettings.Add(existing);
         await _databaseContext.SaveChangesAsync();
@@ -135,7 +136,8 @@ public class ProfileSettingsSyncRepositoryTests : IDisposable
             ShowClientUnits = true,
             ShouldShowSubEntities = true,
             ShouldShowDeletedEntities = true,
-            IgnoreUnitProfileDateTime = DateTime.Now
+            IgnoreUnitProfileDateTime = DateTime.Now,
+            LanguageType = "nb"
         };
 
         // Act
