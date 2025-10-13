@@ -3,6 +3,7 @@
 
 using Altinn.Profile.Core.PartyGroups;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Leases;
 
@@ -84,6 +85,11 @@ public partial class ProfileDbContext : DbContext
     /// The <see cref="DbSet{ChangelogSyncMetadata}"/> timestamp for last changelog sync from date for a data-type.
     /// </summary>
     public virtual DbSet<ChangelogSyncMetadata> ChangelogSyncMetadata { get; set; }
+
+    /// <summary>
+    /// The <see cref="DbSet{ProfileSettings}"/> representing the profile settings for users.
+    /// </summary>
+    public virtual DbSet<ProfileSettings> ProfileSettings { get; set; }
 
     /// <summary>
     /// Configures the schema needed for the context.
@@ -220,6 +226,21 @@ public partial class ProfileDbContext : DbContext
         modelBuilder.Entity<ChangelogSyncMetadata>(entity =>
         {
             entity.HasKey(e => e.LastChangedId).HasName("changelog_sync_metadata_pkey");
+        });
+
+        modelBuilder.Entity<ProfileSettings>(entity =>
+        {
+            entity.ToTable("profile_settings", "user_preferences");
+
+            entity.HasKey(e => e.UserId).HasName("user_id_pkey");
+            entity.Property(e => e.UserId).IsRequired().ValueGeneratedNever();
+            entity.Property<string>(e => e.LanguageType).HasMaxLength(2).IsRequired();
+            entity.Property<bool>(e => e.DoNotPromptForParty).IsRequired();
+            entity.Property<Guid?>(e => e.PreselectedPartyUuid);
+            entity.Property<bool>(e => e.ShowClientUnits).IsRequired();
+            entity.Property<bool>(e => e.ShouldShowSubEntities).IsRequired();
+            entity.Property<bool>(e => e.ShouldShowDeletedEntities).IsRequired();
+            entity.Property<DateTime?>(e => e.IgnoreUnitProfileDateTime);
         });
 
         OnModelCreatingPartial(modelBuilder);
