@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 
 using Newtonsoft.Json;
 
@@ -35,6 +31,21 @@ namespace Altinn.Profile.Integrations.SblBridge.Changelog
         /// </returns>
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
+            string[] formats =
+            {
+                "yyyy-MM-dd HH:mm:ss.fff",        // SQL-style
+                "yyyy-MM-ddTHH:mm:ss",            // ISO basic
+                "yyyy-MM-ddTHH:mm:ss.fff",        // ISO with milliseconds
+                "yyyy-MM-ddTHH:mm:ss.fffffff",    // ISO with 7 digits
+                "yyyy-MM-ddTHH:mm:ssK",           // ISO with timezone
+                "yyyy-MM-ddTHH:mm:ss.fffffffK",   // ISO with high precision + timezone
+            };
+
+            if (reader.TokenType == JsonToken.Date)
+            {
+                return reader.Value;
+            }
+
             if (reader.TokenType == JsonToken.String)
             {
                 var str = (string?)reader.Value;
@@ -43,7 +54,7 @@ namespace Altinn.Profile.Integrations.SblBridge.Changelog
                     return null;
                 }
 
-                if (DateTime.TryParse(str, out var dateTime))
+                if (DateTime.TryParseExact(str, formats, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var dateTime))
                 {
                     return dateTime;
                 }
