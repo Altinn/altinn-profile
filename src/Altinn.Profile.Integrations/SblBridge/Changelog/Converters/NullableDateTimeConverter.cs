@@ -79,7 +79,7 @@ namespace Altinn.Profile.Integrations.SblBridge.Changelog.Converters
             }
             else
             {
-                writer.WriteValue(((DateTime)value).ToString());
+                writer.WriteValue(((DateTime)value).ToString("yyyy-MM-ddTHH:mm:ss.fffffffK", CultureInfo.InvariantCulture));
             }
         }
     }

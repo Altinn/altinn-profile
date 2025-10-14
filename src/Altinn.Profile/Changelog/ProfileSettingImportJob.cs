@@ -95,7 +95,7 @@ namespace Altinn.Profile.Changelog
                         ShowClientUnits = portalSetting.ShowClientUnits,
                         ShouldShowSubEntities = portalSetting.ShouldShowSubEntities,
                         ShouldShowDeletedEntities = portalSetting.ShouldShowDeletedEntities,
-                        IgnoreUnitProfileDateTime = portalSetting.IgnoreUnitProfileDateTime?.ToUniversalTime(),
+                        IgnoreUnitProfileDateTime = portalSetting.IgnoreUnitProfileDateTime > DateTime.MinValue ? portalSetting.IgnoreUnitProfileDateTime?.ToUniversalTime() : null,
                     };
 
                     change.ChangeDatetime = change.ChangeDatetime.ToUniversalTime();
