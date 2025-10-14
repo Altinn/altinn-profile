@@ -42,6 +42,53 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
+    public async Task<string?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
+    {
+        var accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "profile");
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            _logger.LogError("Invalid access token generated for org main unit lookup.");
+            return null;
+        }
+
+        var request = new QueryPartiesRequest(orgNumbers);
+        var json = JsonSerializer.Serialize(request, _options);
+        var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var requestMessage = new HttpRequestMessage(HttpMethod.Post, "v2/internal/parties/query")
+        {
+            Content = stringContent
+        };
+
+        requestMessage.Headers.Add("PlatformAccessToken", accessToken);
+
+        var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError("Failed to get main unit for organization. Status code: {StatusCode}", response.StatusCode);
+            return null;
+        }
+
+        var responseData = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        var responseObject = JsonSerializer.Deserialize<QueryPartiesResponse>(responseData);
+        if (!(responseObject?.Data?.Count > 0))
+        {
+            return null;
+        }
+
+        // The response is a list, but assuming the list contains only one item in all cases
+        if (responseObject.Data.Count > 1)
+        {
+            _logger.LogWarning("Get main units for organization returned multiple results. Using the first one.");
+        }
+
+        var mainUnitOrgNumber = responseObject.Data[0].OrganizationIdentifier;
+        return mainUnitOrgNumber;
+    }
+
+    /// <inheritdoc/>
     public async Task<string?> GetMainUnit(string orgNumber, CancellationToken cancellationToken)
     {
         var accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "profile");
