@@ -24,8 +24,14 @@ namespace Altinn.Profile.Integrations.Repositories.A2Sync
 
             if (existing != null)
             {
-                existing = profileSettings;
-                databaseContext.ProfileSettings.Update(existing);
+                existing.DoNotPromptForParty = profileSettings.DoNotPromptForParty;
+                existing.PreselectedPartyUuid = profileSettings.PreselectedPartyUuid;
+                existing.ShowClientUnits = profileSettings.ShowClientUnits;
+                existing.ShouldShowSubEntities = profileSettings.ShouldShowSubEntities;
+                existing.ShouldShowDeletedEntities = profileSettings.ShouldShowDeletedEntities;
+                existing.IgnoreUnitProfileDateTime = profileSettings.IgnoreUnitProfileDateTime;
+                existing.LanguageType = profileSettings.LanguageType;
+
                 await databaseContext.SaveChangesAsync();
                 _telemetry?.ProfileSettingsUpdated();
             }
@@ -35,6 +41,18 @@ namespace Altinn.Profile.Integrations.Repositories.A2Sync
                 await databaseContext.SaveChangesAsync();
                 _telemetry?.ProfileSettingsAdded();
             }
+        }
+
+        /// <summary>
+        /// Retrieves the profile settings for a given user ID.
+        /// </summary>
+        /// <param name="userId">The id of the user</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        public async Task<ProfileSettings?> GetProfileSettings(int userId)
+        {
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+            return await databaseContext.ProfileSettings
+                .FirstOrDefaultAsync(g => g.UserId == userId);
         }
     }
 }
