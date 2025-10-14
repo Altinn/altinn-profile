@@ -19,6 +19,6 @@
         /// <summary>
         /// Lease name for <see cref="ProfileSettingImportJob"/>.
         /// </summary>
-        internal const string A2ProfileSettingImport = "a2-portal-settings-import";
+        internal const string A2ProfileSettingImport = "a2-profile-settings-import";
     }
 }
