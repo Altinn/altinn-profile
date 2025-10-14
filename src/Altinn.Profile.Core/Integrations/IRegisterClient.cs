@@ -19,5 +19,13 @@
         /// <param name="partyUuid" >The UUID of the party to look up.</param>
         /// <param name="cancellationToken">Cancel the current request</param>
         Task<int?> GetPartyId(Guid partyUuid, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get party UUIDs for a list of organization numbers.
+        /// </summary>
+        /// <param name="orgNumbers">The organisation numbers to look up</param>
+        /// <param name="cancellationToken">Cancel the curent request</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<Dictionary<string, Guid>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken);
     }
 }

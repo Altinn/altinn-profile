@@ -42,7 +42,7 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
-    public async Task<string?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
+    public async Task<Dictionary<string, Guid>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
     {
         var accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "profile");
         if (string.IsNullOrEmpty(accessToken))
@@ -73,19 +73,19 @@ public class RegisterClient : IRegisterClient
         var responseData = await response.Content.ReadAsStringAsync(cancellationToken);
 
         var responseObject = JsonSerializer.Deserialize<QueryPartiesResponse>(responseData);
-        if (!(responseObject?.Data?.Count > 0))
+        var result = new Dictionary<string, Guid>();
+        if (responseObject?.Data != null)
         {
-            return null;
+            foreach (var party in responseObject.Data)
+            {
+                if (!string.IsNullOrEmpty(party.OrganizationIdentifier) && party.PartyUuid != Guid.Empty)
+                {
+                    result[party.OrganizationIdentifier] = party.PartyUuid;
+                }
+            }
         }
 
-        // The response is a list, but assuming the list contains only one item in all cases
-        if (responseObject.Data.Count > 1)
-        {
-            _logger.LogWarning("Get main units for organization returned multiple results. Using the first one.");
-        }
-
-        var mainUnitOrgNumber = responseObject.Data[0].OrganizationIdentifier;
-        return mainUnitOrgNumber;
+        return result;
     }
 
     /// <inheritdoc/>
