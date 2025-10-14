@@ -76,7 +76,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.Changelog
                 ""userId"": 20000018,
                 ""languageType"": 1044,
                 ""doNotPromptForParty"": 0,
-                ""preselectedPartyUuid"": """",
+                ""preselectedPartyUuid"": null,
                 ""showClientUnits"": 0,
                 ""shouldShowSubEntities"": 1,
                 ""shouldShowDeletedEntities"": 0,

@@ -29,6 +29,11 @@ namespace Altinn.Profile.Integrations.SblBridge.Changelog.Converters
         /// </returns>
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
+            if (reader.TokenType == JsonToken.Null)
+            {
+                return null;
+            }
+
             if (reader.TokenType == JsonToken.String)
             {
                 var str = (string?)reader.Value;

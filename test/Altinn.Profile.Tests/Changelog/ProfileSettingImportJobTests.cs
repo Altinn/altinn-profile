@@ -108,6 +108,74 @@ namespace Altinn.Profile.Tests.Changelog
                 Times.AtLeastOnce);
         }
 
+        [Fact]
+        public async Task RunAsync_LogsWarningOnDeserializationFailure()
+        {
+            // Arrange
+            var loggerMock = new Mock<ILogger<ProfileSettingImportJob>>();
+            var timeProvider = TimeProvider.System;
+
+            var changeLogClient = new Mock<IChangeLogClient>();
+            var changelogSyncMetadataRepository = new Mock<IChangelogSyncMetadataRepository>();
+
+            var profileSettingsSyncRepository = new Mock<IProfileSettingsSyncRepository>();
+
+            // Setup metadata repo to return null so we fetch from DateTime.MinValue
+            changelogSyncMetadataRepository
+                .Setup(r => r.GetLatestSyncTimestampAsync(DataType.PortalSettingPreferences, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((DateTime?)null);
+
+            // Provide an invalid JSON so deserialization returns null
+            var changeLogItem = new ChangeLogItem
+            {
+                ProfileChangeLogId = 1,
+                ChangeDatetime = DateTime.UtcNow,
+                OperationType = OperationType.Insert,
+                DataObject = "this-is-not-json",
+                DataType = DataType.PortalSettingPreferences
+            };
+
+            var changeLog = new ChangeLog
+            {
+                ProfileChangeLogList = new List<ChangeLogItem> { changeLogItem }
+            };
+
+            var callCount = 0;
+            changeLogClient
+                .Setup(c => c.GetChangeLog(It.IsAny<DateTime>(), DataType.PortalSettingPreferences, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() =>
+                {
+                    callCount++;
+                    return callCount == 1 ? changeLog : new ChangeLog { ProfileChangeLogList = new List<ChangeLogItem>() };
+                });
+
+            var job = new TestableProfileSettingImportJob(
+                loggerMock.Object,
+                changeLogClient.Object,
+                timeProvider,
+                changelogSyncMetadataRepository.Object,
+                profileSettingsSyncRepository.Object,
+                null);
+
+            // Act
+            await job.InvokeRunAsync(CancellationToken.None);
+
+            // Assert - a warning should be logged when deserialization fails
+            loggerMock.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to deserialize ProfileSetting change log item")),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
+
+            // Ensure repository was not called when deserialization fails
+            profileSettingsSyncRepository.Verify(
+                r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>()),
+                Times.Never);
+        }
+
         private class TestableProfileSettingImportJob : ProfileSettingImportJob
         {
             public TestableProfileSettingImportJob(
