@@ -160,7 +160,7 @@ namespace Altinn.Profile.Tests.Changelog
             // Act
             await job.InvokeRunAsync(CancellationToken.None);
 
-            // Assert - a warning should be logged when deserialization fails
+            // Assert - an error should be logged when deserialization fails
             loggerMock.Verify(
                 x => x.Log(
                     LogLevel.Error,
