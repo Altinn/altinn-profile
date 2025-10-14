@@ -3,7 +3,7 @@ namespace Altinn.Profile.Integrations.SblBridge.Unit.Profile
     /// <summary>
     /// Model describing the contact information that a user has associated with a party they can represent.
     /// </summary>
-    public class UserRegisteredContactPoint
+    public class SblUserRegisteredContactPoint
     {
         /// <summary>
         /// Gets or sets the legacy user id for the owner of this party notification endpoint.

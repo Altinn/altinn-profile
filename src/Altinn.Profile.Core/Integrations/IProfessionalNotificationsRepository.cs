@@ -25,6 +25,14 @@ namespace Altinn.Profile.Core.Integrations
         Task<IReadOnlyList<UserPartyContactInfo>> GetAllNotificationAddressesForUserAsync(int userId, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Retrieves all notification addresses for all users for the given party.
+        /// </summary>
+        /// <param name="partyUuid">The unique identifier of the party</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns></returns>
+        Task<IReadOnlyList<UserPartyContactInfo>> GetAllNotificationAddressesForPartyAsync(Guid partyUuid, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Adds a new or updates an existing notification address for a user and party.
         /// Returns <c>true</c> if a new record was created, <c>false</c> if an existing record was updated.
         /// </summary>

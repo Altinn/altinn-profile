@@ -4,6 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.Unit.ContactPoints;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -24,6 +26,7 @@ public class RegisterClient : IRegisterClient
     private readonly JsonSerializerOptions _options = new()
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
     /// <summary>
@@ -42,7 +45,7 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
-    public async Task<Dictionary<string, Guid>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
+    public async Task<List<Party>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
     {
         var accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "profile");
         if (string.IsNullOrEmpty(accessToken))
@@ -76,16 +79,10 @@ public class RegisterClient : IRegisterClient
         var result = new Dictionary<string, Guid>();
         if (responseObject?.Data != null)
         {
-            foreach (var party in responseObject.Data)
-            {
-                if (!string.IsNullOrEmpty(party.OrganizationIdentifier) && party.PartyUuid != Guid.Empty)
-                {
-                    result[party.OrganizationIdentifier] = party.PartyUuid;
-                }
-            }
+            return responseObject.Data;
         }
 
-        return result;
+        return null;
     }
 
     /// <inheritdoc/>

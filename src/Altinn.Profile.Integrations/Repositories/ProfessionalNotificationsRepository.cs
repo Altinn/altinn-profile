@@ -46,6 +46,21 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
+        public async Task<IReadOnlyList<UserPartyContactInfo>> GetAllNotificationAddressesForPartyAsync(Guid partyUuid, CancellationToken cancellationToken)
+        {
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+            var contactInfos = await databaseContext.UserPartyContactInfo
+                .AsNoTracking()
+                .Include(g => g.UserPartyContactInfoResources)
+                .AsSplitQuery()
+                .Where(g => g.PartyUuid == partyUuid)
+                .ToListAsync(cancellationToken);
+
+            return contactInfos;
+        }
+
+        /// <inheritdoc/>
         public async Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken = default)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);

@@ -1,5 +1,4 @@
 ﻿using Altinn.Profile.Core.Unit.ContactPoints;
-using Altinn.Profile.Core.User.ContactPoints;
 
 namespace Altinn.Profile.Integrations.SblBridge.Unit.Profile
 {
@@ -26,7 +25,7 @@ namespace Altinn.Profile.Integrations.SblBridge.Unit.Profile
         /// <summary>
         /// Gets or sets a list of multiple contanct points associated with the organisation.
         /// </summary>
-        public List<UserRegisteredContactPoint> ContactPoints { get; set; } = [];
+        public List<SblUserRegisteredContactPoint> ContactPoints { get; set; } = [];
 
         /// <summary>
         /// Maps a list of <see cref="PartyNotificationContactPoints"/> to a list of <see cref="UnitContactPoints"/>.
@@ -37,7 +36,7 @@ namespace Altinn.Profile.Integrations.SblBridge.Unit.Profile
             {
                 OrganizationNumber = partyNotificationEndpoint.OrganizationNumber,
                 PartyId = partyNotificationEndpoint.LegacyPartyId,
-                UserContactPoints = partyNotificationEndpoint.ContactPoints.Select(contactPoint => new UserContactPoints
+                UserContactPoints = partyNotificationEndpoint.ContactPoints.Select(contactPoint => new UserRegisteredContactPoint
                 {
                     UserId = contactPoint.LegacyUserId,
                     Email = contactPoint.Email,

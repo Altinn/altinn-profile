@@ -14,4 +14,9 @@ public class GeneralSettings
     /// Name of the cookie for where JWT is stored
     /// </summary>
     public string JwtCookieName { get; set; }
+
+    /// <summary>
+    /// Feature flag to lookup user contact points at SBL bridge
+    /// </summary>
+    public bool LookupUnitContactPointsAtSblBridge { get; set; }
 }

@@ -115,7 +115,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                     {
                         new PartyNotificationContactPoints()
                         {
-                            ContactPoints = [new UserRegisteredContactPoint()
+                            ContactPoints = [new Integrations.SblBridge.Unit.Profile.SblUserRegisteredContactPoint()
                             {
                                 LegacyUserId = 20001,
                                 Email = "user@email.com"
