@@ -25,7 +25,7 @@ namespace Altinn.Profile.Integrations.Repositories.A2Sync
             if (existing != null)
             {
                 existing = profileSettings;
-
+                databaseContext.ProfileSettings.Update(existing);
                 await databaseContext.SaveChangesAsync();
                 _telemetry?.ProfileSettingsUpdated();
             }
