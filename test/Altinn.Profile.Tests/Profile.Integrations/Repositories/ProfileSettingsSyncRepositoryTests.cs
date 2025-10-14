@@ -98,6 +98,17 @@ public class ProfileSettingsSyncRepositoryTests : IDisposable
         }
 
         Assert.Equal(1, addedSum);
+
+        var updated = await repository.GetProfileSettings(profileSettings.UserId);
+        Assert.NotNull(updated);
+        Assert.Equal(profileSettings.UserId, updated.UserId);
+        Assert.Equal(profileSettings.DoNotPromptForParty, updated.DoNotPromptForParty);
+        Assert.Equal(profileSettings.PreselectedPartyUuid, updated.PreselectedPartyUuid);
+        Assert.Equal(profileSettings.ShowClientUnits, updated.ShowClientUnits);
+        Assert.Equal(profileSettings.ShouldShowSubEntities, updated.ShouldShowSubEntities);
+        Assert.Equal(profileSettings.ShouldShowDeletedEntities, updated.ShouldShowDeletedEntities);
+        Assert.Equal(profileSettings.IgnoreUnitProfileDateTime, updated.IgnoreUnitProfileDateTime);
+        Assert.Equal(profileSettings.LanguageType, updated.LanguageType);
     }
 
     [Fact]
@@ -154,5 +165,16 @@ public class ProfileSettingsSyncRepositoryTests : IDisposable
         }
 
         Assert.Equal(1, updatedSum);
+
+        var stored = await repository.GetProfileSettings(existing.UserId);
+        Assert.NotNull(stored);
+        Assert.Equal(updated.UserId, stored.UserId);
+        Assert.Equal(updated.DoNotPromptForParty, stored.DoNotPromptForParty);
+        Assert.Equal(updated.PreselectedPartyUuid, stored.PreselectedPartyUuid);
+        Assert.Equal(updated.ShowClientUnits, stored.ShowClientUnits);
+        Assert.Equal(updated.ShouldShowSubEntities, stored.ShouldShowSubEntities);
+        Assert.Equal(updated.ShouldShowDeletedEntities, stored.ShouldShowDeletedEntities);
+        Assert.Equal(updated.IgnoreUnitProfileDateTime, stored.IgnoreUnitProfileDateTime);
+        Assert.Equal(updated.LanguageType, stored.LanguageType);
     }
 }
