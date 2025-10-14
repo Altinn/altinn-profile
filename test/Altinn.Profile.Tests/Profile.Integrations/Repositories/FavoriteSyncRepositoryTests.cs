@@ -28,7 +28,6 @@ public class FavoriteSyncRepositoryTests : IDisposable
         var options = new DbContextOptionsBuilder<ProfileDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
-        _databaseContext = new ProfileDbContext(options);
 
         _databaseContextFactory = new Mock<IDbContextFactory<ProfileDbContext>>();
 
