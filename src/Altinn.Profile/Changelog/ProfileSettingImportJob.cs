@@ -79,37 +79,17 @@ namespace Altinn.Profile.Changelog
 
                 foreach (var change in page.ProfileChangeLogList)
                 {
-                    PortalSettings portalSetting;
-                    try
-                    {
-                        portalSetting = PortalSettings.Deserialize(change.DataObject);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Failed to deserialize ProfileSetting change log item with id {ChangeId}", change.ProfileChangeLogId);
-                        continue;
-                    }
-
-                    if (portalSetting == null)
+                   PortalSettings portalSetting = Deserialize(change);
+                   if (portalSetting == null)
                     {
                         _logger.LogWarning("Failed to deserialize ProfileSetting change log item with id {ChangeId}", change.ProfileChangeLogId);
                         continue;
                     }
 
-                    var profileSettings = new ProfileSettings
-                    {
-                        LanguageType = LanguageType.GetFromAltinn2Code(portalSetting.LanguageType),
-                        UserId = portalSetting.UserId,
-                        DoNotPromptForParty = portalSetting.DoNotPromptForParty,
-                        PreselectedPartyUuid = portalSetting.PreselectedPartyUuid,
-                        ShowClientUnits = portalSetting.ShowClientUnits,
-                        ShouldShowSubEntities = portalSetting.ShouldShowSubEntities,
-                        ShouldShowDeletedEntities = portalSetting.ShouldShowDeletedEntities,
-                        IgnoreUnitProfileDateTime = portalSetting.IgnoreUnitProfileDateTime > DateTime.MinValue ? portalSetting.IgnoreUnitProfileDateTime?.ToUniversalTime() : null,
-                    };
+                   var profileSettings = MapToProfileSettings(portalSetting);
 
-                    change.ChangeDatetime = change.ChangeDatetime.ToUniversalTime();
-                    if (change.OperationType is OperationType.Insert or OperationType.Update)
+                   change.ChangeDatetime = change.ChangeDatetime.ToUniversalTime();
+                   if (change.OperationType is OperationType.Insert or OperationType.Update)
                     {
                         await _profileSettingsSyncRepository.UpdateProfileSettings(profileSettings);
                     }
@@ -136,6 +116,39 @@ namespace Altinn.Profile.Changelog
 
                 from = response.ProfileChangeLogList[^1].ChangeDatetime;
             }
+        }
+
+        private PortalSettings Deserialize(ChangeLogItem change)
+        {
+            PortalSettings portalSetting;
+            try
+            {
+                portalSetting = PortalSettings.Deserialize(change.DataObject);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to deserialize ProfileSetting change log item with id {ChangeId}", change.ProfileChangeLogId);
+                return null;
+            }
+
+            return portalSetting;
+        }
+
+        private static ProfileSettings MapToProfileSettings(PortalSettings portalSettings)
+        {
+            var ignoreUnitProfileDateTime = portalSettings.IgnoreUnitProfileDateTime > DateTime.MinValue ? portalSettings.IgnoreUnitProfileDateTime?.ToUniversalTime() : null;
+
+            return new ProfileSettings
+            {
+                LanguageType = LanguageType.GetFromAltinn2Code(portalSettings.LanguageType),
+                UserId = portalSettings.UserId,
+                DoNotPromptForParty = portalSettings.DoNotPromptForParty,
+                PreselectedPartyUuid = portalSettings.PreselectedPartyUuid,
+                ShowClientUnits = portalSettings.ShowClientUnits,
+                ShouldShowSubEntities = portalSettings.ShouldShowSubEntities,
+                ShouldShowDeletedEntities = portalSettings.ShouldShowDeletedEntities,
+                IgnoreUnitProfileDateTime = ignoreUnitProfileDateTime,
+            };
         }
 
         private static partial class Log
