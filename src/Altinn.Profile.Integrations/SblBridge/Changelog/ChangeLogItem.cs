@@ -148,7 +148,6 @@ public class ChangeLogItem
         /// Indicates whether the user should not be prompted for party selection.
         /// Can be set without using PreselectedPartyUuid.
         /// </summary>
-        [JsonConverter(typeof(IntToBoolConverter))]
         public bool DoNotPromptForParty { get; set; }
 
         /// <summary>
@@ -160,19 +159,16 @@ public class ChangeLogItem
         /// <summary>
         /// Indicates whether client units should be shown.
         /// </summary>
-        [JsonConverter(typeof(IntToBoolConverter))]
         public bool ShowClientUnits { get; set; }
 
         /// <summary>
         /// Indicates whether sub-entities should be shown.
         /// </summary>
-        [JsonConverter(typeof(IntToBoolConverter))]
         public bool ShouldShowSubEntities { get; set; }
 
         /// <summary>
         /// Indicates whether deleted entities should be shown.
         /// </summary>
-        [JsonConverter(typeof(IntToBoolConverter))]
         public bool ShouldShowDeletedEntities { get; set; }
 
         /// <summary>

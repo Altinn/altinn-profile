@@ -75,11 +75,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.Changelog
             var json = $@"{{
                 ""userId"": 20000018,
                 ""languageType"": 1044,
-                ""doNotPromptForParty"": 0,
+                ""doNotPromptForParty"": false,
                 ""preselectedPartyUuid"": null,
-                ""showClientUnits"": 0,
-                ""shouldShowSubEntities"": 1,
-                ""shouldShowDeletedEntities"": 0,
+                ""showClientUnits"": false,
+                ""shouldShowSubEntities"": true,
+                ""shouldShowDeletedEntities"": false,
                 ""ignoreUnitProfileDateTime"": ""{dateTime}""
             }}";
 
