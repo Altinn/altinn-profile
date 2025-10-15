@@ -172,7 +172,7 @@ public class ChangeLogItem
         public bool ShouldShowDeletedEntities { get; set; }
 
         /// <summary>
-        /// The users last timestamp for ignoring the UnitProfile update
+        /// The user's last timestamp for ignoring the UnitProfile update
         /// </summary>
         [JsonConverter(typeof(NullableDateTimeConverter))]
         public DateTime? IgnoreUnitProfileDateTime { get; set; }
