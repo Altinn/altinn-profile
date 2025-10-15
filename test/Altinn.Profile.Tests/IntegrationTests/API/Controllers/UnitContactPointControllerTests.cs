@@ -7,7 +7,12 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.Unit.ContactPoints;
+using Altinn.Profile.Integrations.Register;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
+
+using Microsoft.Extensions.Configuration;
+
+using Moq;
 
 using Xunit;
 
@@ -33,6 +38,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 UnitContactPointLookup lookup = JsonSerializer.Deserialize<UnitContactPointLookup>(requestString, _serializerOptions);
                 return GetSBlResponseFromSBL(lookup.OrganizationNumbers[0]);
             });
+
+            _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<System.Threading.CancellationToken>()))
+                .ReturnsAsync(GetRegisterResponse("123456789"));
         }
 
         [Fact]
@@ -106,6 +114,79 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
+        [Fact]
+        public async Task PostLookup_SblBridgeFeatureFlag_True_ReturnsOk()
+        {
+            // Arrange
+            UnitContactPointLookup input = new()
+            {
+                OrganizationNumbers = ["123456789"],
+                ResourceId = "app_ttd_apps-test"
+            };
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureAppConfiguration((context, config) =>
+                {
+                    var dict = new Dictionary<string, string>
+                    {
+                        { "GeneralSettings:LookupUnitContactPointsAtSblBridge", "false" }
+                    };
+                    config.AddInMemoryCollection(dict);
+                });
+            }).CreateClient();
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<UnitContactPointsList>(responseContent, _serializerOptions);
+            Assert.Single(actual.ContactPointsList);
+        }
+
+        [Fact]
+        public async Task PostLookup_SblBridgeFeatureFlag_True_ErrorResult_ReturnsProblemDetails()
+        {
+            // Arrange
+            UnitContactPointLookup input = new()
+            {
+                OrganizationNumbers = ["error-org"],
+                ResourceId = "app_ttd_apps-test"
+            };
+
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureAppConfiguration((context, config) =>
+                {
+                    var dict = new Dictionary<string, string>
+                    {
+                        { "GeneralSettings:LookupUnitContactPointsAtSblBridge", "false" }
+                    };
+                    config.AddInMemoryCollection(dict);
+                });
+            }).CreateClient();
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            Assert.Contains("Could not retrieve contact points", responseContent);
+        }
+
         private HttpResponseMessage GetSBlResponseFromSBL(string orgNo)
         {
             switch (orgNo)
@@ -130,6 +211,26 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                     return new HttpResponseMessage() { Content = JsonContent.Create(input, options: _serializerOptions), StatusCode = HttpStatusCode.OK };
                 default:
                     return new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable };
+            }
+        }
+
+        private List<Party> GetRegisterResponse(string orgNo)
+        {
+            switch (orgNo)
+            {
+                case "123456789":
+
+                    return new List<Party>()
+                    {
+                        new Party()
+                        {
+                            PartyId = 50001,
+                            OrganizationIdentifier = "123456789",
+                            PartyUuid = Guid.NewGuid(),
+                        }
+                    };
+                default:
+                    return new List<Party>();
             }
         }
     }
