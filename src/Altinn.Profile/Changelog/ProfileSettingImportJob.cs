@@ -79,7 +79,7 @@ namespace Altinn.Profile.Changelog
 
                 foreach (var change in page.ProfileChangeLogList)
                 {
-                   PortalSettings? portalSetting = Deserialize(change);
+                   PortalSettings portalSetting = Deserialize(change);
                    if (portalSetting == null)
                     {
                         continue;
@@ -87,14 +87,13 @@ namespace Altinn.Profile.Changelog
 
                    var profileSettings = MapToProfileSettings(portalSetting);
 
-                   change.ChangeDatetime = change.ChangeDatetime.ToUniversalTime();
                    if (change.OperationType is OperationType.Insert or OperationType.Update)
                     {
                         await _profileSettingsSyncRepository.UpdateProfileSettings(profileSettings);
                     }
                 }
 
-                var lastChange = page.ProfileChangeLogList[^1].ChangeDatetime;
+                var lastChange = page.ProfileChangeLogList[^1].ChangeDatetime.ToUniversalTime();
                 await _changelogSyncMetadataRepository.UpdateLatestChangeTimestampAsync(lastChange, DataType.PortalSettingPreferences);
             }
         }
@@ -117,9 +116,9 @@ namespace Altinn.Profile.Changelog
             }
         }
 
-        private PortalSettings? Deserialize(ChangeLogItem change)
+        private PortalSettings Deserialize(ChangeLogItem change)
         {
-            PortalSettings? portalSetting;
+            PortalSettings portalSetting;
             try
             {
                 portalSetting = PortalSettings.Deserialize(change.DataObject);
