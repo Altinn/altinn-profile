@@ -79,10 +79,9 @@ namespace Altinn.Profile.Changelog
 
                 foreach (var change in page.ProfileChangeLogList)
                 {
-                   PortalSettings portalSetting = Deserialize(change);
+                   PortalSettings? portalSetting = Deserialize(change);
                    if (portalSetting == null)
                     {
-                        _logger.LogWarning("Failed to deserialize ProfileSetting change log item with id {ChangeId}", change.ProfileChangeLogId);
                         continue;
                     }
 
@@ -118,16 +117,16 @@ namespace Altinn.Profile.Changelog
             }
         }
 
-        private PortalSettings Deserialize(ChangeLogItem change)
+        private PortalSettings? Deserialize(ChangeLogItem change)
         {
-            PortalSettings portalSetting;
+            PortalSettings? portalSetting;
             try
             {
                 portalSetting = PortalSettings.Deserialize(change.DataObject);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to deserialize ProfileSetting change log item with id {ChangeId}", change.ProfileChangeLogId);
+                _logger.LogWarning(ex, "Failed to deserialize ProfileSetting change log item with id {ChangeId}", change.ProfileChangeLogId);
                 return null;
             }
 
