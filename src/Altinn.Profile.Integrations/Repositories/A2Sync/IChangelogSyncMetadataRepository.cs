@@ -1,6 +1,6 @@
 ﻿using Altinn.Profile.Integrations.SblBridge.Changelog;
 
-namespace Altinn.Profile.Integrations.Repositories;
+namespace Altinn.Profile.Integrations.Repositories.A2Sync;
 
 /// <summary>
 /// Defines a repository for operations related to Changelog sync metadata.

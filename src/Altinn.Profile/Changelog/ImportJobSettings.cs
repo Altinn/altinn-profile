@@ -15,5 +15,10 @@
         /// Gets or sets a value indicating whether the notification settings import is enabled.
         /// </summary>
         public bool NotificationSettingsImportEnabled { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the portal settings import is enabled.
+        /// </summary>
+        public bool ProfileSettingsImportEnabled { get; set; } = false;
     }
 }

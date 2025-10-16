@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Integrations.Repositories
+﻿namespace Altinn.Profile.Integrations.Repositories.A2Sync
 {
     /// <summary>
     /// Interface to delete or insert favorites to the DB without notifying A2

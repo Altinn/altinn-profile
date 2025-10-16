@@ -23,6 +23,7 @@ using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Handlers;
 using Altinn.Profile.Integrations.Leases;
 using Altinn.Profile.Integrations.Repositories;
+using Altinn.Profile.Integrations.Repositories.A2Sync;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.Changelog;
 using Altinn.Profile.Middleware;
@@ -331,6 +332,15 @@ void SetupImportJobs(IServiceCollection services, IConfiguration config)
         services.AddRecurringJob<NotificationSettingImportJob>(settings =>
         {
             settings.LeaseName = LeaseNames.A2NotificationSettingImport;
+            settings.Interval = TimeSpan.FromMinutes(1);
+        });
+    }
+
+    if (config.GetValue<bool>("ImportJobSettings:ProfileSettingsImportEnabled"))
+    {
+        services.AddRecurringJob<ProfileSettingImportJob>(settings =>
+        {
+            settings.LeaseName = LeaseNames.A2ProfileSettingImport;
             settings.Interval = TimeSpan.FromMinutes(1);
         });
     }

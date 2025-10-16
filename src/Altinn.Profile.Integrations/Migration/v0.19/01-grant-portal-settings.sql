@@ -1,0 +1,1 @@
+GRANT DELETE, INSERT, SELECT, UPDATE  ON TABLE user_preferences.profile_settings TO platform_profile;

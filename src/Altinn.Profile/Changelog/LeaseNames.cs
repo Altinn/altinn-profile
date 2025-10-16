@@ -15,5 +15,10 @@
         /// Lease name for <see cref="NotificationSettingImportJob"/>.
         /// </summary>
         internal const string A2NotificationSettingImport = "a2-notification-settings-import";
+
+        /// <summary>
+        /// Lease name for <see cref="ProfileSettingImportJob"/>.
+        /// </summary>
+        internal const string A2ProfileSettingImport = "a2-profile-settings-import";
     }
 }

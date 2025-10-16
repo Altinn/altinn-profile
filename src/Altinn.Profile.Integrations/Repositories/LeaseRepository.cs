@@ -2,6 +2,7 @@
 
 using Altinn.Authorization.ServiceDefaults.Leases;
 using Altinn.Profile.Integrations.Persistence;
+using Altinn.Profile.Integrations.Repositories.A2Sync;
 
 using Microsoft.EntityFrameworkCore;
 
