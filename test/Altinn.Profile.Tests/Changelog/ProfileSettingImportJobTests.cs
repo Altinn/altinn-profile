@@ -70,15 +70,11 @@ namespace Altinn.Profile.Tests.Changelog
             };
 
             // Setup the client to return the changelog once, then an empty page to end the loop
-            var callCount = 0;
             changeLogClient
-                .Setup(c => c.GetChangeLog(It.IsAny<DateTime>(), DataType.PortalSettingPreferences, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() =>
-                {
-                    callCount++;
-                    return callCount == 1 ? changeLog : new ChangeLog { ProfileChangeLogList = new List<ChangeLogItem>() };
-                });
-
+                .SetupSequence(c => c.GetChangeLog(It.IsAny<DateTime>(), DataType.PortalSettingPreferences, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(changeLog)
+                .ReturnsAsync(new ChangeLog { ProfileChangeLogList = new List<ChangeLogItem>() });
+       
             var job = new TestableProfileSettingImportJob(
                 logger,
                 changeLogClient.Object,
