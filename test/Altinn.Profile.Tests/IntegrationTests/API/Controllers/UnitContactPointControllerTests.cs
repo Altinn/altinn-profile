@@ -4,8 +4,10 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
+using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Integrations.Register;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
@@ -39,8 +41,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 return GetSBlResponseFromSBL(lookup.OrganizationNumbers[0]);
             });
 
-            _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<System.Threading.CancellationToken>()))
-                .ReturnsAsync(GetRegisterResponse("123456789"));
+            _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((string[] orgNumbers, CancellationToken _) => GetRegisterResponse(orgNumbers[0]));
+
+            _factory.ProfessionalNotificationsRepositoryMock.Setup(s => s.GetAllNotificationAddressesForPartyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Guid partyUuid, CancellationToken _) => GetRepositoryResponse(partyUuid.ToString()));
         }
 
         [Fact]
@@ -152,7 +157,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task PostLookup_SblBridgeFeatureFlag_True_ErrorResult_ReturnsProblemDetails()
+        public async Task PostLookup_SblBridgeFeatureFlag_True_ErrorResult_ReturnsOkWithEmptyList()
         {
             // Arrange
             UnitContactPointLookup input = new()
@@ -182,9 +187,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
 
             // Assert
-            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             string responseContent = await response.Content.ReadAsStringAsync();
-            Assert.Contains("Could not retrieve contact points", responseContent);
+            var actual = JsonSerializer.Deserialize<UnitContactPointsList>(responseContent, _serializerOptions);
+            Assert.Empty(actual.ContactPointsList);
         }
 
         private HttpResponseMessage GetSBlResponseFromSBL(string orgNo)
@@ -196,7 +202,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                     {
                         new PartyNotificationContactPoints()
                         {
-                            ContactPoints = [new Integrations.SblBridge.Unit.Profile.SblUserRegisteredContactPoint()
+                            ContactPoints = [new SblUserRegisteredContactPoint()
                             {
                                 LegacyUserId = 20001,
                                 Email = "user@email.com"
@@ -220,17 +226,38 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 case "123456789":
 
-                    return new List<Party>()
-                    {
+                    return
+                    [
                         new Party()
                         {
                             PartyId = 50001,
                             OrganizationIdentifier = "123456789",
-                            PartyUuid = Guid.NewGuid(),
+                            PartyUuid = Guid.Parse("8baab949-07f9-4ac5-b8cb-af6208b59092"),
                         }
-                    };
+                    ];
                 default:
                     return new List<Party>();
+            }
+        }
+
+        private List<UserPartyContactInfo> GetRepositoryResponse(string partyUdid)
+        {
+            switch (partyUdid)
+            {
+                case "8baab949-07f9-4ac5-b8cb-af6208b59092":
+
+                    return
+                        [
+                            new UserPartyContactInfo()
+                            {
+                                UserId = 20001,
+                                EmailAddress = "user@email.com",
+                                PhoneNumber = "98765432",
+                                PartyUuid = Guid.Parse("8baab949-07f9-4ac5-b8cb-af6208b59092"),
+                            }
+                        ];
+                default:
+                    return [];
             }
         }
     }
