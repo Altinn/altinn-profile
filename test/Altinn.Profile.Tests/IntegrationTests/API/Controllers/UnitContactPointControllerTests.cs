@@ -192,7 +192,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             UnitContactPointLookup input = new()
             {
-                OrganizationNumbers = ["1111111111"],
+                OrganizationNumbers = ["111111111"],
                 ResourceId = "app_ttd_apps-test"
             };
 
