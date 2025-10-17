@@ -58,17 +58,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceId = "app_ttd_apps-test"
             };
 
-            var client = _factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureAppConfiguration((context, config) =>
-                {
-                    var dict = new Dictionary<string, string>
-                    {
-                        { "GeneralSettings:LookupUnitContactPointsAtSblBridge", "true" }
-                    };
-                    config.AddInMemoryCollection(dict);
-                });
-            }).CreateClient();
+            var client = CreateClientWithFlag(true);
+
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -94,17 +85,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceId = "app_ttd_apps-test"
             };
 
-            var client = _factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureAppConfiguration((context, config) =>
-                {
-                    var dict = new Dictionary<string, string>
-                    {
-                        { "GeneralSettings:LookupUnitContactPointsAtSblBridge", "true" }
-                    };
-                    config.AddInMemoryCollection(dict);
-                });
-            }).CreateClient(); 
+            var client = CreateClientWithFlag(true);
+
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -124,17 +106,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task PostLookup_SblBridgeFeatureFlag_InvalidInputValues_ReturnsBadRequest(string input)
         {
             // Arrange
-            var client = _factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureAppConfiguration((context, config) =>
-                {
-                    var dict = new Dictionary<string, string>
-                    {
-                        { "GeneralSettings:LookupUnitContactPointsAtSblBridge", "false" }
-                    };
-                    config.AddInMemoryCollection(dict);
-                });
-            }).CreateClient();
+            var client = CreateClientWithFlag(false);
+
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
                 Content = new StringContent(input, System.Text.Encoding.UTF8, "application/json")
@@ -159,17 +132,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceId = "app_ttd_apps-test"
             };
 
-            var client = _factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureAppConfiguration((context, config) =>
-                {
-                    var dict = new Dictionary<string, string>
-                    {
-                        { "GeneralSettings:LookupUnitContactPointsAtSblBridge", "false" }
-                    };
-                    config.AddInMemoryCollection(dict);
-                });
-            }).CreateClient();
+            var client = CreateClientWithFlag(false);
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
@@ -196,17 +159,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceId = "app_ttd_apps-test"
             };
 
-            var client = _factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureAppConfiguration((context, config) =>
-                {
-                    var dict = new Dictionary<string, string>
-                    {
-                        { "GeneralSettings:LookupUnitContactPointsAtSblBridge", "false" }
-                    };
-                    config.AddInMemoryCollection(dict);
-                });
-            }).CreateClient();
+            var client = CreateClientWithFlag(false);
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
@@ -224,7 +177,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task PostLookup_SblBridgeFeatureFlag_False_ReturnsOkAndIcludesBasedOnResourceID()
+        public async Task PostLookup_SblBridgeFeatureFlag_False_ReturnsOkAndIncludesBasedOnResourceID()
         {
             // Arrange
             UnitContactPointLookup input = new()
@@ -233,17 +186,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceId = "app_ttd_storage-end-to-end"
             };
 
-            var client = _factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureAppConfiguration((context, config) =>
-                {
-                    var dict = new Dictionary<string, string>
-                    {
-                        { "GeneralSettings:LookupUnitContactPointsAtSblBridge", "false" }
-                    };
-                    config.AddInMemoryCollection(dict);
-                });
-            }).CreateClient();
+            var client = CreateClientWithFlag(false);
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
@@ -270,17 +213,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceId = "app_ttd_apps-test"
             };
 
-            var client = _factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureAppConfiguration((context, config) =>
-                {
-                    var dict = new Dictionary<string, string>
-                    {
-                        { "GeneralSettings:LookupUnitContactPointsAtSblBridge", "false" }
-                    };
-                    config.AddInMemoryCollection(dict);
-                });
-            }).CreateClient();
+            var client = CreateClientWithFlag(false);
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
@@ -295,6 +228,20 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string responseContent = await response.Content.ReadAsStringAsync();
             var actual = JsonSerializer.Deserialize<UnitContactPointsList>(responseContent, _serializerOptions);
             Assert.Empty(actual.ContactPointsList);
+        }
+
+        private HttpClient CreateClientWithFlag(bool sblFlag)
+        {
+            return _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureAppConfiguration((_, config) =>
+                {
+                    config.AddInMemoryCollection(new Dictionary<string, string>
+            {
+                { "GeneralSettings:LookupUnitContactPointsAtSblBridge", sblFlag ? "true" : "false" }
+            });
+                });
+            }).CreateClient();
         }
 
         private HttpResponseMessage GetSBlResponseFromSBL(string orgNo)
@@ -329,13 +276,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var parties = new List<Party>();
             foreach (var org in orgNo)
             {
-                GetPartyUuidForOrgNo(org);
+                var party = GetPartyUuidForOrgNo(org);
+                if (party != null)
                 {
-                    var party = GetPartyUuidForOrgNo(org);
-                    if (party != null)
-                    {
-                        parties.Add(party);
-                    }
+                    parties.Add(party);
                 }
             }
 

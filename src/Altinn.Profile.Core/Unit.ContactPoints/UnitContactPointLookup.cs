@@ -6,7 +6,7 @@
     public class UnitContactPointLookup
     {
         /// <summary>
-        /// Gets or sets the list of organisation numbers to lookup contact points for
+        /// Gets or sets the list of organization numbers to lookup contact points for
         /// </summary>
         public List<string> OrganizationNumbers { get; set; } = [];
 
