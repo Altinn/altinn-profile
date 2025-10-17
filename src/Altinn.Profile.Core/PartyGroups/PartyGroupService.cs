@@ -6,6 +6,19 @@ namespace Altinn.Profile.Core.PartyGroups
     public class PartyGroupService(IPartyGroupRepository groupRepository) : IPartyGroupService
     {
         private readonly IPartyGroupRepository _groupRepository = groupRepository;
+        private readonly List<Group>? _groupList;
+
+        /// inheritdoc/>
+        public async Task<List<Group>> GetGroupsForAUser(int userId, CancellationToken cancellationToken)
+        {
+            var groups = await _groupRepository.GetGroups(userId, false,cancellationToken);
+            if (groups == null || !groups.Any())
+            {
+                return _groupList;
+            }
+            
+            return groups;
+        }
 
         /// <inheritdoc/>
         public async Task<Group> GetFavorites(int userId, CancellationToken cancellationToken)
