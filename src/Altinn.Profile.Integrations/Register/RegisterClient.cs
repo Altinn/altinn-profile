@@ -48,31 +48,15 @@ public class RegisterClient : IRegisterClient
     public async Task<List<Party>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
     {
         var request = new QueryPartiesRequest(orgNumbers);
-        var json = JsonSerializer.Serialize(request, _options);
-        var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var requestMessage = new HttpRequestMessage(HttpMethod.Post, "v2/internal/parties/query")
-        {
-            Content = stringContent
-        };
+        var response = await SendRequest(HttpMethod.Post, "v2/internal/parties/query", request, cancellationToken);
 
-        var success = TryAddPlatformAccessTokenHeader(requestMessage);
-        if (!success)
+        if (response == null)
         {
             return null;
         }
 
-        var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            _logger.LogError("Failed to get main unit for organization. Status code: {StatusCode}", response.StatusCode);
-            return null;
-        }
-
-        var responseData = await response.Content.ReadAsStringAsync(cancellationToken);
-
-        var responseObject = JsonSerializer.Deserialize<QueryPartiesResponse>(responseData);
+        var responseObject = await response.Content.ReadFromJsonAsync<QueryPartiesResponse>(cancellationToken);
 
         return responseObject?.Data;
     }
@@ -81,31 +65,15 @@ public class RegisterClient : IRegisterClient
     public async Task<string?> GetMainUnit(string orgNumber, CancellationToken cancellationToken)
     {
         var request = new LookupMainUnitRequest(orgNumber);
-        var json = JsonSerializer.Serialize(request, _options);
-        var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var requestMessage = new HttpRequestMessage(HttpMethod.Post, "v2/internal/parties/main-units")
-        {
-            Content = stringContent
-        };
+        var response = await SendRequest(HttpMethod.Post, "v2/internal/parties/main-units", request, cancellationToken);
 
-        var success = TryAddPlatformAccessTokenHeader(requestMessage);
-        if (!success)
+        if (response == null)
         {
             return null;
         }
 
-        var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            _logger.LogError("Failed to get main unit for organization. Status code: {StatusCode}", response.StatusCode);
-            return null;
-        }
-
-        var responseData = await response.Content.ReadAsStringAsync(cancellationToken);
-
-        var responseObject = JsonSerializer.Deserialize<LookupMainUnitResponse>(responseData);
+        var responseObject = await response.Content.ReadFromJsonAsync<LookupMainUnitResponse>(cancellationToken);
         if (!(responseObject?.Data?.Count > 0))
         {
             return null;
@@ -154,6 +122,33 @@ public class RegisterClient : IRegisterClient
         }
 
         return responseData[0].PartyId;
+    }
+
+    private async Task<HttpResponseMessage?> SendRequest(HttpMethod method, string path, object request, CancellationToken cancellationToken)
+    {
+        var json = JsonSerializer.Serialize(request, _options);
+        var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var requestMessage = new HttpRequestMessage(method, path)
+        {
+            Content = stringContent
+        };
+
+        var success = TryAddPlatformAccessTokenHeader(requestMessage);
+        if (!success)
+        {
+            return null;
+        }
+
+        var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError("Failed to call register. Status code: {StatusCode}", response.StatusCode);
+            return null;
+        }
+
+        return response;
     }
 
     private bool TryAddPlatformAccessTokenHeader(HttpRequestMessage requestMessage)
