@@ -1,4 +1,6 @@
-﻿namespace Altinn.Profile.Core.Integrations
+﻿using Altinn.Profile.Core.Unit.ContactPoints;
+
+namespace Altinn.Profile.Core.Integrations
 {
     /// <summary>
     /// A http client for interactions with altinn-register
@@ -19,5 +21,13 @@
         /// <param name="partyUuid" >The UUID of the party to look up.</param>
         /// <param name="cancellationToken">Cancel the current request</param>
         Task<int?> GetPartyId(Guid partyUuid, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get party UUIDs for a list of organization numbers.
+        /// </summary>
+        /// <param name="orgNumbers">The organization numbers to look up</param>
+        /// <param name="cancellationToken">Cancel the current request</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<IReadOnlyList<Party>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken);
     }
 }

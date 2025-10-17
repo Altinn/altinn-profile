@@ -34,7 +34,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge
                     OrganizationNumber = "123456789",
                     ContactPoints =
                     [
-                        new UserRegisteredContactPoint
+                        new Altinn.Profile.Integrations.SblBridge.Unit.Profile.SblUserRegisteredContactPoint
                         {
                             LegacyUserId = 212345,
                             Email = "user@domain.com",
@@ -51,13 +51,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge
                     OrganizationNumber = "123456789",
                     PartyId = 512345,
                     UserContactPoints = [
-                        new UserContactPoints()
+                        new UserRegisteredContactPoint()
                         {
                             UserId = 212345,
                             Email = "user@domain.com",
-                            MobileNumber = "12345678",
-                            IsReserved = false,
-                            NationalIdentityNumber = null
+                            MobileNumber = "12345678"
                         }
                     ]
                 }
