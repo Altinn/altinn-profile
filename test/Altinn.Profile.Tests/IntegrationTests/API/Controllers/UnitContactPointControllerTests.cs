@@ -103,6 +103,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData("not deserialiable to input model")]
         [InlineData("{\"organizationNumbers\":[null],\"resourceId\":null}")]
         [InlineData("{\"organizationNumbers\":null,\"resourceId\":\"resurs\"}")]
+        [InlineData("{\"organizationNumbers\":[],\"resourceId\":\"resurs\"}")]
         public async Task PostLookup_SblBridgeFeatureFlag_InvalidInputValues_ReturnsBadRequest(string input)
         {
             // Arrange
