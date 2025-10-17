@@ -23,7 +23,7 @@ namespace Altinn.Profile.Integrations.SblBridge.Unit.Profile
         public string OrganizationNumber { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets a list of multiple contanct points associated with the organisation.
+        /// Gets or sets a list of multiple contact points associated with the organisation.
         /// </summary>
         public List<SblUserRegisteredContactPoint> ContactPoints { get; set; } = [];
 

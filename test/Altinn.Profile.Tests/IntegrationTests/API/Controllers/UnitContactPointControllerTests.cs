@@ -121,7 +121,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData("not deserialiable to input model")]
         [InlineData("{\"organizationNumbers\":[null],\"resourceId\":null}")]
         [InlineData("{\"organizationNumbers\":null,\"resourceId\":\"resurs\"}")]
-        public async Task PostLookup_SblBridgeFeatureFlag_False_InvalidInputValues_ReturnsBadRequest(string input)
+        public async Task PostLookup_SblBridgeFeatureFlag_InvalidInputValues_ReturnsBadRequest(string input)
         {
             // Arrange
             var client = _factory.WithWebHostBuilder(builder =>
@@ -130,7 +130,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 {
                     var dict = new Dictionary<string, string>
                     {
-                        { "GeneralSettings:LookupUnitContactPointsAtSblBridge", "true" }
+                        { "GeneralSettings:LookupUnitContactPointsAtSblBridge", "false" }
                     };
                     config.AddInMemoryCollection(dict);
                 });

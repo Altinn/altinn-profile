@@ -45,7 +45,7 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
-    public async Task<List<Party>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Party>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
     {
         var request = new QueryPartiesRequest(orgNumbers);
 

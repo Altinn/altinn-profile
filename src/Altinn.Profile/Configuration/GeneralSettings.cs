@@ -16,7 +16,7 @@ public class GeneralSettings
     public string JwtCookieName { get; set; }
 
     /// <summary>
-    /// Feature flag to lookup user contact points at SBL bridge
+    /// Feature flag to lookup unit contact points at SBL bridge
     /// </summary>
     public bool LookupUnitContactPointsAtSblBridge { get; set; }
 }

@@ -7,7 +7,7 @@ namespace Altinn.Profile.Integrations.Register
     /// <summary>
     /// Response model for the lookup resource for parties
     /// </summary>
-    public class QueryPartiesResponse()
+    public class QueryPartiesResponse
     {
         /// <summary>
         /// Data containing the party list.

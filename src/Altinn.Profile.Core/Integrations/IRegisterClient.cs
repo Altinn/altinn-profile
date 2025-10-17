@@ -26,8 +26,8 @@ namespace Altinn.Profile.Core.Integrations
         /// Get party UUIDs for a list of organization numbers.
         /// </summary>
         /// <param name="orgNumbers">The organisation numbers to look up</param>
-        /// <param name="cancellationToken">Cancel the curent request</param>
+        /// <param name="cancellationToken">Cancel the current request</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        Task<List<Party>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken);
+        Task<IReadOnlyList<Party>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken);
     }
 }
