@@ -73,13 +73,8 @@ public class RegisterClient : IRegisterClient
         var responseData = await response.Content.ReadAsStringAsync(cancellationToken);
 
         var responseObject = JsonSerializer.Deserialize<QueryPartiesResponse>(responseData);
-        var result = new Dictionary<string, Guid>();
-        if (responseObject?.Data != null)
-        {
-            return responseObject.Data;
-        }
 
-        return null;
+        return responseObject?.Data;
     }
 
     /// <inheritdoc/>
@@ -174,5 +169,4 @@ public class RegisterClient : IRegisterClient
 
         return true;
     }
-
 }
