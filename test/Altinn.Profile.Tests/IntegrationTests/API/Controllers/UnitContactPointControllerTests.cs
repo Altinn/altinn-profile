@@ -306,9 +306,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             };
         }
 
-        private static List<UserPartyContactInfo> GetRepositoryResponse(string partyUdid)
+        private static List<UserPartyContactInfo> GetRepositoryResponse(string partyUuid)
         {
-            switch (partyUdid)
+            switch (partyUuid)
             {
                 case "8baab949-07f9-4ac5-b8cb-af6208b59092":
                     return

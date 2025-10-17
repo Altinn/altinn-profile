@@ -16,7 +16,7 @@
         public int PartyId { get; set; }
 
         /// <summary>
-        /// Gets or sets a list of multiple contanct points associated with the organization.
+        /// Gets or sets a list of multiple contact points associated with the organization.
         /// </summary>
         public List<UserRegisteredContactPoint> UserContactPoints { get; set; } = [];
     }
