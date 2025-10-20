@@ -1,14 +1,20 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.User;
+using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
+
 using AltinnCore.Authentication.Constants;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
+using static Altinn.Register.Contracts.PartyUrn;
 
 namespace Altinn.Profile.Controllers;
 
@@ -122,5 +128,50 @@ public class UsersController : Controller
         return result.Match<ActionResult<UserProfile>>(
             userProfile => Ok(userProfile),
             _ => NotFound());
+    }
+
+    /// <summary>
+    /// Updates the profile settings of the current user based on the request context
+    /// </summary>
+    /// <returns>User profile of current user</returns>
+    [HttpPut("current(profilesettings")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ProfileSettingPreference>> UpdateProfileSettings([FromBody]ProfileSettingPreference request)
+    {
+        string userIdString = Request.HttpContext.User.Claims
+            .Where(c => c.Type == AltinnCoreClaimTypes.UserId)
+            .Select(c => c.Value).SingleOrDefault();
+
+        if (string.IsNullOrEmpty(userIdString))
+        {
+            return BadRequest("Invalid request context. UserId must be provided in claims.");
+        }
+
+        int userId = int.Parse(userIdString);
+
+        var profileSettings = new ProfileSettings
+        {
+            UserId = userId,
+            LanguageType = request.Language,
+            DoNotPromptForParty = request.DoNotPromptForParty,
+            PreselectedPartyUuid = request.PreselectedPartyUuid,
+            ShowClientUnits = request.ShowClientUnits,
+            ShouldShowSubEntities = request.ShouldShowSubEntities,
+            ShouldShowDeletedEntities = request.ShouldShowDeletedEntities
+        };
+        var userProfileSettings = await _userProfileService.UpdateProfileSettings(profileSettings);
+
+        var profileSettingsPreference = new ProfileSettingPreference
+        {
+            Language = userProfileSettings.LanguageType,
+            DoNotPromptForParty = userProfileSettings.DoNotPromptForParty,
+            PreselectedPartyUuid = userProfileSettings.PreselectedPartyUuid,
+            ShowClientUnits = userProfileSettings.ShowClientUnits,
+            ShouldShowSubEntities = userProfileSettings.ShouldShowSubEntities,
+            ShouldShowDeletedEntities = userProfileSettings.ShouldShowDeletedEntities,
+        };
+
+        return Ok(profileSettingsPreference);
     }
 }

@@ -73,6 +73,8 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
 
     public Mock<ILogger<UserProfileClient>> UserProfileClientLogger { get; set; } = new();
 
+    public Mock<IProfileSettingsRepository> ProfileSettingsRepositoryMock { get; set; } = new();
+
     public MemoryCache MemoryCache { get; set; } = new(new MemoryCacheOptions());
 
     public ProfileWebApplicationFactory()
@@ -126,6 +128,7 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
             services.AddSingleton(PartyGroupRepositoryMock.Object);
             services.AddSingleton(ProfessionalNotificationsRepositoryMock.Object);
             services.AddSingleton(RegisterClientMock.Object);
+            services.AddSingleton(ProfileSettingsRepositoryMock.Object);
 
             // Using the real/actual implementations, but with a mocked message handler.
             // Haven't found any other ways of injecting a mocked message handler to simulate SBL Bridge.

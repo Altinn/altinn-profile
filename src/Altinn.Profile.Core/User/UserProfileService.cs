@@ -1,4 +1,5 @@
 ﻿using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
 
 namespace Altinn.Profile.Core.User;
@@ -9,14 +10,17 @@ namespace Altinn.Profile.Core.User;
 public class UserProfileService : IUserProfileService
 {
     private readonly IUserProfileClient _userProfileClient;
+    private readonly IProfileSettingsRepository _profileSettingsRepository;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserProfileService"/> class.
     /// </summary>
     /// <param name="userProfileClient">The user profile client available through DI</param>
-    public UserProfileService(IUserProfileClient userProfileClient)
+    /// <param name="profileSettingsRepository">The profile settings repository available through DI</param>
+    public UserProfileService(IUserProfileClient userProfileClient, IProfileSettingsRepository profileSettingsRepository)
     {
         _userProfileClient = userProfileClient;
+        _profileSettingsRepository = profileSettingsRepository;
     }
 
     /// <inheritdoc/>
@@ -47,5 +51,11 @@ public class UserProfileService : IUserProfileService
     public async Task<Result<List<UserProfile>, bool>> GetUserListByUuid(List<Guid> userUuidList)
     {
         return await _userProfileClient.GetUserListByUuid(userUuidList);
+    }
+
+    /// <inheritdoc/>
+    public async Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings)
+    {
+        return await _profileSettingsRepository.UpdateProfileSettings(profileSettings);
     }
 }

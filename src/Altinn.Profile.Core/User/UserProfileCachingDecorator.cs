@@ -145,4 +145,11 @@ public class UserProfileCachingDecorator : IUserProfileService
 
         return result;
     }
+
+    /// <inheritdoc/>
+    public async Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings)
+    {
+        // this should not be cached
+        return await _decoratedService.UpdateProfileSettings(profileSettings);
+    }
 }
