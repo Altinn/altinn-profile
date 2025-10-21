@@ -75,14 +75,15 @@ namespace Altinn.Profile.Core.Unit.ContactPoints
             return validContactPoits;
         }
 
-        private static bool InvalidEndpoint(UserPartyContactInfo contactInfo, string resource)
+        private static bool InvalidEndpoint(UserPartyContactInfo contactInfo, string resourceId)
         {
             if (contactInfo.UserPartyContactInfoResources == null || contactInfo.UserPartyContactInfoResources.Count == 0)
             {
                 return string.IsNullOrEmpty(contactInfo.PhoneNumber) && string.IsNullOrEmpty(contactInfo.EmailAddress);
             }
 
-            if (contactInfo.UserPartyContactInfoResources.All(x => x.ResourceId != resource))
+            // Check if none of the resourceIds match the resourceId of the request
+            if (contactInfo.UserPartyContactInfoResources.All(x => x.ResourceId != resourceId))
             {
                 return true;
             }

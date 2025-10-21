@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Unit.ContactPoints;
-using Altinn.Profile.Integrations.Register;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 using Moq;
 
@@ -256,6 +256,65 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task PostLookup_RemovesUrnPrefixFromResourceId()
+        {
+            // Arrange
+            var originalResourceId = "urn:altinn:resource:app_ttd_storage-end-to-end";
+            var expectedSanitizedResourceId = "app_ttd_storage-end-to-end";
+            var input = new UnitContactPointLookup
+            {
+                OrganizationNumbers = ["111111111"],
+                ResourceId = originalResourceId
+            };
+
+            string actualResourceId = null;
+
+            _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((string[] orgNumbers, CancellationToken _) => GetRegisterResponse(orgNumbers));
+
+            _factory.ProfessionalNotificationsRepositoryMock.Setup(s => s.GetAllNotificationAddressesForPartyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Guid partyUuid, CancellationToken _) => GetRepositoryResponse(partyUuid.ToString()));
+
+            // Replace the service mock to capture the resourceId argument and ensure the mock is used by the test server
+            var serviceMock = new Mock<IUnitContactPointsService>();
+            serviceMock.Setup(s => s.GetUserRegisteredContactPoints(
+                    It.Is<string[]>(arr => arr.Length == 1 && arr[0] == "111111111"),
+                    It.Is<string>(r => r == expectedSanitizedResourceId),
+                    It.IsAny<CancellationToken>()))
+                .Callback((string[] orgs, string resourceId, CancellationToken _) => actualResourceId = resourceId)
+                .ReturnsAsync(new UnitContactPointsList { ContactPointsList = new List<UnitContactPoints>() });
+
+            // Create client replacing the service and setting the flag to false
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices(services =>
+                {
+                    services.AddSingleton<IUnitContactPointsService>(serviceMock.Object);
+                });
+
+                builder.ConfigureAppConfiguration((_, config) =>
+                {
+                    config.AddInMemoryCollection(new Dictionary<string, string>
+                    {
+                        { "GeneralSettings:LookupUnitContactPointsAtSblBridge", "false" }
+                    });
+                });
+            }).CreateClient();
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            // Act
+            var response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(expectedSanitizedResourceId, actualResourceId);
         }
 
         private HttpClient CreateClientWithFlag(bool sblFlag)
