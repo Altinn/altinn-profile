@@ -52,9 +52,9 @@ namespace Altinn.Profile.Integrations.Repositories
 
             var contactInfos = await databaseContext.UserPartyContactInfo
                 .AsNoTracking()
-                .Include(g => g.UserPartyContactInfoResources)
+                .Include(x => x.UserPartyContactInfoResources)
                 .AsSplitQuery()
-                .Where(g => g.PartyUuid == partyUuid)
+                .Where(x => x.PartyUuid == partyUuid)
                 .ToListAsync(cancellationToken);
 
             return contactInfos;

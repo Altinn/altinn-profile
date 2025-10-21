@@ -32,12 +32,17 @@ namespace Altinn.Profile.Core.Unit.ContactPoints
         {
             var partyList = await _registerClient.GetPartyUuids(orgNumbers, cancellationToken);
 
+            if (partyList == null)
+            {
+                throw new InvalidOperationException("Something went wrong when getting partyUuids from register");
+            }
+
             var result = new UnitContactPointsList
             {
                 ContactPointsList = []
             };
 
-            if (partyList == null || partyList.Count == 0)
+            if (partyList.Count == 0)
             {
                 return result;
             }

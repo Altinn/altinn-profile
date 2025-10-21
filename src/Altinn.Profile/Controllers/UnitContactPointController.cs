@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Configuration;
@@ -74,8 +75,16 @@ public class UnitContactPointController : ControllerBase
         }
         else
         {
-            var result = await _contactPointsService.GetUserRegisteredContactPoints([.. unitContactPointLookup.OrganizationNumbers], unitContactPointLookup.ResourceId, cancellationToken);
-            return Ok(result);
+            try
+            {
+                var result = await _contactPointsService.GetUserRegisteredContactPoints([.. unitContactPointLookup.OrganizationNumbers], unitContactPointLookup.ResourceId, cancellationToken);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return Problem($"Could not retrieve contact points");
+            }
+
         }
     }
 }

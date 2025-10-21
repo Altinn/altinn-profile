@@ -231,6 +231,34 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Empty(actual.ContactPointsList);
         }
 
+
+        [Fact]
+        public async Task PostLookup_SblBridgeFeatureFlag_False_WhenNoResponseFromRegister_ReturnsProblem()
+        {
+            // Arrange
+            UnitContactPointLookup input = new()
+            {
+                OrganizationNumbers = ["error-org"],
+                ResourceId = "app_ttd_apps-test"
+            };
+
+            _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+               .ReturnsAsync((string[] orgNumbers, CancellationToken _) => null);
+
+            var client = CreateClientWithFlag(false);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
         private HttpClient CreateClientWithFlag(bool sblFlag)
         {
             return _factory.WithWebHostBuilder(builder =>
