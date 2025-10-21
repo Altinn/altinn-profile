@@ -84,7 +84,6 @@ public class UnitContactPointController : ControllerBase
             {
                 return Problem($"Could not retrieve contact points");
             }
-
         }
     }
 }
