@@ -57,7 +57,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
 
         HttpClient client = _factory.CreateClient();
 
-        HttpRequestMessage httpRequest = new(HttpMethod.Put, "/profile/api/v1/users/current(profilesettings");
+        HttpRequestMessage httpRequest = new(HttpMethod.Put, "/profile/api/v1/users/current/profilesettings");
         httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetToken(userId));
         httpRequest.Content = JsonContent.Create(request, options: _serializerOptionsCamelCase);
 
@@ -96,7 +96,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
 
         HttpClient client = _factory.CreateClient();
 
-        HttpRequestMessage httpRequest = new(HttpMethod.Put, "/profile/api/v1/users/current(profilesettings");
+        HttpRequestMessage httpRequest = new(HttpMethod.Put, "/profile/api/v1/users/current/profilesettings");
 
         // Use an org token so userId claim is not present for a user -> BadRequest (consistent with other tests)
         httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetOrgToken("ttd"));
@@ -128,7 +128,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
 
         HttpClient client = _factory.CreateClient();
 
-        HttpRequestMessage httpRequest = new(HttpMethod.Put, "/profile/api/v1/users/current(profilesettings");
+        HttpRequestMessage httpRequest = new(HttpMethod.Put, "/profile/api/v1/users/current/profilesettings");
         httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetToken(userId));
         httpRequest.Content = JsonContent.Create(request, options: _serializerOptionsCamelCase);
 

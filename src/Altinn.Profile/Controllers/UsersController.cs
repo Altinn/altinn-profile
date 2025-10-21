@@ -19,7 +19,7 @@ namespace Altinn.Profile.Controllers;
 /// <summary>
 /// Controller for all operations related to users
 /// </summary>
-//[Authorize]
+[Authorize]
 [Route("profile/api/v1/users")]
 [Consumes("application/json")]
 [Produces("application/json")]
