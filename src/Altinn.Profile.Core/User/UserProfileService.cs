@@ -5,7 +5,7 @@ using Altinn.Profile.Models;
 namespace Altinn.Profile.Core.User;
 
 /// <summary>
-/// Implementation of <see cref="IUserProfileService"/> that uses <see cref="IUserProfileClient"/> to fetch user profiles."/>
+/// Implementation of <see cref="IUserProfileService"/> that uses <see cref="IUserProfileClient"/> to fetch user profiles.
 /// </summary>
 public class UserProfileService : IUserProfileService
 {

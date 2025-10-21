@@ -26,14 +26,14 @@ namespace Altinn.Profile.Integrations.Repositories
                 existing.UpdateFrom(profileSettings);
 
                 await databaseContext.SaveChangesAsync();
+                return existing;
             }
             else
             {
                 databaseContext.ProfileSettings.Add(profileSettings);
                 await databaseContext.SaveChangesAsync();
+                return profileSettings;
             }
-
-            return profileSettings;
         }
 
         /// <summary>

@@ -134,6 +134,7 @@ public class UsersController : Controller
     /// <returns>User profile of current user</returns>
     [HttpPut("current/profilesettings")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ProfileSettingPreference>> UpdateProfileSettings([FromBody]ProfileSettingPreference request)
     {
