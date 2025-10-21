@@ -231,7 +231,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Empty(actual.ContactPointsList);
         }
 
-
         [Fact]
         public async Task PostLookup_SblBridgeFeatureFlag_False_WhenNoResponseFromRegister_ReturnsProblem()
         {
