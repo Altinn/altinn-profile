@@ -14,14 +14,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-using static Altinn.Register.Contracts.PartyUrn;
-
 namespace Altinn.Profile.Controllers;
 
 /// <summary>
 /// Controller for all operations related to users
 /// </summary>
-[Authorize]
+//[Authorize]
 [Route("profile/api/v1/users")]
 [Consumes("application/json")]
 [Produces("application/json")]
@@ -134,7 +132,7 @@ public class UsersController : Controller
     /// Updates the profile settings of the current user based on the request context
     /// </summary>
     /// <returns>User profile of current user</returns>
-    [HttpPut("current(profilesettings")]
+    [HttpPut("current/profilesettings")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ProfileSettingPreference>> UpdateProfileSettings([FromBody]ProfileSettingPreference request)

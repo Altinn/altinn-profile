@@ -85,6 +85,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPersonUpdater, PersonRepository>();
         services.AddScoped<IMetadataRepository, MetadataRepository>();
         services.AddScoped<IContactRegisterUpdateJob, ContactRegisterUpdateJob>();
+        services.AddScoped<IProfileSettingsRepository, ProfileSettingsRepository>();
 
         services.AddSingleton<INationalIdentityNumberChecker, NationalIdentityNumberChecker>();
 
