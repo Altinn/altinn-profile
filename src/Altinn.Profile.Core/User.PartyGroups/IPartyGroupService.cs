@@ -6,6 +6,11 @@
     public interface IPartyGroupService
     {
         /// <summary>
+        /// Retrieves all groups for a given user. If none are found, an empty list is returned.
+        /// </summary>
+        Task<List<Group>> GetGroupsForAUser(int userId, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Gets the favorite parties for a given user. If no favorites are added, an empty group will be returned.
         /// </summary>
         Task<Group> GetFavorites(int userId, CancellationToken cancellationToken);
@@ -20,5 +25,5 @@
         /// Delete the given party from a users list of favorites.
         /// </summary>
         Task<bool> DeleteFromFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken);
-    }
+   }
 }
