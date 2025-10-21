@@ -45,5 +45,24 @@
         /// The users last timestamp for ignoring the UnitProfile update
         /// </summary>
         public DateTime? IgnoreUnitProfileDateTime { get; set; }
+
+        /// <summary>
+        /// Sets the properties of this instance to the values from another instance.
+        /// </summary>
+        public void UpdateFrom(ProfileSettings other)
+        {
+            LanguageType = other.LanguageType;
+            DoNotPromptForParty = other.DoNotPromptForParty;
+            PreselectedPartyUuid = other.PreselectedPartyUuid;
+            ShowClientUnits = other.ShowClientUnits;
+            ShouldShowSubEntities = other.ShouldShowSubEntities;
+            ShouldShowDeletedEntities = other.ShouldShowDeletedEntities;
+
+            // Only update IgnoreUnitProfileDateTime if the other instance has a value
+            if (other.IgnoreUnitProfileDateTime.HasValue)
+            {
+                IgnoreUnitProfileDateTime = other.IgnoreUnitProfileDateTime;
+            }
+        }
     }
 }

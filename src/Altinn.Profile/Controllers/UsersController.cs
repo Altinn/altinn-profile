@@ -139,6 +139,11 @@ public class UsersController : Controller
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ProfileSettingPreference>> UpdateProfileSettings([FromBody]ProfileSettingPreference request)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         string userIdString = Request.HttpContext.User.Claims
             .Where(c => c.Type == AltinnCoreClaimTypes.UserId)
             .Select(c => c.Value).SingleOrDefault();

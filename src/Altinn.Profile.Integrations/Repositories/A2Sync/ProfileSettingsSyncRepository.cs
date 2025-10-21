@@ -24,13 +24,7 @@ namespace Altinn.Profile.Integrations.Repositories.A2Sync
 
             if (existing != null)
             {
-                existing.DoNotPromptForParty = profileSettings.DoNotPromptForParty;
-                existing.PreselectedPartyUuid = profileSettings.PreselectedPartyUuid;
-                existing.ShowClientUnits = profileSettings.ShowClientUnits;
-                existing.ShouldShowSubEntities = profileSettings.ShouldShowSubEntities;
-                existing.ShouldShowDeletedEntities = profileSettings.ShouldShowDeletedEntities;
-                existing.IgnoreUnitProfileDateTime = profileSettings.IgnoreUnitProfileDateTime;
-                existing.LanguageType = profileSettings.LanguageType;
+                existing.UpdateFrom(profileSettings);
 
                 await databaseContext.SaveChangesAsync();
                 _telemetry?.ProfileSettingsUpdated();
