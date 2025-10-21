@@ -8,6 +8,11 @@ namespace Altinn.Profile.Models
     public class GroupResponse
     {
         /// <summary>
+        /// The unique identifier of the group
+        /// </summary>
+        public int GroupId { get; set; }
+
+        /// <summary>
         /// The name of the group
         /// </summary>
         public string Name { get; set; }

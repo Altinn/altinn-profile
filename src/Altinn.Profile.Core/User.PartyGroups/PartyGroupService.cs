@@ -8,6 +8,14 @@ namespace Altinn.Profile.Core.PartyGroups
         private readonly IPartyGroupRepository _groupRepository = groupRepository;
 
         /// <inheritdoc/>
+        public async Task<List<Group>> GetGroupsForAUser(int userId, CancellationToken cancellationToken)
+        {
+            var groups = await _groupRepository.GetGroups(userId, false, cancellationToken) ?? [];            
+            
+            return groups;
+        }
+
+        /// <inheritdoc/>
         public async Task<Group> GetFavorites(int userId, CancellationToken cancellationToken)
         {
             var favorites = await _groupRepository.GetFavorites(userId, cancellationToken);
