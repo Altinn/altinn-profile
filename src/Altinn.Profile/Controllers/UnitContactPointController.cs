@@ -79,7 +79,12 @@ public class UnitContactPointController : ControllerBase
             try
             {
                 var resourceId = GetSanitizedResourceId(unitContactPointLookup.ResourceId);
-                var organizationNumbers = unitContactPointLookup.OrganizationNumbers.Distinct().Select(o => o.Trim());
+                var organizationNumbers = unitContactPointLookup.OrganizationNumbers.Select(o => o.Trim()).Distinct();
+                if (!organizationNumbers.Any())
+                {
+                    return Ok(new UnitContactPointsList { ContactPointsList = [] });
+                }
+
                 var result = await _contactPointsService.GetUserRegisteredContactPoints([..organizationNumbers], resourceId, cancellationToken);
                 return Ok(result);
             }

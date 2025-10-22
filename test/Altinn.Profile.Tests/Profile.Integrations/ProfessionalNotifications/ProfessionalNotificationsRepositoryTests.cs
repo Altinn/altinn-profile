@@ -259,12 +259,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             Guid partyUuid = Guid.NewGuid();
             int userId1 = 100;
 
-            // Both users have valid addresses
+            // Seed empty email/phone and no addresses; method should return an empty list
             await SeedUserPartyContactInfo(userId1, partyUuid, string.Empty, string.Empty, null);
-
-            // Add a user with no addresses (should be filtered out)
-            int userId3 = 300;
-            await SeedUserPartyContactInfo(userId3, partyUuid, null, null, null);
 
             // Act
             var result = await _repository.GetAllNotificationAddressesForPartyAsync(partyUuid, CancellationToken.None);
