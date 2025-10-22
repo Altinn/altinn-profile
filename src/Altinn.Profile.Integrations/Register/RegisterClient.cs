@@ -4,6 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.Unit.ContactPoints;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -24,6 +26,7 @@ public class RegisterClient : IRegisterClient
     private readonly JsonSerializerOptions _options = new()
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
     /// <summary>
@@ -42,37 +45,35 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
+    public async Task<IReadOnlyList<Party>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
+    {
+        var request = new QueryPartiesRequest(orgNumbers);
+
+        var response = await SendRequest(HttpMethod.Post, "v2/internal/parties/query", request, cancellationToken);
+
+        if (response == null)
+        {
+            return null;
+        }
+
+        var responseObject = await response.Content.ReadFromJsonAsync<QueryPartiesResponse>(cancellationToken);
+
+        return responseObject?.Data;
+    }
+
+    /// <inheritdoc/>
     public async Task<string?> GetMainUnit(string orgNumber, CancellationToken cancellationToken)
     {
-        var accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "profile");
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            _logger.LogError("Invalid access token generated for org main unit lookup.");
-            return null;
-        }
-
         var request = new LookupMainUnitRequest(orgNumber);
-        var json = JsonSerializer.Serialize(request, _options);
-        var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var requestMessage = new HttpRequestMessage(HttpMethod.Post, "v2/internal/parties/main-units")
+        var response = await SendRequest(HttpMethod.Post, "v2/internal/parties/main-units", request, cancellationToken);
+
+        if (response == null)
         {
-            Content = stringContent
-        };
-
-        requestMessage.Headers.Add("PlatformAccessToken", accessToken);
-
-        var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            _logger.LogError("Failed to get main unit for organization. Status code: {StatusCode}", response.StatusCode);
             return null;
         }
 
-        var responseData = await response.Content.ReadAsStringAsync(cancellationToken);
-
-        var responseObject = JsonSerializer.Deserialize<LookupMainUnitResponse>(responseData);
+        var responseObject = await response.Content.ReadFromJsonAsync<LookupMainUnitResponse>(cancellationToken);
         if (!(responseObject?.Data?.Count > 0))
         {
             return null;
@@ -91,16 +92,13 @@ public class RegisterClient : IRegisterClient
     /// <inheritdoc/>
     public async Task<int?> GetPartyId(Guid partyUuid, CancellationToken cancellationToken)
     {
-        var accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "profile");
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            _logger.LogError("Invalid access token generated for party ID lookup.");
-            return null;
-        }
-
         var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"v1/parties/identifiers?uuids={partyUuid}");
 
-        requestMessage.Headers.Add("PlatformAccessToken", accessToken);
+        var success = TryAddPlatformAccessTokenHeader(requestMessage);
+        if (!success)
+        {
+            return null;
+        }
 
         var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
 
@@ -124,5 +122,46 @@ public class RegisterClient : IRegisterClient
         }
 
         return responseData[0].PartyId;
+    }
+
+    private async Task<HttpResponseMessage?> SendRequest(HttpMethod method, string path, object request, CancellationToken cancellationToken)
+    {
+        var json = JsonSerializer.Serialize(request, _options);
+        var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var requestMessage = new HttpRequestMessage(method, path)
+        {
+            Content = stringContent
+        };
+
+        var success = TryAddPlatformAccessTokenHeader(requestMessage);
+        if (!success)
+        {
+            return null;
+        }
+
+        var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError("Failed to call register. Status code: {StatusCode}", response.StatusCode);
+            return null;
+        }
+
+        return response;
+    }
+
+    private bool TryAddPlatformAccessTokenHeader(HttpRequestMessage requestMessage)
+    {
+        var accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "profile");
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            _logger.LogError("Invalid platform access token generated.");
+            return false;
+        }
+
+        requestMessage.Headers.Add("PlatformAccessToken", accessToken);
+
+        return true;
     }
 }

@@ -4,10 +4,17 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
+using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
+
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+using Moq;
 
 using Xunit;
 
@@ -33,10 +40,16 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 UnitContactPointLookup lookup = JsonSerializer.Deserialize<UnitContactPointLookup>(requestString, _serializerOptions);
                 return GetSBlResponseFromSBL(lookup.OrganizationNumbers[0]);
             });
+
+            _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((string[] orgNumbers, CancellationToken _) => GetRegisterResponse(orgNumbers));
+
+            _factory.ProfessionalNotificationsRepositoryMock.Setup(s => s.GetAllNotificationAddressesForPartyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Guid partyUuid, CancellationToken _) => GetRepositoryResponse(partyUuid.ToString()));
         }
 
         [Fact]
-        public async Task PostLookup_SuccessResult_ReturnsOk()
+        public async Task PostLookup_SblBridgeFeatureFlag_True_SuccessResult_ReturnsOk()
         {
             // Arrange
             UnitContactPointLookup input = new()
@@ -45,7 +58,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceId = "app_ttd_apps-test"
             };
 
-            HttpClient client = _factory.CreateClient();
+            var client = CreateClientWithFlag(true);
+
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -62,7 +76,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task PostLookup_ErrorResult_ReturnsProblemDetails()
+        public async Task PostLookup_SblBridgeFeatureFlag_True_ErrorResult_ReturnsProblemDetails()
         {
             // Arrange
             UnitContactPointLookup input = new()
@@ -71,7 +85,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceId = "app_ttd_apps-test"
             };
 
-            HttpClient client = _factory.CreateClient();
+            var client = CreateClientWithFlag(true);
+
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -88,10 +103,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData("not deserialiable to input model")]
         [InlineData("{\"organizationNumbers\":[null],\"resourceId\":null}")]
         [InlineData("{\"organizationNumbers\":null,\"resourceId\":\"resurs\"}")]
-        public async Task PostLookup_InvalidInputValues_ReturnsBadRequest(string input)
+        [InlineData("{\"organizationNumbers\":[],\"resourceId\":\"resurs\"}")]
+        public async Task PostLookup_SblBridgeFeatureFlag_InvalidInputValues_ReturnsBadRequest(string input)
         {
             // Arrange
-            HttpClient client = _factory.CreateClient();
+            var client = CreateClientWithFlag(false);
+
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
                 Content = new StringContent(input, System.Text.Encoding.UTF8, "application/json")
@@ -106,6 +123,214 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
+        [Fact]
+        public async Task PostLookup_SblBridgeFeatureFlag_False_ReturnsOk()
+        {
+            // Arrange
+            UnitContactPointLookup input = new()
+            {
+                OrganizationNumbers = ["123456789"],
+                ResourceId = "app_ttd_apps-test"
+            };
+
+            var client = CreateClientWithFlag(false);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<UnitContactPointsList>(responseContent, _serializerOptions);
+            Assert.Single(actual.ContactPointsList);
+        }
+
+        [Fact]
+        public async Task PostLookup_SblBridgeFeatureFlag_False_ReturnsOkAndFilterOutBasedOnResourceID()
+        {
+            // Arrange
+            UnitContactPointLookup input = new()
+            {
+                OrganizationNumbers = ["111111111"],
+                ResourceId = "app_ttd_apps-test"
+            };
+
+            var client = CreateClientWithFlag(false);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<UnitContactPointsList>(responseContent, _serializerOptions);
+            Assert.Empty(actual.ContactPointsList);
+        }
+
+        [Fact]
+        public async Task PostLookup_SblBridgeFeatureFlag_False_ReturnsOkAndIncludesBasedOnResourceID()
+        {
+            // Arrange
+            UnitContactPointLookup input = new()
+            {
+                OrganizationNumbers = ["111111111"],
+                ResourceId = "app_ttd_storage-end-to-end"
+            };
+
+            var client = CreateClientWithFlag(false);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<UnitContactPointsList>(responseContent, _serializerOptions);
+            Assert.Single(actual.ContactPointsList);
+        }
+
+        [Fact]
+        public async Task PostLookup_SblBridgeFeatureFlag_False_ErrorResult_ReturnsOkWithEmptyList()
+        {
+            // Arrange
+            UnitContactPointLookup input = new()
+            {
+                OrganizationNumbers = ["error-org"],
+                ResourceId = "app_ttd_apps-test"
+            };
+
+            var client = CreateClientWithFlag(false);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var actual = JsonSerializer.Deserialize<UnitContactPointsList>(responseContent, _serializerOptions);
+            Assert.Empty(actual.ContactPointsList);
+        }
+
+        [Fact]
+        public async Task PostLookup_SblBridgeFeatureFlag_False_WhenNoResponseFromRegister_ReturnsProblem()
+        {
+            // Arrange
+            UnitContactPointLookup input = new()
+            {
+                OrganizationNumbers = ["error-org"],
+                ResourceId = "app_ttd_apps-test"
+            };
+
+            _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+               .ReturnsAsync((string[] orgNumbers, CancellationToken _) => null);
+
+            var client = CreateClientWithFlag(false);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task PostLookup_RemovesUrnPrefixFromResourceId()
+        {
+            // Arrange
+            var originalResourceId = "urn:altinn:resource:app_ttd_storage-end-to-end";
+            var expectedSanitizedResourceId = "app_ttd_storage-end-to-end";
+            var input = new UnitContactPointLookup
+            {
+                OrganizationNumbers = ["111111111"],
+                ResourceId = originalResourceId
+            };
+
+            string actualResourceId = null;
+
+            _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((string[] orgNumbers, CancellationToken _) => GetRegisterResponse(orgNumbers));
+
+            _factory.ProfessionalNotificationsRepositoryMock.Setup(s => s.GetAllNotificationAddressesForPartyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Guid partyUuid, CancellationToken _) => GetRepositoryResponse(partyUuid.ToString()));
+
+            // Replace the service mock to capture the resourceId argument and ensure the mock is used by the test server
+            var serviceMock = new Mock<IUnitContactPointsService>();
+            serviceMock.Setup(s => s.GetUserRegisteredContactPoints(
+                    It.Is<string[]>(arr => arr.Length == 1 && arr[0] == "111111111"),
+                    It.Is<string>(r => r == expectedSanitizedResourceId),
+                    It.IsAny<CancellationToken>()))
+                .Callback((string[] orgs, string resourceId, CancellationToken _) => actualResourceId = resourceId)
+                .ReturnsAsync(new UnitContactPointsList { ContactPointsList = new List<UnitContactPoints>() });
+
+            // Create client replacing the service and setting the flag to false
+            var client = _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices(services =>
+                {
+                    services.AddSingleton<IUnitContactPointsService>(serviceMock.Object);
+                });
+
+                builder.ConfigureAppConfiguration((_, config) =>
+                {
+                    config.AddInMemoryCollection(new Dictionary<string, string>
+                    {
+                        { "GeneralSettings:LookupUnitContactPointsAtSblBridge", "false" }
+                    });
+                });
+            }).CreateClient();
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            // Act
+            var response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(expectedSanitizedResourceId, actualResourceId);
+        }
+
+        private HttpClient CreateClientWithFlag(bool sblFlag)
+        {
+            return _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureAppConfiguration((_, config) =>
+                {
+                    config.AddInMemoryCollection(new Dictionary<string, string>
+            {
+                { "GeneralSettings:LookupUnitContactPointsAtSblBridge", sblFlag ? "true" : "false" }
+            });
+                });
+            }).CreateClient();
+        }
+
         private HttpResponseMessage GetSBlResponseFromSBL(string orgNo)
         {
             switch (orgNo)
@@ -115,7 +340,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                     {
                         new PartyNotificationContactPoints()
                         {
-                            ContactPoints = [new UserRegisteredContactPoint()
+                            ContactPoints = [new SblUserRegisteredContactPoint()
                             {
                                 LegacyUserId = 20001,
                                 Email = "user@email.com"
@@ -130,6 +355,78 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                     return new HttpResponseMessage() { Content = JsonContent.Create(input, options: _serializerOptions), StatusCode = HttpStatusCode.OK };
                 default:
                     return new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable };
+            }
+        }
+
+        private static List<Party> GetRegisterResponse(string[] orgNo)
+        {
+            var parties = new List<Party>();
+            foreach (var org in orgNo)
+            {
+                var party = GetPartyUuidForOrgNo(org);
+                if (party != null)
+                {
+                    parties.Add(party);
+                }
+            }
+
+            return parties;
+        }
+
+        private static Party GetPartyUuidForOrgNo(string orgNo)
+        {
+            return orgNo switch
+            {
+                "123456789" => new Party()
+                {
+                    PartyId = 50001,
+                    OrganizationIdentifier = "123456789",
+                    PartyUuid = Guid.Parse("8baab949-07f9-4ac5-b8cb-af6208b59092"),
+                },
+                "111111111" => new Party()
+                {
+                    PartyId = 50002,
+                    OrganizationIdentifier = "111111111",
+                    PartyUuid = Guid.Parse("f81d7b22-4acb-4d59-b544-ef028f183ebc"),
+                },
+                _ => null,
+            };
+        }
+
+        private static List<UserPartyContactInfo> GetRepositoryResponse(string partyUuid)
+        {
+            switch (partyUuid)
+            {
+                case "8baab949-07f9-4ac5-b8cb-af6208b59092":
+                    return
+                        [
+                            new UserPartyContactInfo()
+                            {
+                                UserId = 20001,
+                                EmailAddress = "user@email.com",
+                                PhoneNumber = "98765432",
+                                PartyUuid = Guid.Parse("8baab949-07f9-4ac5-b8cb-af6208b59092"),
+                            }
+                        ];
+                case "f81d7b22-4acb-4d59-b544-ef028f183ebc":
+                    return
+                        [
+                            new UserPartyContactInfo()
+                            {
+                                UserId = 20002,
+                                EmailAddress = "user2@email.com",
+                                PhoneNumber = "98765432",
+                                PartyUuid = Guid.Parse("f81d7b22-4acb-4d59-b544-ef028f183ebc"),
+                                UserPartyContactInfoResources = [
+                                    new UserPartyContactInfoResource()
+                                    {
+                                        ResourceId = "app_ttd_storage-end-to-end"
+                                    }
+                                ]
+                            }
+                        ];
+                default:
+                    return [];
             }
         }
     }

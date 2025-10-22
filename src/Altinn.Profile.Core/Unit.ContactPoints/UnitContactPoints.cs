@@ -1,6 +1,4 @@
-﻿using Altinn.Profile.Core.User.ContactPoints;
-
-namespace Altinn.Profile.Core.Unit.ContactPoints
+﻿namespace Altinn.Profile.Core.Unit.ContactPoints
 {
     /// <summary>
     /// Class describing the user registered contact points for a unit
@@ -18,9 +16,9 @@ namespace Altinn.Profile.Core.Unit.ContactPoints
         public int PartyId { get; set; }
 
         /// <summary>
-        /// Gets or sets a list of multiple contanct points associated with the organisation.
+        /// Gets or sets a list of multiple contact points associated with the organization.
         /// </summary>
-        public List<UserContactPoints> UserContactPoints { get; set; } = [];
+        public List<UserRegisteredContactPoint> UserContactPoints { get; set; } = [];
     }
 
     /// <summary>
@@ -32,5 +30,26 @@ namespace Altinn.Profile.Core.Unit.ContactPoints
         /// A list containing contact points for users
         /// </summary>
         public List<UnitContactPoints> ContactPointsList { get; set; } = [];
+    }
+
+    /// <summary>
+    /// Class describing the contact points for a user
+    /// </summary>
+    public class UserRegisteredContactPoint
+    {
+        /// <summary>
+        /// Gets or sets the mobile number
+        /// </summary>
+        public string? MobileNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the email address
+        /// </summary>
+        public string? Email { get; set; }
+
+        /// <summary>
+        /// The user id of user for whom the specific contact information belongs to.
+        /// </summary>
+        public int UserId { get; set; }
     }
 }
