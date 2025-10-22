@@ -9,9 +9,14 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
+using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Altinn.Profile.Tests.Testdata;
+
+using Microsoft.AspNetCore.SignalR;
+
+using Moq;
 
 using Xunit;
 
@@ -37,6 +42,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     {
         // Arrange
         const int UserId = 2516356;
+        Guid preselectedPartyUuid = Guid.NewGuid();
 
         HttpRequestMessage? sblRequest = null;
         _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
@@ -46,6 +52,15 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
+
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+            .ReturnsAsync(new ProfileSettings
+            {
+                UserId = UserId,
+                LanguageType = "nn",
+                DoNotPromptForParty = true,
+                PreselectedPartyUuid = preselectedPartyUuid,
+            });
 
         HttpClient client = _factory.CreateClient();
 
@@ -71,7 +86,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal("sophie", actualUser.UserName);
         Assert.Equal("Sophie Salt", actualUser.Party.Name);
         Assert.Equal("Sophie", actualUser.Party.Person?.FirstName);
-        Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
+        Assert.Equal("nn", actualUser.ProfileSettingPreference.Language);
+        Assert.True(actualUser.ProfileSettingPreference.DoNotPromptForParty);
+        Assert.Equal(preselectedPartyUuid, actualUser.ProfileSettingPreference.PreselectedPartyUuid);
     }
 
     [Fact]
@@ -121,10 +138,11 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersById_AsUser_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+    public async Task GetUsersById_AsUser_SblBridgeFindsProfile_ResponseOk_ReturnsEnrichedUserProfile()
     {
         // Arrange
         const int UserId = 2516356;
+        var preselectedPartyUuid = Guid.NewGuid();
 
         HttpRequestMessage? sblRequest = null;
         _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
@@ -134,6 +152,14 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+            .ReturnsAsync(new ProfileSettings
+            {
+                UserId = UserId,
+                LanguageType = "en",
+                DoNotPromptForParty = true,
+                PreselectedPartyUuid = preselectedPartyUuid,
+            });
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
 
@@ -161,7 +187,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal("sophie", actualUser.UserName);
         Assert.Equal("Sophie Salt", actualUser.Party.Name);
         Assert.Equal("Sophie", actualUser.Party.Person?.FirstName);
-        Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
+        Assert.Equal("en", actualUser.ProfileSettingPreference.Language);
+        Assert.True(actualUser.ProfileSettingPreference.DoNotPromptForParty);
+        Assert.Equal(preselectedPartyUuid, actualUser.ProfileSettingPreference.PreselectedPartyUuid);
     }
 
     [Fact]
@@ -470,14 +498,25 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     public async Task GetUsersBySsn_AsUser_SblBridgeFindsProfile_ReturnsUserProfile()
     {
         // Arrange
+        const int UserId = 2516356;
+
         HttpRequestMessage? sblRequest = null;
         _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
 
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>("2516356");
+            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
+
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+            .ReturnsAsync(new ProfileSettings
+            {
+                UserId = UserId,
+                LanguageType = "en",
+                DoNotPromptForParty = true,
+                PreselectedPartyUuid = null,
+            });
 
         StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
         HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
@@ -512,7 +551,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal("sophie", actualUser.UserName);
         Assert.Equal("Sophie Salt", actualUser.Party.Name);
         Assert.Equal("Sophie", actualUser.Party.Person?.FirstName);
-        Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
+        Assert.Equal("en", actualUser.ProfileSettingPreference.Language);
+        Assert.True(actualUser.ProfileSettingPreference.DoNotPromptForParty);
+        Assert.Null(actualUser.ProfileSettingPreference.PreselectedPartyUuid);
     }
 
     [Fact]

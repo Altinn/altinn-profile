@@ -26,36 +26,97 @@ public class UserProfileService : IUserProfileService
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUser(int userId)
     {
-        return await _userProfileClient.GetUser(userId);
+        var result = await _userProfileClient.GetUser(userId);
+
+        if (result.IsSuccess)
+        {
+            var enriched = await EnrichWithProfileSettings(result.Match(userProfile => userProfile, _ => default!));
+            return enriched;
+        }
+
+        return false;
     }
 
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUser(string ssn)
     {
-        return await _userProfileClient.GetUser(ssn);
+        var result = await _userProfileClient.GetUser(ssn);
+        if (result.IsSuccess)
+        {
+            var enriched = await EnrichWithProfileSettings(result.Match(userProfile => userProfile, _ => default!));
+            return enriched;
+        }
+
+        return false;
     }
 
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUserByUsername(string username)
     {
-        return await _userProfileClient.GetUserByUsername(username);
+        var result = await _userProfileClient.GetUserByUsername(username);
+        if (result.IsSuccess)
+        {
+            var enriched = await EnrichWithProfileSettings(result.Match(userProfile => userProfile, _ => default!));
+            return enriched;
+        }
+
+        return false;
     }
 
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUserByUuid(Guid userUuid)
     {
-        return await _userProfileClient.GetUserByUuid(userUuid);
+        var result = await _userProfileClient.GetUserByUuid(userUuid);
+        if (result.IsSuccess)
+        {
+            var enriched = await EnrichWithProfileSettings(result.Match(userProfile => userProfile, _ => default!));
+            return enriched;
+        }
+
+        return false;
     }
 
     /// <inheritdoc/>
     public async Task<Result<List<UserProfile>, bool>> GetUserListByUuid(List<Guid> userUuidList)
     {
-        return await _userProfileClient.GetUserListByUuid(userUuidList);
+        var result = await _userProfileClient.GetUserListByUuid(userUuidList);
+        if (result.IsSuccess)
+        {
+            var enriched = new List<UserProfile>();
+            result.Match(
+                async userProfiles =>
+                {
+                    foreach (UserProfile userProfile in userProfiles)
+                    {
+                        enriched.Add(await EnrichWithProfileSettings(userProfile));
+                    }
+                },
+                _ => { });
+            return enriched;
+        }
+
+        return false;
     }
 
     /// <inheritdoc/>
     public async Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings)
     {
         return await _profileSettingsRepository.UpdateProfileSettings(profileSettings);
+    }
+
+    private async Task<UserProfile> EnrichWithProfileSettings(UserProfile userProfile)
+    {
+        ProfileSettings.ProfileSettings? profileSettings = await _profileSettingsRepository.GetProfileSettings(userProfile.UserId);
+        if (profileSettings != null)
+        {
+            userProfile.ProfileSettingPreference.DoNotPromptForParty = profileSettings.DoNotPromptForParty;
+            userProfile.ProfileSettingPreference.Language = profileSettings.LanguageType;
+            userProfile.ProfileSettingPreference.PreselectedPartyUuid = profileSettings.PreselectedPartyUuid;
+            userProfile.ProfileSettingPreference.ShowClientUnits = profileSettings.ShowClientUnits;
+            userProfile.ProfileSettingPreference.ShouldShowSubEntities = profileSettings.ShouldShowSubEntities;
+            userProfile.ProfileSettingPreference.ShouldShowDeletedEntities = profileSettings.ShouldShowDeletedEntities;
+        }
+
+        return userProfile;
     }
 }
