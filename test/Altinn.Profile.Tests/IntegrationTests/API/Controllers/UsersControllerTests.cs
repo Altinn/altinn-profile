@@ -87,6 +87,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal("nn", actualUser.ProfileSettingPreference.Language);
         Assert.True(actualUser.ProfileSettingPreference.DoNotPromptForParty);
         Assert.Equal(preselectedPartyUuid, actualUser.ProfileSettingPreference.PreselectedPartyUuid);
+        Assert.False(actualUser.ProfileSettingPreference.ShowClientUnits);
+        Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
+        Assert.False(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
     }
 
     [Fact]
@@ -157,6 +160,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
                 LanguageType = "en",
                 DoNotPromptForParty = true,
                 PreselectedPartyUuid = preselectedPartyUuid,
+                ShouldShowSubEntities = true,
+                ShowClientUnits = true,
+                ShouldShowDeletedEntities = false,
             });
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
@@ -188,6 +194,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal("en", actualUser.ProfileSettingPreference.Language);
         Assert.True(actualUser.ProfileSettingPreference.DoNotPromptForParty);
         Assert.Equal(preselectedPartyUuid, actualUser.ProfileSettingPreference.PreselectedPartyUuid);
+        Assert.True(actualUser.ProfileSettingPreference.ShowClientUnits);
+        Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
+        Assert.True(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
     }
 
     [Fact]
@@ -331,6 +340,15 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(userId))
+            .ReturnsAsync(new ProfileSettings
+            {
+                UserId = userId,
+                LanguageType = "nb",
+                DoNotPromptForParty = true,
+                PreselectedPartyUuid = null,
+            });
+
         HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/byuuid/{userUuid}");
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
@@ -359,6 +377,8 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal(userUuid, actualUser.Party.PartyUuid);
         Assert.Equal("LEO", actualUser.Party.Person?.FirstName);
         Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
+        Assert.True(actualUser.ProfileSettingPreference.DoNotPromptForParty);
+        Assert.Null(actualUser.ProfileSettingPreference.PreselectedPartyUuid);
     }
 
     [Fact]
