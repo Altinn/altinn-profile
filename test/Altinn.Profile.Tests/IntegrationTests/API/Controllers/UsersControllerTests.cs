@@ -14,8 +14,6 @@ using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Altinn.Profile.Tests.Testdata;
 
-using Microsoft.AspNetCore.SignalR;
-
 using Moq;
 
 using Xunit;
