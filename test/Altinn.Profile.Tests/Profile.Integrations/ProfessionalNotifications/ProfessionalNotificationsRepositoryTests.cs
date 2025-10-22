@@ -203,6 +203,77 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         }
 
         [Fact]
+        public async Task GetAllNotificationAddressesForPartyAsync_WhenMultipleUsersExist_ReturnsAllContactInfos()
+        {
+            // Arrange
+            Guid partyUuid = Guid.NewGuid();
+            int userId1 = 100;
+            int userId2 = 200;
+            var resources1 = new List<UserPartyContactInfoResource>
+            {
+                new UserPartyContactInfoResource { ResourceId = "res1" }
+            };
+            var resources2 = new List<UserPartyContactInfoResource>
+            {
+                new UserPartyContactInfoResource { ResourceId = "res2" }
+            };
+
+            // Both users have valid addresses
+            await SeedUserPartyContactInfo(userId1, partyUuid, "user1@example.com", "11111111", resources1);
+            await SeedUserPartyContactInfo(userId2, partyUuid, "user2@example.com", "22222222", resources2);
+
+            // Add a user with no addresses (should be filtered out)
+            int userId3 = 300;
+            await SeedUserPartyContactInfo(userId3, partyUuid, null, string.Empty, null);
+
+            // Act
+            var result = await _repository.GetAllNotificationAddressesForPartyAsync(partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+
+            var first = result.FirstOrDefault(c => c.UserId == userId1);
+            var second = result.FirstOrDefault(c => c.UserId == userId2);
+
+            Assert.NotNull(first);
+            Assert.Equal("user1@example.com", first.EmailAddress);
+            Assert.Equal("11111111", first.PhoneNumber);
+            Assert.Single(first.UserPartyContactInfoResources);
+            Assert.Equal("res1", first.UserPartyContactInfoResources[0].ResourceId);
+
+            Assert.NotNull(second);
+            Assert.Equal("user2@example.com", second.EmailAddress);
+            Assert.Equal("22222222", second.PhoneNumber);
+            Assert.Single(second.UserPartyContactInfoResources);
+            Assert.Equal("res2", second.UserPartyContactInfoResources[0].ResourceId);
+
+            // Ensure user with no addresses is not included
+            Assert.DoesNotContain(result, c => c.UserId == userId3);
+        }
+
+        [Fact]
+        public async Task GetAllNotificationAddressesForPartyAsync_WhenEmailAndPhoneIsEmpty_ReturnsEmptyList()
+        {
+            // Arrange
+            Guid partyUuid = Guid.NewGuid();
+            int userId1 = 100;
+
+            // Both users have valid addresses
+            await SeedUserPartyContactInfo(userId1, partyUuid, string.Empty, string.Empty, null);
+
+            // Add a user with no addresses (should be filtered out)
+            int userId3 = 300;
+            await SeedUserPartyContactInfo(userId3, partyUuid, null, null, null);
+
+            // Act
+            var result = await _repository.GetAllNotificationAddressesForPartyAsync(partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.Empty(result);
+        }
+
+        [Fact]
         public async Task AddOrUpdateNotificationAddressAsync_WhenNew_ReturnsTrue()
         {
             // Arrange 

@@ -54,7 +54,7 @@ namespace Altinn.Profile.Integrations.Repositories
                 .AsNoTracking()
                 .Include(x => x.UserPartyContactInfoResources)
                 .AsSplitQuery()
-                .Where(x => x.PartyUuid == partyUuid)
+                .Where(x => x.PartyUuid == partyUuid && !(string.IsNullOrEmpty(x.PhoneNumber) && string.IsNullOrEmpty(x.EmailAddress)))
                 .ToListAsync(cancellationToken);
 
             return contactInfos;

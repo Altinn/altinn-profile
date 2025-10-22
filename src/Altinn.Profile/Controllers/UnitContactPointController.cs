@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -78,7 +79,8 @@ public class UnitContactPointController : ControllerBase
             try
             {
                 var resourceId = GetSanitizedResourceId(unitContactPointLookup.ResourceId);
-                var result = await _contactPointsService.GetUserRegisteredContactPoints([.. unitContactPointLookup.OrganizationNumbers], resourceId, cancellationToken);
+                var organizationNumbers = unitContactPointLookup.OrganizationNumbers.Distinct().Select(o => o.Trim());
+                var result = await _contactPointsService.GetUserRegisteredContactPoints([..organizationNumbers], resourceId, cancellationToken);
                 return Ok(result);
             }
             catch (Exception)

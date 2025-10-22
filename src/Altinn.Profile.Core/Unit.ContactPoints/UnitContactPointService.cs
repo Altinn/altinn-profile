@@ -49,8 +49,8 @@ namespace Altinn.Profile.Core.Unit.ContactPoints
 
             foreach (var party in partyList)
             {
-                var validContactPoits = await GetValidNotificationAddressesForParty(party.PartyUuid, resourceId, cancellationToken);
-                if (validContactPoits == null || !validContactPoits.Any())
+                var validContactPoints = await GetValidNotificationAddressesForParty(party.PartyUuid, resourceId, cancellationToken);
+                if (!validContactPoints.Any())
                 {
                     continue;
                 }
@@ -59,7 +59,7 @@ namespace Altinn.Profile.Core.Unit.ContactPoints
                 {
                     OrganizationNumber = party.OrganizationIdentifier,
                     PartyId = party.PartyId,
-                    UserContactPoints = [.. validContactPoits.Select(c => new UserRegisteredContactPoint { Email = c.EmailAddress, MobileNumber = c.PhoneNumber, UserId = c.UserId })],
+                    UserContactPoints = [.. validContactPoints.Select(c => new UserRegisteredContactPoint { Email = c.EmailAddress, MobileNumber = c.PhoneNumber, UserId = c.UserId })],
                 });
             }
 
@@ -70,25 +70,26 @@ namespace Altinn.Profile.Core.Unit.ContactPoints
         {
             var contactPoints = await _professionalNotificationsRepository.GetAllNotificationAddressesForPartyAsync(partyUuid, cancellationToken);
 
-            var validContactPoits = contactPoints.Where(c => !InvalidEndpoint(c, resourceId));
+            var validContactPoits = contactPoints.Where(c => IsValidEndpoint(c, resourceId));
 
             return validContactPoits;
         }
 
-        private static bool InvalidEndpoint(UserPartyContactInfo contactInfo, string resourceId)
+        private static bool IsValidEndpoint(UserPartyContactInfo contactInfo, string resourceId)
         {
+            // This method is inverted compared to the one in SblBridge, and check for null/empty is moved to db query level
             if (contactInfo.UserPartyContactInfoResources == null || contactInfo.UserPartyContactInfoResources.Count == 0)
-            {
-                return string.IsNullOrEmpty(contactInfo.PhoneNumber) && string.IsNullOrEmpty(contactInfo.EmailAddress);
-            }
-
-            // Check if none of the resourceIds match the resourceId of the request
-            if (contactInfo.UserPartyContactInfoResources.All(x => x.ResourceId != resourceId))
             {
                 return true;
             }
 
-            return string.IsNullOrEmpty(contactInfo.PhoneNumber) && string.IsNullOrEmpty(contactInfo.EmailAddress);
+            // Check if any of the resourceIds match the resourceId of the request
+            if (contactInfo.UserPartyContactInfoResources.Any(x => x.ResourceId == resourceId))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
