@@ -70,9 +70,9 @@ namespace Altinn.Profile.Core.Unit.ContactPoints
         {
             var contactPoints = await _professionalNotificationsRepository.GetAllNotificationAddressesForPartyAsync(partyUuid, cancellationToken);
 
-            var validContactPoits = contactPoints.Where(c => IsValidEndpoint(c, resourceId));
+            var validContactPoints = contactPoints.Where(c => IsValidEndpoint(c, resourceId));
 
-            return validContactPoits;
+            return validContactPoints;
         }
 
         private static bool IsValidEndpoint(UserPartyContactInfo contactInfo, string resourceId)
