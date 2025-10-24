@@ -1,21 +1,20 @@
-﻿using Altinn.Profile.Core.Telemetry;
+﻿using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Integrations.Persistence;
-
 using Microsoft.EntityFrameworkCore;
 
-namespace Altinn.Profile.Integrations.Repositories.A2Sync
+namespace Altinn.Profile.Integrations.Repositories
 {
     /// <summary>
-    /// Repository for synchronizing profile settings with Altinn2
+    /// Repository for updating profile settings
     /// </summary>
-    public class ProfileSettingsSyncRepository(IDbContextFactory<ProfileDbContext> contextFactory, Telemetry? telemetry) : IProfileSettingsSyncRepository
+    public class ProfileSettingsRepository(IDbContextFactory<ProfileDbContext> contextFactory) : IProfileSettingsRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
-        private readonly Telemetry? _telemetry = telemetry;
 
         /// <inheritdoc/>
-        public async Task UpdateProfileSettings(ProfileSettings profileSettings)
+        public async Task<ProfileSettings> UpdateProfileSettings(ProfileSettings profileSettings)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
 
@@ -27,13 +26,13 @@ namespace Altinn.Profile.Integrations.Repositories.A2Sync
                 existing.UpdateFrom(profileSettings);
 
                 await databaseContext.SaveChangesAsync();
-                _telemetry?.ProfileSettingsUpdated();
+                return existing;
             }
             else
             {
                 databaseContext.ProfileSettings.Add(profileSettings);
                 await databaseContext.SaveChangesAsync();
-                _telemetry?.ProfileSettingsAdded();
+                return profileSettings;
             }
         }
 

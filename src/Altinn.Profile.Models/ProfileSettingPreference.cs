@@ -28,6 +28,9 @@
         /// <summary>
         /// Gets or sets the user's preselected party.
         /// </summary>
+        /// <remarks>
+        /// This is being phased out in favor of PreselectedPartyUuid.
+        /// </remarks>
         public int PreSelectedPartyId { get; set; }
 
         /// <summary>
@@ -35,5 +38,25 @@
         /// to be asked for the party on every form submission.
         /// </summary>
         public bool DoNotPromptForParty { get; set; }
+
+        /// <summary>
+        /// The UUID of the preselected party. Optional.
+        /// </summary>
+        public Guid? PreselectedPartyUuid { get; set; }
+
+        /// <summary>
+        /// Indicates whether client units should be shown.
+        /// </summary>
+        public bool ShowClientUnits { get; set; }
+
+        /// <summary>
+        /// Indicates whether sub-entities should be shown.
+        /// </summary>
+        public bool ShouldShowSubEntities { get; set; }
+
+        /// <summary>
+        /// Indicates whether deleted entities should be shown.
+        /// </summary>
+        public bool ShouldShowDeletedEntities { get; set; }
     }
 }
