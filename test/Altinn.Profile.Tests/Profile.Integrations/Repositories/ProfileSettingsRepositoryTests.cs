@@ -183,7 +183,7 @@ public class ProfileSettingsRepositoryTests
     }
 
     [Fact]
-    public async Task PatchProfileSettings_ClearsPreselectedPartyUuid_WhenOptionalHasNullValue()
+    public async Task PatchProfileSettings_PreservesPreselectedPartyUuid_WhenOptionalHasNoValue()
     {
         // Arrange
         var userId = 301;

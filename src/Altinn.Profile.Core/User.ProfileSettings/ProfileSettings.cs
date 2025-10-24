@@ -66,7 +66,7 @@
         }
 
         /// <summary>
-        /// Sets the properties of this instance to the values from a path request with optional values.
+        /// Sets the properties of this instance to the values from a patch request with optional values.
         /// </summary>
         public void UpdateFrom(ProfileSettingsPatchRequest other)
         {
