@@ -17,6 +17,7 @@ using Altinn.Profile.Changelog;
 using Altinn.Profile.Configuration;
 using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Core.Telemetry;
+using Altinn.Profile.Core.Utils;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
@@ -27,6 +28,7 @@ using Altinn.Profile.Integrations.Repositories.A2Sync;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.Changelog;
 using Altinn.Profile.Middleware;
+
 using AltinnCore.Authentication.JwtCookie;
 
 using Azure.Identity;
@@ -150,7 +152,12 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
     services.AddSingleton<Telemetry>();
 
-    services.AddControllers();
+    services
+        .AddControllers()
+        .AddJsonOptions(opts =>
+    {
+        opts.JsonSerializerOptions.Converters.Add(new OptionalJsonConverterFactory());
+    });
 
     services.AddMemoryCache();
     services.AddHealthChecks().AddCheck<HealthCheck>("profile_health_check");

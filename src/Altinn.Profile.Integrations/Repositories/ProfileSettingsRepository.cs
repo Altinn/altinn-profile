@@ -36,6 +36,25 @@ namespace Altinn.Profile.Integrations.Repositories
             }
         }
 
+        /// <inheritdoc/>
+        public async Task<ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchRequest profileSettings)
+        {
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+
+            var existing = await databaseContext.ProfileSettings
+                .FirstOrDefaultAsync(g => g.UserId == profileSettings.UserId);
+
+            if (existing == null)
+            {
+                return null;
+            }
+
+            existing.UpdateFrom(profileSettings);
+
+            await databaseContext.SaveChangesAsync();
+            return existing;
+        }
+
         /// <summary>
         /// Retrieves the profile settings for a given user ID.
         /// </summary>

@@ -3,8 +3,10 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
@@ -138,5 +140,127 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         // Assert
         Assert.True(response.IsSuccessStatusCode, $"Expected success status code but got {(int)response.StatusCode}");
         _factory.ProfileSettingsRepositoryMock.Verify(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task PatchUsersCurrent_AsUser_PatchSucceeds_ReturnsUpdatedPreferences()
+    {
+        // Arrange
+        const int UserId = 400000;
+        var returnedPreselected = Guid.NewGuid();
+
+        // The repository backing the service should return the patched settings
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.PatchProfileSettings(It.IsAny<ProfileSettingsPatchRequest>()))
+            .ReturnsAsync(new ProfileSettings
+            {
+                UserId = UserId,
+                LanguageType = "nb",
+                DoNotPromptForParty = true,
+                PreselectedPartyUuid = returnedPreselected,
+                ShowClientUnits = true,
+                ShouldShowSubEntities = true,
+                ShouldShowDeletedEntities = false
+            });
+
+        HttpClient client = _factory.CreateClient();
+
+        // Build patch request payload (camelCase)
+        string payload = JsonSerializer.Serialize(
+            new
+            {
+                language = "nb",
+                doNotPromptForParty = true,
+                preselectedPartyUuid = returnedPreselected,
+                showClientUnits = true,
+                shouldShowSubEntities = true,
+                shouldShowDeletedEntities = false
+            },
+            _serializerOptionsCamelCase);
+
+        var request = new HttpRequestMessage(HttpMethod.Patch, "/profile/api/v1/users/current/profilesettings")
+        {
+            Content = new StringContent(payload, Encoding.UTF8, "application/json")
+        };
+
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetToken(UserId));
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        string responseContent = await response.Content.ReadAsStringAsync();
+        var actual = JsonSerializer.Deserialize<ProfileSettingPreference>(responseContent, _serializerOptionsCamelCase);
+
+        Assert.NotNull(actual);
+        Assert.Equal("nb", actual.Language);
+        Assert.True(actual.DoNotPromptForParty);
+        Assert.Equal(returnedPreselected, actual.PreselectedPartyUuid);
+        Assert.True(actual.ShowClientUnits);
+        Assert.True(actual.ShouldShowSubEntities);
+        Assert.False(actual.ShouldShowDeletedEntities);
+    }
+
+    [Fact]
+    public async Task PatchUsersCurrent_AsUser_PatchReturnsNull_ReturnsNotFound()
+    {
+        // Arrange
+        const int UserId = 410000;
+
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.PatchProfileSettings(It.IsAny<ProfileSettingsPatchRequest>()))
+            .ReturnsAsync((ProfileSettings)null);
+
+        HttpClient client = _factory.CreateClient();
+
+        string payload = JsonSerializer.Serialize(
+            new
+            {
+                language = "nb"
+            }, 
+            _serializerOptionsCamelCase);
+
+        var request = new HttpRequestMessage(HttpMethod.Patch, "/profile/api/v1/users/current/profilesettings")
+        {
+            Content = new StringContent(payload, Encoding.UTF8, "application/json")
+        };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetToken(UserId));
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PatchUsersCurrent_AsOrg_MissingUserIdClaim_ReturnsBadRequest()
+    {
+        // Arrange
+        HttpClient client = _factory.CreateClient();
+
+        string payload = JsonSerializer.Serialize(
+            new
+            {
+                language = "nb"
+            }, 
+            _serializerOptionsCamelCase);
+
+        var request = new HttpRequestMessage(HttpMethod.Patch, "/profile/api/v1/users/current/profilesettings")
+        {
+            Content = new StringContent(payload, Encoding.UTF8, "application/json")
+        };
+
+        // Use an org token which does not contain a userId claim
+        string token = PrincipalUtil.GetOrgToken("ttd");
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(request);
+
+        // Assert
+        string responseContent = await response.Content.ReadAsStringAsync();
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains("UserId must be provided in claims", responseContent);
     }
 }
