@@ -1,4 +1,5 @@
-﻿using Altinn.Profile.Models;
+﻿using Altinn.Profile.Core.User.ProfileSettings;
+using Altinn.Profile.Models;
 
 namespace Altinn.Profile.Core.User;
 
@@ -48,4 +49,11 @@ public interface IUserProfileService
     /// <param name="profileSettings">The updated profile settings from request</param>
     /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
     Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings);
+
+    /// <summary>
+    /// Patches the profile settings for a user.
+    /// </summary>
+    /// <param name="profileSettings">The updated profile settings from request</param>
+    /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+    Task<ProfileSettings.ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchRequest profileSettings);
 }

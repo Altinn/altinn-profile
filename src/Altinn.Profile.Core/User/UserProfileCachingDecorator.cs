@@ -1,3 +1,4 @@
+using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
 
 using Microsoft.Extensions.Caching.Memory;
@@ -151,5 +152,12 @@ public class UserProfileCachingDecorator : IUserProfileService
     {
         // this should not be cached
         return await _decoratedService.UpdateProfileSettings(profileSettings);
+    }
+
+    /// <inheritdoc/>
+    public async Task<ProfileSettings.ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchRequest profileSettings)
+    {
+        // this should not be cached
+        return await _decoratedService.PatchProfileSettings(profileSettings);
     }
 }

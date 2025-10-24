@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.User.ProfileSettings;
+using Altinn.Profile.Core.Utils;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.Repositories.A2Sync;
@@ -133,6 +134,138 @@ public class ProfileSettingsRepositoryTests
 
         var result = await _repository.GetProfileSettings(userId);
 
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task PatchProfileSettings_UpdatesExistingProfileSettings_Successful()
+    {
+        // Arrange
+        var userId = 300;
+        var existing = new ProfileSettings
+        {
+            UserId = userId,
+            DoNotPromptForParty = false,
+            PreselectedPartyUuid = Guid.NewGuid(),
+            ShowClientUnits = false,
+            ShouldShowSubEntities = false,
+            ShouldShowDeletedEntities = false,
+            IgnoreUnitProfileDateTime = null,
+            LanguageType = "en"
+        };
+        _databaseContext.ProfileSettings.Add(existing);
+        await _databaseContext.SaveChangesAsync();
+
+        var newPreselected = Guid.NewGuid();
+        var patch = new ProfileSettingsPatchRequest
+        {
+            UserId = userId,
+            Language = "nb",
+            DoNotPromptForParty = true,
+            PreselectedPartyUuid = new Optional<Guid?>(newPreselected),
+            ShowClientUnits = true,
+            ShouldShowSubEntities = true,
+            ShouldShowDeletedEntities = true
+        };
+
+        // Act
+        var result = await _repository.PatchProfileSettings(patch);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(userId, result.UserId);
+        Assert.Equal("nb", result.LanguageType);
+        Assert.True(result.DoNotPromptForParty);
+        Assert.Equal(newPreselected, result.PreselectedPartyUuid);
+        Assert.True(result.ShowClientUnits);
+        Assert.True(result.ShouldShowSubEntities);
+        Assert.True(result.ShouldShowDeletedEntities);
+    }
+
+    [Fact]
+    public async Task PatchProfileSettings_ClearsPreselectedPartyUuid_WhenOptionalHasNullValue()
+    {
+        // Arrange
+        var userId = 301;
+        var existing = new ProfileSettings
+        {
+            UserId = userId,
+            DoNotPromptForParty = false,
+            PreselectedPartyUuid = Guid.NewGuid(),
+            ShowClientUnits = false,
+            ShouldShowSubEntities = false,
+            ShouldShowDeletedEntities = false,
+            IgnoreUnitProfileDateTime = null,
+            LanguageType = "en"
+        };
+        _databaseContext.ProfileSettings.Add(existing);
+        await _databaseContext.SaveChangesAsync();
+
+        // Optional explicitly present but with null value => should clear stored value
+        var patch = new ProfileSettingsPatchRequest
+        {
+            UserId = userId,
+            PreselectedPartyUuid = new Optional<Guid?>(null)
+        };
+
+        // Act
+        var result = await _repository.PatchProfileSettings(patch);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Null(result.PreselectedPartyUuid);
+    }
+
+    [Fact]
+    public async Task PatchProfileSettings_ClearsPreselectedPartyUuid_WhenOptionalValue()
+    {
+        // Arrange
+        var userId = 301;
+        var existing = new ProfileSettings
+        {
+            UserId = userId,
+            DoNotPromptForParty = false,
+            PreselectedPartyUuid = Guid.NewGuid(),
+            ShowClientUnits = false,
+            ShouldShowSubEntities = false,
+            ShouldShowDeletedEntities = false,
+            IgnoreUnitProfileDateTime = null,
+            LanguageType = "en"
+        };
+        _databaseContext.ProfileSettings.Add(existing);
+        await _databaseContext.SaveChangesAsync();
+
+        // Optional explicitly not present => should not change stored value
+        var patch = new ProfileSettingsPatchRequest
+        {
+            UserId = userId,
+            PreselectedPartyUuid = new Optional<Guid?>()
+        };
+
+        // Act
+        var result = await _repository.PatchProfileSettings(patch);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.NotNull(result.PreselectedPartyUuid);
+        Assert.Equal(existing.PreselectedPartyUuid, result.PreselectedPartyUuid);
+    }
+
+    [Fact]
+    public async Task PatchProfileSettings_ReturnsNullIfNotExists()
+    {
+        // Arrange
+        var userId = 9999;
+        var patch = new ProfileSettingsPatchRequest
+        {
+            UserId = userId,
+            Language = "nb"
+        };
+
+        // Act
+        var result = await _repository.PatchProfileSettings(patch);
+
+        // Assert
         Assert.Null(result);
     }
 }
