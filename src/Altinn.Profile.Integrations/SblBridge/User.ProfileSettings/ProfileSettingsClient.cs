@@ -2,11 +2,10 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 
-using Altinn.Profile.Integrations.SblBridge;
-using Altinn.Profile.Integrations.SblBridge.User.ProfileSettings;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
+namespace Altinn.Profile.Integrations.SblBridge.User.ProfileSettings;
 
 /// <summary>
 /// Using SBLBridge to update user portal settings in A2

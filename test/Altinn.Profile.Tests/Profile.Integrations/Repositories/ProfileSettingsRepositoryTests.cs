@@ -101,6 +101,8 @@ public class ProfileSettingsRepositoryTests
         Assert.Equal(profileSettings.ShouldShowDeletedEntities, updated.ShouldShowDeletedEntities);
         Assert.Equal(profileSettings.IgnoreUnitProfileDateTime, updated.IgnoreUnitProfileDateTime);
         Assert.Equal(profileSettings.LanguageType, updated.LanguageType);
+
+        _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<ProfileSettingsUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
     }
 
     [Fact]
@@ -153,6 +155,8 @@ public class ProfileSettingsRepositoryTests
         Assert.Equal(updated.ShouldShowDeletedEntities, stored.ShouldShowDeletedEntities);
         Assert.Equal(updated.IgnoreUnitProfileDateTime, stored.IgnoreUnitProfileDateTime);
         Assert.Equal(updated.LanguageType, stored.LanguageType);
+
+        _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<ProfileSettingsUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
     }
 
     [Fact]
