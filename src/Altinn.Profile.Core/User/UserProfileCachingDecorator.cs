@@ -147,9 +147,9 @@ public class UserProfileCachingDecorator : IUserProfileService
     }
 
     /// <inheritdoc/>
-    public async Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings)
+    public async Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings, CancellationToken cancellationToken)
     {
         // this should not be cached
-        return await _decoratedService.UpdateProfileSettings(profileSettings);
+        return await _decoratedService.UpdateProfileSettings(profileSettings, cancellationToken);
     }
 }

@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
@@ -51,9 +52,9 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
 
         ProfileSettings captured = null;
         _factory.ProfileSettingsRepositoryMock
-            .Setup(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>()))
-            .Callback<ProfileSettings>(ps => captured = ps)
-            .ReturnsAsync((ProfileSettings x) => x);
+            .Setup(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>(), It.IsAny<CancellationToken>()))
+            .Callback<ProfileSettings, CancellationToken>((ProfileSettings x, CancellationToken _) => captured = x)
+            .ReturnsAsync((ProfileSettings x, CancellationToken _) => x);
 
         HttpClient client = _factory.CreateClient();
 
@@ -77,7 +78,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         Assert.Equal(request.ShouldShowSubEntities, captured.ShouldShowSubEntities);
         Assert.Equal(request.ShouldShowDeletedEntities, captured.ShouldShowDeletedEntities);
 
-        _factory.ProfileSettingsRepositoryMock.Verify(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>()), Times.Once);
+        _factory.ProfileSettingsRepositoryMock.Verify(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -91,8 +92,8 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         };
 
         _factory.ProfileSettingsRepositoryMock
-            .Setup(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>()))
-            .ReturnsAsync((ProfileSettings x) => x);
+            .Setup(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProfileSettings x, CancellationToken _) => x);
 
         HttpClient client = _factory.CreateClient();
 
@@ -107,7 +108,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        _factory.ProfileSettingsRepositoryMock.Verify(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>()), Times.Never);
+        _factory.ProfileSettingsRepositoryMock.Verify(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -123,8 +124,8 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         };
 
         _factory.ProfileSettingsRepositoryMock
-            .Setup(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>()))
-            .ReturnsAsync((ProfileSettings x) => x);
+            .Setup(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProfileSettings x, CancellationToken _) => x);
 
         HttpClient client = _factory.CreateClient();
 
@@ -137,6 +138,6 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
 
         // Assert
         Assert.True(response.IsSuccessStatusCode, $"Expected success status code but got {(int)response.StatusCode}");
-        _factory.ProfileSettingsRepositoryMock.Verify(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>()), Times.Once);
+        _factory.ProfileSettingsRepositoryMock.Verify(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

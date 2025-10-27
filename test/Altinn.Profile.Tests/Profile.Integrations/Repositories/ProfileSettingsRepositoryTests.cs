@@ -1,19 +1,18 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.User.ProfileSettings;
+using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
-using Altinn.Profile.Integrations.Repositories.A2Sync;
 
 using Microsoft.EntityFrameworkCore;
 
 using Moq;
 
-using OpenTelemetry;
-using OpenTelemetry.Metrics;
+using Wolverine;
+using Wolverine.EntityFrameworkCore;
 
 using Xunit;
 
@@ -24,6 +23,7 @@ public class ProfileSettingsRepositoryTests
     private readonly ProfileDbContext _databaseContext;
     private readonly Mock<IDbContextFactory<ProfileDbContext>> _databaseContextFactory;
     private readonly ProfileSettingsRepository _repository;
+    private readonly Mock<IDbContextOutbox> _dbContextOutboxMock = new();
 
     public ProfileSettingsRepositoryTests()
     {
@@ -40,14 +40,41 @@ public class ProfileSettingsRepositoryTests
 
         _databaseContext = _databaseContextFactory.Object.CreateDbContext();
 
-        _repository = new ProfileSettingsRepository(_databaseContextFactory.Object);
+        _repository = new ProfileSettingsRepository(_databaseContextFactory.Object, _dbContextOutboxMock.Object);
+    }
+
+    private void MockDbContextOutbox<TEvent>(Action<TEvent, DeliveryOptions> callback)
+    {
+        DbContext context = null;
+
+        _dbContextOutboxMock
+            .Setup(mock => mock.Enroll(It.IsAny<DbContext>()))
+            .Callback<DbContext>(ctx =>
+            {
+                context = ctx;
+            });
+
+        _dbContextOutboxMock
+            .Setup(mock => mock.SaveChangesAndFlushMessagesAsync(It.IsAny<CancellationToken>()))
+            .Returns(async () =>
+            {
+                await context.SaveChangesAsync(CancellationToken.None);
+            });
+
+        _dbContextOutboxMock
+            .Setup(mock => mock.PublishAsync(It.IsAny<TEvent>(), null))
+            .Callback(callback);
     }
 
     [Fact]
     public async Task UpdateProfileSettings_AddsNewProfileSettings_Successful()
     {
         // Arrange
-        var repository = new ProfileSettingsRepository(_databaseContextFactory.Object);
+        ProfileSettingsUpdatedEvent actualEventRaised = null;
+        void EventRaisingCallback(ProfileSettingsUpdatedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
+        MockDbContextOutbox((Action<ProfileSettingsUpdatedEvent, DeliveryOptions>)EventRaisingCallback);
+
+        var repository = new ProfileSettingsRepository(_databaseContextFactory.Object, _dbContextOutboxMock.Object);
 
         var profileSettings = new ProfileSettings
         {
@@ -62,7 +89,7 @@ public class ProfileSettingsRepositoryTests
         };
 
         // Act
-        await repository.UpdateProfileSettings(profileSettings);
+        await repository.UpdateProfileSettings(profileSettings, CancellationToken.None);
 
         var updated = await repository.GetProfileSettings(profileSettings.UserId);
         Assert.NotNull(updated);
@@ -80,7 +107,11 @@ public class ProfileSettingsRepositoryTests
     public async Task UpdateProfileSettings_UpdatesExistingProfileSettings_EmitsUpdatedMetric()
     {
         // Arrange
-        var repository = new ProfileSettingsRepository(_databaseContextFactory.Object);
+        ProfileSettingsUpdatedEvent actualEventRaised = null;
+        void EventRaisingCallback(ProfileSettingsUpdatedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
+        MockDbContextOutbox((Action<ProfileSettingsUpdatedEvent, DeliveryOptions>)EventRaisingCallback);
+
+        var repository = new ProfileSettingsRepository(_databaseContextFactory.Object, _dbContextOutboxMock.Object);
 
         var userId = 200;
         var existing = new ProfileSettings
@@ -110,7 +141,7 @@ public class ProfileSettingsRepositoryTests
         };
 
         // Act
-        await repository.UpdateProfileSettings(updated);
+        await repository.UpdateProfileSettings(updated, CancellationToken.None);
 
         var stored = await repository.GetProfileSettings(existing.UserId);
         Assert.NotNull(stored);
@@ -128,8 +159,6 @@ public class ProfileSettingsRepositoryTests
     public async Task GetProfileSettings_ReturnsNullIfNotExists()
     {
         var userId = 4;
-
-        var repository = new ProfileSettingsRepository(_databaseContextFactory.Object);
 
         var result = await _repository.GetProfileSettings(userId);
 
