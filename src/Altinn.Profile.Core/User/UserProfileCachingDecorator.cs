@@ -151,13 +151,25 @@ public class UserProfileCachingDecorator : IUserProfileService
     public async Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings)
     {
         // this should not be cached
-        return await _decoratedService.UpdateProfileSettings(profileSettings);
+        var result = await _decoratedService.UpdateProfileSettings(profileSettings);
+        InvalidateCache(profileSettings.UserId);
+
+        return result;
     }
 
     /// <inheritdoc/>
     public async Task<ProfileSettings.ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchRequest profileSettings)
     {
         // this should not be cached
-        return await _decoratedService.PatchProfileSettings(profileSettings);
+        var result = await _decoratedService.PatchProfileSettings(profileSettings);
+        InvalidateCache(profileSettings.UserId);
+
+        return result;
+    }
+
+    private void InvalidateCache(int userId)
+    {
+        string userIdKey = "User_UserId_" + userId;
+        _memoryCache.Remove(userIdKey);
     }
 }

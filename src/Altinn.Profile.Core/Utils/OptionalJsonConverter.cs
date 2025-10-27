@@ -21,6 +21,7 @@ namespace Altinn.Profile.Core.Utils
             // Handle explicit null
             if (reader.TokenType == JsonTokenType.Null)
             {
+                // Return an Optional<T> with HasValue = true, Value = null
                 return new Optional<T>(value: default);
             }
 
