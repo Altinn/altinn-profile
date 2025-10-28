@@ -1,26 +1,43 @@
 ﻿using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.User;
+using Altinn.Profile.Core.User.ProfileSettings;
 
 namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 {
     /// <summary>
     /// Service for handling professional notification addresses.
     /// </summary>
-    public class ProfessionalNotificationsService(IProfessionalNotificationsRepository professionalNotificationsRepository, IUserProfileClient userProfileClient, INotificationsClient notificationsClient) : IProfessionalNotificationsService
+    public class ProfessionalNotificationsService(
+        IProfessionalNotificationsRepository professionalNotificationsRepository,
+        IUserProfileClient userProfileClient,
+        INotificationsClient notificationsClient,
+        IUserProfileService userProfileService) : IProfessionalNotificationsService
     {
         private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
         private readonly IUserProfileClient _userProfileClient = userProfileClient;
+        private readonly IUserProfileService _userProfileService = userProfileService;
         private readonly INotificationsClient _notificationsClient = notificationsClient;
 
         /// <inheritdoc/>
-        public Task<UserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        public async Task<(UserPartyContactInfo? NotificationSettings, ProfileSettings? ProfileSettings)> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
         {
-            return _professionalNotificationsRepository.GetNotificationAddressAsync(userId, partyUuid, cancellationToken);
+            var notificationSettings = await _professionalNotificationsRepository.GetNotificationAddressAsync(userId, partyUuid, cancellationToken);
+            if (notificationSettings == null)
+            {
+                return (null, null);
+            }
+
+            var profileSettings = await _userProfileService.GetProfileSettings(userId);
+            return (notificationSettings, profileSettings);
         }
 
         /// <inheritdoc/>
-        public Task<IReadOnlyList<UserPartyContactInfo>> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken)
+        public async Task<(IReadOnlyList<UserPartyContactInfo> NotificationSettings, ProfileSettings? ProfileSettings)> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken)
         {
-            return _professionalNotificationsRepository.GetAllNotificationAddressesForUserAsync(userId, cancellationToken);
+            var profileSettings = await _userProfileService.GetProfileSettings(userId);
+
+            var notificationSettings = await _professionalNotificationsRepository.GetAllNotificationAddressesForUserAsync(userId, cancellationToken);
+            return (notificationSettings, profileSettings);
         }
 
         /// <inheritdoc/>

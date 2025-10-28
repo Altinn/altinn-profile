@@ -152,4 +152,21 @@ public class UserProfileCachingDecorator : IUserProfileService
         // this should not be cached
         return await _decoratedService.UpdateProfileSettings(profileSettings);
     }
+
+    /// <inheritdoc/>
+    public async Task<ProfileSettings.ProfileSettings?> GetProfileSettings(int userId)
+    {
+        string uniqueCacheKey = "UserProfileSettings_UserId_" + userId;
+
+        if (_memoryCache.TryGetValue(uniqueCacheKey, out ProfileSettings.ProfileSettings? profileSettings))
+        {
+            return profileSettings!;
+        }
+
+        var result = await _decoratedService.GetProfileSettings(userId);
+
+        _memoryCache.Set(uniqueCacheKey, result, _cacheOptions);
+            
+        return result;
+    }
 }

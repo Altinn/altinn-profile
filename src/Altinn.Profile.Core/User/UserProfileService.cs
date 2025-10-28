@@ -99,6 +99,12 @@ public class UserProfileService : IUserProfileService
     }
 
     /// <inheritdoc/>
+    public async Task<ProfileSettings.ProfileSettings?> GetProfileSettings(int userId)
+    {
+        return await _profileSettingsRepository.GetProfileSettings(userId);
+    }
+
+    /// <inheritdoc/>
     public async Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings)
     {
         return await _profileSettingsRepository.UpdateProfileSettings(profileSettings);
