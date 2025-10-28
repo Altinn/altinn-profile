@@ -22,7 +22,7 @@ namespace Altinn.Profile.Integrations.Repositories
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
             var existing = await databaseContext.ProfileSettings
-                .FirstOrDefaultAsync(g => g.UserId == profileSettings.UserId, cancellationToken);
+                .SingleOrDefaultAsync(g => g.UserId == profileSettings.UserId, cancellationToken);
 
             if (existing != null)
             {
@@ -53,7 +53,8 @@ namespace Altinn.Profile.Integrations.Repositories
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
             return await databaseContext.ProfileSettings
-                .FirstOrDefaultAsync(g => g.UserId == userId);
+                .AsNoTracking()
+                .SingleOrDefaultAsync(g => g.UserId == userId);
         }
     }
 }
