@@ -56,7 +56,14 @@ public class ProfileSettingsClientTests
         var client = CreateClient(response, out _);
 
         var request = GetValidRequest();
-        await client.UpdatePortalSettings(request);
+        try
+        {
+            await client.UpdatePortalSettings(request);
+        }
+        catch
+        {
+            Assert.Fail("Exception was thrown on successful request");
+        }
     }
 
     [Theory]

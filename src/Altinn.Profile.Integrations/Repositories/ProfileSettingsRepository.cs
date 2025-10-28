@@ -19,10 +19,10 @@ namespace Altinn.Profile.Integrations.Repositories
         /// <inheritdoc/>
         public async Task<ProfileSettings> UpdateProfileSettings(ProfileSettings profileSettings, CancellationToken cancellationToken)
         {
-            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
             var existing = await databaseContext.ProfileSettings
-                .FirstOrDefaultAsync(g => g.UserId == profileSettings.UserId);
+                .FirstOrDefaultAsync(g => g.UserId == profileSettings.UserId, cancellationToken);
 
             if (existing != null)
             {
