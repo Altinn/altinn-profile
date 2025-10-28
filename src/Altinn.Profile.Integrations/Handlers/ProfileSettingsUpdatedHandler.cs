@@ -9,9 +9,9 @@ using Wolverine.Attributes;
 namespace Altinn.Profile.Integrations.Handlers;
 
 /// <summary>
-/// Handler for the event where the user updates their notification settings for a party.
+/// Handler for the event where the user updates their profile settings.
 /// </summary>
-/// <param name="userProfileSettingsClient">The notification settings client</param>
+/// <param name="userProfileSettingsClient">The profile settings client</param>
 /// <param name="settings">Config to indicate if the handler should update Altinn 2</param>
 /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
 public class ProfileSettingsUpdatedHandler(IProfileSettingsClient userProfileSettingsClient, IOptions<SblBridgeSettings> settings)

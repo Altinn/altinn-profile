@@ -1,7 +1,7 @@
 ﻿namespace Altinn.Profile.Integrations.Events
 {
     /// <summary>
-    /// Event representing an update to a professional notification address.
+    /// Event representing an update to profile settings.
     /// </summary>
     /// <param name="UserId">The user ID associated with the update.</param>
     /// <param name="EventTimestamp">The timestamp when the event occurred.</param>

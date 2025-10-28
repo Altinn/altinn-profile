@@ -6,7 +6,7 @@
     public class ProfileSettingsChangedRequest
     {
         /// <summary>
-        /// Gets or sets the type of change. Supported values are "insert" and "delete".
+        /// Gets or sets the type of change. Supported values are "insert", "update" and "delete".
         /// </summary>
         public required string ChangeType { get; set; }
 

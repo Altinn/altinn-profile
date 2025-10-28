@@ -29,7 +29,7 @@ namespace Altinn.Profile.Integrations.Repositories
                 existing.UpdateFrom(profileSettings);
 
                 ProfileSettingsUpdatedEvent NotifyProfileSettingsUpdated() => new(profileSettings.UserId, DateTime.UtcNow, existing.LanguageType, existing.DoNotPromptForParty, existing.PreselectedPartyUuid, existing.ShowClientUnits, existing.ShouldShowSubEntities, existing.ShouldShowDeletedEntities, existing.IgnoreUnitProfileDateTime);
-                await NotifyAndSave(databaseContext, NotifyProfileSettingsUpdated, cancellationToken);
+                await NotifyAndSave(databaseContext, NotifyProfileSettingsUpdated, CancellationToken.None);
 
                 return existing;
             }
@@ -38,7 +38,7 @@ namespace Altinn.Profile.Integrations.Repositories
                 databaseContext.ProfileSettings.Add(profileSettings);
 
                 ProfileSettingsUpdatedEvent NotifyProfileSettingsUpdated() => new(profileSettings.UserId, DateTime.UtcNow, profileSettings.LanguageType, profileSettings.DoNotPromptForParty, profileSettings.PreselectedPartyUuid, profileSettings.ShowClientUnits, profileSettings.ShouldShowSubEntities, profileSettings.ShouldShowDeletedEntities, profileSettings.IgnoreUnitProfileDateTime);
-                await NotifyAndSave(databaseContext, NotifyProfileSettingsUpdated, cancellationToken);
+                await NotifyAndSave(databaseContext, NotifyProfileSettingsUpdated, CancellationToken.None);
 
                 return profileSettings;
             }
