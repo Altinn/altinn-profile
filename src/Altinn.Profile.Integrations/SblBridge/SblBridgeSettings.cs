@@ -23,5 +23,5 @@ public class SblBridgeSettings
     /// <summary>
     /// A feature flag indicating whether to update A2 when updating portal setting preferences
     /// </summary>
-    public bool UpdateA2PortalSettings { get; set; }
+    public bool UpdateA2ProfileSettings { get; set; }
 }

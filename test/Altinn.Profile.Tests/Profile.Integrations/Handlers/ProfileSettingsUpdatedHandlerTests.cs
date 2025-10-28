@@ -18,7 +18,7 @@ public class ProfileSettingsUpdatedHandlerTests
         // Arrange
         var clientMock = new Mock<IProfileSettingsClient>();
         var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
-        settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2PortalSettings = false });
+        settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2ProfileSettings = false });
 
         var handler = new ProfileSettingsUpdatedHandler(clientMock.Object, settingsMock.Object);
 
@@ -37,7 +37,7 @@ public class ProfileSettingsUpdatedHandlerTests
         // Arrange
         var clientMock = new Mock<IProfileSettingsClient>();
         var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
-        settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2PortalSettings = true });
+        settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2ProfileSettings = true });
 
         var handler = new ProfileSettingsUpdatedHandler(clientMock.Object, settingsMock.Object);
 

@@ -16,7 +16,7 @@ namespace Altinn.Profile.Integrations.Handlers;
 /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
 public class ProfileSettingsUpdatedHandler(IProfileSettingsClient userProfileSettingsClient, IOptions<SblBridgeSettings> settings)
 {
-    private readonly bool _updateA2 = settings.Value.UpdateA2PortalSettings;
+    private readonly bool _updateA2 = settings.Value.UpdateA2ProfileSettings;
     private readonly IProfileSettingsClient _userProfileSettingsClient = userProfileSettingsClient;
 
     /// <summary>
