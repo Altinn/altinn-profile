@@ -195,12 +195,10 @@ public class UserProfileCachingDecorator : IUserProfileService
     private bool TryGetUserFromCache(string uniqueCacheKey, out UserProfile? user)
     {
         user = null;
-        if (_memoryCache.TryGetValue(uniqueCacheKey, out int? userId))
+        if (_memoryCache.TryGetValue(uniqueCacheKey, out int? userId) 
+            & TryGetUserFromCache((int)userId!, out user))
         {
-            if (TryGetUserFromCache((int)userId!, out user))
-            {
-                return true;
-            }
+            return true;
         }
 
         return false;
@@ -208,6 +206,7 @@ public class UserProfileCachingDecorator : IUserProfileService
 
     /// <summary>
     /// Get the user from cache based on userId
+    /// </summary>
     /// <returns>Returns true if the user was found in cache, false otherwise</returns>
     private bool TryGetUserFromCache(int userId, out UserProfile? user)
     {
