@@ -147,14 +147,14 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
     public async Task PatchUsersCurrent_AsUser_PatchSucceeds_ReturnsUpdatedPreferences()
     {
         // Arrange
-        const int UserId = 400000;
+        const int userId = 400000;
         var returnedPreselected = Guid.NewGuid();
 
         // The repository backing the service should return the patched settings
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.PatchProfileSettings(It.IsAny<ProfileSettingsPatchRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProfileSettings
             {
-                UserId = UserId,
+                UserId = userId,
                 LanguageType = "nb",
                 DoNotPromptForParty = true,
                 PreselectedPartyUuid = returnedPreselected,
@@ -183,7 +183,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
             Content = new StringContent(payload, Encoding.UTF8, "application/json")
         };
 
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetToken(UserId));
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetToken(userId));
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request);

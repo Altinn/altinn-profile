@@ -4,8 +4,6 @@ using Altinn.Profile.Models;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
-using static Altinn.Register.Contracts.PartyUrn;
-
 namespace Altinn.Profile.Core.User;
 
 /// <summary>.
