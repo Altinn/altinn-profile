@@ -219,6 +219,7 @@ namespace Altinn.Profile.Controllers
             var daysSinceLastUserUnitProfileUpdate = (DateTime.Now - lastModified).TotalDays;
             if (daysSinceLastUserUnitProfileUpdate >= _altinnConfiguration.ValidationReminderDays)
             {
+                // Altinn2 checks if the user is the "innehaver" of an "ENK" type org unit. We do not have that info here,
                 return true;
             }
 
