@@ -6,7 +6,7 @@ const replacements = {
     '"': '&quot;',
 };
 
-const escapeHTML = (str) => str.replace(/[&<>'"]/g, (char) => replacements[char]);
+const escapeHTML = (str) => str.replaceAll(/[&<>'"]/g, (char) => replacements[char]);
 
 const checksToTestcase = (checks) => {
     let failures = 0;
@@ -33,13 +33,13 @@ export const generateJUnitXML = (data, suiteName) => {
     const time = data.state.testRunDurationMs || 0;
 
     if (data.root_group.groups?.length > 0) {
-        data.root_group.groups.forEach((group) => {
+        for (const group in data.root_group.groups){
             if (group.checks) {
                 const [testSubset, groupFailures] = checksToTestcase(group.checks);
                 allTests.push(...testSubset);
                 failures += groupFailures;
             }
-        });
+        }
     }
 
     if (data.root_group.checks) {
@@ -64,5 +64,5 @@ export const generateJUnitXML = (data, suiteName) => {
  */
 export const reportPath = (reportName) => {
     const basePath = `src/reports/${reportName}`;
-    return !(__ENV.OS || __ENV.AGENT_OS) ? `/${basePath}` : basePath;
+    return (__ENV.OS || __ENV.AGENT_OS) ? basePath : `/${basePath}`;
 };
