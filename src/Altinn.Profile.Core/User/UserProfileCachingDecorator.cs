@@ -150,20 +150,20 @@ public class UserProfileCachingDecorator : IUserProfileService
     }
 
     /// <inheritdoc/>
-    public async Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings)
+    public async Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings, CancellationToken cancellationToken)
     {
         // this should not be cached
-        var result = await _decoratedService.UpdateProfileSettings(profileSettings);
+        var result = await _decoratedService.UpdateProfileSettings(profileSettings, cancellationToken);
         InvalidateCache(profileSettings.UserId);
 
         return result;
     }
 
     /// <inheritdoc/>
-    public async Task<ProfileSettings.ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchRequest profileSettings)
+    public async Task<ProfileSettings.ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchRequest profileSettings, CancellationToken cancellationToken)
     {
         // this should not be cached
-        var result = await _decoratedService.PatchProfileSettings(profileSettings);
+        var result = await _decoratedService.PatchProfileSettings(profileSettings, cancellationToken);
         InvalidateCache(profileSettings.UserId);
 
         return result;

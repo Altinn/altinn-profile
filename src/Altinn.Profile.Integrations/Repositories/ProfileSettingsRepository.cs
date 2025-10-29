@@ -1,48 +1,56 @@
 ﻿using Altinn.Profile.Core.Integrations;
-using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Core.User.ProfileSettings;
+using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
+
 using Microsoft.EntityFrameworkCore;
+
+using Wolverine.EntityFrameworkCore;
 
 namespace Altinn.Profile.Integrations.Repositories
 {
     /// <summary>
     /// Repository for updating profile settings
     /// </summary>
-    public class ProfileSettingsRepository(IDbContextFactory<ProfileDbContext> contextFactory) : IProfileSettingsRepository
+    public class ProfileSettingsRepository(IDbContextFactory<ProfileDbContext> contextFactory, IDbContextOutbox databaseContextOutbox) : EFCoreTransactionalOutbox(databaseContextOutbox), IProfileSettingsRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
         /// <inheritdoc/>
-        public async Task<ProfileSettings> UpdateProfileSettings(ProfileSettings profileSettings)
+        public async Task<ProfileSettings> UpdateProfileSettings(ProfileSettings profileSettings, CancellationToken cancellationToken)
         {
-            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
             var existing = await databaseContext.ProfileSettings
-                .FirstOrDefaultAsync(g => g.UserId == profileSettings.UserId);
+                .SingleOrDefaultAsync(g => g.UserId == profileSettings.UserId, cancellationToken);
 
             if (existing != null)
             {
                 existing.UpdateFrom(profileSettings);
 
-                await databaseContext.SaveChangesAsync();
+                ProfileSettingsUpdatedEvent NotifyProfileSettingsUpdated() => new(profileSettings.UserId, DateTime.UtcNow, existing.LanguageType, existing.DoNotPromptForParty, existing.PreselectedPartyUuid, existing.ShowClientUnits, existing.ShouldShowSubEntities, existing.ShouldShowDeletedEntities, existing.IgnoreUnitProfileDateTime);
+                await NotifyAndSave(databaseContext, NotifyProfileSettingsUpdated, CancellationToken.None);
+
                 return existing;
             }
             else
             {
                 databaseContext.ProfileSettings.Add(profileSettings);
-                await databaseContext.SaveChangesAsync();
+
+                ProfileSettingsUpdatedEvent NotifyProfileSettingsUpdated() => new(profileSettings.UserId, DateTime.UtcNow, profileSettings.LanguageType, profileSettings.DoNotPromptForParty, profileSettings.PreselectedPartyUuid, profileSettings.ShowClientUnits, profileSettings.ShouldShowSubEntities, profileSettings.ShouldShowDeletedEntities, profileSettings.IgnoreUnitProfileDateTime);
+                await NotifyAndSave(databaseContext, NotifyProfileSettingsUpdated, CancellationToken.None);
+
                 return profileSettings;
             }
         }
 
         /// <inheritdoc/>
-        public async Task<ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchRequest profileSettings)
+        public async Task<ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchRequest profileSettings, CancellationToken cancellationToken)
         {
-            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
             var existing = await databaseContext.ProfileSettings
-                .FirstOrDefaultAsync(g => g.UserId == profileSettings.UserId);
+                .SingleOrDefaultAsync(g => g.UserId == profileSettings.UserId, cancellationToken);
 
             if (existing == null)
             {
@@ -51,7 +59,8 @@ namespace Altinn.Profile.Integrations.Repositories
 
             existing.UpdateFrom(profileSettings);
 
-            await databaseContext.SaveChangesAsync();
+            ProfileSettingsUpdatedEvent NotifyProfileSettingsUpdated() => new(profileSettings.UserId, DateTime.UtcNow, existing.LanguageType, existing.DoNotPromptForParty, existing.PreselectedPartyUuid, existing.ShowClientUnits, existing.ShouldShowSubEntities, existing.ShouldShowDeletedEntities, existing.IgnoreUnitProfileDateTime);
+            await NotifyAndSave(databaseContext, NotifyProfileSettingsUpdated, CancellationToken.None);
             return existing;
         }
 
@@ -64,7 +73,8 @@ namespace Altinn.Profile.Integrations.Repositories
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
             return await databaseContext.ProfileSettings
-                .FirstOrDefaultAsync(g => g.UserId == userId);
+                .AsNoTracking()
+                .SingleOrDefaultAsync(g => g.UserId == userId);
         }
     }
 }

@@ -99,15 +99,15 @@ public class UserProfileService : IUserProfileService
     }
 
     /// <inheritdoc/>
-    public async Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings)
+    public async Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings, CancellationToken cancellationToken)
     {
-        return await _profileSettingsRepository.UpdateProfileSettings(profileSettings);
+        return await _profileSettingsRepository.UpdateProfileSettings(profileSettings, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public async Task<ProfileSettings.ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchRequest profileSettings)
+    public async Task<ProfileSettings.ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchRequest profileSettings, CancellationToken cancellationToken)
     {
-        return await _profileSettingsRepository.PatchProfileSettings(profileSettings);
+        return await _profileSettingsRepository.PatchProfileSettings(profileSettings, cancellationToken);
     }
 
     private async Task<UserProfile> EnrichWithProfileSettings(UserProfile userProfile)
