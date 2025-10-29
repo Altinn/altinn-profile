@@ -332,8 +332,8 @@ public class UserProfileCachingDecoratorTest
         result.Match(
             Assert.Empty,
             _ => { });
-        Assert.False(memoryCache.TryGetValue($"UserId_UserUuid_{userUuids[0]}", out UserProfile _));
-        Assert.False(memoryCache.TryGetValue($"UserId_UserUuid_{userUuids[1]}", out UserProfile _));
+        Assert.False(memoryCache.TryGetValue($"UserId_UserUuid_{userUuids[0]}", out int _));
+        Assert.False(memoryCache.TryGetValue($"UserId_UserUuid_{userUuids[1]}", out int _));
     }
 
     /// <summary>

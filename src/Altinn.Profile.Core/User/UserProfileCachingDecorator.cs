@@ -196,7 +196,7 @@ public class UserProfileCachingDecorator : IUserProfileService
     {
         user = null;
         if (_memoryCache.TryGetValue(uniqueCacheKey, out int? userId) 
-            & TryGetUserFromCache((int)userId!, out user))
+            && TryGetUserFromCache((int)userId!, out user))
         {
             return true;
         }
