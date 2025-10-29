@@ -69,7 +69,8 @@ public class UserProfileCachingDecoratorTest
         MemoryCache memoryCache = new(new MemoryCacheOptions());
 
         var userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
-        memoryCache.Set($"User:UserUuid:{userUuid}", userProfile);
+        memoryCache.Set($"UserId_UserUuid_{userUuid}", userProfile.UserId);
+        memoryCache.Set($"User_UserId_{userProfile.UserId}", userProfile);
         var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
         // Act
@@ -100,7 +101,8 @@ public class UserProfileCachingDecoratorTest
         MemoryCache memoryCache = new(new MemoryCacheOptions());
 
         UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userUuids[0].ToString());
-        memoryCache.Set($"User:UserUuid:{userUuids[0]}", userProfile);
+        memoryCache.Set($"UserId_UserUuid_{userUuids[0]}", userProfile.UserId);
+        memoryCache.Set($"User_UserId_{userProfile.UserId}", userProfile);
         List<UserProfile> userProfiles = new List<UserProfile>();
         userProfiles.Add(await TestDataLoader.Load<UserProfile>(userUuidNotInCache.ToString()));
         _decoratedServiceMock.Setup(service => service.GetUserListByUuid(It.Is<List<Guid>>(g => g.TrueForAll(g2 => g2 == userUuidNotInCache)))).ReturnsAsync(userProfiles);
@@ -119,9 +121,9 @@ public class UserProfileCachingDecoratorTest
                 foreach (var userUuid in userUuids)
                 {
                     UserProfile currentProfileFromResult = actual.Find(p => p.UserUuid == userUuid);
-                    UserProfile currentProfileFromCache = memoryCache.Get<UserProfile>($"User:UserUuid:{userUuid}");
+                    int currentProfileFromCache = memoryCache.Get<int>($"UserId_UserUuid_{userUuid}");
                     Assert.NotNull(currentProfileFromResult);
-                    Assert.NotNull(currentProfileFromCache);
+                    Assert.NotEqual(default(int), currentProfileFromCache);
                 }
             },
             _ => { });
@@ -140,7 +142,8 @@ public class UserProfileCachingDecoratorTest
         foreach (Guid userUuid in userUuids)
         {
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
-            memoryCache.Set($"User:UserUuid:{userUuid}", userProfile);
+            memoryCache.Set($"UserId_UserUuid_{userUuid}", userProfile.UserId);
+            memoryCache.Set($"User_UserId_{userProfile.UserId}", userProfile);
         }
 
         UserProfileCachingDecorator target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
@@ -225,7 +228,7 @@ public class UserProfileCachingDecoratorTest
             },
             _ => { });
 
-        Assert.True(memoryCache.TryGetValue($"User:UserUuid:{userUuid}", out UserProfile _), "No data found in memory cache");
+        Assert.True(memoryCache.TryGetValue($"UserId_UserUuid_{userUuid}", out int _), "No data found in memory cache");
     }
 
     /// <summary>
@@ -259,8 +262,8 @@ public class UserProfileCachingDecoratorTest
             },
             _ => { });
 
-        Assert.True(memoryCache.TryGetValue($"User:UserUuid:{userUuids[0]}", out UserProfile _), "No data found in memory cache");
-        Assert.True(memoryCache.TryGetValue($"User:UserUuid:{userUuids[1]}", out UserProfile _), "No data found in memory cache");
+        Assert.True(memoryCache.TryGetValue($"UserId_UserUuid_{userUuids[0]}", out int _), "No data found in memory cache");
+        Assert.True(memoryCache.TryGetValue($"UserId_UserUuid_{userUuids[1]}", out int _), "No data found in memory cache");
     }
 
     /// <summary>
@@ -329,8 +332,8 @@ public class UserProfileCachingDecoratorTest
         result.Match(
             Assert.Empty,
             _ => { });
-        Assert.False(memoryCache.TryGetValue($"User:UserUuid:{userUuids[0]}", out UserProfile _));
-        Assert.False(memoryCache.TryGetValue($"User:UserUuid:{userUuids[1]}", out UserProfile _));
+        Assert.False(memoryCache.TryGetValue($"UserId_UserUuid_{userUuids[0]}", out UserProfile _));
+        Assert.False(memoryCache.TryGetValue($"UserId_UserUuid_{userUuids[1]}", out UserProfile _));
     }
 
     /// <summary>
@@ -344,7 +347,8 @@ public class UserProfileCachingDecoratorTest
         MemoryCache memoryCache = new(new MemoryCacheOptions());
 
         var userProfile = await TestDataLoader.Load<UserProfile>("2001607");
-        memoryCache.Set("User_SSN_01025101038", userProfile);
+        memoryCache.Set("UserId_SSN_01025101038", userProfile.UserId);
+        memoryCache.Set("User_UserId_" + userProfile.UserId, userProfile);
         var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
         // Act
@@ -393,7 +397,7 @@ public class UserProfileCachingDecoratorTest
            },
            _ => { });
 
-        Assert.True(memoryCache.TryGetValue("User_SSN_01025101038", out UserProfile _), "No data found in memory cache");
+        Assert.True(memoryCache.TryGetValue("UserId_SSN_01025101038", out int _), "No data found in memory cache");
     }
 
     /// <summary>
@@ -431,7 +435,9 @@ public class UserProfileCachingDecoratorTest
         MemoryCache memoryCache = new(new MemoryCacheOptions());
 
         var userProfile = await TestDataLoader.Load<UserProfile>(Username);
-        memoryCache.Set("User_Username_OrstaECUser", userProfile);
+        memoryCache.Set("UserId_Username_OrstaECUser", userProfile.UserId);
+        memoryCache.Set("User_UserId_" + userProfile.UserId, userProfile);
+
         var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
 
         // Act
@@ -482,7 +488,8 @@ public class UserProfileCachingDecoratorTest
            },
            _ => { });
 
-        Assert.True(memoryCache.TryGetValue("User_Username_OrstaECUser", out UserProfile _), "No data found in memory cache");
+        Assert.True(memoryCache.TryGetValue("UserId_Username_OrstaECUser", out int _), "No data found in memory cache");
+        Assert.True(memoryCache.TryGetValue("User_UserId_" + UserId, out UserProfile _), "No data found in memory cache");
     }
 
     /// <summary>

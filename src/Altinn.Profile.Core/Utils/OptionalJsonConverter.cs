@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace Altinn.Profile.Core.Utils
 {
     /// <summary>
-    /// Converts <see cref="Optional{T}"/> values to and from JSON, handling explicit nulls and missing values.
+    /// Converts <see cref="Optional{T}"/> values to and from JSON with special handling of explicit nulls versus having the property omitted entirely.
     /// </summary>
     /// <typeparam name="T">The type of the value contained in the <see cref="Optional{T}"/>.</typeparam>
     public class OptionalJsonConverter<T> : JsonConverter<Optional<T>>

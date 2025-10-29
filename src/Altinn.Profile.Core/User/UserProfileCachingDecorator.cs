@@ -4,6 +4,8 @@ using Altinn.Profile.Models;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
+using static Altinn.Register.Contracts.PartyUrn;
+
 namespace Altinn.Profile.Core.User;
 
 /// <summary>.
@@ -15,6 +17,7 @@ public class UserProfileCachingDecorator : IUserProfileService
     private readonly IUserProfileService _decoratedService;
     private readonly IMemoryCache _memoryCache;
     private readonly MemoryCacheEntryOptions _cacheOptions;
+    private const string CacheKeyPrefix = "User_UserId_";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserProfileCachingDecorator"/> class.
@@ -38,9 +41,7 @@ public class UserProfileCachingDecorator : IUserProfileService
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUser(int userId)
     {
-        string uniqueCacheKey = "User_UserId_" + userId;
-
-        if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile? user))
+        if (TryGetUserFromCache(userId, out UserProfile? user))
         {
             return user!;
         }
@@ -48,7 +49,7 @@ public class UserProfileCachingDecorator : IUserProfileService
         Result<UserProfile, bool> result = await _decoratedService.GetUser(userId);
 
         result.Match(
-            userProfile => _memoryCache.Set(uniqueCacheKey, userProfile, _cacheOptions),
+            userProfile => AddUserToCache(userProfile),
             _ => { });
 
         return result;
@@ -57,9 +58,9 @@ public class UserProfileCachingDecorator : IUserProfileService
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUser(string ssn)
     {
-        string uniqueCacheKey = "User_SSN_" + ssn;
+        string uniqueCacheKey = "UserId_SSN_" + ssn;
 
-        if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile? user))
+        if (TryGetUserFromCache(uniqueCacheKey, out UserProfile? user))
         {
             return user!;
         }
@@ -67,7 +68,7 @@ public class UserProfileCachingDecorator : IUserProfileService
         Result<UserProfile, bool> result = await _decoratedService.GetUser(ssn);
 
         result.Match(
-           userProfile => _memoryCache.Set(uniqueCacheKey, userProfile, _cacheOptions),
+           userProfile => AddUserToCache(uniqueCacheKey, userProfile),
            _ => { });
 
         return result;
@@ -76,9 +77,9 @@ public class UserProfileCachingDecorator : IUserProfileService
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUserByUuid(Guid userUuid)
     {
-        string uniqueCacheKey = $"User:UserUuid:{userUuid}";
+        string uniqueCacheKey = $"UserId_UserUuid_{userUuid}";
 
-        if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile? user))
+        if (TryGetUserFromCache(uniqueCacheKey, out UserProfile? user))
         {
             return user!;
         }
@@ -86,8 +87,8 @@ public class UserProfileCachingDecorator : IUserProfileService
         Result<UserProfile, bool> result = await _decoratedService.GetUserByUuid(userUuid);
 
         result.Match(
-         userProfile => _memoryCache.Set(uniqueCacheKey, userProfile, _cacheOptions),
-         _ => { });
+             userProfile => AddUserToCache(uniqueCacheKey, userProfile),
+             _ => { });
         return result;
     }
 
@@ -99,8 +100,8 @@ public class UserProfileCachingDecorator : IUserProfileService
 
         foreach (Guid userUuid in userUuidList)
         {
-            string uniqueCacheKey = $"User:UserUuid:{userUuid}";
-            if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile? user))
+            string uniqueCacheKey = $"UserId_UserUuid_{userUuid}";
+            if (TryGetUserFromCache(uniqueCacheKey, out UserProfile? user))
             {
                 result.Add(user!);
             }
@@ -119,8 +120,9 @@ public class UserProfileCachingDecorator : IUserProfileService
 
             foreach (UserProfile user in usersToCache)
             {
-                string uniqueCacheKey = $"User:UserUuid:{user.UserUuid}";
-                _memoryCache.Set(uniqueCacheKey, user, _cacheOptions);
+                string uniqueCacheKey = $"UserId_UserUuid_{user.UserUuid}";
+                AddUserToCache(uniqueCacheKey, user);
+
                 result.Add(user);
             }
         }
@@ -131,9 +133,9 @@ public class UserProfileCachingDecorator : IUserProfileService
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUserByUsername(string username)
     {
-        string uniqueCacheKey = "User_Username_" + username;
+        string uniqueCacheKey = "UserId_Username_" + username;
 
-        if (_memoryCache.TryGetValue(uniqueCacheKey, out UserProfile? user))
+        if (TryGetUserFromCache(uniqueCacheKey, out UserProfile? user))
         {
             return user!;
         }
@@ -141,7 +143,7 @@ public class UserProfileCachingDecorator : IUserProfileService
         Result<UserProfile, bool> result = await _decoratedService.GetUserByUsername(username);
 
         result.Match(
-         userProfile => _memoryCache.Set(uniqueCacheKey, userProfile, _cacheOptions),
+         userProfile => AddUserToCache(uniqueCacheKey, userProfile),
          _ => { });
 
         return result;
@@ -167,9 +169,57 @@ public class UserProfileCachingDecorator : IUserProfileService
         return result;
     }
 
+    private void AddUserToCache(string uniqueCacheKey, UserProfile userProfile)
+    {
+        // Cache userId for the unique key (ssn, username, uuid)
+        _memoryCache.Set(uniqueCacheKey, userProfile.UserId, _cacheOptions);
+
+        // Cache the full user profile for userId key
+        AddUserToCache(userProfile);
+    }
+
+    private void AddUserToCache(UserProfile userProfile)
+    {
+        string userCacheKey = CacheKeyPrefix + userProfile.UserId;
+
+        // Cache the full user profile for userId key
+        _memoryCache.Set(userCacheKey, userProfile, _cacheOptions);
+    }
+
+    /// <summary>
+    /// Get the user from cache based on unique cache key (ssn, username, uuid)
+    /// </summary>
+    /// <param name="uniqueCacheKey">Cache key with ssn, username or uuid</param>
+    /// <param name="user">The userProfile output</param>
+    /// <returns>Returns true if the user was found in cache, false otherwise</returns>
+    private bool TryGetUserFromCache(string uniqueCacheKey, out UserProfile? user)
+    {
+        user = null;
+        if (_memoryCache.TryGetValue(uniqueCacheKey, out int? userId))
+        {
+            if (TryGetUserFromCache((int)userId!, out user))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Get the user from cache based on userId
+    /// <returns>Returns true if the user was found in cache, false otherwise</returns>
+    private bool TryGetUserFromCache(int userId, out UserProfile? user)
+    {
+        string cacheKey = CacheKeyPrefix + userId;
+
+        var success = _memoryCache.TryGetValue(cacheKey, out user);
+        return success;
+    }
+
     private void InvalidateCache(int userId)
     {
-        string userIdKey = "User_UserId_" + userId;
+        string userIdKey = CacheKeyPrefix + userId;
         _memoryCache.Remove(userIdKey);
     }
 }
