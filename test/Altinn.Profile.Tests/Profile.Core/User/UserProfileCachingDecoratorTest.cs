@@ -444,7 +444,7 @@ public class UserProfileCachingDecoratorTest
         Result<UserProfile, bool> result = await target.GetUserByUsername(Username);
 
         // Assert
-        _decoratedServiceMock.Verify(service => service.GetUser(It.IsAny<int>()), Times.Never());
+        _decoratedServiceMock.Verify(service => service.GetUserByUsername(It.IsAny<string>()), Times.Never());
 
         Assert.True(result.IsSuccess, "Expected a success result");
         result.Match(
