@@ -11,11 +11,6 @@ namespace Altinn.Profile.Models
     public class ProfileSettingsPatchRequest
     {
         /// <summary>
-        /// The id of the user.
-        /// </summary>
-        public int UserId { get; set; }
-
-        /// <summary>
         /// The language the user has selected in Altinn portal.
         /// </summary>
         public string? Language { get; set; }

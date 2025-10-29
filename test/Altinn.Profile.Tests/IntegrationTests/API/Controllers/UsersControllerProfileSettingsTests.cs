@@ -207,7 +207,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
     public async Task PatchUsersCurrent_AsUser_PatchReturnsNull_ReturnsNotFound()
     {
         // Arrange
-        const int UserId = 410000;
+        const int userId = 410000;
 
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.PatchProfileSettings(It.IsAny<ProfileSettingsPatchModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings)null);
@@ -225,7 +225,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         {
             Content = new StringContent(payload, Encoding.UTF8, "application/json")
         };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetToken(UserId));
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetToken(userId));
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request);
@@ -254,7 +254,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
 
         // Use an org token which does not contain a userId claim
         string token = PrincipalUtil.GetOrgToken("ttd");
-        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request);
