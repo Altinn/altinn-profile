@@ -43,29 +43,6 @@ public class ProfileSettingsRepositoryTests
         _repository = new ProfileSettingsRepository(_databaseContextFactory.Object, _dbContextOutboxMock.Object);
     }
 
-    private void MockDbContextOutbox<TEvent>(Action<TEvent, DeliveryOptions> callback)
-    {
-        DbContext context = null;
-
-        _dbContextOutboxMock
-            .Setup(mock => mock.Enroll(It.IsAny<DbContext>()))
-            .Callback<DbContext>(ctx =>
-            {
-                context = ctx;
-            });
-
-        _dbContextOutboxMock
-            .Setup(mock => mock.SaveChangesAndFlushMessagesAsync(It.IsAny<CancellationToken>()))
-            .Returns(async () =>
-            {
-                await context.SaveChangesAsync(CancellationToken.None);
-            });
-
-        _dbContextOutboxMock
-            .Setup(mock => mock.PublishAsync(It.IsAny<TEvent>(), null))
-            .Callback(callback);
-    }
-
     [Fact]
     public async Task UpdateProfileSettings_AddsNewProfileSettings_Successful()
     {
@@ -103,10 +80,13 @@ public class ProfileSettingsRepositoryTests
         Assert.Equal(profileSettings.LanguageType, updated.LanguageType);
 
         _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<ProfileSettingsUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
+
+        Assert.NotNull(actualEventRaised);
+        Assert.Equal(profileSettings.UserId, actualEventRaised.UserId);
     }
 
     [Fact]
-    public async Task UpdateProfileSettings_UpdatesExistingProfileSettings_EmitsUpdatedMetric()
+    public async Task UpdateProfileSettings_UpdatesExistingProfileSettings_StoresDataAndEmitsEvent()
     {
         // Arrange
         ProfileSettingsUpdatedEvent actualEventRaised = null;
@@ -157,6 +137,10 @@ public class ProfileSettingsRepositoryTests
         Assert.Equal(updated.LanguageType, stored.LanguageType);
 
         _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<ProfileSettingsUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
+
+        Assert.NotNull(actualEventRaised);
+        Assert.Equal(updated.UserId, actualEventRaised.UserId);
+        Assert.Equal(updated.DoNotPromptForParty, actualEventRaised.DoNotPromptForParty);
     }
 
     [Fact]
@@ -167,5 +151,28 @@ public class ProfileSettingsRepositoryTests
         var result = await _repository.GetProfileSettings(userId);
 
         Assert.Null(result);
+    }
+
+    private void MockDbContextOutbox<TEvent>(Action<TEvent, DeliveryOptions> callback)
+    {
+        DbContext context = null;
+
+        _dbContextOutboxMock
+            .Setup(mock => mock.Enroll(It.IsAny<DbContext>()))
+            .Callback<DbContext>(ctx =>
+            {
+                context = ctx;
+            });
+
+        _dbContextOutboxMock
+            .Setup(mock => mock.SaveChangesAndFlushMessagesAsync(It.IsAny<CancellationToken>()))
+            .Returns(async () =>
+            {
+                await context.SaveChangesAsync(CancellationToken.None);
+            });
+
+        _dbContextOutboxMock
+            .Setup(mock => mock.PublishAsync(It.IsAny<TEvent>(), null))
+            .Callback(callback);
     }
 }
