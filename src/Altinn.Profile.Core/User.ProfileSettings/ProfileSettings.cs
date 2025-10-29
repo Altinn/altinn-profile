@@ -68,7 +68,7 @@
         /// <summary>
         /// Sets the properties of this instance to the values from a patch request with optional values.
         /// </summary>
-        public void UpdateFrom(ProfileSettingsPatchRequest other)
+        public void UpdateFrom(ProfileSettingsPatchModel other)
         {
             LanguageType = other.Language ?? LanguageType;
             DoNotPromptForParty = other.DoNotPromptForParty ?? DoNotPromptForParty;

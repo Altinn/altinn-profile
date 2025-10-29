@@ -151,7 +151,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         var returnedPreselected = Guid.NewGuid();
 
         // The repository backing the service should return the patched settings
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.PatchProfileSettings(It.IsAny<ProfileSettingsPatchRequest>(), It.IsAny<CancellationToken>()))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.PatchProfileSettings(It.IsAny<ProfileSettingsPatchModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProfileSettings
             {
                 UserId = userId,
@@ -209,7 +209,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         // Arrange
         const int UserId = 410000;
 
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.PatchProfileSettings(It.IsAny<ProfileSettingsPatchRequest>(), It.IsAny<CancellationToken>()))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.PatchProfileSettings(It.IsAny<ProfileSettingsPatchModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings)null);
 
         HttpClient client = _factory.CreateClient();

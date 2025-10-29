@@ -5,7 +5,7 @@ namespace Altinn.Profile.Core.User.ProfileSettings
     /// <summary>
     /// Represents user-specific portal settings and preferences.
     /// </summary>
-    public class ProfileSettingsPatchRequest
+    public class ProfileSettingsPatchModel
     {
         /// <summary>
         /// The id of the user.

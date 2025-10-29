@@ -45,7 +45,7 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchRequest profileSettings, CancellationToken cancellationToken)
+        public async Task<ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchModel profileSettings, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 

@@ -178,7 +178,7 @@ public class ProfileSettingsRepositoryTests
         await _databaseContext.SaveChangesAsync();
 
         var newPreselected = Guid.NewGuid();
-        var patch = new ProfileSettingsPatchRequest
+        var patch = new ProfileSettingsPatchModel
         {
             UserId = userId,
             Language = "nb",
@@ -233,7 +233,7 @@ public class ProfileSettingsRepositoryTests
         await _databaseContext.SaveChangesAsync();
 
         // Optional explicitly present but with null value => should clear stored value
-        var patch = new ProfileSettingsPatchRequest
+        var patch = new ProfileSettingsPatchModel
         {
             UserId = userId,
             PreselectedPartyUuid = new Optional<Guid?>(null)
@@ -277,7 +277,7 @@ public class ProfileSettingsRepositoryTests
         await _databaseContext.SaveChangesAsync();
 
         // Optional explicitly not present => should not change stored value
-        var patch = new ProfileSettingsPatchRequest
+        var patch = new ProfileSettingsPatchModel
         {
             UserId = userId,
             PreselectedPartyUuid = new Optional<Guid?>()
@@ -302,7 +302,7 @@ public class ProfileSettingsRepositoryTests
     {
         // Arrange
         var userId = 9999;
-        var patch = new ProfileSettingsPatchRequest
+        var patch = new ProfileSettingsPatchModel
         {
             UserId = userId,
             Language = "nb"

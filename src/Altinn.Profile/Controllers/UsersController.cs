@@ -205,9 +205,19 @@ public class UsersController : Controller
         }
 
         int userId = int.Parse(userIdString);
-        request.UserId = userId;
 
-        var userProfileSettings = await _userProfileService.PatchProfileSettings(request, cancellationToken);
+        var patchModel = new ProfileSettingsPatchModel
+        {
+            UserId = userId,
+            Language = request.Language,
+            DoNotPromptForParty = request.DoNotPromptForParty,
+            PreselectedPartyUuid = request.PreselectedPartyUuid,
+            ShowClientUnits = request.ShowClientUnits,
+            ShouldShowSubEntities = request.ShouldShowSubEntities,
+            ShouldShowDeletedEntities = request.ShouldShowDeletedEntities
+        };
+
+        var userProfileSettings = await _userProfileService.PatchProfileSettings(patchModel, cancellationToken);
 
         if (userProfileSettings == null)
         {

@@ -158,7 +158,7 @@ public class UserProfileCachingDecorator : IUserProfileService
     }
 
     /// <inheritdoc/>
-    public async Task<ProfileSettings.ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchRequest profileSettings, CancellationToken cancellationToken)
+    public async Task<ProfileSettings.ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchModel profileSettings, CancellationToken cancellationToken)
     {
         // this should not be cached
         var result = await _decoratedService.PatchProfileSettings(profileSettings, cancellationToken);
