@@ -156,7 +156,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [Fact]
         public async Task GetAllNotificationAddresses_WhenRepositoryReturnsMultiple_IsOkWithList()
         {
-            const int UserId = 2516356;
+            const int UserId = 2516357;
             var infos = new List<UserPartyContactInfo>
             {
                 new UserPartyContactInfo { UserId = UserId, PartyUuid = Guid.NewGuid(), EmailAddress = "a@b.com", PhoneNumber = "1", UserPartyContactInfoResources = new List<UserPartyContactInfoResource> { new UserPartyContactInfoResource { ResourceId = "one" } } },
