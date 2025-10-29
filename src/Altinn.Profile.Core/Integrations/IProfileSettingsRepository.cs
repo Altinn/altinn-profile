@@ -11,8 +11,9 @@ namespace Altinn.Profile.Core.Integrations
         /// Updates the profile settings for a user.
         /// </summary>
         /// <param name="profileSettings">The profile settings to update.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task<ProfileSettings> UpdateProfileSettings(ProfileSettings profileSettings);
+        Task<ProfileSettings> UpdateProfileSettings(ProfileSettings profileSettings, CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets the local profile settings for a given user ID.

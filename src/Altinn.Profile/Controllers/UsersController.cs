@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Authorization;
@@ -136,7 +137,7 @@ public class UsersController : Controller
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ProfileSettingPreference>> UpdateProfileSettings([FromBody]ProfileSettingPreference request)
+    public async Task<ActionResult<ProfileSettingPreference>> UpdateProfileSettings([FromBody]ProfileSettingPreference request, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
@@ -164,7 +165,7 @@ public class UsersController : Controller
             ShouldShowSubEntities = request.ShouldShowSubEntities,
             ShouldShowDeletedEntities = request.ShouldShowDeletedEntities
         };
-        var userProfileSettings = await _userProfileService.UpdateProfileSettings(profileSettings);
+        var userProfileSettings = await _userProfileService.UpdateProfileSettings(profileSettings, cancellationToken);
 
         var profileSettingsPreference = new ProfileSettingPreference
         {
