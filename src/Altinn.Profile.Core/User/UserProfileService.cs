@@ -104,6 +104,12 @@ public class UserProfileService : IUserProfileService
         return await _profileSettingsRepository.UpdateProfileSettings(profileSettings, cancellationToken);
     }
 
+    /// <inheritdoc/>
+    public async Task<ProfileSettings.ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchModel profileSettings, CancellationToken cancellationToken)
+    {
+        return await _profileSettingsRepository.PatchProfileSettings(profileSettings, cancellationToken);
+    }
+
     private async Task<UserProfile> EnrichWithProfileSettings(UserProfile userProfile)
     {
         ProfileSettings.ProfileSettings? profileSettings = await _profileSettingsRepository.GetProfileSettings(userProfile.UserId);

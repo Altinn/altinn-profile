@@ -44,6 +44,26 @@ namespace Altinn.Profile.Integrations.Repositories
             }
         }
 
+        /// <inheritdoc/>
+        public async Task<ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchModel profileSettings, CancellationToken cancellationToken)
+        {
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+            var existing = await databaseContext.ProfileSettings
+                .SingleOrDefaultAsync(g => g.UserId == profileSettings.UserId, cancellationToken);
+
+            if (existing == null)
+            {
+                return null;
+            }
+
+            existing.UpdateFrom(profileSettings);
+
+            ProfileSettingsUpdatedEvent NotifyProfileSettingsUpdated() => new(profileSettings.UserId, DateTime.UtcNow, existing.LanguageType, existing.DoNotPromptForParty, existing.PreselectedPartyUuid, existing.ShowClientUnits, existing.ShouldShowSubEntities, existing.ShouldShowDeletedEntities, existing.IgnoreUnitProfileDateTime);
+            await NotifyAndSave(databaseContext, NotifyProfileSettingsUpdated, CancellationToken.None);
+            return existing;
+        }
+
         /// <summary>
         /// Retrieves the profile settings for a given user ID.
         /// </summary>
