@@ -33,7 +33,7 @@ export const generateJUnitXML = (data, suiteName) => {
     const time = data.state.testRunDurationMs || 0;
 
     if (data.root_group.groups?.length > 0) {
-        for (const group in data.root_group.groups){
+        for (const group of data.root_group.groups){
             if (group.checks) {
                 const [testSubset, groupFailures] = checksToTestcase(group.checks);
                 allTests.push(...testSubset);

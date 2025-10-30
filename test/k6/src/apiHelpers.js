@@ -21,13 +21,13 @@
 export function buildQueryParametersForEndpoint(queryparams) {
     let query = "?";
 
-    for (const key in Object.keys(queryparams)) {
-         if (Array.isArray(queryparams[key])) {
-            for(const value of queryparams[key]) {
+    for (const [key, value] of Object.entries(queryparams)) {
+         if (Array.isArray(value)) {
+            for(const v of value) {
                 query += `${key}=${value}&`;
             }
         } else {
-            query += `${key}=${queryparams[key]}&`;
+            query += `${key}=${value}&`;
         }
     }
 
