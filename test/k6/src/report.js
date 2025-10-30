@@ -6,7 +6,7 @@ const replacements = {
     '"': '&quot;',
 };
 
-const escapeHTML = (str) => str.replace(/[&<>'"]/g, (char) => replacements[char]);
+const escapeHTML = (str) => str.replaceAll(/[&<>'"]/g, (char) => replacements[char]);
 
 const checksToTestcase = (checks) => {
     let failures = 0;
