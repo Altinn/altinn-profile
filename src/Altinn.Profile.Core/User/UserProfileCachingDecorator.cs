@@ -167,6 +167,23 @@ public class UserProfileCachingDecorator : IUserProfileService
         return result;
     }
 
+    /// <inheritdoc/>
+    public async Task<ProfileSettings.ProfileSettings?> GetProfileSettings(int userId)
+    {
+        string uniqueCacheKey = "UserProfileSettings_UserId_" + userId;
+
+        if (_memoryCache.TryGetValue(uniqueCacheKey, out ProfileSettings.ProfileSettings? profileSettings))
+        {
+            return profileSettings!;
+        }
+
+        var result = await _decoratedService.GetProfileSettings(userId);
+
+        _memoryCache.Set(uniqueCacheKey, result, _cacheOptions);
+            
+        return result;
+    }
+
     private void AddUserToCache(string uniqueCacheKey, UserProfile userProfile)
     {
         // Cache userId for the unique key (ssn, username, uuid)
@@ -193,7 +210,7 @@ public class UserProfileCachingDecorator : IUserProfileService
     private bool TryGetUserFromCache(string uniqueCacheKey, out UserProfile? user)
     {
         user = null;
-        if (_memoryCache.TryGetValue(uniqueCacheKey, out int? userId) 
+        if (_memoryCache.TryGetValue(uniqueCacheKey, out int? userId)
             && TryGetUserFromCache((int)userId!, out user))
         {
             return true;
@@ -218,22 +235,8 @@ public class UserProfileCachingDecorator : IUserProfileService
     {
         string userIdKey = CacheKeyPrefix + userId;
         _memoryCache.Remove(userIdKey);
-    }
 
-    /// <inheritdoc/>
-    public async Task<ProfileSettings.ProfileSettings?> GetProfileSettings(int userId)
-    {
-        string uniqueCacheKey = "UserProfileSettings_UserId_" + userId;
-
-        if (_memoryCache.TryGetValue(uniqueCacheKey, out ProfileSettings.ProfileSettings? profileSettings))
-        {
-            return profileSettings!;
-        }
-
-        var result = await _decoratedService.GetProfileSettings(userId);
-
-        _memoryCache.Set(uniqueCacheKey, result, _cacheOptions);
-            
-        return result;
+        string profileSettingsKey = "UserProfileSettings_UserId_" + userId;
+        _memoryCache.Remove(profileSettingsKey);
     }
 }

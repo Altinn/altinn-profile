@@ -208,6 +208,11 @@ namespace Altinn.Profile.Controllers
 
         private bool NeedsConfirmation(UserPartyContactInfo notificationAddress, ProfileSettings profileSettingPreference)
         {
+            if (profileSettingPreference == null)
+            {
+                return false;
+            }
+
             TimeSpan daysSinceIgnore = DateTime.UtcNow - (profileSettingPreference.IgnoreUnitProfileDateTime ?? DateTime.MinValue);
             if (daysSinceIgnore.TotalDays <= _altinnConfiguration.IgnoreUnitProfileConfirmationDays)
             {
