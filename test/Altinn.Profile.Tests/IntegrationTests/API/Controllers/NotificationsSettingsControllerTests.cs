@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
@@ -53,6 +54,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.GetNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(userPartyContactInfo);
+            _factory.ProfileSettingsRepositoryMock
+                .Setup(x => x.GetProfileSettings(UserId))
+                .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = null, LanguageType = "no" });
 
             SetupSblMock();
             SetupAuthHandler(_factory, partyGuid, UserId);
@@ -80,6 +84,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(notificationAddresses.ResourceIncludeList);
             Assert.Single(notificationAddresses.ResourceIncludeList);
             Assert.Equal("urn:altinn:resource:app_example", notificationAddresses.ResourceIncludeList[0]);
+            Assert.True(notificationAddresses.NeedsConfirmation);
         }
 
         [Fact]
@@ -137,7 +142,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(x => x.GetAllNotificationAddressesForUserAsync(UserId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<UserPartyContactInfo>());
             SetupSblMock();
-            
+
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Get, UserId, "profile/api/v1/users/current/notificationsettings/parties");
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -151,7 +156,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [Fact]
         public async Task GetAllNotificationAddresses_WhenRepositoryReturnsMultiple_IsOkWithList()
         {
-            const int UserId = 2516356;
+            const int UserId = 2516357;
             var infos = new List<UserPartyContactInfo>
             {
                 new UserPartyContactInfo { UserId = UserId, PartyUuid = Guid.NewGuid(), EmailAddress = "a@b.com", PhoneNumber = "1", UserPartyContactInfoResources = new List<UserPartyContactInfoResource> { new UserPartyContactInfoResource { ResourceId = "one" } } },
@@ -161,6 +166,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(x => x.GetAllNotificationAddressesForUserAsync(UserId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(infos);
             SetupSblMock();
+            _factory.ProfileSettingsRepositoryMock
+                .Setup(x => x.GetProfileSettings(UserId))
+                .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = DateTime.Today, LanguageType = "no" });
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Get, UserId, "profile/api/v1/users/current/notificationsettings/parties");
@@ -174,6 +182,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Single(addresses[0].ResourceIncludeList);
             Assert.Equal("urn:altinn:resource:one", addresses[0].ResourceIncludeList[0]);
             Assert.Equal("c@d.com", addresses[1].EmailAddress);
+            Assert.False(addresses[1].NeedsConfirmation);
         }
 
         [Fact]

@@ -50,7 +50,7 @@ public interface IUserProfileService
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
     Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings, CancellationToken cancellationToken);
-
+  
     /// <summary>
     /// Patches the profile settings for a user.
     /// </summary>
@@ -58,4 +58,9 @@ public interface IUserProfileService
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
     Task<ProfileSettings.ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchModel profileSettings, CancellationToken cancellationToken);
+  
+    /// <summary>
+    /// Gets the profile settings for a given user ID.
+    /// </summary>
+    Task<ProfileSettings.ProfileSettings?> GetProfileSettings(int userId);
 }

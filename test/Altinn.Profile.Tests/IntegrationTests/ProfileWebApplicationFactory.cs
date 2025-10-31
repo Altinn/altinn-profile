@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 using Altinn.Common.AccessToken.Services;
 using Altinn.Common.PEP.Interfaces;
+using Altinn.Profile.Configuration;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Authorization;
 using Altinn.Profile.Integrations.ContactRegister;
@@ -129,6 +130,17 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
             services.AddSingleton(ProfessionalNotificationsRepositoryMock.Object);
             services.AddSingleton(RegisterClientMock.Object);
             services.AddSingleton(ProfileSettingsRepositoryMock.Object);
+            services.AddSingleton(sp =>
+            {
+                var altinnConfig = new AltinnConfiguration
+                {
+                    ValidationReminderDays = 90,
+                    IgnoreUnitProfileConfirmationDays = 365
+                };
+                var optionsMock = new Mock<IOptions<AltinnConfiguration>>();
+                optionsMock.Setup(o => o.Value).Returns(altinnConfig);
+                return optionsMock.Object;
+            });
 
             // Using the real/actual implementations, but with a mocked message handler.
             // Haven't found any other ways of injecting a mocked message handler to simulate SBL Bridge.
