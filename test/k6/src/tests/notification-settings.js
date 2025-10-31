@@ -100,7 +100,7 @@ function removePersonalNotificationAddresses(data) {
  * The main function to run the test.
  * @param {Object} data - The data object containing runFullTestSet and other test data.
  */
-export default function (data) {
+export default function runTests (data) {
     addPersonalNotificationAddresses(data);
     getPersonalNotificationAddresses(data);
     removePersonalNotificationAddresses(data);

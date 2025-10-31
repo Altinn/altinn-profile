@@ -1,6 +1,5 @@
 using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.SblBridge;
-using Altinn.Profile.Integrations.SblBridge.User.Favorites;
 using Altinn.Profile.Integrations.SblBridge.User.NotificationSettings;
 
 using Microsoft.Extensions.Options;
