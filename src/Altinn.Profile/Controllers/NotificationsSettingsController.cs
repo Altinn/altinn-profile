@@ -208,7 +208,7 @@ namespace Altinn.Profile.Controllers
 
         private bool NeedsConfirmation(UserPartyContactInfo notificationAddress, ProfileSettings profileSettingPreference)
         {
-            TimeSpan daysSinceIgnore = DateTime.Now - (profileSettingPreference.IgnoreUnitProfileDateTime ?? DateTime.MinValue);
+            TimeSpan daysSinceIgnore = DateTime.UtcNow - (profileSettingPreference.IgnoreUnitProfileDateTime ?? DateTime.MinValue);
             if (daysSinceIgnore.TotalDays <= _altinnConfiguration.IgnoreUnitProfileConfirmationDays)
             {
                 return false;
@@ -216,7 +216,7 @@ namespace Altinn.Profile.Controllers
 
             var lastModified = notificationAddress.LastChanged;
 
-            var daysSinceLastUserUnitProfileUpdate = (DateTime.Now - lastModified).TotalDays;
+            var daysSinceLastUserUnitProfileUpdate = (DateTime.UtcNow - lastModified).TotalDays;
             if (daysSinceLastUserUnitProfileUpdate >= _altinnConfiguration.ValidationReminderDays)
             {
                 // Altinn2 checks if the user is the "innehaver" of an "ENK" type org unit. We do not have that info here,
