@@ -32,7 +32,7 @@ export function setup() {
     const token = generateToken(config.tokenGenerator.getPersonalToken);
 
     const envSuffix = __ENV.env.slice(-1);
-    const numericSuffix = parseInt(envSuffix);
+    const numericSuffix = Number.parseInt(envSuffix);
     const suffix = Number.isInteger(numericSuffix) ? envSuffix : 0;
 
     const address = {
@@ -154,7 +154,7 @@ function removeOrgNotificationAddresses(data, addressId) {
  * The main function to run the test.
  * @param {Object} data - The data object containing runFullTestSet and other test data.
  */
-export default function (data) {
+export default function runTests (data) {
 
     let addressId = addOrgNotificationAddresses(data);
     getOrgNotificationAddresses(data);

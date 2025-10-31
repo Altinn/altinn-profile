@@ -19,4 +19,9 @@ public class SblBridgeSettings
     /// A feature flag indicating whether to update A2 when updating notification settings
     /// </summary>
     public bool UpdateA2NotificationSettings { get; set; }
+
+    /// <summary>
+    /// A feature flag indicating whether to update A2 when updating portal setting preferences
+    /// </summary>
+    public bool UpdateA2ProfileSettings { get; set; }
 }

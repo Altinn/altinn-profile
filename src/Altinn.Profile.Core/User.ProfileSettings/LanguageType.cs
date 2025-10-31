@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents the supported language types for the user portal.
     /// </summary>
-    public class LanguageType
+    public static class LanguageType
     {
         /// <summary>
         /// Norwegian Bokmål language.

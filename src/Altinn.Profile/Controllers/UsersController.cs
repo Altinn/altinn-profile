@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Authorization;
@@ -136,7 +137,7 @@ public class UsersController : Controller
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ProfileSettingPreference>> UpdateProfileSettings([FromBody]ProfileSettingPreference request)
+    public async Task<ActionResult<ProfileSettingPreference>> UpdateProfileSettings([FromBody]ProfileSettingPreference request, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
@@ -164,7 +165,64 @@ public class UsersController : Controller
             ShouldShowSubEntities = request.ShouldShowSubEntities,
             ShouldShowDeletedEntities = request.ShouldShowDeletedEntities
         };
-        var userProfileSettings = await _userProfileService.UpdateProfileSettings(profileSettings);
+        var userProfileSettings = await _userProfileService.UpdateProfileSettings(profileSettings, cancellationToken);
+
+        var profileSettingsPreference = new ProfileSettingPreference
+        {
+            Language = userProfileSettings.LanguageType,
+            DoNotPromptForParty = userProfileSettings.DoNotPromptForParty,
+            PreselectedPartyUuid = userProfileSettings.PreselectedPartyUuid,
+            ShowClientUnits = userProfileSettings.ShowClientUnits,
+            ShouldShowSubEntities = userProfileSettings.ShouldShowSubEntities,
+            ShouldShowDeletedEntities = userProfileSettings.ShouldShowDeletedEntities,
+        };
+
+        return Ok(profileSettingsPreference);
+    }
+
+    /// <summary>
+    /// Updates the profile settings of the current user based on the request context
+    /// </summary>
+    /// <returns>User profile of current user</returns>
+    [HttpPatch("current/profilesettings")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ProfileSettingPreference>> PatchProfileSettings([FromBody] ProfileSettingsPatchRequest request, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        string userIdString = Request.HttpContext.User.Claims
+            .Where(c => c.Type == AltinnCoreClaimTypes.UserId)
+            .Select(c => c.Value).SingleOrDefault();
+
+        if (string.IsNullOrEmpty(userIdString))
+        {
+            return BadRequest("Invalid request context. UserId must be provided in claims.");
+        }
+
+        int userId = int.Parse(userIdString);
+
+        var patchModel = new ProfileSettingsPatchModel
+        {
+            UserId = userId,
+            Language = request.Language,
+            DoNotPromptForParty = request.DoNotPromptForParty,
+            PreselectedPartyUuid = request.PreselectedPartyUuid,
+            ShowClientUnits = request.ShowClientUnits,
+            ShouldShowSubEntities = request.ShouldShowSubEntities,
+            ShouldShowDeletedEntities = request.ShouldShowDeletedEntities
+        };
+
+        var userProfileSettings = await _userProfileService.PatchProfileSettings(patchModel, cancellationToken);
+
+        if (userProfileSettings == null)
+        {
+            return NotFound();
+        }
 
         var profileSettingsPreference = new ProfileSettingPreference
         {

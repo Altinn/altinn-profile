@@ -64,5 +64,23 @@
                 IgnoreUnitProfileDateTime = other.IgnoreUnitProfileDateTime;
             }
         }
+
+        /// <summary>
+        /// Sets the properties of this instance to the values from a patch request with optional values.
+        /// </summary>
+        public void UpdateFrom(ProfileSettingsPatchModel other)
+        {
+            LanguageType = other.Language ?? LanguageType;
+            DoNotPromptForParty = other.DoNotPromptForParty ?? DoNotPromptForParty;
+            ShowClientUnits = other.ShowClientUnits ?? ShowClientUnits;
+            ShouldShowSubEntities = other.ShouldShowSubEntities ?? ShouldShowSubEntities;
+            ShouldShowDeletedEntities = other.ShouldShowDeletedEntities ?? ShouldShowDeletedEntities;
+
+            // Only update PreselectedPartyUuid if the other instance has a value (null or Guid)
+            if (other.PreselectedPartyUuid.HasValue)
+            {
+                PreselectedPartyUuid = other.PreselectedPartyUuid.Value;
+            }
+        }
     }
 }
