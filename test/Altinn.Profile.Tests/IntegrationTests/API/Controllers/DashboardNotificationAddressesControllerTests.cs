@@ -220,10 +220,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             string orgNumber = "123456789";
-                        
-            _factory.PdpMock.Setup(p => p.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
-                   .ReturnsAsync(new XacmlJsonResponse { Response = [new XacmlJsonResult { Decision = "NotApplicable" }] });
-           
+                                  
             _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNumber));
