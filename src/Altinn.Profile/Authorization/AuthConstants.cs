@@ -21,6 +21,11 @@
         public const string OrgNotificationAddress_Write = "OrgNotificationAddress_Write";
 
         /// <summary>
+        /// Policy name for retrieving notification addresses for an organization
+        /// </summary>
+        public const string DashboardNotificationAddressAccess = "AltinnProfileSupportAdmin";
+
+        /// <summary>
         /// Policy name for reading user notification addresses and favorites
         /// </summary>
         public const string UserPartyAccess = "UserId_Party_Access";

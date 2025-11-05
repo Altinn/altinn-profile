@@ -44,9 +44,14 @@ public static class PrincipalUtil
         return token;
     }
 
-    public static string GetOrgToken(string org, int authenticationLevel = 4)
+    public static string GetOrgToken(string org, int authenticationLevel = 4, string scope = null)
     {
         List<Claim> claims = [];
+        if (scope != null)
+        {
+            claims.Add(new Claim("urn:altinn:scope", scope, ClaimValueTypes.String, "maskinporten"));
+        }
+
         string issuer = "www.altinn.no";
         claims.Add(new Claim(AltinnCoreClaimTypes.Org, org, ClaimValueTypes.String, issuer));
         claims.Add(new Claim(AltinnCoreClaimTypes.AuthenticateMethod, "Mock", ClaimValueTypes.String, issuer));
