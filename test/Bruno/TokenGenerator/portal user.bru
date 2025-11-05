@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{TokenGeneratorBaseUrl}}/api/GetPersonalToken?env=at22&scopes=altinn:portal/enduser&userId={{AuthN_UserId}}&partyId={{AuthN_PartyId}}&pid={{AuthN_Pid}}
+  url: {{TokenGeneratorBaseUrl}}/api/GetPersonalToken?env={{Environment}}&scopes=altinn:portal/enduser&userId={{AuthN_UserId}}&partyId={{AuthN_PartyId}}&pid={{AuthN_Pid}}
   body: none
   auth: basic
 }
 
 params:query {
-  env: at22
+  env: {{Environment}}
   scopes: altinn:portal/enduser
   userId: {{AuthN_UserId}}
   partyId: {{AuthN_PartyId}}
