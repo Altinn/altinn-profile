@@ -230,11 +230,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var request = new HttpRequestMessage(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/notificationaddresses");
-            CreateAuthorizedRequest(orgNumber, request);
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/notificationaddresses");
+            httpRequestMessage = CreateAuthorizedRequest(orgNumber, httpRequestMessage);
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(request);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
 
             // Assert
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
