@@ -37,6 +37,8 @@ public class TelemetryTests(ProfileWebApplicationFactory<Program> factory)
         // giving some breezing room for the End callback to complete
         await Task.Delay(TimeSpan.FromSeconds(1));
 
+        meterProvider.ForceFlush();
+
         var addedMetrics = metricItems
             .Where(item => item.Name == "profile.contactregistry.person.added")
             .ToArray();
@@ -70,6 +72,8 @@ public class TelemetryTests(ProfileWebApplicationFactory<Program> factory)
         // In unit tests environment there may be a lot of parallel unit tests generated, so
         // giving some breezing room for the End callback to complete
         await Task.Delay(TimeSpan.FromSeconds(1));
+
+        meterProvider.ForceFlush();
 
         var addedOrgMetrics = metricItems
             .Where(item => item.Name == "profile.organizationnotificationaddress.organization.added")
