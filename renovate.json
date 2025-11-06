@@ -22,7 +22,7 @@
       "matchManagers": ["nuget"],
       "matchUpdateTypes": ["major"],
       "matchPackagePatterns": ["/^([^\\.]+)/"],
-      "groupName": "Grouped major upgrades: {{depName}}",
+      "groupName": "Grouped major upgrades: {{depName}}"
     }
   ]
 }
