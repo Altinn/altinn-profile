@@ -19,10 +19,16 @@
   ],
   "packageRules": [
     {
-      "matchManagers": ["nuget"],
-      "matchUpdateTypes": ["major"],
-      "matchPackagePatterns": ["/^([^\\.]+)/"],
-      "groupName": "Grouped major upgrades: {{depName}}"
+      "matchManagers": [
+        "nuget"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "groupName": "Grouped major upgrades: {{depName}}",
+      "matchPackageNames": [
+        "//^([^\\.]+)//"
+      ]
     }
   ]
 }
