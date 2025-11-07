@@ -6,6 +6,11 @@
     public static class AuthConstants
     {
         /// <summary>
+        /// Policy name for retrieving notification addresses for an organization
+        /// </summary>
+        public const string SupportDashboardAccess = "AltinnProfileSupportAdmin";
+
+        /// <summary>
         /// Policy name for platform access
         /// </summary>
         public const string PlatformAccess = "PlatformAccess";
@@ -19,11 +24,6 @@
         /// Policy name for writing organization notification addresses
         /// </summary>
         public const string OrgNotificationAddress_Write = "OrgNotificationAddress_Write";
-
-        /// <summary>
-        /// Policy name for retrieving notification addresses for an organization
-        /// </summary>
-        public const string DashboardNotificationAddressAccess = "AltinnProfileSupportAdmin";
 
         /// <summary>
         /// Policy name for reading user notification addresses and favorites

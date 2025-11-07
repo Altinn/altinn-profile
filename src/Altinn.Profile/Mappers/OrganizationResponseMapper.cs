@@ -59,7 +59,7 @@ namespace Altinn.Profile.Mappers
                 NotificationAddressId = notificationAddress.NotificationAddressID,
                 RequestedOrgNumber = requestedOrgNumber,
                 SourceOrgNumber = sourceOrgNumber,
-                LastChangedTimeStamp = notificationAddress.RegistryUpdatedDateTime
+                LastChanged = notificationAddress.RegistryUpdatedDateTime
             };
 
             if (notificationAddress.AddressType == AddressType.Email)

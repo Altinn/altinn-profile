@@ -193,7 +193,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
     services.AddAuthorizationBuilder()
         .AddPolicy(AuthConstants.PlatformAccess, policy => policy.Requirements.Add(new AccessTokenRequirement()))
-        .AddPolicy(AuthConstants.DashboardNotificationAddressAccess, policy => policy.Requirements.Add(new ScopeAccessRequirement("altinn:profile.support.admin")))
+        .AddPolicy(AuthConstants.SupportDashboardAccess, policy => policy.Requirements.Add(new ScopeAccessRequirement("altinn:profile.support.admin")))
         .AddPolicy(AuthConstants.OrgNotificationAddress_Read, policy => policy.Requirements.Add(new ResourceAccessRequirement("read", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
         .AddPolicy(AuthConstants.OrgNotificationAddress_Write, policy => policy.Requirements.Add(new ResourceAccessRequirement("write", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
         .AddPolicy(AuthConstants.UserPartyAccess, policy => policy.Requirements.Add(new PartyAccessRequirement()));

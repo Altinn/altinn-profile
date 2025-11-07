@@ -19,7 +19,7 @@ namespace Altinn.Profile.Controllers
     /// <remarks>
     /// Initializes a new instance of the <see cref="DashboardController"/> class.
     /// </remarks>
-    [Authorize(Policy = AuthConstants.DashboardNotificationAddressAccess)]
+    [Authorize(Policy = AuthConstants.SupportDashboardAccess)]
     [Route("profile/api/v1/dashboard/organizations/{organizationNumber}/notificationaddresses")]
     [Consumes("application/json")]
     [Produces("application/json")]
