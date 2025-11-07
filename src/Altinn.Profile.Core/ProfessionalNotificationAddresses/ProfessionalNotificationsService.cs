@@ -46,12 +46,10 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             var profileSettings = await _userProfileService.GetProfileSettings(userId);
 
             var notificationSettings = await _professionalNotificationsRepository.GetAllNotificationAddressesForUserAsync(userId, cancellationToken);
-            foreach (var setting in notificationSettings)
+
+            foreach (var setting in notificationSettings.Where(ns => NeedsConfirmation(ns, profileSettings)))
             {
-                if (NeedsConfirmation(setting, profileSettings))
-                {
-                    setting.NeedsConfirmation = true;
-                }
+                setting.NeedsConfirmation = true;
             }
 
             return notificationSettings;
