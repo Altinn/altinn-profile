@@ -20,7 +20,7 @@ namespace Altinn.Profile.Controllers
     /// Initializes a new instance of the <see cref="DashboardController"/> class.
     /// </remarks>
     [Authorize(Policy = AuthConstants.SupportDashboardAccess)]
-    [Route("profile/api/v1/dashboard/organizations/{organizationNumber}/notificationaddresses")]
+    [Route("profile/api/v1/dashboard")]
     [Consumes("application/json")]
     [Produces("application/json")]
     public class DashboardController(IOrganizationNotificationAddressesService notificationAddressService) : ControllerBase
@@ -31,6 +31,7 @@ namespace Altinn.Profile.Controllers
         /// Endpoint that can retrieve a list of all Notification Addresses for the given organization
         /// </summary>
         /// <returns>Returns the notification addresses for the provided organization</returns>                
+        [HttpGet("organizations/{organizationNumber}/notificationaddresses")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
