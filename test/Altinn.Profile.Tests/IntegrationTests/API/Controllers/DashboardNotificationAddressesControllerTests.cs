@@ -29,7 +29,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         };
 
-        private readonly DateTime _testTimeStamp = new DateTime(2025, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+        private readonly DateTime _testTime = new DateTime(2025, 1, 1, 12, 0, 0, DateTimeKind.Utc);
         private readonly List<Organization> _testdata;
 
         public DashboardNotificationAddressesControllerTests(ProfileWebApplicationFactory<Program> factory)
@@ -46,7 +46,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                             AddressType = AddressType.Email,
                             NotificationAddressID = 1,
                            
-                            RegistryUpdatedDateTime = _testTimeStamp,
+                            RegistryUpdatedDateTime = _testTime,
                         },
                     ]
                 }, 
@@ -60,7 +60,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                             FullAddress = "test@test.com",
                             AddressType = AddressType.Email,
                             NotificationAddressID = 1,
-                            RegistryUpdatedDateTime = _testTimeStamp,
+                            RegistryUpdatedDateTime = _testTime,
                         },
                         new()
                         {
@@ -69,7 +69,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                             Address = "99999999",
                             Domain = "+47",
                             NotificationAddressID = 2,
-                            RegistryUpdatedDateTime = _testTimeStamp,
+                            RegistryUpdatedDateTime = _testTime,
                         },
                         new()
                         {
@@ -78,7 +78,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                             Address = "98888888",
                             Domain = "+47",
                             NotificationAddressID = 3,
-                            RegistryUpdatedDateTime = _testTimeStamp,
+                            RegistryUpdatedDateTime = _testTime,
                         }
                     ]
                 },
@@ -93,7 +93,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                             AddressType = AddressType.Email,
                             IsSoftDeleted = true,
                             NotificationAddressID = 20,
-                            RegistryUpdatedDateTime = _testTimeStamp,
+                            RegistryUpdatedDateTime = _testTime,
                         },
                         new()
                         {
@@ -101,7 +101,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                             AddressType = AddressType.SMS,
                             HasRegistryAccepted = false,
                             NotificationAddressID = 21,
-                            RegistryUpdatedDateTime = _testTimeStamp,
+                            RegistryUpdatedDateTime = _testTime,
                         },
                         new()
                         {
@@ -110,7 +110,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                             Address = "92222222",
                             Domain = "+47",
                             NotificationAddressID = 22,
-                            RegistryUpdatedDateTime = _testTimeStamp,
+                            RegistryUpdatedDateTime = _testTime,
                         }
                     ]
                 }
@@ -263,7 +263,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task GetAllNotificationAddressesForAnOrg_WhenNoAccess_ReturnsForbidden()
         {
             // Arrange
-            string orgNumber = "123456789";
+            string orgNumber = "111111111";
                                   
             _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
