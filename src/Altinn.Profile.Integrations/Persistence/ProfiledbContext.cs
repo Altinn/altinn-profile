@@ -192,6 +192,7 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.EmailAddress).HasMaxLength(400);
             entity.Property(e => e.PhoneNumber).HasMaxLength(26);
             entity.Property(e => e.LastChanged).IsConcurrencyToken();
+            entity.Ignore(e => e.NeedsConfirmation);
 
             entity.HasIndex(e => new { e.PartyUuid, e.UserId }, "ix_user_party_contact_info_party_uuid_user_id");
             entity.HasIndex(e => e.UserId, "ix_user_party_contact_info_user_id");

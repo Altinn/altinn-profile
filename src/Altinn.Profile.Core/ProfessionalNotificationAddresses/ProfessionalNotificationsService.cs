@@ -2,6 +2,8 @@
 using Altinn.Profile.Core.User;
 using Altinn.Profile.Core.User.ProfileSettings;
 
+using Microsoft.Extensions.Options;
+
 namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 {
     /// <summary>
@@ -11,33 +13,48 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         IProfessionalNotificationsRepository professionalNotificationsRepository,
         IUserProfileClient userProfileClient,
         INotificationsClient notificationsClient,
-        IUserProfileService userProfileService) : IProfessionalNotificationsService
+        IUserProfileService userProfileService,
+        IOptions<AltinnConfiguration> altinnConfiguration) : IProfessionalNotificationsService
     {
         private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
         private readonly IUserProfileClient _userProfileClient = userProfileClient;
         private readonly IUserProfileService _userProfileService = userProfileService;
         private readonly INotificationsClient _notificationsClient = notificationsClient;
+        private readonly AltinnConfiguration _altinnConfiguration = altinnConfiguration.Value;
 
         /// <inheritdoc/>
-        public async Task<(UserPartyContactInfo? NotificationSettings, ProfileSettings? ProfileSettings)> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        public async Task<UserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
         {
             var notificationSettings = await _professionalNotificationsRepository.GetNotificationAddressAsync(userId, partyUuid, cancellationToken);
             if (notificationSettings == null)
             {
-                return (null, null);
+                return null;
             }
 
             var profileSettings = await _userProfileService.GetProfileSettings(userId);
-            return (notificationSettings, profileSettings);
+            if (NeedsConfirmation(notificationSettings, profileSettings))
+            {
+                notificationSettings.NeedsConfirmation = true;
+            }
+
+            return notificationSettings;
         }
 
         /// <inheritdoc/>
-        public async Task<(IReadOnlyList<UserPartyContactInfo> NotificationSettings, ProfileSettings? ProfileSettings)> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<UserPartyContactInfo>> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken)
         {
             var profileSettings = await _userProfileService.GetProfileSettings(userId);
 
             var notificationSettings = await _professionalNotificationsRepository.GetAllNotificationAddressesForUserAsync(userId, cancellationToken);
-            return (notificationSettings, profileSettings);
+            foreach (var setting in notificationSettings)
+            {
+                if (NeedsConfirmation(setting, profileSettings))
+                {
+                    setting.NeedsConfirmation = true;
+                }
+            }
+
+            return notificationSettings;
         }
 
         /// <inheritdoc/>
@@ -87,6 +104,29 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         public Task<UserPartyContactInfo?> DeleteNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
         {
             return _professionalNotificationsRepository.DeleteNotificationAddressAsync(userId, partyUuid, cancellationToken);
+        }
+
+        private bool NeedsConfirmation(UserPartyContactInfo notificationAddress, ProfileSettings? profileSettingPreference)
+        {
+            if (profileSettingPreference?.IgnoreUnitProfileDateTime.HasValue == true)
+            {
+                TimeSpan daysSinceIgnore = (TimeSpan)(DateTime.UtcNow - profileSettingPreference.IgnoreUnitProfileDateTime);
+                if (daysSinceIgnore.TotalDays <= _altinnConfiguration.IgnoreUnitProfileConfirmationDays)
+                {
+                    return false;
+                }
+            }
+
+            var lastModified = notificationAddress.LastChanged;
+
+            var daysSinceLastUserUnitProfileUpdate = (DateTime.UtcNow - lastModified).TotalDays;
+            if (daysSinceLastUserUnitProfileUpdate >= _altinnConfiguration.ValidationReminderDays)
+            {
+                // Altinn2 checks if the user is the "innehaver" of an "ENK" type org unit. We do not have that info here,
+                return true;
+            }
+
+            return false;
         }
     }
 }

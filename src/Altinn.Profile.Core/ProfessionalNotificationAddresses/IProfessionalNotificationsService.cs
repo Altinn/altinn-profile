@@ -1,6 +1,4 @@
-﻿using Altinn.Profile.Core.User.ProfileSettings;
-
-namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
+﻿namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 {
     /// <summary>
     /// Represents an implementation contract for a business service that can handle professional notification addresses.
@@ -14,7 +12,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <param name="partyUuid">The UUID of the party.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task with the return value containing the identified notification addresses or null if there are none.</returns>
-        Task<(UserPartyContactInfo? NotificationSettings, ProfileSettings? ProfileSettings)> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken);
+        Task<UserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken);
 
         /// <summary>
         /// Retrieves all notification addresses for all parties for the specified user.
@@ -22,7 +20,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <param name="userId">The ID of the user.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task with the return value containing the list of identified notification addresses or an empty list if there are none.</returns>
-        Task<(IReadOnlyList<UserPartyContactInfo> NotificationSettings, ProfileSettings? ProfileSettings)> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken);
+        Task<IReadOnlyList<UserPartyContactInfo>> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken);
 
         /// <summary>
         /// Adds a new or updates an existing notification address for a user and party.

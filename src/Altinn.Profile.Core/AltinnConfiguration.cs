@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Configuration
+﻿namespace Altinn.Profile.Core
 {
     /// <summary>
     /// Configuration settings for Altinn Profile
