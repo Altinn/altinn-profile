@@ -11,18 +11,16 @@ using Xunit;
 namespace Altinn.Profile.Tests.IntegrationTests;
 
 public class TelemetryTests(ProfileWebApplicationFactory<Program> factory) 
-    : IClassFixture<ProfileWebApplicationFactory<Program>>, IDisposable
+    : IClassFixture<ProfileWebApplicationFactory<Program>>
 {
     private readonly ProfileWebApplicationFactory<Program> _factory = factory;
-
-    private MeterProvider _meterProvider;
 
     [Fact]
     public async Task SyncPersonChanges_WhenCalled_CreatesContactRegistryMetrics()
     {
         var metricItems = new List<Metric>();
 
-        _meterProvider = Sdk.CreateMeterProviderBuilder()
+        using var meterProvider = Sdk.CreateMeterProviderBuilder()
             .AddMeter("platform-profile")
             .AddInMemoryExporter(metricItems)
             .Build();
@@ -39,7 +37,7 @@ public class TelemetryTests(ProfileWebApplicationFactory<Program> factory)
         // giving some breezing room for the End callback to complete
         await Task.Delay(TimeSpan.FromSeconds(1));
 
-        _meterProvider.Dispose();
+        meterProvider.ForceFlush();
 
         var addedMetrics = metricItems
             .Where(item => item.Name == "profile.contactregistry.person.added")
@@ -58,7 +56,7 @@ public class TelemetryTests(ProfileWebApplicationFactory<Program> factory)
     {
         var metricItems = new List<Metric>();
 
-        _meterProvider = Sdk.CreateMeterProviderBuilder()
+        using var meterProvider = Sdk.CreateMeterProviderBuilder()
             .AddMeter("platform-profile")
             .AddInMemoryExporter(metricItems)
             .Build();
@@ -75,7 +73,7 @@ public class TelemetryTests(ProfileWebApplicationFactory<Program> factory)
         // giving some breezing room for the End callback to complete
         await Task.Delay(TimeSpan.FromSeconds(1));
 
-        _meterProvider.Dispose();
+        meterProvider.ForceFlush();
 
         var addedOrgMetrics = metricItems
             .Where(item => item.Name == "profile.organizationnotificationaddress.organization.added")
@@ -97,11 +95,5 @@ public class TelemetryTests(ProfileWebApplicationFactory<Program> factory)
         Assert.Single(addedMetrics);
         Assert.Single(updatedMetrics);
         Assert.Single(deletedMetrics);
-    }
-
-    public void Dispose()
-    {
-        _meterProvider?.Dispose();
-        GC.SuppressFinalize(this);
     }
 }
