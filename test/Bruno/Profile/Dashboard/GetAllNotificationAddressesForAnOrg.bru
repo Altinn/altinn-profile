@@ -1,0 +1,15 @@
+meta {
+  name: GetAllNotificationAddressesForAnOrg
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/{{organizationNumber}}/notificationaddresses
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  await bru.runRequest("TokenGenerator/Application Owner Profile scope")
+}

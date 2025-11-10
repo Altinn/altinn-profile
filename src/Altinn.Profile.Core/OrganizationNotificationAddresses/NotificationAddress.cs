@@ -43,6 +43,11 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         public string RegistryID { get; init; }
 
         /// <summary>
+        /// The registry updated timestamp for this notification address (mapped from NotificationAddressDE.RegistryUpdatedDateTime)
+        /// </summary>
+        public DateTime? RegistryUpdatedDateTime { get; init; }
+
+        /// <summary>
         /// A value indicating whether the entity is deleted in Altinn.
         /// </summary>
         public bool? IsSoftDeleted { get; init; }

@@ -23,7 +23,7 @@ public static class OrganizationMapper
         return new Organization
         {
             OrganizationNumber = dataEntity.RegistryOrganizationNumber,
-            NotificationAddresses = [.. dataEntity.NotificationAddresses.Select(MapFromDataEntity)],
+            NotificationAddresses = [.. dataEntity.NotificationAddresses.Select(MapFromDataEntity)]
         };
     }
 
@@ -43,6 +43,7 @@ public static class OrganizationMapper
             FullAddress = dataEntity.FullAddress,
             NotificationName = dataEntity.NotificationName,
             RegistryID = dataEntity.RegistryID,
+            RegistryUpdatedDateTime = dataEntity.RegistryUpdatedDateTime,
             IsSoftDeleted = dataEntity.IsSoftDeleted,
             HasRegistryAccepted = dataEntity.HasRegistryAccepted,
             IsSynthetic = dataEntity.UpdateSource == UpdateSource.Synthetic,

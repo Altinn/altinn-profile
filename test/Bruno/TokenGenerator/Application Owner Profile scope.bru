@@ -1,0 +1,35 @@
+meta {
+  name: Application Owner Profile scope
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{TokenGeneratorBaseUrl}}/api/GetEnterpriseToken?env={{Environment}}&scopes=altinn:profile.support.admin&orgNo=991825827&org=digdir
+  body: none
+  auth: basic
+}
+
+params:query {
+  env: {{Environment}}
+  scopes: altinn:profile.support.admin
+  orgNo: 991825827
+  org: digdir
+}
+
+auth:basic {
+  username: {{TokenGeneratorUserName}}
+  password: {{TokenGeneratorPassword}}
+}
+
+script:post-response {
+  let data = res.getBody();
+  
+  // Check if the response contains a valid token
+  if (!data || data.trim() === '') {
+    console.error('Failed to retrieve a valid bearer token');
+    return;
+  }
+  
+  bru.setEnvVar("BearerToken", data);
+}

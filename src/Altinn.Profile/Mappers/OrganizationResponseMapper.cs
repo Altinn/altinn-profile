@@ -5,12 +5,12 @@ using Altinn.Profile.Models;
 namespace Altinn.Profile.Mappers
 {
     /// <summary>
-    /// Maps from an organization to an organization reponse
+    /// Maps from an organization to an organization response
     /// </summary>
     public static class OrganizationResponseMapper
     {
         /// <summary>
-        /// Maps from an organization to an organization reponse
+        /// Maps from an organization to an organization response
         /// </summary>
         public static OrganizationResponse ToOrganizationResponse(Organization organization)
         {
@@ -24,13 +24,42 @@ namespace Altinn.Profile.Mappers
         }
 
         /// <summary>
-        /// Maps from a notification address to a notification address reponse
+        /// Maps from a notification address to a notification address response
         /// </summary>
         public static NotificationAddressResponse ToNotificationAddressResponse(NotificationAddress notificationAddress)
         {
             var response = new NotificationAddressResponse
             {
                 NotificationAddressId = notificationAddress.NotificationAddressID,
+            };
+
+            if (notificationAddress.AddressType == AddressType.Email)
+            {
+                response.Email = notificationAddress.FullAddress;
+            }
+            else
+            {
+                response.Phone = notificationAddress.Address;
+                response.CountryCode = notificationAddress.Domain;
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Maps from a Dashboard notification address to a Dashboard notification address response
+        /// </summary>
+        public static DashboardNotificationAddressResponse ToDashboardNotificationAddressResponse(
+            NotificationAddress notificationAddress,
+            string requestedOrgNumber,
+            string sourceOrgNumber)
+        {
+            var response = new DashboardNotificationAddressResponse
+            {
+                NotificationAddressId = notificationAddress.NotificationAddressID,
+                RequestedOrgNumber = requestedOrgNumber,
+                SourceOrgNumber = sourceOrgNumber,
+                LastChanged = notificationAddress.RegistryUpdatedDateTime
             };
 
             if (notificationAddress.AddressType == AddressType.Email)
