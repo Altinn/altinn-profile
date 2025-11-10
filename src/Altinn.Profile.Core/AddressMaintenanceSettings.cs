@@ -3,7 +3,7 @@
     /// <summary>
     /// Configuration settings for Altinn Profile
     /// </summary>
-    public class AddressMaintainanceSettings
+    public class AddressMaintenanceSettings
     {
         /// <summary>
         /// The number of days a user will not be prompted to confirm their unit profile after choosing to ignore the confirmation.

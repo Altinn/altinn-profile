@@ -167,7 +167,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.Configure<KeyVaultSettings>(config.GetSection("kvSetting"));
     services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
     services.Configure<PlatformSettings>(config.GetSection("PlatformSettings"));
-    services.Configure<AddressMaintainanceSettings>(config.GetSection("AddressMaintainanceSettings"));
+    services.Configure<AddressMaintenanceSettings>(config.GetSection("AddressMaintenanceSettings"));
 
     services.AddSingleton(config);
 
