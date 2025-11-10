@@ -15,6 +15,7 @@ using Altinn.Common.PEP.Interfaces;
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Changelog;
 using Altinn.Profile.Configuration;
+using Altinn.Profile.Core;
 using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Core.Utils;
@@ -166,7 +167,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.Configure<KeyVaultSettings>(config.GetSection("kvSetting"));
     services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
     services.Configure<PlatformSettings>(config.GetSection("PlatformSettings"));
-    
+    services.Configure<AddressMaintainanceSettings>(config.GetSection("AddressMaintainanceSettings"));
+
     services.AddSingleton(config);
 
     services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();

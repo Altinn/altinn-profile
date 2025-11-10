@@ -14,13 +14,13 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         IUserProfileClient userProfileClient,
         INotificationsClient notificationsClient,
         IUserProfileService userProfileService,
-        IOptions<AltinnConfiguration> altinnConfiguration) : IProfessionalNotificationsService
+        IOptions<AddressMaintainanceSettings> addressMaintainanceSettings) : IProfessionalNotificationsService
     {
         private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
         private readonly IUserProfileClient _userProfileClient = userProfileClient;
         private readonly IUserProfileService _userProfileService = userProfileService;
         private readonly INotificationsClient _notificationsClient = notificationsClient;
-        private readonly AltinnConfiguration _altinnConfiguration = altinnConfiguration.Value;
+        private readonly AddressMaintainanceSettings _addressMaintainanceSettings = addressMaintainanceSettings.Value;
 
         /// <inheritdoc/>
         public async Task<UserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
@@ -109,7 +109,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             if (profileSettingPreference?.IgnoreUnitProfileDateTime.HasValue == true)
             {
                 TimeSpan daysSinceIgnore = (TimeSpan)(DateTime.UtcNow - profileSettingPreference.IgnoreUnitProfileDateTime);
-                if (daysSinceIgnore.TotalDays <= _altinnConfiguration.IgnoreUnitProfileConfirmationDays)
+                if (daysSinceIgnore.TotalDays <= _addressMaintainanceSettings.IgnoreUnitProfileConfirmationDays)
                 {
                     return false;
                 }
@@ -118,7 +118,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             var lastModified = notificationAddress.LastChanged;
 
             var daysSinceLastUserUnitProfileUpdate = (DateTime.UtcNow - lastModified).TotalDays;
-            if (daysSinceLastUserUnitProfileUpdate >= _altinnConfiguration.ValidationReminderDays)
+            if (daysSinceLastUserUnitProfileUpdate >= _addressMaintainanceSettings.ValidationReminderDays)
             {
                 // Altinn2 checks if the user is the "innehaver" of an "ENK" type org unit. We do not have that info here,
                 return true;

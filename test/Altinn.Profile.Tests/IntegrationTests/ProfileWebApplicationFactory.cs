@@ -131,12 +131,12 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
             services.AddSingleton(ProfileSettingsRepositoryMock.Object);
             services.AddSingleton(sp =>
             {
-                var altinnConfig = new AltinnConfiguration
+                var altinnConfig = new AddressMaintainanceSettings
                 {
                     ValidationReminderDays = 90,
                     IgnoreUnitProfileConfirmationDays = 365
                 };
-                var optionsMock = new Mock<IOptions<AltinnConfiguration>>();
+                var optionsMock = new Mock<IOptions<AddressMaintainanceSettings>>();
                 optionsMock.Setup(o => o.Value).Returns(altinnConfig);
                 return optionsMock.Object;
             });
