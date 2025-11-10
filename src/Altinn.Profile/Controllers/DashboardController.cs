@@ -63,7 +63,7 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
-            var addresses = organization.NotificationAddresses
+            var addresses = notificationAddresses
                 .Where(n => n.IsSoftDeleted != true && n.HasRegistryAccepted != false)
                 .Select(n => OrganizationResponseMapper.ToDashboardNotificationAddressResponse(
                     n,

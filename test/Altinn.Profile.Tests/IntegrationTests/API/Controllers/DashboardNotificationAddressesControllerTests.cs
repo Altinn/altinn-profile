@@ -264,10 +264,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             string orgNumber = "111111111";
-                                  
-            _factory.OrganizationNotificationAddressRepositoryMock
-                .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(_testdata.Where(o => o.OrganizationNumber == orgNumber));
 
             HttpClient client = _factory.CreateClient();
 
