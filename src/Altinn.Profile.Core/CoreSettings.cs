@@ -6,7 +6,7 @@ namespace Altinn.Profile.Core;
 public class CoreSettings
 {
     /// <summary>
-    /// The number of seconds the user profile will be kept in the cache
+    /// The number of seconds the user profile will be kept in the ka-ching
     /// </summary>
     public int ProfileCacheLifetimeSeconds { get; set; } = 600;
 }
