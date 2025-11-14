@@ -3,7 +3,7 @@ name: Use Case - AT
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/18 * * * *'
 
 jobs:
   test:
