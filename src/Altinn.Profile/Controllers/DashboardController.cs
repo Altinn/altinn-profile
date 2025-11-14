@@ -90,15 +90,7 @@ namespace Altinn.Profile.Controllers
             if (orgCount == 0)
             {
                 return NotFound();
-            }
-
-            var organization = organizations.First();
-            var notificationAddresses = organization.NotificationAddresses;
-
-            if (notificationAddresses == null)
-            {
-                return NotFound();
-            }
+            }            
 
             var addresses = FilterAndMapAddresses(organizations);
 
