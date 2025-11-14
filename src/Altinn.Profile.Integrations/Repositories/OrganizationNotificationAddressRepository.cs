@@ -110,7 +110,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     }
 
     /// <summary>
-    /// Gets an organization with connected notification addresses form the database
+    /// Gets organizations with notification addresses matching the specified email address from the database
     /// </summary>
     /// <returns>
     /// A task that represents the asynchronous operation.
@@ -165,6 +165,44 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
         {
             return [];
         }
+
+        return foundOrganizations.Select(OrganizationMapper.MapFromDataEntity).Where(org => org != null)!;
+    }
+
+    /// <summary>
+    /// Gets list of notification addresses for an organization by email address from the database
+    /// </summary>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// </returns>
+    public async Task<IEnumerable<OrganizationDE>> GetOrganizationNotificationAddressesByEmailAddressDEAsync(string emailAddress, CancellationToken cancellationToken)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        var query = await databaseContext.Organizations
+            .Where(o => o.NotificationAddresses.Any(na =>
+                na.AddressType == AddressType.Email &&
+                na.FullAddress != null &&
+                EF.Functions.ILike(na.FullAddress, emailAddress) &&
+                na.IsSoftDeleted != true))
+            .Include(o => o.NotificationAddresses.Where(na =>
+                na.AddressType == AddressType.Email &&
+                na.FullAddress != null &&
+                na.IsSoftDeleted != true))
+            .ToListAsync(cancellationToken);
+
+        return query;
+    }
+
+    /// <summary>
+    /// Gets organizations with notification addresses matching the specified email address from the database
+    /// </summary>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// </returns>
+    public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken)
+    {
+        var foundOrganizations = await GetOrganizationNotificationAddressesByEmailAddressDEAsync(emailAddress, cancellationToken);
 
         return foundOrganizations.Select(OrganizationMapper.MapFromDataEntity).Where(org => org != null)!;
     }

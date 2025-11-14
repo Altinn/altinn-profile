@@ -1,0 +1,1 @@
+CREATE INDEX ix_full_address ON organization_notification_address.notifications_address (full_address);

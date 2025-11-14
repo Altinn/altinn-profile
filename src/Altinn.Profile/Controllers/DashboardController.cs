@@ -63,15 +63,71 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
-            var addresses = notificationAddresses
-                .Where(n => n.IsSoftDeleted != true && n.HasRegistryAccepted != false)
-                .Select(n => OrganizationResponseMapper.ToDashboardNotificationAddressResponse(
-                    n,
-                    requestedOrgNumber: organization.OrganizationNumber,
-                    sourceOrgNumber: organization.AddressOrigin))
-                .ToList();
+            var addresses = FilterAndMapAddresses(organizations);
 
             return Ok(addresses);
+        }
+
+        /// <summary>
+        /// Endpoint that can retrieve a list of all Notification Addresses for the given email address
+        /// </summary>
+        /// <returns>Returns the notification addresses for the provided email address</returns>                
+        [HttpGet("organizations/notificationaddresses/email/{emailAddress}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<DashboardNotificationAddressResponse>>> GetNotificationAddressesByEmailAddress([FromRoute] string emailAddress, CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var organizations = await _notificationAddressService.GetOrganizationNotificationAddressesByEmailAddress(emailAddress, cancellationToken);
+
+            var orgCount = organizations.Count();
+
+            if (orgCount == 0)
+            {
+                return NotFound();
+            }
+
+            var organization = organizations.First();
+            var notificationAddresses = organization.NotificationAddresses;
+
+            if (notificationAddresses == null)
+            {
+                return NotFound();
+            }
+
+            var addresses = FilterAndMapAddresses(organizations);
+
+            return Ok(addresses);
+        }
+
+        private static List<DashboardNotificationAddressResponse> FilterAndMapAddresses(IEnumerable<Organization> organizations)
+        {
+            var allAddresses = new List<DashboardNotificationAddressResponse>();
+
+            foreach (var organization in organizations)
+            {
+                if (organization.NotificationAddresses == null)
+                {
+                    continue;
+                }
+
+                var addresses = organization.NotificationAddresses
+                    .Where(n => n.IsSoftDeleted != true && n.HasRegistryAccepted != false)
+                    .Select(n => OrganizationResponseMapper.ToDashboardNotificationAddressResponse(
+                        n,
+                        requestedOrgNumber: organization.OrganizationNumber,
+                        sourceOrgNumber: organization.AddressOrigin))
+                    .ToList();
+
+                allAddresses.AddRange(addresses);
+            }
+
+            return allAddresses;
         }
     }
 }
