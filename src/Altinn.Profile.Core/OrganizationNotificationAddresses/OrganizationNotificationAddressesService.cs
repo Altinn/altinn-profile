@@ -127,6 +127,12 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
             return result;
         }
 
+        /// <inheritdoc/>
+        public async Task<IEnumerable<Organization?>> GetOrganizationNotificationAddressesByEmailAddress(string emailAddress, CancellationToken cancellationToken)
+        {
+            return await _orgRepository.GetOrganizationNotificationAddressesByEmailAddressAsync(emailAddress, cancellationToken);
+        }
+
         private async Task<IEnumerable<Organization>> GetOrganizationsWithNotificationAddressesFromMainUnit(List<string> organizationNumbers, List<Organization> organizationList, CancellationToken cancellationToken)
         {
             var orgsMissingAddress = organizationNumbers.Except(organizationList.Select(o => o.OrganizationNumber));
@@ -154,6 +160,6 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
             }
 
             return organizationList;
-        }
+        }        
     }
 }

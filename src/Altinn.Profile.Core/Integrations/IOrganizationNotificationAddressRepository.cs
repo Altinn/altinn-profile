@@ -20,6 +20,14 @@ public interface IOrganizationNotificationAddressRepository
     Task<IEnumerable<Organization>> GetOrganizationsAsync(List<string> organizationNumbers, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Fetches notification addresses filtered by email address
+    /// </summary>
+    /// <param name="emailAddress">The email address to search for in notification addresses</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the operation</param>
+    /// <returns>A <see cref="Task{TResult}"/> with a collection of organization notification addresses as value.</returns>
+    Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Creates a new notification address for an organization
     /// </summary>
     /// <returns>A <see cref="Task{TResult}"/> with the notification address as value.</returns>

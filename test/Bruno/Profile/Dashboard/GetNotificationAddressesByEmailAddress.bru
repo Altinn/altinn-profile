@@ -1,0 +1,15 @@
+meta {
+  name: GetNotificationAddressesByEmailAddress
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/notificationaddresses/email/{{emailAddress}}
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  await bru.runRequest("TokenGenerator/Application Owner Profile scope")
+}
