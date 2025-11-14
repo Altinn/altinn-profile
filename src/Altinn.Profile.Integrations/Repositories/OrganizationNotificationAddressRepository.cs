@@ -183,7 +183,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             .Where(o => o.NotificationAddresses.Any(na =>
                 na.AddressType == AddressType.Email &&
                 na.FullAddress != null &&
-                EF.Functions.ILike(na.FullAddress, emailAddress) &&
+                na.FullAddress == emailAddress &&
                 na.IsSoftDeleted != true))
             .Include(o => o.NotificationAddresses.Where(na =>
                 na.AddressType == AddressType.Email &&
