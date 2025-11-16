@@ -110,7 +110,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     }
 
     /// <summary>
-    /// Gets organizations with notification addresses matching the specified email address from the database
+    /// Gets an organization by organization number from the database
     /// </summary>
     /// <returns>
     /// A task that represents the asynchronous operation.
