@@ -111,13 +111,13 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         SeedDatabase(organizations, notificationAddresses);
 
         // Act
-        var result = await _repository.GetOrganizationNotificationAddressesByEmailAddressDEAsync("test.email@test.no", CancellationToken.None);
+        var result = await _repository.GetOrganizationNotificationAddressesByEmailAddressAsync("test.email@test.no", CancellationToken.None);
         var list = result.ToList();
 
         // Assert
         Assert.Single(list);
         var returned = list.Single();
-        Assert.Equal("123456789", returned.RegistryOrganizationNumber);
+        Assert.Equal("123456789", returned.OrganizationNumber);
 
         Assert.NotNull(returned.NotificationAddresses);
         Assert.Equal(2, returned.NotificationAddresses.Count);
@@ -133,7 +133,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         SeedDatabase(organizations, notificationAddresses);
         
         // Act
-        var result = await _repository.GetOrganizationNotificationAddressesByEmailAddressDEAsync("doesnotexist@test.com", CancellationToken.None);
+        var result = await _repository.GetOrganizationNotificationAddressesByEmailAddressAsync("doesnotexist@test.com", CancellationToken.None);
         var list = result.ToList();
         
         // Assert
