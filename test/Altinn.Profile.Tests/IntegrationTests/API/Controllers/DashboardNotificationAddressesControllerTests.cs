@@ -15,7 +15,6 @@ using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
 using Moq;
-
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
@@ -45,7 +44,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                             FullAddress = "test@example.com",
                             AddressType = AddressType.Email,
                             NotificationAddressID = 1,
-                           
                             RegistryUpdatedDateTime = _testTime,
                         },
                     ]
@@ -269,6 +267,82 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/notificationaddresses");
             httpRequestMessage = GenerateTokenWithoutScope(orgNumber, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetNotificationAddressesByPhoneNumber_WhenFound_ReturnsOkWithAddresses()
+        {
+            // Arrange
+            string phoneNumber = "1234567890";
+
+            _factory.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationNotificationAddressesByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.Where(o => o.NotificationAddresses != null && 
+                    o.NotificationAddresses.Any(n => n.FullAddress == phoneNumber && 
+                    n.IsSoftDeleted != true && 
+                    n.HasRegistryAccepted != false)));
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phone/{phoneNumber}");
+
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<List<DashboardNotificationAddressResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+
+            var phoneNumberItem = result.FirstOrDefault(a => a.Phone != null);
+            Assert.NotNull(phoneNumberItem);
+            Assert.Equal(phoneNumber, phoneNumberItem.Phone);
+        }
+
+        [Fact]
+        public async Task GetNotificationAddressesByPhone_WhenNotFound_ReturnsNotFound()
+        {
+            // Arrange
+            string phoneNumber = "98989898";
+
+            _factory.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationNotificationAddressesByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Enumerable.Empty<Organization>());
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phone/{phoneNumber}");
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+            
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);            
+        }
+
+        [Fact]
+        public async Task GetNotificationAddressesByPhone_WhenNoAccess_ReturnsForbidden()
+        {
+            // Arrange
+            string phoneNumber = "91111111";
+
+            _factory.OrganizationNotificationAddressRepositoryMock
+          .Setup(r => r.GetOrganizationNotificationAddressesByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+          .ReturnsAsync(Enumerable.Empty<Organization>());
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phone/{phoneNumber}");
+            httpRequestMessage = GenerateTokenWithoutScope("any-org", httpRequestMessage);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);

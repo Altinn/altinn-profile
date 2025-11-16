@@ -110,7 +110,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     }
 
     /// <summary>
-    /// Gets an organization with connected notification addresses form the database
+    /// Gets an organization by organization number from the database
     /// </summary>
     /// <returns>
     /// A task that represents the asynchronous operation.
@@ -165,6 +165,31 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
         {
             return [];
         }
+
+        return foundOrganizations.Select(OrganizationMapper.MapFromDataEntity).Where(org => org != null)!;
+    }
+
+    /// <summary>
+    /// Gets organizations with notification addresses matching the specified phone number from the database
+    /// </summary>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// </returns>
+    public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByPhoneNumberAsync(string phoneNumber, CancellationToken cancellationToken)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        var foundOrganizations = await databaseContext.Organizations
+            .Where(o => o.NotificationAddresses.Any(na =>
+                na.AddressType == AddressType.SMS &&
+                na.FullAddress != null &&
+                na.FullAddress == phoneNumber &&
+                na.IsSoftDeleted != true))
+            .Include(o => o.NotificationAddresses.Where(na =>
+                na.AddressType == AddressType.SMS &&
+                na.FullAddress != null &&
+                na.IsSoftDeleted != true))
+            .ToListAsync(cancellationToken);
 
         return foundOrganizations.Select(OrganizationMapper.MapFromDataEntity).Where(org => org != null)!;
     }

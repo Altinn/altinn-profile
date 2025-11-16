@@ -128,6 +128,7 @@ public partial class ProfileDbContext : DbContext
         modelBuilder.Entity<NotificationAddressDE>(entity =>
         {
             entity.HasKey(e => e.NotificationAddressID).HasName("contact_info_pkey");
+            entity.HasIndex(e => e.FullAddress, "ix_phone_number");
             entity.Property(e => e.CreatedDateTime).HasDefaultValueSql("now()").ValueGeneratedOnAdd();
         });
 

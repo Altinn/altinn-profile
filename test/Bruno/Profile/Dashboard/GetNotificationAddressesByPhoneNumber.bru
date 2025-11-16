@@ -1,0 +1,15 @@
+meta {
+  name: GetNotificationAddressesByPhoneNumber
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/notificationaddresses/phone/{{phoneNumber}}
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  await bru.runRequest("TokenGenerator/Application Owner Profile scope")
+}
