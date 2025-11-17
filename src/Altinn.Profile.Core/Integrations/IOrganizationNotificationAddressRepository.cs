@@ -32,8 +32,9 @@ public interface IOrganizationNotificationAddressRepository
     /// </summary>
     /// <param name="phoneNumber">The phone number to search for in notification addresses</param>
     /// <param name="cancellationToken">Cancellation token to cancel the operation</param>
+    /// <param name="countryCode">The country code that can be used to search for in notification addresses</param>
     /// <returns>A <see cref="Task{TResult}"/> with a collection of organization notification addresses as value.</returns>
-    Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByPhoneNumberAsync(string phoneNumber, CancellationToken cancellationToken);
+    Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByPhoneNumberAsync(string phoneNumber, CancellationToken cancellationToken, string countryCode);
 
     /// <summary>
     /// Creates a new notification address for an organization

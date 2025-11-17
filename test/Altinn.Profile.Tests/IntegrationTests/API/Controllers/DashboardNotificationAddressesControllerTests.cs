@@ -357,17 +357,16 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             string phoneNumber = "12345678";
+            var countryCode = "+47";
 
             _factory.OrganizationNotificationAddressRepositoryMock
-                .Setup(r => r.GetOrganizationNotificationAddressesByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetOrganizationNotificationAddressesByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>(), It.IsAny<string>()))
                 .ReturnsAsync(_testdata.Where(o => o.NotificationAddresses != null &&
-                    o.NotificationAddresses.Any(n => n.FullAddress == phoneNumber &&
-                    n.IsSoftDeleted != true &&
-                    n.HasRegistryAccepted != false)));
+                    o.NotificationAddresses.Any(n => n.FullAddress == phoneNumber)));
 
             HttpClient client = _factory.CreateClient();
 
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phone/{phoneNumber}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phone/{phoneNumber}/countryCode/{countryCode}");
 
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
@@ -393,7 +392,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string phoneNumber = "missingtest@test.com";
 
             _factory.OrganizationNotificationAddressRepositoryMock
-                .Setup(r => r.GetOrganizationNotificationAddressesByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetOrganizationNotificationAddressesByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>(), It.IsAny<string>()))
                 .ReturnsAsync(Enumerable.Empty<Organization>());
 
             HttpClient client = _factory.CreateClient();

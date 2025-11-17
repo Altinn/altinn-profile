@@ -101,18 +101,18 @@ namespace Altinn.Profile.Controllers
         /// Endpoint that can retrieve a list of all Notification Addresses for the given phone number
         /// </summary>
         /// <returns>Returns the notification addresses for the provided phone number</returns>                
-        [HttpGet("organizations/notificationaddresses/phonenumber/{phoneNumber}")]
+        [HttpGet("organizations/notificationaddresses/phonenumber/{phoneNumber}/countrycode/{countrycode?}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<DashboardNotificationAddressResponse>>> GetNotificationAddressesByPhoneNumber([FromRoute] string phoneNumber, CancellationToken cancellationToken)
+        public async Task<ActionResult<List<DashboardNotificationAddressResponse>>> GetNotificationAddressesByPhoneNumber([FromRoute] string phoneNumber, CancellationToken cancellationToken, [FromRoute] string countryCode = "+47")
         {
             if (!ModelState.IsValid)
             {
                 return ValidationProblem(ModelState);
             }
 
-            var organizations = await _notificationAddressService.GetOrganizationNotificationAddressesByPhoneNumber(phoneNumber, cancellationToken);
+            var organizations = await _notificationAddressService.GetOrganizationNotificationAddressesByPhoneNumber(phoneNumber, cancellationToken, countryCode);
 
             var orgCount = organizations.Count();
 

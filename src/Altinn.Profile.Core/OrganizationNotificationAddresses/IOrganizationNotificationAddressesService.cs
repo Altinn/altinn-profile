@@ -38,13 +38,14 @@ public interface IOrganizationNotificationAddressesService
     /// <returns>A collection of organizations that have notification addresses matching the specified email address.</returns>
     Task<IEnumerable<Organization?>> GetOrganizationNotificationAddressesByEmailAddress(string emailAddress, CancellationToken cancellationToken);
 
-      /// <summary>
+    /// <summary>
     /// Method for retrieving notification addresses filtered by phone number.
     /// </summary>
     /// <param name="phoneNumber">The phone number to search for in notification addresses</param>
     /// <param name="cancellationToken">To cancel the request before it is finished</param>
+    /// <param name="countryCode">The country code to include while looking up for notification address  number to search for in notification addresses</param>
     /// <returns>A collection of organizations that have notification addresses matching the specified phone number.</returns>
-    Task<IEnumerable<Organization?>> GetOrganizationNotificationAddressesByPhoneNumber(string phoneNumber, CancellationToken cancellationToken);
+    Task<IEnumerable<Organization?>> GetOrganizationNotificationAddressesByPhoneNumber(string phoneNumber, CancellationToken cancellationToken, string countryCode);
 
     /// <summary>
     /// Method for deleting a notification addresses for an organization

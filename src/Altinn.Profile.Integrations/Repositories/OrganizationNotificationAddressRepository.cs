@@ -175,15 +175,17 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByPhoneNumberAsync(string phoneNumber, CancellationToken cancellationToken)
+    public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByPhoneNumberAsync(string phoneNumber, CancellationToken cancellationToken, string countryCode)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        var searchPhoneNumber = string.Concat(countryCode, phoneNumber);
 
         var foundOrganizations = await databaseContext.Organizations
             .Where(o => o.NotificationAddresses.Any(na =>
                 na.AddressType == AddressType.SMS &&
                 na.FullAddress != null &&
-                na.FullAddress == phoneNumber &&
+                na.FullAddress == searchPhoneNumber &&
                 na.IsSoftDeleted != true))
             .Include(o => o.NotificationAddresses.Where(na =>
                 na.AddressType == AddressType.SMS &&

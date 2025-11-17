@@ -148,7 +148,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         SeedDatabase(organizations, notificationAddresses);
 
         // Act
-        var result = await _repository.GetOrganizationNotificationAddressesByPhoneNumberAsync("4798765433", CancellationToken.None);
+        var result = await _repository.GetOrganizationNotificationAddressesByPhoneNumberAsync("98765433", CancellationToken.None, "+47");
         var list = result.ToList();
 
         // Assert
@@ -170,7 +170,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         SeedDatabase(organizations, notificationAddresses);
         
         // Act
-        var result = await _repository.GetOrganizationNotificationAddressesByPhoneNumberAsync("+4744444444", CancellationToken.None);
+        var result = await _repository.GetOrganizationNotificationAddressesByPhoneNumberAsync("+4744444444", CancellationToken.None, "+47");
         var list = result.ToList();
         
         // Assert
