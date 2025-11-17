@@ -284,10 +284,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationNotificationAddressesByEmailAddressAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(_testdata.Where(o => o.NotificationAddresses != null && 
-                    o.NotificationAddresses.Any(n => n.FullAddress == emailAddress && 
-                    n.IsSoftDeleted != true && 
-                    n.HasRegistryAccepted != false)));
+                .ReturnsAsync(_testdata.Where(o => o.NotificationAddresses != null &&
+                    o.NotificationAddresses.Any(n => n.FullAddress == emailAddress)));
 
             HttpClient client = _factory.CreateClient();
 
