@@ -148,7 +148,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         SeedDatabase(organizations, notificationAddresses);
 
         // Act
-        var result = await _repository.GetOrganizationNotificationAddressesByPhoneNumberAsync("12345678", CancellationToken.None);
+        var result = await _repository.GetOrganizationNotificationAddressesByPhoneNumberAsync("4798765433", CancellationToken.None);
         var list = result.ToList();
 
         // Assert
@@ -159,7 +159,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         Assert.NotNull(returned.NotificationAddresses);
         Assert.Equal(2, returned.NotificationAddresses.Count);
         Assert.All(returned.NotificationAddresses, na => Assert.True(na.IsSoftDeleted != true));
-        Assert.Contains(returned.NotificationAddresses, na => na.AddressType == AddressType.Email && na.FullAddress == "test.email@test.no");
+        Assert.Contains(returned.NotificationAddresses, na => na.AddressType == AddressType.SMS && na.FullAddress == "4798765433");
     }
 
     [Fact]
@@ -170,7 +170,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         SeedDatabase(organizations, notificationAddresses);
         
         // Act
-        var result = await _repository.GetOrganizationNotificationAddressesByPhoneNumberAsync("doesnotexist@test.com", CancellationToken.None);
+        var result = await _repository.GetOrganizationNotificationAddressesByPhoneNumberAsync("+4744444444", CancellationToken.None);
         var list = result.ToList();
         
         // Assert

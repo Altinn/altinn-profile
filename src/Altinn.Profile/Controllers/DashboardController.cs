@@ -98,10 +98,10 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
-        /// Endpoint that can retrieve a list of all Notification Addresses for the given email address
+        /// Endpoint that can retrieve a list of all Notification Addresses for the given phone number
         /// </summary>
-        /// <returns>Returns the notification addresses for the provided email address</returns>                
-        [HttpGet("organizations/notificationaddresses/phone/{phoneNumber}")]
+        /// <returns>Returns the notification addresses for the provided phone number</returns>                
+        [HttpGet("organizations/notificationaddresses/phonenumber/{phoneNumber}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
