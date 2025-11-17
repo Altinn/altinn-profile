@@ -132,6 +132,12 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         {
             return await _orgRepository.GetOrganizationNotificationAddressesByPhoneNumberAsync(phoneNumber, cancellationToken);
         }
+        
+        /// <inheritdoc/>
+        public async Task<IEnumerable<Organization?>> GetOrganizationNotificationAddressesByEmailAddress(string emailAddress, CancellationToken cancellationToken)
+        {
+            return await _orgRepository.GetOrganizationNotificationAddressesByEmailAddressAsync(emailAddress, cancellationToken);
+        }
 
         private async Task<IEnumerable<Organization>> GetOrganizationsWithNotificationAddressesFromMainUnit(List<string> organizationNumbers, List<Organization> organizationList, CancellationToken cancellationToken)
         {
@@ -160,6 +166,6 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
             }
 
             return organizationList;
-        }
+        }        
     }
 }

@@ -193,6 +193,28 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         return foundOrganizations.Select(OrganizationMapper.MapFromDataEntity).Where(org => org != null)!;
     }
+    
+    /// <inheritdoc/>
+    public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        var emailLower = emailAddress?.ToLowerInvariant();
+
+        var foundOrganizations = await databaseContext.Organizations
+            .Where(o => o.NotificationAddresses.Any(na =>
+                na.AddressType == AddressType.Email &&
+                na.FullAddress != null &&
+                na.FullAddress.ToLower() == emailLower &&
+                na.IsSoftDeleted != true))
+            .Include(o => o.NotificationAddresses.Where(na =>
+                na.AddressType == AddressType.Email &&
+                na.FullAddress != null &&
+                na.IsSoftDeleted != true))
+            .ToListAsync(cancellationToken);
+
+        return foundOrganizations.Select(OrganizationMapper.MapFromDataEntity).Where(org => org != null)!;
+    }
 
     /// <inheritdoc/>
     public async Task<NotificationAddress> CreateNotificationAddressAsync(string organizationNumber, NotificationAddress notificationAddress, string registryId)

@@ -76,14 +76,14 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<DashboardNotificationAddressResponse>>> GetNotificationAddressesByEmailAddress([FromRoute] string phoneNumber, CancellationToken cancellationToken)
+        public async Task<ActionResult<List<DashboardNotificationAddressResponse>>> GetNotificationAddressesByEmailAddress([FromRoute] string emailAddress, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return ValidationProblem(ModelState);
             }
 
-            var organizations = await _notificationAddressService.GetOrganizationNotificationAddressesByPhoneNumber(phoneNumber, cancellationToken);
+            var organizations = await _notificationAddressService.GetOrganizationNotificationAddressesByEmailAddress(emailAddress, cancellationToken);
 
             var orgCount = organizations.Count();
 

@@ -310,6 +310,40 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
+        public async Task GetNotificationAddressesByEmailAddress_WhenFound_ReturnsOkWithAddresses()
+        {
+            // Arrange
+            string emailAddress = "test@test.com";
+
+            _factory.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationNotificationAddressesByEmailAddressAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.Where(o => o.NotificationAddresses != null && 
+                    o.NotificationAddresses.Any(n => n.FullAddress == emailAddress && 
+                    n.IsSoftDeleted != true && 
+                    n.HasRegistryAccepted != false)));
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/email/{emailAddress}");
+
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<List<DashboardNotificationAddressResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+
+            var emailItem = result.FirstOrDefault(a => a.Email != null);
+            Assert.NotNull(emailItem);
+            Assert.Equal(emailAddress, emailItem.Email);
+        }
+
+        [Fact]
         public async Task GetNotificationAddressesByPhone_WhenNotFound_ReturnsNotFound()
         {
             // Arrange
@@ -321,6 +355,23 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phone/{phoneNumber}");
+            var emailItem = result.FirstOrDefault(a => a.Email != null);
+            Assert.NotNull(emailItem);
+            Assert.Equal(emailAddress, emailItem.Email);
+        }
+
+        [Fact]
+        public async Task GetNotificationAddressesByEmailAddress_WhenNotFound_ReturnsNotFound()
+        {
+            // Arrange
+            string emailAddress = "missingtest@test.com";
+
+            _factory.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationNotificationAddressesByEmailAddressAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Enumerable.Empty<Organization>());
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/email/{emailAddress}");
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
             
             // Act
@@ -342,6 +393,17 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phone/{phoneNumber}");
+        public async Task GetNotificationAddressesByEmailAddress_WhenNoAccess_ReturnsForbidden()
+        {
+            // Arrange
+            string emailAddress = "noaccess@test.com";
+
+            _factory.OrganizationNotificationAddressRepositoryMock
+          .Setup(r => r.GetOrganizationNotificationAddressesByEmailAddressAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+          .ReturnsAsync(Enumerable.Empty<Organization>());
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/email/{emailAddress}");
             httpRequestMessage = GenerateTokenWithoutScope("any-org", httpRequestMessage);
 
             // Act

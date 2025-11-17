@@ -31,6 +31,14 @@ public interface IOrganizationNotificationAddressesService
     Task<IEnumerable<Organization>> GetOrganizationNotificationAddresses(List<string> organizationNumbers, CancellationToken cancellationToken, bool useAddressFromMainUnitIfEmpty = false);
 
     /// <summary>
+    /// Method for retrieving notification addresses filtered by email address.
+    /// </summary>
+    /// <param name="emailAddress">The email address to search for in notification addresses</param>
+    /// <param name="cancellationToken">To cancel the request before it is finished</param>
+    /// <returns>A collection of organizations that have notification addresses matching the specified email address.</returns>
+    Task<IEnumerable<Organization?>> GetOrganizationNotificationAddressesByEmailAddress(string emailAddress, CancellationToken cancellationToken);
+
+      /// <summary>
     /// Method for retrieving notification addresses filtered by phone number.
     /// </summary>
     /// <param name="phoneNumber">The phone number to search for in notification addresses</param>
