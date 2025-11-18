@@ -323,7 +323,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/email/{emailAddress}");
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
-
+            
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
 

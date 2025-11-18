@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Models;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -60,21 +62,14 @@ namespace Altinn.Profile.Controllers
                 return BadRequest("Party UUID cannot be empty.");
             }
 
-            var notificationAddress = await _professionalNotificationsService.GetNotificationAddressAsync(userId, partyUuid, cancellationToken);
+            var notificationSettings = await _professionalNotificationsService.GetNotificationAddressAsync(userId, partyUuid, cancellationToken);
 
-            if (notificationAddress == null)
+            if (notificationSettings == null)
             {
                 return NotFound("Notification addresses not found for the specified user and party.");
             }
 
-            var response = new NotificationSettingsResponse
-            {
-                UserId = notificationAddress.UserId,
-                PartyUuid = notificationAddress.PartyUuid,
-                EmailAddress = notificationAddress.EmailAddress,
-                PhoneNumber = notificationAddress.PhoneNumber,
-                ResourceIncludeList = notificationAddress.GetResourceIncludeList(),
-            };
+            var response = MapResponse(notificationSettings);
 
             return Ok(response);
         }
@@ -96,16 +91,9 @@ namespace Altinn.Profile.Controllers
                 return validationResult;
             }
 
-            var notificationAddresses = await _professionalNotificationsService.GetAllNotificationAddressesAsync(userId, cancellationToken);
+            var notificationSettings = await _professionalNotificationsService.GetAllNotificationAddressesAsync(userId, cancellationToken);
 
-            var response = notificationAddresses.Select(notificationAddress => new NotificationSettingsResponse
-            {
-                UserId = notificationAddress.UserId,
-                PartyUuid = notificationAddress.PartyUuid,
-                EmailAddress = notificationAddress.EmailAddress,
-                PhoneNumber = notificationAddress.PhoneNumber,
-                ResourceIncludeList = notificationAddress.GetResourceIncludeList(),
-            }).ToList();
+            var response = notificationSettings.Select(MapResponse).ToList();
 
             return Ok(response);
         }
@@ -198,6 +186,19 @@ namespace Altinn.Profile.Controllers
             }
 
             return Ok();
+        }
+
+        private NotificationSettingsResponse MapResponse(UserPartyContactInfo notificationAddress)
+        {
+            return new NotificationSettingsResponse
+            {
+                UserId = notificationAddress.UserId,
+                PartyUuid = notificationAddress.PartyUuid,
+                EmailAddress = notificationAddress.EmailAddress,
+                PhoneNumber = notificationAddress.PhoneNumber,
+                ResourceIncludeList = notificationAddress.GetResourceIncludeList(),
+                NeedsConfirmation = notificationAddress.NeedsConfirmation
+            };
         }
     }
 }

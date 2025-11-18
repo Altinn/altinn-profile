@@ -18,5 +18,10 @@ namespace Altinn.Profile.Models
         /// Id of the party
         /// </summary>
         public Guid PartyUuid { get; set; }
+
+        /// <summary>
+        /// An indication of whether the notification address needs confirmation from a user
+        /// </summary>
+        public bool NeedsConfirmation { get; set; }
     }
 }

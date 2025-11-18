@@ -1,1 +1,1 @@
-CREATE INDEX ix_phone_number ON organization_notification_address.notifications_address (full_address);
+CREATE INDEX ix_full_address ON organization_notification_address.notifications_address (full_address);
