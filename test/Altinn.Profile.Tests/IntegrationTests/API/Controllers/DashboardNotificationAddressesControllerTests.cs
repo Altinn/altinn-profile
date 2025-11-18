@@ -357,7 +357,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             string phoneNumber = "12345678";
-            var countryCode = "+47";
+            string countryCode = "+47";
 
             _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationNotificationAddressesByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>(), It.IsAny<string>()))
