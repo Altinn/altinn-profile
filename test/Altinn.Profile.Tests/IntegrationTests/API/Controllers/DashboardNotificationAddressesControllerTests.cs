@@ -356,17 +356,17 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task GetNotificationAddressesByPhoneNumber_WhenFound_ReturnsOkWithAddresses()
         {
             // Arrange
-            string phoneNumber = "12345678";
+            string phoneNumber = "98888888";
             string countryCode = "+47";
 
             _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationNotificationAddressesByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>(), It.IsAny<string>()))
                 .ReturnsAsync(_testdata.Where(o => o.NotificationAddresses != null &&
-                    o.NotificationAddresses.Any(n => n.FullAddress == phoneNumber)));
+                    o.NotificationAddresses.Any(n => n.Address == phoneNumber && n.Domain == countryCode)));
 
             HttpClient client = _factory.CreateClient();
 
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phone/{phoneNumber}/countryCode/{countryCode}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{phoneNumber}/countrycode/{countryCode}");
 
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
@@ -380,23 +380,24 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             Assert.NotNull(result);
 
-            // var phoneItem = result.FirstOrDefault(a => a.PhoneNumber != null);
-            // Assert.NotNull(phoneItem);
-            // Assert.Equal(phoneNumber, phoneItem.PhoneNumber);
+            var phoneItem = result.FirstOrDefault(a => a.Phone != null);
+            Assert.NotNull(phoneItem);
         }
 
         [Fact]
         public async Task GetNotificationAddressesByPhoneNumber_WhenNotFound_ReturnsNotFound()
         {
             // Arrange
-            string phoneNumber = "missingtest@test.com";
+            // Arrange
+            string phoneNumber = "98888889";
+            string countryCode = "+47";
 
             _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationNotificationAddressesByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>(), It.IsAny<string>()))
                 .ReturnsAsync(Enumerable.Empty<Organization>());
 
             HttpClient client = _factory.CreateClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phone/{phoneNumber}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{phoneNumber}/countrycode/{countryCode}");
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -411,13 +412,14 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             string phoneNumber = "noaccess@test.com";
+            string countryCode = "+47";
 
             _factory.OrganizationNotificationAddressRepositoryMock
           .Setup(r => r.GetOrganizationNotificationAddressesByEmailAddressAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(Enumerable.Empty<Organization>());
 
             HttpClient client = _factory.CreateClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phone/{phoneNumber}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{phoneNumber}/countrycode/{countryCode}");
             httpRequestMessage = GenerateTokenWithoutScope("any-org", httpRequestMessage);
 
             // Act

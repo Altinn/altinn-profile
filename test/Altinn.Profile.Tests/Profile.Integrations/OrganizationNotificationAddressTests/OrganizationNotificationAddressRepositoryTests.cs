@@ -154,12 +154,12 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         // Assert
         Assert.Single(list);
         var returned = list.Single();
-        Assert.Equal("123456789", returned.OrganizationNumber);
+        Assert.Equal("987654321", returned.OrganizationNumber);
 
         Assert.NotNull(returned.NotificationAddresses);
-        Assert.Equal(2, returned.NotificationAddresses.Count);
+        Assert.Single(returned.NotificationAddresses);
         Assert.All(returned.NotificationAddresses, na => Assert.True(na.IsSoftDeleted != true));
-        Assert.Contains(returned.NotificationAddresses, na => na.AddressType == AddressType.SMS && na.FullAddress == "4798765433");
+        Assert.Contains(returned.NotificationAddresses, na => na.AddressType == AddressType.SMS && na.FullAddress == "+4798765433");
     }
 
     [Fact]

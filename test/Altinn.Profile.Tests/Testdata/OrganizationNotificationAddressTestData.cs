@@ -120,36 +120,8 @@ public static class OrganizationNotificationAddressTestData
                 RegistryOrganizationId = 3,
                 NotificationAddressID = 6
             },
-            new()
-            {
-                AddressType = AddressType.SMS,
-                Address = "98765433",
-                Domain = "+47",
-                FullAddress = "+4798765433",
-                IsSoftDeleted = false,
-                HasRegistryAccepted = true,
-                UpdateSource = UpdateSource.Altinn,
-                RegistryUpdatedDateTime = DateTime.Now.AddDays(-20),
-                RegistryID = "27ae0c8bea1f4f02a974c10429c32758",
-                RegistryOrganizationId = 1,
-                NotificationAddressID = 7
-            },
-            new()
-            {
-                AddressType = AddressType.SMS,
-                Address = "98765433",
-                Domain = "+47",
-                FullAddress = "+4798765433",
-                IsSoftDeleted = false,
-                HasRegistryAccepted = true,
-                UpdateSource = UpdateSource.KoFuVi,
-                RegistryUpdatedDateTime = DateTime.Now.AddDays(-25),
-                RegistryID = "27ae0c8bea1f4f02a974c10429c32759",
-                RegistryOrganizationId = 2,
-                NotificationAddressID = 8
-            },
         };
-            
+       
         return (organizations, notificationAddresses);
     }
 }
