@@ -298,10 +298,9 @@ void Configure()
 
 void ConfigureWolverine(WebApplicationBuilder builder)
 {
-    PostgreSqlSettings? settings = builder.Configuration.GetSection("PostgreSQLSettings").Get<PostgreSqlSettings>()
-    ?? throw new ArgumentNullException(nameof(builder.Configuration), "Required PostgreSQLSettings is missing from application configuration");
+    PostgreSqlSettings settings = builder.Configuration.GetSection("PostgreSQLSettings").Get<PostgreSqlSettings>();
 
-    if (settings.EnableDBConnection)
+    if (settings.EnableDBConnection == true)
     {
         builder.UseWolverine(opts =>
         {
