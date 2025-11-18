@@ -96,14 +96,22 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
 
         builder.ConfigureServices(services =>
         {
-            // Override the Wolverine configuration in the application
-            // to run the application in "solo" mode for faster
-            // testing cold starts
-            services.RunWolverineInSoloMode();
+            var settings = services.BuildServiceProvider()
+                .GetRequiredService<IConfiguration>()
+                .GetSection("PostgreSQLSettings")
+                .Get<Integrations.Persistence.PostgreSqlSettings>();
 
-            // And just for completion, disable all Wolverine external 
-            // messaging transports
-            services.DisableAllExternalWolverineTransports();
+            if (settings?.EnableDBConnection == true)
+            {
+                // Override the Wolverine configuration in the application
+                // to run the application in "solo" mode for faster
+                // testing cold starts
+                services.RunWolverineInSoloMode();
+
+                // And just for completion, disable all Wolverine external 
+                // messaging transports
+                services.DisableAllExternalWolverineTransports();
+            }
 
             // Replace services with mocks or stubs
             services.AddSingleton<IPostConfigureOptions<JwtCookieOptions>, JwtCookiePostConfigureOptionsStub>();
