@@ -14,23 +14,6 @@ jobs:
     name: Build, test & analyze
     if: ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false) || github.event_name == 'push') && github.repository_owner == 'Altinn'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      checks: write
-    services:
-     postgres:
-       image: postgres:16@sha256:21f6013073bc6b92830a2129570e2f5ec42a6c734b5a985a41e83aa58f54c3c1
-       env:
-         POSTGRES_USER: platform_profile_admin
-         POSTGRES_PASSWORD: Password
-         POSTGRES_DB: profiledb
-       options: >-
-         --health-cmd pg_isready
-         --health-interval 10s
-         --health-timeout 5s
-         --health-retries 5
-       ports:
-         - 5432:5432
     steps:
       - name: Setup .NET
         uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5.0.0
@@ -45,13 +28,6 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Setup PostgreSQL
-        run: |
-            chmod +x dbsetup.sh
-            ./dbsetup.sh
-      - name: Restart database to enable config changes
-        run: |
-          docker restart $(docker ps -q)
       - name: Install SonarCloud scanners
         run: |
           dotnet tool install --global dotnet-sonarscanner
