@@ -24,6 +24,7 @@ using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Handlers;
 using Altinn.Profile.Integrations.Leases;
+using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.Repositories.A2Sync;
 using Altinn.Profile.Integrations.SblBridge;
@@ -297,26 +298,32 @@ void Configure()
 
 void ConfigureWolverine(WebApplicationBuilder builder)
 {
-    builder.UseWolverine(opts =>
+    PostgreSqlSettings? settings = builder.Configuration.GetSection("PostgreSQLSettings").Get<PostgreSqlSettings>()
+    ?? throw new ArgumentNullException(nameof(builder.Configuration), "Required PostgreSQLSettings is missing from application configuration");
+
+    if (settings.EnableDBConnection)
     {
-        var connStr = builder.Configuration.GetDatabaseConnectionString();
-        
-        // You'll need to independently tell Wolverine where and how to 
-        // store messages as part of the transactional inbox/outbox
-        opts.PersistMessagesWithPostgresql(connStr);
+        builder.UseWolverine(opts =>
+        {
+            var connStr = builder.Configuration.GetDatabaseConnectionString();
 
-        // Adding EF Core transactional middleware, saga support,
-        // and EF Core support for Wolverine storage operations
-        opts.UseEntityFrameworkCoreTransactions();
+            // You'll need to independently tell Wolverine where and how to 
+            // store messages as part of the transactional inbox/outbox
+            opts.PersistMessagesWithPostgresql(connStr);
 
-        opts.Policies.UseDurableLocalQueues();
+            // Adding EF Core transactional middleware, saga support,
+            // and EF Core support for Wolverine storage operations
+            opts.UseEntityFrameworkCoreTransactions();
 
-        opts.Discovery.IncludeAssembly(typeof(FavoriteAddedEventHandler).Assembly);
+            opts.Policies.UseDurableLocalQueues();
 
-        opts
-            .OnException<InternalServerErrorException>()
-            .RetryWithCooldown(50.Milliseconds(), 100.Milliseconds(), 250.Milliseconds());
-    });
+            opts.Discovery.IncludeAssembly(typeof(FavoriteAddedEventHandler).Assembly);
+
+            opts
+                .OnException<InternalServerErrorException>()
+                .RetryWithCooldown(50.Milliseconds(), 100.Milliseconds(), 250.Milliseconds());
+        });
+    }
 }
 
 void SetupImportJobs(IServiceCollection services, IConfiguration config)
