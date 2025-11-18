@@ -104,6 +104,43 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task GetOrganizationNotificationAddressByEmailAddress_WhenFound_ReturnsWithNotificationAddresses() 
+    { 
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        // Act
+        var result = await _repository.GetOrganizationNotificationAddressesByEmailAddressAsync("test.email@test.no", CancellationToken.None);
+        var list = result.ToList();
+
+        // Assert
+        Assert.Single(list);
+        var returned = list.Single();
+        Assert.Equal("123456789", returned.OrganizationNumber);
+
+        Assert.NotNull(returned.NotificationAddresses);
+        Assert.Equal(2, returned.NotificationAddresses.Count);
+        Assert.All(returned.NotificationAddresses, na => Assert.False(na.IsSoftDeleted));
+        Assert.Contains(returned.NotificationAddresses, na => na.AddressType == AddressType.Email && na.FullAddress == "test.email@test.no");
+    }
+
+    [Fact]
+    public async Task GetOrganizationNotificationAddressByEmailAddress_WhenNotFound_ReturnsEmptyList()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+        
+        // Act
+        var result = await _repository.GetOrganizationNotificationAddressesByEmailAddressAsync("doesnotexist@test.com", CancellationToken.None);
+        var list = result.ToList();
+        
+        // Assert
+        Assert.Empty(list);
+    }
+
+    [Fact]
     public async Task SyncNotificationAddressesAsync_WithProperData_ReturnsUpdatedRows()
     {
         // Arrange
