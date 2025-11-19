@@ -119,7 +119,7 @@ namespace Altinn.Profile.Controllers
             if (orgCount == 0)
             {
                 return NotFound();
-            }            
+            }
 
             var addresses = FilterAndMapAddresses(organizations);
 
