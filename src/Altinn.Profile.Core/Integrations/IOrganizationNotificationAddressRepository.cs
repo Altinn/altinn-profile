@@ -22,19 +22,11 @@ public interface IOrganizationNotificationAddressRepository
     /// <summary>
     /// Fetches notification addresses filtered by email address
     /// </summary>
-    /// <param name="emailAddress">The email address to search for in notification addresses</param>
+    /// <param name="fullAddress">The full address to search for in notification addresses</param>
+    /// <param name="addressType">The type of address to search for (e.g., Email, Phone)</param>
     /// <param name="cancellationToken">Cancellation token to cancel the operation</param>
     /// <returns>A <see cref="Task{TResult}"/> with a collection of organization notification addresses as value.</returns>
-    Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Fetches notification addresses filtered by phone number
-    /// </summary>
-    /// <param name="phoneNumber">The phone number to search for in notification addresses</param>
-    /// <param name="cancellationToken">Cancellation token to cancel the operation</param>
-    /// <param name="countryCode">The country code that can be used to search for in notification addresses</param>
-    /// <returns>A <see cref="Task{TResult}"/> with a collection of organization notification addresses as value.</returns>
-    Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByPhoneNumberAsync(string phoneNumber, CancellationToken cancellationToken, string countryCode);
+    Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByFullAddressAsync(string fullAddress, AddressType addressType, CancellationToken cancellationToken);
 
     /// <summary>
     /// Creates a new notification address for an organization

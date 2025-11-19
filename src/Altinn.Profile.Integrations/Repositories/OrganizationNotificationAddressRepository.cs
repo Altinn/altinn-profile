@@ -168,50 +168,24 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         return foundOrganizations.Select(OrganizationMapper.MapFromDataEntity).Where(org => org != null)!;
     }
-
-    /// <summary>
-    /// Gets organizations with notification addresses matching the specified phone number from the database
-    /// </summary>
-    /// <returns>
-    /// A task that represents the asynchronous operation.
-    /// </returns>
-    public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByPhoneNumberAsync(string phoneNumber, CancellationToken cancellationToken, string countryCode)
-    {
-        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
-
-        var searchPhoneNumber = string.Concat(countryCode, phoneNumber);
-
-        var foundOrganizations = await databaseContext.Organizations
-            .Where(o => o.NotificationAddresses.Any(na =>
-                na.AddressType == AddressType.SMS &&
-                na.FullAddress != null &&
-                na.FullAddress == searchPhoneNumber &&
-                na.IsSoftDeleted != true))
-            .Include(o => o.NotificationAddresses.Where(na =>
-                na.AddressType == AddressType.SMS &&
-                na.FullAddress != null &&
-                na.IsSoftDeleted != true))
-            .ToListAsync(cancellationToken);
-
-        return foundOrganizations.Select(OrganizationMapper.MapFromDataEntity).Where(org => org != null)!;
-    }
     
     /// <inheritdoc/>
-    public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken)
+    public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByFullAddressAsync(string fullAddress, AddressType addressType, CancellationToken cancellationToken)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var emailLower = emailAddress?.ToLowerInvariant();
+        var fullAddressLower = fullAddress?.ToLowerInvariant();
 
         var foundOrganizations = await databaseContext.Organizations
             .Where(o => o.NotificationAddresses.Any(na =>
-                na.AddressType == AddressType.Email &&
+                na.AddressType == addressType &&
                 na.FullAddress != null &&
-                na.FullAddress.ToLower() == emailLower &&
+                na.FullAddress.ToLower() == fullAddressLower &&
                 na.IsSoftDeleted != true))
             .Include(o => o.NotificationAddresses.Where(na =>
-                na.AddressType == AddressType.Email &&
+                na.AddressType == addressType &&
                 na.FullAddress != null &&
+                na.FullAddress.ToLower() == fullAddressLower &&
                 na.IsSoftDeleted != true))
             .ToListAsync(cancellationToken);
 
