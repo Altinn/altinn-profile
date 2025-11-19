@@ -111,7 +111,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         SeedDatabase(organizations, notificationAddresses);
 
         // Act
-        var result = await _repository.GetOrganizationNotificationAddressesByEmailAddressAsync("test.email@test.no", CancellationToken.None);
+        var result = await _repository.GetOrganizationNotificationAddressesByFullAddressAsync("test.email@test.no", AddressType.Email, CancellationToken.None);
         var list = result.ToList();
 
         // Assert
@@ -133,7 +133,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         SeedDatabase(organizations, notificationAddresses);
         
         // Act
-        var result = await _repository.GetOrganizationNotificationAddressesByEmailAddressAsync("doesnotexist@test.com", CancellationToken.None);
+        var result = await _repository.GetOrganizationNotificationAddressesByFullAddressAsync("doesnotexist@test.com", AddressType.Email, CancellationToken.None);
         var list = result.ToList();
         
         // Assert
@@ -148,7 +148,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         SeedDatabase(organizations, notificationAddresses);
 
         // Act
-        var result = await _repository.GetOrganizationNotificationAddressesByPhoneNumberAsync("98765433", CancellationToken.None, "+47");
+        var result = await _repository.GetOrganizationNotificationAddressesByFullAddressAsync("+4798765433", AddressType.SMS, CancellationToken.None);
         var list = result.ToList();
 
         // Assert
@@ -168,9 +168,9 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         // Arrange
         var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
         SeedDatabase(organizations, notificationAddresses);
-        
+
         // Act
-        var result = await _repository.GetOrganizationNotificationAddressesByPhoneNumberAsync("+4744444444", CancellationToken.None, "+47");
+        var result = await _repository.GetOrganizationNotificationAddressesByFullAddressAsync("+4799999991", AddressType.SMS, CancellationToken.None);
         var list = result.ToList();
         
         // Assert
