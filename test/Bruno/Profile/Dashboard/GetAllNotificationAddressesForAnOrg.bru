@@ -10,6 +10,52 @@ get {
   auth: inherit
 }
 
+docs {
+  # Get All Notification Addresses for an Organization
+
+  Retrieves all notification addresses (email and phone) registered for an organization in the external business registry.
+
+  ## Purpose
+
+  Used by the Support Dashboard to view contact information from the organization registry (Enhetsregisteret).
+
+  ## Authentication
+
+  Requires Dashboard Maskinporten scope: `altinn:profile.support.admin`
+
+  ## Parameters
+
+  - `organizationNumber` (path): 9-digit organization number
+
+  ## Response Example
+
+  ```json
+  [
+    {
+      "notificationAddressId": 1,
+      "countryCode": "+47",
+      "email": "contact@example.com",
+      "phone": "98765432",
+      "sourceOrgNumber": "123456789",
+      "requestedOrgNumber": "123456789",
+      "lastChanged": "2025-01-15T10:30:00Z"
+    }
+  ]
+  ```
+
+  ## Features
+
+  - Returns addresses from the business registry
+  - Can include addresses from parent organization if requested org has none
+  - Filters out soft-deleted and unaccepted addresses
+
+  ## Status Codes
+
+  - **200 OK**: Successfully retrieved notification addresses
+  - **403 Forbidden**: Missing required scope
+  - **404 Not Found**: Organization not found
+}
+
 script:pre-request {
   await bru.runRequest("TokenGenerator/Application Owner Profile scope")
 }

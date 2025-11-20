@@ -10,6 +10,61 @@ get {
   auth: inherit
 }
 
+docs {
+  # Get Notification Addresses by Email Address
+
+  Searches for all organizations that have registered a specific email address in the external business registry.
+
+  ## Purpose
+
+  Used by the Support Dashboard to find which organizations use a specific email address for notifications.
+
+  ## Authentication
+
+  Requires Dashboard Maskinporten scope: `altinn:profile.support.admin`
+
+  ## Parameters
+
+  - `emailAddress` (path): The email address to search for
+
+  ## Response Example
+
+  ```json
+  [
+    {
+      "notificationAddressId": 1,
+      "countryCode": "+47",
+      "email": "contact@example.com",
+      "phone": "98765432",
+      "sourceOrgNumber": "123456789",
+      "requestedOrgNumber": "123456789",
+      "lastChanged": "2025-01-15T10:30:00Z"
+    },
+    {
+      "notificationAddressId": 2,
+      "countryCode": "+47",
+      "email": "contact@example.com",
+      "phone": "87654321",
+      "sourceOrgNumber": "987654321",
+      "requestedOrgNumber": "987654321",
+      "lastChanged": "2025-01-14T09:15:00Z"
+    }
+  ]
+  ```
+
+  ## Features
+
+  - Case-insensitive email search
+  - Returns all organizations with matching email
+  - Can return multiple organizations
+
+  ## Status Codes
+
+  - **200 OK**: Successfully retrieved notification addresses
+  - **403 Forbidden**: Missing required scope
+  - **404 Not Found**: No organizations found with that email
+}
+
 script:pre-request {
   await bru.runRequest("TokenGenerator/Application Owner Profile scope")
 }
