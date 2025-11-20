@@ -1,0 +1,103 @@
+meta {
+  name: GetContactInformationByOrgNumber
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/{{Party_OrgNo}}/contactinformation
+  body: none
+  auth: inherit
+}
+
+docs {
+  # Get Contact Information by Organization Number
+
+  Retrieves personal contact information that users have registered for acting on behalf of a specific organization.
+
+  ## Purpose
+
+  Used by the Support Dashboard to view "Your contact information for organization" - this is **user-registered** contact data, NOT organization registry data.
+
+  ## Key Differences from Other Dashboard Endpoints
+
+  | Aspect | This Endpoint | Other Dashboard Endpoints |
+  |--------|---------------|---------------------------|
+  | Data Source | User-registered contact info | External business registry |
+  | Includes SSN/Name | ✅ Yes | ❌ No |
+  | User Count | Multiple users per org | N/A |
+  | Timestamp | One per user entry | Registry update time |
+
+  ## Authentication
+
+  Requires Dashboard Maskinporten scope: `altinn:profile.support.admin`
+
+  ## Parameters
+
+  - `organizationNumber` (path): 9-digit organization number
+
+  ## Response Example
+
+  ```json
+  [
+    {
+      "nationalIdentityNumber": "01010112345",
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "phone": "+4798765432",
+      "lastChanged": "2025-01-15T14:20:00Z"
+    },
+    {
+      "nationalIdentityNumber": "01010198765",
+      "name": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "phone": "+4787654321",
+      "lastChanged": "2025-01-10T11:30:00Z"
+    }
+  ]
+  ```
+
+  ## Features
+
+  - Returns all users who have registered contact info for the organization
+  - Each user can only have **one entry** per organization
+  - `lastChanged` applies to both email and phone (stored together)
+  - Empty array if organization exists but has no user contact info
+  - Skips users whose profiles cannot be retrieved
+
+  ## Status Codes
+
+  - **200 OK**: Successfully retrieved user contact information (may be empty array)
+  - **403 Forbidden**: Missing required scope
+  - **404 Not Found**: Organization number doesn't exist
+
+  ## Important Note
+
+  The `lastChanged` timestamp is the same for email and phone because each user can only register one contact information entry per organization, consisting of email and phone stored together.
+}
+
+script:pre-request {
+  await bru.runRequest("TokenGenerator/Application Owner Profile scope")
+}
+
+tests {
+  test("should return 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("should return an array", function() {
+    const body = res.getBody();
+    expect(body).to.be.an('array');
+  });
+
+  test("each contact should have required fields", function() {
+    const body = res.getBody();
+    if (body.length > 0) {
+      const contact = body[0];
+      expect(contact).to.have.property('nationalIdentityNumber');
+      expect(contact).to.have.property('name');
+      expect(contact).to.have.property('lastChanged');
+      // email and phone are optional
+    }
+  });
+}
