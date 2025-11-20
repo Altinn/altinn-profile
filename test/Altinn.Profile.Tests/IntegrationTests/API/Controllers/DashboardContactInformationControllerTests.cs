@@ -29,6 +29,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         private readonly JsonSerializerOptions _serializerOptions = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNameCaseInsensitive = true,
         };
 
         private readonly DateTime _testTime = new(2025, 1, 1, 12, 0, 0, DateTimeKind.Utc);
@@ -336,7 +337,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetContactInformationByOrgNumber_WhenUserPartyIsNull_ReturnsEmptyStrings()
+        public async Task GetContactInformationByOrgNumber_WhenUserPartyIsNull_SkipsUser()
         {
             // Arrange
             _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
@@ -346,7 +347,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 {
                     var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
                     userProfile.UserId = 1001;
-                    userProfile.Party = null; // Party is null
+                    userProfile.Party = null; // Party is null - should skip this user
                     return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
                 }
 
@@ -392,10 +393,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var result = JsonSerializer.Deserialize<List<DashboardUserContactInformationResponse>>(responseContent, _serializerOptions);
 
             Assert.NotNull(result);
-            Assert.Single(result);
-            Assert.Equal(string.Empty, result[0].NationalIdentityNumber); // Should be empty string
-            Assert.Equal(string.Empty, result[0].Name); // Should be empty string
-            Assert.Equal("user@example.com", result[0].Email);
+
+            // User with null Party should be skipped, resulting in empty array
+            Assert.Empty(result);
         }
 
         [Fact]

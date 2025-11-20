@@ -100,10 +100,10 @@ tests {
       expect(contact).to.have.property('lastChanged');
       expect(contact.lastChanged).to.be.a('string');
       // email and phone are optional but should be strings if present
-      if (contact.email !== null) {
+      if ('email' in contact && contact.email !== null) {
         expect(contact.email).to.be.a('string');
       }
-      if (contact.phone !== null) {
+      if ('phone' in contact && contact.phone !== null) {
         expect(contact.phone).to.be.a('string');
       }
     });

@@ -12,6 +12,7 @@ using Altinn.Profile.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Altinn.Profile.Controllers
 {
@@ -140,11 +141,13 @@ namespace Altinn.Profile.Controllers
     public class DashboardUserContactInformationController(
         IRegisterClient registerClient,
         IProfessionalNotificationsRepository professionalNotificationsRepository,
-        IUserProfileService userProfileService) : ControllerBase
+        IUserProfileService userProfileService,
+        ILogger<DashboardUserContactInformationController> logger) : ControllerBase
     {
         private readonly IRegisterClient _registerClient = registerClient;
         private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
         private readonly IUserProfileService _userProfileService = userProfileService;
+        private readonly ILogger<DashboardUserContactInformationController> _logger = logger;
 
         /// <summary>
         /// Endpoint that can retrieve a list of all user contact information for the given organization.
@@ -179,6 +182,7 @@ namespace Altinn.Profile.Controllers
 
             if (parties.Count > 1)
             {
+                _logger.LogWarning("Multiple parties found for organization number {OrganizationNumber}. Expected exactly one.", organizationNumber);
                 throw new InvalidOperationException("Multiple parties found for organization number");
             }
 
@@ -199,16 +203,26 @@ namespace Altinn.Profile.Controllers
                 userProfileResult.Match(
                     profile =>
                     {
+                        // Skip if Party data is missing (consistent with FilterAndMapAddresses pattern)
+                        if (profile.Party == null)
+                        {
+                            _logger.LogWarning("User profile for UserId {UserId} in organization {OrganizationNumber} has no Party data. Skipping user.", contactInfo.UserId, organizationNumber);
+                            return;
+                        }
+
                         responses.Add(new DashboardUserContactInformationResponse
                         {
-                            NationalIdentityNumber = profile.Party?.SSN ?? string.Empty,
-                            Name = profile.Party?.Name ?? string.Empty,
+                            NationalIdentityNumber = profile.Party.SSN ?? string.Empty,
+                            Name = profile.Party.Name ?? string.Empty,
                             Email = contactInfo.EmailAddress,
                             Phone = contactInfo.PhoneNumber,
                             LastChanged = contactInfo.LastChanged
                         });
                     },
-                    _ => { /* User profile not found - skip (consistent with FilterAndMapAddresses pattern) */ });
+                    _ =>
+                    {
+                        _logger.LogWarning("Failed to retrieve user profile for UserId {UserId} in organization {OrganizationNumber}. Skipping user.", contactInfo.UserId, organizationNumber);
+                    });
             }
 
             // Return 200 OK even if empty list (matches acceptance criteria)
