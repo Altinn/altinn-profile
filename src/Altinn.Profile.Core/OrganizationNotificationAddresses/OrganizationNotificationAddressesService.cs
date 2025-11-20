@@ -128,7 +128,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<Organization?>> GetOrganizationNotificationAddressesByPhoneNumber(string phoneNumber, CancellationToken cancellationToken, string countryCode)
+        public async Task<IEnumerable<Organization?>> GetOrganizationNotificationAddressesByPhoneNumber(string phoneNumber, string countryCode, CancellationToken cancellationToken)
         {
             var fullPhoneNumberWithCountryCode = string.Concat(countryCode, phoneNumber);
 

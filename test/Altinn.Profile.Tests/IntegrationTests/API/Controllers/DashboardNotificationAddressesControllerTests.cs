@@ -283,7 +283,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string emailAddress = "test@test.com";
 
             _factory.OrganizationNotificationAddressRepositoryMock
-                .Setup(r => r.GetOrganizationNotificationAddressesByFullAddressAsync(It.IsAny<string>(), It.IsAny<AddressType>(), It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetOrganizationNotificationAddressesByFullAddressAsync(emailAddress, AddressType.Email, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.Where(o => o.NotificationAddresses != null &&
                     o.NotificationAddresses.Any(n => n.FullAddress == emailAddress && n.AddressType == AddressType.Email)));
 
@@ -359,7 +359,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string fullPhoneNumber = string.Concat(countryCode, phoneNumber);
 
             _factory.OrganizationNotificationAddressRepositoryMock
-                .Setup(r => r.GetOrganizationNotificationAddressesByFullAddressAsync(It.IsAny<string>(), It.IsAny<AddressType>(), It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetOrganizationNotificationAddressesByFullAddressAsync(fullPhoneNumber, AddressType.SMS, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.Where(o => o.NotificationAddresses != null &&
                     o.NotificationAddresses.Any(n => n.FullAddress == fullPhoneNumber && n.AddressType == AddressType.SMS)));            
 
@@ -381,12 +381,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             var phoneItem = result.FirstOrDefault(a => a.Phone != null);
             Assert.NotNull(phoneItem);
+            Assert.Equal(phoneNumber, phoneItem.Phone);
+            Assert.Equal(countryCode, phoneItem.CountryCode);
         }
 
         [Fact]
         public async Task GetNotificationAddressesByPhoneNumber_WhenNotFound_ReturnsNotFound()
         {
-            // Arrange
             // Arrange
             string phoneNumber = "98888889";
             string countryCode = "+47";
@@ -410,7 +411,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task GetNotificationAddressesByPhoneNumber_WhenNoAccess_ReturnsForbidden()
         {
             // Arrange
-            string phoneNumber = "noaccess@test.com";
+            string phoneNumber = "91919191";
             string countryCode = "+47";
 
             _factory.OrganizationNotificationAddressRepositoryMock

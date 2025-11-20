@@ -57,7 +57,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         return await databaseContext.SaveChangesAsync();
     }
-
+    
     /// <summary>
     /// Updates or creates notification addresses in the DB for organizations
     /// </summary>
