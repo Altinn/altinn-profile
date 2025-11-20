@@ -128,6 +128,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(user2);
             Assert.Equal("Jane Smith", user2.Name);
             Assert.Equal("user2@example.com", user2.Email);
+            Assert.Equal("+4798765433", user2.Phone);
+            Assert.Equal(_testTime.AddDays(-1), user2.LastChanged);
         }
 
         [Fact]
@@ -215,7 +217,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/contactinformation");
-            httpRequestMessage = GenerateTokenWithoutScope(orgNumber, httpRequestMessage);
+            httpRequestMessage = CreateAuthorizedRequestWithoutScope(httpRequestMessage);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
@@ -300,6 +302,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Single(result);
             Assert.Equal("01010112345", result[0].NationalIdentityNumber);
             Assert.Equal("John Doe", result[0].Name);
+            Assert.Equal("user1@example.com", result[0].Email);
+            Assert.Equal("+4798765432", result[0].Phone);
+            Assert.Equal(_testTime, result[0].LastChanged);
         }
 
         [Fact]
@@ -582,17 +587,17 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(string.Empty, result[0].Name); // Name should be empty
         }
 
-        private static HttpRequestMessage GenerateTokenWithoutScope(string orgNumber, HttpRequestMessage httpRequestMessage)
+        private static HttpRequestMessage CreateAuthorizedRequestWithoutScope(HttpRequestMessage httpRequestMessage, string org = "ttd")
         {
-            string token = PrincipalUtil.GetOrgToken(orgNumber);
+            string token = PrincipalUtil.GetOrgToken(org);
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             return httpRequestMessage;
         }
 
-        private static HttpRequestMessage CreateAuthorizedRequestWithScope(HttpRequestMessage httpRequestMessage)
+        private static HttpRequestMessage CreateAuthorizedRequestWithScope(HttpRequestMessage httpRequestMessage, string org = "ttd")
         {
-            string token = PrincipalUtil.GetOrgToken("ttd", scope: "altinn:profile.support.admin");
+            string token = PrincipalUtil.GetOrgToken(org, scope: "altinn:profile.support.admin");
 
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
