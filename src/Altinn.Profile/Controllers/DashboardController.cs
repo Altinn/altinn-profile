@@ -153,10 +153,13 @@ namespace Altinn.Profile.Controllers
         /// <param name="organizationNumber">The organization number to retrieve contact information for</param>
         /// <param name="cancellationToken">Cancellation token for the operation</param>
         /// <returns>Returns the user contact information for the provided organization</returns>
+        /// <response code="200">Successfully retrieved user contact information. Returns an array of contacts (may be empty if organization exists but has no user contact info).</response>
+        /// <response code="403">Caller does not have the required Dashboard Maskinporten scope (altinn:profile.support.admin).</response>
+        /// <response code="404">Organization number not found in the registry.</response>
         [HttpGet("organizations/{organizationNumber}/contactinformation")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(List<DashboardUserContactInformationResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<DashboardUserContactInformationResponse>>> GetContactInformationByOrgNumber(
             [FromRoute] string organizationNumber,
             CancellationToken cancellationToken)
