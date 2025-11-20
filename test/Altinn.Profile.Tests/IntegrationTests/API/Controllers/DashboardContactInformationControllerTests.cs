@@ -1,0 +1,326 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Altinn.Profile.Core;
+using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Models;
+using Altinn.Profile.Tests.IntegrationTests.Utils;
+
+using Moq;
+
+using Xunit;
+
+using RegisterParty = Altinn.Profile.Core.Unit.ContactPoints.Party;
+
+namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
+{
+    public class DashboardContactInformationControllerTests : IClassFixture<ProfileWebApplicationFactory<Program>>
+    {
+        private readonly ProfileWebApplicationFactory<Program> _factory;
+
+        private readonly JsonSerializerOptions _serializerOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        };
+
+        private readonly DateTime _testTime = new DateTime(2025, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+
+        public DashboardContactInformationControllerTests(ProfileWebApplicationFactory<Program> factory)
+        {
+            _factory = factory;
+            _factory.RegisterClientMock.Reset();
+            _factory.ProfessionalNotificationsRepositoryMock.Reset();
+            _factory.UserProfileServiceMock.Reset();
+        }
+
+        [Fact]
+        public async Task GetContactInformationByOrgNumber_WhenMultipleUsersExist_ReturnsOkWithAllUsers()
+        {
+            // Arrange
+            string orgNumber = "123456789";
+            Guid partyUuid = Guid.NewGuid();
+
+            // Mock Register Client - translate org number to party UUID
+            var parties = new List<RegisterParty>
+            {
+                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
+            };
+            _factory.RegisterClientMock
+                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((IReadOnlyList<RegisterParty>)parties);
+
+            // Mock ProfessionalNotificationsRepository - return contact info for multiple users
+            var contactInfos = new List<UserPartyContactInfo>
+            {
+                new()
+                {
+                    UserId = 1001,
+                    PartyUuid = partyUuid,
+                    EmailAddress = "user1@example.com",
+                    PhoneNumber = "+4798765432",
+                    LastChanged = _testTime
+                },
+                new()
+                {
+                    UserId = 1002,
+                    PartyUuid = partyUuid,
+                    EmailAddress = "user2@example.com",
+                    PhoneNumber = "+4798765433",
+                    LastChanged = _testTime.AddDays(-1)
+                }
+            };
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(r => r.GetAllNotificationAddressesForPartyAsync(partyUuid, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(contactInfos);
+
+            // Mock UserProfileService - return user profiles with SSN and name
+            var userProfile1 = new UserProfile
+            {
+                UserId = 1001,
+                Party = new Altinn.Register.Contracts.V1.Party
+                {
+                    SSN = "01010112345",
+                    Name = "John Doe"
+                }
+            };
+            var userProfile2 = new UserProfile
+            {
+                UserId = 1002,
+                Party = new Altinn.Register.Contracts.V1.Party
+                {
+                    SSN = "01010198765",
+                    Name = "Jane Smith"
+                }
+            };
+
+            _factory.UserProfileServiceMock
+                .Setup(u => u.GetUser(1001))
+                .ReturnsAsync(userProfile1);
+            _factory.UserProfileServiceMock
+                .Setup(u => u.GetUser(1002))
+                .ReturnsAsync(userProfile2);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/contactinformation");
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<List<DashboardUserContactInformationResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+
+            var user1 = result.FirstOrDefault(u => u.NationalIdentityNumber == "01010112345");
+            Assert.NotNull(user1);
+            Assert.Equal("John Doe", user1.Name);
+            Assert.Equal("user1@example.com", user1.Email);
+            Assert.Equal("+4798765432", user1.Phone);
+            Assert.Equal(_testTime, user1.LastChanged);
+
+            var user2 = result.FirstOrDefault(u => u.NationalIdentityNumber == "01010198765");
+            Assert.NotNull(user2);
+            Assert.Equal("Jane Smith", user2.Name);
+            Assert.Equal("user2@example.com", user2.Email);
+        }
+
+        [Fact]
+        public async Task GetContactInformationByOrgNumber_WhenOrgHasNoContactInfo_ReturnsEmptyList()
+        {
+            // Arrange
+            string orgNumber = "987654321";
+            Guid partyUuid = Guid.NewGuid();
+
+            var parties = new List<RegisterParty>
+            {
+                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
+            };
+            _factory.RegisterClientMock
+                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((IReadOnlyList<RegisterParty>)parties);
+
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(r => r.GetAllNotificationAddressesForPartyAsync(partyUuid, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<UserPartyContactInfo>());
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/contactinformation");
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<List<DashboardUserContactInformationResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetContactInformationByOrgNumber_WhenOrgNotFound_ReturnsNotFound()
+        {
+            // Arrange
+            string orgNumber = "999999999";
+
+            _factory.RegisterClientMock
+                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((IReadOnlyList<RegisterParty>)null);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/contactinformation");
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetContactInformationByOrgNumber_WhenOrgNotFoundEmptyList_ReturnsNotFound()
+        {
+            // Arrange
+            string orgNumber = "888888888";
+
+            _factory.RegisterClientMock
+                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<RegisterParty>());
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/contactinformation");
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetContactInformationByOrgNumber_WhenNoAccess_ReturnsForbidden()
+        {
+            // Arrange
+            string orgNumber = "123456789";
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/contactinformation");
+            httpRequestMessage = GenerateTokenWithoutScope(orgNumber, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetContactInformationByOrgNumber_WhenUserProfileNotFound_SkipsUser()
+        {
+            // Arrange
+            string orgNumber = "111222333";
+            Guid partyUuid = Guid.NewGuid();
+
+            var parties = new List<RegisterParty>
+            {
+                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
+            };
+            _factory.RegisterClientMock
+                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((IReadOnlyList<RegisterParty>)parties);
+
+            var contactInfos = new List<UserPartyContactInfo>
+            {
+                new()
+                {
+                    UserId = 1001,
+                    PartyUuid = partyUuid,
+                    EmailAddress = "user1@example.com",
+                    PhoneNumber = "+4798765432",
+                    LastChanged = _testTime
+                },
+                new()
+                {
+                    UserId = 1002,  // This user will fail to load
+                    PartyUuid = partyUuid,
+                    EmailAddress = "user2@example.com",
+                    PhoneNumber = "+4798765433",
+                    LastChanged = _testTime
+                }
+            };
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(r => r.GetAllNotificationAddressesForPartyAsync(partyUuid, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(contactInfos);
+
+            var userProfile1 = new UserProfile
+            {
+                UserId = 1001,
+                Party = new Altinn.Register.Contracts.V1.Party
+                {
+                    SSN = "01010112345",
+                    Name = "John Doe"
+                }
+            };
+
+            _factory.UserProfileServiceMock
+                .Setup(u => u.GetUser(1001))
+                .ReturnsAsync(userProfile1);
+
+            // User 1002 returns error (simulating user not found)
+            _factory.UserProfileServiceMock
+                .Setup(u => u.GetUser(1002))
+                .ReturnsAsync(false);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/contactinformation");
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<List<DashboardUserContactInformationResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+
+            // Only user 1001 should be in the result (user 1002 was skipped)
+            Assert.Single(result);
+            Assert.Equal("01010112345", result[0].NationalIdentityNumber);
+            Assert.Equal("John Doe", result[0].Name);
+        }
+
+        private static HttpRequestMessage GenerateTokenWithoutScope(string orgNumber, HttpRequestMessage httpRequestMessage)
+        {
+            string token = PrincipalUtil.GetOrgToken(orgNumber);
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            return httpRequestMessage;
+        }
+
+        private static HttpRequestMessage CreateAuthorizedRequestWithScope(HttpRequestMessage httpRequestMessage)
+        {
+            string token = PrincipalUtil.GetOrgToken("ttd", scope: "altinn:profile.support.admin");
+
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            return httpRequestMessage;
+        }
+    }
+}
