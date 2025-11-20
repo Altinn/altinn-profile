@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Authorization;
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
+using Altinn.Profile.Core.User;
 using Altinn.Profile.Mappers;
 using Altinn.Profile.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +16,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Altinn.Profile.Controllers
 {
     /// <summary>
-    /// Controller for organization notifications address API endpoints for external usage
+    /// Controller for organization notification addresses from the external registry.
+    /// Used by the Support Dashboard to retrieve notification addresses registered in the business registry.
     /// </summary>
     /// <remarks>
     /// Initializes a new instance of the <see cref="DashboardController"/> class.
@@ -120,6 +123,92 @@ namespace Altinn.Profile.Controllers
             }
 
             return allAddresses;
+        }
+    }
+
+    /// <summary>
+    /// Controller for user contact information registered for organizations.
+    /// Used by the Support Dashboard to retrieve personal contact details that users have registered for acting on behalf of organizations.
+    /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="DashboardUserContactInformationController"/> class.
+    /// </remarks>
+    [Authorize(Policy = AuthConstants.SupportDashboardAccess)]
+    [Route("profile/api/v1/dashboard")]
+    [Consumes("application/json")]
+    [Produces("application/json")]
+    public class DashboardUserContactInformationController(
+        IRegisterClient registerClient,
+        IProfessionalNotificationsRepository professionalNotificationsRepository,
+        IUserProfileService userProfileService) : ControllerBase
+    {
+        private readonly IRegisterClient _registerClient = registerClient;
+        private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
+        private readonly IUserProfileService _userProfileService = userProfileService;
+
+        /// <summary>
+        /// Endpoint that can retrieve a list of all user contact information for the given organization.
+        /// Returns the contact details that users have registered for acting on behalf of this organization.
+        /// </summary>
+        /// <param name="organizationNumber">The organization number to retrieve contact information for</param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        /// <returns>Returns the user contact information for the provided organization</returns>
+        [HttpGet("organizations/{organizationNumber}/contactinformation")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<DashboardUserContactInformationResponse>>> GetContactInformationByOrgNumber(
+            [FromRoute] string organizationNumber,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            // Step 1: Translate orgNumber to partyUuid
+            var parties = await _registerClient.GetPartyUuids(new[] { organizationNumber }, cancellationToken);
+
+            if (parties == null || parties.Count == 0)
+            {
+                return NotFound();
+            }
+
+            if (parties.Count > 1)
+            {
+                throw new InvalidOperationException("Multiple parties found for organization number");
+            }
+
+            var partyUuid = parties[0].PartyUuid;
+
+            // Step 2: Get all user contact info for this party
+            var contactInfos = await _professionalNotificationsRepository
+                .GetAllNotificationAddressesForPartyAsync(partyUuid, cancellationToken);
+
+            // Step 3: Map to response - get user profiles and extract SSN/name
+            var responses = new List<DashboardUserContactInformationResponse>();
+
+            foreach (var contactInfo in contactInfos)
+            {
+                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId);
+
+                userProfileResult.Match(
+                    profile =>
+                    {
+                        responses.Add(new DashboardUserContactInformationResponse
+                        {
+                            NationalIdentityNumber = profile.Party?.SSN ?? string.Empty,
+                            Name = profile.Party?.Name ?? string.Empty,
+                            Email = contactInfo.EmailAddress,
+                            Phone = contactInfo.PhoneNumber,
+                            LastChanged = contactInfo.LastChanged
+                        });
+                    },
+                    _ => { /* User profile not found - skip (consistent with FilterAndMapAddresses pattern) */ });
+            }
+
+            // Return 200 OK even if empty list (matches acceptance criteria)
+            return Ok(responses);
         }
     }
 }
