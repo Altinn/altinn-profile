@@ -121,7 +121,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
 
         Assert.NotNull(returned.NotificationAddresses);
         Assert.Equal(2, returned.NotificationAddresses.Count);
-        Assert.All(returned.NotificationAddresses, na => Assert.True(na.IsSoftDeleted != true));
+        Assert.All(returned.NotificationAddresses, na => Assert.False(na.IsSoftDeleted));
         Assert.Contains(returned.NotificationAddresses, na => na.AddressType == AddressType.Email && na.FullAddress == "test.email@test.no");
     }
 
@@ -158,7 +158,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
 
         Assert.NotNull(returned.NotificationAddresses);
         Assert.Single(returned.NotificationAddresses);
-        Assert.All(returned.NotificationAddresses, na => Assert.True(na.IsSoftDeleted != true));
+        Assert.All(returned.NotificationAddresses, na => Assert.False(na.IsSoftDeleted));
         Assert.Contains(returned.NotificationAddresses, na => na.AddressType == AddressType.SMS && na.FullAddress == "+4798765433");
     }
 
