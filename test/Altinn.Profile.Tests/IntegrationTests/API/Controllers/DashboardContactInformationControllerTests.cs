@@ -37,8 +37,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             _factory = factory;
             _factory.MemoryCache.Clear();
-            _factory.RegisterClientMock.Reset();
-            _factory.ProfessionalNotificationsRepositoryMock.Reset();
         }
 
         [Fact]
