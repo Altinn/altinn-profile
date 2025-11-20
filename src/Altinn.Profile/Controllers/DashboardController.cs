@@ -183,13 +183,14 @@ namespace Altinn.Profile.Controllers
 
             // Step 2: Get all user contact info for this party
             var contactInfos = await _professionalNotificationsRepository
-                .GetAllNotificationAddressesForPartyAsync(partyUuid, cancellationToken);
+                .GetAllNotificationAddressesForPartyAsync(partyUuid, cancellationToken) ?? [];
 
             // Step 3: Map to response - get user profiles and extract SSN/name
             var responses = new List<DashboardUserContactInformationResponse>();
 
             foreach (var contactInfo in contactInfos)
             {
+                // Note: IUserProfileService.GetUser does not support cancellation token at this time
                 var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId);
 
                 userProfileResult.Match(

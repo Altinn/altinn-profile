@@ -35,6 +35,7 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// Gets or sets the timestamp when this contact information was last changed.
         /// This timestamp applies to both email and phone number as they are stored together.
+        /// Timestamps are stored and returned in UTC.
         /// </summary>
         public DateTime LastChanged { get; set; }
     }
