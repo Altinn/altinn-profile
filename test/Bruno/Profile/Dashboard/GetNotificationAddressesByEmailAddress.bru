@@ -58,6 +58,13 @@ docs {
   - Returns all organizations with matching email
   - Can return multiple organizations
 
+  ## Field Explanation
+
+  - **sourceOrgNumber**: The organization where this address is actually registered (owner of the data)
+  - **requestedOrgNumber**: The organization number you requested (may inherit from parent if no direct registration)
+
+  In most cases these are the same, but they differ when a child organization inherits contact information from its parent.
+
   ## Status Codes
 
   - **200 OK**: Successfully retrieved notification addresses

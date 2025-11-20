@@ -51,9 +51,9 @@ docs {
 
   ## Status Codes
 
-  - **200 OK**: Successfully retrieved notification addresses
+  - **200 OK**: Successfully retrieved notification addresses (may be empty array if organization exists but has no addresses)
   - **403 Forbidden**: Missing required scope
-  - **404 Not Found**: Organization not found
+  - **404 Not Found**: Organization number doesn't exist in the registry
 }
 
 script:pre-request {
