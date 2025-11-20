@@ -4,14 +4,15 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Altinn.Profile.Core;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
+using Altinn.Profile.Tests.Testdata;
 
 using Moq;
 
@@ -35,15 +36,38 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public DashboardContactInformationControllerTests(ProfileWebApplicationFactory<Program> factory)
         {
             _factory = factory;
+            _factory.MemoryCache.Clear();
             _factory.RegisterClientMock.Reset();
             _factory.ProfessionalNotificationsRepositoryMock.Reset();
-            _factory.UserProfileServiceMock.Reset();
         }
 
         [Fact]
         public async Task GetContactInformationByOrgNumber_WhenMultipleUsersExist_ReturnsOkWithAllUsers()
         {
             // Arrange
+            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+            {
+                string uri = request.RequestUri?.ToString() ?? string.Empty;
+                if (uri.Contains("/users/1001"))
+                {
+                    var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
+                    userProfile.UserId = 1001;
+                    userProfile.Party.SSN = "01010112345";
+                    userProfile.Party.Name = "John Doe";
+                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
+                }
+                else if (uri.Contains("/users/1002"))
+                {
+                    var userProfile = await TestDataLoader.Load<UserProfile>("2001607");
+                    userProfile.UserId = 1002;
+                    userProfile.Party.SSN = "01010198765";
+                    userProfile.Party.Name = "Jane Smith";
+                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
+                }
+
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            });
+
             string orgNumber = "123456789";
             Guid partyUuid = Guid.NewGuid();
 
@@ -79,33 +103,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(r => r.GetAllNotificationAddressesForPartyAsync(partyUuid, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(contactInfos);
-
-            // Mock UserProfileService - return user profiles with SSN and name
-            var userProfile1 = new UserProfile
-            {
-                UserId = 1001,
-                Party = new Altinn.Register.Contracts.V1.Party
-                {
-                    SSN = "01010112345",
-                    Name = "John Doe"
-                }
-            };
-            var userProfile2 = new UserProfile
-            {
-                UserId = 1002,
-                Party = new Altinn.Register.Contracts.V1.Party
-                {
-                    SSN = "01010198765",
-                    Name = "Jane Smith"
-                }
-            };
-
-            _factory.UserProfileServiceMock
-                .Setup(u => u.GetUser(1001))
-                .ReturnsAsync(userProfile1);
-            _factory.UserProfileServiceMock
-                .Setup(u => u.GetUser(1002))
-                .ReturnsAsync(userProfile2);
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/contactinformation");
@@ -233,6 +230,26 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task GetContactInformationByOrgNumber_WhenUserProfileNotFound_SkipsUser()
         {
             // Arrange
+            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+            {
+                string uri = request.RequestUri?.ToString() ?? string.Empty;
+                if (uri.Contains("/users/1001"))
+                {
+                    var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
+                    userProfile.UserId = 1001;
+                    userProfile.Party.SSN = "01010112345";
+                    userProfile.Party.Name = "John Doe";
+                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
+                }
+                else if (uri.Contains("/users/1002"))
+                {
+                    // User 1002 returns 404 (not found)
+                    return new HttpResponseMessage(HttpStatusCode.NotFound);
+                }
+
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            });
+
             string orgNumber = "111222333";
             Guid partyUuid = Guid.NewGuid();
 
@@ -266,25 +283,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(r => r.GetAllNotificationAddressesForPartyAsync(partyUuid, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(contactInfos);
-
-            var userProfile1 = new UserProfile
-            {
-                UserId = 1001,
-                Party = new Altinn.Register.Contracts.V1.Party
-                {
-                    SSN = "01010112345",
-                    Name = "John Doe"
-                }
-            };
-
-            _factory.UserProfileServiceMock
-                .Setup(u => u.GetUser(1001))
-                .ReturnsAsync(userProfile1);
-
-            // User 1002 returns error (simulating user not found)
-            _factory.UserProfileServiceMock
-                .Setup(u => u.GetUser(1002))
-                .ReturnsAsync(false);
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/contactinformation");

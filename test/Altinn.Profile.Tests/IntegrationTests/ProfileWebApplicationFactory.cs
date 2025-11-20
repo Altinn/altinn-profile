@@ -63,8 +63,6 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
 
     public Mock<IRegisterClient> RegisterClientMock { get; set; } = new();
 
-    public Mock<IUserProfileService> UserProfileServiceMock { get; set; } = new();
-
     public Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> MessageHandlerFunc { get; set; } =
         (request, cancellationToken) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
 
@@ -131,7 +129,6 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
             services.AddSingleton(PartyGroupRepositoryMock.Object);
             services.AddSingleton(ProfessionalNotificationsRepositoryMock.Object);
             services.AddSingleton(RegisterClientMock.Object);
-            services.AddSingleton(UserProfileServiceMock.Object);
             services.AddSingleton(ProfileSettingsRepositoryMock.Object);
             services.AddSingleton(sp =>
             {
