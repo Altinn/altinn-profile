@@ -4,15 +4,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Authorization;
-using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
-using Altinn.Profile.Core.User;
+using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Mappers;
 using Altinn.Profile.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Altinn.Profile.Controllers
 {
@@ -139,22 +137,9 @@ namespace Altinn.Profile.Controllers
     [Consumes("application/json")]
     [Produces("application/json")]
     public class DashboardUserContactInformationController(
-        IRegisterClient registerClient,
-        IProfessionalNotificationsRepository professionalNotificationsRepository,
-        IUserProfileService userProfileService,
-        ILogger<DashboardUserContactInformationController> logger) : ControllerBase
+        IProfessionalNotificationsService professionalNotificationsService) : ControllerBase
     {
-        private readonly IRegisterClient _registerClient = registerClient;
-        private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
-        private readonly IUserProfileService _userProfileService = userProfileService;
-        private readonly ILogger<DashboardUserContactInformationController> _logger = logger;
-
-        /// <summary>
-        /// Sanitizes user-supplied strings before logging to prevent log forging attacks.
-        /// Removes newline characters that could be used to inject fake log entries.
-        /// </summary>
-        private static string SanitizeForLog(string value) =>
-            value?.Replace("\r", string.Empty).Replace("\n", string.Empty) ?? string.Empty;
+        private readonly IProfessionalNotificationsService _professionalNotificationsService = professionalNotificationsService;
 
         /// <summary>
         /// Endpoint that can retrieve a list of all user contact information for the given organization.
@@ -176,74 +161,30 @@ namespace Altinn.Profile.Controllers
             [FromRoute] string organizationNumber,
             CancellationToken cancellationToken)
         {
-            // Pre-sanitize organization number for logging to prevent log forging
-            var safeOrganizationNumber = SanitizeForLog(organizationNumber);
-
             if (!ModelState.IsValid)
             {
                 return ValidationProblem(ModelState);
             }
 
-            // Step 1: Translate orgNumber to partyUuid
-            var parties = await _registerClient.GetPartyUuids([organizationNumber], cancellationToken);
+            // Delegate business logic to service layer
+            var contactInfos = await _professionalNotificationsService
+                .GetContactInformationByOrganizationNumberAsync(organizationNumber, cancellationToken);
 
-            if (parties == null || parties.Count == 0)
+            if (contactInfos == null)
             {
                 return NotFound();
             }
 
-            if (parties.Count > 1)
+            // Map domain models to response DTOs
+            var responses = contactInfos.Select(c => new DashboardUserContactInformationResponse
             {
-                _logger.LogWarning("Multiple parties found for organization number {OrganizationNumber}. Expected exactly one.", safeOrganizationNumber);
-                throw new InvalidOperationException("Indecisive organization result");
-            }
+                NationalIdentityNumber = c.NationalIdentityNumber,
+                Name = c.Name,
+                Email = c.EmailAddress,
+                Phone = c.PhoneNumber,
+                LastChanged = c.LastChanged
+            }).ToList();
 
-            var partyUuid = parties[0].PartyUuid;
-
-            // Step 2: Get all user contact info for this party
-            var contactInfos = await _professionalNotificationsRepository
-                .GetAllNotificationAddressesForPartyAsync(partyUuid, cancellationToken) ?? [];
-
-            // Step 3: Map to response - get user profiles and extract SSN/name
-            var responses = new List<DashboardUserContactInformationResponse>();
-
-            // Sequential execution is acceptable here because:
-            // 1. This is a Support Dashboard endpoint (low traffic, not high-throughput)
-            // 2. Expected cardinality is small (typically few users per organization)
-            // 3. IUserProfileService.GetUser only supports individual lookups (no batch API for userId)
-            foreach (var contactInfo in contactInfos)
-            {
-                // Note: IUserProfileService.GetUser does not support cancellation token at this time
-                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId);
-
-                userProfileResult.Match(
-                    profile =>
-                    {
-                        // Skip if Party data is missing or incomplete (consistent with FilterAndMapAddresses pattern)
-                        if (profile.Party == null
-                            || string.IsNullOrEmpty(profile.Party.SSN)
-                            || string.IsNullOrEmpty(profile.Party.Name))
-                        {
-                            _logger.LogWarning("User profile for UserId {UserId} in organization {OrganizationNumber} has incomplete Party data. Skipping user.", contactInfo.UserId, safeOrganizationNumber);
-                            return;
-                        }
-
-                        responses.Add(new DashboardUserContactInformationResponse
-                        {
-                            NationalIdentityNumber = profile.Party.SSN,
-                            Name = profile.Party.Name,
-                            Email = contactInfo.EmailAddress,
-                            Phone = contactInfo.PhoneNumber,
-                            LastChanged = contactInfo.LastChanged
-                        });
-                    },
-                    _ =>
-                    {
-                        _logger.LogWarning("Failed to retrieve user profile for UserId {UserId} in organization {OrganizationNumber}. Skipping user.", contactInfo.UserId, safeOrganizationNumber);
-                    });
-            }
-
-            // Return 200 OK even if empty list (matches acceptance criteria)
             return Ok(responses);
         }
     }

@@ -2,6 +2,7 @@
 using Altinn.Profile.Core.User;
 using Altinn.Profile.Core.User.ProfileSettings;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
@@ -14,12 +15,16 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         IUserProfileClient userProfileClient,
         INotificationsClient notificationsClient,
         IUserProfileService userProfileService,
+        IRegisterClient registerClient,
+        ILogger<ProfessionalNotificationsService> logger,
         IOptions<AddressMaintenanceSettings> addressMaintenanceSettings) : IProfessionalNotificationsService
     {
         private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
         private readonly IUserProfileClient _userProfileClient = userProfileClient;
         private readonly IUserProfileService _userProfileService = userProfileService;
         private readonly INotificationsClient _notificationsClient = notificationsClient;
+        private readonly IRegisterClient _registerClient = registerClient;
+        private readonly ILogger<ProfessionalNotificationsService> _logger = logger;
         private readonly AddressMaintenanceSettings _addressMaintenanceSettings = addressMaintenanceSettings.Value;
 
         /// <inheritdoc/>
@@ -103,6 +108,81 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         {
             return _professionalNotificationsRepository.DeleteNotificationAddressAsync(userId, partyUuid, cancellationToken);
         }
+
+        /// <inheritdoc/>
+        public async Task<List<UserPartyContactInfoWithIdentity>?> GetContactInformationByOrganizationNumberAsync(string organizationNumber, CancellationToken cancellationToken)
+        {
+            // Sanitize organization number for logging to prevent log forging
+            var safeOrganizationNumber = SanitizeForLog(organizationNumber);
+
+            // Step 1: Translate orgNumber to partyUuid
+            var parties = await _registerClient.GetPartyUuids([organizationNumber], cancellationToken);
+
+            if (parties == null || parties.Count == 0)
+            {
+                return null; // Organization not found
+            }
+
+            if (parties.Count > 1)
+            {
+                _logger.LogWarning("Multiple parties found for organization number {OrganizationNumber}. Expected exactly one.", safeOrganizationNumber);
+                throw new InvalidOperationException("Indecisive organization result");
+            }
+
+            var partyUuid = parties[0].PartyUuid;
+
+            // Step 2: Get all user contact info for this party
+            var contactInfos = await _professionalNotificationsRepository
+                .GetAllNotificationAddressesForPartyAsync(partyUuid, cancellationToken) ?? [];
+
+            // Step 3: Get user profiles and build result list
+            var results = new List<UserPartyContactInfoWithIdentity>();
+
+            // Sequential execution is acceptable here because:
+            // 1. This is a Support Dashboard endpoint (low traffic, not high-throughput)
+            // 2. Expected cardinality is small (typically few users per organization)
+            // 3. IUserProfileService.GetUser only supports individual lookups (no batch API for userId)
+            foreach (var contactInfo in contactInfos)
+            {
+                // Note: IUserProfileService.GetUser does not support cancellation token at this time
+                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId);
+
+                userProfileResult.Match(
+                    profile =>
+                    {
+                        // Skip if Party data is missing or incomplete (consistent with FilterAndMapAddresses pattern)
+                        if (profile.Party == null
+                            || string.IsNullOrEmpty(profile.Party.SSN)
+                            || string.IsNullOrEmpty(profile.Party.Name))
+                        {
+                            _logger.LogWarning("User profile for UserId {UserId} in organization {OrganizationNumber} has incomplete Party data. Skipping user.", contactInfo.UserId, safeOrganizationNumber);
+                            return;
+                        }
+
+                        results.Add(new UserPartyContactInfoWithIdentity
+                        {
+                            NationalIdentityNumber = profile.Party.SSN,
+                            Name = profile.Party.Name,
+                            EmailAddress = contactInfo.EmailAddress,
+                            PhoneNumber = contactInfo.PhoneNumber,
+                            LastChanged = contactInfo.LastChanged
+                        });
+                    },
+                    _ =>
+                    {
+                        _logger.LogWarning("Failed to retrieve user profile for UserId {UserId} in organization {OrganizationNumber}. Skipping user.", contactInfo.UserId, safeOrganizationNumber);
+                    });
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Sanitizes user-supplied strings before logging to prevent log forging attacks.
+        /// Removes newline characters that could be used to inject fake log entries.
+        /// </summary>
+        private static string SanitizeForLog(string value) =>
+            value?.Replace("\r", string.Empty).Replace("\n", string.Empty) ?? string.Empty;
 
         private bool NeedsConfirmation(UserPartyContactInfo notificationAddress, ProfileSettings? profileSettingPreference)
         {
