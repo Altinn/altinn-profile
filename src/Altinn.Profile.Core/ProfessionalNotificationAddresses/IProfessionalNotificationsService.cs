@@ -48,7 +48,7 @@
         /// </summary>
         /// <param name="organizationNumber">The organization number to retrieve contact information for</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>List of user contact information with identity, or null if organization not found</returns>
-        Task<List<UserPartyContactInfoWithIdentity>?> GetContactInformationByOrganizationNumberAsync(string organizationNumber, CancellationToken cancellationToken);
+        /// <returns>Read-only list of user contact information with identity, or null if organization not found</returns>
+        Task<IReadOnlyList<UserPartyContactInfoWithIdentity>?> GetContactInformationByOrganizationNumberAsync(string organizationNumber, CancellationToken cancellationToken);
     }
 }

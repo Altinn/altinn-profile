@@ -7,7 +7,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses;
 public class UserPartyContactInfoWithIdentity
 {
     /// <summary>
-    /// The national identity number (SSN) of the user
+    /// The national identity number (SSN/D-number) of the user
     /// </summary>
     public required string NationalIdentityNumber { get; set; }
 

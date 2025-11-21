@@ -2,7 +2,6 @@
 using Altinn.Profile.Core.User;
 using Altinn.Profile.Core.User.ProfileSettings;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
@@ -16,7 +15,6 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         INotificationsClient notificationsClient,
         IUserProfileService userProfileService,
         IRegisterClient registerClient,
-        ILogger<ProfessionalNotificationsService> logger,
         IOptions<AddressMaintenanceSettings> addressMaintenanceSettings) : IProfessionalNotificationsService
     {
         private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
@@ -24,7 +22,6 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         private readonly IUserProfileService _userProfileService = userProfileService;
         private readonly INotificationsClient _notificationsClient = notificationsClient;
         private readonly IRegisterClient _registerClient = registerClient;
-        private readonly ILogger<ProfessionalNotificationsService> _logger = logger;
         private readonly AddressMaintenanceSettings _addressMaintenanceSettings = addressMaintenanceSettings.Value;
 
         /// <inheritdoc/>
@@ -110,11 +107,8 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         }
 
         /// <inheritdoc/>
-        public async Task<List<UserPartyContactInfoWithIdentity>?> GetContactInformationByOrganizationNumberAsync(string organizationNumber, CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<UserPartyContactInfoWithIdentity>?> GetContactInformationByOrganizationNumberAsync(string organizationNumber, CancellationToken cancellationToken)
         {
-            // Sanitize organization number for logging to prevent log forging
-            var safeOrganizationNumber = SanitizeForLog(organizationNumber);
-
             // Step 1: Translate orgNumber to partyUuid
             var parties = await _registerClient.GetPartyUuids([organizationNumber], cancellationToken);
 
@@ -125,7 +119,6 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 
             if (parties.Count > 1)
             {
-                _logger.LogWarning("Multiple parties found for organization number {OrganizationNumber}. Expected exactly one.", safeOrganizationNumber);
                 throw new InvalidOperationException("Indecisive organization result");
             }
 
@@ -155,7 +148,6 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                             || string.IsNullOrEmpty(profile.Party.SSN)
                             || string.IsNullOrEmpty(profile.Party.Name))
                         {
-                            _logger.LogWarning("User profile for UserId {UserId} in organization {OrganizationNumber} has incomplete Party data. Skipping user.", contactInfo.UserId, safeOrganizationNumber);
                             return;
                         }
 
@@ -170,19 +162,12 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                     },
                     _ =>
                     {
-                        _logger.LogWarning("Failed to retrieve user profile for UserId {UserId} in organization {OrganizationNumber}. Skipping user.", contactInfo.UserId, safeOrganizationNumber);
+                        // Failed to retrieve user profile - skip this user
                     });
             }
 
             return results;
         }
-
-        /// <summary>
-        /// Sanitizes user-supplied strings before logging to prevent log forging attacks.
-        /// Removes newline characters that could be used to inject fake log entries.
-        /// </summary>
-        private static string SanitizeForLog(string value) =>
-            value?.Replace("\r", string.Empty).Replace("\n", string.Empty) ?? string.Empty;
 
         private bool NeedsConfirmation(UserPartyContactInfo notificationAddress, ProfileSettings? profileSettingPreference)
         {
