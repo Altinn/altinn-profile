@@ -41,5 +41,14 @@
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task with the return value containing the identified notification addresses or null if there are none.</returns>
         Task<UserPartyContactInfo?> DeleteNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Retrieves all user contact information registered for a specific organization, enriched with user identity (SSN and Name).
+        /// Used by the Support Dashboard to display personal contact details that users have registered for acting on behalf of organizations.
+        /// </summary>
+        /// <param name="organizationNumber">The organization number to retrieve contact information for</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>Read-only list of user contact information with identity, or null if organization not found</returns>
+        Task<IReadOnlyList<UserPartyContactInfoWithIdentity>?> GetContactInformationByOrganizationNumberAsync(string organizationNumber, CancellationToken cancellationToken);
     }
 }
