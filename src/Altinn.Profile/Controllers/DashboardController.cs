@@ -150,6 +150,13 @@ namespace Altinn.Profile.Controllers
         private readonly ILogger<DashboardUserContactInformationController> _logger = logger;
 
         /// <summary>
+        /// Sanitizes user-supplied strings before logging to prevent log forging attacks.
+        /// Removes newline characters that could be used to inject fake log entries.
+        /// </summary>
+        private static string SanitizeForLog(string value) =>
+            value?.Replace("\r", string.Empty).Replace("\n", string.Empty) ?? string.Empty;
+
+        /// <summary>
         /// Endpoint that can retrieve a list of all user contact information for the given organization.
         /// Returns the contact details that users have registered for acting on behalf of this organization.
         /// </summary>
@@ -182,7 +189,7 @@ namespace Altinn.Profile.Controllers
 
             if (parties.Count > 1)
             {
-                _logger.LogWarning("Multiple parties found for organization number {OrganizationNumber}. Expected exactly one.", organizationNumber);
+                _logger.LogWarning("Multiple parties found for organization number {OrganizationNumber}. Expected exactly one.", SanitizeForLog(organizationNumber));
                 throw new InvalidOperationException("Multiple parties found for organization number");
             }
 
@@ -206,7 +213,7 @@ namespace Altinn.Profile.Controllers
                         // Skip if Party data is missing (consistent with FilterAndMapAddresses pattern)
                         if (profile.Party == null)
                         {
-                            _logger.LogWarning("User profile for UserId {UserId} in organization {OrganizationNumber} has no Party data. Skipping user.", contactInfo.UserId, organizationNumber);
+                            _logger.LogWarning("User profile for UserId {UserId} in organization {OrganizationNumber} has no Party data. Skipping user.", contactInfo.UserId, SanitizeForLog(organizationNumber));
                             return;
                         }
 
@@ -221,7 +228,7 @@ namespace Altinn.Profile.Controllers
                     },
                     _ =>
                     {
-                        _logger.LogWarning("Failed to retrieve user profile for UserId {UserId} in organization {OrganizationNumber}. Skipping user.", contactInfo.UserId, organizationNumber);
+                        _logger.LogWarning("Failed to retrieve user profile for UserId {UserId} in organization {OrganizationNumber}. Skipping user.", contactInfo.UserId, SanitizeForLog(organizationNumber));
                     });
             }
 
