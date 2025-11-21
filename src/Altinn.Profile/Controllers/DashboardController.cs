@@ -190,7 +190,7 @@ namespace Altinn.Profile.Controllers
             if (parties.Count > 1)
             {
                 _logger.LogWarning("Multiple parties found for organization number {OrganizationNumber}. Expected exactly one.", SanitizeForLog(organizationNumber));
-                throw new InvalidOperationException("Multiple parties found for organization number");
+                throw new InvalidOperationException("Indecisive organization result");
             }
 
             var partyUuid = parties[0].PartyUuid;
@@ -210,17 +210,19 @@ namespace Altinn.Profile.Controllers
                 userProfileResult.Match(
                     profile =>
                     {
-                        // Skip if Party data is missing (consistent with FilterAndMapAddresses pattern)
-                        if (profile.Party == null)
+                        // Skip if Party data is missing or incomplete (consistent with FilterAndMapAddresses pattern)
+                        if (profile.Party == null
+                            || string.IsNullOrEmpty(profile.Party.SSN)
+                            || string.IsNullOrEmpty(profile.Party.Name))
                         {
-                            _logger.LogWarning("User profile for UserId {UserId} in organization {OrganizationNumber} has no Party data. Skipping user.", contactInfo.UserId, SanitizeForLog(organizationNumber));
+                            _logger.LogWarning("User profile for UserId {UserId} in organization {OrganizationNumber} has incomplete Party data. Skipping user.", contactInfo.UserId, SanitizeForLog(organizationNumber));
                             return;
                         }
 
                         responses.Add(new DashboardUserContactInformationResponse
                         {
-                            NationalIdentityNumber = profile.Party.SSN ?? string.Empty,
-                            Name = profile.Party.Name ?? string.Empty,
+                            NationalIdentityNumber = profile.Party.SSN,
+                            Name = profile.Party.Name,
                             Email = contactInfo.EmailAddress,
                             Phone = contactInfo.PhoneNumber,
                             LastChanged = contactInfo.LastChanged

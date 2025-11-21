@@ -399,7 +399,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetContactInformationByOrgNumber_WhenPartySsnIsNull_ReturnsEmptyString()
+        public async Task GetContactInformationByOrgNumber_WhenPartySsnAndNameAreNull_SkipsUser()
         {
             // Arrange
             _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
@@ -456,13 +456,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var result = JsonSerializer.Deserialize<List<DashboardUserContactInformationResponse>>(responseContent, _serializerOptions);
 
             Assert.NotNull(result);
-            Assert.Single(result);
-            Assert.Equal(string.Empty, result[0].NationalIdentityNumber); // Should be empty string from ?? operator
-            Assert.Equal(string.Empty, result[0].Name); // Should be empty string from ?? operator
+            Assert.Empty(result); // User should be skipped due to incomplete Party data
         }
 
         [Fact]
-        public async Task GetContactInformationByOrgNumber_WhenOnlySsnIsNull_ReturnsEmptyStringSsnAndPopulatedName()
+        public async Task GetContactInformationByOrgNumber_WhenOnlySsnIsNull_SkipsUser()
         {
             // Arrange
             _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
@@ -519,13 +517,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var result = JsonSerializer.Deserialize<List<DashboardUserContactInformationResponse>>(responseContent, _serializerOptions);
 
             Assert.NotNull(result);
-            Assert.Single(result);
-            Assert.Equal(string.Empty, result[0].NationalIdentityNumber); // SSN should be empty
-            Assert.Equal("Valid Name", result[0].Name); // Name should be populated
+            Assert.Empty(result); // User should be skipped due to missing SSN
         }
 
         [Fact]
-        public async Task GetContactInformationByOrgNumber_WhenOnlyNameIsNull_ReturnsPopulatedSsnAndEmptyStringName()
+        public async Task GetContactInformationByOrgNumber_WhenOnlyNameIsNull_SkipsUser()
         {
             // Arrange
             _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
@@ -582,9 +578,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var result = JsonSerializer.Deserialize<List<DashboardUserContactInformationResponse>>(responseContent, _serializerOptions);
 
             Assert.NotNull(result);
-            Assert.Single(result);
-            Assert.Equal("01010112345", result[0].NationalIdentityNumber); // SSN should be populated
-            Assert.Equal(string.Empty, result[0].Name); // Name should be empty
+            Assert.Empty(result); // User should be skipped due to missing Name
         }
 
         private static HttpRequestMessage CreateAuthorizedRequestWithoutScope(HttpRequestMessage httpRequestMessage, string org = "ttd")
