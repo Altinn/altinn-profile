@@ -176,20 +176,15 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         var fullAddressLower = fullAddress?.ToLowerInvariant();
 
-        var foundOrganizations = await databaseContext.Organizations
-            .Where(o => o.NotificationAddresses.Any(na =>
+        var foundAddresses = await databaseContext.NotificationAddresses.Where(na =>
                 na.AddressType == addressType &&
                 na.FullAddress != null &&
                 na.FullAddress.ToLower() == fullAddressLower &&
-                na.IsSoftDeleted != true))
-            .Include(o => o.NotificationAddresses.Where(na =>
-                na.AddressType == addressType &&
-                na.FullAddress != null &&
-                na.FullAddress.ToLower() == fullAddressLower &&
-                na.IsSoftDeleted != true))
+                na.IsSoftDeleted != true)
+            .Include(o => o.Organization)
             .ToListAsync(cancellationToken);
 
-        return foundOrganizations.Select(OrganizationMapper.MapFromDataEntity).Where(org => org != null)!;
+        return foundAddresses.Select(OrganizationMapper.MapFromNotificationAddressToOrganization).Where(org => org != null)!;
     }
 
     /// <inheritdoc/>

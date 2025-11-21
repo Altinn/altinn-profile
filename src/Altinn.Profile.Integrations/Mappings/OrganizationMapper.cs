@@ -49,4 +49,20 @@ public static class OrganizationMapper
             IsSynthetic = dataEntity.UpdateSource == UpdateSource.Synthetic,
         };
     }
+
+    /// <summary>
+    /// Maps a <see cref="NotificationAddressDE"/> data entity to a <see cref="Organization"/> core model.
+    /// </summary>
+    /// <param name="dataEntity">The <see cref="NotificationAddressDE"/> instance to map from.</param>
+    /// <returns>A mapped <see cref="NotificationAddress"/> instance.</returns>
+    public static Organization MapFromNotificationAddressToOrganization(NotificationAddressDE dataEntity)
+    {
+        var address = MapFromDataEntity(dataEntity);
+
+        return new Organization
+        {
+            OrganizationNumber = dataEntity.Organization.RegistryOrganizationNumber,
+            NotificationAddresses = [address]
+        };
+    }
 }
