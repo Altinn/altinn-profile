@@ -164,23 +164,28 @@ namespace Altinn.Profile.Controllers
         /// <param name="cancellationToken">Cancellation token for the operation</param>
         /// <returns>Returns the user contact information for the provided organization</returns>
         /// <response code="200">Successfully retrieved user contact information. Returns an array of contacts (may be empty if organization exists but has no user contact info).</response>
+        /// <response code="400">Invalid request parameters (model validation failed).</response>
         /// <response code="403">Caller does not have the required Dashboard Maskinporten scope (altinn:profile.support.admin).</response>
         /// <response code="404">Organization number not found in the registry.</response>
         [HttpGet("organizations/{organizationNumber}/contactinformation")]
         [ProducesResponseType(typeof(List<DashboardUserContactInformationResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<DashboardUserContactInformationResponse>>> GetContactInformationByOrgNumber(
             [FromRoute] string organizationNumber,
             CancellationToken cancellationToken)
         {
+            // Pre-sanitize organization number for logging to prevent log forging
+            var safeOrganizationNumber = SanitizeForLog(organizationNumber);
+
             if (!ModelState.IsValid)
             {
                 return ValidationProblem(ModelState);
             }
 
             // Step 1: Translate orgNumber to partyUuid
-            var parties = await _registerClient.GetPartyUuids(new[] { organizationNumber }, cancellationToken);
+            var parties = await _registerClient.GetPartyUuids([organizationNumber], cancellationToken);
 
             if (parties == null || parties.Count == 0)
             {
@@ -189,7 +194,7 @@ namespace Altinn.Profile.Controllers
 
             if (parties.Count > 1)
             {
-                _logger.LogWarning("Multiple parties found for organization number {OrganizationNumber}. Expected exactly one.", SanitizeForLog(organizationNumber));
+                _logger.LogWarning("Multiple parties found for organization number {OrganizationNumber}. Expected exactly one.", safeOrganizationNumber);
                 throw new InvalidOperationException("Indecisive organization result");
             }
 
@@ -202,6 +207,10 @@ namespace Altinn.Profile.Controllers
             // Step 3: Map to response - get user profiles and extract SSN/name
             var responses = new List<DashboardUserContactInformationResponse>();
 
+            // Sequential execution is acceptable here because:
+            // 1. This is a Support Dashboard endpoint (low traffic, not high-throughput)
+            // 2. Expected cardinality is small (typically few users per organization)
+            // 3. IUserProfileService.GetUser only supports individual lookups (no batch API for userId)
             foreach (var contactInfo in contactInfos)
             {
                 // Note: IUserProfileService.GetUser does not support cancellation token at this time
@@ -215,7 +224,7 @@ namespace Altinn.Profile.Controllers
                             || string.IsNullOrEmpty(profile.Party.SSN)
                             || string.IsNullOrEmpty(profile.Party.Name))
                         {
-                            _logger.LogWarning("User profile for UserId {UserId} in organization {OrganizationNumber} has incomplete Party data. Skipping user.", contactInfo.UserId, SanitizeForLog(organizationNumber));
+                            _logger.LogWarning("User profile for UserId {UserId} in organization {OrganizationNumber} has incomplete Party data. Skipping user.", contactInfo.UserId, safeOrganizationNumber);
                             return;
                         }
 
@@ -230,7 +239,7 @@ namespace Altinn.Profile.Controllers
                     },
                     _ =>
                     {
-                        _logger.LogWarning("Failed to retrieve user profile for UserId {UserId} in organization {OrganizationNumber}. Skipping user.", contactInfo.UserId, SanitizeForLog(organizationNumber));
+                        _logger.LogWarning("Failed to retrieve user profile for UserId {UserId} in organization {OrganizationNumber}. Skipping user.", contactInfo.UserId, safeOrganizationNumber);
                     });
             }
 
