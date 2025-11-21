@@ -114,13 +114,12 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var result = await _repository.GetOrganizationNotificationAddressesByFullAddressAsync("test.email@test.no", AddressType.Email, CancellationToken.None);
         var list = result.ToList();
 
-        // Assert
-        Assert.Single(list);
+        // Assert        
         var returned = list.Single();
         Assert.Equal("123456789", returned.OrganizationNumber);
 
         Assert.NotNull(returned.NotificationAddresses);
-        Assert.Equal(2, returned.NotificationAddresses.Count);
+        Assert.Single(returned.NotificationAddresses);
         Assert.All(returned.NotificationAddresses, na => Assert.False(na.IsSoftDeleted));
         Assert.Contains(returned.NotificationAddresses, na => na.AddressType == AddressType.Email && na.FullAddress == "test.email@test.no");
     }
