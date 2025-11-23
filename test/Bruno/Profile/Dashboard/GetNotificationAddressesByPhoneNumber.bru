@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{{phoneNumber}}/countrycode/{{countryCode}}
+  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{{phoneNumber}}?countrycode/{{countryCode}}
   body: none
   auth: inherit
+}
+
+params:query {
+  "countrycode/{{countryCode}}": 
 }
 
 script:pre-request {
