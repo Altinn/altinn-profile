@@ -1,0 +1,15 @@
+meta {
+  name: Get all parties
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{ProfileBaseAddress}}/api/v1/users/current/notificationsettings/parties
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  await bru.runRequest("TokenGenerator/end user token")
+}
