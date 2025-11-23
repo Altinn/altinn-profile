@@ -356,6 +356,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             string phoneNumber = "99999999";
             string countryCode = "+47";
+            var encodedCountryCode = Uri.EscapeDataString(countryCode);
             string fullPhoneNumber = string.Concat(countryCode, phoneNumber);
 
             _factory.OrganizationNotificationAddressRepositoryMock
@@ -365,7 +366,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{phoneNumber}?countrycode={Uri.EscapeDataString(countryCode)}");            
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{phoneNumber}?countrycode={encodedCountryCode}");            
 
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
@@ -391,13 +392,14 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             string phoneNumber = "98888889";
             string countryCode = "+47";
+            var encodedCountryCode = Uri.EscapeDataString(countryCode);
 
             _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationNotificationAddressesByFullAddressAsync(It.IsAny<string>(), It.IsAny<AddressType>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Enumerable.Empty<Organization>());
 
             HttpClient client = _factory.CreateClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{phoneNumber}?countrycode={countryCode}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{phoneNumber}?countrycode={encodedCountryCode}");
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -413,13 +415,14 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             string phoneNumber = "91919191";
             string countryCode = "+47";
+            var encodedCountryCode = Uri.EscapeDataString(countryCode);
 
             _factory.OrganizationNotificationAddressRepositoryMock
           .Setup(r => r.GetOrganizationNotificationAddressesByFullAddressAsync(It.IsAny<string>(), It.IsAny<AddressType>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(Enumerable.Empty<Organization>());
 
             HttpClient client = _factory.CreateClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{phoneNumber}?countrycode={countryCode}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{phoneNumber}?countrycode={encodedCountryCode}");
             httpRequestMessage = GenerateTokenWithoutScope("any-org", httpRequestMessage);
 
             // Act
