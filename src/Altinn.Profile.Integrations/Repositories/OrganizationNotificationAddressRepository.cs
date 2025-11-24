@@ -57,7 +57,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         return await databaseContext.SaveChangesAsync();
     }
-
+    
     /// <summary>
     /// Updates or creates notification addresses in the DB for organizations
     /// </summary>
@@ -168,32 +168,23 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         return foundOrganizations.Select(OrganizationMapper.MapFromDataEntity).Where(org => org != null)!;
     }
-
-    /// <summary>
-    /// Gets organizations with notification addresses matching the specified email address from the database
-    /// </summary>
-    /// <returns>
-    /// A task that represents the asynchronous operation.
-    /// </returns>
-    public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken)
+    
+    /// <inheritdoc/>
+    public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByFullAddressAsync(string fullAddress, AddressType addressType, CancellationToken cancellationToken)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var emailLower = emailAddress?.ToLowerInvariant();
+        var fullAddressLower = fullAddress?.ToLowerInvariant();
 
-        var foundOrganizations = await databaseContext.Organizations
-            .Where(o => o.NotificationAddresses.Any(na =>
-                na.AddressType == AddressType.Email &&
+        var foundAddresses = await databaseContext.NotificationAddresses.Where(na =>
+                na.AddressType == addressType &&
                 na.FullAddress != null &&
-                na.FullAddress.ToLower() == emailLower &&
-                na.IsSoftDeleted != true))
-            .Include(o => o.NotificationAddresses.Where(na =>
-                na.AddressType == AddressType.Email &&
-                na.FullAddress != null &&
-                na.IsSoftDeleted != true))
+                na.FullAddress.ToLower() == fullAddressLower &&
+                na.IsSoftDeleted != true)
+            .Include(o => o.Organization)
             .ToListAsync(cancellationToken);
 
-        return foundOrganizations.Select(OrganizationMapper.MapFromDataEntity).Where(org => org != null)!;
+        return foundAddresses.Select(OrganizationMapper.MapFromNotificationAddressToOrganization).Where(org => org != null)!;
     }
 
     /// <inheritdoc/>

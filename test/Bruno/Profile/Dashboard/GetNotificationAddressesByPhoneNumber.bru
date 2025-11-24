@@ -1,0 +1,19 @@
+meta {
+  name: GetNotificationAddressesByPhoneNumber
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{{phoneNumber}}?countrycode/{{countryCode}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  "countrycode/{{countryCode}}": 
+}
+
+script:pre-request {
+  await bru.runRequest("TokenGenerator/Application Owner Profile scope")
+}

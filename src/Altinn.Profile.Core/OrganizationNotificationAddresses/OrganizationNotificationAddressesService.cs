@@ -128,9 +128,17 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         }
 
         /// <inheritdoc/>
+        public async Task<IEnumerable<Organization?>> GetOrganizationNotificationAddressesByPhoneNumber(string phoneNumber, string countryCode, CancellationToken cancellationToken)
+        {
+            var fullPhoneNumberWithCountryCode = string.Concat(countryCode, phoneNumber);
+
+            return await _orgRepository.GetOrganizationNotificationAddressesByFullAddressAsync(fullPhoneNumberWithCountryCode, AddressType.SMS, cancellationToken);
+        }
+        
+        /// <inheritdoc/>
         public async Task<IEnumerable<Organization?>> GetOrganizationNotificationAddressesByEmailAddress(string emailAddress, CancellationToken cancellationToken)
         {
-            return await _orgRepository.GetOrganizationNotificationAddressesByEmailAddressAsync(emailAddress, cancellationToken);
+            return await _orgRepository.GetOrganizationNotificationAddressesByFullAddressAsync(emailAddress, AddressType.Email, cancellationToken);
         }
 
         private async Task<IEnumerable<Organization>> GetOrganizationsWithNotificationAddressesFromMainUnit(List<string> organizationNumbers, List<Organization> organizationList, CancellationToken cancellationToken)

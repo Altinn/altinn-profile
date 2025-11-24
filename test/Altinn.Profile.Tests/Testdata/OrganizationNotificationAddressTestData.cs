@@ -69,7 +69,7 @@ public static class OrganizationNotificationAddressTestData
                 AddressType = AddressType.Email,
                 Address = "test.ceo",
                 Domain = "test.no",
-                FullAddress = "test.email@test.no",
+                FullAddress = "test.ceo@test.no",
                 IsSoftDeleted = false,
                 HasRegistryAccepted = true,
                 UpdateSource = UpdateSource.KoFuVi,
@@ -121,7 +121,7 @@ public static class OrganizationNotificationAddressTestData
                 NotificationAddressID = 6
             },
         };
-            
+       
         return (organizations, notificationAddresses);
     }
 }

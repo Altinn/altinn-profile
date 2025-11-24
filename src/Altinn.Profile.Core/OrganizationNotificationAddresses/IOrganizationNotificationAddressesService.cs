@@ -39,6 +39,15 @@ public interface IOrganizationNotificationAddressesService
     Task<IEnumerable<Organization?>> GetOrganizationNotificationAddressesByEmailAddress(string emailAddress, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Method for retrieving notification addresses filtered by phone number.
+    /// </summary>
+    /// <param name="phoneNumber">The phone number to search for in notification addresses</param>
+    /// <param name="countryCode">The country code prefix for the phone number (e.g., "+47" for Norway)</param>
+    /// <param name="cancellationToken">To cancel the request before it is finished</param>
+    /// <returns>A collection of organizations that have notification addresses matching the specified phone number.</returns>
+    Task<IEnumerable<Organization?>> GetOrganizationNotificationAddressesByPhoneNumber(string phoneNumber, string countryCode, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Method for deleting a notification addresses for an organization
     /// </summary>
     /// <param name="organizationNumber">An organization number to indicate which organization to update addresses for</param>
