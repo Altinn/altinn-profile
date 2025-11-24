@@ -432,6 +432,40 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
+        [Fact]
+        public async Task GetNotificationAddressesByPhoneNumber_WhenCountryCodeNotProvided_UsesDefaultAndReturnsOk()
+        {
+            // Arrange
+            string phoneNumber = "99999999";
+            string defaultCountryCode = "+47";
+            string fullPhoneNumber = string.Concat(defaultCountryCode, phoneNumber);
+
+            _factory.OrganizationNotificationAddressRepositoryMock
+                .Setup(r => r.GetOrganizationNotificationAddressesByFullAddressAsync(fullPhoneNumber, AddressType.SMS, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_testdata.Where(o => o.NotificationAddresses != null &&
+                    o.NotificationAddresses.Any(n => n.FullAddress == fullPhoneNumber && n.AddressType == AddressType.SMS)));
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{phoneNumber}");
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<List<DashboardNotificationAddressResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+
+            var phoneItem = result.FirstOrDefault(a => a.Phone != null);
+            Assert.NotNull(phoneItem);
+            Assert.Equal(phoneNumber, phoneItem.Phone);
+            Assert.Equal(defaultCountryCode, phoneItem.CountryCode);
+        }
+
         private static HttpRequestMessage GenerateTokenWithoutScope(string orgNumber, HttpRequestMessage httpRequestMessage)
         {
             string token = PrincipalUtil.GetOrgToken(orgNumber);
