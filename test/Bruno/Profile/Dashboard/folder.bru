@@ -1,25 +1,26 @@
 meta {
   name: Dashboard
-  type: http
-}
-
-docs {
-  # Dashboard API Tests
-
-  This folder contains tests for the Support Dashboard endpoints.
-
-  ## Environment Variables Required
-
-  Set the following environment variable in your `.env` file:
-
-  ```
-  EMAIL_ADDRESS_TEST=your-test-email@example.com
-  ```
-
-  This email address is used by the `GetNotificationAddressesByEmailAddress` endpoint test.
-  Use an email that exists in your test organization data.
 }
 
 vars:pre-request {
   emailAddress: {{process.env.EMAIL_ADDRESS_TEST}}
+  phoneNumber: {{process.env.PHONE_NUMBER_TEST}}
+  countryCode: {{process.env.COUNTRY_CODE_TEST}}
+}
+
+docs {
+  # Dashboard API Tests
+  
+  This folder contains tests for the Support Dashboard endpoints.
+  
+  ## Environment Variables Required
+  
+  Set the following environment variable in your `.env` file:
+  
+  ```
+  EMAIL_ADDRESS_TEST=your-test-email@example.com
+  ```
+  
+  This email address is used by the `GetNotificationAddressesByEmailAddress` endpoint test.
+  Use an email that exists in your test organization data.
 }
