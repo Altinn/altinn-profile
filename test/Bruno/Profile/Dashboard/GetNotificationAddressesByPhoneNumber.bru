@@ -5,13 +5,87 @@ meta {
 }
 
 get {
-  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{{phoneNumber}}?countrycode/{{countryCode}}
+  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{{phoneNumber}}?countrycode={{countryCode}}
   body: none
   auth: inherit
 }
 
 params:query {
-  "countrycode/{{countryCode}}": 
+  countrycode: {{countryCode}}
+}
+
+docs {
+  # Get Notification Addresses by Phone Number
+
+  Searches for all organizations that have registered a specific phone number in the external business registry.
+
+  ## Purpose
+
+  Used by the Support Dashboard to find which organizations use a specific phone number for notifications.
+
+  ## Authentication
+
+  Requires Dashboard Maskinporten scope: `altinn:profile.support.admin`
+
+  ## Setup
+
+  This request uses variables automatically loaded from your `.env` file:
+  
+  ```env
+  PHONE_NUMBER_TEST=99999999
+  COUNTRY_CODE_TEST=%2B47
+  ```
+
+  Use a phone number that exists in your test environment. The country code should be URL-encoded (e.g., `%2B47` for +47).
+
+  ## Parameters
+
+  - `phoneNumber` (path): The phone number to search for
+  - `countrycode` (query): Country code prefix (default: "+47")
+
+  ## Response Example
+
+  ```json
+  [
+    {
+      "notificationAddressId": 1,
+      "countryCode": "+47",
+      "email": "contact@example.com",
+      "phone": "98765432",
+      "sourceOrgNumber": "123456789",
+      "requestedOrgNumber": "123456789",
+      "lastChanged": "2025-01-15T10:30:00Z"
+    },
+    {
+      "notificationAddressId": 2,
+      "countryCode": "+47",
+      "email": "info@example.com",
+      "phone": "98765432",
+      "sourceOrgNumber": "987654321",
+      "requestedOrgNumber": "987654321",
+      "lastChanged": "2025-01-14T09:15:00Z"
+    }
+  ]
+  ```
+
+  ## Features
+
+  - Returns all organizations with matching phone number
+  - Can return multiple organizations
+  - Supports country code filtering
+
+  ## Field Explanation
+
+  - **sourceOrgNumber**: The organization where this address is actually registered (owner of the data)
+  - **requestedOrgNumber**: The organization number you requested (may inherit from parent if no direct registration)
+
+  In most cases these are the same, but they differ when a child organization inherits contact information from its parent.
+
+  ## Status Codes
+
+  - **200 OK**: Successfully retrieved notification addresses
+  - **403 Forbidden**: Missing required scope
+  - **404 Not Found**: No organizations found with that phone number
 }
 
 script:pre-request {
