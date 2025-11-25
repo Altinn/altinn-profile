@@ -15,12 +15,15 @@ docs {
   
   ## Environment Variables Required
   
-  Set the following environment variable in your `.env` file:
+  Set the following environment variables in your `.env` file:
   
   ```
   EMAIL_ADDRESS_TEST=your-test-email@example.com
+  PHONE_NUMBER_TEST=99999999
+  COUNTRY_CODE_TEST=%2B47
   ```
   
-  This email address is used by the `GetNotificationAddressesByEmailAddress` endpoint test.
-  Use an email that exists in your test organization data.
+  - **EMAIL_ADDRESS_TEST**: Email address for notification lookup tests
+  - **PHONE_NUMBER_TEST**: Phone number used in phone number search tests
+  - **COUNTRY_CODE_TEST**: Country code for phone number testing (URL-encoded, e.g., `%2B47` for +47)
 }
