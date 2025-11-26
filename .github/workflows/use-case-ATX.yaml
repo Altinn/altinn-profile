@@ -17,20 +17,22 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Set up K6
+        uses: grafana/setup-k6-action@ffe7d7290dfa715e48c2ccc924d068444c94bde2 # v1.1.0
       - name: Run favorites use case tests
-        uses: grafana/k6-action@e4714b734f2b0afaabeb7b4a69142745548ab9ec # v0.3.1
+        uses: grafana/run-k6-action@a15e2072ede004e8d46141e33d7f7dad8ad08d9d # v1.3.1
         with:
-          filename: test/k6/src/tests/favorites.js
+          path: test/k6/src/tests/favorites.js
           flags: -e env=${{ vars.ENV }} -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} -e userID=${{ secrets.USERID }} -e partyId=${{ secrets.PARTYID }} -e pid=${{ secrets.PID }} -e partyUuid=${{ secrets.PARTYUUID }}
       - name: Run notification settings use case tests
-        uses: grafana/k6-action@e4714b734f2b0afaabeb7b4a69142745548ab9ec # v0.3.1
+        uses: grafana/run-k6-action@a15e2072ede004e8d46141e33d7f7dad8ad08d9d # v1.3.1
         with:
-          filename: test/k6/src/tests/notification-settings.js
+          path: test/k6/src/tests/notification-settings.js
           flags: -e env=${{ vars.ENV }} -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} -e userID=${{ secrets.USERID }} -e partyId=${{ secrets.PARTYID }} -e pid=${{ secrets.PID }} -e partyUuid=${{ secrets.PARTYUUID }}
       - name: Run org notification addresses use case tests
-        uses: grafana/k6-action@e4714b734f2b0afaabeb7b4a69142745548ab9ec # v0.3.1
+        uses: grafana/run-k6-action@a15e2072ede004e8d46141e33d7f7dad8ad08d9d # v1.3.1
         with:
-          filename: test/k6/src/tests/org-notification-addresses.js
+          path: test/k6/src/tests/org-notification-addresses.js
           flags: -e env=${{ vars.ENV }} -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} -e userID=${{ secrets.USERID }} -e partyId=${{ secrets.PARTYID }} -e pid=${{ secrets.PID }} -e orgNo=${{ secrets.ORGNO }}
       - name: Build failure report
         if: failure()
