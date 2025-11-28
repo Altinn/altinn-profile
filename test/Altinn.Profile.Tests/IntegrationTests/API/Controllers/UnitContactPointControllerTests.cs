@@ -334,6 +334,7 @@ public class UnitContactPointControllerTests
             _factory = factory;
             _factory.InMemoryConfigurationCollection["GeneralSettings:LookupUnitContactPointsAtSblBridge"] = "false";
             _factory.UnitContactPointsServiceMock ??= new Mock<IUnitContactPointsService>();
+            _factory.UnitContactPointsServiceMock.Reset();
         }
 
         [Fact]
