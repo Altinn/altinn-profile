@@ -685,6 +685,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(orgNumber2, user2.OrganizationNumber);
             Assert.Equal(_testTime.AddDays(-1), user2.LastChanged);
         }
+
         [Fact]
         public async Task GetContactInformationByEmailAddress_WhenEmailHasNoContactInfo_ReturnsEmptyList()
         {
