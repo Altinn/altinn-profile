@@ -114,6 +114,7 @@ public class UnitContactPointControllerTests
 
             _factory.InMemoryConfigurationCollection["GeneralSettings:LookupUnitContactPointsAtSblBridge"] = "false";
 
+            _factory.RegisterClientMock.Reset();
             _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((string[] orgNumbers, CancellationToken _) => GetRegisterResponse(orgNumbers));
 
@@ -349,8 +350,6 @@ public class UnitContactPointControllerTests
 
             string actualResourceId = null;
 
-            // Replace the service mock to capture the resourceId argument and ensure the mock is used by the test server
-            var serviceMock = new Mock<IUnitContactPointsService>();
             _factory.UnitContactPointsServiceMock.Setup(s => s.GetUserRegisteredContactPoints(
                     It.Is<string[]>(arr => arr.Length == 1 && arr[0] == "111111111"),
                     It.Is<string>(r => r == expectedSanitizedResourceId),
