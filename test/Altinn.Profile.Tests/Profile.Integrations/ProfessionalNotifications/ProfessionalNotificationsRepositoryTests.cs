@@ -911,5 +911,16 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             Assert.Contains(result, r => r.UserId == userId1);
             Assert.Contains(result, r => r.UserId == userId2);
         }
+
+        [Fact]
+        public async Task GetAllContactInfoByEmailAddressAsync_WhenEmailIsNull_ReturnsEmptyList()
+        {
+            // Act
+            var result = await _repository.GetAllContactInfoByEmailAddressAsync(null, CancellationToken.None);
+            
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
     }
 }
