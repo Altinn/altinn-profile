@@ -11,16 +11,15 @@ using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
 using Moq;
 
 using Xunit;
 
-namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
+namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
+
+public class UnitContactPointControllerTests
 {
-    public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicationFactory<Program>>
+    public class UseSblBridge : IClassFixture<ProfileWebApplicationFactory<Program>>
     {
         private readonly ProfileWebApplicationFactory<Program> _factory;
 
@@ -30,22 +29,21 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             PropertyNameCaseInsensitive = true
         };
 
-        public UnitContactPointControllerTests(ProfileWebApplicationFactory<Program> factory)
+        public UseSblBridge(ProfileWebApplicationFactory<Program> factory)
         {
             _factory = factory;
+
+            _factory.InMemoryConfigurationCollection["GeneralSettings:LookupUnitContactPointsAtSblBridge"] = "true";
 
             _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
             {
                 string requestString = await request.Content.ReadAsStringAsync(token);
                 UnitContactPointLookup lookup = JsonSerializer.Deserialize<UnitContactPointLookup>(requestString, _serializerOptions);
-                return GetSBlResponseFromSBL(lookup.OrganizationNumbers[0]);
+                return GetSBlResponseFromSBL(lookup.OrganizationNumbers[0], _serializerOptions);
             });
 
             _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((string[] orgNumbers, CancellationToken _) => GetRegisterResponse(orgNumbers));
-
-            _factory.ProfessionalNotificationsRepositoryMock.Setup(s => s.GetAllNotificationAddressesForPartyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Guid partyUuid, CancellationToken _) => GetRepositoryResponse(partyUuid.ToString()));
         }
 
         [Fact]
@@ -58,7 +56,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceId = "app_ttd_apps-test"
             };
 
-            var client = CreateClientWithFlag(true);
+            var client = _factory.CreateClient();
 
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
@@ -85,7 +83,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceId = "app_ttd_apps-test"
             };
 
-            var client = CreateClientWithFlag(true);
+            var client = _factory.CreateClient();
 
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
@@ -98,6 +96,30 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
+    }
+
+    public class DoNotUseSblBridge : IClassFixture<ProfileWebApplicationFactory<Program>>
+    {
+        private readonly ProfileWebApplicationFactory<Program> _factory;
+
+        private readonly JsonSerializerOptions _serializerOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNameCaseInsensitive = true
+        };
+
+        public DoNotUseSblBridge(ProfileWebApplicationFactory<Program> factory)
+        {
+            _factory = factory;
+
+            _factory.InMemoryConfigurationCollection["GeneralSettings:LookupUnitContactPointsAtSblBridge"] = "false";
+
+            _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((string[] orgNumbers, CancellationToken _) => GetRegisterResponse(orgNumbers));
+
+            _factory.ProfessionalNotificationsRepositoryMock.Setup(s => s.GetAllNotificationAddressesForPartyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Guid partyUuid, CancellationToken _) => GetRepositoryResponse(partyUuid.ToString()));
+        }
 
         [Theory]
         [InlineData("not deserialiable to input model")]
@@ -107,7 +129,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task PostLookup_SblBridgeFeatureFlag_InvalidInputValues_ReturnsBadRequest(string input)
         {
             // Arrange
-            var client = CreateClientWithFlag(false);
+            var client = _factory.CreateClient();
 
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
@@ -133,7 +155,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceId = "app_ttd_apps-test"
             };
 
-            var client = CreateClientWithFlag(false);
+            var client = _factory.CreateClient();
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
@@ -160,7 +182,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceId = "app_ttd_apps-test"
             };
 
-            var client = CreateClientWithFlag(false);
+            var client = _factory.CreateClient();
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
@@ -187,7 +209,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceId = "app_ttd_storage-end-to-end"
             };
 
-            var client = CreateClientWithFlag(false);
+            var client = _factory.CreateClient();
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
@@ -214,7 +236,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceId = "app_ttd_apps-test"
             };
 
-            var client = CreateClientWithFlag(false);
+            var client = _factory.CreateClient();
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
@@ -244,7 +266,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
                .ReturnsAsync((string[] orgNumbers, CancellationToken _) => null);
 
-            var client = CreateClientWithFlag(false);
+            var client = _factory.CreateClient();
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
@@ -256,6 +278,61 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
+        private static List<UserPartyContactInfo> GetRepositoryResponse(string partyUuid)
+        {
+            switch (partyUuid)
+            {
+                case "8baab949-07f9-4ac5-b8cb-af6208b59092":
+                    return
+                        [
+                            new UserPartyContactInfo()
+                        {
+                            UserId = 20001,
+                            EmailAddress = "user@email.com",
+                            PhoneNumber = "98765432",
+                            PartyUuid = Guid.Parse("8baab949-07f9-4ac5-b8cb-af6208b59092"),
+                        }
+                        ];
+                case "f81d7b22-4acb-4d59-b544-ef028f183ebc":
+                    return
+                        [
+                            new UserPartyContactInfo()
+                        {
+                            UserId = 20002,
+                            EmailAddress = "user2@email.com",
+                            PhoneNumber = "98765432",
+                            PartyUuid = Guid.Parse("f81d7b22-4acb-4d59-b544-ef028f183ebc"),
+                            UserPartyContactInfoResources = [
+                                new UserPartyContactInfoResource()
+                                {
+                                    ResourceId = "app_ttd_storage-end-to-end"
+                                }
+                            ]
+                        }
+                        ];
+                default:
+                    return [];
+            }
+        }
+    }
+
+    public class MockedUnitContactPointsService : IClassFixture<ProfileWebApplicationFactory<Program>>
+    {
+        private readonly ProfileWebApplicationFactory<Program> _factory;
+
+        private readonly JsonSerializerOptions _serializerOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNameCaseInsensitive = true
+        };
+
+        public MockedUnitContactPointsService(ProfileWebApplicationFactory<Program> factory)
+        {
+            _factory = factory;
+            _factory.InMemoryConfigurationCollection["GeneralSettings:LookupUnitContactPointsAtSblBridge"] = "false";
+            _factory.UnitContactPointsServiceMock ??= new Mock<IUnitContactPointsService>();
         }
 
         [Fact]
@@ -272,37 +349,16 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             string actualResourceId = null;
 
-            _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((string[] orgNumbers, CancellationToken _) => GetRegisterResponse(orgNumbers));
-
-            _factory.ProfessionalNotificationsRepositoryMock.Setup(s => s.GetAllNotificationAddressesForPartyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Guid partyUuid, CancellationToken _) => GetRepositoryResponse(partyUuid.ToString()));
-
             // Replace the service mock to capture the resourceId argument and ensure the mock is used by the test server
             var serviceMock = new Mock<IUnitContactPointsService>();
-            serviceMock.Setup(s => s.GetUserRegisteredContactPoints(
+            _factory.UnitContactPointsServiceMock.Setup(s => s.GetUserRegisteredContactPoints(
                     It.Is<string[]>(arr => arr.Length == 1 && arr[0] == "111111111"),
                     It.Is<string>(r => r == expectedSanitizedResourceId),
                     It.IsAny<CancellationToken>()))
                 .Callback((string[] orgs, string resourceId, CancellationToken _) => actualResourceId = resourceId)
                 .ReturnsAsync(new UnitContactPointsList { ContactPointsList = new List<UnitContactPoints>() });
 
-            // Create client replacing the service and setting the flag to false
-            var client = _factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureServices(services =>
-                {
-                    services.AddSingleton<IUnitContactPointsService>(serviceMock.Object);
-                });
-
-                builder.ConfigureAppConfiguration((_, config) =>
-                {
-                    config.AddInMemoryCollection(new Dictionary<string, string>
-                    {
-                        { "GeneralSettings:LookupUnitContactPointsAtSblBridge", "false" }
-                    });
-                });
-            }).CreateClient();
+            var client = _factory.CreateClient();
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
             {
@@ -316,118 +372,67 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal(expectedSanitizedResourceId, actualResourceId);
         }
+    }
 
-        private HttpClient CreateClientWithFlag(bool sblFlag)
+    public static HttpResponseMessage GetSBlResponseFromSBL(string orgNo, JsonSerializerOptions serializerOptions)
+    {
+        switch (orgNo)
         {
-            return _factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureAppConfiguration((_, config) =>
+            case "123456789":
+                var input = new List<PartyNotificationContactPoints>()
                 {
-                    config.AddInMemoryCollection(new Dictionary<string, string>
-            {
-                { "GeneralSettings:LookupUnitContactPointsAtSblBridge", sblFlag ? "true" : "false" }
-            });
-                });
-            }).CreateClient();
-        }
-
-        private HttpResponseMessage GetSBlResponseFromSBL(string orgNo)
-        {
-            switch (orgNo)
-            {
-                case "123456789":
-                    var input = new List<PartyNotificationContactPoints>()
+                    new PartyNotificationContactPoints()
                     {
-                        new PartyNotificationContactPoints()
+                        ContactPoints = [new SblUserRegisteredContactPoint()
                         {
-                            ContactPoints = [new SblUserRegisteredContactPoint()
-                            {
-                                LegacyUserId = 20001,
-                                Email = "user@email.com"
-                            }
-                             ],
-                            LegacyPartyId = 50001,
-                            OrganizationNumber = "123456789",
-                            PartyId = Guid.NewGuid()
+                            LegacyUserId = 20001,
+                            Email = "user@email.com"
                         }
-                    };
+                         ],
+                        LegacyPartyId = 50001,
+                        OrganizationNumber = "123456789",
+                        PartyId = Guid.NewGuid()
+                    }
+                };
 
-                    return new HttpResponseMessage() { Content = JsonContent.Create(input, options: _serializerOptions), StatusCode = HttpStatusCode.OK };
-                default:
-                    return new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable };
+                return new HttpResponseMessage() { Content = JsonContent.Create(input, options: serializerOptions), StatusCode = HttpStatusCode.OK };
+            default:
+                return new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable };
+        }
+    }
+
+    public static List<Party> GetRegisterResponse(string[] orgNo)
+    {
+        var parties = new List<Party>();
+        foreach (var org in orgNo)
+        {
+            var party = GetPartyUuidForOrgNo(org);
+            if (party != null)
+            {
+                parties.Add(party);
             }
         }
 
-        private static List<Party> GetRegisterResponse(string[] orgNo)
-        {
-            var parties = new List<Party>();
-            foreach (var org in orgNo)
-            {
-                var party = GetPartyUuidForOrgNo(org);
-                if (party != null)
-                {
-                    parties.Add(party);
-                }
-            }
+        return parties;
+    }
 
-            return parties;
-        }
-
-        private static Party GetPartyUuidForOrgNo(string orgNo)
+    public static Party GetPartyUuidForOrgNo(string orgNo)
+    {
+        return orgNo switch
         {
-            return orgNo switch
+            "123456789" => new Party()
             {
-                "123456789" => new Party()
-                {
-                    PartyId = 50001,
-                    OrganizationIdentifier = "123456789",
-                    PartyUuid = Guid.Parse("8baab949-07f9-4ac5-b8cb-af6208b59092"),
-                },
-                "111111111" => new Party()
-                {
-                    PartyId = 50002,
-                    OrganizationIdentifier = "111111111",
-                    PartyUuid = Guid.Parse("f81d7b22-4acb-4d59-b544-ef028f183ebc"),
-                },
-                _ => null,
-            };
-        }
-
-        private static List<UserPartyContactInfo> GetRepositoryResponse(string partyUuid)
-        {
-            switch (partyUuid)
+                PartyId = 50001,
+                OrganizationIdentifier = "123456789",
+                PartyUuid = Guid.Parse("8baab949-07f9-4ac5-b8cb-af6208b59092"),
+            },
+            "111111111" => new Party()
             {
-                case "8baab949-07f9-4ac5-b8cb-af6208b59092":
-                    return
-                        [
-                            new UserPartyContactInfo()
-                            {
-                                UserId = 20001,
-                                EmailAddress = "user@email.com",
-                                PhoneNumber = "98765432",
-                                PartyUuid = Guid.Parse("8baab949-07f9-4ac5-b8cb-af6208b59092"),
-                            }
-                        ];
-                case "f81d7b22-4acb-4d59-b544-ef028f183ebc":
-                    return
-                        [
-                            new UserPartyContactInfo()
-                            {
-                                UserId = 20002,
-                                EmailAddress = "user2@email.com",
-                                PhoneNumber = "98765432",
-                                PartyUuid = Guid.Parse("f81d7b22-4acb-4d59-b544-ef028f183ebc"),
-                                UserPartyContactInfoResources = [
-                                    new UserPartyContactInfoResource()
-                                    {
-                                        ResourceId = "app_ttd_storage-end-to-end"
-                                    }
-                                ]
-                            }
-                        ];
-                default:
-                    return [];
-            }
-        }
+                PartyId = 50002,
+                OrganizationIdentifier = "111111111",
+                PartyUuid = Guid.Parse("f81d7b22-4acb-4d59-b544-ef028f183ebc"),
+            },
+            _ => null,
+        };
     }
 }
