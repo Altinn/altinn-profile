@@ -3,6 +3,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses;
 /// <summary>
 /// Extended data model for user party contact info that includes user identity information (SSN and Name).
 /// Used by Dashboard endpoints to display contact information with user identity.
+/// This also includes the organization number the user is acting on behalf of.
 /// </summary>
 public class UserPartyContactInfoWithIdentity
 {
