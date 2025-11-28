@@ -65,10 +65,16 @@ namespace Altinn.Profile.Integrations.Repositories
         public async Task<IReadOnlyList<UserPartyContactInfo>> GetAllContactInfoByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+            if (string.IsNullOrEmpty(emailAddress))
+            {
+                return [];
+            }
+
+            string emailAddressLowerInvariant = emailAddress.ToLowerInvariant();
 
             var contactInfos = await databaseContext.UserPartyContactInfo
                 .AsNoTracking()                
-                .Where(x => x.EmailAddress == emailAddress && !string.IsNullOrEmpty(x.EmailAddress))
+                .Where(x => !string.IsNullOrEmpty(x.EmailAddress) && x.EmailAddress.ToLowerInvariant() == emailAddressLowerInvariant)
                 .ToListAsync(cancellationToken);
 
             return contactInfos;
