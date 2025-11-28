@@ -195,7 +195,6 @@ namespace Altinn.Profile.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            // Delegate business logic to service layer
             var contactInfos = await _professionalNotificationsService
                 .GetContactInformationByOrganizationNumberAsync(organizationNumber, cancellationToken);
 
@@ -204,13 +203,58 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
-            // Map domain models to response DTOs
             var responses = contactInfos.Select(c => new DashboardUserContactInformationResponse
             {
                 NationalIdentityNumber = c.NationalIdentityNumber,
                 Name = c.Name,
                 Email = c.EmailAddress,
                 Phone = c.PhoneNumber,
+                LastChanged = c.LastChanged
+            }).ToList();
+
+            return Ok(responses);
+        }
+
+        /// <summary>
+        /// Endpoint that can retrieve a list of all user contact information for the given organization.
+        /// Returns the contact details that users have registered for acting on behalf of this organization.
+        /// </summary>
+        /// <param name="emailAddress">The email address to retrieve contact information for</param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        /// <returns>Returns the user contact information for the provided organization</returns>
+        /// <response code="200">Successfully retrieved user contact information. Returns an array of contacts (may be empty if organization exists but has no user contact info).</response>
+        /// <response code="400">Invalid request parameters (model validation failed).</response>
+        /// <response code="403">Caller does not have the required Dashboard Maskinporten scope (altinn:profile.support.admin).</response>
+        /// <response code="404">Organization number not found in the registry.</response>
+        [HttpGet("organizations/contactinformation/email/{emailAddress}")]
+        [ProducesResponseType(typeof(List<DashboardUserContactInformationResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<DashboardUserContactInformationResponse>>> GetContactInformationByEmailAddress(
+            [FromRoute] string emailAddress,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var contactInfosByEmail = await _professionalNotificationsService
+                .GetContactInformationByEmailAddressAsync(emailAddress, cancellationToken);
+
+            if (contactInfosByEmail == null)
+            {
+                return NotFound();
+            }
+
+            var responses = contactInfosByEmail.Select(c => new DashboardUserContactInformationResponse
+            {
+                NationalIdentityNumber = c.NationalIdentityNumber,
+                Name = c.Name,
+                Email = c.EmailAddress,
+                Phone = c.PhoneNumber,
+                OrganizationNumber = c.OrganizationNumber,
                 LastChanged = c.LastChanged
             }).ToList();
 

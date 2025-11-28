@@ -9,7 +9,7 @@ public class UserPartyContactInfoWithIdentity
     /// <summary>
     /// The national identity number (SSN/D-number) of the user
     /// </summary>
-    public required string NationalIdentityNumber { get; set; }
+    public string? NationalIdentityNumber { get; set; }
 
     /// <summary>
     /// The name of the user
@@ -25,6 +25,12 @@ public class UserPartyContactInfoWithIdentity
     /// The phone number. May be null if no phone number is set.
     /// </summary>
     public string? PhoneNumber { get; set; }
+
+    /// <summary>
+    /// The organization number the user is acting on behalf of.
+    /// May be null if no organization number is set.
+    /// </summary>
+    public string? OrganizationNumber { get; set; }
 
     /// <summary>
     /// Date of last change (UTC)
