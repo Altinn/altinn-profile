@@ -464,5 +464,169 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             await Assert.ThrowsAsync<JsonException>(async () => 
                 await client.GetPartyUuids(orgNumbers, CancellationToken.None));
         }
+
+        [Fact]
+        public async Task GetOrganizationNumberByPartyUuid_WhenValidAccessToken_SetsUpHttpClientCorrectly()
+        {
+            // Arrange
+            var partyUuid = Guid.NewGuid();
+            var expectedOrgNumber = "987654321";
+            var responseContent = JsonSerializer.Serialize(new List<PartyIdentifiersResponse>
+            {
+                new() { OrgNumber = expectedOrgNumber }
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            HttpRequestMessage sentRequest = null;
+            var handler = CreateHandler(response, req => sentRequest = req);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedOrgNumber, result);
+            Assert.Equal(HttpMethod.Get, sentRequest.Method);
+            Assert.Contains("v1/parties/identifiers?uuids=" + partyUuid.ToString(), sentRequest.RequestUri.ToString());
+            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
+        }
+
+        [Fact]
+        public async Task GetOrganizationNumberByPartyUuid_WhenClientRespondsSuccessfully_ReturnsOrgNumber()
+        {
+            // Arrange
+            var partyUuid = Guid.NewGuid();
+            var expectedOrgNumber = "555666777";
+            var responseContent = JsonSerializer.Serialize(new List<PartyIdentifiersResponse>
+            {
+                new() { OrgNumber = expectedOrgNumber }
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedOrgNumber, result);
+        }
+
+        [Fact]
+        public async Task GetOrganizationNumberByPartyUuid_WhenRegisterResponseHasMultipleElements_ReturnsFirst()
+        {
+            // Arrange
+            var partyUuid = Guid.NewGuid();
+            var expectedOrgNumber = "341341341";
+            var responseContent = JsonSerializer.Serialize(new List<PartyIdentifiersResponse>
+            {
+                new() { OrgNumber = expectedOrgNumber },
+                new() { OrgNumber = "444555666" }
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedOrgNumber, result);
+        }
+
+        [Fact]
+        public async Task GetOrganizationNumberByPartyUuid_WhenResponseIsEmpty_ReturnsNull()
+        {
+            // Arrange
+            var partyUuid = Guid.NewGuid();
+            var responseContent = JsonSerializer.Serialize(new List<PartyIdentifiersResponse>());
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetOrganizationNumberByPartyUuid_WhenRegisterReturns500_ReturnsNull()
+        {
+            // Arrange
+            var partyUuid = Guid.NewGuid();
+            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetOrganizationNumberByPartyUuid_WhenNotAbleToGenerateToken_ReturnsNull()
+        {
+            // Arrange
+            var partyUuid = Guid.NewGuid();
+            var response = new HttpResponseMessage(HttpStatusCode.OK);
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            _tokenGenMock.Setup(t => t.GenerateAccessToken(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns((string)null);
+
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, CancellationToken.None);
+
+            // Assert
+            Assert.Null(result);
+            handler.Protected().Verify("SendAsync", Times.Never(), ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task GetOrganizationNumberByPartyUuid_WhenCancellationRequested_ThrowsTaskCanceledException()
+        {
+        // Arrange
+        var partyUuid = Guid.NewGuid();
+        var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        var client = new RegisterClient(new HttpClient(CreateHandler(new HttpResponseMessage(HttpStatusCode.OK)).Object), _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<TaskCanceledException>(
+        () => client.GetOrganizationNumberByPartyUuid(partyUuid, cts.Token));
+        }
     }
 }
