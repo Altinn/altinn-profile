@@ -38,7 +38,7 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="emailAddress">The email address to use when looking up contact info</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>        
         /// <returns>A non-null(possibly empty) list of contact infos matching the given email address.</returns>
-        Task<IReadOnlyList<UserPartyContactInfo>> GetAllContactInfoByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<UserPartyContactInfo>> GetAllContactInfoByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken);
 
         /// <summary>
         /// Adds a new or updates an existing notification address for a user and party.
