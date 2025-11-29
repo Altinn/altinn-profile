@@ -144,9 +144,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                     profile =>
                     {
                         // Skip if Party data is missing or incomplete (consistent with FilterAndMapAddresses pattern)
-                        if (profile.Party == null
-                            || string.IsNullOrEmpty(profile.Party.SSN)
-                            || string.IsNullOrEmpty(profile.Party.Name))
+                        if (profile.Party == null || string.IsNullOrEmpty(profile.Party.Name))
                         {
                             return;
                         }
@@ -157,6 +155,56 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                             Name = profile.Party.Name,
                             EmailAddress = contactInfo.EmailAddress,
                             PhoneNumber = contactInfo.PhoneNumber,
+                            LastChanged = contactInfo.LastChanged
+                        });
+                    },
+                    _ =>
+                    {
+                        // Failed to retrieve user profile - skip this user
+                    });
+            }
+
+            return results;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IReadOnlyList<UserPartyContactInfoWithIdentity>> GetContactInformationByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken)
+        {
+            // Step 1: Implement method to get contact info by email address from repository
+            var listOfContactInfosForEmailAddress = await _professionalNotificationsRepository.GetAllContactInfoByEmailAddressAsync(emailAddress, cancellationToken) ?? [];
+
+            if (listOfContactInfosForEmailAddress.Count == 0)
+            {
+                return [];
+            }            
+            
+            var results = new List<UserPartyContactInfoWithIdentity>();
+          
+            foreach (var contactInfo in listOfContactInfosForEmailAddress)
+            {
+                // Step 2: Get all user contact info for this party
+                // Retrieve SSN and for each contactInfo, get the GetOrganizationNumberByPartyUuid from IRegisterClient
+                var orgNumber = await _registerClient.GetOrganizationNumberByPartyUuid(contactInfo.PartyUuid, cancellationToken);
+
+                // Note: IUserProfileService.GetUser does not support cancellation token at this time
+                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId);
+
+                userProfileResult.Match(
+                    profile =>
+                    {
+                        // Skip if Party data is missing or incomplete 
+                        if (profile.Party == null || string.IsNullOrEmpty(profile.Party.Name))
+                        {
+                            return;
+                        }
+
+                        results.Add(new UserPartyContactInfoWithIdentity
+                        {
+                            NationalIdentityNumber = profile.Party.SSN,
+                            Name = profile.Party.Name,
+                            EmailAddress = contactInfo.EmailAddress,
+                            PhoneNumber = contactInfo.PhoneNumber,
+                            OrganizationNumber = orgNumber,
                             LastChanged = contactInfo.LastChanged
                         });
                     },

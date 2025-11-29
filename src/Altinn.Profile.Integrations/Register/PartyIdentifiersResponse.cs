@@ -14,5 +14,10 @@
         /// The party uuid.
         /// </summary>
         public Guid PartyUuid { get; init; }
+
+        /// <summary>
+        /// OrgNumber for the party if it is an organization.
+        /// </summary> 
+        public string? OrgNumber { get; init; }
     }
 }

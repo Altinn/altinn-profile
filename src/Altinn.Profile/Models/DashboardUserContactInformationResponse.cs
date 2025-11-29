@@ -7,13 +7,14 @@ namespace Altinn.Profile.Models
     /// <summary>
     /// Response model for user contact information registered for an organization in the Support Dashboard.
     /// Represents a user's personal contact details they have registered for acting on behalf of an organization.
+    /// This also includes the organization number the user is acting on behalf of.
     /// </summary>
     public class DashboardUserContactInformationResponse
     {
         /// <summary>
         /// Gets or sets the national identity number (SSN/D-number) of the user.
         /// </summary>
-        public required string NationalIdentityNumber { get; set; }
+        public string? NationalIdentityNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the full name of the user.
@@ -31,6 +32,12 @@ namespace Altinn.Profile.Models
         /// May be null if no phone number is set.
         /// </summary>
         public string? Phone { get; set; }
+
+        /// <summary>
+        /// Gets or sets the organization number the user is acting on behalf of.
+        /// May be null if no organization number is set.
+        /// </summary>
+        public string? OrganizationNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the timestamp when this contact information was last changed.

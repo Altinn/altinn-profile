@@ -29,5 +29,13 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="cancellationToken">Cancel the current request</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         Task<IReadOnlyList<Party>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get organization number for a party based on its UUID.
+        /// </summary>
+        /// <param name="partyUuid">The partyUuid to look up</param>
+        /// <param name="cancellationToken">Cancel the current request</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<string?> GetOrganizationNumberByPartyUuid(Guid partyUuid, CancellationToken cancellationToken);
     }
 }
