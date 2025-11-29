@@ -37,6 +37,7 @@ tests {
       expect(contact).to.have.property('organizationNumber');
       if(contact.organizationNumber !== null) {
         expect(contact.organizationNumber).to.be.a('string');
+      }
       expect(contact.lastChanged).to.be.a('string');
       expect(new Date(contact.lastChanged).toString()).to.not.equal('Invalid Date');
       // email and phone are optional but should be strings if present
