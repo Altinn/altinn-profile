@@ -7,6 +7,7 @@ namespace Altinn.Profile.Models
     /// <summary>
     /// Response model for user contact information registered for an organization in the Support Dashboard.
     /// Represents a user's personal contact details they have registered for acting on behalf of an organization.
+    /// This also includes the organization number the user is acting on behalf of.
     /// </summary>
     public class DashboardUserContactInformationResponse
     {

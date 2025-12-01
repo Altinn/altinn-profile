@@ -216,16 +216,16 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
-        /// Endpoint that can retrieve a list of all user contact information for the given organization.
-        /// Returns the contact details that users have registered for acting on behalf of this organization.
+        /// Endpoint that can retrieve a list of all user contact information for the given email address.
+        /// Returns the contact details that users have registered with the specified email address.
         /// </summary>
         /// <param name="emailAddress">The email address to retrieve contact information for</param>
         /// <param name="cancellationToken">Cancellation token for the operation</param>
-        /// <returns>Returns the user contact information for the provided organization</returns>
-        /// <response code="200">Successfully retrieved user contact information. Returns an array of contacts (may be empty if organization exists but has no user contact info).</response>
+        /// <returns>Returns the user contact information for the provided email address</returns>
+        /// <response code="200">Successfully retrieved user contact information. Returns an array of contacts (empty array if no contacts found).</response>
         /// <response code="400">Invalid request parameters (model validation failed).</response>
         /// <response code="403">Caller does not have the required Dashboard Maskinporten scope (altinn:profile.support.admin).</response>
-        /// <response code="404">Organization number not found in the registry.</response>
+        /// <response code="404">No contact information found for the specified email address.</response>
         [HttpGet("organizations/contactinformation/email/{emailAddress}")]
         [ProducesResponseType(typeof(List<DashboardUserContactInformationResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
@@ -243,7 +243,7 @@ namespace Altinn.Profile.Controllers
             var contactInfosByEmail = await _professionalNotificationsService
                 .GetContactInformationByEmailAddressAsync(emailAddress, cancellationToken);
 
-            if (contactInfosByEmail == null)
+            if (contactInfosByEmail.Count == 0)
             {
                 return NotFound();
             }

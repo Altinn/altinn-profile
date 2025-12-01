@@ -122,7 +122,7 @@ public class RegisterClient : IRegisterClient
             _logger.LogWarning("Get party identifiers returned multiple results. Using the first one.");
         }
 
-        return responseData?[0].OrgNumber;
+        return responseData[0].OrgNumber;
     }
 
     private async Task<HttpResponseMessage?> SendRequest(HttpMethod method, string path, object request, CancellationToken cancellationToken)
@@ -180,7 +180,7 @@ public class RegisterClient : IRegisterClient
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("Failed to get partyId for party. Status code: {StatusCode}", response.StatusCode);
+            _logger.LogError("Failed to get party identifiers for party. Status code: {StatusCode}", response.StatusCode);
             return null;
         }
 

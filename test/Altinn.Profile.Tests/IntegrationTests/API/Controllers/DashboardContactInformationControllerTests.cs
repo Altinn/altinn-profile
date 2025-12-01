@@ -685,8 +685,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(orgNumber2, user2.OrganizationNumber);
             Assert.Equal(_testTime.AddDays(-1), user2.LastChanged);
         }
+
         [Fact]
-        public async Task GetContactInformationByEmailAddress_WhenEmailHasNoContactInfo_ReturnsEmptyList()
+        public async Task GetContactInformationByEmailAddress_WhenEmailHasNoContactInfo_ReturnsNotFound()
         {
             // Arrange
             string email = "noone@example.com";
@@ -704,12 +705,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            string responseContent = await response.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<List<DashboardUserContactInformationResponse>>(responseContent, _serializerOptions);
-
-            Assert.NotNull(result);
-            Assert.Empty(result);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);       
         }
 
         [Fact]

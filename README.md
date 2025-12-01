@@ -121,8 +121,15 @@ dotnet user-secrets set "ContactAndReservationSettings:MaskinportenSettings:Enco
    ```
 3. To generate SQL scripts, run `dotnet ef migrations script --startup-project ../Altinn.Profile`
 
-If you want to remove the migration run `dotnet ef migrations remove --startup-project ../Altinn.Profile`
-Read more about applying migrations [here](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli).
+	* If you want to remove the migration run `dotnet ef migrations remove --startup-project ../Altinn.Profile`
+	* Read more about applying migrations [here](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli).
+
+4. Notice that there is a new index or value or line generated in the terminal that correlates with the changes that you intended to do.
+   Copy that new line and add it to the new version folder as described in step 4.
+
+5. Create a new folder under Altinn.Profile.Integrations/Migration with a new version number
+   Copy the generated SQL script from step 3 to a new file in the new version folder created in step 5.
+   The two files are ready to be committed and pushed to the repository.
 
 ### Running Bruno requests
 In order to run the requests with active access tokens, you need to add the secrets for the token generator tool. This should be added in a `.env` file. An example is added to the folder. 

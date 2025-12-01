@@ -832,8 +832,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             string email = "shared@example.com";
             Guid partyUuid1 = Guid.NewGuid();
             Guid partyUuid2 = Guid.NewGuid();
-            int userId1 =101;
-            int userId2 =202;
+            int userId1 = 101;
+            int userId2 = 202;
 
             await SeedUserPartyContactInfo(userId1, partyUuid1, email, "11111111", new List<UserPartyContactInfoResource> { new() { ResourceId = "res1" } });
             await SeedUserPartyContactInfo(userId2, partyUuid2, email, "22222222", new List<UserPartyContactInfoResource> { new() { ResourceId = "res2" } });
@@ -868,8 +868,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             // Arrange
             string matchingEmail = "match@example.com";
             Guid partyUuid = Guid.NewGuid();
-            int userIdMatching =303;
-            int userIdNull =404;
+            int userIdMatching = 303;
+            int userIdNull = 404;
 
             await SeedUserPartyContactInfo(userIdMatching, partyUuid, matchingEmail, "33333333", null);
             await SeedUserPartyContactInfo(userIdNull, partyUuid, null, "44444444", null);
@@ -910,6 +910,17 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             Assert.Equal(2, result.Count);
             Assert.Contains(result, r => r.UserId == userId1);
             Assert.Contains(result, r => r.UserId == userId2);
+        }
+
+        [Fact]
+        public async Task GetAllContactInfoByEmailAddressAsync_WhenEmailIsNull_ReturnsEmptyList()
+        {
+            // Act
+            var result = await _repository.GetAllContactInfoByEmailAddressAsync(null, CancellationToken.None);
+            
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
         }
     }
 }

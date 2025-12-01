@@ -74,7 +74,7 @@ namespace Altinn.Profile.Integrations.Repositories
 
             var contactInfos = await databaseContext.UserPartyContactInfo
                 .AsNoTracking()                
-                .Where(x => !string.IsNullOrEmpty(x.EmailAddress) && x.EmailAddress.ToLowerInvariant() == emailAddressLowerInvariant)
+                .Where(x => !string.IsNullOrEmpty(x.EmailAddress) && x.EmailAddress.ToLower() == emailAddressLowerInvariant)
                 .ToListAsync(cancellationToken);
 
             return contactInfos;
