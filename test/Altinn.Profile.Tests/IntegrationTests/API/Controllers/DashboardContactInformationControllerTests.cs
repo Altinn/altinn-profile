@@ -169,28 +169,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetContactInformationByOrgNumber_WhenOrgNotFound_ReturnsNotFound()
-        {
-            // Arrange
-            string orgNumber = "999999999";
-
-            _factory.RegisterClientMock
-                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((IReadOnlyList<RegisterParty>)null);
-
-            HttpClient client = _factory.CreateClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/contactinformation");
-            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
-
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        }
-
-        [Fact]
-        public async Task GetContactInformationByOrgNumber_WhenOrgNotFoundEmptyList_ReturnsNotFound()
+        public async Task GetContactInformationByOrgNumber_WhenOrgNotFound_ReturnsEmptyList()
         {
             // Arrange
             string orgNumber = "888888888";
@@ -205,9 +184,14 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-
+           
             // Assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<List<DashboardUserContactInformationResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+            Assert.Empty(result);
         }
 
         [Fact]
@@ -687,7 +671,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetContactInformationByEmailAddress_WhenEmailHasNoContactInfo_ReturnsNotFound()
+        public async Task GetContactInformationByEmailAddress_WhenEmailHasNoContactInfo_ReturnsEmptyList()
         {
             // Arrange
             string email = "noone@example.com";
@@ -705,7 +689,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
 
             // Assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);       
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<List<DashboardUserContactInformationResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+            Assert.Empty(result);
         }
 
         [Fact]

@@ -114,7 +114,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 
             if (parties == null || parties.Count == 0)
             {
-                return null; // Organization not found
+                return [];
             }
 
             if (parties.Count > 1)
@@ -173,7 +173,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             // Step 1: Implement method to get contact info by email address from repository
             var listOfContactInfosForEmailAddress = await _professionalNotificationsRepository.GetAllContactInfoByEmailAddressAsync(emailAddress, cancellationToken) ?? [];
 
-            if (listOfContactInfosForEmailAddress.Count == 0)
+            if (listOfContactInfosForEmailAddress == null || listOfContactInfosForEmailAddress.Count == 0)
             {
                 return [];
             }            
