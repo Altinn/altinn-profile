@@ -646,7 +646,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal("\"01017512345\"", requestContent);
     }
 
-    private static HttpRequestMessage CreateGetRequest(int userId, string requestUri)
+    internal static HttpRequestMessage CreateGetRequest(int userId, string requestUri)
     {
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, requestUri);
         string token = PrincipalUtil.GetToken(userId);
