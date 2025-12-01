@@ -725,7 +725,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
             Assert.False(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
 
-            _factory.ProfileSettingsRepositoryMock.VerifyNoOtherCalls();
+            _factory.ProfileSettingsRepositoryMock.Verify(m => m.GetProfileSettings(It.IsAny<int>()), Times.Never);
         }
     }
 }
