@@ -21,7 +21,7 @@ namespace Altinn.Profile.Controllers
     /// <remarks>
     /// Initializes a new instance of the <see cref="DashboardController"/> class.
     /// </remarks>
-    /// [Authorize(Policy = AuthConstants.SupportDashboardAccess)]
+    [Authorize(Policy = AuthConstants.SupportDashboardAccess)]
     [Route("profile/api/v1/dashboard")]
     [Consumes("application/json")]
     [Produces("application/json")]
@@ -161,7 +161,7 @@ namespace Altinn.Profile.Controllers
     /// <remarks>
     /// Initializes a new instance of the <see cref="DashboardUserContactInformationController"/> class.
     /// </remarks>
-    /// [Authorize(Policy = AuthConstants.SupportDashboardAccess)]
+    [Authorize(Policy = AuthConstants.SupportDashboardAccess)]
     [Route("profile/api/v1/dashboard")]
     [Consumes("application/json")]
     [Produces("application/json")]
