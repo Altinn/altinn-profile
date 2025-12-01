@@ -101,7 +101,7 @@ public class RegisterClient : IRegisterClient
 
         if (responseData.Count > 1)
         {
-            _logger.LogWarning("Get party identifiers returned multiple results. Using the first one.");
+            _logger.LogError("Get party identifiers returned multiple results. Using the first one.");
         }
 
         return responseData[0].PartyId;
@@ -119,7 +119,7 @@ public class RegisterClient : IRegisterClient
 
         if (responseData.Count > 1)
         {
-            _logger.LogWarning("Get party identifiers returned multiple results. Using the first one.");
+            _logger.LogError("Get party identifiers returned multiple results. Using the first one.");
         }
 
         return responseData[0].OrgNumber;
