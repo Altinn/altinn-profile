@@ -239,7 +239,7 @@ public partial class ProfileDbContext : DbContext
             entity.Property<string>(e => e.LanguageType).HasMaxLength(2).IsRequired();
             entity.Property<bool>(e => e.DoNotPromptForParty).IsRequired();
             entity.Property<Guid?>(e => e.PreselectedPartyUuid);
-            entity.Property<bool>(e => e.ShowClientUnits).IsRequired();
+            entity.Property<bool?>(e => e.ShowClientUnits);
             entity.Property<bool>(e => e.ShouldShowSubEntities).IsRequired();
             entity.Property<bool>(e => e.ShouldShowDeletedEntities).IsRequired();
             entity.Property<DateTime?>(e => e.IgnoreUnitProfileDateTime);

@@ -87,7 +87,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal("nn", actualUser.ProfileSettingPreference.Language);
         Assert.True(actualUser.ProfileSettingPreference.DoNotPromptForParty);
         Assert.Equal(preselectedPartyUuid, actualUser.ProfileSettingPreference.PreselectedPartyUuid);
-        Assert.False(actualUser.ProfileSettingPreference.ShowClientUnits);
+        Assert.Null(actualUser.ProfileSettingPreference.ShowClientUnits);
         Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
         Assert.False(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
     }
@@ -661,5 +661,71 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         httpRequestMessage.Content = content;
         return httpRequestMessage;
+    }
+
+    public class UsersControllerWithoutLocalProfileSettingsTests : IClassFixture<ProfileWebApplicationFactory<Program>>
+    {
+        private readonly ProfileWebApplicationFactory<Program> _factory;
+
+        private readonly JsonSerializerOptions _serializerOptionsCamelCase = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
+        public UsersControllerWithoutLocalProfileSettingsTests(ProfileWebApplicationFactory<Program> factory)
+        {
+            _factory = factory;
+            _factory.MemoryCache.Clear();
+            _factory.InMemoryConfigurationCollection["CoreSettings:UsePortalSettingsFromSblBridge"] = "true";
+        }
+
+        [Fact]
+        public async Task GetUsersCurrent_SblBridgeFindsProfile_NoCheckInProfileSettingsRepo_ReturnsUserProfile()
+        {
+            // Arrange
+            const int UserId = 2516356;
+
+            HttpRequestMessage? sblRequest = null;
+            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+            {
+                sblRequest = request;
+
+                UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
+                return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+            });
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "/profile/api/v1/users/current");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.NotNull(sblRequest);
+            Assert.Equal(HttpMethod.Get, sblRequest.Method);
+            Assert.EndsWith($"users/{UserId}", sblRequest?.RequestUri?.ToString());
+
+            string responseContent = await response.Content.ReadAsStringAsync();
+
+            UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
+                responseContent, _serializerOptionsCamelCase);
+
+            Assert.NotNull(actualUser);
+
+            // These asserts check that deserializing with camel casing was successful.
+            Assert.Equal(UserId, actualUser.UserId);
+            Assert.Equal("sophie", actualUser.UserName);
+            Assert.Equal("Sophie Salt", actualUser.Party.Name);
+            Assert.Equal("Sophie", actualUser.Party.Person?.FirstName);
+            Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
+            Assert.False(actualUser.ProfileSettingPreference.DoNotPromptForParty);
+            Assert.Null(actualUser.ProfileSettingPreference.PreselectedPartyUuid);
+            Assert.Null(actualUser.ProfileSettingPreference.ShowClientUnits);
+            Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
+            Assert.False(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
+
+            _factory.ProfileSettingsRepositoryMock.VerifyNoOtherCalls();
+        }
     }
 }

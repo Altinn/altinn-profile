@@ -2,6 +2,8 @@
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
 
+using Microsoft.Extensions.Options;
+
 namespace Altinn.Profile.Core.User;
 
 /// <summary>
@@ -11,16 +13,19 @@ public class UserProfileService : IUserProfileService
 {
     private readonly IUserProfileClient _userProfileClient;
     private readonly IProfileSettingsRepository _profileSettingsRepository;
+    private readonly IOptionsMonitor<CoreSettings> _settings;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserProfileService"/> class.
     /// </summary>
     /// <param name="userProfileClient">The user profile client available through DI</param>
     /// <param name="profileSettingsRepository">The profile settings repository available through DI</param>
-    public UserProfileService(IUserProfileClient userProfileClient, IProfileSettingsRepository profileSettingsRepository)
+    /// <param name="settings">The core settings available through DI</param>
+    public UserProfileService(IUserProfileClient userProfileClient, IProfileSettingsRepository profileSettingsRepository, IOptionsMonitor<CoreSettings> settings)
     {
         _userProfileClient = userProfileClient;
         _profileSettingsRepository = profileSettingsRepository;
+        _settings = settings;
     }
 
     /// <inheritdoc/>
@@ -118,6 +123,11 @@ public class UserProfileService : IUserProfileService
 
     private async Task<UserProfile> EnrichWithProfileSettings(UserProfile userProfile)
     {
+        if (_settings.CurrentValue.UsePortalSettingsFromSblBridge)
+        {
+            return userProfile;
+        }
+
         ProfileSettings.ProfileSettings? profileSettings = await _profileSettingsRepository.GetProfileSettings(userProfile.UserId);
         if (profileSettings != null)
         {

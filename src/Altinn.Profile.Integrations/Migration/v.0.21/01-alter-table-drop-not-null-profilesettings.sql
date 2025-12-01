@@ -1,0 +1,1 @@
+ALTER TABLE user_preferences.profile_settings ALTER COLUMN show_client_units DROP NOT NULL;

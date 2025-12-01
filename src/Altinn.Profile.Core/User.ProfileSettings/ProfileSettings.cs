@@ -29,7 +29,7 @@
         /// <summary>
         /// Indicates whether client units should be shown.
         /// </summary>
-        public bool ShowClientUnits { get; set; }
+        public bool? ShowClientUnits { get; set; }
 
         /// <summary>
         /// Indicates whether sub-entities should be shown.
@@ -72,7 +72,6 @@
         {
             LanguageType = other.Language ?? LanguageType;
             DoNotPromptForParty = other.DoNotPromptForParty ?? DoNotPromptForParty;
-            ShowClientUnits = other.ShowClientUnits ?? ShowClientUnits;
             ShouldShowSubEntities = other.ShouldShowSubEntities ?? ShouldShowSubEntities;
             ShouldShowDeletedEntities = other.ShouldShowDeletedEntities ?? ShouldShowDeletedEntities;
 
@@ -80,6 +79,11 @@
             if (other.PreselectedPartyUuid.HasValue)
             {
                 PreselectedPartyUuid = other.PreselectedPartyUuid.Value;
+            }
+
+            if (other.ShowClientUnits.HasValue)
+            {
+                ShowClientUnits = other.ShowClientUnits.Value;
             }
         }
     }

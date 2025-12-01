@@ -159,7 +159,7 @@ public class ChangeLogItem
         /// <summary>
         /// Indicates whether client units should be shown.
         /// </summary>
-        public bool ShowClientUnits { get; set; }
+        public bool? ShowClientUnits { get; set; }
 
         /// <summary>
         /// Indicates whether sub-entities should be shown.
