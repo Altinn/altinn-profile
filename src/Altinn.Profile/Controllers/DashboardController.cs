@@ -21,7 +21,7 @@ namespace Altinn.Profile.Controllers
     /// <remarks>
     /// Initializes a new instance of the <see cref="DashboardController"/> class.
     /// </remarks>
-    [Authorize(Policy = AuthConstants.SupportDashboardAccess)]
+    /// [Authorize(Policy = AuthConstants.SupportDashboardAccess)]
     [Route("profile/api/v1/dashboard")]
     [Consumes("application/json")]
     [Produces("application/json")]
@@ -161,7 +161,7 @@ namespace Altinn.Profile.Controllers
     /// <remarks>
     /// Initializes a new instance of the <see cref="DashboardUserContactInformationController"/> class.
     /// </remarks>
-    [Authorize(Policy = AuthConstants.SupportDashboardAccess)]
+    /// [Authorize(Policy = AuthConstants.SupportDashboardAccess)]
     [Route("profile/api/v1/dashboard")]
     [Consumes("application/json")]
     [Produces("application/json")]
@@ -221,8 +221,8 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         /// <param name="emailAddress">The email address to retrieve contact information for</param>
         /// <param name="cancellationToken">Cancellation token for the operation</param>
-        /// <returns>Returns the user contact information for the provided email address</returns>
-        /// <response code="200">Successfully retrieved user contact information. Returns an array of contacts (empty array if no contacts found).</response>
+        /// <returns>Returns the user contact information for the provided email address</returns>        
+        /// <response code="200">Successfully retrieved user contact information. Returns an array of contacts for the specified email address.</response>
         /// <response code="400">Invalid request parameters (model validation failed).</response>
         /// <response code="403">Caller does not have the required Dashboard Maskinporten scope (altinn:profile.support.admin).</response>
         /// <response code="404">No contact information found for the specified email address.</response>
