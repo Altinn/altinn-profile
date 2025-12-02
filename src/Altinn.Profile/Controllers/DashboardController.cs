@@ -195,22 +195,113 @@ namespace Altinn.Profile.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            // Delegate business logic to service layer
             var contactInfos = await _professionalNotificationsService
                 .GetContactInformationByOrganizationNumberAsync(organizationNumber, cancellationToken);
 
-            if (contactInfos == null)
+            if (contactInfos.Count == 0)
             {
-                return NotFound();
+                return Ok(new List<DashboardUserContactInformationResponse>());
             }
 
-            // Map domain models to response DTOs
             var responses = contactInfos.Select(c => new DashboardUserContactInformationResponse
             {
                 NationalIdentityNumber = c.NationalIdentityNumber,
                 Name = c.Name,
                 Email = c.EmailAddress,
                 Phone = c.PhoneNumber,
+                OrganizationNumber = c.OrganizationNumber,
+                LastChanged = c.LastChanged
+            }).ToList();
+
+            return Ok(responses);
+        }
+
+        /// <summary>
+        /// Endpoint that can retrieve a list of all user contact information for the given email address.
+        /// Returns the contact details that users have registered with the specified email address.
+        /// </summary>
+        /// <param name="emailAddress">The email address to retrieve contact information for</param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        /// <returns>Returns the user contact information for the provided email address</returns>        
+        /// <response code="200">Successfully retrieved user contact information. Returns an array of contacts for the specified email address (empty array if no contacts found)</response>
+        /// <response code="400">Invalid request parameters (model validation failed).</response>
+        /// <response code="403">Caller does not have the required Dashboard Maskinporten scope (altinn:profile.support.admin).</response>
+        [HttpGet("organizations/contactinformation/email/{emailAddress}")]
+        [ProducesResponseType(typeof(List<DashboardUserContactInformationResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<DashboardUserContactInformationResponse>>> GetContactInformationByEmailAddress(
+            [FromRoute] string emailAddress,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var contactInfosByEmail = await _professionalNotificationsService
+                .GetContactInformationByEmailAddressAsync(emailAddress, cancellationToken);
+
+            if (contactInfosByEmail.Count == 0)
+            {
+                return Ok(new List<DashboardUserContactInformationResponse>());
+            }
+
+            var responses = contactInfosByEmail.Select(c => new DashboardUserContactInformationResponse
+            {
+                NationalIdentityNumber = c.NationalIdentityNumber,
+                Name = c.Name,
+                Email = c.EmailAddress,
+                Phone = c.PhoneNumber,
+                OrganizationNumber = c.OrganizationNumber,
+                LastChanged = c.LastChanged
+            }).ToList();
+
+            return Ok(responses);
+        }
+
+        /// <summary>
+        /// Endpoint that can retrieve a list of all user contact information for the given phone number.
+        /// Returns the contact details that users have registered with the specified phone number.
+        /// </summary>
+        /// <param name="phoneNumber">The phone number to retrieve contact information for</param>
+        /// <param name="countryCode">The country code for the phone number (default: +47)</param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        /// <returns>Returns the user contact information for the provided phone number</returns>        
+        /// <response code="200">Successfully retrieved user contact information. Returns an array of contacts for the specified phone number (empty array if no contacts found)</response>
+        /// <response code="400">Invalid request parameters (model validation failed).</response>
+        /// <response code="403">Caller does not have the required Dashboard Maskinporten scope (altinn:profile.support.admin).</response>
+        [HttpGet("organizations/contactinformation/phonenumber/{phoneNumber}")]
+        [ProducesResponseType(typeof(List<DashboardUserContactInformationResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<DashboardUserContactInformationResponse>>> GetContactInformationByPhoneNumber(
+            [FromRoute] string phoneNumber,
+            [FromQuery(Name = "countrycode")] string countryCode = "+47", 
+            CancellationToken cancellationToken = default)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var contactInfosByPhone = await _professionalNotificationsService
+                .GetContactInformationByPhoneNumberAsync(phoneNumber, countryCode, cancellationToken);
+
+            if (contactInfosByPhone.Count == 0)
+            {
+                return Ok(new List<DashboardUserContactInformationResponse>());
+            }
+
+            var responses = contactInfosByPhone.Select(c => new DashboardUserContactInformationResponse
+            {
+                NationalIdentityNumber = c.NationalIdentityNumber,
+                Name = c.Name,
+                Email = c.EmailAddress,
+                Phone = c.PhoneNumber,
+                OrganizationNumber = c.OrganizationNumber,
                 LastChanged = c.LastChanged
             }).ToList();
 

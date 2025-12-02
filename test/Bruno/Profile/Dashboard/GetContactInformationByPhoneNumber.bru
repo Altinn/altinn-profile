@@ -1,0 +1,91 @@
+meta {
+  name: GetContactInformationByPhoneNumber
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/contactinformation/phoneNumber/{{phoneNumber}}?countrycode={{countryCode}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  countrycode: {{countryCode}}
+}
+
+script:pre-request {
+  await bru.runRequest("TokenGenerator/Application Owner Profile scope")
+}
+
+docs {
+  # Get Contact Information by Phone Number
+  
+  Retrieves personal contact information that users have registered for acting on behalf of a specific organization.
+  Retrieve contact information for users registered under a specific phone number.
+  
+  ## Purpose
+  
+  Used by the Support Dashboard to view "Your contact information for phone number" - this is **user-registered** contact data, NOT organization registry data.
+  
+  ## Key Differences from Other Dashboard Endpoints
+  
+  | Aspect | This Endpoint | Other Dashboard Endpoints |
+  |--------|---------------|---------------------------|
+  | Data Source | User-registered contact info | External business registry |
+  | Includes SSN/Name | ✅ Yes | ❌ No |
+  | User Count | Multiple users per org | N/A |
+  | Timestamp | One per user entry | Registry update time |
+  
+  ## Authentication
+  
+  Requires Dashboard Maskinporten scope: `altinn:profile.support.admin`
+  
+  ## Parameters
+  
+  - `phoneNumber` (path): URL-encoded phone number to look up contact information for
+  - `countrycode` (query): Country code prefix (default: "+47")
+  
+  ## Response Example
+  
+  ```json
+  [
+    {
+      "nationalIdentityNumber": "01010112345",
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "phone": "+4798765432",
+      "organizationNumber": "123456789",
+      "lastChanged": "2025-01-15T14:20:00Z"
+    },
+    {
+      "nationalIdentityNumber": "01010198765",
+      "name": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "phone": "+4787654321",
+      "organizationNumber": "987654321",
+      "lastChanged": "2025-01-10T11:30:00Z"
+    }
+  ]
+  ```
+  
+  ## Features
+  
+  - Returns all contactinformation who have registered contact info for the phone number
+  - Each user can only have **one entry** per phone number per organization
+  - organizationNumber indicates which organization the contact info is registered under
+  - `nationalIdentityNumber` and `name` provide user identification
+  - `lastChanged` applies to both email and phone (stored together)
+  - Empty array if phone number exists but has no user contact info
+  - Skips users whose profiles cannot be retrieved
+  
+  ## Status Codes
+  
+  - **200 OK**: Successfully retrieved user contact information (may be empty array)
+  - **403 Forbidden**: Missing required scope
+  - **404 Not Found**: Phone number doesn't exist
+  
+  ## Important Note
+  
+  The `lastChanged` timestamp is the same for email and phone because each user can only register one contact information entry per organization, consisting of email and phone stored together.
+}

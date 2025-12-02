@@ -62,6 +62,42 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
+        public async Task<IReadOnlyList<UserPartyContactInfo>> GetAllContactInfoByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken)
+        {
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+            if (string.IsNullOrEmpty(emailAddress))
+            {
+                return [];
+            }
+
+            string emailAddressLowerInvariant = emailAddress.ToLowerInvariant();
+
+            var contactInfosByEmail = await databaseContext.UserPartyContactInfo
+                .AsNoTracking()                
+                .Where(x => !string.IsNullOrEmpty(x.EmailAddress) && x.EmailAddress.ToLower() == emailAddressLowerInvariant)
+                .ToListAsync(cancellationToken);
+
+            return contactInfosByEmail;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IReadOnlyList<UserPartyContactInfo>> GetAllContactInfoByPhoneNumberAsync(string phoneNumber, CancellationToken cancellationToken)
+        {
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+            if (string.IsNullOrEmpty(phoneNumber))
+            {
+                return [];
+            }
+
+            var contactInfosByPhoneNumber = await databaseContext.UserPartyContactInfo
+                .AsNoTracking()                
+                .Where(x => !string.IsNullOrEmpty(x.PhoneNumber) && x.PhoneNumber == phoneNumber)
+                .ToListAsync(cancellationToken);
+
+            return contactInfosByPhoneNumber;
+        }
+
+        /// <inheritdoc/>
         public async Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken = default)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);

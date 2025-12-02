@@ -824,5 +824,179 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
 
             Assert.Equal(1, sum);
         }
+
+        [Fact]
+        public async Task GetAllContactInfoByEmailAddressAsync_WhenMultipleUsersExist_ReturnsAllContactInfos()
+        {
+            // Arrange
+            string email = "shared@example.com";
+            Guid partyUuid1 = Guid.NewGuid();
+            Guid partyUuid2 = Guid.NewGuid();
+            int userId1 = 101;
+            int userId2 = 202;
+
+            await SeedUserPartyContactInfo(userId1, partyUuid1, email, "11111111", new List<UserPartyContactInfoResource> { new() { ResourceId = "res1" } });
+            await SeedUserPartyContactInfo(userId2, partyUuid2, email, "22222222", new List<UserPartyContactInfoResource> { new() { ResourceId = "res2" } });
+
+            // Act
+            var result = await _repository.GetAllContactInfoByEmailAddressAsync(email, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Contains(result, r => r.UserId == userId1 && r.PartyUuid == partyUuid1 && r.EmailAddress == email);
+            Assert.Contains(result, r => r.UserId == userId2 && r.PartyUuid == partyUuid2 && r.EmailAddress == email);
+        }
+
+        [Fact]
+        public async Task GetAllContactInfoByEmailAddressAsync_WhenNoContacts_ReturnsEmptyList()
+        {
+            // Arrange
+            string email = "noone@example.com";
+
+            // Act
+            var result = await _repository.GetAllContactInfoByEmailAddressAsync(email, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetAllContactInfoByEmailAddressAsync_ExcludesNullOrEmptyEmails()
+        {
+            // Arrange
+            string matchingEmail = "match@example.com";
+            Guid partyUuid = Guid.NewGuid();
+            int userIdMatching = 303;
+            int userIdNull = 404;
+
+            await SeedUserPartyContactInfo(userIdMatching, partyUuid, matchingEmail, "33333333", null);
+            await SeedUserPartyContactInfo(userIdNull, partyUuid, null, "44444444", null);
+
+            // Act
+            var result = await _repository.GetAllContactInfoByEmailAddressAsync(matchingEmail, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Single(result);
+            Assert.Equal(userIdMatching, result[0].UserId);
+            Assert.Equal(matchingEmail, result[0].EmailAddress);
+
+            var emptyResult = await _repository.GetAllContactInfoByEmailAddressAsync(string.Empty, CancellationToken.None);
+            Assert.NotNull(emptyResult);
+            Assert.Empty(emptyResult);
+        }
+
+        [Fact]
+        public async Task GetAllContactInfoByEmailAddressAsync_IsCaseInsensitive_ReturnsAllCasingMatches()
+        {
+            // Arrange
+            string search = "User@Example.COM";
+            Guid partyUuid1 = Guid.NewGuid();
+            Guid partyUuid2 = Guid.NewGuid();
+            int userId1 = 700;
+            int userId2 = 800;
+
+            // Seed two records that differ only by case
+            await SeedUserPartyContactInfo(userId1, partyUuid1, "user@example.com", "11111111", null);
+            await SeedUserPartyContactInfo(userId2, partyUuid2, "User@Example.com", "22222222", null);
+
+            // Act
+            var result = await _repository.GetAllContactInfoByEmailAddressAsync(search, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Contains(result, r => r.UserId == userId1);
+            Assert.Contains(result, r => r.UserId == userId2);
+        }
+
+        [Fact]
+        public async Task GetAllContactInfoByEmailAddressAsync_WhenEmailIsNull_ReturnsEmptyList()
+        {
+            // Act
+            var result = await _repository.GetAllContactInfoByEmailAddressAsync(null, CancellationToken.None);
+            
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetAllContactInfoByPhoneNumberAsync_WhenMultipleUsersExist_ReturnsAllContactInfos()
+        {
+            // Arrange
+            string email = "testUser@test.no";
+            string fullPhoneNumber = "+4792929292";
+
+            Guid partyUuid1 = Guid.NewGuid();
+            Guid partyUuid2 = Guid.NewGuid();
+            int userId1 = 101;
+            int userId2 = 202;
+
+            await SeedUserPartyContactInfo(userId1, partyUuid1, email, fullPhoneNumber, new List<UserPartyContactInfoResource> { new() { ResourceId = "res1" } });
+            await SeedUserPartyContactInfo(userId2, partyUuid2, email, fullPhoneNumber, new List<UserPartyContactInfoResource> { new() { ResourceId = "res2" } });
+
+            // Act
+            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(fullPhoneNumber, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Contains(result, r => r.UserId == userId1 && r.PartyUuid == partyUuid1 && r.PhoneNumber == fullPhoneNumber);
+            Assert.Contains(result, r => r.UserId == userId2 && r.PartyUuid == partyUuid2 && r.PhoneNumber == fullPhoneNumber);
+        }
+
+        [Fact]
+        public async Task GetAllContactInfoByPhoneNumberAsync_WhenNoContacts_ReturnsEmptyList()
+        {
+            // Arrange
+            string fullPhoneNumber = "+4792929292";
+
+            // Act
+            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(fullPhoneNumber, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetAllContactInfoByPhoneNumberAsync_ExcludesNullOrEmptyPhoneNumbers()
+        {
+            // Arrange
+            string matchingPhoneNumber = "match@example.com";
+            Guid partyUuid = Guid.NewGuid();
+            int userIdMatching = 303;
+            int userIdNull = 404;
+
+            await SeedUserPartyContactInfo(userIdMatching, partyUuid, "test@test.no", matchingPhoneNumber, null);
+            await SeedUserPartyContactInfo(userIdNull, partyUuid, "test@test.no", null, null);
+
+            // Act
+            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(matchingPhoneNumber, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Single(result);
+            Assert.Equal(userIdMatching, result[0].UserId);
+            Assert.Equal(matchingPhoneNumber, result[0].PhoneNumber);
+
+            var emptyResult = await _repository.GetAllContactInfoByPhoneNumberAsync(string.Empty, CancellationToken.None);
+            Assert.NotNull(emptyResult);
+            Assert.Empty(emptyResult);
+        }
+
+        [Fact]
+        public async Task GetAllContactInfoByPhoneNumberAsync_WhenPhoneNumberIsNull_ReturnsEmptyList()
+        {
+            // Act
+            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(null, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
     }
 }

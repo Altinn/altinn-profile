@@ -114,7 +114,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 
             if (parties == null || parties.Count == 0)
             {
-                return null; // Organization not found
+                return [];
             }
 
             if (parties.Count > 1)
@@ -128,25 +128,58 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             var contactInfos = await _professionalNotificationsRepository
                 .GetAllNotificationAddressesForPartyAsync(partyUuid, cancellationToken) ?? [];
 
-            // Step 3: Get user profiles and build result list
+            return await BuildContactInfosWithIdentityAsync(contactInfos, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IReadOnlyList<UserPartyContactInfoWithIdentity>> GetContactInformationByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken)
+        {
+            var listOfContactInfosForEmailAddress = await _professionalNotificationsRepository.GetAllContactInfoByEmailAddressAsync(emailAddress, cancellationToken) ?? new List<UserPartyContactInfo>();
+
+            if (listOfContactInfosForEmailAddress.Count == 0)
+            {
+                return [];
+            }
+
+            return await BuildContactInfosWithIdentityAsync(listOfContactInfosForEmailAddress, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IReadOnlyList<UserPartyContactInfoWithIdentity>> GetContactInformationByPhoneNumberAsync(string phoneNumber, string countryCode, CancellationToken cancellationToken)
+        {
+            var fullPhoneNumber = countryCode + phoneNumber;
+
+            var listOfContactInfosForPhoneNumber = await _professionalNotificationsRepository.GetAllContactInfoByPhoneNumberAsync(fullPhoneNumber, cancellationToken) ?? new List<UserPartyContactInfo>();
+
+            if (listOfContactInfosForPhoneNumber.Count == 0)
+            {
+                return [];
+            }
+
+            return await BuildContactInfosWithIdentityAsync(listOfContactInfosForPhoneNumber, cancellationToken);
+        }
+
+        /// <summary>
+        /// Build enriched contact info list by mapping repository contact infos to identity enriched objects.
+        /// </summary>
+        private async Task<List<UserPartyContactInfoWithIdentity>> BuildContactInfosWithIdentityAsync(IEnumerable<UserPartyContactInfo> contactInfos, CancellationToken cancellationToken)
+        {
             var results = new List<UserPartyContactInfoWithIdentity>();
 
-            // Sequential execution is acceptable here because:
-            // 1. This is a Support Dashboard endpoint (low traffic, not high-throughput)
-            // 2. Expected cardinality is small (typically few users per organization)
-            // 3. IUserProfileService.GetUser only supports individual lookups (no batch API for userId)
             foreach (var contactInfo in contactInfos)
             {
+                // Step 2: Get all user contact info for this party
+                // Retrieve SSN and for each contactInfo, get the GetOrganizationNumberByPartyUuid from IRegisterClient
+                var orgNumber = await _registerClient.GetOrganizationNumberByPartyUuid(contactInfo.PartyUuid, cancellationToken);
+
                 // Note: IUserProfileService.GetUser does not support cancellation token at this time
                 var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId);
 
                 userProfileResult.Match(
                     profile =>
                     {
-                        // Skip if Party data is missing or incomplete (consistent with FilterAndMapAddresses pattern)
-                        if (profile.Party == null
-                            || string.IsNullOrEmpty(profile.Party.SSN)
-                            || string.IsNullOrEmpty(profile.Party.Name))
+                        // Skip if Party data is missing or incomplete 
+                        if (profile.Party == null || string.IsNullOrEmpty(profile.Party.Name))
                         {
                             return;
                         }
@@ -157,6 +190,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                             Name = profile.Party.Name,
                             EmailAddress = contactInfo.EmailAddress,
                             PhoneNumber = contactInfo.PhoneNumber,
+                            OrganizationNumber = orgNumber,
                             LastChanged = contactInfo.LastChanged
                         });
                     },
