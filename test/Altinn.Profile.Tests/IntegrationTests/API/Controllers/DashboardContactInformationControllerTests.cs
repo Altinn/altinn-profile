@@ -184,7 +184,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-
+           
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             string responseContent = await response.Content.ReadAsStringAsync();

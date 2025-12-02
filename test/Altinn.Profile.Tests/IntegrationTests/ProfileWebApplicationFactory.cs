@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -11,6 +12,7 @@ using Altinn.Common.AccessToken.Services;
 using Altinn.Common.PEP.Interfaces;
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Integrations.Authorization;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
@@ -40,11 +42,13 @@ namespace Altinn.Profile.Tests.IntegrationTests;
 public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram>
     where TProgram : class
 {
-    private readonly static TimeSpan ShutdownTimeout = TimeSpan.FromSeconds(5);
+    private readonly static TimeSpan ShutdownTimeout = TimeSpan.FromSeconds(10);
 
     public Mock<IAuthorizationClient> AuthorizationClientMock { get; set; } = new();
 
     public Mock<IContactRegisterHttpClient> ContactRegisterServiceMock { get; set; } = new();
+
+    public Mock<IUnitContactPointsService>? UnitContactPointsServiceMock { get; set; }
 
     public Mock<IPersonService> PersonServiceMock { get; set; } = new();
 
@@ -75,6 +79,8 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
 
     public Mock<IProfileSettingsRepository> ProfileSettingsRepositoryMock { get; set; } = new();
 
+    public Dictionary<string, string?> InMemoryConfigurationCollection { get; set; } = new();
+
     public MemoryCache MemoryCache { get; set; } = new(new MemoryCacheOptions());
 
     public ProfileWebApplicationFactory()
@@ -92,6 +98,7 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
         {
             config.SetBasePath(Directory.GetCurrentDirectory());
             config.AddJsonFile("appsettings.test.json");
+            config.AddInMemoryCollection(InMemoryConfigurationCollection);
         });
 
         builder.ConfigureServices(services =>
@@ -121,6 +128,13 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
 
             services.AddSingleton(AuthorizationClientMock.Object);
             services.AddSingleton(ContactRegisterServiceMock.Object);
+
+            if (UnitContactPointsServiceMock is not null)
+            {
+                // Most tests will not need to mock UnitContactPointsService, so only add it if explicitly set.
+                services.AddSingleton(UnitContactPointsServiceMock.Object);
+            }
+
             services.AddSingleton(PersonServiceMock.Object);
             services.AddSingleton(OrganizationNotificationAddressRepositoryMock.Object);
             services.AddSingleton(OrganizationNotificationAddressSyncClientMock.Object);
