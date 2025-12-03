@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS ix_user_party_contact_info_phone_number ON professional_notification_settings.user_party_contact_info (phone_number);
