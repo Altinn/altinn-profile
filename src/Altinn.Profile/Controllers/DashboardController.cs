@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Mappers;
 using Altinn.Profile.Models;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -113,6 +116,14 @@ namespace Altinn.Profile.Controllers
             {
                 return ValidationProblem(ModelState);
             }
+
+            if (!CountryCodeValidator.IsValidCountryCode(countryCode))
+            {
+               ModelState.AddModelError("countrycode", "The country code is not valid. It must start with '+' followed by 1 to 3 digits.");
+               return ValidationProblem(ModelState);
+            }
+
+            _ = countryCode.Replace("00", "+");
 
             var organizations = await _notificationAddressService.GetOrganizationNotificationAddressesByPhoneNumber(phoneNumber, countryCode, cancellationToken);
 
@@ -287,6 +298,14 @@ namespace Altinn.Profile.Controllers
                 return ValidationProblem(ModelState);
             }
 
+            if (!CountryCodeValidator.IsValidCountryCode(countryCode))
+            {
+               ModelState.AddModelError("countrycode", "The country code is not valid. It must start with '+' followed by 1 to 3 digits.");
+               return ValidationProblem(ModelState);
+            }
+
+            _ = countryCode.Replace("00", "+");
+
             var contactInfosByPhone = await _professionalNotificationsService
                 .GetContactInformationByPhoneNumberAsync(phoneNumber, countryCode, cancellationToken);
 
@@ -306,6 +325,20 @@ namespace Altinn.Profile.Controllers
             }).ToList();
 
             return Ok(responses);
-        }        
+        }
+    }
+
+    /// <summary>
+    /// Internal helper class for validating country codes.
+    /// </summary>
+    internal static class CountryCodeValidator
+    {
+        /// <summary>
+        /// Internal hjelper method to validate country code format.
+        /// </summary>
+        public static bool IsValidCountryCode(this string code)
+        {
+            return Regex.IsMatch(code, @"^(?:\+\d{1,3}|00\d{1,3})$");
+        }
     }
 }
