@@ -912,7 +912,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string fullPhoneNumber = $"{countryCode}{phoneNumber}";
 
             _factory.ProfessionalNotificationsRepositoryMock
-                .Setup(r => r.GetAllContactInfoByPhoneNumberAsync(phoneNumber, It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetAllContactInfoByPhoneNumberAsync(fullPhoneNumber, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<UserPartyContactInfo>());
 
             HttpClient client = _factory.CreateClient();

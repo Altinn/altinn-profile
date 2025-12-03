@@ -966,7 +966,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         public async Task GetAllContactInfoByPhoneNumberAsync_ExcludesNullOrEmptyPhoneNumbers()
         {
             // Arrange
-            string matchingPhoneNumber = "match@example.com";
+            string matchingPhoneNumber = "+4792929292";
             Guid partyUuid = Guid.NewGuid();
             int userIdMatching = 303;
             int userIdNull = 404;
