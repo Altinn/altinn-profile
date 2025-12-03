@@ -65,9 +65,9 @@
         /// Used by the Support Dashboard to display personal contact details that users have registered.
         /// </summary>
         /// <param name="phoneNumber">The phone number to retrieve contact information for</param>
-        /// <param name="CountryCode">The country code of the phone number</param>
+        /// <param name="countryCode">The country code of the phone number</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>Read-only list of user contact information with identity, or an empty list if none found</returns>
-        Task<IReadOnlyList<UserPartyContactInfoWithIdentity>> GetContactInformationByPhoneNumberAsync(string phoneNumber, string CountryCode, CancellationToken cancellationToken);
+        Task<IReadOnlyList<UserPartyContactInfoWithIdentity>> GetContactInformationByPhoneNumberAsync(string phoneNumber, string countryCode, CancellationToken cancellationToken);
     }
 }
