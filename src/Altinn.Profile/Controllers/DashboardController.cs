@@ -117,7 +117,13 @@ namespace Altinn.Profile.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            if (!CountryCodeValidator.IsValidCountryCode(countryCode))
+            if (!Validator.IsValidPhoneNumber(phoneNumber))
+            {
+               ModelState.AddModelError("phonenumber", "The phone number is not valid. It must contain only digits and be between 4 and 8 digits long.");
+               return ValidationProblem(ModelState);
+            }
+
+            if (!Validator.IsValidCountryCode(countryCode))
             {
                ModelState.AddModelError("countrycode", "The country code is not valid. It must start with '+' followed by 1 to 3 digits.");
                return ValidationProblem(ModelState);
@@ -298,7 +304,13 @@ namespace Altinn.Profile.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            if (!CountryCodeValidator.IsValidCountryCode(countryCode))
+            if (!Validator.IsValidPhoneNumber(phoneNumber))
+            {
+               ModelState.AddModelError("phonenumber", "The phone number is not valid. It must contain only digits and be between 4 and 8 digits long.");
+               return ValidationProblem(ModelState);
+            }
+
+            if (!Validator.IsValidCountryCode(countryCode))
             {
                ModelState.AddModelError("countrycode", "The country code is not valid. It must start with '+' followed by 1 to 3 digits.");
                return ValidationProblem(ModelState);
@@ -331,7 +343,7 @@ namespace Altinn.Profile.Controllers
     /// <summary>
     /// Internal helper class for validating country codes.
     /// </summary>
-    internal static class CountryCodeValidator
+    internal static class Validator
     {
         /// <summary>
         /// Internal hjelper method to validate country code format.
@@ -339,6 +351,14 @@ namespace Altinn.Profile.Controllers
         public static bool IsValidCountryCode(this string code)
         {
             return Regex.IsMatch(code, @"^(?:\+\d{1,3}|00\d{1,3})$");
+        }
+
+        /// <summary>        
+        /// Internal helper method to validate phone number format.
+        /// </summary>
+        public static bool IsValidPhoneNumber(this string phoneNumber)
+        {
+            return Regex.IsMatch(phoneNumber, @"^\d{4,8}$");
         }
     }
 }

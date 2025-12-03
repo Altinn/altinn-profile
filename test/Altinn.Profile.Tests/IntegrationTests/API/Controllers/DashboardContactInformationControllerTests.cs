@@ -1040,6 +1040,69 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(_testTime, result[0].LastChanged);
         }
 
+        [Fact]
+        public async Task GetContactInformationByPhoneNumber_InvalidCountryCode_MissingPrefix_ReturnsBadRequest()
+        {
+            // Arrange
+            string phoneNumber = "98765432";
+            string countryCode = "47"; // invalid, missing + or 00
+            string encodedCountryCode = Uri.EscapeDataString(countryCode);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}?countrycode={encodedCountryCode}");
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            string content = await response.Content.ReadAsStringAsync();
+            Assert.Contains("countryCode", content, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public async Task GetContactInformationByPhoneNumber_InvalidCountryCode_TooManyDigits_ReturnsBadRequest()
+        {
+            // Arrange
+            string phoneNumber = "98765432";
+            string countryCode = "+1234"; // invalid per ^(?:\+\d{1,3}|00\d{1,3})$
+            string encodedCountryCode = Uri.EscapeDataString(countryCode);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}?countrycode={encodedCountryCode}");
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            string content = await response.Content.ReadAsStringAsync();
+            Assert.Contains("countryCode", content, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public async Task GetContactInformationByPhoneNumber_InvalidPhoneNumberFormat_ReturnsBadRequest()
+        {
+            // Arrange
+            string phoneNumber = "98abc432"; // invalid: contains letters
+            string countryCode = "+47";
+            string encodedCountryCode = Uri.EscapeDataString(countryCode);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}?countrycode={encodedCountryCode}");
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            string content = await response.Content.ReadAsStringAsync();
+            Assert.Contains("phoneNumber", content, StringComparison.OrdinalIgnoreCase);
+        }
+
         private static HttpRequestMessage CreateAuthorizedRequestWithoutScope(HttpRequestMessage httpRequestMessage, string org = "ttd")
         {
             string token = PrincipalUtil.GetOrgToken(org);
