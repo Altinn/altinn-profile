@@ -39,7 +39,7 @@
         /// <summary>
         /// Gets or sets a value indicating whether client units should be shown.
         /// </summary>
-        public bool ShowClientUnits { get; set; }
+        public bool? ShowClientUnits { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether sub-entities should be shown.

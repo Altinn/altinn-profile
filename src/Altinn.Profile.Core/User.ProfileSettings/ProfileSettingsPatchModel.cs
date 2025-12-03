@@ -31,7 +31,7 @@ namespace Altinn.Profile.Core.User.ProfileSettings
         /// <summary>
         /// Indicates whether client units should be shown.
         /// </summary>
-        public bool? ShowClientUnits { get; set; }
+        public Optional<bool?> ShowClientUnits { get; set; } = new();
 
         /// <summary>
         /// Indicates whether sub-entities should be shown.

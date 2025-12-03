@@ -184,7 +184,7 @@ public class ProfileSettingsRepositoryTests
             Language = "nb",
             DoNotPromptForParty = true,
             PreselectedPartyUuid = new Optional<Guid?>(newPreselected),
-            ShowClientUnits = true,
+            ShowClientUnits = new Optional<bool?>(true),
             ShouldShowSubEntities = true,
             ShouldShowDeletedEntities = true
         };
@@ -223,7 +223,7 @@ public class ProfileSettingsRepositoryTests
             UserId = userId,
             DoNotPromptForParty = false,
             PreselectedPartyUuid = Guid.NewGuid(),
-            ShowClientUnits = false,
+            ShowClientUnits = true,
             ShouldShowSubEntities = false,
             ShouldShowDeletedEntities = false,
             IgnoreUnitProfileDateTime = null,
@@ -236,7 +236,8 @@ public class ProfileSettingsRepositoryTests
         var patch = new ProfileSettingsPatchModel
         {
             UserId = userId,
-            PreselectedPartyUuid = new Optional<Guid?>(null)
+            PreselectedPartyUuid = new Optional<Guid?>(null),
+            ShowClientUnits = new Optional<bool?>(null)
         };
 
         // Act
@@ -245,6 +246,7 @@ public class ProfileSettingsRepositoryTests
         // Assert
         Assert.NotNull(result);
         Assert.Null(result.PreselectedPartyUuid);
+        Assert.Null(result.ShowClientUnits);
 
         _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<ProfileSettingsUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
 
@@ -280,7 +282,8 @@ public class ProfileSettingsRepositoryTests
         var patch = new ProfileSettingsPatchModel
         {
             UserId = userId,
-            PreselectedPartyUuid = new Optional<Guid?>()
+            PreselectedPartyUuid = new Optional<Guid?>(),
+            ShowClientUnits = new Optional<bool?>()
         };
 
         // Act
@@ -290,6 +293,7 @@ public class ProfileSettingsRepositoryTests
         Assert.NotNull(result);
         Assert.NotNull(result.PreselectedPartyUuid);
         Assert.Equal(existing.PreselectedPartyUuid, result.PreselectedPartyUuid);
+        Assert.NotNull(result.ShowClientUnits);
 
         _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<ProfileSettingsUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
 

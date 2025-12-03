@@ -19,7 +19,7 @@
         string LanguageType,
         bool DoNotPromptForParty,
         Guid? PreselectedPartyUuid,
-        bool ShowClientUnits,
+        bool? ShowClientUnits,
         bool ShouldShowSubEntities,
         bool ShouldShowDeletedEntities,
         DateTime? IgnoreUnitProfileDateTime);
