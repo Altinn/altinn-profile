@@ -1,13 +1,17 @@
 meta {
-  name: GetContactInformationByEmailAddress
+  name: GetContactInformationByPhoneNumber
   type: http
   seq: 3
 }
 
 get {
-  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/contactinformation/email/{{emailAddress}}
+  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/contactinformation/phoneNumber/{{phoneNumber}}?countrycode={{countryCode}}
   body: none
   auth: inherit
+}
+
+params:query {
+  countrycode: {{countryCode}}
 }
 
 script:pre-request {
@@ -15,14 +19,14 @@ script:pre-request {
 }
 
 docs {
-  # Get Contact Information by Email Address
+  # Get Contact Information by Phone Number
   
   Retrieves personal contact information that users have registered for acting on behalf of a specific organization.
-  Retrieve contact information for users registered under a specific email address.
+  Retrieve contact information for users registered under a specific phone number.
   
   ## Purpose
   
-  Used by the Support Dashboard to view "Your contact information for email address" - this is **user-registered** contact data, NOT organization registry data.
+  Used by the Support Dashboard to view "Your contact information for phone number" - this is **user-registered** contact data, NOT organization registry data.
   
   ## Key Differences from Other Dashboard Endpoints
   
@@ -39,7 +43,8 @@ docs {
   
   ## Parameters
   
-  - `emailAddress` (path): URL-encoded email address to look up contact information for
+  - `phoneNumber` (path): URL-encoded phone number to look up contact information for
+  - `countrycode` (query): Country code prefix (default: "+47")
   
   ## Response Example
   
@@ -66,19 +71,19 @@ docs {
   
   ## Features
   
-  - Returns all contactinformation who have registered contact info for the email address
-  - Each user can only have **one entry** per email address per organization
+  - Returns all contactinformation who have registered contact info for the phone number
+  - Each user can only have **one entry** per phone number per organization
   - organizationNumber indicates which organization the contact info is registered under
   - `nationalIdentityNumber` and `name` provide user identification
   - `lastChanged` applies to both email and phone (stored together)
-  - Empty array if email address exists but has no user contact info
+  - Empty array if phone number exists but has no user contact info
   - Skips users whose profiles cannot be retrieved
   
   ## Status Codes
   
   - **200 OK**: Successfully retrieved user contact information (may be empty array)
   - **403 Forbidden**: Missing required scope
-  - **404 Not Found**: Email address doesn't exist
+  - **404 Not Found**: Phone number doesn't exist
   
   ## Important Note
   

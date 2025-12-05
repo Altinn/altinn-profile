@@ -41,6 +41,14 @@ namespace Altinn.Profile.Core.Integrations
         Task<IReadOnlyList<UserPartyContactInfo>> GetAllContactInfoByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Retrieves all contact info by phone number.        
+        /// </summary>
+        /// <param name="phoneNumber">The phone number to use when looking up contact info</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>        
+        /// <returns>A non-null(possibly empty) list of contact infos matching the given phone number.</returns>
+        Task<IReadOnlyList<UserPartyContactInfo>> GetAllContactInfoByPhoneNumberAsync(string phoneNumber, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Adds a new or updates an existing notification address for a user and party.
         /// Returns <c>true</c> if a new record was created, <c>false</c> if an existing record was updated.
         /// </summary>
