@@ -117,7 +117,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<DashboardNotificationAddressResponse>>> GetNotificationAddressesByPhoneNumber(
             [FromRoute(Name = "phoneNumber"), Required, RegularExpression(@"^\d{4,8}$", ErrorMessage = "The phone number is not valid. It must contain only digits and be between 4 and 8 digits long.")] string phoneNumber,
-            [FromQuery(Name = "countrycode"), RegularExpression(@"^(?:\+|00)?\d{1,3}$", ErrorMessage = "The country code is not valid. It must be between 1 to 3 digits, optionally prefixed with '+' or '00'.")] string countryCode = "+47",
+            [FromQuery(Name = "countrycode"), RegularExpression(@"^(?:\+|00)\d{1,3}$", ErrorMessage = "The country code is not valid. It must be between 1 to 3 digits, prefixed with '+' or '00'.")] string countryCode = "+47",
             CancellationToken cancellationToken = default)
         {            
             if (!ModelState.IsValid)
@@ -291,8 +291,8 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<DashboardUserContactInformationResponse>>> GetContactInformationByPhoneNumber(
              [FromRoute(Name = "phoneNumber"), Required, RegularExpression(@"^\d{4,8}$", ErrorMessage = "The phone number is not valid. It must contain only digits and be between 4 and 8 digits long.")] string phoneNumber,
-             [FromQuery(Name = "countrycode"), RegularExpression(@"^(?:\+|00)?\d{1,3}$", ErrorMessage = "The country code is not valid. It must be between 1 to 3 digits, optionally prefixed with '+' or '00'.")] string countryCode = "+47",
-             CancellationToken cancellationToken = default)
+             [FromQuery(Name = "countrycode"), RegularExpression(@"^(?:\+|00)\d{1,3}$", ErrorMessage = "The country code is not valid. It must be between 1 to 3 digits, prefixed with '+' or '00'.")] string countryCode = "+47",
+             CancellationToken cancellationToken = default)          
         {
              if (!ModelState.IsValid)
              {
