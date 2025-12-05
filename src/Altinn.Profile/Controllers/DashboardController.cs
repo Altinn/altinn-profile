@@ -57,7 +57,7 @@ namespace Altinn.Profile.Controllers
             {
                 return NotFound();
             }
-            else if (orgCount >1)
+            else if (orgCount > 1)
             {
                 throw new InvalidOperationException("Indecisive organization result");
             }
