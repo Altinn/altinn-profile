@@ -154,7 +154,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                             Name = profile.Party.Name,
                             EmailAddress = contactInfo.EmailAddress,
                             PhoneNumber = contactInfo.PhoneNumber,
-                            OrganizationNumber = profile.Party.OrgNumber,
+                            OrganizationNumber = organizationNumber,
                             LastChanged = contactInfo.LastChanged
                         });
                     },
