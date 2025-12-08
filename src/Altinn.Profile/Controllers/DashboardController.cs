@@ -117,7 +117,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<DashboardNotificationAddressResponse>>> GetNotificationAddressesByPhoneNumber(
             [FromRoute(Name = "phoneNumber"), Required, RegularExpression(@"^\d{5,8}$", ErrorMessage = "The phone number is not valid. It must contain only digits and be between 5 and 8 digits long.")] string phoneNumber,
-            [FromQuery(Name = "countrycode"), RegularExpression(@"^(?:\+|00)\d{1,3}$", ErrorMessage = "The country code is not valid. It must be between 1 to 3 digits, prefixed with '+' or '00'.")] string countryCode,
+            [FromQuery(Name = "countrycode"), RegularExpression(@"^(?:\+|00)\d{1,3}$", ErrorMessage = "The country code is not valid. It must be between 1 to 3 digits, prefixed with '+' or '00'.")] string countryCode = "+47",
             CancellationToken cancellationToken = default)
         {            
             if (!ModelState.IsValid)
