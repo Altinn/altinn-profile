@@ -197,7 +197,7 @@ public partial class ProfileDbContext : DbContext
 
             entity.HasIndex(e => new { e.PartyUuid, e.UserId }, "ix_user_party_contact_info_party_uuid_user_id");
             entity.HasIndex(e => e.UserId, "ix_user_party_contact_info_user_id");
-            entity.HasIndex(e => e.EmailAddress, "ix_user_party_contact_info_email_address");
+            entity.HasIndex(e => e.EmailAddress, "ix_email_address");            
             entity.HasIndex(e => e.PhoneNumber, "ix_user_party_contact_info_phone_number");
 
             entity.HasMany(e => e.UserPartyContactInfoResources)
