@@ -116,8 +116,8 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<DashboardNotificationAddressResponse>>> GetNotificationAddressesByPhoneNumber(
-            [FromRoute(Name = "phoneNumber"), Required, RegularExpression(@"^\d{4,8}$", ErrorMessage = "The phone number is not valid. It must contain only digits and be between 4 and 8 digits long.")] string phoneNumber,
-            [FromQuery(Name = "countrycode"), RegularExpression(@"^(?:\+|00)\d{1,3}$", ErrorMessage = "The country code is not valid. It must be between 1 to 3 digits, prefixed with '+' or '00'.")] string countryCode = "+47",
+            [FromRoute(Name = "phoneNumber"), Required, RegularExpression(@"^\d{5,8}$", ErrorMessage = "The phone number is not valid. It must contain only digits and be between 4 and 8 digits long.")] string phoneNumber,
+            [FromQuery(Name = "countrycode"), RegularExpression(@"^(?:\+|00)\d{1,3}$", ErrorMessage = "The country code is not valid. It must be between 1 to 3 digits, prefixed with '+' or '00'.")] string countryCode,
             CancellationToken cancellationToken = default)
         {            
             if (!ModelState.IsValid)
@@ -215,15 +215,7 @@ namespace Altinn.Profile.Controllers
                 return Ok(new List<DashboardUserContactInformationResponse>());
             }
 
-            var responses = contactInfos.Select(c => new DashboardUserContactInformationResponse
-            {
-                NationalIdentityNumber = c.NationalIdentityNumber,
-                Name = c.Name,
-                Email = c.EmailAddress,
-                Phone = c.PhoneNumber,
-                OrganizationNumber = c.OrganizationNumber,
-                LastChanged = c.LastChanged
-            }).ToList();
+            var responses = MapContactInfosToResponses(contactInfos);
 
             return Ok(responses);
         }
@@ -260,15 +252,7 @@ namespace Altinn.Profile.Controllers
                 return Ok(new List<DashboardUserContactInformationResponse>());
             }
 
-            var responses = contactInfosByEmail.Select(c => new DashboardUserContactInformationResponse
-            {
-                NationalIdentityNumber = c.NationalIdentityNumber,
-                Name = c.Name,
-                Email = c.EmailAddress,
-                Phone = c.PhoneNumber,
-                OrganizationNumber = c.OrganizationNumber,
-                LastChanged = c.LastChanged
-            }).ToList();
+            var responses = MapContactInfosToResponses(contactInfosByEmail);
 
             return Ok(responses);
         }
@@ -290,34 +274,38 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<DashboardUserContactInformationResponse>>> GetContactInformationByPhoneNumber(
-             [FromRoute(Name = "phoneNumber"), Required, RegularExpression(@"^\d{4,8}$", ErrorMessage = "The phone number is not valid. It must contain only digits and be between 4 and 8 digits long.")] string phoneNumber,
-             [FromQuery(Name = "countrycode"), RegularExpression(@"^(?:\+|00)\d{1,3}$", ErrorMessage = "The country code is not valid. It must be between 1 to 3 digits, prefixed with '+' or '00'.")] string countryCode = "+47",
+             [FromRoute(Name = "phoneNumber"), Required, RegularExpression(@"^\d{5,8}$", ErrorMessage = "The phone number is not valid. It must contain only digits and be between 4 and 8 digits long.")] string phoneNumber,
+             [FromQuery(Name = "countrycode"), RegularExpression(@"^(?:\+|00)\d{1,3}$", ErrorMessage = "The country code is not valid. It must be between 1 to 3 digits, prefixed with '+' or '00'.")] string countryCode,
              CancellationToken cancellationToken = default)          
         {
              if (!ModelState.IsValid)
              {
-             return ValidationProblem(ModelState);
+                return ValidationProblem(ModelState);
              }
 
-             var contactInfosByPhone = await _professionalNotificationsService
-             .GetContactInformationByPhoneNumberAsync(phoneNumber, countryCode, cancellationToken);
+             var contactInfosByPhone = await _professionalNotificationsService.GetContactInformationByPhoneNumberAsync(phoneNumber, countryCode, cancellationToken);
 
              if (contactInfosByPhone.Count == 0)
              {
-             return Ok(new List<DashboardUserContactInformationResponse>());
+                return Ok(new List<DashboardUserContactInformationResponse>());
              }
 
-             var responses = contactInfosByPhone.Select(c => new DashboardUserContactInformationResponse
-             {
-             NationalIdentityNumber = c.NationalIdentityNumber,
-             Name = c.Name,
-             Email = c.EmailAddress,
-             Phone = c.PhoneNumber,
-             OrganizationNumber = c.OrganizationNumber,
-             LastChanged = c.LastChanged
-             }).ToList();
+             var responses = MapContactInfosToResponses(contactInfosByPhone);
 
              return Ok(responses);
+        }
+
+        private static List<DashboardUserContactInformationResponse> MapContactInfosToResponses(IEnumerable<UserPartyContactInfoWithIdentity> contactInfos)
+        {
+            return [.. contactInfos.Select(c => new DashboardUserContactInformationResponse
+            {
+                NationalIdentityNumber = c.NationalIdentityNumber,
+                Name = c.Name,
+                Email = c.EmailAddress,
+                Phone = c.PhoneNumber,
+                OrganizationNumber = c.OrganizationNumber,
+                LastChanged = c.LastChanged
+            })];
         }
     }
 }

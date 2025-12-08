@@ -128,7 +128,43 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             var contactInfos = await _professionalNotificationsRepository
                 .GetAllNotificationAddressesForPartyAsync(partyUuid, cancellationToken) ?? [];
 
-            return await BuildContactInfosWithIdentityAsync(contactInfos, cancellationToken);
+            var results = new List<UserPartyContactInfoWithIdentity>();
+
+            // Sequential execution is acceptable here because:
+            // 1. This is a Support Dashboard endpoint (low traffic, not high-throughput)
+            // 2. Expected cardinality is small (typically few users per organization)
+            // 3. IUserProfileService.GetUser only supports individual lookups (no batch API for userId)
+            foreach (var contactInfo in contactInfos)
+            {
+                // Note: IUserProfileService.GetUser does not support cancellation token at this time
+                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId);
+
+                userProfileResult.Match(
+                    profile =>
+                    {
+                        // Skip if Party data is missing or incomplete (consistent with FilterAndMapAddresses pattern)
+                        if (profile.Party == null || string.IsNullOrEmpty(profile.Party.Name))
+                        {
+                            return;
+                        }
+
+                        results.Add(new UserPartyContactInfoWithIdentity
+                        {
+                            NationalIdentityNumber = profile.Party.SSN,
+                            Name = profile.Party.Name,
+                            EmailAddress = contactInfo.EmailAddress,
+                            PhoneNumber = contactInfo.PhoneNumber,
+                            OrganizationNumber = profile.Party.OrgNumber,
+                            LastChanged = contactInfo.LastChanged
+                        });
+                    },
+                    _ =>
+                    {
+                        // Failed to retrieve user profile - skip this user
+                    });
+            }
+
+            return results;        
         }
 
         /// <inheritdoc/>
@@ -167,9 +203,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             var results = new List<UserPartyContactInfoWithIdentity>();
 
             foreach (var contactInfo in contactInfos)
-            {
-                // Step 2: Get all user contact info for this party
-                // Retrieve SSN and for each contactInfo, get the GetOrganizationNumberByPartyUuid from IRegisterClient
+            {                                    
                 var orgNumber = await _registerClient.GetOrganizationNumberByPartyUuid(contactInfo.PartyUuid, cancellationToken);
 
                 // Note: IUserProfileService.GetUser does not support cancellation token at this time
