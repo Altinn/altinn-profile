@@ -116,7 +116,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<DashboardNotificationAddressResponse>>> GetNotificationAddressesByPhoneNumber(
-            [FromRoute(Name = "phoneNumber"), Required, RegularExpression(@"^\d{5,8}$", ErrorMessage = "The phone number is not valid. It must contain only digits and be between 4 and 8 digits long.")] string phoneNumber,
+            [FromRoute(Name = "phoneNumber"), Required, RegularExpression(@"^\d{5,8}$", ErrorMessage = "The phone number is not valid. It must contain only digits and be between 5 and 8 digits long.")] string phoneNumber,
             [FromQuery(Name = "countrycode"), RegularExpression(@"^(?:\+|00)\d{1,3}$", ErrorMessage = "The country code is not valid. It must be between 1 to 3 digits, prefixed with '+' or '00'.")] string countryCode,
             CancellationToken cancellationToken = default)
         {            
@@ -262,7 +262,7 @@ namespace Altinn.Profile.Controllers
         /// Returns the contact details that users have registered with the specified phone number.
         /// </summary>
         /// <param name="phoneNumber">The phone number to retrieve contact information for</param>
-        /// <param name="countryCode">The country code for the phone number (default: +47)</param>
+        /// <param name="countryCode">The country code for the phone number</param>
         /// <param name="cancellationToken">Cancellation token for the operation</param>
         /// <returns>Returns the user contact information for the provided phone number</returns> 
         /// <response code="200">Successfully retrieved user contact information. Returns an array of contacts for the specified phone number (empty array if no contacts found)</response>
@@ -274,7 +274,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<DashboardUserContactInformationResponse>>> GetContactInformationByPhoneNumber(
-             [FromRoute(Name = "phoneNumber"), Required, RegularExpression(@"^\d{5,8}$", ErrorMessage = "The phone number is not valid. It must contain only digits and be between 4 and 8 digits long.")] string phoneNumber,
+             [FromRoute(Name = "phoneNumber"), Required, RegularExpression(@"^\d{5,8}$", ErrorMessage = "The phone number is not valid. It must contain only digits and be between 5 and 8 digits long.")] string phoneNumber,
              [FromQuery(Name = "countrycode"), RegularExpression(@"^(?:\+|00)\d{1,3}$", ErrorMessage = "The country code is not valid. It must be between 1 to 3 digits, prefixed with '+' or '00'.")] string countryCode,
              CancellationToken cancellationToken = default)          
         {
