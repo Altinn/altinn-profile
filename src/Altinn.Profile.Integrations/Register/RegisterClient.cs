@@ -92,36 +92,37 @@ public class RegisterClient : IRegisterClient
     /// <inheritdoc/>
     public async Task<int?> GetPartyId(Guid partyUuid, CancellationToken cancellationToken)
     {
-        var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"v1/parties/identifiers?uuids={partyUuid}");
-
-        var success = TryAddPlatformAccessTokenHeader(requestMessage);
-        if (!success)
-        {
-            return null;
-        }
-
-        var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            _logger.LogError("Failed to get partyId for party. Status code: {StatusCode}", response.StatusCode);
-            return null;
-        }
-
-        var responseData = await response.Content.ReadFromJsonAsync<List<PartyIdentifiersResponse>>(cancellationToken);
+        var responseData = await GetPartyIdentifiers(partyUuid, cancellationToken);
 
         if (responseData is null or { Count: 0 })
         {
             return null;
         }
 
-        // The response is a list, but assuming the list contains only one item in all cases
         if (responseData.Count > 1)
         {
-            _logger.LogWarning("Get partyId for party returned multiple results. Using the first one.");
+            _logger.LogError("Get party identifiers returned multiple results. Using the first one.");
         }
 
         return responseData[0].PartyId;
+    }
+
+    /// <inheritdoc/>
+    public async Task<string?> GetOrganizationNumberByPartyUuid(Guid partyUuid, CancellationToken cancellationToken)
+    {
+        var responseData = await GetPartyIdentifiers(partyUuid, cancellationToken);
+        
+        if (responseData is null or { Count: 0 })
+        {
+            return null;
+        }
+
+        if (responseData.Count > 1)
+        {
+            _logger.LogError("Get party identifiers returned multiple results. Using the first one.");
+        }
+
+        return responseData[0].OrgNumber;
     }
 
     private async Task<HttpResponseMessage?> SendRequest(HttpMethod method, string path, object request, CancellationToken cancellationToken)
@@ -163,5 +164,28 @@ public class RegisterClient : IRegisterClient
         requestMessage.Headers.Add("PlatformAccessToken", accessToken);
 
         return true;
+    }
+
+    private async Task<List<PartyIdentifiersResponse>?> GetPartyIdentifiers(Guid partyUuid, CancellationToken cancellationToken)
+    {
+        var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"v1/parties/identifiers?uuids={partyUuid}");
+
+        var success = TryAddPlatformAccessTokenHeader(requestMessage);
+        if (!success)
+        {
+            return null;
+        }
+
+        var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError("Failed to get party identifiers for party. Status code: {StatusCode}", response.StatusCode);
+            return null;
+        }
+
+        var responseData = await response.Content.ReadFromJsonAsync<List<PartyIdentifiersResponse>>(cancellationToken);        
+
+        return responseData;        
     }
 }

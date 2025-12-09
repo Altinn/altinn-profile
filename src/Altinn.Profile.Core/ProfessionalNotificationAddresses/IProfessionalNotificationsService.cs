@@ -50,5 +50,14 @@
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>Read-only list of user contact information with identity, or null if organization not found</returns>
         Task<IReadOnlyList<UserPartyContactInfoWithIdentity>?> GetContactInformationByOrganizationNumberAsync(string organizationNumber, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Retrieves all user contact information registered for a specific organization, enriched with user identity (SSN and Name).
+        /// Used by the Support Dashboard to display personal contact details that users have registered.
+        /// </summary>
+        /// <param name="emailAddress">The email address to retrieve contact information for</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>Read-only list of user contact information with identity, or an empty list if none found</returns>
+        Task<IReadOnlyList<UserPartyContactInfoWithIdentity>> GetContactInformationByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken);
     }
 }
