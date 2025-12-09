@@ -18,6 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    outputs:
+      failed-at22: ${{ steps.set-failure.outputs.at22 }}
+      failed-at23: ${{ steps.set-failure.outputs.at23 }}
+      failed-at24: ${{ steps.set-failure.outputs.at24 }}
     env: # Shared environment vars for all k6 test scripts
       altinn_env: ${{ matrix.environment }}
       partyId: ${{ secrets.PARTYID }}
