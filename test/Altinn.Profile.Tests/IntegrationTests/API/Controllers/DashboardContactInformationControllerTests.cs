@@ -1040,6 +1040,130 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(_testTime, result[0].LastChanged);
         }
 
+        [Fact]
+        public async Task GetContactInformationByPhoneNumber_NoCountryCodeProvided_ReturnsOkWithNumbersWithoutCountryCode()
+        {
+            // Arrange - identity enrichment
+            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+            {
+                string uri = request.RequestUri?.ToString() ?? string.Empty;
+                if (uri.Contains("/users/1001"))
+                {
+                    var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
+                    userProfile.UserId = 1001;
+                    userProfile.Party.SSN = "01010112345";
+                    userProfile.Party.Name = "John Doe";
+                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
+                }
+                else if (uri.Contains("/users/1002"))
+                {
+                    var userProfile = await TestDataLoader.Load<UserProfile>("2001607");
+                    userProfile.UserId = 1002;
+                    userProfile.Party.SSN = "01010198765";
+                    userProfile.Party.Name = "Jane Smith";
+                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
+                }
+
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            });
+
+            // Phone provided without country code in request and repository stores phone without country code
+            string phoneNumber = "92929292";
+            string orgNumber1 = "341341341";
+            Guid partyUuid1 = Guid.NewGuid();
+            string orgNumber2 = "352352352";
+            Guid partyUuid2 = Guid.NewGuid();
+
+            var contactInfosFromRepo = new List<UserPartyContactInfo>
+            {
+                new()
+                {
+                    UserId = 1001,
+                    PartyUuid = partyUuid1,
+                    EmailAddress = "search1@example.com",
+                    PhoneNumber = phoneNumber, // stored without country code
+                    LastChanged = _testTime
+                },
+                new()
+                {
+                    UserId = 1002,
+                    PartyUuid = partyUuid2,
+                    EmailAddress = "search2@example.com",
+                    PhoneNumber = phoneNumber,
+                    LastChanged = _testTime.AddDays(-1)
+                }
+            };
+            
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(r => r.GetAllContactInfoByPhoneNumberAsync(phoneNumber, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(contactInfosFromRepo);
+
+            _factory.RegisterClientMock
+                .Setup(r => r.GetOrganizationNumberByPartyUuid(partyUuid1, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(orgNumber1);
+            _factory.RegisterClientMock
+                .Setup(r => r.GetOrganizationNumberByPartyUuid(partyUuid2, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(orgNumber2);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}");
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<List<DashboardUserContactInformationResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+
+            var user1 = result.FirstOrDefault(u => u.NationalIdentityNumber == "01010112345");
+            Assert.NotNull(user1);
+            Assert.Equal("John Doe", user1.Name);
+            Assert.Equal(phoneNumber, user1.Phone);
+            Assert.Equal(orgNumber1, user1.OrganizationNumber);
+            Assert.Equal(_testTime, user1.LastChanged);
+
+            var user2 = result.FirstOrDefault(u => u.NationalIdentityNumber == "01010198765");
+            Assert.NotNull(user2);
+            Assert.Equal("Jane Smith", user2.Name);
+            Assert.Equal(phoneNumber, user2.Phone);
+            Assert.Equal(orgNumber2, user2.OrganizationNumber);
+            Assert.Equal(_testTime.AddDays(-1), user2.LastChanged);
+        }
+
+        [Fact]
+        public async Task GetContactInformationByPhoneNumber_WithMismatchedCountryCodeFormat_ReturnsNoResults()
+        {
+            string phoneNumber = "92929292";
+            string countryCode = "+47";
+            string encodedCountryCode = Uri.EscapeDataString(countryCode);
+            string fullPhoneNumber = $"{countryCode}{phoneNumber}";
+
+            // Arrange - repository has phone number stored without country code
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(r => r.GetAllContactInfoByPhoneNumberAsync(fullPhoneNumber, It.IsAny<CancellationToken>()))
+                .ReturnsAsync([]);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}?countrycode={encodedCountryCode}");
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<List<DashboardUserContactInformationResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
         private static HttpRequestMessage CreateAuthorizedRequestWithoutScope(HttpRequestMessage httpRequestMessage, string org = "ttd")
         {
             string token = PrincipalUtil.GetOrgToken(org);
