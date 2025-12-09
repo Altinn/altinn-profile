@@ -11,7 +11,7 @@ jobs:
     permissions:
       contents: read
     env: # Shared environment vars for all k6 test scripts
-      altinn_env: tt02
+      altinn_env: TT02
       partyId: ${{ secrets.PARTYID }}
       pid: ${{ secrets.PID }}
       tokenGeneratorUserName: ${{ secrets.TOKENGENERATOR_USERNAME }}
@@ -26,19 +26,19 @@ jobs:
         with:
           path: test/k6/src/tests/favorites.js
           flags: -e partyUuid=${{ secrets.PARTYUUID }}
-          inspect-flags: -e altinn_env=tt02 # Supplies a valid value for the pre-run validation, when env vars / flags are not yet defined
+          inspect-flags: -e altinn_env=TT02 # Supplies a valid value for the pre-run validation, when env vars / flags are not yet defined
       - name: Run notification settings use case tests
         uses: grafana/run-k6-action@a15e2072ede004e8d46141e33d7f7dad8ad08d9d # v1.3.1
         with:
           path: test/k6/src/tests/notification-settings.js
           flags: -e partyUuid=${{ secrets.PARTYUUID }}
-          inspect-flags: -e altinn_env=tt02 # Supplies a valid value for the pre-run validation, when env vars / flags are not yet defined
+          inspect-flags: -e altinn_env=TT02 # Supplies a valid value for the pre-run validation, when env vars / flags are not yet defined
       - name: Run org notification addresses use case tests
         uses: grafana/run-k6-action@a15e2072ede004e8d46141e33d7f7dad8ad08d9d # v1.3.1
         with:
           path: test/k6/src/tests/org-notification-addresses.js
           flags: -e orgNo=${{ secrets.ORGNO }}
-          inspect-flags: -e altinn_env=tt02 # Supplies a valid value for the pre-run validation, when env vars / flags are not yet defined
+          inspect-flags: -e altinn_env=TT02 # Supplies a valid value for the pre-run validation, when env vars / flags are not yet defined
 
   slack-notify:
     if: failure()
