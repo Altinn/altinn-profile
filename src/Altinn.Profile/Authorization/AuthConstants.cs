@@ -26,7 +26,7 @@
         public const string OrgNotificationAddress_Write = "OrgNotificationAddress_Write";
 
         /// <summary>
-        /// Policy name for reading user notification addresses and favorites
+        /// Policy name for checking that a user has access to a given party
         /// </summary>
         public const string UserPartyAccess = "UserId_Party_Access";
     }
