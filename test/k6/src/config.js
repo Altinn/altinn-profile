@@ -12,12 +12,12 @@ const baseUrls = {
 
 const environment = __ENV.altinn_env ? __ENV.altinn_env.toLowerCase() : null;
 if (!environment) {
-    stopIterationOnFail("Environment variable 'env' is not set", false);
+    stopIterationOnFail("Environment variable 'altinn_env' is not set", false);
 }
 
 const baseUrl = baseUrls[environment];
 if (!baseUrl) {
-    stopIterationOnFail(`Invalid value for environment variable 'env': '${environment}'.`, false);
+    stopIterationOnFail(`Invalid value for environment variable 'altinn_env': '${environment}'.`, false);
 }
 
 // Altinn TestTools token generator URL.

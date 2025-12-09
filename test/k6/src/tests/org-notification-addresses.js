@@ -6,7 +6,7 @@ import { stopIterationOnFail } from "../errorhandler.js";
 
 // Eksempel på bruk:
 // podman compose run k6 run /src/tests/org-notification-addresses.js \
-//   -e env=*** \
+//   -e altinn_env=*** \
 //   -e tokenGeneratorUserName=*** \
 //   -e tokenGeneratorUserPwd=*** \
 //   -e userID=*** \
