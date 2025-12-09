@@ -12,7 +12,7 @@ jobs:
     permissions:
       contents: read
     env: # Shared environment vars for all k6 test scripts
-      altinn_env: TT02
+      altinn_env: tt02
       partyId: ${{ secrets.PARTYID }}
       pid: ${{ secrets.PID }}
       tokenGeneratorUserName: ${{ secrets.TOKENGENERATOR_USERNAME }}
