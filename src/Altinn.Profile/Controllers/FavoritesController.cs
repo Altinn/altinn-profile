@@ -52,7 +52,6 @@ namespace Altinn.Profile.Controllers
         /// <response code="201">Returns status code 201 if the party is added to favorites</response>
         /// <response code="204">Returns status code 204 if the party is already in the favorites</response>
         [HttpPut("{partyUuid:guid}")]
-        [Authorize(Policy = AuthConstants.UserPartyAccess)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -91,7 +90,6 @@ namespace Altinn.Profile.Controllers
         /// <response code="204">Returns status code 204 if the party was deleted from favorites</response>
         /// <response code="404">Returns status code 404 if the party was not found in favorites</response>
         [HttpDelete("{partyUuid:guid}")]
-        [Authorize(Policy = AuthConstants.UserPartyAccess)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
