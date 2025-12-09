@@ -6,7 +6,7 @@ import { stopIterationOnFail } from "../errorhandler.js";
 
 // Eksempel på bruk:
 // podman compose run k6 run /src/tests/favorites.js \
-//   -e env=*** \
+//   -e altinn_env=*** \
 //   -e tokenGeneratorUserName=*** \
 //   -e tokenGeneratorUserPwd=*** \
 //   -e userID=*** \
@@ -91,7 +91,7 @@ function removeFavorites(data) {
  * The main function to run the test.
  * @param {Object} data - The data object containing runFullTestSet and other test data.
  */
-export default function runTests (data) {
+export default function runTests(data) {
     addFavorites(data);
     getFavorites(data);
     removeFavorites(data);

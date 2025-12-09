@@ -8,7 +8,7 @@ const tokenGeneratorUserName = __ENV.tokenGeneratorUserName;
 const userID = __ENV.userID;
 const pid = __ENV.pid;
 const partyId = __ENV.partyId;
-const environment = __ENV.env;
+const environment = __ENV.altinn_env;
 
 /**
  * Generates a token by making an HTTP GET request to the specified Token endpoint.
@@ -30,7 +30,7 @@ export function generateToken(endpoint) {
         pid: pid,
         partyId: partyId,
     };
-    
+
     const endpointWithParams = endpoint + apiHelpers.buildQueryParametersForEndpoint(queryParams);
 
     const credentials = `${tokenGeneratorUserName}:${tokenGeneratorUserPwd}`;

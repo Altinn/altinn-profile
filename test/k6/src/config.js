@@ -10,7 +10,7 @@ const baseUrls = {
     at24: "at24.altinn.cloud"
 };
 
-const environment = __ENV.env ? __ENV.env.toLowerCase() : null;
+const environment = __ENV.altinn_env ? __ENV.altinn_env.toLowerCase() : null;
 if (!environment) {
     stopIterationOnFail("Environment variable 'env' is not set", false);
 }

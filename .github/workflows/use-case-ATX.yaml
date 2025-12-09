@@ -15,6 +15,14 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env: # Shared environment vars for all k6 test scripts
+      altinn_env: ${{ matrix.environment }}
+      partyId: ${{ secrets.PARTYID }}
+      pid: ${{ secrets.PID }}
+      tokenGeneratorUserName: ${{ secrets.TOKENGENERATOR_USERNAME }}
+      tokenGeneratorUserPwd: ${{ secrets.TOKENGENERATOR_USERPASSWORD }}
+      userID: ${{ secrets.USERID }}
+
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
       - name: Set up K6
@@ -23,31 +31,46 @@ jobs:
         uses: grafana/run-k6-action@a15e2072ede004e8d46141e33d7f7dad8ad08d9d # v1.3.1
         with:
           path: test/k6/src/tests/favorites.js
-          flags: -e env=${{ vars.ENV }} -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} -e userID=${{ secrets.USERID }} -e partyId=${{ secrets.PARTYID }} -e pid=${{ secrets.PID }} -e partyUuid=${{ secrets.PARTYUUID }}
+          flags: -e partyUuid=${{ secrets.PARTYUUID }}
       - name: Run notification settings use case tests
         uses: grafana/run-k6-action@a15e2072ede004e8d46141e33d7f7dad8ad08d9d # v1.3.1
         with:
           path: test/k6/src/tests/notification-settings.js
-          flags: -e env=${{ vars.ENV }} -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} -e userID=${{ secrets.USERID }} -e partyId=${{ secrets.PARTYID }} -e pid=${{ secrets.PID }} -e partyUuid=${{ secrets.PARTYUUID }}
+          flags: -e partyUuid=${{ secrets.PARTYUUID }}
       - name: Run org notification addresses use case tests
         uses: grafana/run-k6-action@a15e2072ede004e8d46141e33d7f7dad8ad08d9d # v1.3.1
         with:
           path: test/k6/src/tests/org-notification-addresses.js
-          flags: -e env=${{ vars.ENV }} -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} -e userID=${{ secrets.USERID }} -e partyId=${{ secrets.PARTYID }} -e pid=${{ secrets.PID }} -e orgNo=${{ secrets.ORGNO }}
-      - name: Build failure report
+          flags: -e orgNo=${{ secrets.ORGNO }}
+      - name: Set failure output
+        id: set-failure
         if: failure()
         run: |
-          report=":warning: Profile use case test failure in ${{ matrix.environment }} :warning: \n"
-          report+="\n Workflow available here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          echo "stepreport="$report >> $GITHUB_ENV
-      - name: Report failure to Slack
-        if: failure()
-        id: slack
+          env_lower=$(echo "${{ matrix.environment }}" | tr '[:upper:]' '[:lower:]')
+          echo "${env_lower}=true" >> $GITHUB_OUTPUT
+  slack-notify:
+    if: failure()
+    needs: test
+    permissions: {}
+    strategy:
+      matrix:
+        environment: [AT22, AT23, AT24]
+        include:
+          - environment: AT22
+            output: failed-at22
+          - environment: AT23
+            output: failed-at23
+          - environment: AT24
+            output: failed-at24
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send notification
+        if: needs.test.outputs[matrix.output] == 'true'
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         with:
           webhook-type: incoming-webhook
           webhook: ${{ secrets.SLACK_WEBHOOK_URL_TEST }}
           payload: |
             {
-              "text": "${{ env.stepreport }}"
+              "text": ":warning: Profile use case test failure in ${{ matrix.environment }} :warning: \n\n Workflow available here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             }
