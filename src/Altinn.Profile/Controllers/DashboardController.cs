@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -116,8 +115,8 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<DashboardNotificationAddressResponse>>> GetNotificationAddressesByPhoneNumber(
-            [FromRoute(Name = "phoneNumber"), Required, RegularExpression(@"^[0-9]+$", ErrorMessage = "The phone number is not valid. It must contain only digits")] string phoneNumber,
-            [FromQuery(Name = "countrycode"), RegularExpression(@"(^\+([0-9]{1,3}))", ErrorMessage = "The country code is not valid. It must be between 1 to 3 digits, prefixed with '+'")] string countryCode = "+47",
+            [FromRoute(Name = "phoneNumber"), Required] string phoneNumber,
+            [FromQuery(Name = "countrycode")] string countryCode = "+47",
             CancellationToken cancellationToken = default)
         {            
             if (!ModelState.IsValid)
@@ -274,8 +273,8 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<DashboardUserContactInformationResponse>>> GetContactInformationByPhoneNumber(
-             [FromRoute(Name = "phoneNumber"), Required, RegularExpression(@"^[0-9]+$", ErrorMessage = "The phone number is not valid. It can contain only digits")] string phoneNumber,
-             [FromQuery(Name = "countrycode"), RegularExpression(@"(^\+([0-9]{1,3}))", ErrorMessage = "The country code is not valid. It must be between 1 to 3 digits, prefixed with '+'")] string countryCode,
+             [FromRoute(Name = "phoneNumber"), Required] string phoneNumber,
+             [FromQuery(Name = "countrycode")] string countryCode,
              CancellationToken cancellationToken = default)          
         {
              if (!ModelState.IsValid)
