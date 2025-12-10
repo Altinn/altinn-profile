@@ -6,7 +6,7 @@ import { stopIterationOnFail } from "../errorhandler.js";
 
 // Eksempel på bruk:
 // podman compose run k6 run /src/tests/org-notification-addresses.js \
-//   -e env=*** \
+//   -e altinn_env=*** \
 //   -e tokenGeneratorUserName=*** \
 //   -e tokenGeneratorUserPwd=*** \
 //   -e userID=*** \
@@ -31,7 +31,7 @@ export function setup() {
     const orgNo = __ENV.orgNo;
     const token = generateToken(config.tokenGenerator.getPersonalToken);
 
-    const envSuffix = __ENV.env.slice(-1);
+    const envSuffix = __ENV.altinn_env.slice(-1);
     const numericSuffix = Number.parseInt(envSuffix);
     const suffix = Number.isInteger(numericSuffix) ? envSuffix : 0;
 
@@ -154,7 +154,7 @@ function removeOrgNotificationAddresses(data, addressId) {
  * The main function to run the test.
  * @param {Object} data - The data object containing runFullTestSet and other test data.
  */
-export default function runTests (data) {
+export default function runTests(data) {
 
     let addressId = addOrgNotificationAddresses(data);
     getOrgNotificationAddresses(data);

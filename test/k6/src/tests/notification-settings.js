@@ -6,7 +6,7 @@ import { stopIterationOnFail } from "../errorhandler.js";
 
 // Eksempel på bruk:
 // podman compose run k6 run /src/tests/notification-settings.js \
-//   -e env=*** \
+//   -e altinn_env=*** \
 //   -e tokenGeneratorUserName=*** \
 //   -e tokenGeneratorUserPwd=*** \
 //   -e userID=*** \
@@ -34,7 +34,7 @@ export function setup() {
     const notificationSettings = {
         emailAddress: "noreply@altinn.no",
         phoneNumber: "+4799999999",
-        resourceIncludeList: [ "urn:altinn:resource:example" ]
+        resourceIncludeList: ["urn:altinn:resource:example"]
     }
 
     return {
@@ -100,7 +100,7 @@ function removePersonalNotificationAddresses(data) {
  * The main function to run the test.
  * @param {Object} data - The data object containing runFullTestSet and other test data.
  */
-export default function runTests (data) {
+export default function runTests(data) {
     addPersonalNotificationAddresses(data);
     getPersonalNotificationAddresses(data);
     removePersonalNotificationAddresses(data);
