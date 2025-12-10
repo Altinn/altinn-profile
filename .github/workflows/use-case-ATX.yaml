@@ -16,9 +16,9 @@ jobs:
     permissions:
       contents: read
     outputs:
-      failed-at22: ${{ steps.set-failure.outputs.at22 }}
-      failed-at23: ${{ steps.set-failure.outputs.at23 }}
-      failed-at24: ${{ steps.set-failure.outputs.at24 }}
+      failed-AT22: ${{ steps.set-failure.outputs.AT22 }}
+      failed-AT23: ${{ steps.set-failure.outputs.AT23 }}
+      failed-AT24: ${{ steps.set-failure.outputs.AT24 }}
     env: # Shared environment vars for all k6 test scripts
       altinn_env: ${{ matrix.environment }}
       partyId: ${{ secrets.PARTYID }}
@@ -53,8 +53,7 @@ jobs:
         id: set-failure
         if: failure()
         run: |
-          env_lower=$(echo "${{ matrix.environment }}" | tr '[:upper:]' '[:lower:]')
-          echo "${env_lower}=true" >> $GITHUB_OUTPUT
+          echo "${{ matrix.environment }}=true" >> $GITHUB_OUTPUT
   slack-notify:
     if: failure()
     needs: test
@@ -64,11 +63,11 @@ jobs:
         environment: [AT22, AT23, AT24]
         include:
           - environment: AT22
-            output: failed-at22
+            output: failed-AT22
           - environment: AT23
-            output: failed-at23
+            output: failed-AT23
           - environment: AT24
-            output: failed-at24
+            output: failed-AT24
     runs-on: ubuntu-latest
     steps:
       - name: Send notification
