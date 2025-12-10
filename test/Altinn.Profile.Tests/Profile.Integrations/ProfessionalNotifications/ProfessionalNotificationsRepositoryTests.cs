@@ -922,5 +922,81 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             Assert.NotNull(result);
             Assert.Empty(result);
         }
+
+        [Fact]
+        public async Task GetAllContactInfoByPhoneNumberAsync_WhenMultipleUsersExist_ReturnsAllContactInfos()
+        {
+            // Arrange
+            string email = "testUser@test.no";
+            string fullPhoneNumber = "+4792929292";
+
+            Guid partyUuid1 = Guid.NewGuid();
+            Guid partyUuid2 = Guid.NewGuid();
+            int userId1 = 101;
+            int userId2 = 202;
+
+            await SeedUserPartyContactInfo(userId1, partyUuid1, email, fullPhoneNumber, new List<UserPartyContactInfoResource> { new() { ResourceId = "res1" } });
+            await SeedUserPartyContactInfo(userId2, partyUuid2, email, fullPhoneNumber, new List<UserPartyContactInfoResource> { new() { ResourceId = "res2" } });
+
+            // Act
+            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(fullPhoneNumber, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Contains(result, r => r.UserId == userId1 && r.PartyUuid == partyUuid1 && r.PhoneNumber == fullPhoneNumber);
+            Assert.Contains(result, r => r.UserId == userId2 && r.PartyUuid == partyUuid2 && r.PhoneNumber == fullPhoneNumber);
+        }
+
+        [Fact]
+        public async Task GetAllContactInfoByPhoneNumberAsync_WhenNoContacts_ReturnsEmptyList()
+        {
+            // Arrange
+            string fullPhoneNumber = "+4792929292";
+
+            // Act
+            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(fullPhoneNumber, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetAllContactInfoByPhoneNumberAsync_ExcludesNullOrEmptyPhoneNumbers()
+        {
+            // Arrange
+            string matchingPhoneNumber = "+4792929292";
+            Guid partyUuid = Guid.NewGuid();
+            int userIdMatching = 303;
+            int userIdNull = 404;
+
+            await SeedUserPartyContactInfo(userIdMatching, partyUuid, "test@test.no", matchingPhoneNumber, null);
+            await SeedUserPartyContactInfo(userIdNull, partyUuid, "test@test.no", null, null);
+
+            // Act
+            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(matchingPhoneNumber, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Single(result);
+            Assert.Equal(userIdMatching, result[0].UserId);
+            Assert.Equal(matchingPhoneNumber, result[0].PhoneNumber);
+
+            var emptyResult = await _repository.GetAllContactInfoByPhoneNumberAsync(string.Empty, CancellationToken.None);
+            Assert.NotNull(emptyResult);
+            Assert.Empty(emptyResult);
+        }
+
+        [Fact]
+        public async Task GetAllContactInfoByPhoneNumberAsync_WhenPhoneNumberIsNull_ReturnsEmptyList()
+        {
+            // Act
+            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(null, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
     }
 }

@@ -433,12 +433,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetNotificationAddressesByPhoneNumber_WhenCountryCodeNotProvided_UsesDefaultAndReturnsOk()
+        public async Task GetNotificationAddressesByPhoneNumber_WhenCountryCodeProvided_ReturnsOk()
         {
             // Arrange
             string phoneNumber = "99999999";
-            string defaultCountryCode = "+47";
-            string fullPhoneNumber = string.Concat(defaultCountryCode, phoneNumber);
+            string countryCode = "+47";
+            var encodedCountryCode = Uri.EscapeDataString(countryCode);
+            string fullPhoneNumber = string.Concat(countryCode, phoneNumber);
 
             _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationNotificationAddressesByFullAddressAsync(fullPhoneNumber, AddressType.SMS, It.IsAny<CancellationToken>()))
@@ -447,7 +448,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{phoneNumber}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{phoneNumber}?countrycode={encodedCountryCode}");
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -463,7 +464,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var phoneItem = result.FirstOrDefault(a => a.Phone != null);
             Assert.NotNull(phoneItem);
             Assert.Equal(phoneNumber, phoneItem.Phone);
-            Assert.Equal(defaultCountryCode, phoneItem.CountryCode);
+            Assert.Equal(countryCode, phoneItem.CountryCode);
         }
 
         private static HttpRequestMessage GenerateTokenWithoutScope(string orgNumber, HttpRequestMessage httpRequestMessage)

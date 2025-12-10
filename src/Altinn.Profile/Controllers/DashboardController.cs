@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Mappers;
 using Altinn.Profile.Models;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +24,7 @@ namespace Altinn.Profile.Controllers
     /// <remarks>
     /// Initializes a new instance of the <see cref="DashboardController"/> class.
     /// </remarks>
+    [ApiController]
     [Authorize(Policy = AuthConstants.SupportDashboardAccess)]
     [Route("profile/api/v1/dashboard")]
     [Consumes("application/json")]
@@ -32,7 +36,7 @@ namespace Altinn.Profile.Controllers
         /// <summary>
         /// Endpoint that can retrieve a list of all Notification Addresses for the given organization
         /// </summary>
-        /// <returns>Returns the notification addresses for the provided organization</returns>                
+        /// <returns>Returns the notification addresses for the provided organization</returns> 
         [HttpGet("organizations/{organizationNumber}/notificationaddresses")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -73,7 +77,7 @@ namespace Altinn.Profile.Controllers
         /// <summary>
         /// Endpoint that can retrieve a list of all Notification Addresses for the given email address
         /// </summary>
-        /// <returns>Returns the notification addresses for the provided email address</returns>                
+        /// <returns>Returns the notification addresses for the provided email address</returns> 
         [HttpGet("organizations/notificationaddresses/email/{emailAddress}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -92,7 +96,7 @@ namespace Altinn.Profile.Controllers
             if (orgCount == 0)
             {
                 return NotFound();
-            }            
+            } 
 
             var addresses = FilterAndMapAddresses(organizations);
 
@@ -102,13 +106,19 @@ namespace Altinn.Profile.Controllers
         /// <summary>
         /// Endpoint that can retrieve a list of all Notification Addresses for the given phone number
         /// </summary>
-        /// <returns>Returns the notification addresses for the provided phone number</returns>                
+        /// <param name="phoneNumber">The phone number to retrieve notification addresses for</param>
+        /// <param name="countryCode">The country code for the phone number (default: +47)</param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        /// <returns>Returns the notification addresses for the provided phone number</returns> 
         [HttpGet("organizations/notificationaddresses/phonenumber/{phoneNumber}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<DashboardNotificationAddressResponse>>> GetNotificationAddressesByPhoneNumber([FromRoute] string phoneNumber, [FromQuery(Name = "countrycode")] string countryCode = "+47", CancellationToken cancellationToken = default)
-        {
+        public async Task<ActionResult<List<DashboardNotificationAddressResponse>>> GetNotificationAddressesByPhoneNumber(
+            [FromRoute(Name = "phoneNumber"), Required] string phoneNumber,
+            [FromQuery(Name = "countrycode")] string countryCode = "+47",
+            CancellationToken cancellationToken = default)
+        {            
             if (!ModelState.IsValid)
             {
                 return ValidationProblem(ModelState);
@@ -161,6 +171,7 @@ namespace Altinn.Profile.Controllers
     /// <remarks>
     /// Initializes a new instance of the <see cref="DashboardUserContactInformationController"/> class.
     /// </remarks>
+    [ApiController]
     [Authorize(Policy = AuthConstants.SupportDashboardAccess)]
     [Route("profile/api/v1/dashboard")]
     [Consumes("application/json")]
@@ -203,14 +214,7 @@ namespace Altinn.Profile.Controllers
                 return Ok(new List<DashboardUserContactInformationResponse>());
             }
 
-            var responses = contactInfos.Select(c => new DashboardUserContactInformationResponse
-            {
-                NationalIdentityNumber = c.NationalIdentityNumber,
-                Name = c.Name,
-                Email = c.EmailAddress,
-                Phone = c.PhoneNumber,
-                LastChanged = c.LastChanged
-            }).ToList();
+            var responses = MapContactInfosToResponses(contactInfos);
 
             return Ok(responses);
         }
@@ -221,7 +225,7 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         /// <param name="emailAddress">The email address to retrieve contact information for</param>
         /// <param name="cancellationToken">Cancellation token for the operation</param>
-        /// <returns>Returns the user contact information for the provided email address</returns>        
+        /// <returns>Returns the user contact information for the provided email address</returns> 
         /// <response code="200">Successfully retrieved user contact information. Returns an array of contacts for the specified email address (empty array if no contacts found)</response>
         /// <response code="400">Invalid request parameters (model validation failed).</response>
         /// <response code="403">Caller does not have the required Dashboard Maskinporten scope (altinn:profile.support.admin).</response>
@@ -247,7 +251,52 @@ namespace Altinn.Profile.Controllers
                 return Ok(new List<DashboardUserContactInformationResponse>());
             }
 
-            var responses = contactInfosByEmail.Select(c => new DashboardUserContactInformationResponse
+            var responses = MapContactInfosToResponses(contactInfosByEmail);
+
+            return Ok(responses);
+        }
+
+        /// <summary>
+        /// Endpoint that can retrieve a list of all user contact information for the given phone number.
+        /// Returns the contact details that users have registered with the specified phone number.
+        /// </summary>
+        /// <param name="phoneNumber">The phone number to retrieve contact information for</param>
+        /// <param name="countryCode">The country code for the phone number</param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        /// <returns>Returns the user contact information for the provided phone number</returns> 
+        /// <response code="200">Successfully retrieved user contact information. Returns an array of contacts for the specified phone number (empty array if no contacts found)</response>
+        /// <response code="400">Invalid request parameters (model validation failed).</response>
+        /// <response code="403">Caller does not have the required Dashboard Maskinporten scope (altinn:profile.support.admin).</response>
+        [HttpGet("organizations/contactinformation/phonenumber/{phoneNumber}")]
+        [ProducesResponseType(typeof(List<DashboardUserContactInformationResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<DashboardUserContactInformationResponse>>> GetContactInformationByPhoneNumber(
+             [FromRoute(Name = "phoneNumber"), Required] string phoneNumber,
+             [FromQuery(Name = "countrycode")] string countryCode,
+             CancellationToken cancellationToken = default)          
+        {
+             if (!ModelState.IsValid)
+             {
+                return ValidationProblem(ModelState);
+             }
+
+             var contactInfosByPhone = await _professionalNotificationsService.GetContactInformationByPhoneNumberAsync(phoneNumber, countryCode, cancellationToken);
+
+             if (contactInfosByPhone.Count == 0)
+             {
+                return Ok(new List<DashboardUserContactInformationResponse>());
+             }
+
+             var responses = MapContactInfosToResponses(contactInfosByPhone);
+
+             return Ok(responses);
+        }
+
+        private static List<DashboardUserContactInformationResponse> MapContactInfosToResponses(IEnumerable<UserPartyContactInfoWithIdentity> contactInfos)
+        {
+            return [.. contactInfos.Select(c => new DashboardUserContactInformationResponse
             {
                 NationalIdentityNumber = c.NationalIdentityNumber,
                 Name = c.Name,
@@ -255,9 +304,7 @@ namespace Altinn.Profile.Controllers
                 Phone = c.PhoneNumber,
                 OrganizationNumber = c.OrganizationNumber,
                 LastChanged = c.LastChanged
-            }).ToList();
-
-            return Ok(responses);
+            })];
         }
     }
 }
