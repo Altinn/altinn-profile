@@ -45,7 +45,7 @@ jobs:
         with:
           path: test/k6/src/tests/notification-settings.js
           flags: -e partyUuid=${{ secrets.PARTYUUID }}
-          inspect-flags: -e altinn_env=${{ env.altinn_env }} # Supplies the value for pre-run validation, when env vars / flags are not yet defined
+          #inspect-flags: -e altinn_env=${{ env.altinn_env }} # Supplies the value for pre-run validation, when env vars / flags are not yet defined
       - name: Run org notification addresses use case tests
         uses: grafana/run-k6-action@a15e2072ede004e8d46141e33d7f7dad8ad08d9d # v1.3.1
         with:
@@ -73,13 +73,16 @@ jobs:
             output: failed-AT24
     runs-on: ubuntu-latest
     steps:
-      - name: Send notification
-        if: needs.test.outputs[matrix.output] == 'true'
-        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
-        with:
-          webhook-type: incoming-webhook
-          webhook: ${{ secrets.SLACK_WEBHOOK_URL_TEST }}
-          payload: |
-            {
-              "text": ":warning: Profile use case test failure in ${{ matrix.environment }} :warning: \n\n Workflow available here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-            }
+      - name: Hello world
+        run: |
+          echo "${{ needs.test.outputs[matrix.output] }}"
+      # - name: Send notification
+      #   if: needs.test.outputs[matrix.output] == 'true'
+      #   uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
+      #   with:
+      #     webhook-type: incoming-webhook
+      #     webhook: ${{ secrets.SLACK_WEBHOOK_URL_TEST }}
+      #     payload: |
+      #       {
+      #         "text": ":warning: Profile use case test failure in ${{ matrix.environment }} :warning: \n\n Workflow available here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      #       }
