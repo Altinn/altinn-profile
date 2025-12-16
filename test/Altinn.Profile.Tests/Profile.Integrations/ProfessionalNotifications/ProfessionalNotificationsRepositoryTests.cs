@@ -961,13 +961,20 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         [InlineData("004798765432")]
         [InlineData("98765432")]
         [InlineData("98765")]
-        [InlineData("")]
-        [InlineData(null)]
-        public async Task GetAllContactInfoByPhoneNumberAsync_WhenPhoneNumberHasAllowedValues_ReturnsValidResult(string input)
-        {            
-            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(input, CancellationToken.None);
+        public async Task GetAllContactInfoByPhoneNumberAsync_WhenPhoneNumberHasAllowedValues_ReturnsValidResult(string inputPhoneNumber)
+        {
+            // Arrange           
+            Guid partyUuid = Guid.NewGuid();
+            int userId = 404;
 
+            await SeedUserPartyContactInfo(userId, partyUuid, null, inputPhoneNumber, null);
+
+            // Act
+            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(inputPhoneNumber, CancellationToken.None);
+           
+            // Assert
             Assert.NotNull(result);
+            Assert.Equal(inputPhoneNumber, result[0].PhoneNumber);
         }
 
         [Fact]

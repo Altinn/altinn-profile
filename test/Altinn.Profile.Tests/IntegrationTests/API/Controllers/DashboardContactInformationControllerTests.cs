@@ -1167,10 +1167,14 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [Theory]
         [InlineData("98765", "+47")] // 5 digits with country code
         [InlineData("98765432", "+47")] // 8 digits with country code
+        [InlineData("98765432", "0047")] // 8 digits with country code
         [InlineData("98765", null)] // 5 digits without country code
         [InlineData("98765432", null)] // 8 digits without country code
         [InlineData("4798765432", null)] // Number with country code prefix (no +)
         [InlineData("004798765432", null)] // Number with 00 prefix
+        [InlineData("12345", "+47")] // 5 digits with country code added
+        [InlineData("987654321234546", "0047")] // 15 digits with country code
+        [InlineData("8798765432", null)]        
         public async Task GetContactInformationByPhoneNumber_WithVariousPhoneNumberFormats_ReturnsOkWithUsers(string phoneNumber, string countryCode)
         {
             // Arrange - SBL Bridge returns user profile for identity enrichment
@@ -1244,16 +1248,22 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Theory]
-        [InlineData("1234")] // Too few digits (less than 5)
-        [InlineData("12345678901234567")] // Too many digits (more than 15)
-        [InlineData("abc12345")] // Contains letters
-        [InlineData("123-456-7890")] // Contains hyphens
-        [InlineData("123 456 7890")] // Contains spaces
-        public async Task GetContactInformationByPhoneNumber_WithInvalidPhoneNumberFormat_ReturnsBadRequest(string invalidPhoneNumber)
+        [InlineData("1234", "+47")] // Too few digits (less than 5)
+        [InlineData("12345678901234567", "+47")] // Too many digits (more than 15)
+        [InlineData("abc12345", "0047")] // Contains letters
+        [InlineData("123-456-7890", null)] // Contains hyphens
+        [InlineData("123 456 7890", null)] // Contains spaces
+        [InlineData("9876543210234546", null)] // 15 digits with country code
+        public async Task GetContactInformationByPhoneNumber_WithInvalidPhoneNumberFormat_ReturnsBadRequest(string searchPhoneNumber, string countryCode)
         {
             // Arrange
             HttpClient client = _factory.CreateClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{invalidPhoneNumber}");
+
+            string requestUrl = string.IsNullOrEmpty(countryCode)
+                ? $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{searchPhoneNumber}"
+                : $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{searchPhoneNumber}?countrycode={Uri.EscapeDataString(countryCode)}";
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{searchPhoneNumber}");
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
