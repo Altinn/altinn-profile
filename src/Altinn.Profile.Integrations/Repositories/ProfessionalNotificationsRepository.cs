@@ -91,7 +91,7 @@ namespace Altinn.Profile.Integrations.Repositories
 
             var contactInfosByPhoneNumber = await databaseContext.UserPartyContactInfo
                 .AsNoTracking()                
-                .Where(x => !string.IsNullOrEmpty(x.PhoneNumber) && x.PhoneNumber == phoneNumber)
+                .Where(x => !string.IsNullOrEmpty(x.PhoneNumber) && x.PhoneNumber.Contains(phoneNumber))
                 .ToListAsync(cancellationToken);
 
             return contactInfosByPhoneNumber;

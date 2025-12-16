@@ -3,17 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
+
 using Microsoft.EntityFrameworkCore;
+
 using Moq;
+
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
+
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
@@ -946,6 +952,28 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             Assert.Equal(2, result.Count);
             Assert.Contains(result, r => r.UserId == userId1 && r.PartyUuid == partyUuid1 && r.PhoneNumber == fullPhoneNumber);
             Assert.Contains(result, r => r.UserId == userId2 && r.PartyUuid == partyUuid2 && r.PhoneNumber == fullPhoneNumber);
+        }
+
+        [Theory]
+        [InlineData("+4798765432")]
+        [InlineData("+4698765432")]
+        [InlineData("004798765432")]
+        [InlineData("98765432")]
+        [InlineData("98765")]
+        public async Task GetAllContactInfoByPhoneNumberAsync_WhenPhoneNumberHasAllowedValues_ReturnsValidResult(string inputPhoneNumber)
+        {
+            // Arrange           
+            Guid partyUuid = Guid.NewGuid();
+            int userId = 404;
+
+            await SeedUserPartyContactInfo(userId, partyUuid, null, inputPhoneNumber, null);
+
+            // Act
+            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(inputPhoneNumber, CancellationToken.None);
+           
+            // Assert
+            Assert.NotEmpty(result);
+            Assert.Equal(inputPhoneNumber, result[0].PhoneNumber);
         }
 
         [Fact]

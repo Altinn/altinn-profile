@@ -1164,6 +1164,115 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Empty(result);
         }
 
+        [Theory]
+        [InlineData("98765", "+47")] // 5 digits with country code
+        [InlineData("98765432", "+47")] // 8 digits with country code
+        [InlineData("98765432", "0047")] // 8 digits with country code
+        [InlineData("98765", null)] // 5 digits without country code
+        [InlineData("98765432", null)] // 8 digits without country code
+        [InlineData("4798765432", null)] // Number with country code prefix (no +)
+        [InlineData("004798765432", null)] // Number with 00 prefix
+        [InlineData("12345", "+47")] // 5 digits with country code added
+        [InlineData("987654321234546", "0047")] // 15 digits with country code
+        [InlineData("8798765432", null)]        
+        public async Task GetContactInformationByPhoneNumber_WithVariousPhoneNumberFormats_ReturnsOkWithUsers(string phoneNumber, string countryCode)
+        {
+            // Arrange - SBL Bridge returns user profile for identity enrichment
+            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+            {
+                string uri = request.RequestUri?.ToString() ?? string.Empty;
+                if (uri.Contains("/users/1001"))
+                {
+                    var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
+                    userProfile.UserId = 1001;
+                    userProfile.Party.SSN = "01010112345";
+                    userProfile.Party.Name = "John Doe";
+                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
+                }
+
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            });
+
+            string orgNumber = "341341341";
+            Guid partyUuid = Guid.NewGuid();
+
+            string searchPhoneNumber = string.IsNullOrEmpty(countryCode)
+                ? phoneNumber
+                : $"{countryCode}{phoneNumber}";
+
+            var contactInfosFromRepo = new List<UserPartyContactInfo>
+            {
+                new()
+                {
+                    UserId = 1001,
+                    PartyUuid = partyUuid,
+                    EmailAddress = "user@example.com",
+                    PhoneNumber = searchPhoneNumber,
+                    LastChanged = _testTime
+                }
+            };
+
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(r => r.GetAllContactInfoByPhoneNumberAsync(searchPhoneNumber, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(contactInfosFromRepo);
+
+            _factory.RegisterClientMock
+                .Setup(r => r.GetOrganizationNumberByPartyUuid(partyUuid, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(orgNumber);
+
+            HttpClient client = _factory.CreateClient();
+
+            string requestUrl = string.IsNullOrEmpty(countryCode)
+                ? $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}"
+                : $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}?countrycode={Uri.EscapeDataString(countryCode)}";
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, requestUrl);
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<List<DashboardUserContactInformationResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+            Assert.Single(result);
+            Assert.Equal("01010112345", result[0].NationalIdentityNumber);
+            Assert.Equal("John Doe", result[0].Name);
+            Assert.Equal("user@example.com", result[0].Email);
+            Assert.Equal(searchPhoneNumber, result[0].Phone);
+            Assert.Equal(orgNumber, result[0].OrganizationNumber);
+            Assert.Equal(_testTime, result[0].LastChanged);
+        }
+
+        [Theory]
+        [InlineData("1234", "+47")] // Too few digits (less than 5)
+        [InlineData("12345678901234567", "+47")] // Too many digits (more than 15)
+        [InlineData("abc12345", "0047")] // Contains letters
+        [InlineData("123-456-7890", null)] // Contains hyphens
+        [InlineData("123 456 7890", null)] // Contains spaces
+        [InlineData("9876543210234546", null)] // 15 digits with country code
+        public async Task GetContactInformationByPhoneNumber_WithInvalidPhoneNumberFormat_ReturnsBadRequest(string searchPhoneNumber, string countryCode)
+        {
+            // Arrange
+            HttpClient client = _factory.CreateClient();
+
+            string requestUrl = string.IsNullOrEmpty(countryCode)
+                ? $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{searchPhoneNumber}"
+                : $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{searchPhoneNumber}?countrycode={Uri.EscapeDataString(countryCode)}";
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{searchPhoneNumber}");
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
         private static HttpRequestMessage CreateAuthorizedRequestWithoutScope(HttpRequestMessage httpRequestMessage, string org = "ttd")
         {
             string token = PrincipalUtil.GetOrgToken(org);

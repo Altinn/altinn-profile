@@ -273,7 +273,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<DashboardUserContactInformationResponse>>> GetContactInformationByPhoneNumber(
-             [FromRoute(Name = "phoneNumber"), Required] string phoneNumber,
+             [FromRoute(Name = "phoneNumber"), Required, RegularExpression(@"^[0-9]{5,15}$", ErrorMessage = "The phone number is not valid. It can only contain digits between 5 to 15 digits")] string phoneNumber,
              [FromQuery(Name = "countrycode")] string countryCode,
              CancellationToken cancellationToken = default)          
         {
