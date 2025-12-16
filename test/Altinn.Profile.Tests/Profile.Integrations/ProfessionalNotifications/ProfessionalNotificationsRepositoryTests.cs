@@ -972,7 +972,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             var result = await _repository.GetAllContactInfoByPhoneNumberAsync(inputPhoneNumber, CancellationToken.None);
            
             // Assert
-            Assert.NotNull(result);
+            Assert.NotEmpty(result);
             Assert.Equal(inputPhoneNumber, result[0].PhoneNumber);
         }
 
