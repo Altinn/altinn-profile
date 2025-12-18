@@ -1,7 +1,11 @@
 ﻿#nullable enable
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+
 using Microsoft.Extensions.Logging;
+
+[assembly: InternalsVisibleTo("Altinn.Profile.Tests")]
 
 namespace Altinn.Authorization.ServiceDefaults.Leases;
 
