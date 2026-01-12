@@ -20,7 +20,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
             var org = await _orgRepository.GetOrganizationAsync(organizationNumber, cancellationToken);
             org ??= new Organization { OrganizationNumber = organizationNumber, NotificationAddresses = [] };
 
-            var existingAddress = org.NotificationAddresses?.FirstOrDefault(x => x.FullAddress == notificationAddress.FullAddress && x.AddressType == notificationAddress.AddressType);
+            var existingAddress = org.NotificationAddresses?.FirstOrDefault(x => x.FullAddress.Equals(notificationAddress.FullAddress, StringComparison.InvariantCultureIgnoreCase) && x.AddressType == notificationAddress.AddressType);
             if (existingAddress is { IsSoftDeleted : not true })
             {
                 return (existingAddress, false);
@@ -60,7 +60,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
                 return (null, false);
             }
 
-            var duplicateAddress = org.NotificationAddresses?.FirstOrDefault(x => x.FullAddress == notificationAddress.FullAddress && x.AddressType == notificationAddress.AddressType);
+            var duplicateAddress = org.NotificationAddresses?.FirstOrDefault(x => x.FullAddress.Equals(notificationAddress.FullAddress, StringComparison.InvariantCultureIgnoreCase) && x.AddressType == notificationAddress.AddressType);
             if (duplicateAddress is { IsSoftDeleted : not true })
             {
                 return (duplicateAddress, true);
