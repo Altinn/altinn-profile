@@ -60,7 +60,7 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
                 return (null, false);
             }
 
-            var duplicateAddress = org.NotificationAddresses?.FirstOrDefault(x => x.FullAddress == notificationAddress.FullAddress && x.AddressType == notificationAddress.AddressType);
+            var duplicateAddress = org.NotificationAddresses?.FirstOrDefault(x => x.FullAddress.Equals(notificationAddress.FullAddress, StringComparison.InvariantCultureIgnoreCase) && x.AddressType == notificationAddress.AddressType);
             if (duplicateAddress is { IsSoftDeleted : not true })
             {
                 return (duplicateAddress, true);
