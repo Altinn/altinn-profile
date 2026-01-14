@@ -31,15 +31,11 @@ export const options = {
 };
 const csvData = createCSVSharedArray('usersTestData');
 
-if (csvData.length === 0) {
-    stopIterationOnFail("No test data available: CSV file is empty", false);
-}
-
 /**
  * Initialize test data.
  */
 export function setup() {
-const userId = __ENV.userID;
+    const userId = __ENV.userID;
 
     return {
         userId,
@@ -71,13 +67,11 @@ export default function runTests(data) {
     let useTestData = false;
 
     // Priority 1: Use environment variable if provided (user input takes precedence)
-    if (data.userId) {
-        // Use userId from environment variable
-    } else if (csvData && csvData.length > 0) {
+    if (!data.userId && csvData && csvData.length > 0) {
         // Priority 2: Use CSV approach - select a random row from CSV data for this iteration
         testRow = getRandomRow(csvData);
         useTestData = true;
-    } else {
+    } else if (!data.userId) {
         stopIterationOnFail("No test data available: neither userId environment variable nor CSV data", false);
         return;
     }

@@ -32,10 +32,6 @@ export const options = {
 };
 
 const csvData = createCSVSharedArray('orgNotificationAddressesTestData');
-// Access length to trigger initialization in init context
-if (csvData.length === 0) {
-    stopIterationOnFail("No test data available: orgNo not provided, and CSV file is empty", false);
-}
 
 /**
  * Initialize test data.

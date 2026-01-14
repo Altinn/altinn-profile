@@ -32,10 +32,6 @@ export const options = {
 };
 const csvData = createCSVSharedArray('favoritesTestData');
 
-if (csvData.length === 0) {
-    stopIterationOnFail("No test data available: CSV file is empty", false);
-}
-
 /**
  * Initialize test data.
  * Supports both CSV-based and environment variable-based test data.

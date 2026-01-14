@@ -32,11 +32,6 @@ export const options = {
 };
 
 const testData = createCSVSharedArray('notificationSettingsTestData');
-// Access length to trigger initialization in init context
-if (testData.length === 0) {
-    stopIterationOnFail("No test data available: partyUuid not provided, and CSV file is empty", false);
-}
-
 
 /**
  * Initialize test data.
