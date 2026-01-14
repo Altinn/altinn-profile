@@ -24,14 +24,39 @@ The following environment variables are required to run the tests:
 
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
-| `env` | Environment to run tests against (prod/tt02/yt01/at22/at23/at24) | Yes | - |
+| `altinn_env` | Environment to run tests against (prod/tt02/yt01/at22/at23/at24) | Yes | - |
 | `tokenGeneratorUserName` | Username for token generator | Yes | - |
 | `tokenGeneratorUserPwd` | Password for token generator | Yes | - |
-| `userID` | User ID for testing | Yes | - |
-| `partyId` | Party ID for testing | Yes | - |
-| `pid` | Personal ID for testing | Yes | - |
-| `partyUuid` | Party UUID for testing | Yes | - |
-| `orgNo` | Organization number for testing | Yes | - |
+| `partyUuid` | Party UUID for testing (for favorites and notification-settings tests) | No* | - |
+| `orgNo` | Organization number for testing (for org-notification-addresses test) | No* | - |
+
+\* If not provided, tests will use the static CSV file (`/src/data/orgs-in-yt01-with-party-uuid.csv`) with random row selection.
+
+### Test Data Input Methods
+
+Tests support **two methods** for providing test data. **Environment variables take priority over CSV data** - if both are provided, the environment variable will be used.
+
+#### Method 1: Environment Variables (Takes Priority)
+
+When environment variables are provided (e.g., `partyUuid` or `orgNo`), they take precedence over CSV data. This allows users to override CSV data with specific test values.
+
+The CSV file should contain columns matching the test requirements:
+- `orgNo` - Organization number
+- `partyId` - Party ID
+- `partyUuid` - Party UUID
+- `userId` - User ID
+- `ssn` - Social security number
+- Other columns as needed by specific tests
+
+Example CSV format:
+```csv
+orgNo,partyId,ssn,userId,userPartyId,orgUuid,orgType,partyUuid
+730077254,58881276,10121251049,1292822,54077221,27229997-f13d-4f25-9416-748695fb8e22,regnskapsforer,2fa5d6a6-40dc-4f45-94d6-ec3a8de92224
+```
+
+#### Method 2: CSV-based (Recommended for Load Testing)
+
+Each test iteration randomly selects a row from the CSV file, making it ideal for load and performance testing with diverse test data. CSV data is only used when environment variables are not provided.
 
 Additional configuration options:
 
@@ -61,28 +86,51 @@ $> cd /altinn-profile/test/k6
 
 ### Basic Test Execution
 
-Run a single test:
+#### Using environment variables (takes priority):
 
 ```bash
 $> podman compose run k6 run /src/tests/favorites.js \
+    -e altinn_env=yt01 \
     -e tokenGeneratorUserName=*** \
     -e tokenGeneratorUserPwd=*** \
-    -e env=*** \
-    -e userID=*** \
-    -e pid=*** \
-    -e partyId=*** \
     -e partyUuid=***
 ```
 
-### Advanced Configuration
+This uses the provided `partyUuid` directly for all iterations.
 
-Run with custom timeout and retry settings:
+#### Using static CSV file (automatic when no environment variables provided):
 
 ```bash
 $> podman compose run k6 run /src/tests/favorites.js \
+    -e altinn_env=yt01 \
+    -e tokenGeneratorUserName=*** \
+    -e tokenGeneratorUserPwd=***
+```
+
+Each test iteration will randomly select a row from the static CSV file (`/src/data/orgs-in-yt01-with-party-uuid.csv`), ensuring diverse test data across iterations. This happens automatically when environment variables are not provided.
+
+### Advanced Configuration
+
+Run with custom timeout and retry settings (using static CSV file):
+
+```bash
+$> podman compose run k6 run /src/tests/favorites.js \
+    -e altinn_env=tt02 \
     -e tokenGeneratorUserName=*** \
     -e tokenGeneratorUserPwd=*** \
-    -e env=tt02 \
+    -e REQUEST_TIMEOUT=60s \
+    -e RETRY_COUNT=5 \
+    -e RETRY_INTERVAL=2000
+```
+
+Or with environment variables (overrides CSV):
+
+```bash
+$> podman compose run k6 run /src/tests/favorites.js \
+    -e altinn_env=tt02 \
+    -e tokenGeneratorUserName=*** \
+    -e tokenGeneratorUserPwd=*** \
+    -e partyUuid=*** \
     -e REQUEST_TIMEOUT=60s \
     -e RETRY_COUNT=5 \
     -e RETRY_INTERVAL=2000
@@ -91,23 +139,36 @@ $> podman compose run k6 run /src/tests/favorites.js \
 ---
 
 ## Load tests
-> [!WARNING]  
-> Load testing is not supported yet.
 
-The same tests can be used to run load and performance tests. These can be executed as described above, but with additional parameters like `--vus` (virtual users) and `--duration` or `--iterations`. 
+The tests are ready for load and performance testing! When using CSV-based test data (and no environment variables are provided), each iteration automatically selects a random row from the CSV file, ensuring diverse test data across all virtual users and iterations.
 
-For example:
+> **Note:** For load testing, CSV-based approach is strongly recommended as it provides diverse test data across iterations. If environment variables are provided, they will take priority and the same test data will be used for all iterations.
 
-Run a test with 10 virtual users (VUs) for 5 minutes:
+Run load tests with additional parameters like `--vus` (virtual users) and `--duration` or `--iterations`:
+
+### Example: Load test with 10 virtual users for 5 minutes (CSV-based)
 
 ```bash
-$> k6 run /src/tests/favorites.js \
+$> podman compose run k6 run /src/tests/favorites.js \
+    -e altinn_env=yt01 \
     -e tokenGeneratorUserName=*** \
     -e tokenGeneratorUserPwd=*** \
-    -e env=tt02 \
     --vus=10 \
     --duration=5m
 ```
+
+### Example: Load test with 50 iterations (CSV-based)
+
+```bash
+$> podman compose run k6 run /src/tests/favorites.js \
+    -e altinn_env=yt01 \
+    -e tokenGeneratorUserName=*** \
+    -e tokenGeneratorUserPwd=*** \
+    --vus=5 \
+    --iterations=50
+```
+
+**Note:** Make sure your CSV file contains enough rows to support the number of iterations you plan to run. Each iteration randomly selects a row, so duplicates may occur, but this provides realistic load testing scenarios.
 
 ---
 
