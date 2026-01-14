@@ -105,7 +105,8 @@ function removeFavorites(token, partyUuid) {
 export default function runTests(data) {
     let partyUuid;
     let testRow = null;
-    
+    let useTestData = false;
+
     // Priority 1: Use environment variable if provided (user input takes precedence)
     if (data.partyUuid) {
         partyUuid = data.partyUuid;
@@ -113,13 +114,14 @@ export default function runTests(data) {
         // Priority 2: Use CSV approach - select a random row from CSV data for this iteration
         testRow = getRandomRow(csvData);
         partyUuid = testRow.partyUuid;
+        useTestData = true;
     } else {
         stopIterationOnFail("No test data available: neither partyUuid environment variable nor CSV data", false);
         return;
     }
     
     // Generate token for this iteration: environment variables take priority, CSV data used as fallback
-    const token = generateToken(config.tokenGenerator.getPersonalToken, testRow);
+    const token = generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
     
     addFavorites(token, partyUuid);
     getFavorites(token);

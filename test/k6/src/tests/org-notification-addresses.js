@@ -181,7 +181,8 @@ function removeOrgNotificationAddresses(token, orgNo, addressId) {
 export default function runTests(data) {
     let orgNo;
     let testRow = null;
-    
+    let useTestData = false;
+
     // Priority 1: Use environment variable if provided (user input takes precedence)
     if (data.orgNo) {
         orgNo = data.orgNo;
@@ -189,13 +190,14 @@ export default function runTests(data) {
         // Priority 2: Use CSV approach - select a random row from CSV data for this iteration
         testRow = getRandomRow(csvData);
         orgNo = testRow.orgNo;
+        useTestData = true;
     } else {
         stopIterationOnFail("No test data available: neither orgNo environment variable nor CSV data", false);
         return;
     }
     
     // Generate token for this iteration: environment variables take priority, CSV data used as fallback
-    const token = generateToken(config.tokenGenerator.getPersonalToken, testRow);
+    const token = generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
 
     let addressId = addOrgNotificationAddresses(token, orgNo, data.address);
     getOrgNotificationAddresses(token, orgNo);

@@ -94,6 +94,9 @@ $> podman compose run k6 run /src/tests/favorites.js \
     -e tokenGeneratorUserName=*** \
     -e tokenGeneratorUserPwd=*** \
     -e partyUuid=***
+    -e userID=*** \
+    -e pid=*** \
+    -e partyId=*** \
 ```
 
 This uses the provided `partyUuid` directly for all iterations.
