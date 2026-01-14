@@ -54,10 +54,10 @@ function getUser(token) {
     const response = userApi.getUser(token);
 
     let success = check(response, {
-        'GET favorites: 200 OK': (r) => r.status === 200,
+        'GET user: 200 OK': (r) => r.status === 200,
     });
 
-    stopIterationOnFail("GET favorites failed", success);
+    stopIterationOnFail("GET user failed", success);
 }
 
 /**
@@ -78,7 +78,7 @@ export default function runTests(data) {
         testRow = getRandomRow(csvData);
         useTestData = true;
     } else {
-        stopIterationOnFail("No test data available: neither partyUuid environment variable nor CSV data", false);
+        stopIterationOnFail("No test data available: neither userId environment variable nor CSV data", false);
         return;
     }
     
