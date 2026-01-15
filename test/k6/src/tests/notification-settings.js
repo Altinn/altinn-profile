@@ -3,8 +3,10 @@ import * as config from '../config.js';
 import { generateToken } from '../api/token-generator.js';
 import * as notificationSettingsApi from '../api/notificationsettings.js';
 import { stopIterationOnFail } from "../errorhandler.js";
+import { createCSVSharedArray, getRandomRow } from '../data/csv-loader.js';
 
 // Eksempel på bruk:
+// With environment variable (takes priority):
 // podman compose run k6 run /src/tests/notification-settings.js \
 //   -e altinn_env=*** \
 //   -e tokenGeneratorUserName=*** \
@@ -13,6 +15,12 @@ import { stopIterationOnFail } from "../errorhandler.js";
 //   -e partyId=*** \
 //   -e pid=*** \
 //   -e partyUuid=***
+//
+// Without environment variable (uses CSV file with random row selection):
+// podman compose run k6 run /src/tests/notification-settings.js \
+//   -e altinn_env=*** \
+//   -e tokenGeneratorUserName=*** \
+//   -e tokenGeneratorUserPwd=***
 
 export const options = {
     vus: 1,
@@ -23,22 +31,26 @@ export const options = {
     }
 };
 
+const testData = createCSVSharedArray('notificationSettingsTestData');
+
 /**
  * Initialize test data.
- * @returns {Object} The data object containing token, runFullTestSet, sendersReference, and emailOrderRequest.
+ * Supports both CSV-based and environment variable-based test data.
+ * Priority: Environment variables take precedence over CSV data.
+ * - If partyUuid is provided: uses partyUuid from environment variables (user input takes priority)
+ * - If partyUuid is not provided: loads static CSV file for random row selection
+ * @returns {Object} The data object containing token, csvData array or partyUuid, and notification settings.
  */
 export function setup() {
     const partyUuid = __ENV.partyUuid;
-    const token = generateToken(config.tokenGenerator.getPersonalToken);
 
     const notificationSettings = {
-        emailAddress: "noreply@altinn.no",
-        phoneNumber: "+4799999999",
+        emailAddress: "noreply-1@altinn.no",
+        phoneNumber: "+4799999997",
         resourceIncludeList: ["urn:altinn:resource:example"]
     }
 
     return {
-        token,
         partyUuid,
         notificationSettings
     };
@@ -46,12 +58,13 @@ export function setup() {
 
 /**
  * Gets notification settings.
- * @param {Object} data - The data object containing token.
+ * @param {string} token - The authentication token.
+ * @param {string} partyUuid - The party UUID.
  */
-function getPersonalNotificationAddresses(data) {
+function getPersonalNotificationAddresses(token, partyUuid) {
     const response = notificationSettingsApi.getPersonalNotificationAddresses(
-        data.token,
-        data.partyUuid
+        token,
+        partyUuid
     );
 
     let success = check(response, {
@@ -63,13 +76,15 @@ function getPersonalNotificationAddresses(data) {
 
 /**
  * Adds a notification setting.
- * @param {Object} data - The data object containing partyUuid and token.
+ * @param {string} token - The authentication token.
+ * @param {string} partyUuid - The party UUID.
+ * @param {Object} notificationSettings - The notification settings to add.
  */
-function addPersonalNotificationAddresses(data) {
+function addPersonalNotificationAddresses(token, partyUuid, notificationSettings) {
     const response = notificationSettingsApi.addPersonalNotificationAddresses(
-        data.token,
-        data.partyUuid,
-        data.notificationSettings
+        token,
+        partyUuid,
+        notificationSettings
     );
 
     let success = check(response, {
@@ -81,12 +96,13 @@ function addPersonalNotificationAddresses(data) {
 
 /**
  * Removes a notification setting.
- * @param {Object} data - The data object containing partyUuid and token.
+ * @param {string} token - The authentication token.
+ * @param {string} partyUuid - The party UUID.
  */
-function removePersonalNotificationAddresses(data) {
+function removePersonalNotificationAddresses(token, partyUuid) {
     const response = notificationSettingsApi.removePersonalNotificationAddresses(
-        data.token,
-        data.partyUuid
+        token,
+        partyUuid
     );
 
     let success = check(response, {
@@ -98,10 +114,32 @@ function removePersonalNotificationAddresses(data) {
 
 /**
  * The main function to run the test.
- * @param {Object} data - The data object containing runFullTestSet and other test data.
+ * Supports both CSV-based (random row selection) and environment variable-based approaches.
+ * Priority: Environment variables take precedence over CSV data.
+ * @param {Object} data - The data object containing partyUuid (if using env vars), and notificationSettings.
  */
 export default function runTests(data) {
-    addPersonalNotificationAddresses(data);
-    getPersonalNotificationAddresses(data);
-    removePersonalNotificationAddresses(data);
+    let partyUuid;
+    let testRow = null;
+    let useTestData = false;
+
+    // Priority 1: Use environment variable if provided (user input takes precedence)
+    if (data.partyUuid) {
+        partyUuid = data.partyUuid;
+    } else if (testData && testData.length > 0) {
+        // Priority 2: Use CSV approach - select a random row from CSV data for this iteration
+        testRow = getRandomRow(testData);
+        partyUuid = testRow.partyUuid;
+        useTestData = true;
+    } else {
+        stopIterationOnFail("No test data available: neither partyUuid environment variable nor CSV data", false);
+        return;
+    }
+    
+    // Generate token for this iteration: environment variables take priority, CSV data used as fallback
+    const token = generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
+    
+    addPersonalNotificationAddresses(token, partyUuid, data.notificationSettings);
+    getPersonalNotificationAddresses(token, partyUuid);
+    removePersonalNotificationAddresses(token, partyUuid);
 }
