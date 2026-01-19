@@ -10,7 +10,7 @@ import { SharedArray } from 'k6/data';
  * Static CSV file path for test data.
  * This is the default CSV file used when environment variables are not provided.
  */
-export const DEFAULT_CSV_DATA_FILE = '/src/data/orgs-in-yt01-with-party-uuid.csv';
+export const DEFAULT_CSV_DATA_FILE = '../data/orgs-in-yt01-with-party-uuid.csv';
 
 /**
  * Parses a CSV file and returns an array of objects.
