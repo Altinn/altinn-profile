@@ -12,11 +12,16 @@ const environment = __ENV.altinn_env.toLowerCase();
 
 /**
  * Generates a token by making an HTTP GET request to the specified Token endpoint.
+ * Priority: Environment variables take precedence over CSV data.
+ * Uses environment variables if provided, otherwise falls back to CSV test data.
  *
  * @param {string} endpoint - The endpoint URL to which the token generation request is sent.
+ * @param {boolean} useTestData - Flag indicating whether to use test data from CSV.
+ * @param {Object} testData - Optional test data object from CSV row. Should contain userId, ssn, and userPartyId.
+ *                            Only used if environment variables (userID, pid, partyId) are not provided.
  * @returns {string} The generated token.
  */
-export function generateToken(endpoint) {
+export function generateToken(endpoint, useTestdata, testData = null) {
     if (!tokenGeneratorUserName) {
         stopIterationOnFail(`Invalid value for environment variable 'tokenGeneratorUserName': '${tokenGeneratorUserName}'.`, false);
     }
@@ -24,12 +29,20 @@ export function generateToken(endpoint) {
     if (!tokenGeneratorUserPwd) {
         stopIterationOnFail(`Invalid value for environment variable 'tokenGeneratorUserPwd': '${tokenGeneratorUserPwd}'.`, false);
     }
+
     const queryParams = {
         env: environment,
         userID: userID,
         pid: pid,
         partyId: partyId,
     };
+
+    if (useTestdata){
+        queryParams.userID = testData.userId;
+        queryParams.pid = testData.ssn;
+        queryParams.partyId = testData.userPartyId;
+    }
+
 
     const endpointWithParams = endpoint + apiHelpers.buildQueryParametersForEndpoint(queryParams);
 
