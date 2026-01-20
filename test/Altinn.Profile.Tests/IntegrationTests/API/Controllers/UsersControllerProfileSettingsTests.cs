@@ -114,6 +114,32 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
     }
 
     [Fact]
+    public async Task PutCurrentProfileSettings_WithoutAllFields_ReturnsBAdRequest()
+    {
+        // Arrange
+        const int userId = 2516356;
+
+        var request = new ProfileSettingPreference
+        {
+            Language = "nb",
+        };
+
+        HttpClient client = _factory.CreateClient();
+
+        HttpRequestMessage httpRequest = new(HttpMethod.Put, "/profile/api/v1/users/current/profilesettings");
+        httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetToken(userId));
+        httpRequest.Content = JsonContent.Create(request, options: _serializerOptionsCamelCase);
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequest);
+
+        // Assert
+        Assert.False(response.IsSuccessStatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        _factory.ProfileSettingsRepositoryMock.Verify(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task PutCurrentProfileSettings_AsUser_RepositoryCalled_ReturnsSuccess()
     {
         // Arrange
@@ -122,7 +148,11 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         var request = new ProfileSettingPreference
         {
             Language = "nb",
-            DoNotPromptForParty = false
+            DoNotPromptForParty = false,
+            PreselectedPartyUuid = Guid.NewGuid(),
+            ShowClientUnits = false,
+            ShouldShowSubEntities = false,
+            ShouldShowDeletedEntities = true
         };
 
         _factory.ProfileSettingsRepositoryMock

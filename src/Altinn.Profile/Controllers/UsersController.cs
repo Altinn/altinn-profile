@@ -137,7 +137,7 @@ public class UsersController : Controller
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ProfileSettingPreference>> UpdateProfileSettings([FromBody]ProfileSettingPreference request, CancellationToken cancellationToken)
+    public async Task<ActionResult<ProfileSettingPreference>> UpdateProfileSettings([FromBody]ProfileSettingPutRequest request, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
