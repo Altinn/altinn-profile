@@ -33,6 +33,7 @@ public class UsersController : Controller
     /// Initializes a new instance of the <see cref="UsersController"/> class
     /// </summary>
     /// <param name="userProfileService">The user profile service</param>
+    /// <param name="userProfileSettingsService">The user profile settings service</param>
     public UsersController(IUserProfileService userProfileService, IUserProfileSettingsService userProfileSettingsService)
     {
         _userProfileService = userProfileService;

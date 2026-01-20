@@ -20,7 +20,6 @@ public class UserProfileCachingDecoratorTest
 {
     private readonly Mock<IUserProfileService> _decoratedServiceMock = new();
     private readonly Mock<IOptions<CoreSettings>> coreSettingsOptions;
-    private readonly Mock<IUserProfileSettingsService> _userProfileSettingsServiceMock = new();
 
     public UserProfileCachingDecoratorTest()
     {

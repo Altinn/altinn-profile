@@ -12,7 +12,7 @@ public class UserProfileSettingsService : IUserProfileSettingsService
     private readonly IProfileSettingsRepository _profileSettingsRepository;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="UserProfileService"/> class.
+    /// Initializes a new instance of the <see cref="UserProfileSettingsService"/> class.
     /// </summary>
     /// <param name="profileSettingsRepository">The profile settings repository available through DI</param>
     public UserProfileSettingsService(IProfileSettingsRepository profileSettingsRepository)
@@ -44,6 +44,8 @@ public class UserProfileSettingsService : IUserProfileSettingsService
         ProfileSettings.ProfileSettings? profileSettings = await _profileSettingsRepository.GetProfileSettings(userProfile.UserId);
         if (profileSettings != null)
         {
+            userProfile.ProfileSettingPreference ??= new ProfileSettingPreference();
+
             userProfile.ProfileSettingPreference.DoNotPromptForParty = profileSettings.DoNotPromptForParty;
             userProfile.ProfileSettingPreference.Language = profileSettings.LanguageType;
             userProfile.ProfileSettingPreference.PreselectedPartyUuid = profileSettings.PreselectedPartyUuid;
