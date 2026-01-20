@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
             .Configure<CoreSettings>(config.GetSection(nameof(CoreSettings)))
             .AddMemoryCache()
             .AddScoped<IUserProfileService, UserProfileService>()
-            .AddScoped<IUserProfileSettingsService, UserProfileService>()
+            .AddScoped<IUserProfileSettingsService, UserProfileSettingsService>()
             .AddScoped<IUserContactPointsService, UserContactPointService>()
             .Decorate<IUserProfileService, UserProfileCachingDecorator>()
             .AddScoped<IUnitContactPointsService, UnitContactPointService>()

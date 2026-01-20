@@ -27,14 +27,16 @@ namespace Altinn.Profile.Controllers;
 public class UsersController : Controller
 {
     private readonly IUserProfileService _userProfileService;
+    private readonly IUserProfileSettingsService _userProfileSettingsService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UsersController"/> class
     /// </summary>
     /// <param name="userProfileService">The user profile service</param>
-    public UsersController(IUserProfileService userProfileService)
+    public UsersController(IUserProfileService userProfileService, IUserProfileSettingsService userProfileSettingsService)
     {
         _userProfileService = userProfileService;
+        _userProfileSettingsService = userProfileSettingsService;
     }
 
     /// <summary>
@@ -60,9 +62,16 @@ public class UsersController : Controller
 
         Result<UserProfile, bool> result = await _userProfileService.GetUser(userID);
 
-        return result.Match<ActionResult<UserProfile>>(
-            userProfile => Ok(userProfile),
-            _ => NotFound());
+        if (result.IsSuccess)
+        {
+            var userProfile = result.Match(user => user, _ => null);
+            var enrichedUserProfile = await _userProfileSettingsService.EnrichWithProfileSettings(userProfile);
+            return Ok(enrichedUserProfile);
+        }
+        else
+        {
+            return NotFound();
+        }
     }
 
     /// <summary>
@@ -83,9 +92,16 @@ public class UsersController : Controller
 
         Result<UserProfile, bool> result = await _userProfileService.GetUserByUuid(userUuid);
 
-        return result.Match<ActionResult<UserProfile>>(
-            userProfile => Ok(userProfile),
-            _ => NotFound());
+        if (result.IsSuccess)
+        {
+            var userProfile = result.Match(user => user, _ => null);
+            var enrichedUserProfile = await _userProfileSettingsService.EnrichWithProfileSettings(userProfile);
+            return Ok(enrichedUserProfile);
+        }
+        else
+        {
+            return NotFound();
+        }
     }
 
     /// <summary>
@@ -124,9 +140,16 @@ public class UsersController : Controller
     {
         Result<UserProfile, bool> result = await _userProfileService.GetUser(ssn);
 
-        return result.Match<ActionResult<UserProfile>>(
-            userProfile => Ok(userProfile),
-            _ => NotFound());
+        if (result.IsSuccess)
+        {
+            var userProfile = result.Match(user => user, _ => null);
+            var enrichedUserProfile = await _userProfileSettingsService.EnrichWithProfileSettings(userProfile);
+            return Ok(enrichedUserProfile);
+        }
+        else
+        {
+            return NotFound();
+        }
     }
 
     /// <summary>
@@ -165,7 +188,7 @@ public class UsersController : Controller
             ShouldShowSubEntities = request.ShouldShowSubEntities,
             ShouldShowDeletedEntities = request.ShouldShowDeletedEntities
         };
-        var userProfileSettings = await _userProfileService.UpdateProfileSettings(profileSettings, cancellationToken);
+        var userProfileSettings = await _userProfileSettingsService.UpdateProfileSettings(profileSettings, cancellationToken);
 
         var profileSettingsPreference = new ProfileSettingPreference
         {
@@ -217,7 +240,7 @@ public class UsersController : Controller
             ShouldShowDeletedEntities = request.ShouldShowDeletedEntities
         };
 
-        var userProfileSettings = await _userProfileService.PatchProfileSettings(patchModel, cancellationToken);
+        var userProfileSettings = await _userProfileSettingsService.PatchProfileSettings(patchModel, cancellationToken);
 
         if (userProfileSettings == null)
         {

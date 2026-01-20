@@ -14,12 +14,14 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         IUserProfileClient userProfileClient,
         INotificationsClient notificationsClient,
         IUserProfileService userProfileService,
+        IUserProfileSettingsService userProfileSettingsService,
         IRegisterClient registerClient,
         IOptions<AddressMaintenanceSettings> addressMaintenanceSettings) : IProfessionalNotificationsService
     {
         private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
         private readonly IUserProfileClient _userProfileClient = userProfileClient;
         private readonly IUserProfileService _userProfileService = userProfileService;
+        private readonly IUserProfileSettingsService _userProfileSettingsService = userProfileSettingsService;
         private readonly INotificationsClient _notificationsClient = notificationsClient;
         private readonly IRegisterClient _registerClient = registerClient;
         private readonly AddressMaintenanceSettings _addressMaintenanceSettings = addressMaintenanceSettings.Value;
@@ -33,7 +35,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                 return null;
             }
 
-            var profileSettings = await _userProfileService.GetProfileSettings(userId);
+            var profileSettings = await _userProfileSettingsService.GetProfileSettings(userId);
             if (NeedsConfirmation(notificationSettings, profileSettings))
             {
                 notificationSettings.NeedsConfirmation = true;
@@ -45,7 +47,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <inheritdoc/>
         public async Task<IReadOnlyList<UserPartyContactInfo>> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken)
         {
-            var profileSettings = await _userProfileService.GetProfileSettings(userId);
+            var profileSettings = await _userProfileSettingsService.GetProfileSettings(userId);
 
             var notificationSettings = await _professionalNotificationsRepository.GetAllNotificationAddressesForUserAsync(userId, cancellationToken);
 
