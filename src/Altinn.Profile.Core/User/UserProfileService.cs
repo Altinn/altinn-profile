@@ -82,16 +82,13 @@ public class UserProfileService : IUserProfileService, IUserProfileSettingsServi
         var result = await _userProfileClient.GetUserListByUuid(userUuidList);
         if (result.IsSuccess)
         {
+            var userProfiles = result.Match(profiles => profiles, _ => []);
             var enriched = new List<UserProfile>();
-            result.Match(
-                async userProfiles =>
-                {
-                    foreach (UserProfile userProfile in userProfiles)
-                    {
-                        enriched.Add(await EnrichWithProfileSettings(userProfile));
-                    }
-                },
-                _ => { });
+            foreach (UserProfile userProfile in userProfiles)
+            {
+                enriched.Add(await EnrichWithProfileSettings(userProfile));
+            }
+
             return enriched;
         }
 
