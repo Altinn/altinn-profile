@@ -23,7 +23,6 @@ public class UserProfileCachingDecorator : IUserProfileService
     /// <param name="decoratedService">The decorated userProfiles service</param>
     /// <param name="memoryCache">The memory cache</param>
     /// <param name="settings">The core settings</param>
-    /// <param name="userProfileSettingsService">The user profile settings service</param>
     public UserProfileCachingDecorator(
         IUserProfileService decoratedService,
         IMemoryCache memoryCache,
