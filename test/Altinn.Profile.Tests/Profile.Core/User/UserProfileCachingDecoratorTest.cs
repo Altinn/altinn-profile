@@ -20,6 +20,7 @@ public class UserProfileCachingDecoratorTest
 {
     private readonly Mock<IUserProfileService> _decoratedServiceMock = new();
     private readonly Mock<IOptions<CoreSettings>> coreSettingsOptions;
+    private readonly Mock<IUserProfileSettingsService> _userProfileSettingsServiceMock = new();
 
     public UserProfileCachingDecoratorTest()
     {
@@ -39,7 +40,7 @@ public class UserProfileCachingDecoratorTest
 
         var userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
         memoryCache.Set("User_UserId_2001607", userProfile);
-        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
+        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object, _userProfileSettingsServiceMock.Object);
 
         // Act
         Result<UserProfile, bool> result = await target.GetUser(UserId);
@@ -71,7 +72,7 @@ public class UserProfileCachingDecoratorTest
         var userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
         memoryCache.Set($"UserId_UserUuid_{userUuid}", userProfile.UserId);
         memoryCache.Set($"User_UserId_{userProfile.UserId}", userProfile);
-        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
+        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object, _userProfileSettingsServiceMock.Object);
 
         // Act
         Result<UserProfile, bool> result = await target.GetUserByUuid(userUuid);
@@ -106,7 +107,7 @@ public class UserProfileCachingDecoratorTest
         List<UserProfile> userProfiles = new List<UserProfile>();
         userProfiles.Add(await TestDataLoader.Load<UserProfile>(userUuidNotInCache.ToString()));
         _decoratedServiceMock.Setup(service => service.GetUserListByUuid(It.Is<List<Guid>>(g => g.TrueForAll(g2 => g2 == userUuidNotInCache)))).ReturnsAsync(userProfiles);
-        UserProfileCachingDecorator target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
+        UserProfileCachingDecorator target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object, _userProfileSettingsServiceMock.Object);
 
         // Act
         Result<List<UserProfile>, bool> result = await target.GetUserListByUuid(userUuids);
@@ -146,7 +147,7 @@ public class UserProfileCachingDecoratorTest
             memoryCache.Set($"User_UserId_{userProfile.UserId}", userProfile);
         }
 
-        UserProfileCachingDecorator target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
+        UserProfileCachingDecorator target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object, _userProfileSettingsServiceMock.Object);
 
         // Act
         Result<List<UserProfile>, bool> result = await target.GetUserListByUuid(userUuids);
@@ -179,7 +180,7 @@ public class UserProfileCachingDecoratorTest
 
         var userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
         _decoratedServiceMock.Setup(service => service.GetUser(It.IsAny<int>())).ReturnsAsync(userProfile);
-        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
+        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object, _userProfileSettingsServiceMock.Object);
 
         // Act
         Result<UserProfile, bool> result = await target.GetUser(UserId);
@@ -211,7 +212,7 @@ public class UserProfileCachingDecoratorTest
 
         var userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
         _decoratedServiceMock.Setup(service => service.GetUserByUuid(It.IsAny<Guid>())).ReturnsAsync(userProfile);
-        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
+        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object, _userProfileSettingsServiceMock.Object);
 
         // Act
         Result<UserProfile, bool> result = await target.GetUserByUuid(userUuid);
@@ -246,7 +247,7 @@ public class UserProfileCachingDecoratorTest
         userProfiles.Add(await TestDataLoader.Load<UserProfile>(userUuids[1].ToString()));
 
         _decoratedServiceMock.Setup(service => service.GetUserListByUuid(It.IsAny<List<Guid>>())).ReturnsAsync(userProfiles);
-        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
+        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object, _userProfileSettingsServiceMock.Object);
 
         // Act
         Result<List<UserProfile>, bool> result = await target.GetUserListByUuid(userUuids);
@@ -277,7 +278,7 @@ public class UserProfileCachingDecoratorTest
         MemoryCache memoryCache = new(new MemoryCacheOptions());
 
         _decoratedServiceMock.Setup(service => service.GetUser(It.IsAny<int>())).ReturnsAsync(false);
-        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
+        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object, _userProfileSettingsServiceMock.Object);
 
         // Act
         Result<UserProfile, bool> result = await target.GetUser(UserId);
@@ -300,7 +301,7 @@ public class UserProfileCachingDecoratorTest
         MemoryCache memoryCache = new(new MemoryCacheOptions());
 
         _decoratedServiceMock.Setup(service => service.GetUserByUuid(It.IsAny<Guid>())).ReturnsAsync(false);
-        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
+        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object, _userProfileSettingsServiceMock.Object);
 
         // Act
         Result<UserProfile, bool> result = await target.GetUserByUuid(userUuid);
@@ -322,7 +323,7 @@ public class UserProfileCachingDecoratorTest
         MemoryCache memoryCache = new(new MemoryCacheOptions());
 
         _decoratedServiceMock.Setup(service => service.GetUserListByUuid(It.IsAny<List<Guid>>())).ReturnsAsync(new List<UserProfile>());
-        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
+        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object, _userProfileSettingsServiceMock.Object);
 
         // Act
         Result<List<UserProfile>, bool> result = await target.GetUserListByUuid(userUuids);
@@ -349,7 +350,7 @@ public class UserProfileCachingDecoratorTest
         var userProfile = await TestDataLoader.Load<UserProfile>("2001607");
         memoryCache.Set("UserId_SSN_01025101038", userProfile.UserId);
         memoryCache.Set("User_UserId_" + userProfile.UserId, userProfile);
-        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
+        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object, _userProfileSettingsServiceMock.Object);
 
         // Act
         Result<UserProfile, bool> result = await target.GetUser(Ssn);
@@ -380,7 +381,7 @@ public class UserProfileCachingDecoratorTest
         var userProfile = await TestDataLoader.Load<UserProfile>("2001607");
         _decoratedServiceMock.Setup(service => service.GetUser(It.IsAny<string>())).ReturnsAsync(userProfile);
 
-        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
+        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object, _userProfileSettingsServiceMock.Object);
 
         // Act
         Result<UserProfile, bool> result = await target.GetUser(Ssn);
@@ -412,7 +413,7 @@ public class UserProfileCachingDecoratorTest
 
         _decoratedServiceMock.Setup(service => service.GetUser(It.IsAny<string>())).ReturnsAsync(false);
 
-        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
+        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object, _userProfileSettingsServiceMock.Object);
 
         // Act
         Result<UserProfile, bool> result = await target.GetUser(Ssn);
@@ -438,7 +439,7 @@ public class UserProfileCachingDecoratorTest
         memoryCache.Set("UserId_Username_OrstaECUser", userProfile.UserId);
         memoryCache.Set("User_UserId_" + userProfile.UserId, userProfile);
 
-        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
+        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object, _userProfileSettingsServiceMock.Object);
 
         // Act
         Result<UserProfile, bool> result = await target.GetUserByUsername(Username);
@@ -471,7 +472,7 @@ public class UserProfileCachingDecoratorTest
 
         var userProfile = await TestDataLoader.Load<UserProfile>(Username);
         _decoratedServiceMock.Setup(service => service.GetUserByUsername(Username)).ReturnsAsync(userProfile);
-        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
+        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object, _userProfileSettingsServiceMock.Object);
 
         // Act
         Result<UserProfile, bool> result = await target.GetUserByUsername(Username);
@@ -503,7 +504,7 @@ public class UserProfileCachingDecoratorTest
         MemoryCache memoryCache = new(new MemoryCacheOptions());
 
         _decoratedServiceMock.Setup(service => service.GetUserByUsername(Username)).ReturnsAsync(false);
-        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object);
+        var target = new UserProfileCachingDecorator(_decoratedServiceMock.Object, memoryCache, coreSettingsOptions.Object, _userProfileSettingsServiceMock.Object);
 
         // Act
         Result<UserProfile, bool> result = await target.GetUserByUsername(Username);

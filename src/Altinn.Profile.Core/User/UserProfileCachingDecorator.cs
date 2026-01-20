@@ -13,6 +13,7 @@ namespace Altinn.Profile.Core.User;
 public class UserProfileCachingDecorator : IUserProfileService
 {
     private readonly IUserProfileService _decoratedService;
+    private readonly IUserProfileSettingsService _userProfileSettingsService;
     private readonly IMemoryCache _memoryCache;
     private readonly MemoryCacheEntryOptions _cacheOptions;
     private const string CacheKeyPrefix = "User_UserId_";
@@ -23,10 +24,12 @@ public class UserProfileCachingDecorator : IUserProfileService
     /// <param name="decoratedService">The decorated userProfiles service</param>
     /// <param name="memoryCache">The memory cache</param>
     /// <param name="settings">The core settings</param>
+    /// <param name="userProfileSettingsService">The user profile settings service</param>
     public UserProfileCachingDecorator(
         IUserProfileService decoratedService,
         IMemoryCache memoryCache,
-        IOptions<CoreSettings> settings)
+        IOptions<CoreSettings> settings,
+        IUserProfileSettingsService userProfileSettingsService)
     {
         _decoratedService = decoratedService;
         _memoryCache = memoryCache;
@@ -34,6 +37,7 @@ public class UserProfileCachingDecorator : IUserProfileService
         {
             AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(settings.Value.ProfileCacheLifetimeSeconds)
         };
+        _userProfileSettingsService = userProfileSettingsService;
     }
 
     /// <inheritdoc/>
@@ -41,6 +45,7 @@ public class UserProfileCachingDecorator : IUserProfileService
     {
         if (TryGetUserFromCache(userId, out UserProfile? user))
         {
+            await _userProfileSettingsService.EnrichWithProfileSettings(user!);
             return user!;
         }
 
@@ -60,6 +65,7 @@ public class UserProfileCachingDecorator : IUserProfileService
 
         if (TryGetUserFromCache(uniqueCacheKey, out UserProfile? user))
         {
+            await _userProfileSettingsService.EnrichWithProfileSettings(user!);
             return user!;
         }
 
@@ -79,6 +85,7 @@ public class UserProfileCachingDecorator : IUserProfileService
 
         if (TryGetUserFromCache(uniqueCacheKey, out UserProfile? user))
         {
+            await _userProfileSettingsService.EnrichWithProfileSettings(user!);
             return user!;
         }
 
@@ -101,6 +108,7 @@ public class UserProfileCachingDecorator : IUserProfileService
             string uniqueCacheKey = $"UserId_UserUuid_{userUuid}";
             if (TryGetUserFromCache(uniqueCacheKey, out UserProfile? user))
             {
+                await _userProfileSettingsService.EnrichWithProfileSettings(user!);
                 result.Add(user!);
             }
             else
@@ -135,6 +143,7 @@ public class UserProfileCachingDecorator : IUserProfileService
 
         if (TryGetUserFromCache(uniqueCacheKey, out UserProfile? user))
         {
+            await _userProfileSettingsService.EnrichWithProfileSettings(user!);
             return user!;
         }
 
@@ -152,7 +161,6 @@ public class UserProfileCachingDecorator : IUserProfileService
     {
         // this should not be cached
         var result = await _decoratedService.UpdateProfileSettings(profileSettings, cancellationToken);
-        InvalidateCache(profileSettings.UserId);
 
         return result;
     }
@@ -162,7 +170,6 @@ public class UserProfileCachingDecorator : IUserProfileService
     {
         // this should not be cached
         var result = await _decoratedService.PatchProfileSettings(profileSettings, cancellationToken);
-        InvalidateCache(profileSettings.UserId);
 
         return result;
     }
@@ -170,16 +177,8 @@ public class UserProfileCachingDecorator : IUserProfileService
     /// <inheritdoc/>
     public async Task<ProfileSettings.ProfileSettings?> GetProfileSettings(int userId)
     {
-        string uniqueCacheKey = "UserProfileSettings_UserId_" + userId;
-
-        if (_memoryCache.TryGetValue(uniqueCacheKey, out ProfileSettings.ProfileSettings? profileSettings))
-        {
-            return profileSettings!;
-        }
-
+        // this should not be cached
         var result = await _decoratedService.GetProfileSettings(userId);
-
-        _memoryCache.Set(uniqueCacheKey, result, _cacheOptions);
             
         return result;
     }
@@ -229,14 +228,5 @@ public class UserProfileCachingDecorator : IUserProfileService
 
         var success = _memoryCache.TryGetValue(cacheKey, out user);
         return success;
-    }
-
-    private void InvalidateCache(int userId)
-    {
-        string userIdKey = CacheKeyPrefix + userId;
-        _memoryCache.Remove(userIdKey);
-
-        string profileSettingsKey = "UserProfileSettings_UserId_" + userId;
-        _memoryCache.Remove(profileSettingsKey);
     }
 }

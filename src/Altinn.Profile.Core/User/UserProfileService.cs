@@ -7,7 +7,7 @@ namespace Altinn.Profile.Core.User;
 /// <summary>
 /// Implementation of <see cref="IUserProfileService"/> that uses <see cref="IUserProfileClient"/> to fetch user profiles.
 /// </summary>
-public class UserProfileService : IUserProfileService
+public class UserProfileService : IUserProfileService, IUserProfileSettingsService
 {
     private readonly IUserProfileClient _userProfileClient;
     private readonly IProfileSettingsRepository _profileSettingsRepository;
@@ -116,7 +116,8 @@ public class UserProfileService : IUserProfileService
         return await _profileSettingsRepository.PatchProfileSettings(profileSettings, cancellationToken);
     }
 
-    private async Task<UserProfile> EnrichWithProfileSettings(UserProfile userProfile)
+    /// <inheritdoc/>
+    public async Task<UserProfile> EnrichWithProfileSettings(UserProfile userProfile)
     {
         ProfileSettings.ProfileSettings? profileSettings = await _profileSettingsRepository.GetProfileSettings(userProfile.UserId);
         if (profileSettings != null)
