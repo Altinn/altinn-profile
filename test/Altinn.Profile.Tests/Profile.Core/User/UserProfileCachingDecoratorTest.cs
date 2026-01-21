@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core;
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.User;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.Testdata;
@@ -18,7 +19,7 @@ namespace Altinn.Profile.Tests.Profile.Core.User;
 
 public class UserProfileCachingDecoratorTest
 {
-    private readonly Mock<IUserProfileService> _decoratedServiceMock = new();
+    private readonly Mock<IUserProfileClient> _decoratedServiceMock = new();
     private readonly Mock<IOptions<CoreSettings>> coreSettingsOptions;
 
     public UserProfileCachingDecoratorTest()

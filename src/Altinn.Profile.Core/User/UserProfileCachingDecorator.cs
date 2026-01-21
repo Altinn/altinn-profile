@@ -12,7 +12,7 @@ namespace Altinn.Profile.Core.User;
 /// </summary>
 public class UserProfileCachingDecorator : IUserProfileClient
 {
-    private readonly IUserProfileService _decoratedService;
+    private readonly IUserProfileClient _decoratedService;
     private readonly IMemoryCache _memoryCache;
     private readonly MemoryCacheEntryOptions _cacheOptions;
     private const string CacheKeyPrefix = "User_UserId_";
@@ -24,7 +24,7 @@ public class UserProfileCachingDecorator : IUserProfileClient
     /// <param name="memoryCache">The memory cache</param>
     /// <param name="settings">The core settings</param>
     public UserProfileCachingDecorator(
-        IUserProfileService decoratedService,
+        IUserProfileClient decoratedService,
         IMemoryCache memoryCache,
         IOptions<CoreSettings> settings)
     {
