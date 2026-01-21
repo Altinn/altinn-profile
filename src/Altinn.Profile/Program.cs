@@ -211,9 +211,10 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddScoped<IAuthorizationHandler, PartyAccessHandler>();
     services.AddScoped<IAuthorizationHandler, ScopeAccessHandler>();
 
+    // Register SBL bridge clients before core services so IUserProfileClient is available for decoration
+    services.AddSblBridgeClients(config);
     services.AddCoreServices(config);
     services.AddRegisterService(config);
-    services.AddSblBridgeClients(config);
     services.AddMaskinportenClient(config);
     services.AddProblemDetails();
 
