@@ -137,7 +137,7 @@ public class UsersController : Controller
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ProfileSettingPreference>> UpdateProfileSettings([FromBody]ProfileSettingPreference request, CancellationToken cancellationToken)
+    public async Task<ActionResult<ProfileSettingPreference>> UpdateProfileSettings([FromBody]ProfileSettingPutRequest request, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
@@ -159,11 +159,11 @@ public class UsersController : Controller
         {
             UserId = userId,
             LanguageType = request.Language,
-            DoNotPromptForParty = request.DoNotPromptForParty,
+            DoNotPromptForParty = request.DoNotPromptForParty.Value,
             PreselectedPartyUuid = request.PreselectedPartyUuid,
-            ShowClientUnits = request.ShowClientUnits,
-            ShouldShowSubEntities = request.ShouldShowSubEntities,
-            ShouldShowDeletedEntities = request.ShouldShowDeletedEntities
+            ShowClientUnits = request.ShowClientUnits.Value,
+            ShouldShowSubEntities = request.ShouldShowSubEntities.Value,
+            ShouldShowDeletedEntities = request.ShouldShowDeletedEntities.Value
         };
         var userProfileSettings = await _userProfileService.UpdateProfileSettings(profileSettings, cancellationToken);
 
