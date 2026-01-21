@@ -12,6 +12,8 @@ using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
+using Microsoft.AspNetCore.Mvc;
+
 using Moq;
 
 using Xunit;
@@ -114,14 +116,15 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
     }
 
     [Fact]
-    public async Task PutCurrentProfileSettings_WithoutAllFields_ReturnsBAdRequest()
+    public async Task PutCurrentProfileSettings_WithoutAllFields_ReturnsBadRequest()
     {
         // Arrange
         const int userId = 2516356;
 
-        var request = new ProfileSettingPreference
+        var request = new ProfileSettingPutRequest
         {
             Language = "nb",
+            PreselectedPartyUuid = null
         };
 
         HttpClient client = _factory.CreateClient();
@@ -136,6 +139,9 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         // Assert
         Assert.False(response.IsSuccessStatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        string responseContent = await response.Content.ReadAsStringAsync();
+        var actual = JsonSerializer.Deserialize<ProblemDetails>(responseContent, _serializerOptionsCamelCase);
+
         _factory.ProfileSettingsRepositoryMock.Verify(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
