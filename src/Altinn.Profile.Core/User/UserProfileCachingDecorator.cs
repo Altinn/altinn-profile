@@ -1,4 +1,4 @@
-using Altinn.Profile.Core.User.ProfileSettings;
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Models;
 
 using Microsoft.Extensions.Caching.Memory;
@@ -7,12 +7,12 @@ using Microsoft.Extensions.Options;
 namespace Altinn.Profile.Core.User;
 
 /// <summary>.
-/// Decorates an implementation of IUserProfiles by caching the userProfile object.
-/// If available, object is retrieved from cache without calling the service
+/// Decorates an implementation of IUserProfileClient by caching the userProfile object.
+/// If available, object is retrieved from cache without calling the client
 /// </summary>
-public class UserProfileCachingDecorator : IUserProfileService
+public class UserProfileCachingDecorator : IUserProfileClient
 {
-    private readonly IUserProfileService _decoratedService;
+    private readonly IUserProfileClient _decoratedService;
     private readonly IMemoryCache _memoryCache;
     private readonly MemoryCacheEntryOptions _cacheOptions;
     private const string CacheKeyPrefix = "User_UserId_";
@@ -24,7 +24,7 @@ public class UserProfileCachingDecorator : IUserProfileService
     /// <param name="memoryCache">The memory cache</param>
     /// <param name="settings">The core settings</param>
     public UserProfileCachingDecorator(
-        IUserProfileService decoratedService,
+        IUserProfileClient decoratedService,
         IMemoryCache memoryCache,
         IOptions<CoreSettings> settings)
     {
@@ -147,43 +147,6 @@ public class UserProfileCachingDecorator : IUserProfileService
         return result;
     }
 
-    /// <inheritdoc/>
-    public async Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings, CancellationToken cancellationToken)
-    {
-        // this should not be cached
-        var result = await _decoratedService.UpdateProfileSettings(profileSettings, cancellationToken);
-        InvalidateCache(profileSettings.UserId);
-
-        return result;
-    }
-
-    /// <inheritdoc/>
-    public async Task<ProfileSettings.ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchModel profileSettings, CancellationToken cancellationToken)
-    {
-        // this should not be cached
-        var result = await _decoratedService.PatchProfileSettings(profileSettings, cancellationToken);
-        InvalidateCache(profileSettings.UserId);
-
-        return result;
-    }
-
-    /// <inheritdoc/>
-    public async Task<ProfileSettings.ProfileSettings?> GetProfileSettings(int userId)
-    {
-        string uniqueCacheKey = "UserProfileSettings_UserId_" + userId;
-
-        if (_memoryCache.TryGetValue(uniqueCacheKey, out ProfileSettings.ProfileSettings? profileSettings))
-        {
-            return profileSettings!;
-        }
-
-        var result = await _decoratedService.GetProfileSettings(userId);
-
-        _memoryCache.Set(uniqueCacheKey, result, _cacheOptions);
-            
-        return result;
-    }
-
     private void AddUserToCache(string uniqueCacheKey, UserProfile userProfile)
     {
         // Cache userId for the unique key (ssn, username, uuid)
@@ -229,14 +192,5 @@ public class UserProfileCachingDecorator : IUserProfileService
 
         var success = _memoryCache.TryGetValue(cacheKey, out user);
         return success;
-    }
-
-    private void InvalidateCache(int userId)
-    {
-        string userIdKey = CacheKeyPrefix + userId;
-        _memoryCache.Remove(userIdKey);
-
-        string profileSettingsKey = "UserProfileSettings_UserId_" + userId;
-        _memoryCache.Remove(profileSettingsKey);
     }
 }

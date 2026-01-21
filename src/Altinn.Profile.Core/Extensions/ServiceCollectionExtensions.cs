@@ -28,7 +28,6 @@ public static class ServiceCollectionExtensions
             .AddMemoryCache()
             .AddScoped<IUserProfileService, UserProfileService>()
             .AddScoped<IUserContactPointsService, UserContactPointService>()
-            .Decorate<IUserProfileService, UserProfileCachingDecorator>()
             .AddScoped<IUnitContactPointsService, UnitContactPointService>()
             .AddScoped<IOrganizationNotificationAddressesService, OrganizationNotificationAddressesService>()
             .AddScoped<IPartyGroupService, PartyGroupService>()
