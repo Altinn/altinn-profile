@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 namespace Altinn.Profile.Core.User;
 
 /// <summary>.
-/// Decorates an implementation of IUserProfileClients by caching the userProfile object.
+/// Decorates an implementation of IUserProfileClient by caching the userProfile object.
 /// If available, object is retrieved from cache without calling the client
 /// </summary>
 public class UserProfileCachingDecorator : IUserProfileClient
