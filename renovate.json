@@ -19,6 +19,13 @@
   ],
   "packageRules": [
     {
+      "description": "Disable minimumReleaseAge for digest updates since they lack release timestamps (ref. https://docs.renovatebot.com/key-concepts/minimum-release-age/#which-update-types-take-minimumreleaseage-into-account)",
+      "matchUpdateTypes": [
+        "digest"
+      ],
+      "minimumReleaseAge": null
+    },
+    {
       "matchManagers": [
         "nuget"
       ],
