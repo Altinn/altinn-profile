@@ -71,7 +71,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             // Assert
             Assert.NotNull(sentRequest);
             Assert.Equal(HttpMethod.Post, sentRequest.Method);
-            Assert.Equal(new Uri(_testBaseUrl + "v1/future/orders"), sentRequest.RequestUri);
+            Assert.Equal(new Uri(_testBaseUrl + "v1/future/orders/instant/sms"), sentRequest.RequestUri);
             Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
             Assert.IsType<StringContent>(sentRequest.Content);
             var content = await sentRequest.Content.ReadAsStringAsync();
@@ -95,7 +95,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             // Assert
             Assert.NotNull(sentRequest);
             Assert.Equal(HttpMethod.Post, sentRequest.Method);
-            Assert.Equal(new Uri(_testBaseUrl + "v1/future/orders"), sentRequest.RequestUri);
+            Assert.Equal(new Uri(_testBaseUrl + "v1/future/orders/instant/email"), sentRequest.RequestUri);
             Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
             Assert.IsType<StringContent>(sentRequest.Content);
             var content = await sentRequest.Content.ReadAsStringAsync();

@@ -21,17 +21,6 @@
         /// <summary>
         /// The recipient information for the email notification.
         /// </summary>
-        public required EmailRecipient Recipient { get; set; }
-    }
-
-    /// <summary>
-    /// Contains recipient details for the email notification.
-    /// </summary>
-    internal class EmailRecipient
-    {
-        /// <summary>
-        /// Email-specific recipient information.
-        /// </summary>
         public required RecipientEmail RecipientEmail { get; set; }
     }
 
