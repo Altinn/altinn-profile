@@ -21,17 +21,6 @@
         /// <summary>
         /// The recipient information for the SMS notification.
         /// </summary>
-        public required Recipient Recipient { get; set; }
-    }
-
-    /// <summary>
-    /// Contains recipient details for the SMS notification.
-    /// </summary>
-    internal class Recipient
-    {
-        /// <summary>
-        /// SMS-specific recipient information.
-        /// </summary>
         public required RecipientSms RecipientSms { get; set; }
     }
 
@@ -45,6 +34,11 @@
         /// Example: "+4712345678"
         /// </summary>
         public required string PhoneNumber { get; set; }
+
+        /// <summary>
+        /// How long the SMS is valid for, in seconds.
+        /// </summary>
+        public int? TimeToLiveInSeconds { get; set; }
 
         /// <summary>
         /// SMS sending settings, such as time policy and message body.
