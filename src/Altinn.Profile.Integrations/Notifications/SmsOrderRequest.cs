@@ -38,7 +38,7 @@
         /// <summary>
         /// How long the SMS is valid for, in seconds.
         /// </summary>
-        public int? TimeToLiveInSeconds { get; set; }
+        public int? TimeToLiveInSeconds { get; set; } = 120;
 
         /// <summary>
         /// SMS sending settings, such as time policy and message body.
