@@ -31,10 +31,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             }
         }
 
-        private static DbContextOptions<ProfileDbContext> CreateOptions(string dbName)
+        private static DbContextOptions<ProfileDbContext> CreateOptions(string DBName)
         {
             return new DbContextOptionsBuilder<ProfileDbContext>()
-                .UseInMemoryDatabase(databaseName: dbName)
+                .UseInMemoryDatabase(databaseName: DBName)
                 .Options;
         }
 
