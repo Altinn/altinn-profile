@@ -20,6 +20,11 @@
     <PackageReference Include="WolverineFx" Version="5.10.0" />
     <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="5.10.0" />
     <PackageReference Include="WolverineFx.Postgresql" Version="5.10.0" />
+  <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="5.0.0" />
+  <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="5.0.0" />
+  <PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="5.0.0" />
+  <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="5.0.0" />
+  <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Workspaces" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,6 +41,10 @@
     <AdditionalFiles Include="..\..\stylecop.json">
       <Link>stylecop.json</Link>
     </AdditionalFiles>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migration\v0.23\" />
   </ItemGroup>
 
 </Project>

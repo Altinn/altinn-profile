@@ -276,7 +276,7 @@ public partial class ProfileDbContext : DbContext
 
         modelBuilder.Entity<VerifiedAddress>(entity =>
         {
-            entity.ToTable("verification_codes", "verified_addresses");
+            entity.ToTable("verified_addresses", "address_verifications");
             entity.HasKey(e => e.VerifiedAddressId);
             entity.Property(e => e.VerifiedAddressId).UseIdentityAlwaysColumn();
             entity.Property(e => e.Address).IsRequired();
