@@ -19,6 +19,8 @@ public class NotificationsClient : INotificationsClient
     private readonly HttpClient _httpClient;
     private readonly IAccessTokenGenerator _accessTokenGenerator;
     private readonly ILogger<NotificationsClient> _logger;
+    private const string _notificationTypeSms = "sms";
+    private const string _notificationTypeEmail = "email";
 
     private readonly JsonSerializerOptions _options = new()
     {
@@ -60,7 +62,7 @@ public class NotificationsClient : INotificationsClient
 
         var json = JsonSerializer.Serialize(request, _options);
 
-        await SendOrder(json, "sms", cancellationToken);
+        await SendOrder(json, _notificationTypeSms, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -82,7 +84,7 @@ public class NotificationsClient : INotificationsClient
         };
 
         var json = JsonSerializer.Serialize(request, _options);
-        await SendOrder(json, "email", cancellationToken);
+        await SendOrder(json, _notificationTypeEmail, cancellationToken);
     }
 
     private async Task SendOrder(string jsonString, string type, CancellationToken cancellationToken)
