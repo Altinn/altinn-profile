@@ -11,7 +11,7 @@
         Legacy,
 
         /// <summary>
-        /// Verification type for addresses that is explicitly verified by the user.
+        /// Verification type for addresses that are explicitly verified by the user.
         /// </summary>
         Explicit
     }

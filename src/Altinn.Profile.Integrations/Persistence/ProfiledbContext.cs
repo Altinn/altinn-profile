@@ -265,7 +265,7 @@ public partial class ProfileDbContext : DbContext
             entity.HasKey(e => e.VerificationCodeId).HasName("verification_code_id_pkey");
             entity.Property(e => e.VerificationCodeId).UseIdentityAlwaysColumn();
             entity.Property(e => e.Address).IsRequired();
-            entity.Property(e => e.AddressType).IsRequired().HasConversion(new EnumToStringConverter<AddressType>()); ;
+            entity.Property(e => e.AddressType).IsRequired().HasConversion(new EnumToStringConverter<AddressType>());
             entity.Property(e => e.VerificationCodeHash).IsRequired();
             entity.Property(e => e.Expires).IsRequired();
             entity.Property(e => e.Created).IsRequired();

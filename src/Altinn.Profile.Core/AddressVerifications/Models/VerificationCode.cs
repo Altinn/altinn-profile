@@ -48,7 +48,7 @@ namespace Altinn.Profile.Core.AddressVerifications.Models
         public string Address
         {
             get => _address;
-            set => _address = (value ?? string.Empty).Trim().ToLower();
+            set => _address = (value ?? string.Empty).Trim().ToLowerInvariant();
         }
 
         /// <summary>

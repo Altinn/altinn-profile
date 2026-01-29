@@ -10,7 +10,7 @@ namespace Altinn.Profile.Core.AddressVerifications.Models
     public class VerifiedAddress
     {
         /// <summary>
-        /// Gets or sets the user identifier associated with the verification code.
+        /// Gets or sets the user identifier associated with the verified address.
         /// </summary>
         public int UserId { get; set; }
 
@@ -22,7 +22,7 @@ namespace Altinn.Profile.Core.AddressVerifications.Models
         private string _address = string.Empty;
 
         /// <summary>
-        /// Gets or sets the address (e.g., email or phone number) associated with the verification code.
+        /// Gets or sets the address (e.g., email or phone number) associated with the verified address.
         /// Setter always trims and converts the value to lower case.
         /// </summary>
         public string Address
@@ -32,7 +32,7 @@ namespace Altinn.Profile.Core.AddressVerifications.Models
         }
 
         /// <summary>
-        /// Gets or sets the type of address (e.g., Email or Sms) associated with the verification code.
+        /// Gets or sets the type of address (e.g., Email or Sms) associated with the verified address.
         /// </summary>
         public AddressType AddressType { get; set; }
 

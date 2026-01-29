@@ -1,11 +1,12 @@
 ﻿using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Integrations.Persistence;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Altinn.Profile.Integrations.Repositories;
 
 /// <summary>
-/// Defines a repository for operations related to registry sync metadata.
+/// Defines a repository for operations related to address verification.
 /// </summary>
 public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> contextFactory)
 {
@@ -19,6 +20,9 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
     public async Task AddNewVerificationCode(VerificationCode verificationCode)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+        var verificationCodes = await databaseContext.VerificationCodes.Where(vc => vc.UserId.Equals(verificationCode.UserId) && vc.AddressType == verificationCode.AddressType && vc.Address == verificationCode.Address).ToListAsync();
+
+        databaseContext.VerificationCodes.RemoveRange(verificationCodes);
 
         databaseContext.VerificationCodes.Add(verificationCode);
         await databaseContext.SaveChangesAsync();
@@ -35,7 +39,7 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
     public async Task<bool> TryVerifyAddress(string verificationCodeHash, AddressType addressType, string address, int userId)
     {
         var verified = false;
-        address = address.Trim().ToLower();
+        address = address.Trim().ToLowerInvariant();
 
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
         var verificationCode = await databaseContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == address);
