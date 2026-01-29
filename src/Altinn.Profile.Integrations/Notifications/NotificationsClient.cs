@@ -19,6 +19,8 @@ public class NotificationsClient : INotificationsClient
     private readonly HttpClient _httpClient;
     private readonly IAccessTokenGenerator _accessTokenGenerator;
     private readonly ILogger<NotificationsClient> _logger;
+    private const string _notificationTypeSms = "sms";
+    private const string _notificationTypeEmail = "email";
 
     private readonly JsonSerializerOptions _options = new()
     {
@@ -48,22 +50,19 @@ public class NotificationsClient : INotificationsClient
         {
             IdempotencyId = Guid.NewGuid().ToString(),
             SendersReference = partyUuid.ToString(),
-            Recipient = new Recipient
+            RecipientSms = new RecipientSms
             {
-                RecipientSms = new RecipientSms
+                PhoneNumber = phoneNumber,
+                SmsSettings = new SmsSettings
                 {
-                    PhoneNumber = phoneNumber,
-                    SmsSettings = new SmsSettings
-                    {
-                        Body = OrderContent.GetSmsContent(languageCode),
-                    }
+                    Body = OrderContent.GetSmsContent(languageCode),
                 }
             }
         };
 
         var json = JsonSerializer.Serialize(request, _options);
 
-        await SendOrder(json, cancellationToken);
+        await SendOrder(json, _notificationTypeSms, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -73,25 +72,22 @@ public class NotificationsClient : INotificationsClient
         {
             IdempotencyId = Guid.NewGuid().ToString(),
             SendersReference = partyUuid.ToString(),
-            Recipient = new EmailRecipient
+            RecipientEmail = new RecipientEmail
             {
-                RecipientEmail = new RecipientEmail
+                EmailAddress = emailAddress,
+                EmailSettings = new EmailSettings
                 {
-                    EmailAddress = emailAddress,
-                    EmailSettings = new EmailSettings
-                    {
-                        Subject = OrderContent.GetEmailSubject(languageCode),
-                        Body = OrderContent.GetTmpEmailBody(languageCode),
-                    }
+                    Subject = OrderContent.GetEmailSubject(languageCode),
+                    Body = OrderContent.GetTmpEmailBody(languageCode),
                 }
-            },
+            }
         };
 
         var json = JsonSerializer.Serialize(request, _options);
-        await SendOrder(json, cancellationToken);
+        await SendOrder(json, _notificationTypeEmail, cancellationToken);
     }
 
-    private async Task SendOrder(string jsonString, CancellationToken cancellationToken)
+    private async Task SendOrder(string jsonString, string type, CancellationToken cancellationToken)
     {
         var accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "profile");
         if (string.IsNullOrEmpty(accessToken))
@@ -102,7 +98,7 @@ public class NotificationsClient : INotificationsClient
 
         var stringContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
-        var requestMessage = new HttpRequestMessage(HttpMethod.Post, "v1/future/orders")
+        var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"v1/future/orders/instant/{type}")
         {
             Content = stringContent
         };
