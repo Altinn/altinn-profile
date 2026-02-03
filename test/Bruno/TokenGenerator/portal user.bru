@@ -23,6 +23,36 @@ auth:basic {
   password: {{TokenGeneratorPassword}}
 }
 
+script:pre-request {
+    // Load user definitions from shared JS file.
+    // Paths are resolved from the collection root (Bruno folder), not this file's folder.
+    const { usersByEnv } = require("./scripts/usersByEnv.js");
+
+    const env = bru.getEnvVar("Environment");
+    const users = usersByEnv[env];
+    if (!users) {
+      throw new Error(`No users configured for environment: ${env}. Update usersByEnv.js.`);
+    }
+
+    const key = bru.getEnvVar("CurrentTestUser") || "user1";
+    const u = users[key];
+
+    if (!u) {
+      throw new Error(`Unknown CurrentTestUser: ${key} for environment ${env}. Update usersByEnv.js or the environment file.`);
+    }
+
+    // Set AuthN_* variables
+    bru.setEnvVar("AuthN_UserId", u.AuthN_UserId);
+    bru.setEnvVar("AuthN_PartyId", u.AuthN_PartyId);
+    bru.setEnvVar("AuthN_Pid", u.AuthN_Pid);
+    bru.setEnvVar("AuthN_PartyUuid", u.AuthN_PartyUuid);
+
+    // Set Party_* variables
+    bru.setEnvVar("Party_OrgNo", u.Party_OrgNo);
+    bru.setEnvVar("Party_PartyId", u.Party_PartyId);
+    bru.setEnvVar("Party_PartyUuid", u.Party_PartyUuid);
+}
+
 script:post-response {
   let data = res.getBody();
   
