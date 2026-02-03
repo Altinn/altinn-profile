@@ -20,7 +20,7 @@ public interface IUserContactPointsService
     /// elements.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a <see
-    /// cref="UserContactPointsList"/> with the contact points for the specified email identifiers. If no contact points
+    /// cref="SiUserContactPointsList"/> with the contact points for the specified email identifiers. If no contact points
     /// are found, the list will be empty.</returns>
     Task<SiUserContactPointsList> GetSiContactPoints(List<string> emailIdentifiers, CancellationToken cancellationToken);
 
