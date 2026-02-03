@@ -128,4 +128,51 @@ public class UserContactPointServiceTest
             a.IsReserved == b.IsReserved &&
             a.MobileNumber == b.MobileNumber;
     }
+
+    [Fact]
+    public async Task GetSiContactPoints_WithUrnMailtoPrefix_ReturnsStrippedEmailAndBlankMobileNumber()
+    {
+        // Arrange
+        var emailIdentifiers = new List<string>
+        {
+            "urn:mailto:user1@example.com",
+            "urn:mailto:user2@test.no",
+            "urn:mailto:admin@altinn.no"
+        };
+        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
+
+        // Act
+        SiUserContactPointsList result = await target.GetSiContactPoints(emailIdentifiers, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(3, result.ContactPointsList.Count);
+
+        Assert.Contains(result.ContactPointsList, cp =>
+            cp.Email == "user1@example.com" &&
+            cp.MobileNumber == string.Empty);
+
+        Assert.Contains(result.ContactPointsList, cp =>
+            cp.Email == "user2@test.no" &&
+            cp.MobileNumber == string.Empty);
+
+        Assert.Contains(result.ContactPointsList, cp =>
+            cp.Email == "admin@altinn.no" &&
+            cp.MobileNumber == string.Empty);
+    }
+
+    [Fact]
+    public async Task GetSiContactPoints_EmptyList_ReturnsEmptyResult()
+    {
+        // Arrange
+        var emailIdentifiers = new List<string>();
+        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
+
+        // Act
+        SiUserContactPointsList result = await target.GetSiContactPoints(emailIdentifiers, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Empty(result.ContactPointsList);
+    }
 }
