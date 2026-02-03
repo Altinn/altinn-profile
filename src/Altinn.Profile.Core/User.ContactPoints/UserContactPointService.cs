@@ -76,9 +76,12 @@ public class UserContactPointService : IUserContactPointsService
 
         foreach (var emailIdentifier in emailIdentifiers)
         {
-            string email = emailIdentifier.StartsWith(_urnPrefix, StringComparison.OrdinalIgnoreCase)
-                ? emailIdentifier.Substring(_urnPrefix.Length)
-                : emailIdentifier;
+            if (!emailIdentifier.StartsWith(_urnPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            string email = emailIdentifier.Substring(_urnPrefix.Length);
 
             resultList.ContactPointsList.Add(new SiUserContactPoints()
             {

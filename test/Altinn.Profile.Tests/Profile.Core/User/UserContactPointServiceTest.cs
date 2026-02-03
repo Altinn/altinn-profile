@@ -162,6 +162,31 @@ public class UserContactPointServiceTest
     }
 
     [Fact]
+    public async Task GetSiContactPoints_WithMixedFormats_MissingUrnPrefixWillBeDiscarded()
+    {
+        // Arrange
+        var emailIdentifiers = new List<string>
+    {
+        "urn:mailto:user1@altinn.no",
+        "urn:mailto:user2@altinn.no",
+        "unprefixed@test.no"
+    };
+        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
+
+        // Act
+        SiUserContactPointsList result = await target.GetSiContactPoints(emailIdentifiers, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(2, result.ContactPointsList.Count);
+
+        // Verify prefixed email is stripped
+        Assert.Contains(result.ContactPointsList, cp =>
+            cp.Email == "user1@altinn.no" &&
+            cp.MobileNumber == string.Empty);
+    }
+
+    [Fact]
     public async Task GetSiContactPoints_EmptyList_ReturnsEmptyResult()
     {
         // Arrange

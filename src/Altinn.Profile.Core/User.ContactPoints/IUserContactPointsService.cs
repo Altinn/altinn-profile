@@ -16,8 +16,9 @@ public interface IUserContactPointsService
     /// <summary>
     /// Retrieves the self-identified users' contact points associated with the specified email identifiers.
     /// </summary>
-    /// <param name="emailIdentifiers">A list of email identifiers for which to retrieve contact points. Cannot be null or contain null or empty
-    /// elements.</param>
+    /// <param name="emailIdentifiers">A list of email identifiers for which to retrieve contact points. Email identifiers must be in urn format with "urn:altinn:email" 
+    /// as the namespace and the email address as the value part of the urn
+    /// elements. Otherwise, the identifier will be discarded</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a <see
     /// cref="UserContactPointsList"/> with the contact points for the specified email identifiers. If no contact points
