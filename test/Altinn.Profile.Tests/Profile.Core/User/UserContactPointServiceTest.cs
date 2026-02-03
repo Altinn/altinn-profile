@@ -142,7 +142,7 @@ public class UserContactPointServiceTest
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
         // Act
-        SiUserContactPointsList result = await target.GetSiContactPoints(emailIdentifiers, CancellationToken.None);
+        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(emailIdentifiers, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -174,7 +174,7 @@ public class UserContactPointServiceTest
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
         // Act
-        SiUserContactPointsList result = await target.GetSiContactPoints(emailIdentifiers, CancellationToken.None);
+        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(emailIdentifiers, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -194,7 +194,7 @@ public class UserContactPointServiceTest
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
         // Act
-        SiUserContactPointsList result = await target.GetSiContactPoints(emailIdentifiers, CancellationToken.None);
+        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(emailIdentifiers, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

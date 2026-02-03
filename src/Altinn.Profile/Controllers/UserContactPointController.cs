@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -67,25 +66,19 @@ public class UserContactPointController : ControllerBase
     /// <summary>
     /// Endpoint used for looking up contact points for self-identified users connected to the provided email identifiers in the request body
     /// </summary>
-    /// <param name="SiContactDetailsLookup">Request body object that contains the identifiers associated with self-identified users</param>
+    /// <param name="selfIdentifiedContactPointLookup">Request body object that contains the identifiers associated with self-identified users</param>
     /// <param name="cancellationToken">A cancellationToken used to cancel the asynchronous operation</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpPost("lookupsi")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<SiUserContactPointsList>> PostLookupSi([FromBody] SiContactDetailsLookupCriteria SiContactDetailsLookup, CancellationToken cancellationToken)
+    public async Task<ActionResult<SelfIdentifiedUserContactPointsList>> PostLookupSi([FromBody] SiContactDetailsLookupCriteria selfIdentifiedContactPointLookup, CancellationToken cancellationToken)
     {
-        var response = await _contactPointService.GetSiContactPoints(SiContactDetailsLookup.EmailIdentifiers, cancellationToken);
+        if (selfIdentifiedContactPointLookup.EmailIdentifiers.Count == 0)
+        {
+            return Ok(new SelfIdentifiedUserContactPointsList());
+        }
+
+        var response = await _contactPointService.GetSiContactPoints(selfIdentifiedContactPointLookup.EmailIdentifiers, cancellationToken);
         return Ok(response);
     }
-}
-
-/// <summary>
-/// Represents the criteria used to look up contact details for self-identified users by their email identifiers.
-/// </summary>
-public class SiContactDetailsLookupCriteria
-{
-    /// <summary>
-    /// A list of email identifiers for which to retrieve contact points for self-identified users.
-    /// </summary>
-    public List<string> EmailIdentifiers { get; set; } = [];
 }

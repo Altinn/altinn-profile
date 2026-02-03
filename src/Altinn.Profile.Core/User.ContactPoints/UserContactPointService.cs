@@ -70,9 +70,9 @@ public class UserContactPointService : IUserContactPointsService
     }
 
     /// <inheritdoc/>
-    public Task<SiUserContactPointsList> GetSiContactPoints(List<string> emailIdentifiers, CancellationToken cancellationToken)
+    public Task<SelfIdentifiedUserContactPointsList> GetSiContactPoints(List<string> emailIdentifiers, CancellationToken cancellationToken)
     {
-        SiUserContactPointsList resultList = new();
+        SelfIdentifiedUserContactPointsList resultList = new();
 
         foreach (var emailIdentifier in emailIdentifiers)
         {
@@ -81,7 +81,7 @@ public class UserContactPointService : IUserContactPointsService
                 continue;
             }
 
-            string email = emailIdentifier.Substring(_urnPrefix.Length);
+            string email = emailIdentifier[_urnPrefix.Length..];
 
             resultList.ContactPointsList.Add(new SiUserContactPoints()
             {
