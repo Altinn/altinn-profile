@@ -14,6 +14,17 @@ public interface IUserContactPointsService
     Task<UserContactPointsList> GetContactPoints(List<string> nationalIdentityNumbers, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Retrieves the self-identified users' contact points associated with the specified email identifiers.
+    /// </summary>
+    /// <param name="emailIdentifiers">A list of email identifiers for which to retrieve contact points. Cannot be null or contain null or empty
+    /// elements.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a <see
+    /// cref="UserContactPointsList"/> with the contact points for the specified email identifiers. If no contact points
+    /// are found, the list will be empty.</returns>
+    Task<SiUserContactPointsList> GetSiContactPoints(List<string> emailIdentifiers, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Method for retriveing information about the availability of contact points for a user 
     /// </summary>
     /// <param name="nationalIdentityNumbers">A list of national identity numbers to look up availability for</param>

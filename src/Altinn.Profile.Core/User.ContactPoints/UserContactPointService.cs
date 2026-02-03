@@ -9,6 +9,7 @@ namespace Altinn.Profile.Core.User.ContactPoints;
 /// </summary>
 public class UserContactPointService : IUserContactPointsService
 {
+    private const string _urnPrefix = "urn:mailto:";
     private readonly IUserProfileService _userProfileService;
     private readonly IPersonService _personService;
 
@@ -67,5 +68,26 @@ public class UserContactPointService : IUserContactPointsService
         });
 
         return resultList;
+    }
+
+    /// <inheritdoc/>
+    public Task<SiUserContactPointsList> GetSiContactPoints(List<string> emailIdentifiers, CancellationToken cancellationToken)
+    {
+        SiUserContactPointsList resultList = new();
+
+        foreach (var emailIdentifier in emailIdentifiers)
+        {
+            string email = emailIdentifier.StartsWith(_urnPrefix, StringComparison.OrdinalIgnoreCase)
+                ? emailIdentifier.Substring(_urnPrefix.Length)
+                : emailIdentifier;
+
+            resultList.ContactPointsList.Add(new SiUserContactPoints()
+            {
+                Email = email,
+                MobileNumber = string.Empty
+            });
+        }
+
+        return Task.FromResult(resultList);
     }
 }
