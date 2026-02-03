@@ -24,96 +24,29 @@ auth:basic {
 }
 
 script:pre-request {
-    // Define all test users and organizations here, **per environment**.
-    // Top level key is the Environment (e.g. "at22", "at23", "dev"),
-    // second level key is the logical test user (e.g. "user1", "user2").
-    const usersByEnv = {
-      at22: {
-        user1: {
-          AuthN_UserId: "20885478",
-          AuthN_PartyId: "51118947",
-          AuthN_Pid: "17902349936",
-          AuthN_PartyUuid: "b8a3981b-9948-4109-88a9-679d90c4ab37",
-          Party_OrgNo: "313605590",
-          Party_PartyId: "51643854",
-          Party_PartyUuid: "8027a287-e3f1-42ad-bb50-57b4c4584f13"
-        }
-        // Add more users for AT22 as needed (user2, org1, etc.)
-      },
-  
-      at23: {
-        user1: {
-          AuthN_UserId: "20462603",
-          AuthN_PartyId: "50891883",
-          AuthN_Pid: "17902349936",
-          AuthN_PartyUuid: "629fa2c0-27cd-40a2-ac6a-99bdf374dba2",
-          Party_OrgNo: "313605590",
-          Party_PartyId: "51519644",
-          Party_PartyUuid: "4a1cfef9-82e1-4be9-96b9-b99f116f8350"
-        }
-        // Add more users for AT23 as needed.
-      },
-  
-      at24: {
-        user1: {
-          AuthN_UserId: "20245418",
-          AuthN_PartyId: "51074789",
-          AuthN_Pid: "17902349936",
-          AuthN_PartyUuid: "3155a6c7-0967-4c31-9cb3-0afe525d5899",
-          Party_OrgNo: "313605590",
-          Party_PartyId: "51605705",
-          Party_PartyUuid: "e0347436-a499-49aa-b651-8c67c3c8d17e"
-        }
-        // Add more users for AT24 as needed.
-      },
-  
-      tt02: {
-        user1: {
-          AuthN_UserId: "1597896",
-          AuthN_PartyId: "51368167",
-          AuthN_Pid: "17902349936",
-          AuthN_PartyUuid: "200718e3-ab43-4d34-86ee-4cd8a975a55c",
-          Party_OrgNo: "313605590",
-          Party_PartyId: "51857221",
-          Party_PartyUuid: "bb439b66-b467-4d9a-985f-e86738f93055"
-        }
-        // Add more TT02 users as needed.
-      },
-  
-      dev: {
-        // Local env (Local.bru)
-        user1: {
-          AuthN_UserId: "20002579",
-          AuthN_PartyId: "",
-          AuthN_Pid: "07837399275",
-          AuthN_PartyUuid: "",
-          Party_OrgNo: "313441571",
-          Party_PartyId: "",
-          Party_PartyUuid: ""
-        }
-        // Add more local users as needed.
-      }
-    };
-  
+    // Load user definitions from shared JS file.
+    // Paths are resolved from the collection root (Bruno folder), not this file's folder.
+    const { usersByEnv } = require("./scripts/usersByEnv.js");
+
     const env = bru.getEnvVar("Environment");
     const users = usersByEnv[env];
     if (!users) {
-      throw new Error(`No users configured for environment: ${env}. Update Select user.bru.`);
+      throw new Error(`No users configured for environment: ${env}. Update usersByEnv.js.`);
     }
-  
+
     const key = bru.getEnvVar("CurrentTestUser") || "user1";
     const u = users[key];
-  
+
     if (!u) {
-      throw new Error(`Unknown CurrentTestUser: ${key} for environment ${env}. Update Select user.bru or the environment file.`);
+      throw new Error(`Unknown CurrentTestUser: ${key} for environment ${env}. Update usersByEnv.js or the environment file.`);
     }
-  
+
     // Set AuthN_* variables
     bru.setEnvVar("AuthN_UserId", u.AuthN_UserId);
     bru.setEnvVar("AuthN_PartyId", u.AuthN_PartyId);
     bru.setEnvVar("AuthN_Pid", u.AuthN_Pid);
     bru.setEnvVar("AuthN_PartyUuid", u.AuthN_PartyUuid);
-  
+
     // Set Party_* variables
     bru.setEnvVar("Party_OrgNo", u.Party_OrgNo);
     bru.setEnvVar("Party_PartyId", u.Party_PartyId);
