@@ -8,7 +8,7 @@ namespace Altinn.Profile.Core.User.ContactPoints;
 /// </summary>
 public class UserContactPointService : IUserContactPointsService
 {
-    private const string _urnPrefix = "urn:mailto:";
+    private const string _urnPrefix = "urn:altinn:person:idporten-email::";
     private readonly IUserProfileService _userProfileService;
     private readonly IPersonService _personService;
 
