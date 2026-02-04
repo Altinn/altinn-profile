@@ -135,9 +135,9 @@ public class UserContactPointServiceTest
         // Arrange
         var emailIdentifiers = new List<string>
         {
-            "urn:mailto:user1@example.com",
-            "urn:mailto:user2@test.no",
-            "urn:mailto:admin@altinn.no"
+            "urn:altinn:person:idporten-email::user1@example.com",
+            "urn:altinn:person:idporten-email::user2@test.no",
+            "urn:altinn:person:idporten-email::admin@altinn.no"
         };
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
@@ -167,8 +167,8 @@ public class UserContactPointServiceTest
         // Arrange
         var emailIdentifiers = new List<string>
     {
-        "urn:mailto:user1@altinn.no",
-        "urn:mailto:user2@altinn.no",
+        "urn:altinn:person:idporten-email::user1@altinn.no",
+        "urn:altinn:person:idporten-email::user2@altinn.no",
         "unprefixed@test.no"
     };
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
