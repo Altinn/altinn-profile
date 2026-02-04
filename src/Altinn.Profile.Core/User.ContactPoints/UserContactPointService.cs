@@ -81,7 +81,11 @@ public class UserContactPointService : IUserContactPointsService
                 continue;
             }
 
-            string email = emailIdentifier[_urnPrefix.Length..];
+            string email = emailIdentifier[_urnPrefix.Length..].Trim();
+            if (email.Length == 0)
+            {
+                continue;
+            }
 
             resultList.ContactPointsList.Add(new SiUserContactPoints()
             {
