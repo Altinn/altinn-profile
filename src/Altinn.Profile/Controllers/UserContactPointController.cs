@@ -71,14 +71,14 @@ public class UserContactPointController : ControllerBase
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpPost("lookupsi")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<SelfIdentifiedUserContactPointsList>> PostLookupSi([FromBody] SiContactDetailsLookupCriteria selfIdentifiedContactPointLookup, CancellationToken cancellationToken)
+    public async Task<ActionResult<SelfIdentifiedUserContactPointsList>> PostLookupSi([FromBody] SelfIdentifiedContactDetailsLookupCriteria selfIdentifiedContactPointLookup, CancellationToken cancellationToken)
     {
-        if (selfIdentifiedContactPointLookup.EmailIdentifiers.Count == 0)
+        if (selfIdentifiedContactPointLookup.ExternalIdentities.Count == 0)
         {
             return Ok(new SelfIdentifiedUserContactPointsList());
         }
 
-        var response = await _contactPointService.GetSiContactPoints(selfIdentifiedContactPointLookup.EmailIdentifiers, cancellationToken);
+        var response = await _contactPointService.GetSiContactPoints(selfIdentifiedContactPointLookup.ExternalIdentities, cancellationToken);
         return Ok(response);
     }
 }
