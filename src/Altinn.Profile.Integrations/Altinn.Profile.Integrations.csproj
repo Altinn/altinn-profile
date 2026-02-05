@@ -20,6 +20,13 @@
     <PackageReference Include="WolverineFx" Version="5.10.0" />
     <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="5.10.0" />
     <PackageReference Include="WolverineFx.Postgresql" Version="5.10.0" />
+	  <!-- Explicitly referenced to resolve version conflicts with transitive dependencies from Microsoft.EntityFrameworkCore.Design 10.0.2.
+     These are required for EF Core migration generation. See: ReflectionTypeLoadException without explicit version. -->
+  <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="5.0.0" />
+  <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="5.0.0" />
+  <PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="5.0.0" />
+  <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="5.0.0" />
+  <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Workspaces" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
