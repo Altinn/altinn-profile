@@ -183,7 +183,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
         [Fact]
         public async Task GetVerificationStatus_WhenVerifiedEmail_ReturnsVerificationStatus()
         {
-            var options = CreateOptions(nameof(GetVerificationStatus_WhenNotVerified_ReturnsNull));
+            var options = CreateOptions(nameof(GetVerificationStatus_WhenVerifiedEmail_ReturnsVerificationStatus));
             var factory = new TestDbContextFactory(options);
             await using (var seedContext = new ProfileDbContext(options))
             {
@@ -209,7 +209,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
         [Fact]
         public async Task GetVerificationStatus_WhenVerifiedSms_ReturnsVerificationStatus()
         {
-            var options = CreateOptions(nameof(GetVerificationStatus_WhenNotVerified_ReturnsNull));
+            var options = CreateOptions(nameof(GetVerificationStatus_WhenVerifiedSms_ReturnsVerificationStatus));
             var factory = new TestDbContextFactory(options);
             await using (var seedContext = new ProfileDbContext(options))
             {

@@ -8,7 +8,7 @@ namespace Altinn.Profile.Core.Integrations
     public interface IAddressVerificationRepository
     {
         /// <summary>
-        /// Adds a new verification code to the database.
+        /// Retrieves the verification status for an address.
         /// </summary>
         /// <param name="userId">The id of the user</param>
         /// <param name="addressType">If the address is for sms or email</param>
