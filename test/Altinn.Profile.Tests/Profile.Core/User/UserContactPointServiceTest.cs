@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -133,16 +134,16 @@ public class UserContactPointServiceTest
     public async Task GetSiContactPoints_WithUrnMailtoPrefix_ReturnsStrippedEmailAndBlankMobileNumber()
     {
         // Arrange
-        var emailIdentifiers = new List<string>
+        var identities = new List<Uri>
         {
-            "urn:altinn:person:idporten-email::user1@example.com",
-            "urn:altinn:person:idporten-email::user2@test.no",
-            "urn:altinn:person:idporten-email::admin@altinn.no"
+            new("urn:altinn:person:idporten-email::user1@example.com"),
+            new("urn:altinn:person:idporten-email::user2@test.no"),
+            new("urn:altinn:person:idporten-email::admin@altinn.no")
         };
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
         // Act
-        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(emailIdentifiers, CancellationToken.None);
+        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -165,16 +166,16 @@ public class UserContactPointServiceTest
     public async Task GetSiContactPoints_WithMixedFormats_MissingUrnPrefixWillBeDiscarded()
     {
         // Arrange
-        var emailIdentifiers = new List<string>
+        var identities = new List<Uri>
     {
-        "urn:altinn:person:idporten-email::user1@altinn.no",
-        "urn:altinn:person:idporten-email::user2@altinn.no",
-        "unprefixed@test.no"
+        new("urn:altinn:person:idporten-email::user1@altinn.no"),
+        new("urn:altinn:person:idporten-email::user2@altinn.no"),
+        new("unprefixed@test.no")
     };
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
         // Act
-        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(emailIdentifiers, CancellationToken.None);
+        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -190,7 +191,7 @@ public class UserContactPointServiceTest
     public async Task GetSiContactPoints_EmptyList_ReturnsEmptyResult()
     {
         // Arrange
-        var emailIdentifiers = new List<string>();
+        var emailIdentifiers = new List<Uri>();
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
         // Act

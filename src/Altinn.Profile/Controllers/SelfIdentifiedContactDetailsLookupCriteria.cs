@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
@@ -14,5 +15,5 @@ public class SelfIdentifiedContactDetailsLookupCriteria
     /// </summary>
     [JsonRequired]
     [Required]
-    public List<string> ExternalIdentities { get; set; } = [];
+    public List<Uri> ExternalIdentities { get; set; } = [];
 }

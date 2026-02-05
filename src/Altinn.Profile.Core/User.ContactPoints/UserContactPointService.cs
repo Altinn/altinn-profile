@@ -70,18 +70,18 @@ public class UserContactPointService : IUserContactPointsService
     }
 
     /// <inheritdoc/>
-    public Task<SelfIdentifiedUserContactPointsList> GetSiContactPoints(List<string> emailIdentifiers, CancellationToken cancellationToken)
+    public Task<SelfIdentifiedUserContactPointsList> GetSiContactPoints(List<Uri> externalIdentities, CancellationToken cancellationToken)
     {
         SelfIdentifiedUserContactPointsList resultList = new();
 
-        foreach (var emailIdentifier in emailIdentifiers)
+        foreach (var emailIdentifier in externalIdentities)
         {
-            if (!emailIdentifier.StartsWith(_urnPrefix, StringComparison.OrdinalIgnoreCase))
+            if (!emailIdentifier.ToString().StartsWith(_urnPrefix, StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
 
-            string email = emailIdentifier[_urnPrefix.Length..].Trim();
+            string email = emailIdentifier.ToString()[_urnPrefix.Length..].Trim();
             if (email.Length == 0)
             {
                 continue;
