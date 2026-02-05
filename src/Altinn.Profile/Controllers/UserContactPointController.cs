@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Models;
+using Altinn.Urn;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,7 @@ namespace Altinn.Profile.Controllers;
 /// </summary>
 [ApiController]
 [Route("profile/api/v1/users/contactpoint")]
-[ApiExplorerSettings(IgnoreApi = true)]
+[ApiExplorerSettings(IgnoreApi = false)]
 [Consumes("application/json")]
 [Produces("application/json")]
 public class UserContactPointController : ControllerBase
@@ -80,5 +81,7 @@ public class UserContactPointController : ControllerBase
 
         var response = await _contactPointService.GetSiContactPoints(selfIdentifiedContactPointLookup.ExternalIdentities, cancellationToken);
         return Ok(response);
+
+        return null;
     }
 }

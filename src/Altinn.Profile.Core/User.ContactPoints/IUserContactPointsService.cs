@@ -23,7 +23,7 @@ public interface IUserContactPointsService
     /// <returns>A task that represents the asynchronous operation. The task result contains a <see
     /// cref="SelfIdentifiedUserContactPointsList"/> with the contact points for the external identities. If no contact points
     /// are found, the list will be empty.</returns>
-    Task<SelfIdentifiedUserContactPointsList> GetSiContactPoints(List<Uri> externalIdentities, CancellationToken cancellationToken);
+    Task<SelfIdentifiedUserContactPointsList> GetSiContactPoints(List<string> externalIdentities, CancellationToken cancellationToken);
 
     /// <summary>
     /// Method for retriveing information about the availability of contact points for a user 

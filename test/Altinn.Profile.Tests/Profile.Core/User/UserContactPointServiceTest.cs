@@ -11,8 +11,6 @@ using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.Testdata;
 
-using Microsoft.Extensions.Options;
-
 using Moq;
 
 using Xunit;
@@ -134,11 +132,11 @@ public class UserContactPointServiceTest
     public async Task GetSiContactPoints_WithUrnMailtoPrefix_ReturnsStrippedEmailAndBlankMobileNumber()
     {
         // Arrange
-        var identities = new List<Uri>
+        var identities = new List<string>
         {
-            new("urn:altinn:person:idporten-email::user1@example.com"),
-            new("urn:altinn:person:idporten-email::user2@test.no"),
-            new("urn:altinn:person:idporten-email::admin@altinn.no")
+            "urn:altinn:person:idporten-email:user1@example.com",
+            "urn:altinn:person:idporten-email:user2@test.no",
+            "urn:altinn:person:idporten-email:admin@altinn.no"
         };
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
@@ -166,11 +164,11 @@ public class UserContactPointServiceTest
     public async Task GetSiContactPoints_WithMixedFormats_MissingUrnPrefixWillBeDiscarded()
     {
         // Arrange
-        var identities = new List<Uri>
+        var identities = new List<string>
     {
-        new("urn:altinn:person:idporten-email::user1@altinn.no"),
-        new("urn:altinn:person:idporten-email::user2@altinn.no"),
-        new("unprefixed@test.no")
+        "urn:altinn:person:idporten-email:user1@altinn.no",
+        "urn:altinn:person:idporten-email:user2@altinn.no",
+        "unprefixed@test.no"
     };
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
@@ -191,7 +189,7 @@ public class UserContactPointServiceTest
     public async Task GetSiContactPoints_EmptyList_ReturnsEmptyResult()
     {
         // Arrange
-        var emailIdentifiers = new List<Uri>();
+        var emailIdentifiers = new List<string>();
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
         // Act
@@ -200,5 +198,64 @@ public class UserContactPointServiceTest
         // Assert
         Assert.NotNull(result);
         Assert.Empty(result.ContactPointsList);
+    }
+
+    [Fact]
+    public async Task GetSiContactPoints_WithUriEncodedEmailCharacters_ReturnsDecodedEmail()
+    {
+        // Arrange
+        var identities = new List<string>
+        {
+            // Plus sign (+) encoded as %2B
+            "urn:altinn:person:idporten-email:user%2Btag@example.com",
+            
+            // Percent (%) encoded as %25
+            "urn:altinn:person:idporten-email:user%2550off@test.no",
+            
+            // Space encoded as %20
+            "urn:altinn:person:idporten-email:first%20last@company.com",
+            
+            // Hash (#) encoded as %23
+            "urn:altinn:person:idporten-email:user%23123@altinn.no",
+            
+            // Equals (=) encoded as %3D
+            "urn:altinn:person:idporten-email:user%3Dname@domain.com",
+            
+            // Ampersand (&) encoded as %26
+            "urn:altinn:person:idporten-email:user%26company@test.org"
+        };
+        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
+
+        // Act
+        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(6, result.ContactPointsList.Count);
+
+        // Verify decoded emails
+        Assert.Contains(result.ContactPointsList, cp => 
+            cp.Email == "user+tag@example.com" && 
+            cp.MobileNumber == string.Empty);
+
+        Assert.Contains(result.ContactPointsList, cp => 
+            cp.Email == "user%50off@test.no" && 
+            cp.MobileNumber == string.Empty);
+
+        Assert.Contains(result.ContactPointsList, cp => 
+            cp.Email == "first last@company.com" && 
+            cp.MobileNumber == string.Empty);
+
+        Assert.Contains(result.ContactPointsList, cp => 
+            cp.Email == "user#123@altinn.no" && 
+            cp.MobileNumber == string.Empty);
+
+        Assert.Contains(result.ContactPointsList, cp => 
+            cp.Email == "user=name@domain.com" && 
+            cp.MobileNumber == string.Empty);
+
+        Assert.Contains(result.ContactPointsList, cp => 
+            cp.Email == "user&company@test.org" && 
+            cp.MobileNumber == string.Empty);
     }
 }

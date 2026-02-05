@@ -15,5 +15,5 @@ public class SelfIdentifiedContactDetailsLookupCriteria
     /// </summary>
     [JsonRequired]
     [Required]
-    public List<Uri> ExternalIdentities { get; set; } = [];
+    public List<string> ExternalIdentities { get; set; } = [];
 }

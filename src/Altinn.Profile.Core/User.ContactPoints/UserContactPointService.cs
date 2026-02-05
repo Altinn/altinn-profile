@@ -1,5 +1,9 @@
 ﻿using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Models;
+using Altinn.Urn;
+
+using static Altinn.Profile.Core.Unit.ContactPoints.CustomContactPointUrn;
 
 namespace Altinn.Profile.Core.User.ContactPoints;
 
@@ -8,7 +12,7 @@ namespace Altinn.Profile.Core.User.ContactPoints;
 /// </summary>
 public class UserContactPointService : IUserContactPointsService
 {
-    private const string _urnPrefix = "urn:altinn:person:idporten-email::";
+    private const string _urnPrefix = "urn:altinn:person:idporten-email:";
     private readonly IUserProfileService _userProfileService;
     private readonly IPersonService _personService;
 
@@ -70,30 +74,35 @@ public class UserContactPointService : IUserContactPointsService
     }
 
     /// <inheritdoc/>
-    public Task<SelfIdentifiedUserContactPointsList> GetSiContactPoints(List<Uri> externalIdentities, CancellationToken cancellationToken)
+    public Task<SelfIdentifiedUserContactPointsList> GetSiContactPoints(List<string> externalIdentities, CancellationToken cancellationToken)
     {
-        SelfIdentifiedUserContactPointsList resultList = new();
+        SelfIdentifiedUserContactPointsList contactPointsList = new();
 
-        foreach (var emailIdentifier in externalIdentities)
+        foreach (var urnIdentifier in externalIdentities)
         {
-            if (!emailIdentifier.ToString().StartsWith(_urnPrefix, StringComparison.OrdinalIgnoreCase))
+            // Only process URNs that match the ID-porten email format
+            if (!urnIdentifier.StartsWith(_urnPrefix, StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
 
-            string email = emailIdentifier.ToString()[_urnPrefix.Length..].Trim();
-            if (email.Length == 0)
+            // Attempt to parse the URN string into a CustomContactPointUrn
+            if (!TryParse(urnIdentifier, out CustomContactPointUrn? parsedUrn))
             {
                 continue;
             }
 
-            resultList.ContactPointsList.Add(new SiUserContactPoints()
+            // Verify the URN specifically represents an ID-porten email and extract the email value
+            if (parsedUrn is IDPortenEmail idportenEmail)
             {
-                Email = email,
-                MobileNumber = string.Empty
-            });
+                contactPointsList.ContactPointsList.Add(new SiUserContactPoints()
+                {
+                    Email = idportenEmail.Value.Value,
+                    MobileNumber = string.Empty
+                });
+            }
         }
 
-        return Task.FromResult(resultList);
+        return Task.FromResult(contactPointsList);
     }
 }
