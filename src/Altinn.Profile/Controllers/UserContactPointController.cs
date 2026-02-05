@@ -15,7 +15,7 @@ namespace Altinn.Profile.Controllers;
 /// </summary>
 [ApiController]
 [Route("profile/api/v1/users/contactpoint")]
-[ApiExplorerSettings(IgnoreApi = false)]
+[ApiExplorerSettings(IgnoreApi = true)]
 [Consumes("application/json")]
 [Produces("application/json")]
 public class UserContactPointController : ControllerBase
@@ -65,7 +65,7 @@ public class UserContactPointController : ControllerBase
     }
 
     /// <summary>
-    /// Endpoint used for looking up contact points for self-identified users connected to the provided email identifiers in the request body
+    /// Endpoint used for looking up contact points for self-identified users through their external identities
     /// </summary>
     /// <param name="selfIdentifiedContactPointLookup">Request body object that contains the identifiers associated with self-identified users</param>
     /// <param name="cancellationToken">A cancellationToken used to cancel the asynchronous operation</param>
