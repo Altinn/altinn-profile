@@ -1,7 +1,6 @@
 ﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Models;
-using Altinn.Urn;
 
 using static Altinn.Profile.Core.Unit.ContactPoints.CustomContactPointUrn;
 
@@ -91,7 +90,7 @@ public class UserContactPointService : IUserContactPointsService
                 contactPointsList.ContactPointsList.Add(new SiUserContactPoints()
                 {
                     Email = idportenEmail.Value.Value,
-                    MobileNumber = string.Empty
+                    MobileNumber = null
                 });
             }
         }
