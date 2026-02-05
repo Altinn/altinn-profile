@@ -1,4 +1,7 @@
-﻿using Altinn.Profile.Core.Integrations;
+﻿using System.Linq;
+
+using Altinn.Profile.Core.AddressVerifications.Models;
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.User;
 using Altinn.Profile.Core.User.ProfileSettings;
 
@@ -15,7 +18,8 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         INotificationsClient notificationsClient,
         IUserProfileService userProfileService,
         IRegisterClient registerClient,
-        IOptions<AddressMaintenanceSettings> addressMaintenanceSettings) : IProfessionalNotificationsService
+        IOptions<AddressMaintenanceSettings> addressMaintenanceSettings,
+        IAddressVerificationRepository addressVerificationRepository) : IProfessionalNotificationsService
     {
         private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
         private readonly IUserProfileClient _userProfileClient = userProfileClient;
@@ -23,9 +27,10 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         private readonly INotificationsClient _notificationsClient = notificationsClient;
         private readonly IRegisterClient _registerClient = registerClient;
         private readonly AddressMaintenanceSettings _addressMaintenanceSettings = addressMaintenanceSettings.Value;
+        private readonly IAddressVerificationRepository _addressVerificationRepository = addressVerificationRepository;
 
         /// <inheritdoc/>
-        public async Task<UserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
+        public async Task<ExtendedUserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
         {
             var notificationSettings = await _professionalNotificationsRepository.GetNotificationAddressAsync(userId, partyUuid, cancellationToken);
             if (notificationSettings == null)
@@ -33,28 +38,39 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                 return null;
             }
 
+            var extendedInfo = new ExtendedUserPartyContactInfo(notificationSettings);
+
+            await EnrichWithVerificationStatus(extendedInfo, cancellationToken);
+
             var profileSettings = await _userProfileService.GetProfileSettings(userId);
-            if (NeedsConfirmation(notificationSettings, profileSettings))
+            if (NeedsConfirmation(extendedInfo, profileSettings))
             {
-                notificationSettings.NeedsConfirmation = true;
+                extendedInfo.NeedsConfirmation = true;
             }
 
-            return notificationSettings;
+            return extendedInfo;
         }
 
         /// <inheritdoc/>
-        public async Task<IReadOnlyList<UserPartyContactInfo>> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<ExtendedUserPartyContactInfo>> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken)
         {
             var profileSettings = await _userProfileService.GetProfileSettings(userId);
 
             var notificationSettings = await _professionalNotificationsRepository.GetAllNotificationAddressesForUserAsync(userId, cancellationToken);
 
-            foreach (var setting in notificationSettings.Where(ns => NeedsConfirmation(ns, profileSettings)))
+            var extendedInfoList = notificationSettings.Select(ns => new ExtendedUserPartyContactInfo(ns)).ToList();
+
+            foreach (var extendedInfo in extendedInfoList)
+            {
+                await EnrichWithVerificationStatus(extendedInfo, cancellationToken);
+            }
+
+            foreach (var setting in extendedInfoList.Where(ns => NeedsConfirmation(ns, profileSettings)))
             {
                 setting.NeedsConfirmation = true;
             }
 
-            return notificationSettings;
+            return extendedInfoList;
         }
 
         /// <inheritdoc/>
@@ -258,6 +274,21 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             }
 
             return false;
+        }
+
+        private async Task EnrichWithVerificationStatus(ExtendedUserPartyContactInfo notificationAddress, CancellationToken cancellationToken)
+        {
+            if (!string.IsNullOrWhiteSpace(notificationAddress.EmailAddress))
+            {
+                var emailResult = await _addressVerificationRepository.GetVerificationStatus(notificationAddress.UserId, AddressType.Email, notificationAddress.EmailAddress, cancellationToken);
+                notificationAddress.EmailVerificationStatus = emailResult;
+            }
+
+            if (!string.IsNullOrWhiteSpace(notificationAddress.PhoneNumber))
+            {
+                var smsResult = await _addressVerificationRepository.GetVerificationStatus(notificationAddress.UserId, AddressType.Sms, notificationAddress.PhoneNumber, cancellationToken);
+                notificationAddress.SmsVerificationStatus = smsResult;
+            }
         }
     }
 }

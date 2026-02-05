@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
@@ -57,6 +58,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfileSettingsRepositoryMock
                 .Setup(x => x.GetProfileSettings(UserId))
                 .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = null, LanguageType = "no" });
+            _factory.AddressVerificationRepositoryMock
+                .Setup(x => x.GetVerificationStatus(It.IsAny<int>(), AddressType.Email, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(VerificationType.Explicit);
 
             SetupSblMock();
             SetupAuthHandler(_factory, partyGuid, UserId);
@@ -85,6 +89,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Single(notificationAddresses.ResourceIncludeList);
             Assert.Equal("urn:altinn:resource:app_example", notificationAddresses.ResourceIncludeList[0]);
             Assert.True(notificationAddresses.NeedsConfirmation);
+            Assert.Equal(VerificationType.Explicit, notificationAddresses.EmailVerificationStatus);
+            Assert.Null(notificationAddresses.SmsVerificationStatus);
         }
 
         [Fact]
@@ -169,6 +175,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfileSettingsRepositoryMock
                 .Setup(x => x.GetProfileSettings(UserId))
                 .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = DateTime.Today, LanguageType = "no" });
+            _factory.AddressVerificationRepositoryMock
+                .Setup(x => x.GetVerificationStatus(It.IsAny<int>(), AddressType.Email, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(VerificationType.Explicit);
+            _factory.AddressVerificationRepositoryMock
+                .Setup(x => x.GetVerificationStatus(It.IsAny<int>(), AddressType.Sms, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(VerificationType.Legacy);
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Get, UserId, "profile/api/v1/users/current/notificationsettings/parties");
@@ -181,8 +193,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal("a@b.com", addresses[0].EmailAddress);
             Assert.Single(addresses[0].ResourceIncludeList);
             Assert.Equal("urn:altinn:resource:one", addresses[0].ResourceIncludeList[0]);
+
             Assert.Equal("c@d.com", addresses[1].EmailAddress);
             Assert.False(addresses[1].NeedsConfirmation);
+            Assert.Equal(VerificationType.Explicit, addresses[1].EmailVerificationStatus);
+            Assert.Equal(VerificationType.Legacy, addresses[1].SmsVerificationStatus);
         }
 
         [Fact]

@@ -47,11 +47,6 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         public List<UserPartyContactInfoResource>? UserPartyContactInfoResources { get; set; }
 
         /// <summary>
-        /// A boolean indicating whether confirmation is needed for the contact info
-        /// </summary>
-        public bool NeedsConfirmation { get; set; }
-
-        /// <summary>
         /// Helper method to get the UserPartyContactInfoResources as a list of strings representing resource IDs.
         /// </summary>
         public List<string>? GetResourceIncludeList()

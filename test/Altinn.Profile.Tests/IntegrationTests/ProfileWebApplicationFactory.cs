@@ -79,6 +79,8 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
 
     public Mock<IProfileSettingsRepository> ProfileSettingsRepositoryMock { get; set; } = new();
 
+    public Mock<IAddressVerificationRepository> AddressVerificationRepositoryMock { get; set; } = new();
+
     public Dictionary<string, string?> InMemoryConfigurationCollection { get; set; } = new();
 
     public MemoryCache MemoryCache { get; set; } = new(new MemoryCacheOptions());
@@ -143,6 +145,7 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
             services.AddSingleton(ProfessionalNotificationsRepositoryMock.Object);
             services.AddSingleton(RegisterClientMock.Object);
             services.AddSingleton(ProfileSettingsRepositoryMock.Object);
+            services.AddSingleton(AddressVerificationRepositoryMock.Object);
             services.AddSingleton(sp =>
             {
                 var altinnConfig = new AddressMaintenanceSettings
