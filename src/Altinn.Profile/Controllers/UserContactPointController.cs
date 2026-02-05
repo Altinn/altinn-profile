@@ -81,7 +81,5 @@ public class UserContactPointController : ControllerBase
 
         var response = await _contactPointService.GetSiContactPoints(selfIdentifiedContactPointLookup.ExternalIdentities, cancellationToken);
         return Ok(response);
-
-        return null;
     }
 }
