@@ -86,6 +86,6 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
             return null;
         }
 
-        return verifiedAddresses.First().VerificationType;
+        return verifiedAddresses[0].VerificationType;
     }
 }
