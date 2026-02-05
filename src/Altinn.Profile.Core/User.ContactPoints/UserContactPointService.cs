@@ -12,7 +12,6 @@ namespace Altinn.Profile.Core.User.ContactPoints;
 /// </summary>
 public class UserContactPointService : IUserContactPointsService
 {
-    private const string _urnPrefix = "urn:altinn:person:idporten-email:";
     private readonly IUserProfileService _userProfileService;
     private readonly IPersonService _personService;
 
@@ -80,12 +79,6 @@ public class UserContactPointService : IUserContactPointsService
 
         foreach (var urnIdentifier in externalIdentities)
         {
-            // Only process URNs that match the ID-porten email format
-            if (!urnIdentifier.StartsWith(_urnPrefix, StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
             // Attempt to parse the URN string into a CustomContactPointUrn
             if (!TryParse(urnIdentifier, out CustomContactPointUrn? parsedUrn))
             {
