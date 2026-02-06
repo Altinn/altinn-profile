@@ -62,4 +62,23 @@ public class UserContactPointController : ControllerBase
         UserContactPointsList userContactPointsList = await _contactPointService.GetContactPoints(userContactPointLookup.NationalIdentityNumbers, cancellationToken);
         return Ok(userContactPointsList);
     }
+
+    /// <summary>
+    /// Endpoint used for looking up contact points for self-identified users through their external identities
+    /// </summary>
+    /// <param name="selfIdentifiedContactPointLookup">Request body object that contains the identifiers associated with self-identified users</param>
+    /// <param name="cancellationToken">A cancellationToken used to cancel the asynchronous operation</param>
+    /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+    [HttpPost("lookupsi")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<SelfIdentifiedUserContactPointsList>> PostLookupSi([FromBody] SelfIdentifiedContactDetailsLookupCriteria selfIdentifiedContactPointLookup, CancellationToken cancellationToken)
+    {
+        if (selfIdentifiedContactPointLookup.ExternalIdentities.Count == 0)
+        {
+            return Ok(new SelfIdentifiedUserContactPointsList());
+        }
+
+        var response = await _contactPointService.GetSiContactPoints(selfIdentifiedContactPointLookup.ExternalIdentities, cancellationToken);
+        return Ok(response);
+    }
 }

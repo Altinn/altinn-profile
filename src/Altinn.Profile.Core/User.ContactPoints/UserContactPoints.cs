@@ -1,4 +1,4 @@
-﻿﻿namespace Altinn.Profile.Core.User.ContactPoints;
+﻿namespace Altinn.Profile.Core.User.ContactPoints;
 
 /// <summary>
 /// Class describing the contact points for a user
