@@ -39,7 +39,7 @@ public class OwnedLeaseTests
             timeProvider,
             ticket,
             null,
-            token ?? CancellationToken.None);
+            token ?? TestContext.Current.CancellationToken);
     }
 
     [Fact]

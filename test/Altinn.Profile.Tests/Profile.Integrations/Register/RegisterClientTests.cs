@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -85,7 +85,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetMainUnit("111111111", CancellationToken.None);
+            var result = await client.GetMainUnit("111111111", TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -118,7 +118,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetMainUnit("111111111", CancellationToken.None);
+            var result = await client.GetMainUnit("111111111", TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(result);
@@ -135,7 +135,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetMainUnit("111111111", CancellationToken.None);
+            var result = await client.GetMainUnit("111111111", TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(result);
@@ -153,7 +153,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetMainUnit("111111111", CancellationToken.None);
+            var result = await client.GetMainUnit("111111111", TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(result);
@@ -182,7 +182,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetPartyId(partyUuid, CancellationToken.None);
+            var result = await client.GetPartyId(partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -213,7 +213,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetPartyId(partyUuid, CancellationToken.None);
+            var result = await client.GetPartyId(partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -243,7 +243,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetPartyId(partyUuid, CancellationToken.None);
+            var result = await client.GetPartyId(partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -263,7 +263,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetPartyId(partyUuid, CancellationToken.None);
+            var result = await client.GetPartyId(partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(result);
@@ -281,7 +281,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetPartyId(partyUuid, CancellationToken.None);
+            var result = await client.GetPartyId(partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(result);
@@ -302,7 +302,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetPartyId(partyUuid, CancellationToken.None);
+            var result = await client.GetPartyId(partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(result);
@@ -335,7 +335,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetPartyUuids(orgNumbers, CancellationToken.None);
+            var result = await client.GetPartyUuids(orgNumbers, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -368,7 +368,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetPartyUuids(orgNumbers, CancellationToken.None);
+            var result = await client.GetPartyUuids(orgNumbers, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(result);
@@ -387,7 +387,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetPartyUuids(orgNumbers, CancellationToken.None);
+            var result = await client.GetPartyUuids(orgNumbers, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(result);
@@ -414,7 +414,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetPartyUuids(orgNumbers, CancellationToken.None);
+            var result = await client.GetPartyUuids(orgNumbers, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(result);
@@ -440,7 +440,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetPartyUuids(orgNumbers, CancellationToken.None);
+            var result = await client.GetPartyUuids(orgNumbers, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Empty(result);
@@ -462,7 +462,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
 
             // Act & Assert
             await Assert.ThrowsAsync<JsonException>(async () => 
-                await client.GetPartyUuids(orgNumbers, CancellationToken.None));
+                await client.GetPartyUuids(orgNumbers, TestContext.Current.CancellationToken));
         }
 
         [Fact]
@@ -487,7 +487,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, CancellationToken.None);
+            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -518,7 +518,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, CancellationToken.None);
+            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -547,7 +547,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, CancellationToken.None);
+            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -570,7 +570,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, CancellationToken.None);
+            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(result);
@@ -587,7 +587,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, CancellationToken.None);
+            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(result);
@@ -607,7 +607,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, CancellationToken.None);
+            var result = await client.GetOrganizationNumberByPartyUuid(partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(result);

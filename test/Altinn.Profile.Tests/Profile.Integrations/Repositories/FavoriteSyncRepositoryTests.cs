@@ -95,7 +95,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         await _databaseContext.SaveChangesAsync();
 
         // Act
-        await _repository.AddPartyToFavorites(userId, partyUuid, created, CancellationToken.None);
+        await _repository.AddPartyToFavorites(userId, partyUuid, created, TestContext.Current.CancellationToken);
 
         // Assert
         var updatedGroup = await _databaseContext.Groups.Include(g => g.Parties).FirstAsync();
@@ -112,7 +112,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         var created = DateTime.UtcNow;
 
         // Act
-        await _repository.AddPartyToFavorites(userId, partyUuid, created, CancellationToken.None);
+        await _repository.AddPartyToFavorites(userId, partyUuid, created, TestContext.Current.CancellationToken);
 
         // Assert
         var group = await _databaseContext.Groups.Include(g => g.Parties).FirstOrDefaultAsync(g => g.UserId == userId && g.IsFavorite);
@@ -145,7 +145,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         await _databaseContext.SaveChangesAsync();
 
         // Act
-        await _repository.AddPartyToFavorites(userId, partyUuid, created, CancellationToken.None);
+        await _repository.AddPartyToFavorites(userId, partyUuid, created, TestContext.Current.CancellationToken);
 
         // Assert
         var updatedGroup = await _databaseContext.Groups.Include(g => g.Parties).FirstAsync();
@@ -176,10 +176,10 @@ public class FavoriteSyncRepositoryTests : IDisposable
         await _databaseContext.SaveChangesAsync();
 
         // Act
-        await _repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(1), CancellationToken.None);
+        await _repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(1), TestContext.Current.CancellationToken);
 
         // Assert
-        var updatedGroup = await _repository.GetFavorites(userId, CancellationToken.None);
+        var updatedGroup = await _repository.GetFavorites(userId, TestContext.Current.CancellationToken);
         Assert.Empty(updatedGroup.Parties);
     }
 
@@ -207,10 +207,10 @@ public class FavoriteSyncRepositoryTests : IDisposable
         await _databaseContext.SaveChangesAsync();
 
         // Act
-        await _repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(-1), CancellationToken.None);
+        await _repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(-1), TestContext.Current.CancellationToken);
 
         // Assert
-        var updatedGroup = await _repository.GetFavorites(userId, CancellationToken.None);
+        var updatedGroup = await _repository.GetFavorites(userId, TestContext.Current.CancellationToken);
         Assert.NotEmpty(updatedGroup.Parties);
     }
 
@@ -224,7 +224,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         // Act & Assert (should not throw)
         try
         {
-            await _repository.DeleteFromFavorites(userId, partyUuid, DateTime.Now, CancellationToken.None);
+            await _repository.DeleteFromFavorites(userId, partyUuid, DateTime.Now, TestContext.Current.CancellationToken);
         }
         catch (Exception ex)
         {
@@ -254,7 +254,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         // Act & Assert (should not throw)
         try
         {
-            await _repository.DeleteFromFavorites(userId, partyUuid, DateTime.Now, CancellationToken.None);
+            await _repository.DeleteFromFavorites(userId, partyUuid, DateTime.Now, TestContext.Current.CancellationToken);
         }
         catch (Exception ex)
         {
@@ -278,7 +278,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         var partyUuid = Guid.NewGuid();
         var created = DateTime.UtcNow;
 
-        await repository.AddPartyToFavorites(userId, partyUuid, created, CancellationToken.None);
+        await repository.AddPartyToFavorites(userId, partyUuid, created, TestContext.Current.CancellationToken);
 
         meterProvider.ForceFlush();
 
@@ -309,8 +309,8 @@ public class FavoriteSyncRepositoryTests : IDisposable
         var created = DateTime.UtcNow;
 
         // Add first so we can delete
-        await repository.AddPartyToFavorites(userId, partyUuid, created, CancellationToken.None);
-        await repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(1), CancellationToken.None);
+        await repository.AddPartyToFavorites(userId, partyUuid, created, TestContext.Current.CancellationToken);
+        await repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(1), TestContext.Current.CancellationToken);
 
         meterProvider.ForceFlush();
 
