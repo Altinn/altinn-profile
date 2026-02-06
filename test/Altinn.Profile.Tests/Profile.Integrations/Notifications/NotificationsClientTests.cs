@@ -74,7 +74,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             Assert.Equal(new Uri(_testBaseUrl + "v1/future/orders/instant/sms"), sentRequest.RequestUri);
             Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
             Assert.IsType<StringContent>(sentRequest.Content);
-            var content = await sentRequest.Content.ReadAsStringAsync();
+            var content = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             Assert.Contains("12345678", content);
             Assert.Contains("sms", content, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("oppdatert", content, StringComparison.OrdinalIgnoreCase);
@@ -98,7 +98,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             Assert.Equal(new Uri(_testBaseUrl + "v1/future/orders/instant/email"), sentRequest.RequestUri);
             Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
             Assert.IsType<StringContent>(sentRequest.Content);
-            var content = await sentRequest.Content.ReadAsStringAsync();
+            var content = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             Assert.Contains("test@example.com", content);
             Assert.Contains("email", content, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("changed", content, StringComparison.OrdinalIgnoreCase);

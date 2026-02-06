@@ -109,7 +109,7 @@ public class ProfileSettingsRepositoryTests
             LanguageType = "en"
         };
         _databaseContext.ProfileSettings.Add(existing);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var updated = new ProfileSettings
         {
@@ -175,7 +175,7 @@ public class ProfileSettingsRepositoryTests
             LanguageType = "en"
         };
         _databaseContext.ProfileSettings.Add(existing);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var newPreselected = Guid.NewGuid();
         var patch = new ProfileSettingsPatchModel
@@ -230,7 +230,7 @@ public class ProfileSettingsRepositoryTests
             LanguageType = "en"
         };
         _databaseContext.ProfileSettings.Add(existing);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Optional explicitly present but with null value => should clear stored value
         var patch = new ProfileSettingsPatchModel
@@ -274,7 +274,7 @@ public class ProfileSettingsRepositoryTests
             LanguageType = "en"
         };
         _databaseContext.ProfileSettings.Add(existing);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Optional explicitly not present => should not change stored value
         var patch = new ProfileSettingsPatchModel

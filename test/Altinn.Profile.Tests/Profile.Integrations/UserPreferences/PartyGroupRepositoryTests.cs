@@ -72,7 +72,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
                 new Group { Name = "Group B", GroupId = 2, IsFavorite = false, UserId = 1 },
                 new Group { Name = "Group C", GroupId = 3, IsFavorite = false, UserId = 2 });
 
-            await _databaseContext.SaveChangesAsync();
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         [Fact]
@@ -388,7 +388,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
                 .Setup(mock => mock.SaveChangesAndFlushMessagesAsync(It.IsAny<CancellationToken>()))
                 .Returns(async () =>
                 {
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(TestContext.Current.CancellationToken);
                 });
 
             _dbContextOutboxMock

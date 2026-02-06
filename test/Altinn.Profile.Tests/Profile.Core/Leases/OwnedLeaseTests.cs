@@ -119,7 +119,7 @@ public class OwnedLeaseTests
         var lease = CreateOwnedLease(ticket);
 
         // Act
-        var result = await lease.Release();
+        var result = await lease.Release(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result.IsReleased);

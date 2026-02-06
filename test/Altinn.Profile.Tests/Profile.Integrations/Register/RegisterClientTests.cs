@@ -92,7 +92,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             Assert.Equal("123456789", result);
             Assert.Equal(HttpMethod.Post, sentRequest.Method);
             Assert.IsType<StringContent>(sentRequest.Content);
-            var requestContent = await sentRequest.Content.ReadAsStringAsync();
+            var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             JsonNode sentPayload = JsonNode.Parse(requestContent);
             string sentData = (string)sentPayload["data"];
             Assert.Equal("urn:altinn:organization:identifier-no:111111111", sentData);
@@ -349,7 +349,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             Assert.Equal(new Uri(_testBaseUrl + "v2/internal/parties/query"), sentRequest.RequestUri);
             Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
 
-            var requestContent = await sentRequest.Content.ReadAsStringAsync();
+            var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var sentPayload = JsonNode.Parse(requestContent);
             var sentData = sentPayload["data"].AsArray();
             Assert.Equal(2, sentData.Count);

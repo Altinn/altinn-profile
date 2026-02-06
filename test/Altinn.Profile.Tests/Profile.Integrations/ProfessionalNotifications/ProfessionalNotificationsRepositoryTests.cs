@@ -103,7 +103,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 UserPartyContactInfoResources = resources
             };
             _databaseContext.UserPartyContactInfo.Add(contactInfo);
-            await _databaseContext.SaveChangesAsync();
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         [Fact]
@@ -765,7 +765,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 UserPartyContactInfoResources = new List<UserPartyContactInfoResource>()
             };
             _databaseContext.UserPartyContactInfo.Add(original);
-            await _databaseContext.SaveChangesAsync();
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
             var updated = new UserPartyContactInfo
             {
@@ -815,7 +815,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 UserPartyContactInfoResources = new List<UserPartyContactInfoResource>()
             };
             _databaseContext.UserPartyContactInfo.Add(contactInfo);
-            await _databaseContext.SaveChangesAsync();
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
             await repository.DeleteNotificationAddressFromSyncAsync(userId, partyUuid, TestContext.Current.CancellationToken);
 

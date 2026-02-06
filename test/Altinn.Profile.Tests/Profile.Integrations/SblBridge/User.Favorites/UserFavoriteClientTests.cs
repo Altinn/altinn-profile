@@ -84,7 +84,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.User.Favorites
             Assert.Equal(HttpMethod.Post, sentRequest.Method);
             Assert.Equal(new Uri(_testBaseUrl + "users/favorite/update"), sentRequest.RequestUri);
             Assert.IsType<StringContent>(sentRequest.Content);
-            var requestContent = await sentRequest.Content.ReadAsStringAsync();
+            var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var sentPayload = JsonSerializer.Deserialize<FavoriteChangedRequest>(requestContent);
             Assert.Equal(request.ChangeType, sentPayload.ChangeType);
             Assert.Equal(request.UserId, sentPayload.UserId);

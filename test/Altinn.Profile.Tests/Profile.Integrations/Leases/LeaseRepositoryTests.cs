@@ -76,7 +76,7 @@ public class LeaseRepositoryTests
             Released = null
         };
         db.Lease.Add(lease);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var updatedLease = new Lease
         {
@@ -113,7 +113,7 @@ public class LeaseRepositoryTests
             Released = null
         };
         db.Lease.Add(lease);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var newToken = Guid.NewGuid();
         var updatedLease = new Lease
@@ -151,7 +151,7 @@ public class LeaseRepositoryTests
             Released = null
         };
         db.Lease.Add(lease);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var newToken = Guid.NewGuid();
         var updatedLease = new Lease
@@ -213,7 +213,7 @@ public class LeaseRepositoryTests
             Released = null
         };
         db.Lease.Add(lease);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
         var result = await repo.GetFailedLeaseResult(lease.Id, TestContext.Current.CancellationToken);

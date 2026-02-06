@@ -22,7 +22,7 @@ public class OpenApiSpecificationTests(ProfileWebApplicationFactory<Program> fac
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, "/swagger");
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

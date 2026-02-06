@@ -92,13 +92,13 @@ public class FavoriteSyncRepositoryTests : IDisposable
         };
 
         _databaseContext.Groups.Add(group);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
         await _repository.AddPartyToFavorites(userId, partyUuid, created, TestContext.Current.CancellationToken);
 
         // Assert
-        var updatedGroup = await _databaseContext.Groups.Include(g => g.Parties).FirstAsync();
+        var updatedGroup = await _databaseContext.Groups.Include(g => g.Parties).FirstAsync(TestContext.Current.CancellationToken);
         Assert.Single(updatedGroup.Parties);
         Assert.Equal(partyUuid, updatedGroup.Parties[0].PartyUuid);
     }
@@ -115,7 +115,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         await _repository.AddPartyToFavorites(userId, partyUuid, created, TestContext.Current.CancellationToken);
 
         // Assert
-        var group = await _databaseContext.Groups.Include(g => g.Parties).FirstOrDefaultAsync(g => g.UserId == userId && g.IsFavorite);
+        var group = await _databaseContext.Groups.Include(g => g.Parties).FirstOrDefaultAsync(g => g.UserId == userId && g.IsFavorite, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(group);
         Assert.Single(group.Parties);
         Assert.Equal(partyUuid, group.Parties[0].PartyUuid);
@@ -142,13 +142,13 @@ public class FavoriteSyncRepositoryTests : IDisposable
         };
 
         _databaseContext.Groups.Add(group);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
         await _repository.AddPartyToFavorites(userId, partyUuid, created, TestContext.Current.CancellationToken);
 
         // Assert
-        var updatedGroup = await _databaseContext.Groups.Include(g => g.Parties).FirstAsync();
+        var updatedGroup = await _databaseContext.Groups.Include(g => g.Parties).FirstAsync(TestContext.Current.CancellationToken);
         Assert.Single(updatedGroup.Parties);
     }
 
@@ -173,7 +173,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         };
 
         _databaseContext.Groups.Add(group);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
         await _repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(1), TestContext.Current.CancellationToken);
@@ -204,7 +204,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         };
 
         _databaseContext.Groups.Add(group);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
         await _repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(-1), TestContext.Current.CancellationToken);
@@ -249,7 +249,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         };
 
         _databaseContext.Groups.Add(group);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act & Assert (should not throw)
         try
