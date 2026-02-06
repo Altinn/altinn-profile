@@ -30,13 +30,14 @@ public class TelemetryTests
             var client = _factory.CreateClient();
 
             // We need to call any endpoint that includes some telemetry.
-            using var response =
-                await client.GetAsync(new Uri("/profile/api/v1/trigger/syncpersonchanges", UriKind.Relative));
+            using var response = await client.GetAsync(
+                new Uri("/profile/api/v1/trigger/syncpersonchanges", UriKind.Relative), 
+                TestContext.Current.CancellationToken);
 
             // We need to let End callback execute as it is executed AFTER response was returned.
             // In unit tests environment there may be a lot of parallel unit tests executed, so
             // giving some breezing room for the End callback to complete
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            await Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
 
             meterProvider.ForceFlush();
 
@@ -71,13 +72,14 @@ public class TelemetryTests
             var client = _factory.CreateClient();
 
             // We need to call any endpoint that includes some telemetry.
-            using var response =
-                await client.GetAsync(new Uri("/profile/api/v1/trigger/syncorgchanges", UriKind.Relative));
+            using var response = await client.GetAsync(
+                new Uri("/profile/api/v1/trigger/syncorgchanges", UriKind.Relative), 
+                TestContext.Current.CancellationToken);
 
             // We need to let End callback execute as it is executed AFTER response was returned.
             // In unit tests environment there may be a lot of parallel unit tests executed, so
             // giving some breezing room for the End callback to complete
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            await Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
 
             meterProvider.ForceFlush();
 

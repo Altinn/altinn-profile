@@ -84,7 +84,7 @@ namespace Altinn.Profile.Tests.Changelog
                 null);
 
             // Act
-            await job.InvokeRunAsync(CancellationToken.None);
+            await job.InvokeRunAsync(TestContext.Current.CancellationToken);
 
             // Assert
             profileSettingsSyncRepository.Verify(
@@ -154,7 +154,7 @@ namespace Altinn.Profile.Tests.Changelog
                 null);
 
             // Act
-            await job.InvokeRunAsync(CancellationToken.None);
+            await job.InvokeRunAsync(TestContext.Current.CancellationToken);
 
             // Assert - an error should be logged when deserialization fails
             loggerMock.Verify(

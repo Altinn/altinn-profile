@@ -67,7 +67,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         httpRequest.Content = JsonContent.Create(request, options: _serializerOptionsCamelCase);
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequest);
+        HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(response.IsSuccessStatusCode, $"Expected success status code but got {(int)response.StatusCode}");
@@ -108,7 +108,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         httpRequest.Content = JsonContent.Create(request, options: _serializerOptionsCamelCase);
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequest);
+        HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -134,12 +134,12 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         httpRequest.Content = JsonContent.Create(request, options: _serializerOptionsCamelCase);
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequest);
+        HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(response.IsSuccessStatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var actual = JsonSerializer.Deserialize<ProblemDetails>(responseContent, _serializerOptionsCamelCase);
 
         _factory.ProfileSettingsRepositoryMock.Verify(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -172,7 +172,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         httpRequest.Content = JsonContent.Create(request, options: _serializerOptionsCamelCase);
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequest);
+        HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(response.IsSuccessStatusCode, $"Expected success status code but got {(int)response.StatusCode}");
@@ -222,12 +222,12 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetToken(userId));
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(request);
+        HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var actual = JsonSerializer.Deserialize<ProfileSettingPreference>(responseContent, _serializerOptionsCamelCase);
 
         Assert.NotNull(actual);
@@ -264,7 +264,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetToken(userId));
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(request);
+        HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -293,10 +293,10 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(request);
+        HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Contains("UserId must be provided in claims", responseContent);
     }

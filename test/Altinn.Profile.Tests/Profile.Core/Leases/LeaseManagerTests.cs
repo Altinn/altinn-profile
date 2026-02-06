@@ -48,7 +48,7 @@ public class LeaseManagerTests
 
         // Act
         var manager = CreateManager();
-        var lease = await manager.AcquireLease(leaseId, cancellationToken: CancellationToken.None);
+        var lease = await manager.AcquireLease(leaseId, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(lease);
@@ -75,7 +75,7 @@ public class LeaseManagerTests
 
         // Act
         var manager = CreateManager();
-        var lease = await manager.AcquireLease(leaseId, cancellationToken: CancellationToken.None);
+        var lease = await manager.AcquireLease(leaseId, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(lease);
@@ -124,7 +124,7 @@ public class LeaseManagerTests
         var manager = CreateManager();
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => manager.AcquireLease(leaseId, cancellationToken: CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => manager.AcquireLease(leaseId, cancellationToken: TestContext.Current.CancellationToken));
         _leaseProviderMock.Verify(p => p.ReleaseLease(ticket, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

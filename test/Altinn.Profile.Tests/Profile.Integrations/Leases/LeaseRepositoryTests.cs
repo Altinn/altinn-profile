@@ -51,7 +51,7 @@ public class LeaseRepositoryTests
         };
 
         // Act
-        var result = await repo.UpsertLease(lease, DateTimeOffset.UtcNow, null, CancellationToken.None);
+        var result = await repo.UpsertLease(lease, DateTimeOffset.UtcNow, null, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result.IsLeaseAcquired);
@@ -76,7 +76,7 @@ public class LeaseRepositoryTests
             Released = null
         };
         db.Lease.Add(lease);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var updatedLease = new Lease
         {
@@ -88,7 +88,7 @@ public class LeaseRepositoryTests
         };
 
         // Act
-        var result = await repo.UpsertLease(updatedLease, DateTimeOffset.UtcNow, null, CancellationToken.None);
+        var result = await repo.UpsertLease(updatedLease, DateTimeOffset.UtcNow, null, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result.IsLeaseAcquired);
@@ -113,7 +113,7 @@ public class LeaseRepositoryTests
             Released = null
         };
         db.Lease.Add(lease);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var newToken = Guid.NewGuid();
         var updatedLease = new Lease
@@ -126,7 +126,7 @@ public class LeaseRepositoryTests
         };
 
         // Act
-        var result = await repo.UpsertLease(updatedLease, DateTimeOffset.UtcNow, null, CancellationToken.None);
+        var result = await repo.UpsertLease(updatedLease, DateTimeOffset.UtcNow, null, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result.IsLeaseAcquired);
@@ -151,7 +151,7 @@ public class LeaseRepositoryTests
             Released = null
         };
         db.Lease.Add(lease);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var newToken = Guid.NewGuid();
         var updatedLease = new Lease
@@ -164,7 +164,7 @@ public class LeaseRepositoryTests
         };
 
         // Act
-        var result = await repo.UpsertLease(updatedLease, DateTimeOffset.UtcNow, null, CancellationToken.None);
+        var result = await repo.UpsertLease(updatedLease, DateTimeOffset.UtcNow, null, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(result.IsLeaseAcquired);
@@ -189,7 +189,7 @@ public class LeaseRepositoryTests
         };
 
         // Act
-        var result = await repo.UpsertLease(lease, DateTimeOffset.UtcNow, info => false, CancellationToken.None);
+        var result = await repo.UpsertLease(lease, DateTimeOffset.UtcNow, info => false, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(result.IsLeaseAcquired);
@@ -213,10 +213,10 @@ public class LeaseRepositoryTests
             Released = null
         };
         db.Lease.Add(lease);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
-        var result = await repo.GetFailedLeaseResult(lease.Id, CancellationToken.None);
+        var result = await repo.GetFailedLeaseResult(lease.Id, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(result.IsLeaseAcquired);
@@ -234,6 +234,6 @@ public class LeaseRepositoryTests
 
         // Act & Assert
         await Assert.ThrowsAsync<UnreachableException>(() =>
-            repo.GetFailedLeaseResult("nonexistent", CancellationToken.None));
+            repo.GetFailedLeaseResult("nonexistent", TestContext.Current.CancellationToken));
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -64,11 +64,11 @@ public class UnitContactPointControllerTests
             };
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var actual = JsonSerializer.Deserialize<UnitContactPointsList>(responseContent, _serializerOptions);
             Assert.Single(actual.ContactPointsList);
         }
@@ -91,7 +91,7 @@ public class UnitContactPointControllerTests
             };
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
@@ -138,9 +138,9 @@ public class UnitContactPointControllerTests
             };
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
-            var responseContent = await response.Content.ReadAsStringAsync();
+            var responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -164,11 +164,11 @@ public class UnitContactPointControllerTests
             };
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var actual = JsonSerializer.Deserialize<UnitContactPointsList>(responseContent, _serializerOptions);
             Assert.Single(actual.ContactPointsList);
         }
@@ -191,11 +191,11 @@ public class UnitContactPointControllerTests
             };
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var actual = JsonSerializer.Deserialize<UnitContactPointsList>(responseContent, _serializerOptions);
             Assert.Empty(actual.ContactPointsList);
         }
@@ -218,11 +218,11 @@ public class UnitContactPointControllerTests
             };
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var actual = JsonSerializer.Deserialize<UnitContactPointsList>(responseContent, _serializerOptions);
             Assert.Single(actual.ContactPointsList);
         }
@@ -245,11 +245,11 @@ public class UnitContactPointControllerTests
             };
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var actual = JsonSerializer.Deserialize<UnitContactPointsList>(responseContent, _serializerOptions);
             Assert.Empty(actual.ContactPointsList);
         }
@@ -275,7 +275,7 @@ public class UnitContactPointControllerTests
             };
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
@@ -366,7 +366,7 @@ public class UnitContactPointControllerTests
             };
 
             // Act
-            var response = await client.SendAsync(httpRequestMessage);
+            var response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);

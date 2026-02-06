@@ -83,7 +83,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 .Setup(mock => mock.SaveChangesAndFlushMessagesAsync(It.IsAny<CancellationToken>()))
                 .Returns(async () =>
                 {
-                    await context.SaveChangesAsync(CancellationToken.None);
+                    await context.SaveChangesAsync(TestContext.Current.CancellationToken);
                 });
 
             _dbContextOutboxMock
@@ -103,7 +103,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 UserPartyContactInfoResources = resources
             };
             _databaseContext.UserPartyContactInfo.Add(contactInfo);
-            await _databaseContext.SaveChangesAsync();
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         [Fact]
@@ -123,7 +123,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             await SeedUserPartyContactInfo(userId, partyUuid, "test@example.com", "12345678", resources);
 
             // Act
-            var result = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+            var result = await _repository.GetNotificationAddressAsync(userId, partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -144,7 +144,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             Guid partyUuid = Guid.NewGuid();
 
             // Act
-            var result = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+            var result = await _repository.GetNotificationAddressAsync(userId, partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(result);
@@ -186,7 +186,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             await SeedUserPartyContactInfo(userId, partyUuid2, "second@example.com", "22222222", resources2);
 
             // Act
-            var result = await _repository.GetAllNotificationAddressesForUserAsync(userId, CancellationToken.None);
+            var result = await _repository.GetAllNotificationAddressesForUserAsync(userId, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -233,7 +233,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             await SeedUserPartyContactInfo(userId3, partyUuid, null, string.Empty, null);
 
             // Act
-            var result = await _repository.GetAllNotificationAddressesForPartyAsync(partyUuid, CancellationToken.None);
+            var result = await _repository.GetAllNotificationAddressesForPartyAsync(partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -269,7 +269,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             await SeedUserPartyContactInfo(userId1, partyUuid, string.Empty, string.Empty, null);
 
             // Act
-            var result = await _repository.GetAllNotificationAddressesForPartyAsync(partyUuid, CancellationToken.None);
+            var result = await _repository.GetAllNotificationAddressesForPartyAsync(partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Empty(result);
@@ -289,7 +289,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             };
 
             // Act
-            var result = await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
+            var result = await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.True(result);
@@ -319,10 +319,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             void EventRaisingCallback(NotificationSettingsAddedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
             MockDbContextOutbox((Action<NotificationSettingsAddedEvent, DeliveryOptions>)EventRaisingCallback);
 
-            await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
+            await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, TestContext.Current.CancellationToken);
 
             // Act
-            var result = await _repository.AddOrUpdateNotificationAddressAsync(secondCcontactInfo, CancellationToken.None);
+            var result = await _repository.AddOrUpdateNotificationAddressAsync(secondCcontactInfo, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.False(result);
@@ -361,11 +361,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                     new() { ResourceId = "res1" } // Removing "res2"
                 ]
             };
-            await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
+            await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, TestContext.Current.CancellationToken);
 
             // Act
-            var result = await _repository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, CancellationToken.None);
-            var storedValue = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+            var result = await _repository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, TestContext.Current.CancellationToken);
+            var storedValue = await _repository.GetNotificationAddressAsync(userId, partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.False(result);
@@ -408,11 +408,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                     new() { ResourceId = "urn:altinn:resource:res2" }
                 ]
             };
-            await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, CancellationToken.None);
+            await _repository.AddOrUpdateNotificationAddressAsync(contactInfo, TestContext.Current.CancellationToken);
 
             // Act
-            var result = await _repository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, CancellationToken.None);
-            var storedValue = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+            var result = await _repository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, TestContext.Current.CancellationToken);
+            var storedValue = await _repository.GetNotificationAddressAsync(userId, partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.False(result);
@@ -446,9 +446,9 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             await SeedUserPartyContactInfo(userId, partyUuid, "test@example.com", "12345678", resources);
 
             // Act
-            var result = await _repository.DeleteNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+            var result = await _repository.DeleteNotificationAddressAsync(userId, partyUuid, TestContext.Current.CancellationToken);
 
-            var shouldBeEmpty = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+            var shouldBeEmpty = await _repository.GetNotificationAddressAsync(userId, partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -473,7 +473,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             Guid partyUuid = Guid.NewGuid();
 
             // Act
-            var result = await _repository.DeleteNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+            var result = await _repository.DeleteNotificationAddressAsync(userId, partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(result);
@@ -498,8 +498,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             };
 
             // Act
-            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(contactInfo, CancellationToken.None);
-            var stored = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(contactInfo, TestContext.Current.CancellationToken);
+            var stored = await _repository.GetNotificationAddressAsync(userId, partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(stored);
@@ -527,7 +527,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                     new() { ResourceId = "sync-res2" }
                 }
             };
-            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(original, CancellationToken.None);
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(original, TestContext.Current.CancellationToken);
 
             var updated = new UserPartyContactInfo
             {
@@ -543,8 +543,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             };
 
             // Act
-            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(updated, CancellationToken.None);
-            var stored = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(updated, TestContext.Current.CancellationToken);
+            var stored = await _repository.GetNotificationAddressAsync(userId, partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(stored);
@@ -572,7 +572,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                     new() { ResourceId = "sync-res2" }
                 }
             };
-            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(original, CancellationToken.None);
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(original, TestContext.Current.CancellationToken);
 
             var updated = new UserPartyContactInfo
             {
@@ -588,8 +588,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             };
 
             // Act
-            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(updated, CancellationToken.None);
-            var stored = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(updated, TestContext.Current.CancellationToken);
+            var stored = await _repository.GetNotificationAddressAsync(userId, partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(stored);
@@ -617,7 +617,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                     new() { ResourceId = "sync-res5" }
                 }
             };
-            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(contactInfo, CancellationToken.None);
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(contactInfo, TestContext.Current.CancellationToken);
 
             var updated = new UserPartyContactInfo
             {
@@ -632,8 +632,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             };
 
             // Act
-            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(updated, CancellationToken.None);
-            var stored = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(updated, TestContext.Current.CancellationToken);
+            var stored = await _repository.GetNotificationAddressAsync(userId, partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(stored);
@@ -658,7 +658,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                     new() { ResourceId = "sync-res6" }
                 }
             };
-            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(contactInfo, CancellationToken.None);
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(contactInfo, TestContext.Current.CancellationToken);
 
             var updated = new UserPartyContactInfo
             {
@@ -673,8 +673,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             };
 
             // Act
-            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(updated, CancellationToken.None);
-            var stored = await _repository.GetNotificationAddressAsync(userId, partyUuid, CancellationToken.None);
+            await _repository.AddOrUpdateNotificationAddressFromSyncAsync(updated, TestContext.Current.CancellationToken);
+            var stored = await _repository.GetNotificationAddressAsync(userId, partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(stored);
@@ -727,7 +727,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 UserPartyContactInfoResources = []
             };
 
-            await repository.AddOrUpdateNotificationAddressFromSyncAsync(contactInfo, CancellationToken.None);
+            await repository.AddOrUpdateNotificationAddressFromSyncAsync(contactInfo, TestContext.Current.CancellationToken);
             
             meterProvider.ForceFlush();
 
@@ -765,7 +765,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 UserPartyContactInfoResources = new List<UserPartyContactInfoResource>()
             };
             _databaseContext.UserPartyContactInfo.Add(original);
-            await _databaseContext.SaveChangesAsync();
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
             var updated = new UserPartyContactInfo
             {
@@ -777,7 +777,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 UserPartyContactInfoResources = new List<UserPartyContactInfoResource>()
             };
 
-            await repository.AddOrUpdateNotificationAddressFromSyncAsync(updated, CancellationToken.None);
+            await repository.AddOrUpdateNotificationAddressFromSyncAsync(updated, TestContext.Current.CancellationToken);
 
             meterProvider.ForceFlush();
 
@@ -815,9 +815,9 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
                 UserPartyContactInfoResources = new List<UserPartyContactInfoResource>()
             };
             _databaseContext.UserPartyContactInfo.Add(contactInfo);
-            await _databaseContext.SaveChangesAsync();
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-            await repository.DeleteNotificationAddressFromSyncAsync(userId, partyUuid, CancellationToken.None);
+            await repository.DeleteNotificationAddressFromSyncAsync(userId, partyUuid, TestContext.Current.CancellationToken);
 
             meterProvider.ForceFlush();
 
@@ -845,7 +845,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             await SeedUserPartyContactInfo(userId2, partyUuid2, email, "22222222", new List<UserPartyContactInfoResource> { new() { ResourceId = "res2" } });
 
             // Act
-            var result = await _repository.GetAllContactInfoByEmailAddressAsync(email, CancellationToken.None);
+            var result = await _repository.GetAllContactInfoByEmailAddressAsync(email, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -861,7 +861,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             string email = "noone@example.com";
 
             // Act
-            var result = await _repository.GetAllContactInfoByEmailAddressAsync(email, CancellationToken.None);
+            var result = await _repository.GetAllContactInfoByEmailAddressAsync(email, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -881,7 +881,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             await SeedUserPartyContactInfo(userIdNull, partyUuid, null, "44444444", null);
 
             // Act
-            var result = await _repository.GetAllContactInfoByEmailAddressAsync(matchingEmail, CancellationToken.None);
+            var result = await _repository.GetAllContactInfoByEmailAddressAsync(matchingEmail, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -889,7 +889,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             Assert.Equal(userIdMatching, result[0].UserId);
             Assert.Equal(matchingEmail, result[0].EmailAddress);
 
-            var emptyResult = await _repository.GetAllContactInfoByEmailAddressAsync(string.Empty, CancellationToken.None);
+            var emptyResult = await _repository.GetAllContactInfoByEmailAddressAsync(string.Empty, TestContext.Current.CancellationToken);
             Assert.NotNull(emptyResult);
             Assert.Empty(emptyResult);
         }
@@ -909,7 +909,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             await SeedUserPartyContactInfo(userId2, partyUuid2, "User@Example.com", "22222222", null);
 
             // Act
-            var result = await _repository.GetAllContactInfoByEmailAddressAsync(search, CancellationToken.None);
+            var result = await _repository.GetAllContactInfoByEmailAddressAsync(search, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -922,7 +922,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         public async Task GetAllContactInfoByEmailAddressAsync_WhenEmailIsNull_ReturnsEmptyList()
         {
             // Act
-            var result = await _repository.GetAllContactInfoByEmailAddressAsync(null, CancellationToken.None);
+            var result = await _repository.GetAllContactInfoByEmailAddressAsync(null, TestContext.Current.CancellationToken);
             
             // Assert
             Assert.NotNull(result);
@@ -945,7 +945,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             await SeedUserPartyContactInfo(userId2, partyUuid2, email, fullPhoneNumber, new List<UserPartyContactInfoResource> { new() { ResourceId = "res2" } });
 
             // Act
-            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(fullPhoneNumber, CancellationToken.None);
+            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(fullPhoneNumber, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -969,7 +969,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             await SeedUserPartyContactInfo(userId, partyUuid, null, inputPhoneNumber, null);
 
             // Act
-            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(inputPhoneNumber, CancellationToken.None);
+            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(inputPhoneNumber, TestContext.Current.CancellationToken);
            
             // Assert
             Assert.NotEmpty(result);
@@ -983,7 +983,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             string fullPhoneNumber = "+4792929292";
 
             // Act
-            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(fullPhoneNumber, CancellationToken.None);
+            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(fullPhoneNumber, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -1003,7 +1003,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             await SeedUserPartyContactInfo(userIdNull, partyUuid, "test@test.no", null, null);
 
             // Act
-            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(matchingPhoneNumber, CancellationToken.None);
+            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(matchingPhoneNumber, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -1011,7 +1011,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
             Assert.Equal(userIdMatching, result[0].UserId);
             Assert.Equal(matchingPhoneNumber, result[0].PhoneNumber);
 
-            var emptyResult = await _repository.GetAllContactInfoByPhoneNumberAsync(string.Empty, CancellationToken.None);
+            var emptyResult = await _repository.GetAllContactInfoByPhoneNumberAsync(string.Empty, TestContext.Current.CancellationToken);
             Assert.NotNull(emptyResult);
             Assert.Empty(emptyResult);
         }
@@ -1020,7 +1020,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.ProfessionalNotifications
         public async Task GetAllContactInfoByPhoneNumberAsync_WhenPhoneNumberIsNull_ReturnsEmptyList()
         {
             // Act
-            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(null, CancellationToken.None);
+            var result = await _repository.GetAllContactInfoByPhoneNumberAsync(null, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);

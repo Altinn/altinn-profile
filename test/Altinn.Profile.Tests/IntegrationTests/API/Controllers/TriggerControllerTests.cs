@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net;
 using System.Net.Http;
@@ -41,7 +41,7 @@ public class TriggerControllerTests : IClassFixture<ProfileWebApplicationFactory
         HttpRequestMessage httpRequestMessage = CreateGetRequest("/profile/api/v1/trigger/syncpersonchanges");
 
         // Act
-        var response = await client.SendAsync(httpRequestMessage);
+        var response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -63,7 +63,7 @@ public class TriggerControllerTests : IClassFixture<ProfileWebApplicationFactory
         HttpRequestMessage httpRequestMessage = CreateGetRequest("/profile/api/v1/trigger/syncorgchanges");
 
         // Act
-        var response = await client.SendAsync(httpRequestMessage);
+        var response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -80,7 +80,7 @@ public class TriggerControllerTests : IClassFixture<ProfileWebApplicationFactory
         HttpRequestMessage httpRequestMessage = CreateGetRequest("/profile/api/v1/trigger/syncorgchanges");
 
         // Act
-        var response = await client.SendAsync(httpRequestMessage);
+        var response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);

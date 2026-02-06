@@ -73,7 +73,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.Changelog
             var client = new ChangeLogClient(_httpClient, _loggerMock.Object, _settingsMock.Object);
 
             // Act
-            await client.GetChangeLog(DateTime.MinValue, DataType.Favorites, CancellationToken.None);
+            await client.GetChangeLog(DateTime.MinValue, DataType.Favorites, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(sentRequest);
@@ -105,7 +105,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.Changelog
             var client = new ChangeLogClient(_httpClient, _loggerMock.Object, _settingsMock.Object);
 
             // Act
-            await client.GetChangeLog(DateTime.MinValue, DataType.Favorites, CancellationToken.None);
+            await client.GetChangeLog(DateTime.MinValue, DataType.Favorites, TestContext.Current.CancellationToken);
 
             // Assert
             _loggerMock.Verify(
@@ -132,7 +132,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.Changelog
             var client = new ChangeLogClient(_httpClient, _loggerMock.Object, _settingsMock.Object);
 
             // Act
-            await Assert.ThrowsAsync<InternalServerErrorException>(() => client.GetChangeLog(DateTime.MinValue, DataType.Favorites, CancellationToken.None));
+            await Assert.ThrowsAsync<InternalServerErrorException>(() => client.GetChangeLog(DateTime.MinValue, DataType.Favorites, TestContext.Current.CancellationToken));
 
             // Assert
             _loggerMock.Verify(

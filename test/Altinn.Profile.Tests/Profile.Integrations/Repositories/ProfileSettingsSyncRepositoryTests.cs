@@ -137,7 +137,7 @@ public class ProfileSettingsSyncRepositoryTests : IDisposable
             LanguageType = "en"
         };
         _databaseContext.ProfileSettings.Add(existing);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var updated = new ProfileSettings
         {

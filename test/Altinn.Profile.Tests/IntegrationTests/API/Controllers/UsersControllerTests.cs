@@ -65,14 +65,14 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "/profile/api/v1/users/current");
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(sblRequest);
         Assert.Equal(HttpMethod.Get, sblRequest.Method);
         Assert.EndsWith($"users/{UserId}", sblRequest?.RequestUri?.ToString());
 
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
             responseContent, _serializerOptionsCamelCase);
@@ -106,10 +106,10 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Contains("UserId must be provided in claims", responseContent);
@@ -129,10 +129,10 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Contains("UserId must be provided in claims", responseContent);
@@ -172,14 +172,14 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(sblRequest);
         Assert.Equal(HttpMethod.Get, sblRequest.Method);
         Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri?.ToString());
 
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
             responseContent, _serializerOptionsCamelCase);
@@ -203,7 +203,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     public async Task GetUsersById_AsOrg_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
     {
         // Arrange
-        const int UserId = 2516356;
+        const int UserId = 2516639;
 
         HttpRequestMessage? sblRequest = null;
         _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
@@ -222,14 +222,14 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(sblRequest);
         Assert.Equal(HttpMethod.Get, sblRequest.Method);
         Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri?.ToString());
 
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
             responseContent, _serializerOptionsCamelCase);
@@ -238,9 +238,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         // These asserts check that deserializing with camel casing was successful.
         Assert.Equal(UserId, actualUser.UserId);
-        Assert.Equal("sophie", actualUser.UserName);
-        Assert.Equal("Sophie Salt", actualUser.Party.Name);
-        Assert.Equal("Sophie", actualUser.Party.Person?.FirstName);
+        Assert.Equal("franky", actualUser.UserName);
+        Assert.Equal("Blå mandag", actualUser.Party.Name);
+        Assert.Equal("Blå", actualUser.Party.Person?.FirstName);
         Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
     }
 
@@ -248,7 +248,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     public async Task GetUsersById_AsSystemUser_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
     {
         // Arrange
-        const int UserId = 2516356;
+        const int UserId = 2516639;
 
         HttpRequestMessage? sblRequest = null;
         _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
@@ -267,14 +267,14 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(sblRequest);
         Assert.Equal(HttpMethod.Get, sblRequest.Method);
         Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri?.ToString());
 
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
             responseContent, _serializerOptionsCamelCase);
@@ -283,9 +283,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         // These asserts check that deserializing with camel casing was successful.
         Assert.Equal(UserId, actualUser.UserId);
-        Assert.Equal("sophie", actualUser.UserName);
-        Assert.Equal("Sophie Salt", actualUser.Party.Name);
-        Assert.Equal("Sophie", actualUser.Party.Person?.FirstName);
+        Assert.Equal("franky", actualUser.UserName);
+        Assert.Equal("Blå mandag", actualUser.Party.Name);
+        Assert.Equal("Blå", actualUser.Party.Person?.FirstName);
         Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
     }
 
@@ -317,7 +317,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(sblRequest);
@@ -356,14 +356,14 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(sblRequest);
         Assert.Equal(HttpMethod.Get, sblRequest.Method);
         Assert.EndsWith($"users?useruuid={userUuid}", sblRequest.RequestUri?.ToString());
 
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
             responseContent, _serializerOptionsCamelCase);
@@ -393,7 +393,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
@@ -421,7 +421,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -444,7 +444,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -471,7 +471,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -502,7 +502,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -544,7 +544,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(sblRequest);
@@ -553,11 +553,11 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         Assert.NotNull(sblRequest.Content);
 
-        string? requestContent = await sblRequest.Content.ReadAsStringAsync();
+        string? requestContent = await sblRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal("\"01017512345\"", requestContent);
 
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
             responseContent, _serializerOptionsCamelCase);
@@ -594,7 +594,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -605,7 +605,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         Assert.NotNull(sblRequest.Content);
 
-        string requestContent = await sblRequest.Content.ReadAsStringAsync();
+        string requestContent = await sblRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal("\"01017512345\"", requestContent);
     }
@@ -630,7 +630,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -641,7 +641,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         Assert.NotNull(sblRequest.Content);
 
-        string requestContent = await sblRequest.Content.ReadAsStringAsync();
+        string requestContent = await sblRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal("\"01017512345\"", requestContent);
     }

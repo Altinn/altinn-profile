@@ -53,7 +53,7 @@ public class PostgresqlLeaseProviderTests
             .ReturnsAsync(expectedResult);
 
         // Act
-        var result = await provider.TryAcquireLease(leaseId, duration);
+        var result = await provider.TryAcquireLease(leaseId, duration, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result.IsLeaseAcquired);
@@ -75,7 +75,7 @@ public class PostgresqlLeaseProviderTests
             .ReturnsAsync(expectedResult);
 
         // Act
-        var result = await provider.TryAcquireLease(leaseId, duration);
+        var result = await provider.TryAcquireLease(leaseId, duration, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(result.IsLeaseAcquired);
@@ -98,7 +98,7 @@ public class PostgresqlLeaseProviderTests
             .ReturnsAsync(expectedResult);
 
         // Act
-        var result = await provider.TryRenewLease(ticket, duration);
+        var result = await provider.TryRenewLease(ticket, duration, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result.IsLeaseAcquired);
@@ -120,7 +120,7 @@ public class PostgresqlLeaseProviderTests
             .ReturnsAsync(acquireResult);
 
         // Act
-        var result = await provider.ReleaseLease(ticket);
+        var result = await provider.ReleaseLease(ticket, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result.IsReleased);
@@ -142,7 +142,7 @@ public class PostgresqlLeaseProviderTests
             .ReturnsAsync(failedResult);
 
         // Act
-        var result = await provider.ReleaseLease(ticket);
+        var result = await provider.ReleaseLease(ticket, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(result.IsReleased);

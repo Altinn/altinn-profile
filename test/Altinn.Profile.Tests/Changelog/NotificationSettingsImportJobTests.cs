@@ -91,7 +91,7 @@ public class NotificationSettingsImportJobTests
             null);
 
         // Act
-        await job.InvokeRunAsync(CancellationToken.None);
+        await job.InvokeRunAsync(TestContext.Current.CancellationToken);
 
         // Assert
         notificationSettingSyncRepository.Verify(

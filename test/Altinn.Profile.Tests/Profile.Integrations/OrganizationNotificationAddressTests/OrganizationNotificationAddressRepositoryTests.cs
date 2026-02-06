@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -80,7 +80,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         SeedDatabase(organizations, notificationAddresses);
 
         // Act
-        var matchedOrg = await _repository.GetOrganizationDEAsync("123456789", CancellationToken.None);
+        var matchedOrg = await _repository.GetOrganizationDEAsync("123456789", TestContext.Current.CancellationToken);
 
         var expectedOrg = organizations
             .Find(p => p.RegistryOrganizationNumber == "123456789");
@@ -97,7 +97,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
     {
         // Arrange - skip seeding the DB with data
         // Act
-        var matchedOrg = await _repository.GetOrganizationDEAsync("111111111", CancellationToken.None);
+        var matchedOrg = await _repository.GetOrganizationDEAsync("111111111", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Null(matchedOrg);
@@ -111,7 +111,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         SeedDatabase(organizations, notificationAddresses);
 
         // Act
-        var result = await _repository.GetOrganizationNotificationAddressesByFullAddressAsync("test.email@test.no", AddressType.Email, CancellationToken.None);
+        var result = await _repository.GetOrganizationNotificationAddressesByFullAddressAsync("test.email@test.no", AddressType.Email, TestContext.Current.CancellationToken);
         var list = result.ToList();
 
         // Assert        
@@ -132,7 +132,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         SeedDatabase(organizations, notificationAddresses);
         
         // Act
-        var result = await _repository.GetOrganizationNotificationAddressesByFullAddressAsync("doesnotexist@test.com", AddressType.Email, CancellationToken.None);
+        var result = await _repository.GetOrganizationNotificationAddressesByFullAddressAsync("doesnotexist@test.com", AddressType.Email, TestContext.Current.CancellationToken);
         var list = result.ToList();
         
         // Assert
@@ -147,7 +147,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         SeedDatabase(organizations, notificationAddresses);
 
         // Act
-        var result = await _repository.GetOrganizationNotificationAddressesByFullAddressAsync("+4798765433", AddressType.SMS, CancellationToken.None);
+        var result = await _repository.GetOrganizationNotificationAddressesByFullAddressAsync("+4798765433", AddressType.SMS, TestContext.Current.CancellationToken);
         var list = result.ToList();
 
         // Assert
@@ -169,7 +169,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         SeedDatabase(organizations, notificationAddresses);
 
         // Act
-        var result = await _repository.GetOrganizationNotificationAddressesByFullAddressAsync("+4799999991", AddressType.SMS, CancellationToken.None);
+        var result = await _repository.GetOrganizationNotificationAddressesByFullAddressAsync("+4799999991", AddressType.SMS, TestContext.Current.CancellationToken);
         var list = result.ToList();
         
         // Assert
@@ -187,8 +187,8 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
 
         // Act
         var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes);
-        var updatedOrg1 = await _repository.GetOrganizationDEAsync("123456789", CancellationToken.None);
-        var updatedOrg2 = await _repository.GetOrganizationDEAsync("920212345", CancellationToken.None);
+        var updatedOrg1 = await _repository.GetOrganizationDEAsync("123456789", TestContext.Current.CancellationToken);
+        var updatedOrg2 = await _repository.GetOrganizationDEAsync("920212345", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(updatedOrg1);
@@ -218,8 +218,8 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
 
         // Act
         var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changesIncludingMissingPhonePrefix);
-        var updatedOrg1 = await _repository.GetOrganizationDEAsync("920254321", CancellationToken.None);
-        var updatedOrg2 = await _repository.GetOrganizationDEAsync("920212345", CancellationToken.None);
+        var updatedOrg1 = await _repository.GetOrganizationDEAsync("920254321", TestContext.Current.CancellationToken);
+        var updatedOrg2 = await _repository.GetOrganizationDEAsync("920212345", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(updatedOrg1);
@@ -242,7 +242,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
 
         // Act
         var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changeWithDelete);
-        var updatedOrg = await _repository.GetOrganizationDEAsync(orgToUpdate, CancellationToken.None);
+        var updatedOrg = await _repository.GetOrganizationDEAsync(orgToUpdate, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Single(updatedOrg.NotificationAddresses);
@@ -261,7 +261,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         // Act - call delete twice
         await _repository.SyncNotificationAddressesAsync(changes);
         var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changes);
-        var updatedOrg = await _repository.GetOrganizationDEAsync("987654321", CancellationToken.None);
+        var updatedOrg = await _repository.GetOrganizationDEAsync("987654321", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Single(updatedOrg.NotificationAddresses);
@@ -283,7 +283,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changes);
 
         // Assert
-        var actualOrg = await _repository.GetOrganizationDEAsync("987654321", CancellationToken.None);
+        var actualOrg = await _repository.GetOrganizationDEAsync("987654321", TestContext.Current.CancellationToken);
         Assert.Equal(2, actualOrg.NotificationAddresses.Count);
 
         var actualUpdatedAddress = actualOrg.NotificationAddresses.Find(address => address.RegistryID == identifierForAddressToUpdate);
@@ -307,7 +307,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
             .Find(p => p.RegistryOrganizationNumber == "123456789");
 
         // Act
-        var result = await _repository.GetOrganizationAsync(orgNumberLookup, CancellationToken.None);
+        var result = await _repository.GetOrganizationAsync(orgNumberLookup, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -330,7 +330,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
             .Find(p => p.RegistryOrganizationNumber == "123456789");
 
         // Act
-        var result = await _repository.GetOrganizationsAsync(orgNumberLookup, CancellationToken.None);
+        var result = await _repository.GetOrganizationsAsync(orgNumberLookup, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotEmpty(result);
@@ -354,7 +354,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
             .Find(p => p.RegistryOrganizationNumber == "999999999");
 
         // Act
-        var result = await _repository.GetOrganizationsAsync(testOrgWithOnlySoftDeletedAddresses, CancellationToken.None);
+        var result = await _repository.GetOrganizationsAsync(testOrgWithOnlySoftDeletedAddresses, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotEmpty(result);
@@ -370,7 +370,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var orgNumberLookup = new List<string>() { "000000000" };
 
         // Act
-        var orgList = await _repository.GetOrganizationsAsync(orgNumberLookup, CancellationToken.None);
+        var orgList = await _repository.GetOrganizationsAsync(orgNumberLookup, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Empty(orgList);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -140,11 +140,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act            
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var result = JsonSerializer.Deserialize<List<DashboardNotificationAddressResponse>>(responseContent, _serializerOptions);
 
             Assert.NotNull(result);
@@ -171,11 +171,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act            
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var actual = JsonSerializer.Deserialize<List<DashboardNotificationAddressResponse>>(responseContent, _serializerOptions);
 
             Assert.NotNull(actual);
@@ -216,12 +216,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             request = CreateAuthorizedRequestWithScope(request);
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(request);
+            HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var actual = JsonSerializer.Deserialize<List<DashboardNotificationAddressResponse>>(responseContent, _serializerOptions);
 
             Assert.NotNull(actual);
@@ -252,7 +252,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act            
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -270,7 +270,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             httpRequestMessage = GenerateTokenWithoutScope(orgNumber, httpRequestMessage);
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
@@ -294,11 +294,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var result = JsonSerializer.Deserialize<List<DashboardNotificationAddressResponse>>(responseContent, _serializerOptions);
 
             Assert.NotNull(result);
@@ -323,7 +323,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -344,7 +344,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             httpRequestMessage = GenerateTokenWithoutScope("any-org", httpRequestMessage);
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
@@ -371,11 +371,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var result = JsonSerializer.Deserialize<List<DashboardNotificationAddressResponse>>(responseContent, _serializerOptions);
 
             Assert.NotNull(result);
@@ -403,7 +403,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -426,7 +426,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             httpRequestMessage = GenerateTokenWithoutScope("any-org", httpRequestMessage);
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
@@ -452,11 +452,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var result = JsonSerializer.Deserialize<List<DashboardNotificationAddressResponse>>(responseContent, _serializerOptions);
 
             Assert.NotNull(result);
