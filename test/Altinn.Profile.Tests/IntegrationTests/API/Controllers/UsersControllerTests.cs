@@ -203,7 +203,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     public async Task GetUsersById_AsOrg_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
     {
         // Arrange
-        const int UserId = 2516356;
+        const int UserId = 2516639;
 
         HttpRequestMessage? sblRequest = null;
         _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
@@ -238,9 +238,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         // These asserts check that deserializing with camel casing was successful.
         Assert.Equal(UserId, actualUser.UserId);
-        Assert.Equal("sophie", actualUser.UserName);
-        Assert.Equal("Sophie Salt", actualUser.Party.Name);
-        Assert.Equal("Sophie", actualUser.Party.Person?.FirstName);
+        Assert.Equal("franky", actualUser.UserName);
+        Assert.Equal("Blå mandag", actualUser.Party.Name);
+        Assert.Equal("Blå", actualUser.Party.Person?.FirstName);
         Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
     }
 
@@ -248,7 +248,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     public async Task GetUsersById_AsSystemUser_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
     {
         // Arrange
-        const int UserId = 2516356;
+        const int UserId = 2516639;
 
         HttpRequestMessage? sblRequest = null;
         _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
@@ -283,9 +283,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         // These asserts check that deserializing with camel casing was successful.
         Assert.Equal(UserId, actualUser.UserId);
-        Assert.Equal("sophie", actualUser.UserName);
-        Assert.Equal("Sophie Salt", actualUser.Party.Name);
-        Assert.Equal("Sophie", actualUser.Party.Person?.FirstName);
+        Assert.Equal("franky", actualUser.UserName);
+        Assert.Equal("Blå mandag", actualUser.Party.Name);
+        Assert.Equal("Blå", actualUser.Party.Person?.FirstName);
         Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
     }
 
