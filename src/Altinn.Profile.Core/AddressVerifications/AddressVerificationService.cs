@@ -1,5 +1,6 @@
 ﻿using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
+using System.Security.Cryptography;
 
 namespace Altinn.Profile.Core.AddressVerifications
 {
@@ -42,10 +43,7 @@ namespace Altinn.Profile.Core.AddressVerifications
 
         private static string GenerateVerificationCode()
         {
-            var random = new Random();
-            var code = random.Next(100000, 999999).ToString();
-
-            return code;
+            return RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
         }
 
         /// <inheritdoc/>

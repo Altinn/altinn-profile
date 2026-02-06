@@ -154,7 +154,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
         }
 
         // New tests for methods with verification code
-
         [Fact]
         public async Task SendSmsOrderWithCode_WhenLanguageNb_SendsCorrectRequest()
         {

@@ -82,6 +82,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <param name="contactInfo">The updated contact info.</param>
         /// <param name="mobileNumberChanged">Indicates if the mobile number has changed.</param>
         /// <param name="emailChanged">Indicates if the email address has changed.</param>
+        /// <param name="generateVerificationCode">Indicates if a verification code should be generated and sent.</param>
         private async Task HandleNotificationAddressChangedAsync(UserPartyContactInfo contactInfo, bool mobileNumberChanged, bool emailChanged, bool generateVerificationCode)
         {
             var userProfileResult = await _userProfileClient.GetUser(contactInfo.UserId);

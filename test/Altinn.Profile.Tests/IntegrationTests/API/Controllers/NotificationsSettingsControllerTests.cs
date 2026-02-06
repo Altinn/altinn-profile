@@ -139,6 +139,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task GetAllNotificationAddresses_WhenRepositoryReturnsEmpty_IsOkWithEmptyList()
         {
             const int UserId = 2516356;
+            _factory.ProfessionalNotificationsRepositoryMock = new Mock<Core.Integrations.IProfessionalNotificationsRepository>();
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.GetAllNotificationAddressesForUserAsync(UserId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<UserPartyContactInfo>());
@@ -163,6 +164,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 new UserPartyContactInfo { UserId = UserId, PartyUuid = Guid.NewGuid(), EmailAddress = "a@b.com", PhoneNumber = "1", UserPartyContactInfoResources = new List<UserPartyContactInfoResource> { new UserPartyContactInfoResource { ResourceId = "one" } } },
                 new UserPartyContactInfo { UserId = UserId, PartyUuid = Guid.NewGuid(), EmailAddress = "c@d.com", PhoneNumber = "2", UserPartyContactInfoResources = new List<UserPartyContactInfoResource> { new UserPartyContactInfoResource { ResourceId = "two" } } }
             };
+            _factory.ProfessionalNotificationsRepositoryMock = new Mock<Core.Integrations.IProfessionalNotificationsRepository>();
+            _factory.ProfileSettingsRepositoryMock = new Mock<Core.Integrations.IProfileSettingsRepository>();
+            
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.GetAllNotificationAddressesForUserAsync(UserId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(infos);
@@ -587,6 +591,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int UserId = 2516356;
             var partyGuid = Guid.NewGuid();
 
+            _factory.ProfessionalNotificationsRepositoryMock = new Mock<Core.Integrations.IProfessionalNotificationsRepository>();
             _factory
                 .ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.DeleteNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
