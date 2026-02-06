@@ -152,14 +152,17 @@ public class UserContactPointServiceTest
 
         Assert.Contains(result.ContactPointsList, cp =>
             cp.Email == "user1@example.com" &&
+            cp.ExternalIdentity == "urn:altinn:person:idporten-email:user1@example.com" &&
             cp.MobileNumber is null);
 
         Assert.Contains(result.ContactPointsList, cp =>
             cp.Email == "user2@test.no" &&
+            cp.ExternalIdentity == "urn:altinn:person:idporten-email:user2@test.no" &&
             cp.MobileNumber is null);
 
         Assert.Contains(result.ContactPointsList, cp =>
             cp.Email == "admin@altinn.no" &&
+            cp.ExternalIdentity == "urn:altinn:person:idporten-email:admin@altinn.no" &&
             cp.MobileNumber is null);
     }
 
@@ -185,6 +188,12 @@ public class UserContactPointServiceTest
         // Verify prefixed email is stripped
         Assert.Contains(result.ContactPointsList, cp =>
             cp.Email == "user1@altinn.no" &&
+            cp.ExternalIdentity == "urn:altinn:person:idporten-email:user1@altinn.no" &&
+            cp.MobileNumber is null);
+
+        Assert.Contains(result.ContactPointsList, cp =>
+            cp.Email == "user2@altinn.no" &&
+            cp.ExternalIdentity == "urn:altinn:person:idporten-email:user2@altinn.no" &&
             cp.MobileNumber is null);
     }
 
