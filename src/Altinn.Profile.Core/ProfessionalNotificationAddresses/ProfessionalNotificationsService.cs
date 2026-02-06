@@ -1,4 +1,5 @@
-﻿using Altinn.Profile.Core.Integrations;
+﻿using Altinn.Profile.Core.AddressVerifications;
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.User;
 using Altinn.Profile.Core.User.ProfileSettings;
 
@@ -12,17 +13,17 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
     public class ProfessionalNotificationsService(
         IProfessionalNotificationsRepository professionalNotificationsRepository,
         IUserProfileClient userProfileClient,
-        INotificationsClient notificationsClient,
         IUserProfileService userProfileService,
         IRegisterClient registerClient,
-        IOptions<AddressMaintenanceSettings> addressMaintenanceSettings) : IProfessionalNotificationsService
+        IOptions<AddressMaintenanceSettings> addressMaintenanceSettings,
+        IAddressVerificationService addressVerificationService) : IProfessionalNotificationsService
     {
         private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
         private readonly IUserProfileClient _userProfileClient = userProfileClient;
         private readonly IUserProfileService _userProfileService = userProfileService;
-        private readonly INotificationsClient _notificationsClient = notificationsClient;
         private readonly IRegisterClient _registerClient = registerClient;
         private readonly AddressMaintenanceSettings _addressMaintenanceSettings = addressMaintenanceSettings.Value;
+        private readonly IAddressVerificationService _addressVerificationService = addressVerificationService;
 
         /// <inheritdoc/>
         public async Task<UserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
@@ -58,7 +59,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         }
 
         /// <inheritdoc/>
-        public async Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken)
+        public async Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, bool generateVerificationCode, CancellationToken cancellationToken)
         {
             var existingContactInfo = await _professionalNotificationsRepository.GetNotificationAddressAsync(contactInfo.UserId, contactInfo.PartyUuid, cancellationToken);
 
@@ -69,7 +70,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 
             if (mobileNumberChanged || emailChanged)
             {
-                await HandleNotificationAddressChangedAsync(contactInfo, mobileNumberChanged, emailChanged);
+                await HandleNotificationAddressChangedAsync(contactInfo, mobileNumberChanged, emailChanged, generateVerificationCode);
             }
 
             return isAdded;
@@ -81,7 +82,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <param name="contactInfo">The updated contact info.</param>
         /// <param name="mobileNumberChanged">Indicates if the mobile number has changed.</param>
         /// <param name="emailChanged">Indicates if the email address has changed.</param>
-        private async Task HandleNotificationAddressChangedAsync(UserPartyContactInfo contactInfo, bool mobileNumberChanged, bool emailChanged)
+        private async Task HandleNotificationAddressChangedAsync(UserPartyContactInfo contactInfo, bool mobileNumberChanged, bool emailChanged, bool generateVerificationCode)
         {
             var userProfileResult = await _userProfileClient.GetUser(contactInfo.UserId);
 
@@ -91,12 +92,28 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 
             if (mobileNumberChanged)
             {
-                await _notificationsClient.OrderSms(contactInfo.PhoneNumber!, contactInfo.PartyUuid, language, CancellationToken.None);
+                if (generateVerificationCode)
+                {
+                    await _addressVerificationService.GenerateAndSendVerificationCode(contactInfo.UserId, contactInfo.PhoneNumber!, AddressVerifications.Models.AddressType.Sms, language, contactInfo.PartyUuid, CancellationToken.None);
+                    return;
+                }
+                else
+                {
+                    await _addressVerificationService.NotifySmsAddressChange(contactInfo.PhoneNumber!, contactInfo.PartyUuid, language, contactInfo.UserId, CancellationToken.None);
+                }
             }
 
             if (emailChanged)
             {
-                await _notificationsClient.OrderEmail(contactInfo.EmailAddress!, contactInfo.PartyUuid, language, CancellationToken.None);
+                if (generateVerificationCode)
+                {
+                    await _addressVerificationService.GenerateAndSendVerificationCode(contactInfo.UserId, contactInfo.EmailAddress!, AddressVerifications.Models.AddressType.Email, language, contactInfo.PartyUuid, CancellationToken.None);
+                    return;
+                }
+                else
+                {
+                    await _addressVerificationService.NotifyEmailAddressChange(contactInfo.EmailAddress!, contactInfo.PartyUuid, language, contactInfo.UserId, CancellationToken.None);
+                }
             }
         }
 

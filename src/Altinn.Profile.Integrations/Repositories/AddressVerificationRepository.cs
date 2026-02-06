@@ -1,4 +1,5 @@
 ﻿using Altinn.Profile.Core.AddressVerifications.Models;
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,7 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// <summary>
 /// Defines a repository for operations related to address verification.
 /// </summary>
-public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> contextFactory)
+public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> contextFactory) : IAddressVerificationRepository
 {
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
@@ -39,7 +40,7 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
     public async Task<bool> TryVerifyAddress(string verificationCodeHash, AddressType addressType, string address, int userId)
     {
         var verified = false;
-        address = address.Trim().ToLowerInvariant();
+        address = VerificationCode.FormatAddress(address);
 
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
         var verificationCode = await databaseContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == address);
@@ -69,5 +70,30 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
 
         await databaseContext.SaveChangesAsync();
         return verified;
+    }
+
+    /// <inheritdoc/>
+    public async Task AddLegacyAddress(AddressType addressType, string address, int userId, CancellationToken cancellationToken)
+    {
+        address = VerificationCode.FormatAddress(address);
+
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        var verifiedAddress = await databaseContext.VerifiedAddresses.FirstOrDefaultAsync(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == address, cancellationToken);
+
+        if (verifiedAddress != null)
+        {
+            return;
+        }
+        
+        verifiedAddress = new VerifiedAddress
+        {
+            UserId = userId,
+            AddressType = addressType,
+            Address = address,
+            VerificationType = VerificationType.Legacy
+        };
+        databaseContext.VerifiedAddresses.Add(verifiedAddress);
+
+        await databaseContext.SaveChangesAsync(cancellationToken);
     }
 }
