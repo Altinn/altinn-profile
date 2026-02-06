@@ -1,6 +1,6 @@
-﻿using Altinn.Profile.Core.AddressVerifications.Models;
+﻿using System.Security.Cryptography;
+using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
-using System.Security.Cryptography;
 
 namespace Altinn.Profile.Core.AddressVerifications
 {
