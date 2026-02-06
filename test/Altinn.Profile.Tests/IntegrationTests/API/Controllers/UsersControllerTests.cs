@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.User.ProfileSettings;
@@ -26,7 +27,8 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
     private readonly JsonSerializerOptions _serializerOptionsCamelCase = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
     };
 
     public UsersControllerTests(ProfileWebApplicationFactory<Program> factory)

@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
+using System.Text.Json.Serialization;
 
 using Altinn.Authorization.ServiceDefaults.Leases;
 using Altinn.Common.AccessToken;
@@ -158,6 +159,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         .AddJsonOptions(opts =>
     {
         opts.JsonSerializerOptions.Converters.Add(new OptionalJsonConverterFactory());
+        opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
     services.AddMemoryCache();
