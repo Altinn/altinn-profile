@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Core.AddressVerifications.Models;
@@ -165,6 +166,50 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             Assert.Equal(2, stored.FailedAttempts);
             var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 9);
             Assert.Null(verified);
+        }
+
+        [Fact]
+        public async Task AddLegacyAddress_AddsLegacyVerifiedAddress()
+        {
+            var options = CreateOptions(nameof(AddLegacyAddress_AddsLegacyVerifiedAddress));
+            var factory = new TestDbContextFactory(options);
+            var repository = new AddressVerificationRepository(factory);
+
+            await repository.AddLegacyAddress(AddressType.Email, "legacy@example.com", 5, CancellationToken.None);
+
+            await using var assertContext = new ProfileDbContext(options);
+            var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 5 && v.Address == "legacy@example.com");
+            Assert.NotNull(verified);
+            Assert.Equal(VerificationType.Legacy, verified.VerificationType);   
+        }
+
+        [Fact]
+        public async Task AddLegacyAddress_WhenVerifiedAddressExists_DoesNotAddDuplicate()
+        {
+            var options = CreateOptions(nameof(AddLegacyAddress_WhenVerifiedAddressExists_DoesNotAddDuplicate));
+            var factory = new TestDbContextFactory(options);
+
+            await using (var seedContext = new ProfileDbContext(options))
+            {
+                var existing = new VerifiedAddress
+                {
+                    UserId = 6,
+                    AddressType = AddressType.Email,
+                    Address = "exists@example.com",
+                    VerificationType = VerificationType.Explicit
+                };
+                seedContext.VerifiedAddresses.Add(existing);
+                await seedContext.SaveChangesAsync();
+            }
+
+            var repository = new AddressVerificationRepository(factory);
+
+            await repository.AddLegacyAddress(AddressType.Email, " exists@example.com ", 6, CancellationToken.None);
+
+            await using var assertContext = new ProfileDbContext(options);
+            var all = await assertContext.VerifiedAddresses.Where(v => v.UserId == 6 && v.Address == "exists@example.com").ToListAsync();
+            Assert.Single(all);
+            Assert.Equal(VerificationType.Explicit, all[0].VerificationType);
         }
     }
 }
