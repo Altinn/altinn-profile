@@ -87,6 +87,11 @@ public class UserContactPointService : IUserContactPointsService
             // Verify the URN specifically represents an ID-porten email and extract the email value
             if (parsedUrn is IDPortenEmail idportenEmail)
             {
+                if (string.IsNullOrWhiteSpace(idportenEmail.Value.Value))
+                {
+                    continue;
+                }
+
                 contactPointsList.ContactPointsList.Add(new SiUserContactPoints()
                 {
                     Email = idportenEmail.Value.Value,

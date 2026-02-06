@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace Altinn.Profile.Core.User.ContactPoints;
+﻿namespace Altinn.Profile.Core.User.ContactPoints;
 
 /// <summary>
 /// Represents a set of contact points for a self-identified user, including mobile number and email address.

@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Models;
-using Altinn.Urn;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
