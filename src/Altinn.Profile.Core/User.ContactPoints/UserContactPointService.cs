@@ -90,6 +90,7 @@ public class UserContactPointService : IUserContactPointsService
                 contactPointsList.ContactPointsList.Add(new SiUserContactPoints()
                 {
                     Email = idportenEmail.Value.Value,
+                    ExternalIdentity = urnIdentifier,
                     MobileNumber = null
                 });
             }

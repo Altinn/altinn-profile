@@ -1,4 +1,6 @@
-﻿﻿namespace Altinn.Profile.Core.User.ContactPoints;
+﻿using System.Runtime.InteropServices;
+
+namespace Altinn.Profile.Core.User.ContactPoints;
 
 /// <summary>
 /// Represents a set of contact points for a self-identified user, including mobile number and email address.
@@ -14,6 +16,11 @@ public class SiUserContactPoints
     /// The email address associated with the self-identified user
     /// </summary>
     public required string Email { get; init; }
+
+    /// <summary>
+    /// Gets the external identity associated with the self-identified user.
+    /// </summary>
+    public required string ExternalIdentity { get; init; }
 }
 
 /// <summary>

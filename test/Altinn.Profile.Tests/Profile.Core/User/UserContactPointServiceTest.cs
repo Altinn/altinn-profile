@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Security.Policy;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,6 +11,8 @@ using Altinn.Profile.Core.User;
 using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.Testdata;
+
+using ImTools;
 
 using Moq;
 
@@ -149,15 +152,15 @@ public class UserContactPointServiceTest
 
         Assert.Contains(result.ContactPointsList, cp =>
             cp.Email == "user1@example.com" &&
-            cp.MobileNumber == string.Empty);
+            cp.MobileNumber is null);
 
         Assert.Contains(result.ContactPointsList, cp =>
             cp.Email == "user2@test.no" &&
-            cp.MobileNumber == string.Empty);
+            cp.MobileNumber is null);
 
         Assert.Contains(result.ContactPointsList, cp =>
             cp.Email == "admin@altinn.no" &&
-            cp.MobileNumber == string.Empty);
+            cp.MobileNumber is null);
     }
 
     [Fact]
@@ -182,7 +185,7 @@ public class UserContactPointServiceTest
         // Verify prefixed email is stripped
         Assert.Contains(result.ContactPointsList, cp =>
             cp.Email == "user1@altinn.no" &&
-            cp.MobileNumber == string.Empty);
+            cp.MobileNumber is null);
     }
 
     [Fact]
@@ -236,26 +239,32 @@ public class UserContactPointServiceTest
         // Verify decoded emails
         Assert.Contains(result.ContactPointsList, cp => 
             cp.Email == "user+tag@example.com" && 
-            cp.MobileNumber == string.Empty);
+            cp.ExternalIdentity == "urn:altinn:person:idporten-email:user%2Btag@example.com" &&
+            cp.MobileNumber is null);
 
         Assert.Contains(result.ContactPointsList, cp => 
             cp.Email == "user%50off@test.no" && 
-            cp.MobileNumber == string.Empty);
+            cp.ExternalIdentity == "urn:altinn:person:idporten-email:user%2550off@test.no" &&
+            cp.MobileNumber is null);
 
         Assert.Contains(result.ContactPointsList, cp => 
             cp.Email == "first last@company.com" && 
-            cp.MobileNumber == string.Empty);
+            cp.ExternalIdentity == "urn:altinn:person:idporten-email:first%20last@company.com" &&
+            cp.MobileNumber is null);
 
         Assert.Contains(result.ContactPointsList, cp => 
             cp.Email == "user#123@altinn.no" && 
-            cp.MobileNumber == string.Empty);
+            cp.ExternalIdentity == "urn:altinn:person:idporten-email:user%23123@altinn.no" &&
+            cp.MobileNumber is null);
 
         Assert.Contains(result.ContactPointsList, cp => 
             cp.Email == "user=name@domain.com" && 
-            cp.MobileNumber == string.Empty);
+            cp.ExternalIdentity == "urn:altinn:person:idporten-email:user%3Dname@domain.com" &&
+            cp.MobileNumber is null);
 
         Assert.Contains(result.ContactPointsList, cp => 
             cp.Email == "user&company@test.org" && 
-            cp.MobileNumber == string.Empty);
+            cp.ExternalIdentity == "urn:altinn:person:idporten-email:user%26company@test.org" &&
+            cp.MobileNumber is null);
     }
 }
