@@ -473,7 +473,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             SetupAuthHandler(_factory, partyGuid, UserId);
 
             _factory
-                .ProfessionalNotificationsRepositoryMock
+                .ProfessionalNotificationsRepositoryMock 
                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
             SetupSblMock();
@@ -583,12 +583,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         private void SetupSblMock()
         {
-            DelegatingHandlerStub messageHandler = new((request, token) =>
+            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
             {
-                UserProfile userProfile = new UserProfile { ProfileSettingPreference = new ProfileSettingPreference { Language = "nb" } };
-                return Task.FromResult(new HttpResponseMessage() { Content = JsonContent.Create(userProfile) });
+                UserProfile userProfile = new() { ProfileSettingPreference = new ProfileSettingPreference { Language = "nb" } };
+                return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
             });
-            _factory.SblBridgeHttpMessageHandler = messageHandler;
         }
     }
 }
