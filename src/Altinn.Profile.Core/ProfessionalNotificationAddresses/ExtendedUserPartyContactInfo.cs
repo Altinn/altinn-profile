@@ -40,11 +40,11 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <summary>
         /// The verification status of the email address. Null if no email address is set, or if the email address has not been verified.
         /// </summary>
-        public VerificationType? EmailVerificationStatus { get; internal set; }
+        public VerificationType EmailVerificationStatus { get; internal set; }
 
         /// <summary>
         /// The verification status of the phone number. Null if no phone number is set, or if the phone number has not been verified.
         /// </summary>
-        public VerificationType? SmsVerificationStatus { get; internal set; }
+        public VerificationType SmsVerificationStatus { get; internal set; }
     }
 }

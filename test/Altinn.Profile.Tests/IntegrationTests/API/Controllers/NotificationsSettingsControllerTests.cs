@@ -90,7 +90,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal("urn:altinn:resource:app_example", notificationAddresses.ResourceIncludeList[0]);
             Assert.True(notificationAddresses.NeedsConfirmation);
             Assert.Equal(VerificationType.Explicit, notificationAddresses.EmailVerificationStatus);
-            Assert.Null(notificationAddresses.SmsVerificationStatus);
+            Assert.Equal(VerificationType.Unverified, notificationAddresses.SmsVerificationStatus);
         }
 
         [Fact]

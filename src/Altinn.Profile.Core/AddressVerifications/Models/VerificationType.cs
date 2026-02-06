@@ -13,6 +13,11 @@
         /// <summary>
         /// Verification type for addresses that are explicitly verified by the user.
         /// </summary>
-        Explicit
+        Explicit,
+
+        /// <summary>
+        /// Verification type for addresses that are unverified.
+        /// </summary>
+        Unverified
     }
 }

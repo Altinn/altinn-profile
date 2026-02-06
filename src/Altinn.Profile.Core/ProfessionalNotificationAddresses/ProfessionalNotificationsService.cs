@@ -63,11 +63,10 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             foreach (var extendedInfo in extendedInfoList)
             {
                 await EnrichWithVerificationStatus(extendedInfo, cancellationToken);
-            }
-
-            foreach (var setting in extendedInfoList.Where(ns => NeedsConfirmation(ns, profileSettings)))
-            {
-                setting.NeedsConfirmation = true;
+                if (NeedsConfirmation(extendedInfo, profileSettings))
+                {
+                    extendedInfo.NeedsConfirmation = true;
+                }
             }
 
             return extendedInfoList;
@@ -281,13 +280,13 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             if (!string.IsNullOrWhiteSpace(notificationAddress.EmailAddress))
             {
                 var emailResult = await _addressVerificationRepository.GetVerificationStatus(notificationAddress.UserId, AddressType.Email, notificationAddress.EmailAddress, cancellationToken);
-                notificationAddress.EmailVerificationStatus = emailResult;
+                notificationAddress.EmailVerificationStatus = emailResult ?? VerificationType.Unverified;
             }
 
             if (!string.IsNullOrWhiteSpace(notificationAddress.PhoneNumber))
             {
                 var smsResult = await _addressVerificationRepository.GetVerificationStatus(notificationAddress.UserId, AddressType.Sms, notificationAddress.PhoneNumber, cancellationToken);
-                notificationAddress.SmsVerificationStatus = smsResult;
+                notificationAddress.SmsVerificationStatus = smsResult ?? VerificationType.Unverified;
             }
         }
     }
