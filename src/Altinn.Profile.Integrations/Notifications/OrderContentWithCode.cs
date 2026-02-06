@@ -60,11 +60,11 @@
         {
             var bodyTemplate = language switch
             {
-                "en" => OrderContent.SmsEn,
-                "nb" => OrderContent.SmsNo,
-                "nn" => OrderContent.SmsNn,
-                "se" => OrderContent.SmsNo, // Sami is treated as Norwegian Bokmål
-                _ => OrderContent.SmsNo,
+                "en" => OrderContentWithCode.SmsEn,
+                "nb" => OrderContentWithCode.SmsNo,
+                "nn" => OrderContentWithCode.SmsNn,
+                "se" => OrderContentWithCode.SmsNo, // Sami is treated as Norwegian Bokmål
+                _ => OrderContentWithCode.SmsNo,
             };
             return bodyTemplate.Replace("$code$", code);
         }
@@ -78,11 +78,11 @@
         {
             return language switch
             {
-                "en" => OrderContent.EmailSubjectEn,
-                "nb" => OrderContent.EmailSubjectNo,
-                "nn" => OrderContent.EmailSubjectNn,
-                "se" => OrderContent.EmailSubjectNo, // Sami is treated as Norwegian Bokmål
-                _ => OrderContent.EmailSubjectNo,
+                "en" => OrderContentWithCode.EmailSubjectEn,
+                "nb" => OrderContentWithCode.EmailSubjectNo,
+                "nn" => OrderContentWithCode.EmailSubjectNn,
+                "se" => OrderContentWithCode.EmailSubjectNo, // Sami is treated as Norwegian Bokmål
+                _ => OrderContentWithCode.EmailSubjectNo,
             };
         }
 
@@ -96,11 +96,11 @@
         {
             string bodyTemplate = language switch
             {
-                "en" => OrderContent.EmailBodyEn,
-                "nb" => OrderContent.EmailBodyNo,
-                "nn" => OrderContent.EmailBodyNn,
-                "se" => OrderContent.EmailBodyNo, // Sami is treated as Norwegian Bokmål
-                _ => OrderContent.EmailBodyNo,
+                "en" => OrderContentWithCode.EmailBodyEn,
+                "nb" => OrderContentWithCode.EmailBodyNo,
+                "nn" => OrderContentWithCode.EmailBodyNn,
+                "se" => OrderContentWithCode.EmailBodyNo, // Sami is treated as Norwegian Bokmål
+                _ => OrderContentWithCode.EmailBodyNo,
             };
             return bodyTemplate.Replace("$code$", code);
         }

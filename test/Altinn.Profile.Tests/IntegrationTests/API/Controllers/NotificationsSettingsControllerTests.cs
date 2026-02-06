@@ -430,6 +430,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceIncludeList = [resourceUrn]
             };
 
+            _factory.AddressVerificationRepositoryMock = new Mock<Core.Integrations.IAddressVerificationRepository>();
+            _factory.ProfessionalNotificationsRepositoryMock = new Mock<Core.Integrations.IProfessionalNotificationsRepository>();
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
@@ -480,6 +482,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 GenerateVerificationCode = true
             };
 
+            _factory.AddressVerificationRepositoryMock = new Mock<Core.Integrations.IAddressVerificationRepository>();
+            _factory.ProfessionalNotificationsRepositoryMock = new Mock<Core.Integrations.IProfessionalNotificationsRepository>();
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
