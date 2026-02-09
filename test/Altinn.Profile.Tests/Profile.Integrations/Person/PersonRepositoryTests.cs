@@ -112,7 +112,8 @@ public class PersonRepositoryTests : IDisposable
     public async Task GetContactDetailsAsync_WhenNoNationalIdentityNumbersProvided_ReturnsEmpty()
     {
         // Act
-        var matchedPersonContactPreferences = await _personRepository.GetContactPreferencesAsync([], It.IsAny<CancellationToken>());
+        var matchedPersonContactPreferences = 
+            await _personRepository.GetContactPreferencesAsync([], TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Empty(matchedPersonContactPreferences);
@@ -122,7 +123,9 @@ public class PersonRepositoryTests : IDisposable
     public async Task GetContactDetailsAsync_WhenNoneFound_ReturnsEmpty()
     {
         // Act
-        var matchedPersonContactPreferences = await _personRepository.GetContactPreferencesAsync(["nonexistent1", "nonexistent2"], TestContext.Current.CancellationToken);
+        var matchedPersonContactPreferences = 
+            await _personRepository.GetContactPreferencesAsync(
+                ["nonexistent1", "nonexistent2"], TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Empty(matchedPersonContactPreferences);

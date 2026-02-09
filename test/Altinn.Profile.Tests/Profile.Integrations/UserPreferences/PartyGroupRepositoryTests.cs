@@ -65,21 +65,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             }
         }
 
-        private async Task SeedTestGroups()
-        {
-            _databaseContext.Groups.AddRange(
-                new Group { Name = "Group A", GroupId = 1, IsFavorite = true, UserId = 1 },
-                new Group { Name = "Group B", GroupId = 2, IsFavorite = false, UserId = 1 },
-                new Group { Name = "Group C", GroupId = 3, IsFavorite = false, UserId = 2 });
-
-            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-        }
-
         [Fact]
         public async Task GetGroups_WhenUserHasMultipleGroups_ReturnsAll()
         {
             // Arrange
-            await SeedTestGroups();
+            await SeedTestGroupsAsync();
 
             // Act
             var groups = await _repository.GetGroups(1, false, TestContext.Current.CancellationToken);
@@ -94,7 +84,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
         public async Task GetGroups_FilterForFavoriteIsTrue_ReturnsOnlyFavorite()
         {
             // Arrange
-            await SeedTestGroups();
+            await SeedTestGroupsAsync();
 
             // Act
             var groups = await _repository.GetGroups(1, true, TestContext.Current.CancellationToken);
@@ -108,7 +98,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
         public async Task GetGroups_WhenUserHasNoGroups_ReturnsEmptyList()
         {
             // Arrange
-            await SeedTestGroups();
+            await SeedTestGroupsAsync();
 
             // Act
             var groups = await _repository.GetGroups(5, false, TestContext.Current.CancellationToken);
@@ -372,7 +362,17 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
                 Parties = parties ?? []
             };
         }
-        
+
+        private async Task SeedTestGroupsAsync()
+        {
+            _databaseContext.Groups.AddRange(
+                new Group { Name = "Group A", GroupId = 1, IsFavorite = true, UserId = 1 },
+                new Group { Name = "Group B", GroupId = 2, IsFavorite = false, UserId = 1 },
+                new Group { Name = "Group C", GroupId = 3, IsFavorite = false, UserId = 2 });
+
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
         private void MockDbContextOutbox<TEvent>(Action<TEvent, DeliveryOptions> callback)
         {
             DbContext context = null;
