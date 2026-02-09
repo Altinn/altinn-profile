@@ -159,7 +159,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         .AddJsonOptions(opts =>
     {
         opts.JsonSerializerOptions.Converters.Add(new OptionalJsonConverterFactory());
-        opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
     services.AddMemoryCache();
