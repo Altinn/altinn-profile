@@ -28,15 +28,15 @@ namespace Altinn.Profile.Models
         public bool NeedsConfirmation { get; set; }
 
         /// <summary>
-        /// The verification status of the email address. Null if no email address is set, or if the email address has not been verified.
+        /// The verification status of the email address. Null if no email address is set.
         /// </summary>
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public VerificationType EmailVerificationStatus { get; set; }
+        public VerificationType? EmailVerificationStatus { get; set; }
 
         /// <summary>
-        /// The verification status of the phone number. Null if no phone number is set, or if the phone number has not been verified.
+        /// The verification status of the phone number. Null if no phone number is set.
         /// </summary>
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public VerificationType SmsVerificationStatus { get; set; }
+        public VerificationType? SmsVerificationStatus { get; set; }
     }
 }

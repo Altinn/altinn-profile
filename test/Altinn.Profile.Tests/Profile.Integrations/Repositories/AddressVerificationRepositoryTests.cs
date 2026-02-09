@@ -192,7 +192,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                     UserId = 9,
                     AddressType = AddressType.Email,
                     Address = "verified@example.com",
-                    VerificationType = VerificationType.Explicit,
+                    VerificationType = VerificationType.Verified,
                 };
                 seedContext.VerifiedAddresses.Add(verifiedAddress);
                 await seedContext.SaveChangesAsync();
@@ -203,7 +203,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             var result = await repository.GetVerificationStatus(9, AddressType.Email, "Verified@example.com ", CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal(VerificationType.Explicit, result);
+            Assert.Equal(VerificationType.Verified, result);
         }
 
         [Fact]
