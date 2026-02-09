@@ -74,8 +74,8 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
-        UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
-            responseContent, _serializerOptionsCamelCase);
+        UserProfile? actualUser = 
+            JsonSerializer.Deserialize<UserProfile>(responseContent, _serializerOptionsCamelCase);
         
         Assert.NotNull(actualUser);
 
@@ -106,7 +106,8 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = 
+            await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -129,7 +130,8 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = 
+            await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -239,8 +241,8 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         // These asserts check that deserializing with camel casing was successful.
         Assert.Equal(UserId, actualUser.UserId);
         Assert.Equal("franky", actualUser.UserName);
-        Assert.Equal("Blå mandag", actualUser.Party.Name);
-        Assert.Equal("Blå", actualUser.Party.Person?.FirstName);
+        Assert.Equal("BlÃ¥ mandag", actualUser.Party.Name);
+        Assert.Equal("BlÃ¥", actualUser.Party.Person?.FirstName);
         Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
     }
 
@@ -284,8 +286,8 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         // These asserts check that deserializing with camel casing was successful.
         Assert.Equal(UserId, actualUser.UserId);
         Assert.Equal("franky", actualUser.UserName);
-        Assert.Equal("Blå mandag", actualUser.Party.Name);
-        Assert.Equal("Blå", actualUser.Party.Person?.FirstName);
+        Assert.Equal("BlÃ¥ mandag", actualUser.Party.Name);
+        Assert.Equal("BlÃ¥", actualUser.Party.Person?.FirstName);
         Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
     }
 
