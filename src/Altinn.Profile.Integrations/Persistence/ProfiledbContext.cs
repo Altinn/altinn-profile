@@ -285,7 +285,7 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.VerificationType);
             entity.Property(e => e.UserId).IsRequired();
 
-            entity.HasIndex(e => new { e.UserId, e.Address, e.AddressType }, "ix_user_id_address_address_type");
+            entity.HasIndex(e => new { e.UserId, e.Address, e.AddressType }, "ix_user_id_address_address_type").IsUnique();
         });
 
         OnModelCreatingPartial(modelBuilder);

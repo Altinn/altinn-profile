@@ -211,5 +211,64 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             Assert.Single(all);
             Assert.Equal(VerificationType.Explicit, all[0].VerificationType);
         }
+
+        [Fact]
+        public async Task AddLegacyAddress_WhenDbUpdateExceptionUniqueViolation_DoesNotThrow()
+        {
+            var options = CreateOptions(nameof(AddLegacyAddress_WhenDbUpdateExceptionUniqueViolation_DoesNotThrow));
+
+            // DbContext that throws DbUpdateException with an inner PostgresException having SqlState = "23505"
+            var factory = new ThrowingDbContextFactory(options);
+            var repository = new AddressVerificationRepository(factory);
+
+            // Should not throw
+            await repository.AddLegacyAddressAsync(AddressType.Email, "dup@example.com", 11, CancellationToken.None);
+
+            // Confirm nothing was persisted
+            await using var assertContext = new ProfileDbContext(options);
+            var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 11 && v.Address == "dup@example.com");
+            Assert.Null(verified);
+        }
+
+        private class ThrowingDbContextFactory : IDbContextFactory<ProfileDbContext>
+        {
+            private readonly DbContextOptions<ProfileDbContext> _options;
+
+            public ThrowingDbContextFactory(DbContextOptions<ProfileDbContext> options)
+            {
+                _options = options;
+            }
+
+            public ProfileDbContext CreateDbContext()
+            {
+                return new ThrowingProfileDbContext(_options);
+            }
+
+            public Task<ProfileDbContext> CreateDbContextAsync(CancellationToken cancellationToken = default)
+            {
+                return Task.FromResult<ProfileDbContext>(new ThrowingProfileDbContext(_options));
+            }
+        }
+
+        private class ThrowingProfileDbContext : ProfileDbContext
+        {
+            public ThrowingProfileDbContext(DbContextOptions<ProfileDbContext> options)
+                : base(options)
+            {
+            }
+
+            public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+            {
+                // Create a PostgresException with SqlState = "23505" using a derived class to avoid FormatterServices
+                var postgresEx = new SimulatedPostgresUniqueViolationException();
+
+                throw new DbUpdateException("Unique constraint violation simulated.", (Exception)postgresEx);
+            }
+
+            private class SimulatedPostgresUniqueViolationException : Exception
+            {
+                public virtual string SqlState => "23505";
+            }
+        }
     }
 }
