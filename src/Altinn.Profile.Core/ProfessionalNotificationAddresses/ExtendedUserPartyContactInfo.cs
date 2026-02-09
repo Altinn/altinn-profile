@@ -19,7 +19,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// </summary>
         /// <param name="userPartyContactInfo">The contact info to extend</param>
         /// <param name="needsConfirmation">A flag to indicate wether the address needs to be confirmed by the user</param>
-        /// <param name="emailVerificationType">The verification status of the emialAddress</param>
+        /// <param name="emailVerificationType">The verification status of the email address</param>
         /// <param name="smsVerificationType">The verification status of the phone number for sms.</param>
         public ExtendedUserPartyContactInfo(UserPartyContactInfo userPartyContactInfo, bool needsConfirmation, VerificationType? emailVerificationType, VerificationType? smsVerificationType) : base()
         {
