@@ -175,7 +175,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
 
             var repository = new AddressVerificationRepository(factory);
 
-            var result = await repository.GetVerificationStatus(1, AddressType.Email, "not-verified@test.com", CancellationToken.None);
+            var result = await repository.GetVerificationStatusAsync(1, AddressType.Email, "not-verified@test.com", CancellationToken.None);
 
             Assert.Null(result);
         }
@@ -200,7 +200,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
 
             var repository = new AddressVerificationRepository(factory);
 
-            var result = await repository.GetVerificationStatus(9, AddressType.Email, "Verified@example.com ", CancellationToken.None);
+            var result = await repository.GetVerificationStatusAsync(9, AddressType.Email, "Verified@example.com ", CancellationToken.None);
 
             Assert.NotNull(result);
             Assert.Equal(VerificationType.Verified, result);
@@ -226,7 +226,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
 
             var repository = new AddressVerificationRepository(factory);
 
-            var result = await repository.GetVerificationStatus(9, AddressType.Sms, " +4799999999 ", CancellationToken.None);
+            var result = await repository.GetVerificationStatusAsync(9, AddressType.Sms, " +4799999999 ", CancellationToken.None);
 
             Assert.NotNull(result);
             Assert.Equal(VerificationType.Legacy, result);

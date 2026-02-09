@@ -281,13 +281,13 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             VerificationType? smsVerificationStatus = null;
             if (!string.IsNullOrWhiteSpace(notificationAddress.EmailAddress))
             {
-                var emailResult = await _addressVerificationRepository.GetVerificationStatus(notificationAddress.UserId, AddressType.Email, notificationAddress.EmailAddress, cancellationToken);
+                var emailResult = await _addressVerificationRepository.GetVerificationStatusAsync(notificationAddress.UserId, AddressType.Email, notificationAddress.EmailAddress, cancellationToken);
                 emailVerificationStatus = emailResult ?? VerificationType.Unverified;
             }
 
             if (!string.IsNullOrWhiteSpace(notificationAddress.PhoneNumber))
             {
-                var smsResult = await _addressVerificationRepository.GetVerificationStatus(notificationAddress.UserId, AddressType.Sms, notificationAddress.PhoneNumber, cancellationToken);
+                var smsResult = await _addressVerificationRepository.GetVerificationStatusAsync(notificationAddress.UserId, AddressType.Sms, notificationAddress.PhoneNumber, cancellationToken);
                 smsVerificationStatus = smsResult ?? VerificationType.Unverified;
             }
 

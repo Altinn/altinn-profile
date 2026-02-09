@@ -73,7 +73,7 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
     }
 
     /// <inheritdoc />
-    public async Task<VerificationType?> GetVerificationStatus(int userId, AddressType addressType, string address, CancellationToken cancellationToken)
+    public async Task<VerificationType?> GetVerificationStatusAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken)
     {
         var addressCleaned = address.Trim().ToLowerInvariant();
 

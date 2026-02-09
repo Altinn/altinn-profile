@@ -59,7 +59,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(x => x.GetProfileSettings(UserId))
                 .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = null, LanguageType = "no" });
             _factory.AddressVerificationRepositoryMock
-                .Setup(x => x.GetVerificationStatus(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "test@example.com"), It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "test@example.com"), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(VerificationType.Verified);
 
             SetupSblMock();
@@ -176,10 +176,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(x => x.GetProfileSettings(UserId))
                 .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = DateTime.Today, LanguageType = "no" });
             _factory.AddressVerificationRepositoryMock
-                .Setup(x => x.GetVerificationStatus(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "c@d.com"), It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "c@d.com"), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(VerificationType.Verified);
             _factory.AddressVerificationRepositoryMock
-                .Setup(x => x.GetVerificationStatus(It.IsAny<int>(), AddressType.Sms, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Sms, It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(VerificationType.Legacy);
 
             HttpClient client = _factory.CreateClient();
