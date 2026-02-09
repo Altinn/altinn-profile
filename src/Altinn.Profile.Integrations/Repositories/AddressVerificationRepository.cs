@@ -107,19 +107,7 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
             // Some tests simulate a PostgresException by providing a different exception type that exposes a SqlState property.
             var inner = ex.InnerException;
             if (inner != null)
-            {
-                // Directly handle real Npgsql.PostgresException
-                if (inner.GetType().FullName == "Npgsql.PostgresException")
-                {
-                    // use reflection to read SqlState to avoid hard dependency on Npgsql at runtime in tests
-                    var sqlStateProp = inner.GetType().GetProperty("SqlState", BindingFlags.Public | BindingFlags.Instance);
-                    if (sqlStateProp?.GetValue(inner) as string == "23505")
-                    {
-                        return;
-                    }
-                }
-
-                // Fallback: any exception exposing a public SqlState string property with value "23505"
+            {               
                 var prop = inner.GetType().GetProperty("SqlState", BindingFlags.Public | BindingFlags.Instance);
                 if (prop != null && prop.PropertyType == typeof(string))
                 {
