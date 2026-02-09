@@ -1,6 +1,9 @@
 ﻿#nullable enable
 
 using System;
+using System.Text.Json.Serialization;
+
+using Altinn.Profile.Core.AddressVerifications.Models;
 
 namespace Altinn.Profile.Models
 {
@@ -23,5 +26,17 @@ namespace Altinn.Profile.Models
         /// An indication of whether the notification address needs confirmation from a user
         /// </summary>
         public bool NeedsConfirmation { get; set; }
+
+        /// <summary>
+        /// The verification status of the email address. Null if no email address is set.
+        /// </summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public VerificationType? EmailVerificationStatus { get; set; }
+
+        /// <summary>
+        /// The verification status of the phone number. Null if no phone number is set.
+        /// </summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public VerificationType? SmsVerificationStatus { get; set; }
     }
 }

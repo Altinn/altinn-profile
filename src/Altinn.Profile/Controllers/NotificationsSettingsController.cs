@@ -188,7 +188,7 @@ namespace Altinn.Profile.Controllers
             return Ok();
         }
 
-        private NotificationSettingsResponse MapResponse(UserPartyContactInfo notificationAddress)
+        private NotificationSettingsResponse MapResponse(ExtendedUserPartyContactInfo notificationAddress)
         {
             return new NotificationSettingsResponse
             {
@@ -197,7 +197,9 @@ namespace Altinn.Profile.Controllers
                 EmailAddress = notificationAddress.EmailAddress,
                 PhoneNumber = notificationAddress.PhoneNumber,
                 ResourceIncludeList = notificationAddress.GetResourceIncludeList(),
-                NeedsConfirmation = notificationAddress.NeedsConfirmation
+                NeedsConfirmation = notificationAddress.NeedsConfirmation,
+                SmsVerificationStatus = notificationAddress.SmsVerificationStatus,
+                EmailVerificationStatus = notificationAddress.EmailVerificationStatus
             };
         }
     }

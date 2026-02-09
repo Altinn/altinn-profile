@@ -123,4 +123,21 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
             throw;
         }
     }
+
+    /// <inheritdoc />
+    public async Task<VerificationType?> GetVerificationStatusAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken)
+    {
+        var addressCleaned = address.Trim().ToLowerInvariant();
+
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        var verifiedAddresses = await databaseContext.VerifiedAddresses.Where(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == addressCleaned)
+            .AsNoTracking().ToListAsync(cancellationToken);
+
+        if (verifiedAddresses.Count == 0)
+        {
+            return null;
+        }
+
+        return verifiedAddresses[0].VerificationType;
+    }
 }

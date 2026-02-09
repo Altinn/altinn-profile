@@ -196,7 +196,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                     UserId = 6,
                     AddressType = AddressType.Email,
                     Address = "exists@example.com",
-                    VerificationType = VerificationType.Explicit
+                    VerificationType = VerificationType.Verified
                 };
                 seedContext.VerifiedAddresses.Add(existing);
                 await seedContext.SaveChangesAsync();
@@ -209,7 +209,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             await using var assertContext = new ProfileDbContext(options);
             var all = await assertContext.VerifiedAddresses.Where(v => v.UserId == 6 && v.Address == "exists@example.com").ToListAsync();
             Assert.Single(all);
-            Assert.Equal(VerificationType.Explicit, all[0].VerificationType);
+            Assert.Equal(VerificationType.Verified, all[0].VerificationType);
         }
 
         [Fact]
@@ -269,6 +269,71 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             {
                 public virtual string SqlState => "23505";
             }
+        }
+
+        [Fact]
+        public async Task GetVerificationStatus_WhenNotVerified_ReturnsNull()
+        {
+            var options = CreateOptions(nameof(GetVerificationStatus_WhenNotVerified_ReturnsNull));
+            var factory = new TestDbContextFactory(options);
+
+            var repository = new AddressVerificationRepository(factory);
+
+            var result = await repository.GetVerificationStatusAsync(1, AddressType.Email, "not-verified@test.com", CancellationToken.None);
+
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetVerificationStatus_WhenVerifiedEmail_ReturnsVerificationStatus()
+        {
+            var options = CreateOptions(nameof(GetVerificationStatus_WhenVerifiedEmail_ReturnsVerificationStatus));
+            var factory = new TestDbContextFactory(options);
+            await using (var seedContext = new ProfileDbContext(options))
+            {
+                var verifiedAddress = new VerifiedAddress
+                {
+                    UserId = 9,
+                    AddressType = AddressType.Email,
+                    Address = "verified@example.com",
+                    VerificationType = VerificationType.Verified,
+                };
+                seedContext.VerifiedAddresses.Add(verifiedAddress);
+                await seedContext.SaveChangesAsync();
+            }
+
+            var repository = new AddressVerificationRepository(factory);
+
+            var result = await repository.GetVerificationStatusAsync(9, AddressType.Email, "Verified@example.com ", CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Equal(VerificationType.Verified, result);
+        }
+
+        [Fact]
+        public async Task GetVerificationStatus_WhenVerifiedSms_ReturnsVerificationStatus()
+        {
+            var options = CreateOptions(nameof(GetVerificationStatus_WhenVerifiedSms_ReturnsVerificationStatus));
+            var factory = new TestDbContextFactory(options);
+            await using (var seedContext = new ProfileDbContext(options))
+            {
+                var verifiedAddress = new VerifiedAddress
+                {
+                    UserId = 9,
+                    AddressType = AddressType.Sms,
+                    Address = "+4799999999",
+                    VerificationType = VerificationType.Legacy,
+                };
+                seedContext.VerifiedAddresses.Add(verifiedAddress);
+                await seedContext.SaveChangesAsync();
+            }
+
+            var repository = new AddressVerificationRepository(factory);
+
+            var result = await repository.GetVerificationStatusAsync(9, AddressType.Sms, " +4799999999 ", CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Equal(VerificationType.Legacy, result);
         }
     }
 }

@@ -58,6 +58,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfileSettingsRepositoryMock
                 .Setup(x => x.GetProfileSettings(UserId))
                 .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = null, LanguageType = "no" });
+            _factory.AddressVerificationRepositoryMock
+                .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "test@example.com"), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(VerificationType.Verified);
 
             SetupSblMock();
             SetupAuthHandler(_factory, partyGuid, UserId);
@@ -86,6 +89,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Single(notificationAddresses.ResourceIncludeList);
             Assert.Equal("urn:altinn:resource:app_example", notificationAddresses.ResourceIncludeList[0]);
             Assert.True(notificationAddresses.NeedsConfirmation);
+            Assert.Equal(VerificationType.Verified, notificationAddresses.EmailVerificationStatus);
+            Assert.Equal(VerificationType.Unverified, notificationAddresses.SmsVerificationStatus);
         }
 
         [Fact]
@@ -163,7 +168,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int UserId = 2516357;
             var infos = new List<UserPartyContactInfo>
             {
-                new UserPartyContactInfo { UserId = UserId, PartyUuid = Guid.NewGuid(), EmailAddress = "a@b.com", PhoneNumber = "1", UserPartyContactInfoResources = new List<UserPartyContactInfoResource> { new UserPartyContactInfoResource { ResourceId = "one" } } },
+                new UserPartyContactInfo { UserId = UserId, PartyUuid = Guid.NewGuid(), EmailAddress = "a@b.com", PhoneNumber = string.Empty, UserPartyContactInfoResources = new List<UserPartyContactInfoResource> { new UserPartyContactInfoResource { ResourceId = "one" } } },
                 new UserPartyContactInfo { UserId = UserId, PartyUuid = Guid.NewGuid(), EmailAddress = "c@d.com", PhoneNumber = "2", UserPartyContactInfoResources = new List<UserPartyContactInfoResource> { new UserPartyContactInfoResource { ResourceId = "two" } } }
             };
 
@@ -177,6 +182,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfileSettingsRepositoryMock
                 .Setup(x => x.GetProfileSettings(UserId))
                 .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = DateTime.Today, LanguageType = "no" });
+            _factory.AddressVerificationRepositoryMock
+                .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "c@d.com"), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(VerificationType.Verified);
+            _factory.AddressVerificationRepositoryMock
+                .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Sms, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(VerificationType.Legacy);
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Get, UserId, "profile/api/v1/users/current/notificationsettings/parties");
@@ -189,8 +200,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal("a@b.com", addresses[0].EmailAddress);
             Assert.Single(addresses[0].ResourceIncludeList);
             Assert.Equal("urn:altinn:resource:one", addresses[0].ResourceIncludeList[0]);
+            Assert.Null(addresses[0].SmsVerificationStatus);
+            Assert.Equal(VerificationType.Unverified, addresses[0].EmailVerificationStatus);
+
             Assert.Equal("c@d.com", addresses[1].EmailAddress);
             Assert.False(addresses[1].NeedsConfirmation);
+            Assert.Equal(VerificationType.Verified, addresses[1].EmailVerificationStatus);
+            Assert.Equal(VerificationType.Legacy, addresses[1].SmsVerificationStatus);
         }
 
         [Fact]

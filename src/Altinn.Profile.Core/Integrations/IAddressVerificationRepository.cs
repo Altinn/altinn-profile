@@ -23,5 +23,15 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         Task AddLegacyAddressAsync(AddressType addressType, string address, int userId, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Retrieves the verification status for an address.
+        /// </summary>
+        /// <param name="userId">The id of the user</param>
+        /// <param name="addressType">If the address is for sms or email</param>
+        /// <param name="address">The address to check</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A Task containing the <see cref="VerificationType"/> or null if the address has not been verified.</returns>
+        Task<VerificationType?> GetVerificationStatusAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken);
     }
 }

@@ -40,6 +40,6 @@
         /// <summary>
         /// Gets or sets the verification type for the address.
         /// </summary>
-        public VerificationType VerificationType { get; set; } = VerificationType.Explicit;
+        public VerificationType VerificationType { get; set; } = VerificationType.Verified;
     }
 }
