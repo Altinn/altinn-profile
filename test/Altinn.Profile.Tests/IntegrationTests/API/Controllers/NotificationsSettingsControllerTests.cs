@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
-using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
 using Microsoft.AspNetCore.Http;
@@ -22,15 +21,20 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class NotificationsSettingsControllerTests(ProfileWebApplicationFactory<Program> factory)
-        : IClassFixture<ProfileWebApplicationFactory<Program>>
+    public class NotificationsSettingsControllerTests : IClassFixture<ProfileWebApplicationFactory<Program>>
     {
-        private readonly ProfileWebApplicationFactory<Program> _factory = factory;
+        private readonly ProfileWebApplicationFactory<Program> _factory;
 
         private readonly JsonSerializerOptions _serializerOptionsCamelCase = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
+
+        public NotificationsSettingsControllerTests(ProfileWebApplicationFactory<Program> factory)
+        {
+            _factory = factory;
+            _factory.ProfessionalNotificationsRepositoryMock.Reset();
+        }
 
         [Fact]
         public async Task GetNotificationAddress_WhenRepositoryReturnsValues_IsOk()
