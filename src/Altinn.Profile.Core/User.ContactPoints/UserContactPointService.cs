@@ -1,6 +1,8 @@
 ﻿using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Models;
-using Microsoft.Extensions.Options;
+
+using static Altinn.Profile.Core.Unit.ContactPoints.CustomContactPointUrn;
 
 namespace Altinn.Profile.Core.User.ContactPoints;
 
@@ -67,5 +69,38 @@ public class UserContactPointService : IUserContactPointsService
         });
 
         return resultList;
+    }
+
+    /// <inheritdoc/>
+    public Task<SelfIdentifiedUserContactPointsList> GetSiContactPoints(List<string> externalIdentities, CancellationToken cancellationToken)
+    {
+        SelfIdentifiedUserContactPointsList contactPointsList = new();
+
+        foreach (var urnIdentifier in externalIdentities)
+        {
+            // Attempt to parse the URN string into a CustomContactPointUrn
+            if (!TryParse(urnIdentifier, out CustomContactPointUrn? parsedUrn))
+            {
+                continue;
+            }
+
+            // Verify the URN specifically represents an ID-porten email and extract the email value
+            if (parsedUrn is IDPortenEmail idportenEmail)
+            {
+                if (string.IsNullOrWhiteSpace(idportenEmail.Value.Value))
+                {
+                    continue;
+                }
+
+                contactPointsList.ContactPointsList.Add(new SiUserContactPoints()
+                {
+                    Email = idportenEmail.Value.Value,
+                    ExternalIdentity = urnIdentifier,
+                    MobileNumber = null
+                });
+            }
+        }
+
+        return Task.FromResult(contactPointsList);
     }
 }
