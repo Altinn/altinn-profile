@@ -95,11 +95,11 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             {
                 if (generateVerificationCode)
                 {
-                    await _addressVerificationService.GenerateAndSendVerificationCode(contactInfo.UserId, contactInfo.PhoneNumber!, AddressVerifications.Models.AddressType.Sms, language, contactInfo.PartyUuid, CancellationToken.None);
+                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.PhoneNumber!, AddressVerifications.Models.AddressType.Sms, language, contactInfo.PartyUuid, CancellationToken.None);
                 }
                 else
                 {
-                    await _addressVerificationService.NotifySmsAddressChange(contactInfo.PhoneNumber!, contactInfo.PartyUuid, language, contactInfo.UserId, CancellationToken.None);
+                    await _addressVerificationService.NotifySmsAddressChangeAsync(contactInfo.PhoneNumber!, contactInfo.PartyUuid, language, contactInfo.UserId, CancellationToken.None);
                 }
             }
 
@@ -107,11 +107,11 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             {
                 if (generateVerificationCode)
                 {
-                    await _addressVerificationService.GenerateAndSendVerificationCode(contactInfo.UserId, contactInfo.EmailAddress!, AddressVerifications.Models.AddressType.Email, language, contactInfo.PartyUuid, CancellationToken.None);
+                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.EmailAddress!, AddressVerifications.Models.AddressType.Email, language, contactInfo.PartyUuid, CancellationToken.None);
                 }
                 else
                 {
-                    await _addressVerificationService.NotifyEmailAddressChange(contactInfo.EmailAddress!, contactInfo.PartyUuid, language, contactInfo.UserId, CancellationToken.None);
+                    await _addressVerificationService.NotifyEmailAddressChangeAsync(contactInfo.EmailAddress!, contactInfo.PartyUuid, language, contactInfo.UserId, CancellationToken.None);
                 }
             }
         }

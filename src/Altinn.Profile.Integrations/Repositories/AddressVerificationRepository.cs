@@ -37,7 +37,7 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
     /// <param name="address">The address to verify</param>
     /// <param name="userId">The id of the user</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    public async Task<bool> TryVerifyAddress(string verificationCodeHash, AddressType addressType, string address, int userId)
+    public async Task<bool> TryVerifyAddressAsync(string verificationCodeHash, AddressType addressType, string address, int userId)
     {
         var verified = false;
         address = VerificationCode.FormatAddress(address);

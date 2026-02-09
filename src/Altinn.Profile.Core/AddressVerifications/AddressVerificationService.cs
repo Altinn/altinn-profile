@@ -14,7 +14,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         private readonly int _expiryTimeInMinutes = 15;
 
         /// <inheritdoc/>
-        public async Task GenerateAndSendVerificationCode(int userid, string address, AddressType addressType, string languageCode, Guid partyUuid, CancellationToken cancellationToken)
+        public async Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, string languageCode, Guid partyUuid, CancellationToken cancellationToken)
         {
             var formattedAddress = VerificationCode.FormatAddress(address);
             var verificationCode = GenerateVerificationCode();
@@ -47,14 +47,14 @@ namespace Altinn.Profile.Core.AddressVerifications
         }
 
         /// <inheritdoc/>
-        public async Task NotifySmsAddressChange(string phoneNumber, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken)
+        public async Task NotifySmsAddressChangeAsync(string phoneNumber, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken)
         {
             await _notificationsClient.OrderSms(phoneNumber, partyUuid, languageCode, cancellationToken);
             await _addressVerificationRepository.AddLegacyAddressAsync(AddressType.Sms, phoneNumber, userid, cancellationToken);
         }
 
         /// <inheritdoc/>
-        public async Task NotifyEmailAddressChange(string emailAddress, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken)
+        public async Task NotifyEmailAddressChangeAsync(string emailAddress, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken)
         {
             await _notificationsClient.OrderEmail(emailAddress, partyUuid, languageCode, cancellationToken);
             await _addressVerificationRepository.AddLegacyAddressAsync(AddressType.Email, emailAddress, userid, cancellationToken);

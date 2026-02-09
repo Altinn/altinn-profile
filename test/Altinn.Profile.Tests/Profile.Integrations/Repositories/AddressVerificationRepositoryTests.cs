@@ -87,7 +87,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
 
             var repository = new AddressVerificationRepository(factory);
 
-            var result = await repository.TryVerifyAddress("correct-hash", AddressType.Email, " Test@Example.com ", 42);
+            var result = await repository.TryVerifyAddressAsync("correct-hash", AddressType.Email, " Test@Example.com ", 42);
 
             Assert.True(result);
 
@@ -121,7 +121,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
 
             var repository = new AddressVerificationRepository(factory);
 
-            var result = await repository.TryVerifyAddress("wrong-hash", AddressType.Sms, "555-0100", 7);
+            var result = await repository.TryVerifyAddressAsync("wrong-hash", AddressType.Sms, "555-0100", 7);
 
             Assert.False(result);
 
@@ -156,7 +156,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
 
             var repository = new AddressVerificationRepository(factory);
 
-            var result = await repository.TryVerifyAddress("any-hash", AddressType.Email, "expired@example.com", 9);
+            var result = await repository.TryVerifyAddressAsync("any-hash", AddressType.Email, "expired@example.com", 9);
 
             Assert.False(result);
 

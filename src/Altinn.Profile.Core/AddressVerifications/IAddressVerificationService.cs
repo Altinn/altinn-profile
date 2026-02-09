@@ -17,7 +17,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <param name="partyUuid">The partyUuid for the party the address was changed for</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns></returns>
-        Task GenerateAndSendVerificationCode(int userid, string address, AddressType addressType, string languageCode, Guid partyUuid, CancellationToken cancellationToken);
+        Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, string languageCode, Guid partyUuid, CancellationToken cancellationToken);
 
         /// <summary>
         /// Sends an SMS order to the specified phone number notifying the owner about an address change.
@@ -28,7 +28,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <param name="userid">The id of the user</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task NotifySmsAddressChange(string phoneNumber, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken);
+        Task NotifySmsAddressChangeAsync(string phoneNumber, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken);
 
         /// <summary>
         /// Sends an email order to the specified email address notifying the owner about an address change.
@@ -39,6 +39,6 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <param name="userid">The id of the user</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task NotifyEmailAddressChange(string emailAddress, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken);
+        Task NotifyEmailAddressChangeAsync(string emailAddress, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken);
     }
 }

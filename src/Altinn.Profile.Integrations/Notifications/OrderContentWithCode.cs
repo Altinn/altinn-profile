@@ -6,17 +6,17 @@
     public static class OrderContentWithCode
     {
         /// <summary>
-        /// English SMS message template for notifying users about updated contact information.
+        /// English SMS message template for sending a verification code to the user.
         /// </summary>
         public const string SmsEn = "Enter the code $code$ to verify your phone number.";
 
         /// <summary>
-        /// Norwegian Bokmål SMS message template for notifying users about updated contact information.
+        /// Norwegian Bokmål SMS message template for sending a verification code to the user.
         /// </summary>
         public const string SmsNo = "Oppgi koden $code$ for å bekrefte telefonnummeret ditt.";
 
         /// <summary>
-        /// Norwegian Nynorsk SMS message template for notifying users about updated contact information.
+        /// Norwegian Nynorsk SMS message template for sending a verification code to the user.
         /// </summary>
         public const string SmsNn = "Oppgje koden $code$ for å stadfeste telefonnummeret ditt.";
 
@@ -54,7 +54,7 @@
         /// Gets the SMS content template for the specified language.
         /// </summary>
         /// <param name="language">The language code ("en", "nb", or "nn").</param>
-        /// <param name="code">The verification code to insert into the email body template.</param>
+        /// <param name="code">The verification code to insert into the sms body template.</param>
         /// <returns>The SMS message template in the specified language.</returns>
         public static string GetSmsContent(string language, string code)
         {
