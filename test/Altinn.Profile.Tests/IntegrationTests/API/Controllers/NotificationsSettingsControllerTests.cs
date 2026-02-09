@@ -466,8 +466,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                         info.UserPartyContactInfoResources.Count == 1 && info.UserPartyContactInfoResources[0].ResourceId == sanitizedResourceId),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
-            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCode(It.IsAny<VerificationCode>()), Times.Never);
-            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddLegacyAddress(It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Never);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddLegacyAddressAsync(It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.AtLeastOnce);
         }
 
         [Theory]
@@ -518,8 +518,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                         info.UserPartyContactInfoResources.Count == 1 && info.UserPartyContactInfoResources[0].ResourceId == sanitizedResourceId),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
-            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCode(It.IsAny<VerificationCode>()), Times.AtLeastOnce);
-            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddLegacyAddress(It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.AtLeastOnce);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddLegacyAddressAsync(It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]

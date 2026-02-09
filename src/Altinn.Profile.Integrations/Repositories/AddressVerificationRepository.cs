@@ -18,7 +18,7 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
     /// </summary>
     /// <param name="verificationCode">The verification code to add.</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    public async Task AddNewVerificationCode(VerificationCode verificationCode)
+    public async Task AddNewVerificationCodeAsync(VerificationCode verificationCode)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
         var verificationCodes = await databaseContext.VerificationCodes.Where(vc => vc.UserId.Equals(verificationCode.UserId) && vc.AddressType == verificationCode.AddressType && vc.Address == verificationCode.Address).ToListAsync();
@@ -73,7 +73,7 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
     }
 
     /// <inheritdoc/>
-    public async Task AddLegacyAddress(AddressType addressType, string address, int userId, CancellationToken cancellationToken)
+    public async Task AddLegacyAddressAsync(AddressType addressType, string address, int userId, CancellationToken cancellationToken)
     {
         address = VerificationCode.FormatAddress(address);
 

@@ -87,11 +87,11 @@
         }
 
         /// <summary>
-        /// Gets the email body template for the specified language, replacing the reportee name placeholder. Not to be used yet.
+        /// Gets the email body template for the specified language, replacing the verification code placeholder.
         /// </summary>
         /// <param name="language">The language code ("en", "nb", or "nn").</param>
         /// <param name="code">The verification code to insert into the email body template.</param>
-        /// <returns>The email body in the specified language with the reportee name inserted.</returns>
+        /// <returns>The email body in the specified language with the verification code inserted.</returns>
         public static string GetEmailBody(string language, string code)
         {
             string bodyTemplate = language switch

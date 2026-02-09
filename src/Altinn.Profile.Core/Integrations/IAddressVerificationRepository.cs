@@ -12,7 +12,7 @@ namespace Altinn.Profile.Core.Integrations
         /// </summary>
         /// <param name="verificationCode">The verification code to add.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        Task AddNewVerificationCode(VerificationCode verificationCode);
+        Task AddNewVerificationCodeAsync(VerificationCode verificationCode);
 
         /// <summary>
         /// Tries to verify an address using the provided verification code hash.
@@ -22,6 +22,6 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="userId">The id of the user</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        Task AddLegacyAddress(AddressType addressType, string address, int userId, CancellationToken cancellationToken);
+        Task AddLegacyAddressAsync(AddressType addressType, string address, int userId, CancellationToken cancellationToken);
     }
 }

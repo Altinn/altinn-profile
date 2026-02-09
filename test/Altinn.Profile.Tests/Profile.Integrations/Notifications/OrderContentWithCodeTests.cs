@@ -1,4 +1,3 @@
-using System;
 using Altinn.Profile.Integrations.Notifications;
 using Xunit;
 
@@ -10,8 +9,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
         [InlineData("en", "1234", OrderContentWithCode.SmsEn)]
         [InlineData("nb", "0000", OrderContentWithCode.SmsNo)]
         [InlineData("nn", "42", OrderContentWithCode.SmsNn)]
-        [InlineData("se", "abcd", OrderContentWithCode.SmsNo)] // Sami treated as Bokmål
-        [InlineData("xx", "z", OrderContentWithCode.SmsNo)] // Unknown treated as Bokmål
+        [InlineData("se", "abcd", OrderContentWithCode.SmsNo)] // Sami treated as BokmÃ¥l
+        [InlineData("xx", "z", OrderContentWithCode.SmsNo)] // Unknown treated as BokmÃ¥l
         [InlineData("", "empty", OrderContentWithCode.SmsNo)]
         [InlineData(null, "null", OrderContentWithCode.SmsNo)]
         public void GetSmsContent_ReturnsExpectedTemplateWithCode(string language, string code, string template)
@@ -25,8 +24,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
         [InlineData("en", OrderContentWithCode.EmailSubjectEn)]
         [InlineData("nb", OrderContentWithCode.EmailSubjectNo)]
         [InlineData("nn", OrderContentWithCode.EmailSubjectNn)]
-        [InlineData("se", OrderContentWithCode.EmailSubjectNo)] // Sami treated as Bokmål
-        [InlineData("xx", OrderContentWithCode.EmailSubjectNo)] // Unknown treated as Bokmål
+        [InlineData("se", OrderContentWithCode.EmailSubjectNo)] // Sami treated as BokmÃ¥l
+        [InlineData("xx", OrderContentWithCode.EmailSubjectNo)] // Unknown treated as BokmÃ¥l
         [InlineData("", OrderContentWithCode.EmailSubjectNo)]
         [InlineData(null, OrderContentWithCode.EmailSubjectNo)]
         public void GetEmailSubject_ReturnsExpectedTemplate(string language, string expected)
@@ -39,8 +38,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
         [InlineData("en", "ABC", OrderContentWithCode.EmailBodyEn)]
         [InlineData("nb", "NAVN", OrderContentWithCode.EmailBodyNo)]
         [InlineData("nn", "NAMN", OrderContentWithCode.EmailBodyNn)]
-        [InlineData("se", "SAMI", OrderContentWithCode.EmailBodyNo)] // Sami treated as Bokmål
-        [InlineData("xx", "UNKNOWN", OrderContentWithCode.EmailBodyNo)] // Unknown treated as Bokmål
+        [InlineData("se", "SAMI", OrderContentWithCode.EmailBodyNo)] // Sami treated as BokmÃ¥l
+        [InlineData("xx", "UNKNOWN", OrderContentWithCode.EmailBodyNo)] // Unknown treated as BokmÃ¥l
         [InlineData("", "EMPTY", OrderContentWithCode.EmailBodyNo)]
         [InlineData(null, "NULL", OrderContentWithCode.EmailBodyNo)]
         public void GetEmailBody_ReturnsExpectedTemplateWithCode(string language, string code, string template)

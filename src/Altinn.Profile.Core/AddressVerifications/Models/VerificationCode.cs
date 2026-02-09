@@ -60,7 +60,7 @@ namespace Altinn.Profile.Core.AddressVerifications.Models
         /// Format the address by trimming whitespace and converting to lower case. This ensures consistency in how addresses are stored and compared.
         /// </summary>
         /// <param name="address">The address to format</param>
-        /// <returns></returns>
+        /// <returns>Returns the formatted address</returns>
         public static string FormatAddress(string address)
         {
             return (address ?? string.Empty).Trim().ToLowerInvariant();

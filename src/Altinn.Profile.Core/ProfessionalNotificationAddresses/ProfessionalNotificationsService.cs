@@ -96,7 +96,6 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                 if (generateVerificationCode)
                 {
                     await _addressVerificationService.GenerateAndSendVerificationCode(contactInfo.UserId, contactInfo.PhoneNumber!, AddressVerifications.Models.AddressType.Sms, language, contactInfo.PartyUuid, CancellationToken.None);
-                    return;
                 }
                 else
                 {
@@ -109,7 +108,6 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                 if (generateVerificationCode)
                 {
                     await _addressVerificationService.GenerateAndSendVerificationCode(contactInfo.UserId, contactInfo.EmailAddress!, AddressVerifications.Models.AddressType.Email, language, contactInfo.PartyUuid, CancellationToken.None);
-                    return;
                 }
                 else
                 {

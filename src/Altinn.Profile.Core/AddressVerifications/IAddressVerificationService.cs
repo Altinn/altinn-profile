@@ -13,7 +13,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <param name="userid">The id of the user</param>
         /// <param name="address">The address to verify</param>
         /// <param name="addressType">The addresstype, sms or email</param>
-        /// <param name="languageCode">The language the user has chosen as their preffered language</param>
+        /// <param name="languageCode">The language the user has chosen as their prefered language</param>
         /// <param name="partyUuid">The partyUuid for the party the address was changed for</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns></returns>

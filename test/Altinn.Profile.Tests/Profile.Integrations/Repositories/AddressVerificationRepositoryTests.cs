@@ -56,7 +56,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                 FailedAttempts = 0
             };
 
-            await repository.AddNewVerificationCode(verificationCode);
+            await repository.AddNewVerificationCodeAsync(verificationCode);
 
             await using var assertContext = new ProfileDbContext(options);
             var stored = await assertContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId == 1 && vc.Address == "user@example.com");
@@ -175,7 +175,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             var factory = new TestDbContextFactory(options);
             var repository = new AddressVerificationRepository(factory);
 
-            await repository.AddLegacyAddress(AddressType.Email, "legacy@example.com", 5, CancellationToken.None);
+            await repository.AddLegacyAddressAsync(AddressType.Email, "legacy@example.com", 5, CancellationToken.None);
 
             await using var assertContext = new ProfileDbContext(options);
             var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 5 && v.Address == "legacy@example.com");
@@ -204,7 +204,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
 
             var repository = new AddressVerificationRepository(factory);
 
-            await repository.AddLegacyAddress(AddressType.Email, " exists@example.com ", 6, CancellationToken.None);
+            await repository.AddLegacyAddressAsync(AddressType.Email, " exists@example.com ", 6, CancellationToken.None);
 
             await using var assertContext = new ProfileDbContext(options);
             var all = await assertContext.VerifiedAddresses.Where(v => v.UserId == 6 && v.Address == "exists@example.com").ToListAsync();
