@@ -232,7 +232,7 @@ public class PersonRepositoryTests : IDisposable
 
         // Assert
         Assert.Equal(1, result);
-        var personList = await _personRepository.GetContactPreferencesAsync(["88888888888"], It.IsAny<CancellationToken>());
+        var personList = await _personRepository.GetContactPreferencesAsync(["88888888888"], TestContext.Current.CancellationToken);
         var person = personList.FirstOrDefault();
         Assert.NotNull(person);
         Assert.Equal("NO", person.LanguageCode);

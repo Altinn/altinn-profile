@@ -34,6 +34,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             _factory = factory;
             _factory.ProfessionalNotificationsRepositoryMock.Reset();
+            _factory.RegisterClientMock.Reset();
+            _factory.AuthorizationClientMock.Reset();
         }
 
         [Fact]
@@ -587,10 +589,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         private void SetupSblMock()
         {
-            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction((request, token) =>
             {
                 UserProfile userProfile = new() { ProfileSettingPreference = new ProfileSettingPreference { Language = "nb" } };
-                return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+                return Task.FromResult(new HttpResponseMessage() { Content = JsonContent.Create(userProfile) });
             });
         }
     }
