@@ -59,7 +59,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(x => x.GetProfileSettings(UserId))
                 .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = null, LanguageType = "no" });
             _factory.AddressVerificationRepositoryMock
-                .Setup(x => x.GetVerificationStatus(It.IsAny<int>(), AddressType.Email, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetVerificationStatus(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "test@example.com"), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(VerificationType.Verified);
 
             SetupSblMock();
