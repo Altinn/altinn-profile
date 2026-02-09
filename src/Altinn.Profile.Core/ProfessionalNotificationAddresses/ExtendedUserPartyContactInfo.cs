@@ -23,17 +23,14 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <param name="smsVerificationType">The verification status of the phone number for sms.</param>
         public ExtendedUserPartyContactInfo(UserPartyContactInfo userPartyContactInfo, bool needsConfirmation, VerificationType? emailVerificationType, VerificationType? smsVerificationType) : base()
         {
-            if (userPartyContactInfo != null)
-            {
-                UserPartyContactInfoId = userPartyContactInfo.UserPartyContactInfoId;
-                UserId = userPartyContactInfo.UserId;
-                PartyUuid = userPartyContactInfo.PartyUuid;
-                EmailAddress = userPartyContactInfo.EmailAddress;
-                PhoneNumber = userPartyContactInfo.PhoneNumber;
-                LastChanged = userPartyContactInfo.LastChanged;
-                UserPartyContactInfoResources = userPartyContactInfo.UserPartyContactInfoResources;
-            }
-
+            UserPartyContactInfoId = userPartyContactInfo.UserPartyContactInfoId;
+            UserId = userPartyContactInfo.UserId;
+            PartyUuid = userPartyContactInfo.PartyUuid;
+            EmailAddress = userPartyContactInfo.EmailAddress;
+            PhoneNumber = userPartyContactInfo.PhoneNumber;
+            LastChanged = userPartyContactInfo.LastChanged;
+            UserPartyContactInfoResources = userPartyContactInfo.UserPartyContactInfoResources;
+         
             NeedsConfirmation = needsConfirmation;
             EmailVerificationStatus = emailVerificationType;
             SmsVerificationStatus = smsVerificationType;
