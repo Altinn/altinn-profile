@@ -103,6 +103,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IProfessionalNotificationsRepository>(sp => sp.GetRequiredService<ProfessionalNotificationsRepository>());
         services.AddScoped<IProfessionalNotificationSyncRepository>(sp => sp.GetRequiredService<ProfessionalNotificationsRepository>());
         services.AddScoped<IProfileSettingsSyncRepository, ProfileSettingsSyncRepository>();
+        services.AddScoped<IAddressVerificationRepository, AddressVerificationRepository>();
 
         services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString)
         .UseSnakeCaseNamingConvention());

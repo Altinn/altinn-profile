@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Models;
@@ -19,7 +20,8 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
 {
     private readonly JsonSerializerOptions serializerOptionsCamelCase = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
     };
 
     private readonly ProfileWebApplicationFactory<Program> _factory;

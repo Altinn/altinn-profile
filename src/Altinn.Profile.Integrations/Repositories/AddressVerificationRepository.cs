@@ -1,4 +1,5 @@
 ﻿using Altinn.Profile.Core.AddressVerifications.Models;
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,7 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// <summary>
 /// Defines a repository for operations related to address verification.
 /// </summary>
-public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> contextFactory)
+public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> contextFactory) : IAddressVerificationRepository
 {
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
@@ -69,5 +70,22 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
 
         await databaseContext.SaveChangesAsync();
         return verified;
+    }
+
+    /// <inheritdoc />
+    public async Task<VerificationType?> GetVerificationStatusAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken)
+    {
+        var addressCleaned = address.Trim().ToLowerInvariant();
+
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        var verifiedAddresses = await databaseContext.VerifiedAddresses.Where(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == addressCleaned)
+            .AsNoTracking().ToListAsync(cancellationToken);
+
+        if (verifiedAddresses.Count == 0)
+        {
+            return null;
+        }
+
+        return verifiedAddresses[0].VerificationType;
     }
 }
