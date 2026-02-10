@@ -121,6 +121,7 @@ public class UserProfileService : IUserProfileService
         ProfileSettings.ProfileSettings? profileSettings = await _profileSettingsRepository.GetProfileSettings(userProfile.UserId);
         if (profileSettings != null)
         {
+            userProfile.ProfileSettingPreference ??= new ProfileSettingPreference();
             userProfile.ProfileSettingPreference.DoNotPromptForParty = profileSettings.DoNotPromptForParty;
             userProfile.ProfileSettingPreference.Language = profileSettings.LanguageType;
             userProfile.ProfileSettingPreference.PreselectedPartyUuid = profileSettings.PreselectedPartyUuid;

@@ -59,6 +59,9 @@
         /// </summary>
         public bool ShouldShowDeletedEntities { get; set; }
 
+        /// <summary>
+        /// Create a new instance of ProfileSettingPreference with default values.
+        /// </summary>
         public static ProfileSettingPreference GetDefaultValues()
         {
             return new ProfileSettingPreference
