@@ -1,0 +1,18 @@
+{
+  "UserId": 1002356,
+  "UserUUID": "c0f1e38d-9339-4848-95d0-bef81ee32486",
+  "UserName": "sophie",
+  "PhoneNumber": "90001337",
+  "Email": "2516356@altinnstudiotestusers.com",
+  "PartyId": 5780927,
+  "Party": {
+    "PartyId": 5780927,
+    "PartyUUID": "c0f1e38d-9339-4848-95d0-bef81ee32486",
+    "Name": "Sophie Salt",
+    "SSN": "01017512345",
+    "Person": {
+      "FirstName": "Sophie"
+    }
+  },
+  "UserType": 1
+}

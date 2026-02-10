@@ -128,6 +128,11 @@ public class UserProfileService : IUserProfileService
             userProfile.ProfileSettingPreference.ShouldShowSubEntities = profileSettings.ShouldShowSubEntities;
             userProfile.ProfileSettingPreference.ShouldShowDeletedEntities = profileSettings.ShouldShowDeletedEntities;
         }
+        else
+        {
+            // If there are no profile settings for the user, we initialize it with default values to ensure that the user profile always has valid profile settings.
+            userProfile.ProfileSettingPreference ??= ProfileSettingPreference.GetDefaultValues();
+        }
 
         return userProfile;
     }
