@@ -490,7 +490,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         const int UserId = 1002356;
         const string username = "sophie";
 
-        HttpRequestMessage? sblRequest = null;
+        HttpRequestMessage sblRequest = null;
         _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
             sblRequest = request;
@@ -499,7 +499,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
-            .ReturnsAsync((ProfileSettings?)null);
+            .ReturnsAsync((ProfileSettings)null);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Username = username });
 
@@ -515,7 +515,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
 
         string responseContent = await response.Content.ReadAsStringAsync();
 
-        UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
+        UserProfile actualUser = JsonSerializer.Deserialize<UserProfile>(
             responseContent, serializerOptionsCamelCase);
 
         Assert.NotNull(actualUser);
