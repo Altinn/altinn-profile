@@ -69,30 +69,43 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
         {
             var options = CreateOptions(nameof(TryVerifyAddress_WithMatchingHash_AddsVerifiedAddressAndRemovesCode_ReturnsTrue));
             var factory = new TestDbContextFactory(options);
+            var code = "123456";
+            var hash = BCrypt.Net.BCrypt.HashPassword(code);
 
             await using (var seedContext = new ProfileDbContext(options))
             {
-                var code = new VerificationCode
+                var verficationCode = new VerificationCode
                 {
                     UserId = 42,
                     AddressType = AddressType.Email,
                     Address = "test@example.com",
-                    VerificationCodeHash = "correct-hash",
+                    VerificationCodeHash = hash,
                     Expires = DateTime.UtcNow.AddHours(1),
                     FailedAttempts = 0
                 };
-                seedContext.VerificationCodes.Add(code);
+                seedContext.VerificationCodes.Add(verficationCode);
+
+                var legacyVerification = new VerifiedAddress
+                {
+                    UserId = 42,
+                    AddressType = AddressType.Email,
+                    Address = "test@example.com",
+                    VerificationType = VerificationType.Legacy,
+                };
+
+                seedContext.VerifiedAddresses.Add(legacyVerification);
                 await seedContext.SaveChangesAsync();
             }
 
             var repository = new AddressVerificationRepository(factory);
+            bool VerifyFunc(string verificationCodeHash) => BCrypt.Net.BCrypt.Verify(code, verificationCodeHash);
 
-            var result = await repository.TryVerifyAddressAsync("correct-hash", AddressType.Email, " Test@Example.com ", 42);
+            var result = await repository.TryVerifyAddressAsync(42, AddressType.Email, " Test@Example.com ", VerifyFunc, CancellationToken.None);
 
             Assert.True(result);
 
             await using var assertContext = new ProfileDbContext(options);
-            var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 42 && v.Address == "test@example.com");
+            var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 42 && v.Address == "test@example.com" && v.VerificationType == VerificationType.Verified);
             Assert.NotNull(verified);
             var remainingCode = await assertContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId == 42);
             Assert.Null(remainingCode);
@@ -103,25 +116,29 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
         {
             var options = CreateOptions(nameof(TryVerifyAddress_WithWrongHash_IncrementsFailedAttemptsAndReturnsFalse));
             var factory = new TestDbContextFactory(options);
+            var code = "123456";
+            var hash = BCrypt.Net.BCrypt.HashPassword("different-code");
 
             await using (var seedContext = new ProfileDbContext(options))
             {
-                var code = new VerificationCode
+                var verificationCode = new VerificationCode
                 {
                     UserId = 7,
                     AddressType = AddressType.Sms,
                     Address = "555-0100",
-                    VerificationCodeHash = "expected-hash",
+                    VerificationCodeHash = hash,
                     Expires = DateTime.UtcNow.AddHours(1),
                     FailedAttempts = 0
                 };
-                seedContext.VerificationCodes.Add(code);
+                seedContext.VerificationCodes.Add(verificationCode);
                 await seedContext.SaveChangesAsync();
             }
 
             var repository = new AddressVerificationRepository(factory);
 
-            var result = await repository.TryVerifyAddressAsync("wrong-hash", AddressType.Sms, "555-0100", 7);
+            bool VerifyFunc(string verificationCodeHash) => BCrypt.Net.BCrypt.Verify(code, verificationCodeHash);
+
+            var result = await repository.TryVerifyAddressAsync(7, AddressType.Sms, "555-0100", VerifyFunc, CancellationToken.None);
 
             Assert.False(result);
 
@@ -138,10 +155,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
         {
             var options = CreateOptions(nameof(TryVerifyAddress_WithExpiredCode_ReturnsFalseAndDoesNotModifyCode));
             var factory = new TestDbContextFactory(options);
+            var code = "123456";
 
             await using (var seedContext = new ProfileDbContext(options))
             {
-                var code = new VerificationCode
+                var verificationCode = new VerificationCode
                 {
                     UserId = 9,
                     AddressType = AddressType.Email,
@@ -150,13 +168,15 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                     Expires = DateTime.UtcNow.AddHours(-1),
                     FailedAttempts = 2
                 };
-                seedContext.VerificationCodes.Add(code);
+                seedContext.VerificationCodes.Add(verificationCode);
                 await seedContext.SaveChangesAsync();
             }
 
             var repository = new AddressVerificationRepository(factory);
 
-            var result = await repository.TryVerifyAddressAsync("any-hash", AddressType.Email, "expired@example.com", 9);
+            bool VerifyFunc(string verificationCodeHash) => BCrypt.Net.BCrypt.Verify(code, verificationCodeHash);
+
+            var result = await repository.TryVerifyAddressAsync(9, AddressType.Email, "expired@example.com", VerifyFunc, CancellationToken.None);
 
             Assert.False(result);
 

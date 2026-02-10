@@ -32,28 +32,21 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
         await databaseContext.SaveChangesAsync();
     }
 
-    /// <summary>
-    /// Tries to verify an address using the provided verification code hash.
-    /// </summary>
-    /// <param name="verificationCodeHash">The hash to compare</param>
-    /// <param name="addressType">If the address is for sms or email</param>
-    /// <param name="address">The address to verify</param>
-    /// <param name="userId">The id of the user</param>
-    /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    public async Task<bool> TryVerifyAddressAsync(string verificationCodeHash, AddressType addressType, string address, int userId)
+    /// <inheritdoc/>
+    public async Task<bool> TryVerifyAddressAsync(int userId, AddressType addressType, string address, Func<string, bool> verifyFunc, CancellationToken cancellationToken)
     {
         var verified = false;
         address = VerificationCode.FormatAddress(address);
 
-        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
-        var verificationCode = await databaseContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == address);
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        var verificationCode = await databaseContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == address, cancellationToken);
         
         if (verificationCode == null || verificationCode.Expires < DateTime.UtcNow)
         {
             return verified;
         }
 
-        if (verificationCode.VerificationCodeHash == verificationCodeHash)
+        if (verifyFunc(verificationCode.VerificationCodeHash))
         {
             var verifiedAddress = new VerifiedAddress
             {
@@ -61,6 +54,9 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
                 AddressType = addressType,
                 Address = address,
             };
+            var existingVerifications = databaseContext.VerifiedAddresses.Where(va => va.UserId.Equals(userId) && va.AddressType == addressType && va.Address == address).ToArray();
+            databaseContext.VerifiedAddresses.RemoveRange(existingVerifications);
+
             databaseContext.VerifiedAddresses.Add(verifiedAddress);
             databaseContext.VerificationCodes.Remove(verificationCode);
             verified = true;
@@ -71,7 +67,7 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
             databaseContext.VerificationCodes.Update(verificationCode);
         }
 
-        await databaseContext.SaveChangesAsync();
+        await databaseContext.SaveChangesAsync(cancellationToken);
         return verified;
     }
 
@@ -127,7 +123,7 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
     /// <inheritdoc />
     public async Task<VerificationType?> GetVerificationStatusAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken)
     {
-        var addressCleaned = address.Trim().ToLowerInvariant();
+        var addressCleaned = VerificationCode.FormatAddress(address);
 
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
         var verifiedAddresses = await databaseContext.VerifiedAddresses.Where(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == addressCleaned)

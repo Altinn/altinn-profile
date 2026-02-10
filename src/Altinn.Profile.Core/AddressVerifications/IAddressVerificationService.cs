@@ -20,6 +20,17 @@ namespace Altinn.Profile.Core.AddressVerifications
         Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, string languageCode, Guid partyUuid, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Generates a verification code, saves it to the database and sends it to the user via email or sms depending on the address type. The code is valid for 15 minutes.
+        /// </summary>
+        /// <param name="userid">The id of the user</param>
+        /// <param name="address">The address to verify</param>
+        /// <param name="addressType">The addresstype, sms or email</param>
+        /// <param name="verificationCode">The verification code provided by the user</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns></returns>
+        Task<bool> SubmitVerificationCodeAsync(int userid, string address, AddressType addressType, string verificationCode, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Sends an SMS order to the specified phone number notifying the owner about an address change.
         /// </summary>
         /// <param name="phoneNumber">The phone number to send the SMS to.</param>

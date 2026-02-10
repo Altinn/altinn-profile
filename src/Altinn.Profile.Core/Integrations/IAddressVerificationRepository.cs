@@ -33,5 +33,16 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A Task containing the <see cref="VerificationType"/> or null if the address has not been verified.</returns>
         Task<VerificationType?> GetVerificationStatusAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Tries to verify an address using the provided verification code.
+        /// </summary>
+        /// <param name="userId">The id of the user</param>
+        /// <param name="addressType">If the address is for sms or email</param>
+        /// <param name="address">The address to verify</param>
+        /// <param name="verifyFunc">The function to verify the hashed verification code</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<bool> TryVerifyAddressAsync(int userId, AddressType addressType, string address, Func<string, bool> verifyFunc, CancellationToken cancellationToken);
     }
 }
