@@ -8,6 +8,15 @@ namespace Altinn.Profile.Core.AddressVerifications
     public interface IAddressVerificationService
     {
         /// <summary>
+        /// Get verification status for the specified email address and phone number. If the email address or phone number is null or empty, the corresponding verification status will be returned as null.
+        /// </summary>
+        /// <param name="userId">The id of the user</param>
+        /// <param name="emailAddress">The email address to check the verification status for</param>
+        /// <param name="phoneNumber">The phone number to check the verification status for</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        Task<(VerificationType? EmailVerificationStatus, VerificationType? SmsVerificationStatus)> GetVerificationStatusAsync(int userId, string? emailAddress, string? phoneNumber, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Generates a verification code, saves it to the database and sends it to the user via email or sms depending on the address type. The code is valid for 15 minutes.
         /// </summary>
         /// <param name="userid">The id of the user</param>

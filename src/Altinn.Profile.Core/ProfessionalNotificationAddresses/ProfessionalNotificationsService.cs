@@ -17,8 +17,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         IUserProfileService userProfileService,
         IRegisterClient registerClient,
         IOptions<AddressMaintenanceSettings> addressMaintenanceSettings,
-        IAddressVerificationService addressVerificationService,
-        IAddressVerificationRepository addressVerificationRepository) : IProfessionalNotificationsService
+        IAddressVerificationService addressVerificationService) : IProfessionalNotificationsService
     {
         private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
         private readonly IUserProfileClient _userProfileClient = userProfileClient;
@@ -26,7 +25,6 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         private readonly IRegisterClient _registerClient = registerClient;
         private readonly AddressMaintenanceSettings _addressMaintenanceSettings = addressMaintenanceSettings.Value;
         private readonly IAddressVerificationService _addressVerificationService = addressVerificationService;
-        private readonly IAddressVerificationRepository _addressVerificationRepository = addressVerificationRepository;
 
         /// <inheritdoc/>
         public async Task<ExtendedUserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
@@ -37,7 +35,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                 return null;
             }
 
-            var (emailVerificationStatus, smsVerificationStatus) = await GetVerificationStatusAsync(notificationSettings, cancellationToken);
+            var (emailVerificationStatus, smsVerificationStatus) = await _addressVerificationService.GetVerificationStatusAsync(notificationSettings.UserId, notificationSettings.EmailAddress, notificationSettings.PhoneNumber, cancellationToken);
             var profileSettings = await _userProfileService.GetProfileSettings(userId);
 
             var needsConfirmation = NeedsConfirmation(notificationSettings, profileSettings);
@@ -62,7 +60,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             foreach (var notificationSetting in notificationSettings)
             {
                 var needsConfirmation = NeedsConfirmation(notificationSetting, profileSettings);
-                var (emailVerificationStatus, smsVerificationStatus) = await GetVerificationStatusAsync(notificationSetting, cancellationToken);
+                var (emailVerificationStatus, smsVerificationStatus) = await _addressVerificationService.GetVerificationStatusAsync(notificationSetting.UserId, notificationSetting.EmailAddress, notificationSetting.PhoneNumber, cancellationToken);
                 enrichedNotificationSettings.Add(new ExtendedUserPartyContactInfo(
                     notificationSetting,
                     needsConfirmation,
@@ -289,25 +287,6 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             }
 
             return false;
-        }
-
-        private async Task<(VerificationType? EmailVerificationStatus, VerificationType? SmsVerificationStatus)> GetVerificationStatusAsync(UserPartyContactInfo notificationAddress, CancellationToken cancellationToken)
-        {
-            VerificationType? emailVerificationStatus = null;
-            VerificationType? smsVerificationStatus = null;
-            if (!string.IsNullOrWhiteSpace(notificationAddress.EmailAddress))
-            {
-                var emailResult = await _addressVerificationRepository.GetVerificationStatusAsync(notificationAddress.UserId, AddressType.Email, notificationAddress.EmailAddress, cancellationToken);
-                emailVerificationStatus = emailResult ?? VerificationType.Unverified;
-            }
-
-            if (!string.IsNullOrWhiteSpace(notificationAddress.PhoneNumber))
-            {
-                var smsResult = await _addressVerificationRepository.GetVerificationStatusAsync(notificationAddress.UserId, AddressType.Sms, notificationAddress.PhoneNumber, cancellationToken);
-                smsVerificationStatus = smsResult ?? VerificationType.Unverified;
-            }
-
-            return (emailVerificationStatus, smsVerificationStatus);
         }
     }
 }

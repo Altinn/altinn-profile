@@ -1,6 +1,8 @@
 ﻿using System.Security.Cryptography;
+
 using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 
 namespace Altinn.Profile.Core.AddressVerifications
 {
@@ -12,6 +14,26 @@ namespace Altinn.Profile.Core.AddressVerifications
         private readonly INotificationsClient _notificationsClient = notificationsClient;
         private readonly IAddressVerificationRepository _addressVerificationRepository = addressVerificationRepository;
         private readonly int _expiryTimeInMinutes = 15;
+
+        /// <inheritdoc/>
+        public async Task<(VerificationType? EmailVerificationStatus, VerificationType? SmsVerificationStatus)> GetVerificationStatusAsync(int userId, string? emailAddress, string? phoneNumber, CancellationToken cancellationToken)
+        {
+            VerificationType? emailVerificationStatus = null;
+            VerificationType? smsVerificationStatus = null;
+            if (!string.IsNullOrWhiteSpace(emailAddress))
+            {
+                var emailResult = await _addressVerificationRepository.GetVerificationStatusAsync(userId, AddressType.Email, emailAddress, cancellationToken);
+                emailVerificationStatus = emailResult ?? VerificationType.Unverified;
+            }
+
+            if (!string.IsNullOrWhiteSpace(phoneNumber))
+            {
+                var smsResult = await _addressVerificationRepository.GetVerificationStatusAsync(userId, AddressType.Sms, phoneNumber, cancellationToken);
+                smsVerificationStatus = smsResult ?? VerificationType.Unverified;
+            }
+
+            return (emailVerificationStatus, smsVerificationStatus);
+        }
 
         /// <inheritdoc/>
         public async Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, string languageCode, Guid partyUuid, CancellationToken cancellationToken)
