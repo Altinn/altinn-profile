@@ -71,7 +71,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Authorization
             var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object, _logger.Object);
 
             // Act
-            var result = await client.ValidateSelectedParty(21, 42);
+            var result = await client.ValidateSelectedParty(21, 42, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.True(result);
@@ -92,7 +92,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Authorization
             var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object, _logger.Object);
 
             // Act
-            var result = await client.ValidateSelectedParty(21, 42);
+            var result = await client.ValidateSelectedParty(21, 42, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.False(result);
@@ -116,7 +116,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Authorization
             var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object, _logger.Object);
 
             // Act & assert
-            await Assert.ThrowsAsync<JsonException>(() => client.ValidateSelectedParty(21, 42));
+            await Assert.ThrowsAsync<JsonException>(() => client.ValidateSelectedParty(21, 42, TestContext.Current.CancellationToken));
         }
 
         [Fact]
@@ -138,7 +138,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Authorization
             var client = new AuthorizationClient(_settingsMock.Object, httpClient, _httpContextAccessorMock.Object, _logger.Object);
 
             // Act
-            var result = await client.ValidateSelectedParty(21, 42);
+            var result = await client.ValidateSelectedParty(21, 42, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.False(result);

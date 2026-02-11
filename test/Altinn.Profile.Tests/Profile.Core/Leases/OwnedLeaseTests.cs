@@ -39,7 +39,7 @@ public class OwnedLeaseTests
             timeProvider,
             ticket,
             null,
-            token ?? CancellationToken.None);
+            token ?? TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -119,7 +119,7 @@ public class OwnedLeaseTests
         var lease = CreateOwnedLease(ticket);
 
         // Act
-        var result = await lease.Release();
+        var result = await lease.Release(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result.IsReleased);

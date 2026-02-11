@@ -69,7 +69,7 @@ public class ChangelogSyncMetadataRepositoryTests : IDisposable
     public async Task GetLatestSyncTimestampAsync_WhenNoEntries_ReturnsNull()
     {
         // Act
-        var timestamp = await _repository.GetLatestSyncTimestampAsync(DataType.Favorites, CancellationToken.None);
+        var timestamp = await _repository.GetLatestSyncTimestampAsync(DataType.Favorites, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Null(timestamp);
@@ -84,7 +84,7 @@ public class ChangelogSyncMetadataRepositoryTests : IDisposable
         await _repository.UpdateLatestChangeTimestampAsync(timestamp, dataType);
 
         // Act
-        var updatedTime = await _repository.GetLatestSyncTimestampAsync(dataType, CancellationToken.None);
+        var updatedTime = await _repository.GetLatestSyncTimestampAsync(dataType, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(updatedTime);
@@ -97,7 +97,7 @@ public class ChangelogSyncMetadataRepositoryTests : IDisposable
         // Arrange
         var timestamp = DateTime.UtcNow;
         var dataType = DataType.Favorites;
-        var oldTime = await _repository.GetLatestSyncTimestampAsync(dataType, CancellationToken.None);
+        var oldTime = await _repository.GetLatestSyncTimestampAsync(dataType, TestContext.Current.CancellationToken);
 
         // Act
         var updatedTime = await _repository.UpdateLatestChangeTimestampAsync(timestamp, dataType);

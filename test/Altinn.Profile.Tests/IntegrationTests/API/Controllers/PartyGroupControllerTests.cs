@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -55,13 +55,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, "profile/api/v1/users/current/party-groups");
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(response);
             Assert.True(response.IsSuccessStatusCode);
 
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
             List<GroupResponse> groupResponses = JsonSerializer.Deserialize<List<GroupResponse>>(
                 responseContent, _serializerOptionsCamelCase);
@@ -106,13 +106,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, "profile/api/v1/users/current/party-groups");
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(response);
             Assert.True(response.IsSuccessStatusCode);
 
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
             List<GroupResponse> groupResponses = JsonSerializer.Deserialize<List<GroupResponse>>(
                 responseContent, _serializerOptionsCamelCase);
@@ -148,13 +148,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, "profile/api/v1/users/current/party-groups");
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(response);
             Assert.True(response.IsSuccessStatusCode);
 
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
             List<GroupResponse> groupResponse = JsonSerializer.Deserialize<List<GroupResponse>>(
                 responseContent, _serializerOptionsCamelCase);
@@ -177,13 +177,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, "profile/api/v1/users/current/party-groups");
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(response);
             Assert.True(response.IsSuccessStatusCode);
 
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
             List<GroupResponse> groupResponse = JsonSerializer.Deserialize<List<GroupResponse>>(
                 responseContent, _serializerOptionsCamelCase);
@@ -206,13 +206,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Get, UserId, "profile/api/v1/users/current/party-groups");
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(response);
             Assert.True(response.IsSuccessStatusCode);
 
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
             List<GroupResponse> groupResponse = JsonSerializer.Deserialize<List<GroupResponse>>(
                 responseContent, _serializerOptionsCamelCase);
@@ -229,7 +229,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var request = new HttpRequestMessage(HttpMethod.Get, "profile/api/v1/users/current/party-groups");
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(request);
+            HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);

@@ -67,7 +67,7 @@ public class ProfileSettingsRepositoryTests
         };
 
         // Act
-        await repository.UpdateProfileSettings(profileSettings, CancellationToken.None);
+        await repository.UpdateProfileSettings(profileSettings, TestContext.Current.CancellationToken);
 
         var updated = await repository.GetProfileSettings(profileSettings.UserId);
         Assert.NotNull(updated);
@@ -109,7 +109,7 @@ public class ProfileSettingsRepositoryTests
             LanguageType = "en"
         };
         _databaseContext.ProfileSettings.Add(existing);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var updated = new ProfileSettings
         {
@@ -124,7 +124,7 @@ public class ProfileSettingsRepositoryTests
         };
 
         // Act
-        await repository.UpdateProfileSettings(updated, CancellationToken.None);
+        await repository.UpdateProfileSettings(updated, TestContext.Current.CancellationToken);
 
         var stored = await repository.GetProfileSettings(existing.UserId);
         Assert.NotNull(stored);
@@ -175,7 +175,7 @@ public class ProfileSettingsRepositoryTests
             LanguageType = "en"
         };
         _databaseContext.ProfileSettings.Add(existing);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var newPreselected = Guid.NewGuid();
         var patch = new ProfileSettingsPatchModel
@@ -190,7 +190,7 @@ public class ProfileSettingsRepositoryTests
         };
 
         // Act
-        var result = await _repository.PatchProfileSettings(patch, CancellationToken.None);
+        var result = await _repository.PatchProfileSettings(patch, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -230,7 +230,7 @@ public class ProfileSettingsRepositoryTests
             LanguageType = "en"
         };
         _databaseContext.ProfileSettings.Add(existing);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Optional explicitly present but with null value => should clear stored value
         var patch = new ProfileSettingsPatchModel
@@ -240,7 +240,7 @@ public class ProfileSettingsRepositoryTests
         };
 
         // Act
-        var result = await _repository.PatchProfileSettings(patch, CancellationToken.None);
+        var result = await _repository.PatchProfileSettings(patch, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -274,7 +274,7 @@ public class ProfileSettingsRepositoryTests
             LanguageType = "en"
         };
         _databaseContext.ProfileSettings.Add(existing);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Optional explicitly not present => should not change stored value
         var patch = new ProfileSettingsPatchModel
@@ -284,7 +284,7 @@ public class ProfileSettingsRepositoryTests
         };
 
         // Act
-        var result = await _repository.PatchProfileSettings(patch, CancellationToken.None);
+        var result = await _repository.PatchProfileSettings(patch, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -309,7 +309,7 @@ public class ProfileSettingsRepositoryTests
         };
 
         // Act
-        var result = await _repository.PatchProfileSettings(patch, CancellationToken.None);
+        var result = await _repository.PatchProfileSettings(patch, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Null(result);
@@ -330,7 +330,7 @@ public class ProfileSettingsRepositoryTests
             .Setup(mock => mock.SaveChangesAndFlushMessagesAsync(It.IsAny<CancellationToken>()))
             .Returns(async () =>
             {
-                await context.SaveChangesAsync(CancellationToken.None);
+                await context.SaveChangesAsync(TestContext.Current.CancellationToken);
             });
 
         _dbContextOutboxMock
