@@ -506,14 +506,14 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         HttpClient client = _factory.CreateClient();
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(sblRequest);
         Assert.Equal(HttpMethod.Get, sblRequest.Method);
         Assert.EndsWith($"sblbridge/profile/api/users/?username={username}", sblRequest.RequestUri.ToString());
 
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile actualUser = JsonSerializer.Deserialize<UserProfile>(
             responseContent, serializerOptionsCamelCase);

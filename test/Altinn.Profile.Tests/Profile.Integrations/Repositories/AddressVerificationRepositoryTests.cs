@@ -195,7 +195,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                     VerificationType = VerificationType.Verified,
                 };
                 seedContext.VerifiedAddresses.Add(verifiedAddress);
-                await seedContext.SaveChangesAsync();
+                await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
             }
 
             var repository = new AddressVerificationRepository(factory);
@@ -221,7 +221,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                     VerificationType = VerificationType.Legacy,
                 };
                 seedContext.VerifiedAddresses.Add(verifiedAddress);
-                await seedContext.SaveChangesAsync();
+                await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
             }
 
             var repository = new AddressVerificationRepository(factory);
