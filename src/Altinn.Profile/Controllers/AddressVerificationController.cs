@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Altinn.Profile.Controllers
 {
     /// <summary>
-    /// Controller for logic concering verification of notification addresses
+    /// Controller for logic concerning verification of notification addresses
     /// </summary>
     [Authorize]
     [Route("profile/api/v1/users/current/verification/")]
@@ -39,7 +40,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<NotificationSettingsResponse>> Get(CancellationToken cancellationToken)
+        public async Task<ActionResult<IEnumerable<VerifiedAddressResponse>>> Get(CancellationToken cancellationToken)
         {
             var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
             if (validationResult != null)

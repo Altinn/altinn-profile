@@ -94,7 +94,7 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var verifiedAddresses = await databaseContext.VerifiedAddresses.Where(vc => vc.UserId.Equals(userId))
+        var verifiedAddresses = await databaseContext.VerifiedAddresses.Where(va => va.UserId.Equals(userId))
             .AsNoTracking().ToListAsync(cancellationToken);
 
         return verifiedAddresses;

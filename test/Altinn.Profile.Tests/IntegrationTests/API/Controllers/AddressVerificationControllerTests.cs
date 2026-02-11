@@ -65,6 +65,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 responseContent, _serializerOptionsCamelCase);
 
             Assert.NotNull(verifiedAddressResponse);
+            Assert.Equal(2, verifiedAddressResponse.Count);
             Assert.Equal(verifiedAddresses[0].Address, verifiedAddressResponse[0].Value);
             Assert.Equal(verifiedAddresses[0].AddressType, verifiedAddressResponse[0].Type);
             Assert.Equal(verifiedAddresses[0].VerificationType, verifiedAddressResponse[0].VerificationStatus);
@@ -101,6 +102,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             List<VerifiedAddressResponse> verifiedAddressResponse = JsonSerializer.Deserialize<List<VerifiedAddressResponse>>(
                 responseContent, _serializerOptionsCamelCase);
 
+            Assert.NotNull(verifiedAddressResponse);
             Assert.Empty(verifiedAddressResponse);
         }
 
@@ -121,7 +123,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetVerifiedAddresses_ReturnsBadRequest_WhenSystemUSerToken()
+        public async Task GetVerifiedAddresses_ReturnsBadRequest_WhenSystemUserToken()
         {
             // Arrange
             var client = _factory.CreateClient();
