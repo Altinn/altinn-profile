@@ -178,7 +178,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             await repository.AddLegacyAddressAsync(AddressType.Email, "legacy@example.com", 5, CancellationToken.None);
 
             await using var assertContext = new ProfileDbContext(options);
-            var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 5 && v.Address == "legacy@example.com");
+            var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 5 && v.Address == "legacy@example.com", TestContext.Current.CancellationToken);
             Assert.NotNull(verified);
             Assert.Equal(VerificationType.Legacy, verified.VerificationType);   
         }
@@ -199,7 +199,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                     VerificationType = VerificationType.Verified
                 };
                 seedContext.VerifiedAddresses.Add(existing);
-                await seedContext.SaveChangesAsync();
+                await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
             }
 
             var repository = new AddressVerificationRepository(factory);
@@ -207,7 +207,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             await repository.AddLegacyAddressAsync(AddressType.Email, " exists@example.com ", 6, CancellationToken.None);
 
             await using var assertContext = new ProfileDbContext(options);
-            var all = await assertContext.VerifiedAddresses.Where(v => v.UserId == 6 && v.Address == "exists@example.com").ToListAsync();
+            var all = await assertContext.VerifiedAddresses.Where(v => v.UserId == 6 && v.Address == "exists@example.com").ToListAsync(TestContext.Current.CancellationToken);
             Assert.Single(all);
             Assert.Equal(VerificationType.Verified, all[0].VerificationType);
         }
@@ -226,7 +226,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
 
             // Confirm nothing was persisted
             await using var assertContext = new ProfileDbContext(options);
-            var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 11 && v.Address == "dup@example.com");
+            var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 11 && v.Address == "dup@example.com", TestContext.Current.CancellationToken);
             Assert.Null(verified);
         }
 
@@ -299,7 +299,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                     VerificationType = VerificationType.Verified,
                 };
                 seedContext.VerifiedAddresses.Add(verifiedAddress);
-                await seedContext.SaveChangesAsync();
+                await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
             }
 
             var repository = new AddressVerificationRepository(factory);
@@ -325,7 +325,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                     VerificationType = VerificationType.Legacy,
                 };
                 seedContext.VerifiedAddresses.Add(verifiedAddress);
-                await seedContext.SaveChangesAsync();
+                await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
             }
 
             var repository = new AddressVerificationRepository(factory);

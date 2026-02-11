@@ -37,6 +37,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfessionalNotificationsRepositoryMock.Reset();
             _factory.RegisterClientMock.Reset();
             _factory.AuthorizationClientMock.Reset();
+            _factory.AddressVerificationRepositoryMock.Reset();
         }
 
         [Fact]
@@ -464,7 +465,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                  .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
                  .ReturnsAsync(true);
             SetupSblMock();
-            SetupAuthHandler(_factory, partyGuid, UserId);
+            SetupAuthHandler(partyGuid, UserId);
 
             HttpClient client = _factory.CreateClient();
 
@@ -475,7 +476,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
 
             // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(response);
