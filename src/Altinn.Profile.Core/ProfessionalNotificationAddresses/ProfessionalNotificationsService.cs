@@ -13,14 +13,12 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
     /// </summary>
     public class ProfessionalNotificationsService(
         IProfessionalNotificationsRepository professionalNotificationsRepository,
-        IUserProfileClient userProfileClient,
         IUserProfileService userProfileService,
         IRegisterClient registerClient,
         IOptions<AddressMaintenanceSettings> addressMaintenanceSettings,
         IAddressVerificationService addressVerificationService) : IProfessionalNotificationsService
     {
         private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
-        private readonly IUserProfileClient _userProfileClient = userProfileClient;
         private readonly IUserProfileService _userProfileService = userProfileService;
         private readonly IRegisterClient _registerClient = registerClient;
         private readonly AddressMaintenanceSettings _addressMaintenanceSettings = addressMaintenanceSettings.Value;
@@ -98,17 +96,15 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <param name="generateVerificationCode">Indicates if a verification code should be generated and sent.</param>
         private async Task HandleNotificationAddressChangedAsync(UserPartyContactInfo contactInfo, bool mobileNumberChanged, bool emailChanged, bool generateVerificationCode)
         {
-            var userProfileResult = await _userProfileClient.GetUser(contactInfo.UserId);
+            var profileSettings = await _userProfileService.GetProfileSettings(contactInfo.UserId);
 
-            var language = userProfileResult.Match<string>(
-                userProfile => userProfile.ProfileSettingPreference.Language,
-                _ => "nb");
+            var language = profileSettings?.LanguageType ?? "nb";
 
             if (mobileNumberChanged)
             {
                 if (generateVerificationCode)
                 {
-                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.PhoneNumber!, AddressVerifications.Models.AddressType.Sms, language, contactInfo.PartyUuid, CancellationToken.None);
+                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.PhoneNumber!, AddressType.Sms, language, contactInfo.PartyUuid, CancellationToken.None);
                 }
                 else
                 {
@@ -120,7 +116,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             {
                 if (generateVerificationCode)
                 {
-                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.EmailAddress!, AddressVerifications.Models.AddressType.Email, language, contactInfo.PartyUuid, CancellationToken.None);
+                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.EmailAddress!, AddressType.Email, language, contactInfo.PartyUuid, CancellationToken.None);
                 }
                 else
                 {
