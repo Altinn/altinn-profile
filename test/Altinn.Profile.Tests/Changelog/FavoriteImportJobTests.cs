@@ -80,7 +80,7 @@ public class FavoriteImportJobTests
             null);
 
         // Act
-        await job.InvokeRunAsync(CancellationToken.None);
+        await job.InvokeRunAsync(TestContext.Current.CancellationToken);
 
         // Assert
         favoriteSyncRepository.Verify(
@@ -156,7 +156,7 @@ public class FavoriteImportJobTests
             null);
 
         // Act
-        await job.InvokeRunAsync(CancellationToken.None);
+        await job.InvokeRunAsync(TestContext.Current.CancellationToken);
 
         // Assert
         favoriteSyncRepository.Verify(

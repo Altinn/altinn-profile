@@ -59,7 +59,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             await repository.AddNewVerificationCodeAsync(verificationCode);
 
             await using var assertContext = new ProfileDbContext(options);
-            var stored = await assertContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId == 1 && vc.Address == "user@example.com");
+            var stored = await assertContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId == 1 && vc.Address == "user@example.com", cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(stored);
             Assert.Equal("hash", stored.VerificationCodeHash);
         }
@@ -82,7 +82,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                     FailedAttempts = 0
                 };
                 seedContext.VerificationCodes.Add(code);
-                await seedContext.SaveChangesAsync();
+                await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
             }
 
             var repository = new AddressVerificationRepository(factory);
@@ -92,9 +92,9 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             Assert.True(result);
 
             await using var assertContext = new ProfileDbContext(options);
-            var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 42 && v.Address == "test@example.com");
+            var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 42 && v.Address == "test@example.com", cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(verified);
-            var remainingCode = await assertContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId == 42);
+            var remainingCode = await assertContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId == 42, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Null(remainingCode);
         }
 
@@ -116,7 +116,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                     FailedAttempts = 0
                 };
                 seedContext.VerificationCodes.Add(code);
-                await seedContext.SaveChangesAsync();
+                await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
             }
 
             var repository = new AddressVerificationRepository(factory);
@@ -126,10 +126,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             Assert.False(result);
 
             await using var assertContext = new ProfileDbContext(options);
-            var stored = await assertContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId == 7 && vc.Address == "555-0100");
+            var stored = await assertContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId == 7 && vc.Address == "555-0100", cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(stored);
             Assert.Equal(1, stored.FailedAttempts);
-            var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 7);
+            var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 7, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Null(verified);
         }
 
@@ -151,7 +151,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                     FailedAttempts = 2
                 };
                 seedContext.VerificationCodes.Add(code);
-                await seedContext.SaveChangesAsync();
+                await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
             }
 
             var repository = new AddressVerificationRepository(factory);
@@ -161,10 +161,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             Assert.False(result);
 
             await using var assertContext = new ProfileDbContext(options);
-            var stored = await assertContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId == 9 && vc.Address == "expired@example.com");
+            var stored = await assertContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId == 9 && vc.Address == "expired@example.com", cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(stored);
             Assert.Equal(2, stored.FailedAttempts);
-            var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 9);
+            var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 9, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Null(verified);
         }
 

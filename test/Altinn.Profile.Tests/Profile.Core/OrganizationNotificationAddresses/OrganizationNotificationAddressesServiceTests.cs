@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -68,7 +68,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync(_testdata);
 
             // Act
-            var result = await _service.GetOrganizationNotificationAddresses(lookup, CancellationToken.None);
+            var result = await _service.GetOrganizationNotificationAddresses(lookup, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.IsType<List<Organization>>(result);
@@ -87,7 +87,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync([]);
 
             // Act
-            var result = await _service.GetOrganizationNotificationAddresses(lookup, CancellationToken.None);
+            var result = await _service.GetOrganizationNotificationAddresses(lookup, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Empty(result);
@@ -104,7 +104,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync((string)null);
 
             // Act
-            var result = await _service.GetOrganizationNotificationAddresses(lookup, CancellationToken.None, true);
+            var result = await _service.GetOrganizationNotificationAddresses(lookup, TestContext.Current.CancellationToken, true);
 
             // Assert
             Assert.Empty(result);
@@ -125,7 +125,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync(parentUnit);
 
             // Act
-            var result = await _service.GetOrganizationNotificationAddresses(lookup, CancellationToken.None, true);
+            var result = await _service.GetOrganizationNotificationAddresses(lookup, TestContext.Current.CancellationToken, true);
 
             // Assert
             Assert.NotEmpty(result);
@@ -146,7 +146,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync(new NotificationAddress { });
             
             // Act
-            var result = await _service.CreateNotificationAddress("123456789", new NotificationAddress(), CancellationToken.None); 
+            var result = await _service.CreateNotificationAddress("123456789", new NotificationAddress(), TestContext.Current.CancellationToken); 
             
             // Assert
             Assert.NotNull(result.Address); 
@@ -160,7 +160,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync(_testdata.First(o => o.OrganizationNumber == "123456789"));
 
             // Act
-            var result = await _service.CreateNotificationAddress("123456789", new NotificationAddress { FullAddress = "test@test.com", AddressType = AddressType.Email }, CancellationToken.None);
+            var result = await _service.CreateNotificationAddress("123456789", new NotificationAddress { FullAddress = "test@test.com", AddressType = AddressType.Email }, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result.Address);
@@ -185,7 +185,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
 
             // Act & Assert
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-                _service.CreateNotificationAddress(orgNum, newAddress, CancellationToken.None));
+                _service.CreateNotificationAddress(orgNum, newAddress, TestContext.Current.CancellationToken));
             Assert.Contains("Something went wrong", ex.Message);
         }
 
@@ -203,7 +203,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync(new NotificationAddress { });
 
             // Act
-            var result = await _service.UpdateNotificationAddress("123456789", new NotificationAddress { NotificationAddressID = 1 }, CancellationToken.None);
+            var result = await _service.UpdateNotificationAddress("123456789", new NotificationAddress { NotificationAddressID = 1 }, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result.Address);
@@ -223,7 +223,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync(new NotificationAddress { IsSoftDeleted = true });
 
             // Act
-            var result = await _service.DeleteNotificationAddress("123456789", 1, CancellationToken.None);
+            var result = await _service.DeleteNotificationAddress("123456789", 1, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(result);
@@ -237,7 +237,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync(new Organization { OrganizationNumber = "123456789", NotificationAddresses = [new NotificationAddress { NotificationAddressID = 1 }] });
 
             // Act
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => _service.DeleteNotificationAddress("123456789", 1, CancellationToken.None));
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => _service.DeleteNotificationAddress("123456789", 1, TestContext.Current.CancellationToken));
 
             // Assert
             Assert.Contains("Cannot delete the last notification address", ex.Message);
@@ -247,7 +247,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
         public async Task DeleteNotificationAddress_WhenNoAddressFound_ReturnsNull()
         {
             // Act
-            var result = await _service.DeleteNotificationAddress("123456789", 10000, CancellationToken.None);
+            var result = await _service.DeleteNotificationAddress("123456789", 10000, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(result);
@@ -261,7 +261,7 @@ namespace Altinn.Profile.Tests.Profile.Core.OrganizationNotificationAddresses
                 .ReturnsAsync([]);
 
             // Act
-            var result = await _service.DeleteNotificationAddress("1", 1, CancellationToken.None);
+            var result = await _service.DeleteNotificationAddress("1", 1, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(result);

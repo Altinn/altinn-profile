@@ -87,7 +87,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.User.NotificationS
             Assert.Equal(HttpMethod.Post, sentRequest.Method);
             Assert.Equal(new Uri(_testBaseUrl + "users/reporteenotificationendpoint/update"), sentRequest.RequestUri);
             Assert.IsType<StringContent>(sentRequest.Content);
-            var requestContent = await sentRequest.Content.ReadAsStringAsync();
+            var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var sentPayload = JsonSerializer.Deserialize<NotificationSettingsChangedRequest>(requestContent);
             Assert.Equal(request.ChangeType, sentPayload.ChangeType);
             Assert.Equal(request.ChangeDateTime, sentPayload.ChangeDateTime, TimeSpan.FromSeconds(1));

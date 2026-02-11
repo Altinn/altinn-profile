@@ -83,11 +83,11 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json");
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var actual = JsonSerializer.Deserialize<UserContactPointAvailabilityList>(responseContent, _serializerOptions);
         Assert.Empty(actual.AvailabilityList);
     }
@@ -107,11 +107,11 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json");
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var actual = JsonSerializer.Deserialize<UserContactPointAvailabilityList>(responseContent, _serializerOptions);
         Assert.Single(actual.AvailabilityList);
         Assert.True(actual.AvailabilityList[0].EmailRegistered);
@@ -132,11 +132,11 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json");
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var actual = JsonSerializer.Deserialize<UserContactPointAvailabilityList>(responseContent, _serializerOptions);
         Assert.Single(actual.AvailabilityList);
         Assert.True(actual.AvailabilityList[0].EmailRegistered);
@@ -157,11 +157,11 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json");
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var actual = JsonSerializer.Deserialize<UserContactPointsList>(responseContent, _serializerOptions);
         Assert.Empty(actual.ContactPointsList);
     }
@@ -182,11 +182,11 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json");
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var actual = JsonSerializer.Deserialize<UserContactPointsList>(responseContent, _serializerOptions);
         Assert.Equal(2, actual.ContactPointsList.Count);
         Assert.NotEmpty(actual.ContactPointsList[0].Email);
@@ -208,11 +208,11 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json");
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        string responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var actual = JsonSerializer.Deserialize<UserContactPointsList>(responseContent, _serializerOptions);
         Assert.Single(actual.ContactPointsList);
         Assert.NotEmpty(actual.ContactPointsList[0].Email);
