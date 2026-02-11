@@ -104,9 +104,50 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Empty(verifiedAddressResponse);
         }
 
+        [Fact]
+        public async Task GetVerifiedAddresses_ReturnsUnauthorized_WhenNoToken()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"profile/api/v1/users/current/verification/verified-addresses");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetVerifiedAddresses_ReturnsBadRequest_WhenSystemUSerToken()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"profile/api/v1/users/current/verification/verified-addresses");
+            httpRequestMessage = AddSystemUserAuthHeadersToRequest(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
         private static HttpRequestMessage AddAuthHeadersToRequest(HttpRequestMessage httpRequestMessage, int userId)
         {
             string token = PrincipalUtil.GetToken(userId);
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            return httpRequestMessage;
+        }
+
+        // Creates a request with a system user token (no userId claim)
+        private static HttpRequestMessage AddSystemUserAuthHeadersToRequest(HttpRequestMessage httpRequestMessage)
+        {
+            string token = PrincipalUtil.GetSystemUserToken(Guid.NewGuid());
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return httpRequestMessage;
         }

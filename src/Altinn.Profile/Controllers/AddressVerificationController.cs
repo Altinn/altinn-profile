@@ -41,11 +41,6 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<NotificationSettingsResponse>> Get(CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return ValidationProblem(ModelState);
-            }
-
             var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
             if (validationResult != null)
             {
