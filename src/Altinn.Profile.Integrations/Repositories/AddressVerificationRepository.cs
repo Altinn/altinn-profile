@@ -88,4 +88,15 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
 
         return verifiedAddresses[0].VerificationType;
     }
+
+    /// <inheritdoc />
+    public async Task<List<VerifiedAddress>> GetVerifiedAddressesAsync(int userId, CancellationToken cancellationToken)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        var verifiedAddresses = await databaseContext.VerifiedAddresses.Where(vc => vc.UserId.Equals(userId))
+            .AsNoTracking().ToListAsync(cancellationToken);
+
+        return verifiedAddresses;
+    }
 }
