@@ -92,13 +92,13 @@ public class FavoriteSyncRepositoryTests : IDisposable
         };
 
         _databaseContext.Groups.Add(group);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
-        await _repository.AddPartyToFavorites(userId, partyUuid, created, CancellationToken.None);
+        await _repository.AddPartyToFavorites(userId, partyUuid, created, TestContext.Current.CancellationToken);
 
         // Assert
-        var updatedGroup = await _databaseContext.Groups.Include(g => g.Parties).FirstAsync();
+        var updatedGroup = await _databaseContext.Groups.Include(g => g.Parties).FirstAsync(TestContext.Current.CancellationToken);
         Assert.Single(updatedGroup.Parties);
         Assert.Equal(partyUuid, updatedGroup.Parties[0].PartyUuid);
     }
@@ -112,10 +112,10 @@ public class FavoriteSyncRepositoryTests : IDisposable
         var created = DateTime.UtcNow;
 
         // Act
-        await _repository.AddPartyToFavorites(userId, partyUuid, created, CancellationToken.None);
+        await _repository.AddPartyToFavorites(userId, partyUuid, created, TestContext.Current.CancellationToken);
 
         // Assert
-        var group = await _databaseContext.Groups.Include(g => g.Parties).FirstOrDefaultAsync(g => g.UserId == userId && g.IsFavorite);
+        var group = await _databaseContext.Groups.Include(g => g.Parties).FirstOrDefaultAsync(g => g.UserId == userId && g.IsFavorite, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(group);
         Assert.Single(group.Parties);
         Assert.Equal(partyUuid, group.Parties[0].PartyUuid);
@@ -142,13 +142,13 @@ public class FavoriteSyncRepositoryTests : IDisposable
         };
 
         _databaseContext.Groups.Add(group);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
-        await _repository.AddPartyToFavorites(userId, partyUuid, created, CancellationToken.None);
+        await _repository.AddPartyToFavorites(userId, partyUuid, created, TestContext.Current.CancellationToken);
 
         // Assert
-        var updatedGroup = await _databaseContext.Groups.Include(g => g.Parties).FirstAsync();
+        var updatedGroup = await _databaseContext.Groups.Include(g => g.Parties).FirstAsync(TestContext.Current.CancellationToken);
         Assert.Single(updatedGroup.Parties);
     }
 
@@ -173,13 +173,13 @@ public class FavoriteSyncRepositoryTests : IDisposable
         };
 
         _databaseContext.Groups.Add(group);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
-        await _repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(1), CancellationToken.None);
+        await _repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(1), TestContext.Current.CancellationToken);
 
         // Assert
-        var updatedGroup = await _repository.GetFavorites(userId, CancellationToken.None);
+        var updatedGroup = await _repository.GetFavorites(userId, TestContext.Current.CancellationToken);
         Assert.Empty(updatedGroup.Parties);
     }
 
@@ -204,13 +204,13 @@ public class FavoriteSyncRepositoryTests : IDisposable
         };
 
         _databaseContext.Groups.Add(group);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
-        await _repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(-1), CancellationToken.None);
+        await _repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(-1), TestContext.Current.CancellationToken);
 
         // Assert
-        var updatedGroup = await _repository.GetFavorites(userId, CancellationToken.None);
+        var updatedGroup = await _repository.GetFavorites(userId, TestContext.Current.CancellationToken);
         Assert.NotEmpty(updatedGroup.Parties);
     }
 
@@ -224,7 +224,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         // Act & Assert (should not throw)
         try
         {
-            await _repository.DeleteFromFavorites(userId, partyUuid, DateTime.Now, CancellationToken.None);
+            await _repository.DeleteFromFavorites(userId, partyUuid, DateTime.Now, TestContext.Current.CancellationToken);
         }
         catch (Exception ex)
         {
@@ -249,12 +249,12 @@ public class FavoriteSyncRepositoryTests : IDisposable
         };
 
         _databaseContext.Groups.Add(group);
-        await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act & Assert (should not throw)
         try
         {
-            await _repository.DeleteFromFavorites(userId, partyUuid, DateTime.Now, CancellationToken.None);
+            await _repository.DeleteFromFavorites(userId, partyUuid, DateTime.Now, TestContext.Current.CancellationToken);
         }
         catch (Exception ex)
         {
@@ -278,7 +278,7 @@ public class FavoriteSyncRepositoryTests : IDisposable
         var partyUuid = Guid.NewGuid();
         var created = DateTime.UtcNow;
 
-        await repository.AddPartyToFavorites(userId, partyUuid, created, CancellationToken.None);
+        await repository.AddPartyToFavorites(userId, partyUuid, created, TestContext.Current.CancellationToken);
 
         meterProvider.ForceFlush();
 
@@ -309,8 +309,8 @@ public class FavoriteSyncRepositoryTests : IDisposable
         var created = DateTime.UtcNow;
 
         // Add first so we can delete
-        await repository.AddPartyToFavorites(userId, partyUuid, created, CancellationToken.None);
-        await repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(1), CancellationToken.None);
+        await repository.AddPartyToFavorites(userId, partyUuid, created, TestContext.Current.CancellationToken);
+        await repository.DeleteFromFavorites(userId, partyUuid, created.AddHours(1), TestContext.Current.CancellationToken);
 
         meterProvider.ForceFlush();
 

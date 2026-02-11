@@ -25,12 +25,12 @@ public class ErrorHandlingTests(ProfileWebApplicationFactory<Program> factory)
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, "/profile/api/v1/error");
 
         // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
-        ProblemDetails? problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+        ProblemDetails? problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>(cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.StartsWith("An error occurred", problemDetails?.Title);
     }

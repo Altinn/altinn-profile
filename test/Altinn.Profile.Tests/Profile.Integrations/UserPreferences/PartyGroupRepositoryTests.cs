@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -65,24 +65,14 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             }
         }
 
-        private async Task SeedTestGroups()
-        {
-            _databaseContext.Groups.AddRange(
-                new Group { Name = "Group A", GroupId = 1, IsFavorite = true, UserId = 1 },
-                new Group { Name = "Group B", GroupId = 2, IsFavorite = false, UserId = 1 },
-                new Group { Name = "Group C", GroupId = 3, IsFavorite = false, UserId = 2 });
-
-            await _databaseContext.SaveChangesAsync();
-        }
-
         [Fact]
         public async Task GetGroups_WhenUserHasMultipleGroups_ReturnsAll()
         {
             // Arrange
-            await SeedTestGroups();
+            await SeedTestGroupsAsync();
 
             // Act
-            var groups = await _repository.GetGroups(1, false, CancellationToken.None);
+            var groups = await _repository.GetGroups(1, false, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal(2, groups.Count);
@@ -94,10 +84,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
         public async Task GetGroups_FilterForFavoriteIsTrue_ReturnsOnlyFavorite()
         {
             // Arrange
-            await SeedTestGroups();
+            await SeedTestGroupsAsync();
 
             // Act
-            var groups = await _repository.GetGroups(1, true, CancellationToken.None);
+            var groups = await _repository.GetGroups(1, true, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Single(groups);
@@ -108,10 +98,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
         public async Task GetGroups_WhenUserHasNoGroups_ReturnsEmptyList()
         {
             // Arrange
-            await SeedTestGroups();
+            await SeedTestGroupsAsync();
 
             // Act
-            var groups = await _repository.GetGroups(5, false, CancellationToken.None);
+            var groups = await _repository.GetGroups(5, false, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Empty(groups);
@@ -138,10 +128,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
                 new Group { Name = "Group B", GroupId = 2, IsFavorite = false, UserId = userId },
                 new Group { Name = "Group C", GroupId = 3, IsFavorite = false, UserId = 2 });
 
-            await _databaseContext.SaveChangesAsync();
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
             // Act
-            var favorites = await _repository.GetFavorites(userId, CancellationToken.None);
+            var favorites = await _repository.GetFavorites(userId, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Equal("Group A", favorites.Name);
@@ -160,7 +150,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
         public async Task GetFavorites_WhenUserHasNoGroups_ReturnsNull()
         {
             // Act
-            var group = await _repository.GetFavorites(5, CancellationToken.None);
+            var group = await _repository.GetFavorites(5, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.Null(group);
@@ -192,13 +182,13 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             var preRunDateTime = DateTime.UtcNow;
 
             // Act
-            var added = await _repository.AddPartyToFavorites(userId, partyUuid, CancellationToken.None);
+            var added = await _repository.AddPartyToFavorites(userId, partyUuid, TestContext.Current.CancellationToken);
             var postRunDateTime = DateTime.UtcNow;
 
             // Assert
             Assert.True(added);
 
-            var favoriteGroup = await _repository.GetFavorites(userId, CancellationToken.None);
+            var favoriteGroup = await _repository.GetFavorites(userId, TestContext.Current.CancellationToken);
 
             Assert.NotNull(favoriteGroup);
             Assert.Single(favoriteGroup.Parties);
@@ -222,7 +212,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
 
             _databaseContext.Groups.AddRange(CreateFavoriteGroup(userId, 1));
 
-            await _databaseContext.SaveChangesAsync();
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
             FavoriteAddedEvent actualEventRaised = null;
             Action<FavoriteAddedEvent, DeliveryOptions> eventRaisingCallback = (ev, opts) => actualEventRaised = ev;
@@ -230,13 +220,13 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             var preRunDateTime = DateTime.UtcNow;
 
             // Act
-            var added = await _repository.AddPartyToFavorites(userId, partyUuid, CancellationToken.None);
+            var added = await _repository.AddPartyToFavorites(userId, partyUuid, TestContext.Current.CancellationToken);
             var postRunDateTime = DateTime.UtcNow;
 
             // Assert
             Assert.True(added);
 
-            var favoriteGroup = await _repository.GetFavorites(userId, CancellationToken.None);
+            var favoriteGroup = await _repository.GetFavorites(userId, TestContext.Current.CancellationToken);
 
             Assert.NotNull(favoriteGroup);
             Assert.Single(favoriteGroup.Parties);
@@ -265,14 +255,14 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
                 GroupId = 1
             };
             _databaseContext.Groups.AddRange(CreateFavoriteGroup(userId, 1, parties: [association]));
-            await _databaseContext.SaveChangesAsync();
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
             FavoriteAddedEvent actualEventRaised = null;
             Action<FavoriteAddedEvent, DeliveryOptions> eventRaisingCallback = (ev, opts) => actualEventRaised = ev;
             MockDbContextOutbox(eventRaisingCallback);
 
             // Act
-            var added = await _repository.AddPartyToFavorites(userId, partyUuid, CancellationToken.None);
+            var added = await _repository.AddPartyToFavorites(userId, partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.False(added);
@@ -292,7 +282,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             MockDbContextOutbox(eventRaisingCallback);
 
             // Act
-            var deleted = await _repository.DeleteFromFavorites(userId, partyUuid, CancellationToken.None);
+            var deleted = await _repository.DeleteFromFavorites(userId, partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.False(deleted);
@@ -307,14 +297,14 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             var userId = 1;
             var partyUuid = Guid.NewGuid();
             _databaseContext.Groups.AddRange(CreateFavoriteGroup(userId, 1, parties: []));
-            await _databaseContext.SaveChangesAsync();
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
             FavoriteRemovedEvent actualEventRaised = null;
             Action<FavoriteRemovedEvent, DeliveryOptions> eventRaisingCallback = (ev, opts) => actualEventRaised = ev;
             MockDbContextOutbox(eventRaisingCallback);
 
             // Act
-            var deleted = await _repository.DeleteFromFavorites(userId, partyUuid, CancellationToken.None);
+            var deleted = await _repository.DeleteFromFavorites(userId, partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.False(deleted);
@@ -337,19 +327,19 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
                 GroupId = 1
             };
             _databaseContext.Groups.AddRange(CreateFavoriteGroup(userId, 1, parties: [association]));
-            await _databaseContext.SaveChangesAsync();
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
             FavoriteRemovedEvent actualEventRaised = null;
             Action<FavoriteRemovedEvent, DeliveryOptions> eventRaisingCallback = (ev, opts) => actualEventRaised = ev;
             MockDbContextOutbox(eventRaisingCallback);
 
             // Act
-            var deleted = await _repository.DeleteFromFavorites(userId, partyUuid, CancellationToken.None);
+            var deleted = await _repository.DeleteFromFavorites(userId, partyUuid, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.True(deleted);
 
-            var favoriteGroup = await _repository.GetFavorites(userId, CancellationToken.None);
+            var favoriteGroup = await _repository.GetFavorites(userId, TestContext.Current.CancellationToken);
 
             Assert.NotNull(favoriteGroup);
             Assert.Empty(favoriteGroup.Parties);
@@ -372,7 +362,17 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
                 Parties = parties ?? []
             };
         }
-        
+
+        private async Task SeedTestGroupsAsync()
+        {
+            _databaseContext.Groups.AddRange(
+                new Group { Name = "Group A", GroupId = 1, IsFavorite = true, UserId = 1 },
+                new Group { Name = "Group B", GroupId = 2, IsFavorite = false, UserId = 1 },
+                new Group { Name = "Group C", GroupId = 3, IsFavorite = false, UserId = 2 });
+
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
         private void MockDbContextOutbox<TEvent>(Action<TEvent, DeliveryOptions> callback)
         {
             DbContext context = null;
@@ -388,7 +388,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
                 .Setup(mock => mock.SaveChangesAndFlushMessagesAsync(It.IsAny<CancellationToken>()))
                 .Returns(async () =>
                 {
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(TestContext.Current.CancellationToken);
                 });
 
             _dbContextOutboxMock
