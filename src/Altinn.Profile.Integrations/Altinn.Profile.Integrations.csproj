@@ -8,7 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Altinn.Common.AccessTokenClient" Version="3.2.0" />
-    <PackageReference Include="EFCore.NamingConventions" Version="10.0.0" />
+    <PackageReference Include="EFCore.NamingConventions" Version="10.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2">
 	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -17,9 +17,9 @@
     <PackageReference Include="Yuniql.AspNetCore" Version="1.2.25" />
     <PackageReference Include="Yuniql.PostgreSql" Version="1.3.15" />
     <PackageReference Include="Altinn.Common.PEP" Version="4.2.2" />
-    <PackageReference Include="WolverineFx" Version="5.10.0" />
-    <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="5.10.0" />
-    <PackageReference Include="WolverineFx.Postgresql" Version="5.10.0" />
+    <PackageReference Include="WolverineFx" Version="5.14.0" />
+    <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="5.14.0" />
+    <PackageReference Include="WolverineFx.Postgresql" Version="5.14.0" />
 	  <!-- Explicitly referenced to resolve version conflicts with transitive dependencies from Microsoft.EntityFrameworkCore.Design 10.0.2.
      These are required for EF Core migration generation. See: ReflectionTypeLoadException without explicit version. -->
   <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="5.0.0" />
