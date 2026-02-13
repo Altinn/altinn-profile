@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Altinn.Profile.Core.AddressVerifications.Models
+﻿namespace Altinn.Profile.Core.AddressVerifications.Models
 {
     /// <summary>
     /// Represents a verified address, including information about the user, and address type.
@@ -28,7 +24,7 @@ namespace Altinn.Profile.Core.AddressVerifications.Models
         public string Address
         {
             get => _address;
-            set => _address = (value ?? string.Empty).Trim().ToLower();
+            set => _address = VerificationCode.FormatAddress(value);
         }
 
         /// <summary>

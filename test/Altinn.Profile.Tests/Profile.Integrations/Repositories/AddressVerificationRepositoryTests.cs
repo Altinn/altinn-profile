@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Core.AddressVerifications.Models;
@@ -55,7 +56,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                 FailedAttempts = 0
             };
 
-            await repository.AddNewVerificationCode(verificationCode);
+            await repository.AddNewVerificationCodeAsync(verificationCode);
 
             await using var assertContext = new ProfileDbContext(options);
             var stored = await assertContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId == 1 && vc.Address == "user@example.com", cancellationToken: TestContext.Current.CancellationToken);
@@ -86,7 +87,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
 
             var repository = new AddressVerificationRepository(factory);
 
-            var result = await repository.TryVerifyAddress("correct-hash", AddressType.Email, " Test@Example.com ", 42);
+            var result = await repository.TryVerifyAddressAsync("correct-hash", AddressType.Email, " Test@Example.com ", 42);
 
             Assert.True(result);
 
@@ -120,7 +121,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
 
             var repository = new AddressVerificationRepository(factory);
 
-            var result = await repository.TryVerifyAddress("wrong-hash", AddressType.Sms, "555-0100", 7);
+            var result = await repository.TryVerifyAddressAsync("wrong-hash", AddressType.Sms, "555-0100", 7);
 
             Assert.False(result);
 
@@ -155,7 +156,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
 
             var repository = new AddressVerificationRepository(factory);
 
-            var result = await repository.TryVerifyAddress("any-hash", AddressType.Email, "expired@example.com", 9);
+            var result = await repository.TryVerifyAddressAsync("any-hash", AddressType.Email, "expired@example.com", 9);
 
             Assert.False(result);
 
@@ -165,6 +166,109 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             Assert.Equal(2, stored.FailedAttempts);
             var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 9, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Null(verified);
+        }
+
+        [Fact]
+        public async Task AddLegacyAddress_AddsLegacyVerifiedAddress()
+        {
+            var options = CreateOptions(nameof(AddLegacyAddress_AddsLegacyVerifiedAddress));
+            var factory = new TestDbContextFactory(options);
+            var repository = new AddressVerificationRepository(factory);
+
+            await repository.AddLegacyAddressAsync(AddressType.Email, "legacy@example.com", 5, CancellationToken.None);
+
+            await using var assertContext = new ProfileDbContext(options);
+            var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 5 && v.Address == "legacy@example.com", TestContext.Current.CancellationToken);
+            Assert.NotNull(verified);
+            Assert.Equal(VerificationType.Legacy, verified.VerificationType);   
+        }
+
+        [Fact]
+        public async Task AddLegacyAddress_WhenVerifiedAddressExists_DoesNotAddDuplicate()
+        {
+            var options = CreateOptions(nameof(AddLegacyAddress_WhenVerifiedAddressExists_DoesNotAddDuplicate));
+            var factory = new TestDbContextFactory(options);
+
+            await using (var seedContext = new ProfileDbContext(options))
+            {
+                var existing = new VerifiedAddress
+                {
+                    UserId = 6,
+                    AddressType = AddressType.Email,
+                    Address = "exists@example.com",
+                    VerificationType = VerificationType.Verified
+                };
+                seedContext.VerifiedAddresses.Add(existing);
+                await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+            }
+
+            var repository = new AddressVerificationRepository(factory);
+
+            await repository.AddLegacyAddressAsync(AddressType.Email, " exists@example.com ", 6, CancellationToken.None);
+
+            await using var assertContext = new ProfileDbContext(options);
+            var all = await assertContext.VerifiedAddresses.Where(v => v.UserId == 6 && v.Address == "exists@example.com").ToListAsync(TestContext.Current.CancellationToken);
+            Assert.Single(all);
+            Assert.Equal(VerificationType.Verified, all[0].VerificationType);
+        }
+
+        [Fact]
+        public async Task AddLegacyAddress_WhenDbUpdateExceptionUniqueViolation_DoesNotThrow()
+        {
+            var options = CreateOptions(nameof(AddLegacyAddress_WhenDbUpdateExceptionUniqueViolation_DoesNotThrow));
+
+            // DbContext that throws DbUpdateException with an inner PostgresException having SqlState = "23505"
+            var factory = new ThrowingDbContextFactory(options);
+            var repository = new AddressVerificationRepository(factory);
+
+            // Should not throw
+            await repository.AddLegacyAddressAsync(AddressType.Email, "dup@example.com", 11, CancellationToken.None);
+
+            // Confirm nothing was persisted
+            await using var assertContext = new ProfileDbContext(options);
+            var verified = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(v => v.UserId == 11 && v.Address == "dup@example.com", TestContext.Current.CancellationToken);
+            Assert.Null(verified);
+        }
+
+        private class ThrowingDbContextFactory : IDbContextFactory<ProfileDbContext>
+        {
+            private readonly DbContextOptions<ProfileDbContext> _options;
+
+            public ThrowingDbContextFactory(DbContextOptions<ProfileDbContext> options)
+            {
+                _options = options;
+            }
+
+            public ProfileDbContext CreateDbContext()
+            {
+                return new ThrowingProfileDbContext(_options);
+            }
+
+            public Task<ProfileDbContext> CreateDbContextAsync(CancellationToken cancellationToken = default)
+            {
+                return Task.FromResult<ProfileDbContext>(new ThrowingProfileDbContext(_options));
+            }
+        }
+
+        private class ThrowingProfileDbContext : ProfileDbContext
+        {
+            public ThrowingProfileDbContext(DbContextOptions<ProfileDbContext> options)
+                : base(options)
+            {
+            }
+
+            public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+            {
+                // Create a PostgresException with SqlState = "23505" using a derived class to avoid FormatterServices
+                var postgresEx = new SimulatedPostgresUniqueViolationException();
+
+                throw new DbUpdateException("Unique constraint violation simulated.", (Exception)postgresEx);
+            }
+
+            private class SimulatedPostgresUniqueViolationException : Exception
+            {
+                public virtual string SqlState => "23505";
+            }
         }
 
         [Fact]

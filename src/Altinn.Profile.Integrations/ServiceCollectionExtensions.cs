@@ -6,6 +6,7 @@ using Altinn.Common.AccessTokenClient.Configuration;
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.User;
+using Altinn.Profile.Integrations.AddressVerification;
 using Altinn.Profile.Integrations.Authorization;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.Extensions;
@@ -103,6 +104,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IProfessionalNotificationsRepository>(sp => sp.GetRequiredService<ProfessionalNotificationsRepository>());
         services.AddScoped<IProfessionalNotificationSyncRepository>(sp => sp.GetRequiredService<ProfessionalNotificationsRepository>());
         services.AddScoped<IProfileSettingsSyncRepository, ProfileSettingsSyncRepository>();
+
+        services.AddScoped<IVerificationCodeService, VerificationCodeService>();
         services.AddScoped<IAddressVerificationRepository, AddressVerificationRepository>();
 
         services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString)

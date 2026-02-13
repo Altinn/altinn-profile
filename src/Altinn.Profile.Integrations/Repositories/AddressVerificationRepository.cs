@@ -1,4 +1,7 @@
-﻿using Altinn.Profile.Core.AddressVerifications.Models;
+﻿#nullable enable
+using System;
+using System.Reflection;
+using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Persistence;
 
@@ -18,11 +21,12 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
     /// </summary>
     /// <param name="verificationCode">The verification code to add.</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    public async Task AddNewVerificationCode(VerificationCode verificationCode)
+    public async Task AddNewVerificationCodeAsync(VerificationCode verificationCode)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
         var verificationCodes = await databaseContext.VerificationCodes.Where(vc => vc.UserId.Equals(verificationCode.UserId) && vc.AddressType == verificationCode.AddressType && vc.Address == verificationCode.Address).ToListAsync();
 
+        // Remove any existing verification codes for the same user and address before adding the new one
         databaseContext.VerificationCodes.RemoveRange(verificationCodes);
 
         databaseContext.VerificationCodes.Add(verificationCode);
@@ -37,10 +41,10 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
     /// <param name="address">The address to verify</param>
     /// <param name="userId">The id of the user</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    public async Task<bool> TryVerifyAddress(string verificationCodeHash, AddressType addressType, string address, int userId)
+    public async Task<bool> TryVerifyAddressAsync(string verificationCodeHash, AddressType addressType, string address, int userId)
     {
         var verified = false;
-        address = address.Trim().ToLowerInvariant();
+        address = VerificationCode.FormatAddress(address);
 
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
         var verificationCode = await databaseContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == address);
@@ -72,10 +76,59 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
         return verified;
     }
 
+    /// <inheritdoc/>
+    public async Task AddLegacyAddressAsync(AddressType addressType, string address, int userId, CancellationToken cancellationToken)
+    {
+        address = VerificationCode.FormatAddress(address);
+
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        var verifiedAddress = await databaseContext.VerifiedAddresses.FirstOrDefaultAsync(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == address, cancellationToken);
+
+        if (verifiedAddress != null)
+        {
+            return;
+        }
+        
+        verifiedAddress = new VerifiedAddress
+        {
+            UserId = userId,
+            AddressType = addressType,
+            Address = address,
+            VerificationType = VerificationType.Legacy
+        };
+        databaseContext.VerifiedAddresses.Add(verifiedAddress);
+
+        try
+        {
+            await databaseContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex)
+        {
+            // Accept unique-constraint violations from Postgres (23505).
+            // Some tests simulate a PostgresException by providing a different exception type that exposes a SqlState property.
+            var inner = ex.InnerException;
+            if (inner != null)
+            {               
+                var prop = inner.GetType().GetProperty("SqlState", BindingFlags.Public | BindingFlags.Instance);
+                if (prop != null && prop.PropertyType == typeof(string))
+                {
+                    var val = prop.GetValue(inner) as string;
+                    if (val == "23505")
+                    {
+                        return;
+                    }
+                }
+            }
+
+            // If it's a different kind of DbUpdateException, re-throw
+            throw;
+        }
+    }
+
     /// <inheritdoc />
     public async Task<VerificationType?> GetVerificationStatusAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken)
     {
-        var addressCleaned = address.Trim().ToLowerInvariant();
+        var addressCleaned = VerificationCode.FormatAddress(address);
 
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
         var verifiedAddresses = await databaseContext.VerifiedAddresses.Where(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == addressCleaned)

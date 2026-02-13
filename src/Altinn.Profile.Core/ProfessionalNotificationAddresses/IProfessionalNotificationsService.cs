@@ -27,11 +27,12 @@
         /// Returns <c>true</c> if a new record was created, <c>false</c> if an existing record was updated.
         /// </summary>
         /// <param name="contactInfo">The contact info to be added</param>
+        /// <param name="generateVerificationCode">A feature flag to indicate whether a verification code should be generated and sent to the provided email address or phone number. This is used to verify that the user has access to the provided contact information before it is saved as a notification address. If set to true, a verification code will be generated and sent, and the user will need to verify the code before the notification address is considered valid.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A <see cref="Task"/> containing a boolean value indicating if the value was added or not.         
         /// Returns <c>true</c> if a new record was added, <c>false</c> if an existing record was updated.
         /// </returns>
-        Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken);
+        Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, bool generateVerificationCode, CancellationToken cancellationToken);
 
         /// <summary>
         /// Deletes the notification addresses that the given user has associated with the given party.
