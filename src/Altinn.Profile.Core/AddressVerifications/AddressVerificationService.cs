@@ -64,7 +64,6 @@ namespace Altinn.Profile.Core.AddressVerifications
             // This can be deleted when verification is required for all new addresses
             await _addressVerificationRepository.AddLegacyAddressAsync(AddressType.Sms, phoneNumber, userid, cancellationToken);
             await _notificationsClient.OrderSms(phoneNumber, partyUuid, languageCode, cancellationToken);
-
         }
 
         /// <inheritdoc/>
