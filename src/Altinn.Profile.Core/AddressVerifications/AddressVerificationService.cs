@@ -16,5 +16,14 @@ namespace Altinn.Profile.Core.AddressVerifications
             var response = await _addressVerificationRepository.GetVerifiedAddressesAsync(userId, cancellationToken);
             return response;
         }
+
+        /// <inheritdoc/>
+        public async Task<bool> SubmitVerificationCodeAsync(int userid, string address, AddressType addressType, string verificationCode, CancellationToken cancellationToken)
+        {
+            //var formattedAddress = VerificationCode.FormatAddress(address);
+
+            bool VerifyFunc(string verificationCodeHash) => BCrypt.Net.BCrypt.Verify(verificationCode, verificationCodeHash);
+            return _addressVerificationRepository.TryVerifyAddressAsync(userid, addressType, address, (Func<string, bool>)VerifyFunc, cancellationToken).Result;
+        }
     }
 }
