@@ -193,7 +193,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "c@d.com"), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(VerificationType.Verified);
             _factory.AddressVerificationRepositoryMock
-                .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Sms, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Sms, It.Is<string>(e => e == "2"), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(VerificationType.Legacy);
 
             HttpClient client = _factory.CreateClient();

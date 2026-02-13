@@ -335,5 +335,56 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             Assert.NotNull(result);
             Assert.Equal(VerificationType.Legacy, result);
         }
+
+        [Fact]
+        public async Task GetVerifiedAddresses_WhenNone_ReturnsEmptyList()
+        {
+            var options = CreateOptions(nameof(GetVerifiedAddresses_WhenNone_ReturnsEmptyList));
+            var factory = new TestDbContextFactory(options);
+
+            var repository = new AddressVerificationRepository(factory);
+
+            var result = await repository.GetVerifiedAddressesAsync(1, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetVerifiedAddresses_WhenThereAreVerifiedAddresses_ReturnsList()
+        {
+            var options = CreateOptions(nameof(GetVerifiedAddresses_WhenThereAreVerifiedAddresses_ReturnsList));
+            var factory = new TestDbContextFactory(options);
+
+            await using (var seedContext = new ProfileDbContext(options))
+            {
+                seedContext.VerifiedAddresses.Add(new VerifiedAddress
+                {
+                    UserId = 9,
+                    AddressType = AddressType.Email,
+                    Address = "verified1@example.com",
+                    VerificationType = VerificationType.Verified,
+                });
+
+                seedContext.VerifiedAddresses.Add(new VerifiedAddress
+                {
+                    UserId = 9,
+                    AddressType = AddressType.Sms,
+                    Address = "+4790000001",
+                    VerificationType = VerificationType.Legacy,
+                });
+
+                await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+            }
+
+            var repository = new AddressVerificationRepository(factory);
+
+            var result = await repository.GetVerifiedAddressesAsync(9, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Contains(result, v => v.Address == "verified1@example.com" && v.AddressType == AddressType.Email && v.VerificationType == VerificationType.Verified);
+            Assert.Contains(result, v => v.Address == "+4790000001" && v.AddressType == AddressType.Sms && v.VerificationType == VerificationType.Legacy);
+        }
     }
 }

@@ -81,5 +81,12 @@ namespace Altinn.Profile.Core.AddressVerifications
             await _notificationsClient.OrderEmail(emailAddress, partyUuid, languageCode, cancellationToken);
             await _addressVerificationRepository.AddLegacyAddressAsync(AddressType.Email, emailAddress, userid, cancellationToken);
         }
+
+        /// <inheritdoc/>
+        public async Task<List<VerifiedAddress>> GetVerifiedAddressesAsync(int userId, CancellationToken cancellationToken)
+        {
+            var response = await _addressVerificationRepository.GetVerifiedAddressesAsync(userId, cancellationToken);
+            return response;
+        }
     }
 }

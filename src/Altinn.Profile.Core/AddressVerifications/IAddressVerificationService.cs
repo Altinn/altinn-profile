@@ -41,6 +41,7 @@ namespace Altinn.Profile.Core.AddressVerifications
 
         /// <summary>
         /// Sends an email order to the specified email address notifying the owner about an address change.
+        /// Gets the verified addresses for a given user.
         /// </summary>
         /// <param name="emailAddress">The email address to send the email to.</param>
         /// <param name="partyUuid">The partyUuid for the party the address was changed for</param>
@@ -49,5 +50,13 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         Task NotifyEmailAddressChangeAsync(string emailAddress, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the verified addresses for a given user.
+        /// </summary>
+        /// <param name="userId">The ID of the user whose verified addresses are to be retrieved.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of verified addresses.</returns>
+        Task<List<VerifiedAddress>> GetVerifiedAddressesAsync(int userId, CancellationToken cancellationToken);
     }
 }

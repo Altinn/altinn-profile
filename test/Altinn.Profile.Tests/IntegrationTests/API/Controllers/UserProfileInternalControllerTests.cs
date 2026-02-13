@@ -8,11 +8,16 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
+using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
 
 using Altinn.Profile.Tests.Testdata;
 
+using Moq;
+
 using Xunit;
+
+using static Altinn.Register.Contracts.PartyUrn;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
@@ -476,6 +481,56 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         Assert.Equal("ORSTA OG HEGGEDAL ", actualUser.Party.Name);
         Assert.Equal("ORSTA OG HEGGEDAL", actualUser.Party.Organization.Name);
         Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
+    }
+
+    [Fact]
+    public async Task GetUserByUsername_SblBridgeFindsProfileWithoutProfileSettings_ResponseOk_ReturnsWithDefaultValues()
+    {
+        // Arrange
+        const int UserId = 1002356;
+        const string username = "sophie";
+
+        HttpRequestMessage sblRequest = null;
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        {
+            sblRequest = request;
+
+            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
+            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+        });
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+            .ReturnsAsync((ProfileSettings)null);
+
+        HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Username = username });
+
+        HttpClient client = _factory.CreateClient();
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(sblRequest);
+        Assert.Equal(HttpMethod.Get, sblRequest.Method);
+        Assert.EndsWith($"sblbridge/profile/api/users/?username={username}", sblRequest.RequestUri.ToString());
+
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        UserProfile actualUser = JsonSerializer.Deserialize<UserProfile>(
+            responseContent, serializerOptionsCamelCase);
+
+        Assert.NotNull(actualUser);
+
+        // These asserts check that deserializing with camel casing was successful.
+        Assert.Equal(UserId, actualUser.UserId);
+        Assert.Equal("sophie", actualUser.UserName);
+        Assert.Equal("Sophie Salt", actualUser.Party.Name);
+        Assert.Equal("Sophie", actualUser.Party.Person?.FirstName);
+        Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
+        Assert.False(actualUser.ProfileSettingPreference.DoNotPromptForParty);
+        Assert.Null(actualUser.ProfileSettingPreference.PreselectedPartyUuid);
+        Assert.False(actualUser.ProfileSettingPreference.ShowClientUnits);
+        Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
+        Assert.False(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
     }
 
     [Fact]

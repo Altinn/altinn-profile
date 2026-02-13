@@ -58,5 +58,22 @@
         /// Indicates whether deleted entities should be shown.
         /// </summary>
         public bool ShouldShowDeletedEntities { get; set; }
+
+        /// <summary>
+        /// Create a new instance of ProfileSettingPreference with default values.
+        /// </summary>
+        public static ProfileSettingPreference GetDefaultValues()
+        {
+            return new ProfileSettingPreference
+            {
+                Language = "nb",
+                PreSelectedPartyId = 0,
+                DoNotPromptForParty = false,
+                PreselectedPartyUuid = null,
+                ShowClientUnits = false,
+                ShouldShowSubEntities = false,
+                ShouldShowDeletedEntities = false
+            };
+        }
     }
 }
