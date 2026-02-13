@@ -29,47 +29,49 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
         await databaseContext.SaveChangesAsync();
     }
 
+    /// <inheritdoc/>
+    public async Task<VerificationCode?> GetVerificationCodeAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        var verificationCode = await databaseContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == address, cancellationToken);
+        return verificationCode;
+    }
+
     /// <summary>
-    /// Tries to verify an address using the provided verification code hash.
+    /// Complete the address verification.
     /// </summary>
-    /// <param name="verificationCodeHash">The hash to compare</param>
+    /// <param name="verificationCode">The verification code that is validated</param>
     /// <param name="addressType">If the address is for sms or email</param>
     /// <param name="address">The address to verify</param>
     /// <param name="userId">The id of the user</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    public async Task<bool> TryVerifyAddress(string verificationCodeHash, AddressType addressType, string address, int userId)
+    public async Task CompleteAddressVerificationAsync(VerificationCode verificationCode, AddressType addressType, string address, int userId)
     {
-        var verified = false;
-        address = address.Trim().ToLowerInvariant();
-
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
-        var verificationCode = await databaseContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == address);
-        
-        if (verificationCode == null || verificationCode.Expires < DateTime.UtcNow)
+        var verifiedAddress = new VerifiedAddress
         {
-            return verified;
-        }
+            UserId = userId,
+            AddressType = addressType,
+            Address = address,
+        };
 
-        if (verificationCode.VerificationCodeHash == verificationCodeHash)
-        {
-            var verifiedAddress = new VerifiedAddress
-            {
-                UserId = userId,
-                AddressType = addressType,
-                Address = address,
-            };
-            databaseContext.VerifiedAddresses.Add(verifiedAddress);
-            databaseContext.VerificationCodes.Remove(verificationCode);
-            verified = true;
-        }
-        else
-        {
-            verificationCode.FailedAttempts += 1;
-            databaseContext.VerificationCodes.Update(verificationCode);
-        }
+        // Remove any existing verifications for the same address before adding the new one
+        var existingVerifications = databaseContext.VerifiedAddresses.Where(va => va.UserId.Equals(userId) && va.AddressType == addressType && va.Address == address).ToArray();
+        databaseContext.VerifiedAddresses.RemoveRange(existingVerifications);
+
+        databaseContext.VerifiedAddresses.Add(verifiedAddress);
+        databaseContext.VerificationCodes.Remove(verificationCode);
 
         await databaseContext.SaveChangesAsync();
-        return verified;
+    }
+
+    /// <inheritdoc/>
+    public async Task IncrementFailedAttemptsAsync(VerificationCode verificationCode)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+        verificationCode.FailedAttempts++;
+        databaseContext.VerificationCodes.Update(verificationCode);
+        await databaseContext.SaveChangesAsync();
     }
 
     /// <inheritdoc />
