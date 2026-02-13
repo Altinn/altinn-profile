@@ -8,17 +8,17 @@
         /// <summary>
         /// English SMS message template for sending a verification code to the user.
         /// </summary>
-        public const string SmsEn = "Enter the code $code$ to verify your phone number.";
+        public const string SmsEn = "Enter the code $code$ to verify your phone number in Altinn.";
 
         /// <summary>
         /// Norwegian Bokmål SMS message template for sending a verification code to the user.
         /// </summary>
-        public const string SmsNo = "Oppgi koden $code$ for å bekrefte telefonnummeret ditt.";
+        public const string SmsNo = "Oppgi koden $code$ for å bekrefte telefonnummeret ditt i Altinn.";
 
         /// <summary>
         /// Norwegian Nynorsk SMS message template for sending a verification code to the user.
         /// </summary>
-        public const string SmsNn = "Oppgje koden $code$ for å stadfeste telefonnummeret ditt.";
+        public const string SmsNn = "Skriv inn koden $code$ for å bekrefte telefonnummeret ditt i Altinn.";
 
         /// <summary>
         /// English email subject for notifying users about changed contact information.
@@ -28,17 +28,17 @@
         /// <summary>
         /// English email body template for notifying users about changed contact information.
         /// </summary>
-        public const string EmailBodyEn = "Enter the code $code$ to verify your email address.";
+        public const string EmailBodyEn = "Enter the code $code$ to verify your email address in Altinn.";
 
         /// <summary>
         /// Norwegian Bokmål email subject for notifying users about changed contact information.
         /// </summary>
-        public const string EmailSubjectNo = "Din kontaktinformasjon i Altinn er endret";
+        public const string EmailSubjectNo = "Kontaktinformasjonen din i Altinn er endret";
 
         /// <summary>
         /// Norwegian Bokmål email body template for notifying users about changed contact information.
         /// </summary>
-        public const string EmailBodyNo = "Oppgi koden $code$ for å bekrefte e-postadressen din.";
+        public const string EmailBodyNo = "Oppgi koden $code$ for å bekrefte e-postadressen din i Altinn.";
 
         /// <summary>
         /// Norwegian Nynorsk email subject for notifying users about changed contact information.
@@ -48,7 +48,7 @@
         /// <summary>
         /// Norwegian Nynorsk email body template for notifying users about changed contact information.
         /// </summary>
-        public const string EmailBodyNn = "Oppgje koden $code$ for å stadfeste denne e-postadressa.";
+        public const string EmailBodyNn = "Skriv inn koden $code$ for å bekrefte e-postadressa di i Altinn";
 
         /// <summary>
         /// Gets the SMS content template for the specified language.
