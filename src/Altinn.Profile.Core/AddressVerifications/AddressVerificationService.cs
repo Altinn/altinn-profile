@@ -42,18 +42,17 @@ namespace Altinn.Profile.Core.AddressVerifications
                 return;
             }
 
-            var formattedAddress = VerificationCode.FormatAddress(address);
-            var verificationCode = _verificationCodeService.GenerateCode();
-            var verificationCodeModel = _verificationCodeService.CreateVerificationCode(userid, formattedAddress, addressType, verificationCode);
+            var code = _verificationCodeService.GenerateRawCode();
+            var verificationCodeModel = _verificationCodeService.CreateVerificationCode(userid, address, addressType, code);
 
             await _addressVerificationRepository.AddNewVerificationCodeAsync(verificationCodeModel);
             if (addressType == AddressType.Email)
             {
-                await _notificationsClient.OrderEmailWithCode(formattedAddress, partyUuid, languageCode, verificationCode, cancellationToken);
+                await _notificationsClient.OrderEmailWithCode(verificationCodeModel.Address, partyUuid, languageCode, code, cancellationToken);
             }
             else if (addressType == AddressType.Sms)
             {
-                await _notificationsClient.OrderSmsWithCode(formattedAddress, partyUuid, languageCode, verificationCode, cancellationToken);
+                await _notificationsClient.OrderSmsWithCode(verificationCodeModel.Address, partyUuid, languageCode, code, cancellationToken);
             }
         }
 

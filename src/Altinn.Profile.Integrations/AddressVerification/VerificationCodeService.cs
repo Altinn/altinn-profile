@@ -13,7 +13,7 @@ namespace Altinn.Profile.Integrations.AddressVerification
         private readonly int _expiryTimeInMinutes = 15;
 
         /// <inheritdoc/>
-        public string GenerateCode()
+        public string GenerateRawCode()
         {
             return RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
         }

@@ -11,7 +11,7 @@ namespace Altinn.Profile.Core.Integrations
         /// Generates a new verification code.
         /// </summary>
         /// <returns>A string containing the generated verification code.</returns>
-        string GenerateCode();
+        string GenerateRawCode();
 
         /// <summary>
         /// Creates a verification code object for a user and address.
