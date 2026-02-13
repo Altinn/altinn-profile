@@ -26,6 +26,7 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
         var verificationCodes = await databaseContext.VerificationCodes.Where(vc => vc.UserId.Equals(verificationCode.UserId) && vc.AddressType == verificationCode.AddressType && vc.Address == verificationCode.Address).ToListAsync();
 
+        // Remove any existing verification codes for the same user and address before adding the new one
         databaseContext.VerificationCodes.RemoveRange(verificationCodes);
 
         databaseContext.VerificationCodes.Add(verificationCode);

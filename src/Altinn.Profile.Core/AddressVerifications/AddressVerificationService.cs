@@ -1,19 +1,16 @@
-﻿using System.Security.Cryptography;
-
-using Altinn.Profile.Core.AddressVerifications.Models;
+﻿using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
-using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 
 namespace Altinn.Profile.Core.AddressVerifications
 {
     /// <summary>
     /// A service for handling address verification processes, including generating and sending verification codes via email or SMS.
     /// </summary>
-    public class AddressVerificationService(INotificationsClient notificationsClient, IAddressVerificationRepository addressVerificationRepository) : IAddressVerificationService
+    public class AddressVerificationService(INotificationsClient notificationsClient, IAddressVerificationRepository addressVerificationRepository, IVerificationCodeService verificationCodeService) : IAddressVerificationService
     {
         private readonly INotificationsClient _notificationsClient = notificationsClient;
         private readonly IAddressVerificationRepository _addressVerificationRepository = addressVerificationRepository;
-        private readonly int _expiryTimeInMinutes = 15;
+        private readonly IVerificationCodeService _verificationCodeService = verificationCodeService;
 
         /// <inheritdoc/>
         public async Task<(VerificationType? EmailVerificationStatus, VerificationType? SmsVerificationStatus)> GetVerificationStatusAsync(int userId, string? emailAddress, string? phoneNumber, CancellationToken cancellationToken)
@@ -38,19 +35,16 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <inheritdoc/>
         public async Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, string languageCode, Guid partyUuid, CancellationToken cancellationToken)
         {
-            var formattedAddress = VerificationCode.FormatAddress(address);
-            var verificationCode = GenerateVerificationCode();
-
-            var verificationCodeHash = BCrypt.Net.BCrypt.HashPassword(verificationCode);
-            var verificationCodeModel = new VerificationCode
+            var existingVerification = await _addressVerificationRepository.GetVerificationStatusAsync(userid, addressType, address, cancellationToken);
+            if (existingVerification == VerificationType.Verified)
             {
-                UserId = userid,
-                Address = formattedAddress,
-                AddressType = addressType,
-                VerificationCodeHash = verificationCodeHash,
-                Created = DateTime.UtcNow,
-                Expires = DateTime.UtcNow.AddMinutes(_expiryTimeInMinutes),
-            };
+                // If the address is already verified, we don't need to generate a new code or send a notification.
+                return;
+            }
+
+            var formattedAddress = VerificationCode.FormatAddress(address);
+            var verificationCode = _verificationCodeService.GenerateCode();
+            var verificationCodeModel = _verificationCodeService.CreateVerificationCode(userid, formattedAddress, addressType, verificationCode);
 
             await _addressVerificationRepository.AddNewVerificationCodeAsync(verificationCodeModel);
             if (addressType == AddressType.Email)
@@ -63,23 +57,23 @@ namespace Altinn.Profile.Core.AddressVerifications
             }
         }
 
-        private static string GenerateVerificationCode()
-        {
-            return RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
-        }
-
         /// <inheritdoc/>
         public async Task NotifySmsAddressChangeAsync(string phoneNumber, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken)
         {
-            await _notificationsClient.OrderSms(phoneNumber, partyUuid, languageCode, cancellationToken);
+            // For legacy addresses, we want to keep track of them in the database for a certain period of time, but we don't want to generate a verification code or send a notification for them.
+            // This can be deleted when verification is required for all new addresses
             await _addressVerificationRepository.AddLegacyAddressAsync(AddressType.Sms, phoneNumber, userid, cancellationToken);
+            await _notificationsClient.OrderSms(phoneNumber, partyUuid, languageCode, cancellationToken);
+
         }
 
         /// <inheritdoc/>
         public async Task NotifyEmailAddressChangeAsync(string emailAddress, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken)
         {
-            await _notificationsClient.OrderEmail(emailAddress, partyUuid, languageCode, cancellationToken);
+            // For legacy addresses, we want to keep track of them in the database for a certain period of time, but we don't want to generate a verification code or send a notification for them.
+            // This can be deleted when verification is required for all new addresses
             await _addressVerificationRepository.AddLegacyAddressAsync(AddressType.Email, emailAddress, userid, cancellationToken);
+            await _notificationsClient.OrderEmail(emailAddress, partyUuid, languageCode, cancellationToken);
         }
 
         /// <inheritdoc/>
