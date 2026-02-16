@@ -1,4 +1,6 @@
-﻿using Altinn.Profile.Core.Integrations;
+﻿using System;
+
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Models;
 
@@ -72,7 +74,7 @@ public class UserContactPointService : IUserContactPointsService
     }
 
     /// <inheritdoc/>
-    public Task<SelfIdentifiedUserContactPointsList> GetSiContactPoints(List<string> externalIdentities, CancellationToken cancellationToken)
+    public async Task<SelfIdentifiedUserContactPointsList> GetSiContactPoints(List<string> externalIdentities, CancellationToken cancellationToken)
     {
         SelfIdentifiedUserContactPointsList contactPointsList = new();
 
@@ -99,8 +101,24 @@ public class UserContactPointService : IUserContactPointsService
                     MobileNumber = null
                 });
             }
+
+            if (parsedUrn is Username username)
+            {
+                Result<UserProfile, bool> result = await _userProfileService.GetUserByUsername(username.Value.Value);
+                result.Match(
+                        profile =>
+                        {
+                            contactPointsList.ContactPointsList.Add(new SiUserContactPoints()
+                            {
+                                Email = profile.Email,
+                                ExternalIdentity = urnIdentifier,
+                                MobileNumber = profile.PhoneNumber,
+                            });
+                        },
+                        _ => { });
+            }
         }
 
-        return Task.FromResult(contactPointsList);
+        return contactPointsList;
     }
 }

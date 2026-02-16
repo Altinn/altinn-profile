@@ -22,4 +22,15 @@ public abstract partial record CustomContactPointUrn
     /// <returns>true if the value is a valid ID-porten email address; otherwise, false.</returns>
     [UrnKey("altinn:person:idporten-email")]
     public partial bool IsIDPortenEmail(out UrnEncoded email);
+
+    /// <summary>
+    /// Determines whether the current value represents legacy username SI user and retrieves the decoded username if available.
+    /// </summary>
+    /// <param name="username">When this method returns, contains the decoded email address if the value is a valid ID-porten email; otherwise,
+    /// contains the default value for <see cref="UrnEncoded"/>.</param>
+    /// <returns>true if the value is a valid legacy username; otherwise, false.</returns>
+    [UrnKey("altinn:party:username", Canonical = true)]
+    [UrnKey("altinn:username")]
+    [UrnKey("altinn:person:legacy-selfidentified")]
+    public partial bool IsUsername(out UrnEncoded username);
 }
