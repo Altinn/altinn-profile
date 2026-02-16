@@ -68,6 +68,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.AddressVerificationRepositoryMock
                 .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "test@example.com"), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(VerificationType.Verified);
+            _factory.AddressVerificationRepositoryMock
+                .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Sms, It.Is<string>(e => e == "12345678"), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(VerificationType.Unverified);
 
             SetupSblMock();
             SetupAuthHandler(partyGuid, UserId);
@@ -183,6 +186,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(x => x.GetProfileSettings(UserId))
                 .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = DateTime.Today, LanguageType = "no" });
             _factory.AddressVerificationRepositoryMock
+                .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "a@b.com"), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(VerificationType.Unverified);
+            _factory.AddressVerificationRepositoryMock
                 .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "c@d.com"), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(VerificationType.Verified);
             _factory.AddressVerificationRepositoryMock
@@ -202,6 +208,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal("urn:altinn:resource:one", addresses[0].ResourceIncludeList[0]);
             Assert.Null(addresses[0].SmsVerificationStatus);
             Assert.Equal(VerificationType.Unverified, addresses[0].EmailVerificationStatus);
+            Assert.Null(addresses[0].SmsVerificationStatus);
 
             Assert.Equal("c@d.com", addresses[1].EmailAddress);
             Assert.False(addresses[1].NeedsConfirmation);

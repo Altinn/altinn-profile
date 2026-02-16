@@ -168,16 +168,43 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
         }
 
         [Fact]
-        public async Task GetVerificationStatus_WhenNotVerified_ReturnsNull()
+        public async Task GetVerificationStatus_WhenVerificationCodeExists_ReturnsUnverified()
         {
-            var options = CreateOptions(nameof(GetVerificationStatus_WhenNotVerified_ReturnsNull));
+            var options = CreateOptions(nameof(GetVerificationStatus_WhenVerificationCodeExists_ReturnsUnverified));
+            var factory = new TestDbContextFactory(options);
+            await using (var seedContext = new ProfileDbContext(options))
+            {
+                var code = new VerificationCode
+                {
+                    UserId = 1,
+                    AddressType = AddressType.Email,
+                    Address = "not-verified@test.com",
+                    VerificationCodeHash = "any-hash",
+                    Expires = DateTime.UtcNow.AddHours(-1),
+                    FailedAttempts = 2
+                };
+                seedContext.VerificationCodes.Add(code);
+                await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+            }
+
+            var repository = new AddressVerificationRepository(factory);
+
+            var result = await repository.GetVerificationStatusAsync(1, AddressType.Email, "not-verified@test.com", CancellationToken.None);
+
+            Assert.Equal(VerificationType.Unverified, result);
+        }
+
+        [Fact]
+        public async Task GetVerificationStatus_WhenNeitherVerifiedOrCodeExists_ReturnsLegacy()
+        {
+            var options = CreateOptions(nameof(GetVerificationStatus_WhenVerificationCodeExists_ReturnsUnverified));
             var factory = new TestDbContextFactory(options);
 
             var repository = new AddressVerificationRepository(factory);
 
             var result = await repository.GetVerificationStatusAsync(1, AddressType.Email, "not-verified@test.com", CancellationToken.None);
 
-            Assert.Null(result);
+            Assert.Equal(VerificationType.Legacy, result);
         }
 
         [Fact]

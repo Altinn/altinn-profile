@@ -15,7 +15,7 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="address">The address to check</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A Task containing the <see cref="VerificationType"/> or null if the address has not been verified.</returns>
-        Task<VerificationType?> GetVerificationStatusAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken);
+        Task<VerificationType> GetVerificationStatusAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets the verified addresses for a given user.
