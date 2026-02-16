@@ -90,6 +90,13 @@ namespace Altinn.Profile.Changelog
                     change.ChangeDatetime = change.ChangeDatetime.ToUniversalTime();
                     if (change.OperationType is OperationType.Insert or OperationType.Update)
                     {
+                        if (string.IsNullOrWhiteSpace(notificationSetting.Email) && string.IsNullOrWhiteSpace(notificationSetting.PhoneNumber))
+                        {
+                            // If there are no contact details or service options, delete any existing entry for the user/party.
+                            await _notificationSettingSyncRepository.DeleteNotificationAddressFromSyncAsync(notificationSetting.UserId, notificationSetting.PartyUuid, cancellationToken);
+                            continue;
+                        }
+
                         var userPartyContactInfo = new UserPartyContactInfo
                         {
                             UserId = notificationSetting.UserId,
