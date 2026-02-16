@@ -18,7 +18,7 @@ public interface IUserContactPointsService
     /// </summary>
     /// <param name="externalIdentities">A list of external identities for which to retrieve contact points. External identities must be in URN format: urn:altinn:person:idporten-email:
     /// as the namespace and the email address as the value part of the urn
-    /// elements. Other accepted formats are username urn formats such as altinn:username. Otherwise, the identifier will be discarded</param>
+    /// elements. Other accepted formats are username urn formats such as urn:altinn:username. Otherwise, the identifier will be discarded</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a <see
     /// cref="SelfIdentifiedUserContactPointsList"/> with the contact points for the external identities. If no contact points

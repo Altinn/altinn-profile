@@ -108,6 +108,11 @@ public class UserContactPointService : IUserContactPointsService
                 result.Match(
                         profile =>
                         {
+                            if (string.IsNullOrWhiteSpace(profile.Email) && string.IsNullOrWhiteSpace(profile.PhoneNumber))
+                            {
+                                return;
+                            }
+
                             contactPointsList.ContactPointsList.Add(new SiUserContactPoints()
                             {
                                 Email = profile.Email,

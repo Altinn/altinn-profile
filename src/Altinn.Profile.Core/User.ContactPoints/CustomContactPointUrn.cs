@@ -26,7 +26,7 @@ public abstract partial record CustomContactPointUrn
     /// <summary>
     /// Determines whether the current value represents legacy username SI user and retrieves the decoded username if available.
     /// </summary>
-    /// <param name="username">When this method returns, contains the decoded email address if the value is a valid ID-porten email; otherwise,
+    /// <param name="username">When this method returns, contains the decoded username if the value is a valid username; otherwise,
     /// contains the default value for <see cref="UrnEncoded"/>.</param>
     /// <returns>true if the value is a valid legacy username; otherwise, false.</returns>
     [UrnKey("altinn:party:username", Canonical = true)]

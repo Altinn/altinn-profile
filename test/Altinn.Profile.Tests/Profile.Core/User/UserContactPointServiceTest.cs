@@ -289,7 +289,7 @@ public class UserContactPointServiceTest
     }
 
     [Fact]
-    public async Task GetSiContactPoints_WithUsername_ReturnsValuesFromSblBridge()
+    public async Task GetSiContactPoints_WithUsername_ReturnsValuesFromSblBridgeWhenNotEmpty()
     {
         // Arrange
         var identities = new List<string>
@@ -305,8 +305,8 @@ public class UserContactPointServiceTest
         });
         _userProfileServiceMock.Setup(service => service.GetUserByUsername("mysecondusername")).ReturnsAsync(new UserProfile()
         {
-            Email = "user2@test.no",
-            PhoneNumber = "+4799999999",
+            Email = string.Empty,
+            PhoneNumber = string.Empty,
         });
         _userProfileServiceMock.Setup(service => service.GetUserByUsername("mythirdusername")).ReturnsAsync(new UserProfile()
         {
@@ -320,16 +320,11 @@ public class UserContactPointServiceTest
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(3, result.ContactPointsList.Count);
+        Assert.Equal(2, result.ContactPointsList.Count);
             
         Assert.Contains(result.ContactPointsList, cp =>
             cp.Email == "user1@example.com" &&
             cp.ExternalIdentity == "urn:altinn:party:username:myusername" &&
-            cp.MobileNumber == "+4799999999");
-
-        Assert.Contains(result.ContactPointsList, cp =>
-            cp.Email == "user2@test.no" &&
-            cp.ExternalIdentity == "urn:altinn:username:mysecondusername" &&
             cp.MobileNumber == "+4799999999");
 
         Assert.Contains(result.ContactPointsList, cp =>
