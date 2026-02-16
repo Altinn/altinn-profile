@@ -14,7 +14,7 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="addressType">If the address is for sms or email</param>
         /// <param name="address">The address to check</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A Task containing the <see cref="VerificationType"/> or null if the address has not been verified.</returns>
+        /// <returns>A Task containing the <see cref="VerificationType"/>. If neither verified or any verification codes exists, the address will be considered Legacy.</returns>
         Task<VerificationType> GetVerificationStatusAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken);
 
         /// <summary>

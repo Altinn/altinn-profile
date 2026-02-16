@@ -197,7 +197,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
         [Fact]
         public async Task GetVerificationStatus_WhenNeitherVerifiedOrCodeExists_ReturnsLegacy()
         {
-            var options = CreateOptions(nameof(GetVerificationStatus_WhenVerificationCodeExists_ReturnsUnverified));
+            var options = CreateOptions(nameof(GetVerificationStatus_WhenNeitherVerifiedOrCodeExists_ReturnsLegacy));
             var factory = new TestDbContextFactory(options);
 
             var repository = new AddressVerificationRepository(factory);

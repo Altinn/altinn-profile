@@ -208,7 +208,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal("urn:altinn:resource:one", addresses[0].ResourceIncludeList[0]);
             Assert.Null(addresses[0].SmsVerificationStatus);
             Assert.Equal(VerificationType.Unverified, addresses[0].EmailVerificationStatus);
-            Assert.Null(addresses[0].SmsVerificationStatus);
 
             Assert.Equal("c@d.com", addresses[1].EmailAddress);
             Assert.False(addresses[1].NeedsConfirmation);
