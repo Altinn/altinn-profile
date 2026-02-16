@@ -1,6 +1,4 @@
-﻿using System;
-
-using Altinn.Profile.Core.Integrations;
+﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Models;
 
@@ -101,8 +99,7 @@ public class UserContactPointService : IUserContactPointsService
                     MobileNumber = null
                 });
             }
-
-            if (parsedUrn is Username username)
+            else if (parsedUrn is Username username)
             {
                 Result<UserProfile, bool> result = await _userProfileService.GetUserByUsername(username.Value.Value);
                 result.Match(
