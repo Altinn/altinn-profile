@@ -87,12 +87,12 @@ namespace Altinn.Profile.Core.AddressVerifications
 
             if (_verificationCodeService.VerifyCode(submittedCode, storedCode))
             {
-                await _addressVerificationRepository.CompleteAddressVerificationAsync(storedCode, addressType, address, userid);
+                await _addressVerificationRepository.CompleteAddressVerificationAsync(storedCode.VerificationCodeId, addressType, address, userid);
                 return true;
             }
             else
             {
-                await _addressVerificationRepository.IncrementFailedAttemptsAsync(storedCode);
+                await _addressVerificationRepository.IncrementFailedAttemptsAsync(storedCode.VerificationCodeId);
                 return false;
             }
         }

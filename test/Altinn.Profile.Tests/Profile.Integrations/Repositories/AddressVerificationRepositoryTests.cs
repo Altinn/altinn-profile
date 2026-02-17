@@ -275,7 +275,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
 
             var repository = new AddressVerificationRepository(factory);
 
-            await repository.CompleteAddressVerificationAsync(verificationCode, AddressType.Email, "complete@example.com", 7);
+            await repository.CompleteAddressVerificationAsync(verificationCode.VerificationCodeId, AddressType.Email, "complete@example.com", 7);
 
             await using var assertContext = new ProfileDbContext(options);
             var verifiedAddress = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(
@@ -321,7 +321,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
 
             var repository = new AddressVerificationRepository(factory);
 
-            await repository.CompleteAddressVerificationAsync(verificationCode, AddressType.Email, "duplicate@example.com", 8);
+            await repository.CompleteAddressVerificationAsync(verificationCode.VerificationCodeId, AddressType.Email, "duplicate@example.com", 8);
 
             await using var assertContext = new ProfileDbContext(options);
             var verifiedAddresses = await assertContext.VerifiedAddresses
@@ -355,7 +355,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
 
             var repository = new AddressVerificationRepository(factory);
 
-            await repository.IncrementFailedAttemptsAsync(verificationCode);
+            await repository.IncrementFailedAttemptsAsync(verificationCode.VerificationCodeId);
 
             await using var assertContext = new ProfileDbContext(options);
             var updatedCode = await assertContext.VerificationCodes.FirstOrDefaultAsync(
@@ -390,7 +390,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
 
             var repository = new AddressVerificationRepository(factory);
 
-            await repository.IncrementFailedAttemptsAsync(verificationCode);
+            await repository.IncrementFailedAttemptsAsync(verificationCode.VerificationCodeId);
 
             await using var assertContext = new ProfileDbContext(options);
             var updatedCode = await assertContext.VerificationCodes.FirstOrDefaultAsync(

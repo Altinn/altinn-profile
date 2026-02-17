@@ -44,12 +44,12 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
     /// <summary>
     /// Complete the address verification.
     /// </summary>
-    /// <param name="verificationCode">The verification code that is validated</param>
+    /// <param name="verificationCodeId">The ID of the verification code that is validated.</param>
     /// <param name="addressType">If the address is for sms or email</param>
     /// <param name="address">The address to verify</param>
     /// <param name="userId">The id of the user</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    public async Task CompleteAddressVerificationAsync(VerificationCode verificationCode, AddressType addressType, string address, int userId)
+    public async Task CompleteAddressVerificationAsync(int verificationCodeId, AddressType addressType, string address, int userId)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
         var verifiedAddress = new VerifiedAddress
@@ -64,18 +64,26 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
         databaseContext.VerifiedAddresses.RemoveRange(existingVerifications);
 
         databaseContext.VerifiedAddresses.Add(verifiedAddress);
-        databaseContext.VerificationCodes.Remove(verificationCode);
+
+        var codeToRemove = await databaseContext.VerificationCodes.FindAsync(verificationCodeId);
+        if (codeToRemove is not null)
+        {
+            databaseContext.VerificationCodes.Remove(codeToRemove);
+        }
 
         await databaseContext.SaveChangesAsync();
     }
 
     /// <inheritdoc/>
-    public async Task IncrementFailedAttemptsAsync(VerificationCode verificationCode)
+    public async Task IncrementFailedAttemptsAsync(int verificationCodeId)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
-        verificationCode.FailedAttempts++;
-        databaseContext.VerificationCodes.Update(verificationCode);
-        await databaseContext.SaveChangesAsync();
+        var verificationCode = await databaseContext.VerificationCodes.FindAsync(verificationCodeId);
+        if (verificationCode is not null)
+        {
+            verificationCode.FailedAttempts++;
+            await databaseContext.SaveChangesAsync();
+        }
     }
 
     /// <inheritdoc />

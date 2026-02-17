@@ -167,7 +167,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, verificationCode.Address, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(verificationCode);
 
-            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.CompleteAddressVerificationAsync(It.IsAny<VerificationCode>(), AddressType.Email, "address@example.com", userId))
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.CompleteAddressVerificationAsync(It.IsAny<int>(), AddressType.Email, "address@example.com", userId))
                 .Returns(Task.CompletedTask);
 
             HttpClient client = _factory.CreateClient();
@@ -213,7 +213,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, "address@example.com", It.IsAny<CancellationToken>()))
                 .ReturnsAsync(verificationCode);
 
-            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.IncrementFailedAttemptsAsync(It.IsAny<VerificationCode>()))
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.IncrementFailedAttemptsAsync(It.IsAny<int>()))
                 .Returns(Task.CompletedTask);
 
             HttpClient client = _factory.CreateClient();
@@ -265,7 +265,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, "address@example.com", It.IsAny<CancellationToken>()))
                 .ReturnsAsync(verificationCode);
 
-            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.IncrementFailedAttemptsAsync(It.IsAny<VerificationCode>()))
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.IncrementFailedAttemptsAsync(It.IsAny<int>()))
                 .Returns(Task.CompletedTask);
 
             HttpClient client = _factory.CreateClient();
