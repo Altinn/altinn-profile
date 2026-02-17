@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Changelog;
-using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.Repositories.A2Sync;
@@ -123,8 +122,11 @@ public class NotificationSettingsImportJobTests
             Times.Never);
     }
 
-    [Fact]
-    public async Task RunAsync_WhenBothAddressesAreEmpty_DeletesEntry()
+    [Theory]
+    [InlineData(OperationType.Insert)]
+    [InlineData(OperationType.Update)]
+    [InlineData(OperationType.Delete)]
+    public async Task RunAsync_WhenBothAddressesAreEmpty_DeletesEntry(OperationType operationType)
     {
         // Arrange
         var logger = Mock.Of<ILogger<NotificationSettingImportJob>>();
@@ -149,7 +151,7 @@ public class NotificationSettingsImportJobTests
         {
             ProfileChangeLogId = 1,
             ChangeDatetime = DateTime.UtcNow,
-            OperationType = OperationType.Update,
+            OperationType = operationType,
             DataType = DataType.ReporteeNotificationSettings,
             DataObject = notificationSettingJson,
             ChangeSource = 2,
