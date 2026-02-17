@@ -1,0 +1,23 @@
+meta {
+  name: User contact points
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{ProfileBaseAddress}}/api/v1/users/contactpoint/lookup
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "nationalIdentityNumbers": [
+      "17902349936"
+    ]
+  }
+}
+
+docs {
+  KRR user contact points
+}
