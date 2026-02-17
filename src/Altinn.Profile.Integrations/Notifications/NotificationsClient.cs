@@ -22,7 +22,7 @@ public class NotificationsClient : INotificationsClient
     private const string _notificationTypeSms = "sms";
     private const string _notificationTypeEmail = "email";
 
-    private readonly JsonSerializerOptions _options = new()
+    private static readonly JsonSerializerOptions _options = new()
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

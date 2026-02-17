@@ -162,7 +162,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK), req => sentRequest = req);
             _httpClient = new HttpClient(handler.Object);
             var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
-            var verificationCode = "9999";
+            var verificationCode = "999999";
 
             // Act
             await client.OrderSmsWithCode("12345678", Guid.NewGuid(), "nb", verificationCode, CancellationToken.None);
@@ -188,7 +188,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK), req => sentRequest = req);
             _httpClient = new HttpClient(handler.Object);
             var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
-            var verificationCode = "abcd";
+            var verificationCode = "123456";
 
             // Act
             await client.OrderEmailWithCode("test@example.com", Guid.NewGuid(), "en", verificationCode, CancellationToken.None);
