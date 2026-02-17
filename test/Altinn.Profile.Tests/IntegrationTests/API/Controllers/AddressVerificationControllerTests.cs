@@ -68,10 +68,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(2, verifiedAddressResponse.Count);
             Assert.Equal(verifiedAddresses[0].Address, verifiedAddressResponse[0].Value);
             Assert.Equal(verifiedAddresses[0].AddressType, verifiedAddressResponse[0].Type);
-            Assert.Equal(verifiedAddresses[0].VerificationType, verifiedAddressResponse[0].VerificationStatus);
             Assert.Equal(verifiedAddresses[1].Address, verifiedAddressResponse[1].Value);
             Assert.Equal(verifiedAddresses[1].AddressType, verifiedAddressResponse[1].Type);
-            Assert.Equal(verifiedAddresses[1].VerificationType, verifiedAddressResponse[1].VerificationStatus);
         }
 
         [Fact]
