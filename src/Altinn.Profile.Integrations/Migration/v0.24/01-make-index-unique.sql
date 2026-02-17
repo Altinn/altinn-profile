@@ -1,0 +1,5 @@
+DROP INDEX IF EXISTS address_verifications.ix_verified_addresses_user_id_address_address_type;
+
+CREATE UNIQUE INDEX IF NOT EXISTS ix_verified_addresses_user_id_address_address_type ON address_verifications.verified_addresses (user_id, address, address_type);
+
+ALTER TABLE address_verifications.verified_addresses DROP COLUMN verification_type;

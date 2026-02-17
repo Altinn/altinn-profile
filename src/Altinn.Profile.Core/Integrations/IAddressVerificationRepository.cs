@@ -8,6 +8,13 @@ namespace Altinn.Profile.Core.Integrations
     public interface IAddressVerificationRepository
     {
         /// <summary>
+        /// Adds a new verification code to the database.
+        /// </summary>
+        /// <param name="verificationCode">The verification code to add.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task AddNewVerificationCodeAsync(VerificationCode verificationCode);
+
+        /// <summary>
         /// Retrieves the verification status for an address.
         /// </summary>
         /// <param name="userId">The id of the user</param>

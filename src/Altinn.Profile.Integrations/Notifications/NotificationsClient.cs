@@ -22,7 +22,7 @@ public class NotificationsClient : INotificationsClient
     private const string _notificationTypeSms = "sms";
     private const string _notificationTypeEmail = "email";
 
-    private readonly JsonSerializerOptions _options = new()
+    private static readonly JsonSerializerOptions _options = new()
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -42,6 +42,52 @@ public class NotificationsClient : INotificationsClient
         _httpClient.BaseAddress = new Uri(settings.Value.ApiNotificationsEndpoint);
         _logger = logger;
     }
+
+    /// <inheritdoc/>
+    public async Task OrderSmsWithCode(string phoneNumber, Guid partyUuid, string languageCode, string verificationCode, CancellationToken cancellationToken)
+    {
+        var request = new SmsOrderRequest
+        {
+            IdempotencyId = Guid.NewGuid().ToString(),
+            SendersReference = partyUuid.ToString(),
+            RecipientSms = new RecipientSms
+            {
+                PhoneNumber = phoneNumber,
+                SmsSettings = new SmsSettings
+                {
+                    Body = OrderContentWithCode.GetSmsContent(languageCode, verificationCode),
+                }
+            }
+        };
+
+        var json = JsonSerializer.Serialize(request, _options);
+
+        await SendOrder(json, _notificationTypeSms, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task OrderEmailWithCode(string emailAddress, Guid partyUuid, string languageCode, string verificationCode, CancellationToken cancellationToken)
+    {
+        var request = new EmailOrderRequest
+        {
+            IdempotencyId = Guid.NewGuid().ToString(),
+            SendersReference = partyUuid.ToString(),
+            RecipientEmail = new RecipientEmail
+            {
+                EmailAddress = emailAddress,
+                EmailSettings = new EmailSettings
+                {
+                    Subject = OrderContentWithCode.GetEmailSubject(languageCode),
+                    Body = OrderContentWithCode.GetEmailBody(languageCode, verificationCode),
+                }
+            }
+        };
+
+        var json = JsonSerializer.Serialize(request, _options);
+        await SendOrder(json, _notificationTypeEmail, cancellationToken);
+    }
+
+    // Old methods to notify the user about address change. Can be deleted when we are sure that the new methods work as expected and are used by the ui.
 
     /// <inheritdoc/>
     public async Task OrderSms(string phoneNumber, Guid partyUuid, string languageCode, CancellationToken cancellationToken)
