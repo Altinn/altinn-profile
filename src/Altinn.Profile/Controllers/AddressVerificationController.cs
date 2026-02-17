@@ -49,7 +49,7 @@ namespace Altinn.Profile.Controllers
             }
 
             var verifiedAddresses = await _addressVerificationService.GetVerifiedAddressesAsync(userId, cancellationToken);
-            var response = verifiedAddresses.Select(va => new VerifiedAddressResponse { Type = va.AddressType, Value = va.Address, VerificationStatus = va.VerificationType });
+            var response = verifiedAddresses.Select(va => new VerifiedAddressResponse { Type = va.AddressType, Value = va.Address });
 
             return Ok(response);
         }

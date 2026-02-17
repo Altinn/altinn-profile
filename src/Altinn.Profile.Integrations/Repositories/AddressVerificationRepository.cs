@@ -1,4 +1,7 @@
-﻿using Altinn.Profile.Core.AddressVerifications.Models;
+﻿#nullable enable
+using System;
+using System.Reflection;
+using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Persistence;
 
@@ -18,11 +21,12 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
     /// </summary>
     /// <param name="verificationCode">The verification code to add.</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    public async Task AddNewVerificationCode(VerificationCode verificationCode)
+    public async Task AddNewVerificationCodeAsync(VerificationCode verificationCode)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
         var verificationCodes = await databaseContext.VerificationCodes.Where(vc => vc.UserId.Equals(verificationCode.UserId) && vc.AddressType == verificationCode.AddressType && vc.Address == verificationCode.Address).ToListAsync();
 
+        // Remove any existing verification codes for the same user and address before adding the new one
         databaseContext.VerificationCodes.RemoveRange(verificationCodes);
 
         databaseContext.VerificationCodes.Add(verificationCode);
@@ -75,20 +79,25 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
     }
 
     /// <inheritdoc />
-    public async Task<VerificationType?> GetVerificationStatusAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken)
+    public async Task<VerificationType> GetVerificationStatusAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken)
     {
-        var addressCleaned = address.Trim().ToLowerInvariant();
+        var addressCleaned = VerificationCode.FormatAddress(address);
 
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
-        var verifiedAddresses = await databaseContext.VerifiedAddresses.Where(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == addressCleaned)
-            .AsNoTracking().ToListAsync(cancellationToken);
+        var verifiedAddress = await databaseContext.VerifiedAddresses.FirstOrDefaultAsync(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == addressCleaned, cancellationToken);
 
-        if (verifiedAddresses.Count == 0)
+        if (verifiedAddress != null)
         {
-            return null;
+            return VerificationType.Verified;
         }
 
-        return verifiedAddresses[0].VerificationType;
+        var verificationCode = await databaseContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == addressCleaned, cancellationToken);
+        if (verificationCode != null)
+        {
+            return VerificationType.Unverified;
+        }
+
+        return VerificationType.Legacy;
     }
 
     /// <inheritdoc />

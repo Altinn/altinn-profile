@@ -1,9 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace Altinn.Profile.Controllers;
+namespace Altinn.Profile.Models;
 
 /// <summary>
 /// Represents the criteria used to look up contact details for self-identified users by their external identities.

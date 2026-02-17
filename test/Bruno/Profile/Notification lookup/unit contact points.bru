@@ -1,0 +1,25 @@
+meta {
+  name: unit contact points
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{ProfileBaseAddress}}/api/v1/units/contactpoint/lookup
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "organizationNumbers": [
+      "313605590",
+      "987654321"
+    ],
+    "resourceId": "app_ttd_filescan-end-to-end"
+  }
+}
+
+docs {
+  Optional contact points
+}

@@ -48,12 +48,22 @@ namespace Altinn.Profile.Core.AddressVerifications.Models
         public string Address
         {
             get => _address;
-            set => _address = (value ?? string.Empty).Trim().ToLowerInvariant();
+            set => _address = FormatAddress(value);
         }
 
         /// <summary>
         /// Gets or sets the type of address (e.g., Email or Sms) associated with the verification code.
         /// </summary>
         public AddressType AddressType { get; set; }
+
+        /// <summary>
+        /// Format the address by trimming whitespace and converting to lower case. This ensures consistency in how addresses are stored and compared.
+        /// </summary>
+        /// <param name="address">The address to format</param>
+        /// <returns>Returns the formatted address</returns>
+        public static string FormatAddress(string address)
+        {
+            return (address ?? string.Empty).Trim().ToLowerInvariant();
+        }
     }
 }
