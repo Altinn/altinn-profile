@@ -60,7 +60,7 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
         };
 
         // Remove any existing verifications for the same address before adding the new one
-        var existingVerifications = databaseContext.VerifiedAddresses.Where(va => va.UserId.Equals(userId) && va.AddressType == addressType && va.Address == address).ToArray();
+        var existingVerifications = databaseContext.VerifiedAddresses.Where(va => va.UserId.Equals(userId) && va.AddressType == addressType && va.Address == address);
         databaseContext.VerifiedAddresses.RemoveRange(existingVerifications);
 
         databaseContext.VerifiedAddresses.Add(verifiedAddress);

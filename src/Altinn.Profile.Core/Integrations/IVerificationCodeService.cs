@@ -26,6 +26,6 @@ namespace Altinn.Profile.Core.Integrations
         /// <summary>
         /// Verify a given verification code against a stored hash.
         /// </summary>
-        bool VerifyCode(string code, string verificationCodeHash);
+        bool VerifyCode(string code, VerificationCode verificationCode);
     }
 }

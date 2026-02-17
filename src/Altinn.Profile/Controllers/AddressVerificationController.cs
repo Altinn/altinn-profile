@@ -55,7 +55,7 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
-        /// Get the notification addresses the current user has registered for a party
+        /// Verify an address for the current user by providing the verification code sent to the address.
         /// </summary>
         /// <param name="request">The api request containing the aadress and code to verify</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
@@ -64,7 +64,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<ActionResult<NotificationSettingsResponse>> Verify([FromBody]AddressVerificationRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<AddressVerificationResponse>> Verify([FromBody]AddressVerificationRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {

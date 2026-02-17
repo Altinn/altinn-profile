@@ -6,7 +6,7 @@
     public class AddressVerificationResponse
     {
         /// <summary>
-        /// A boolean indicating wether the provided verification code was correct and the address was successfully verified or not.
+        /// A boolean indicating whether the provided verification code was correct and the address was successfully verified or not.
         /// </summary>
         public bool Success { get; init; }
     }
