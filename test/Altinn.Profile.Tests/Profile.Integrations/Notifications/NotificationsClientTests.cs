@@ -66,7 +66,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.OrderSms("12345678", Guid.NewGuid(), "nb", TestContext.Current.CancellationToken);
+            await client.OrderSms("+4799999999", Guid.NewGuid(), "nb", TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(sentRequest);
@@ -75,7 +75,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
             Assert.IsType<StringContent>(sentRequest.Content);
             var content = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-            Assert.Contains("12345678", content);
+            Assert.Contains("4799999999", content);
             Assert.Contains("sms", content, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("oppdatert", content, StringComparison.OrdinalIgnoreCase);
         }
@@ -115,7 +115,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.OrderSms("12345678", Guid.NewGuid(), "nb", TestContext.Current.CancellationToken);
+            await client.OrderSms("+4799999999", Guid.NewGuid(), "nb", TestContext.Current.CancellationToken);
 
             // Assert
             _loggerMock.Verify(
@@ -140,7 +140,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.OrderSms("12345678", Guid.NewGuid(), "nb", TestContext.Current.CancellationToken);
+            await client.OrderSms("+4799999999", Guid.NewGuid(), "nb", TestContext.Current.CancellationToken);
 
             // Assert
             _loggerMock.Verify(
@@ -165,7 +165,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var verificationCode = "999999";
 
             // Act
-            await client.OrderSmsWithCode("12345678", Guid.NewGuid(), "nb", verificationCode, CancellationToken.None);
+            await client.OrderSmsWithCode("+4799999999", Guid.NewGuid(), "nb", verificationCode, CancellationToken.None);
 
             // Assert
             Assert.NotNull(sentRequest);
@@ -174,7 +174,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
             Assert.IsType<StringContent>(sentRequest.Content);
             var content = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-            Assert.Contains("12345678", content);
+            Assert.Contains("4799999999", content);
             Assert.Contains("sms", content, StringComparison.OrdinalIgnoreCase);
             Assert.Contains(verificationCode, content);
             Assert.Contains("bekrefte", content, StringComparison.OrdinalIgnoreCase);
@@ -217,7 +217,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.OrderSmsWithCode("12345678", Guid.NewGuid(), "nb", "0000", CancellationToken.None);
+            await client.OrderSmsWithCode("+4799999999", Guid.NewGuid(), "nb", "1234", CancellationToken.None);
 
             // Assert
             _loggerMock.Verify(
@@ -242,7 +242,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.OrderSmsWithCode("12345678", Guid.NewGuid(), "nb", "0000", CancellationToken.None);
+            await client.OrderSmsWithCode("+4799999999", Guid.NewGuid(), "nb", "0000", CancellationToken.None);
 
             // Assert
             _loggerMock.Verify(
