@@ -22,5 +22,10 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="verificationCode">The verification code to validate.</param>
         /// <returns>A <see cref="VerificationCode"/> object if found; otherwise, null.</returns>
         VerificationCode CreateVerificationCode(int userId, string address, AddressType addressType, string verificationCode);
+
+        /// <summary>
+        /// Verify a given verification code against a stored hash.
+        /// </summary>
+        bool VerifyCode(string code, string verificationCodeHash);
     }
 }

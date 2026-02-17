@@ -85,7 +85,7 @@ namespace Altinn.Profile.Core.AddressVerifications
                 return false;
             }
 
-            if (verify)
+            if (_verificationCodeService.VerifyCode(submittedCode, storedCode.VerificationCodeHash))
             {
                 await _addressVerificationRepository.CompleteAddressVerificationAsync(storedCode, addressType, address, userid);
                 return true;

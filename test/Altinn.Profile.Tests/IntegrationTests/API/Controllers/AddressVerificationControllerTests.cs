@@ -144,17 +144,33 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int userId = 2516356;
             var request = new AddressVerificationRequest
             {
-                Value = "address",
+                Value = "Address@example.com",
                 Type = AddressType.Email,
-                VerificationCode = "verificationCode"
+                VerificationCode = "123456"
             };
 
-            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.TryVerifyAddressAsync(It.IsAny<int>(), It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<Func<string, bool>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(true);
+            var hash = BCrypt.Net.BCrypt.HashPassword(request.VerificationCode);
+
+            var verificationCode = new VerificationCode
+            {
+                UserId = userId,
+                AddressType = AddressType.Email,
+                Address = "address@example.com",
+                VerificationCodeHash = hash,
+                Expires = DateTime.UtcNow.AddHours(1),
+                FailedAttempts = 0
+            };
+
+            // Address will be formatted to lowercase, so mock with the formatted version
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, verificationCode.Address, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(verificationCode);
+
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.CompleteAddressVerificationAsync(It.IsAny<VerificationCode>(), AddressType.Email, "address@example.com", userId))
+                .Returns(Task.CompletedTask);
 
             HttpClient client = _factory.CreateClient();
 
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/verify-address")
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/verify")
             {
                 Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
             };
@@ -175,17 +191,32 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int userId = 2516356;
             var request = new AddressVerificationRequest
             {
-                Value = "address",
+                Value = "address@example.com",
                 Type = AddressType.Email,
-                VerificationCode = "verificationCode"
+                VerificationCode = "wrongcode"
+            };
+            var hash = BCrypt.Net.BCrypt.HashPassword("123456");
+
+            var verificationCode = new VerificationCode
+            {
+                UserId = userId,
+                AddressType = AddressType.Email,
+                Address = "address@example.com",
+                VerificationCodeHash = hash,
+                Expires = DateTime.UtcNow.AddHours(1),
+                FailedAttempts = 0
             };
 
-            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.TryVerifyAddressAsync(It.IsAny<int>(), It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<Func<string, bool>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(false);
+            // Address will be formatted to lowercase, so mock with the formatted version
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, "address@example.com", It.IsAny<CancellationToken>()))
+                .ReturnsAsync(verificationCode);
+
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.IncrementFailedAttemptsAsync(It.IsAny<VerificationCode>()))
+                .Returns(Task.CompletedTask);
 
             HttpClient client = _factory.CreateClient();
 
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/verify-address")
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/verify")
             {
                 Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
             };

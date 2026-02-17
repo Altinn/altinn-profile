@@ -59,12 +59,12 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         /// <param name="request">The api request containing the aadress and code to verify</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
-        [HttpPost("verify-address")]
+        [HttpPost("verify")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<ActionResult<NotificationSettingsResponse>> Verify(AddressVerificationRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<NotificationSettingsResponse>> Verify([FromBody]AddressVerificationRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -77,7 +77,7 @@ namespace Altinn.Profile.Controllers
                 return validationResult;
             }
 
-            var verified = await _addressVerificationService.SubmitVerificationCodeAsync(userId, request.Address, request.AddressType, request.VerificationCode, cancellationToken);
+            var verified = await _addressVerificationService.SubmitVerificationCodeAsync(userId, request.Value, request.Type, request.VerificationCode, cancellationToken);
 
             if (!verified)
             {
