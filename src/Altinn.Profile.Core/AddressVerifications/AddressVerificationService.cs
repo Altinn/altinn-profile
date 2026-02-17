@@ -59,18 +59,12 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <inheritdoc/>
         public async Task NotifySmsAddressChangeAsync(string phoneNumber, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken)
         {
-            // For legacy addresses, we want to keep track of them in the database for a certain period of time, but we don't want to generate a verification code or send a notification for them.
-            // This can be deleted when verification is required for all new addresses
-            await _addressVerificationRepository.AddLegacyAddressAsync(AddressType.Sms, phoneNumber, userid, cancellationToken);
             await _notificationsClient.OrderSms(phoneNumber, partyUuid, languageCode, cancellationToken);
         }
 
         /// <inheritdoc/>
         public async Task NotifyEmailAddressChangeAsync(string emailAddress, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken)
         {
-            // For legacy addresses, we want to keep track of them in the database for a certain period of time, but we don't want to generate a verification code or send a notification for them.
-            // This can be deleted when verification is required for all new addresses
-            await _addressVerificationRepository.AddLegacyAddressAsync(AddressType.Email, emailAddress, userid, cancellationToken);
             await _notificationsClient.OrderEmail(emailAddress, partyUuid, languageCode, cancellationToken);
         }
 

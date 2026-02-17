@@ -483,7 +483,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                     It.IsAny<CancellationToken>()),
                 Times.Once);
             _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Never);
-            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddLegacyAddressAsync(It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.AtLeastOnce);
         }
 
         [Theory]
@@ -533,7 +532,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                     It.IsAny<CancellationToken>()),
                 Times.Once);
             _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.AtLeastOnce);
-            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddLegacyAddressAsync(It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
@@ -574,7 +572,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory.ProfessionalNotificationsRepositoryMock.Verify(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()), Times.Once);
             _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.AtLeastOnce);
-            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddLegacyAddressAsync(It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
