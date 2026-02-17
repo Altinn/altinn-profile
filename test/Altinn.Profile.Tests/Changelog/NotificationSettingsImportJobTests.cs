@@ -114,6 +114,13 @@ public class NotificationSettingsImportJobTests
         changeLogClient.Verify(
             c => c.GetChangeLog(It.IsAny<DateTime>(), DataType.ReporteeNotificationSettings, It.IsAny<CancellationToken>()),
             Times.AtLeastOnce);
+
+        notificationSettingSyncRepository.Verify(
+            r => r.DeleteNotificationAddressFromSyncAsync(
+                It.IsAny<int>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -164,7 +171,7 @@ public class NotificationSettingsImportJobTests
                 return callCount == 1 ? changeLog : new ChangeLog { ProfileChangeLogList = [] };
             });
 
-        // Setup notification repo to expect an add or update
+        // Setup notification repo to expect a delete
         notificationSettingSyncRepository
             .Setup(r => r.DeleteNotificationAddressFromSyncAsync(
                 It.Is<int>(i => i == expectedUserId),
@@ -190,6 +197,12 @@ public class NotificationSettingsImportJobTests
                 It.Is<Guid>(g => g == expectedPartyUuid),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+
+        notificationSettingSyncRepository.Verify(
+            r => r.AddOrUpdateNotificationAddressFromSyncAsync(
+                It.IsAny<UserPartyContactInfo>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
 
         changelogSyncMetadataRepository.Verify(
             r => r.UpdateLatestChangeTimestampAsync(
