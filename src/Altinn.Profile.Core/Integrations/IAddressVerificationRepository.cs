@@ -39,6 +39,7 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="addressType">If the address is for sms or email</param>
         /// <param name="address">The address to check</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A <see cref="Task{TResult}"/> containing the <see cref="VerificationCode"/> if found; otherwise <c>null</c>.</returns>
         Task<VerificationCode?> GetVerificationCodeAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken);
 
         /// <summary>

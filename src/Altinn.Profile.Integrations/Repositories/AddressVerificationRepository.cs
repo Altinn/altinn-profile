@@ -1,6 +1,4 @@
 ﻿#nullable enable
-using System;
-using System.Reflection;
 using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Persistence;

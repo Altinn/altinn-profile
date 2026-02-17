@@ -290,6 +290,47 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(responseObject.Title);
         }
 
+        [Fact]
+        public async Task VerifyAddress_WhenUserHasNoStoredCode_ReturnsUnprocessableEntity()
+        {
+            // Arrange
+            const int userId = 2516356;
+            var request = new AddressVerificationRequest
+            {
+                Value = "address@EXAMPLE.com",
+                Type = AddressType.Email,
+                VerificationCode = "123456"
+            };
+
+            // Address will be formatted to lowercase, so mock with the formatted version
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, "address@example.com", It.IsAny<CancellationToken>()))
+                .ReturnsAsync((VerificationCode)null);
+
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.IncrementFailedAttemptsAsync(It.IsAny<int>()))
+                .Returns(Task.CompletedTask);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/verify")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+
+            var responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var responseObject = JsonSerializer.Deserialize<ProblemDetails>(responseContent, _serializerOptionsCamelCase);
+            Assert.NotNull(responseObject);
+            Assert.NotNull(responseObject.Detail);
+            Assert.NotNull(responseObject.Title);
+        }
+
         private static HttpRequestMessage AddAuthHeadersToRequest(HttpRequestMessage httpRequestMessage, int userId)
         {
             string token = PrincipalUtil.GetToken(userId);
