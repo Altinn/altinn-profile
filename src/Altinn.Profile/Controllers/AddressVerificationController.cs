@@ -81,7 +81,7 @@ namespace Altinn.Profile.Controllers
 
             if (!verified)
             {
-                return UnprocessableEntity(new { Message = "Verification code is invalid or has expired." });
+                return UnprocessableEntity(new ProblemDetails { Title = "Address could not be verified", Detail = "The given verification code does not validate for the given address." });
             }
 
             return Ok(new AddressVerificationResponse { Success = true });

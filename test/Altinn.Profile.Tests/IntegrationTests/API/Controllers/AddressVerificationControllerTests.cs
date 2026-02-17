@@ -11,6 +11,8 @@ using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
+using Microsoft.AspNetCore.Mvc;
+
 using Moq;
 
 using Xunit;
@@ -228,6 +230,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+
+            var responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var responseObject = JsonSerializer.Deserialize<ProblemDetails>(responseContent, _serializerOptionsCamelCase);
+            Assert.NotNull(responseObject);
+            Assert.NotNull(responseObject.Detail);
+            Assert.NotNull(responseObject.Title);
         }
 
         [Fact]
@@ -274,6 +282,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+
+            var responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var responseObject = JsonSerializer.Deserialize<ProblemDetails>(responseContent, _serializerOptionsCamelCase);
+            Assert.NotNull(responseObject);
+            Assert.NotNull(responseObject.Detail);
+            Assert.NotNull(responseObject.Title);
         }
 
         private static HttpRequestMessage AddAuthHeadersToRequest(HttpRequestMessage httpRequestMessage, int userId)
