@@ -281,8 +281,8 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.Address).IsRequired();
             entity.Property(e => e.AddressType).IsRequired().HasConversion(new EnumToStringConverter<AddressType>());
             entity.Property(e => e.VerifiedAt).HasDefaultValueSql("now()").ValueGeneratedOnAdd();
-            entity.Property(e => e.VerificationType);
             entity.Property(e => e.UserId).IsRequired();
+            entity.Ignore(e => e.VerificationType);
 
             entity.HasIndex(e => new { e.UserId, e.Address, e.AddressType }, "ix_user_id_address_address_type").IsUnique();
         });
