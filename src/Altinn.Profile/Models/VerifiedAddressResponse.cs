@@ -19,11 +19,5 @@ namespace Altinn.Profile.Models
         /// </summary>
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public AddressType Type { get; init; }
-
-        /// <summary>
-        /// Gets or sets the verification status of the address. This indicates whether the address has been successfully verified or not.
-        /// </summary>
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public VerificationType VerificationStatus { get; init; }
     }
 }

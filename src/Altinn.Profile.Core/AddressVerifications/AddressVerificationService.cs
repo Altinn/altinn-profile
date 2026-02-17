@@ -19,14 +19,12 @@ namespace Altinn.Profile.Core.AddressVerifications
             VerificationType? smsVerificationStatus = null;
             if (!string.IsNullOrWhiteSpace(emailAddress))
             {
-                var emailResult = await _addressVerificationRepository.GetVerificationStatusAsync(userId, AddressType.Email, emailAddress, cancellationToken);
-                emailVerificationStatus = emailResult ?? VerificationType.Unverified;
+                emailVerificationStatus = await _addressVerificationRepository.GetVerificationStatusAsync(userId, AddressType.Email, emailAddress, cancellationToken);
             }
 
             if (!string.IsNullOrWhiteSpace(phoneNumber))
             {
-                var smsResult = await _addressVerificationRepository.GetVerificationStatusAsync(userId, AddressType.Sms, phoneNumber, cancellationToken);
-                smsVerificationStatus = smsResult ?? VerificationType.Unverified;
+                smsVerificationStatus = await _addressVerificationRepository.GetVerificationStatusAsync(userId, AddressType.Sms, phoneNumber, cancellationToken);
             }
 
             return (emailVerificationStatus, smsVerificationStatus);

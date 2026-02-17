@@ -1,0 +1,22 @@
+meta {
+  name: SI user contact points
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{ProfileBaseAddress}}/api/v1/users/contactpoint/lookupsi
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "externalIdentities": [
+      "urn:altinn:person:idporten-email:user1@altinn.no",
+      "urn:altinn:person:idporten-email:user2@altinn.no",
+      "urn:altinn:party:username:testSIbruker1234",
+      "urn:altinn:party:username:hamburger"
+    ]
+  }
+}
