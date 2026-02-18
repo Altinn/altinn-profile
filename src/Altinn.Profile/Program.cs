@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 
 using Altinn.Authorization.ServiceDefaults.Leases;
 using Altinn.Common.AccessToken;
@@ -42,6 +43,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -212,6 +214,22 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddScoped<IAuthorizationHandler, PartyAccessHandler>();
     services.AddScoped<IAuthorizationHandler, ScopeAccessHandler>();
 
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.AddPolicy("verify-address", httpContext =>
+            RateLimitPartition.GetSlidingWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new SlidingWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(1),
+                SegmentsPerWindow = 6,
+                QueueLimit = 0
+            }));
+
+        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    });
+
     services.AddCoreServices(config);
     services.AddRegisterService(config);
     services.AddSblBridgeClients(config);
@@ -291,6 +309,7 @@ void Configure()
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseRateLimiter();
 
     app.MapControllers();
     app.MapHealthChecks("/health");
