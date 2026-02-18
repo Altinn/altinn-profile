@@ -216,7 +216,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddScoped<IAuthorizationHandler, PartyAccessHandler>();
     services.AddScoped<IAuthorizationHandler, ScopeAccessHandler>();
 
-    builder.Services.AddRateLimiter(options =>
+    services.AddRateLimiter(options =>
     {
         options.AddPolicy("verify-address", httpContext =>
             RateLimitPartition.GetSlidingWindowLimiter(
