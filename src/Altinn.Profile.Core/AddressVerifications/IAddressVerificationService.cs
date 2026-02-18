@@ -41,7 +41,6 @@ namespace Altinn.Profile.Core.AddressVerifications
 
         /// <summary>
         /// Sends an email order to the specified email address notifying the owner about an address change.
-        /// Gets the verified addresses for a given user.
         /// </summary>
         /// <param name="emailAddress">The email address to send the email to.</param>
         /// <param name="partyUuid">The partyUuid for the party the address was changed for</param>

@@ -46,7 +46,7 @@ namespace Altinn.Profile.Core.Integrations
         /// Increments the number of failed verification attempts for a given verification code.
         /// </summary>
         /// <param name="verificationCodeId">The ID of the verification code that should increase number of failed attempts.</param>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         Task IncrementFailedAttemptsAsync(int verificationCodeId);
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="addressType">If the address is for sms or email</param>
         /// <param name="address">The address to verify</param>
         /// <param name="userId">The id of the user</param>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         Task CompleteAddressVerificationAsync(int verificationCodeId, AddressType addressType, string address, int userId);
     }
 }

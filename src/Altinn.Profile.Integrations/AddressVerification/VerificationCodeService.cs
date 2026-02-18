@@ -48,6 +48,11 @@ namespace Altinn.Profile.Integrations.AddressVerification
         /// <inheritdoc/>
         public bool VerifyCode(string code, VerificationCode verificationCode)
         {
+            if (string.IsNullOrEmpty(verificationCode.VerificationCodeHash))
+            {
+                return false;
+            }
+
             if (verificationCode.Expires < DateTime.UtcNow)
             {
                 return false;
