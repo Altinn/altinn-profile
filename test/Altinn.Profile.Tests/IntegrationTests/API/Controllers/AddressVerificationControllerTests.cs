@@ -238,62 +238,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task VerifyAddress_WhenCodeIsWrongTooManyTimes_ReturnsTooManyRequests()
-        {
-            // Arrange
-            const int userId = 2516356;
-            var request = new AddressVerificationRequest
-            {
-                Value = "address@example.com",
-                Type = AddressType.Email,
-                VerificationCode = "wrongcode"
-            };
-            var hash = VerificationCodeService.HashCode("123456");
-
-            var verificationCode = new VerificationCode
-            {
-                UserId = userId,
-                AddressType = AddressType.Email,
-                Address = "address@example.com",
-                VerificationCodeHash = hash,
-                Expires = DateTime.UtcNow.AddHours(1),
-            };
-
-            // Address will be formatted to lowercase, so mock with the formatted version
-            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, "address@example.com", It.IsAny<CancellationToken>()))
-                .ReturnsAsync(verificationCode);
-
-            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.IncrementFailedAttemptsAsync(It.IsAny<int>()))
-                .Returns(Task.CompletedTask);
-
-            HttpClient client = _factory.CreateClient();
-
-            // Act
-            for (int i = 0; i < 10; i++)
-            {
-                HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/verify")
-                {
-                    Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
-                };
-                httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
-
-                await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
-            }
-
-            HttpRequestMessage lastHttpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/verify")
-            {
-                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
-            };
-            lastHttpRequestMessage = AddAuthHeadersToRequest(lastHttpRequestMessage, userId);
-
-            HttpResponseMessage response = await client.SendAsync(lastHttpRequestMessage, TestContext.Current.CancellationToken);
-
-            // Assert
-            Assert.NotNull(response);
-            Assert.Equal(HttpStatusCode.TooManyRequests, response.StatusCode);
-        }
-
-        [Fact]
         public async Task VerifyAddress_WhenCodeIsExpired_ReturnsUnprocessableEntity()
         {
             // Arrange
@@ -427,6 +371,86 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         private static HttpRequestMessage AddSystemUserAuthHeadersToRequest(HttpRequestMessage httpRequestMessage)
         {
             string token = PrincipalUtil.GetSystemUserToken(Guid.NewGuid());
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            return httpRequestMessage;
+        }
+    }
+
+    public class AddressVerificationRateLimitTests : IClassFixture<ProfileWebApplicationFactory<Program>>
+    {
+        private readonly JsonSerializerOptions _serializerOptionsCamelCase = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
+        private readonly ProfileWebApplicationFactory<Program> _factory;
+
+        public AddressVerificationRateLimitTests(ProfileWebApplicationFactory<Program> factory)
+        {
+            _factory = factory;
+            _factory.AddressVerificationRepositoryMock.Reset();
+        }
+
+        [Fact]
+        public async Task VerifyAddress_WhenCodeIsWrongTooManyTimes_ReturnsTooManyRequests()
+        {
+            // Arrange
+            const int userId = 2516356;
+            var request = new AddressVerificationRequest
+            {
+                Value = "address@example.com",
+                Type = AddressType.Email,
+                VerificationCode = "wrongcode"
+            };
+            var hash = VerificationCodeService.HashCode("123456");
+
+            var verificationCode = new VerificationCode
+            {
+                UserId = userId,
+                AddressType = AddressType.Email,
+                Address = "address@example.com",
+                VerificationCodeHash = hash,
+                Expires = DateTime.UtcNow.AddHours(1),
+            };
+
+            // Address will be formatted to lowercase, so mock with the formatted version
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, "address@example.com", It.IsAny<CancellationToken>()))
+                .ReturnsAsync(verificationCode);
+
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.IncrementFailedAttemptsAsync(It.IsAny<int>()))
+                .Returns(Task.CompletedTask);
+
+            HttpClient client = _factory.CreateClient();
+
+            // Act
+            for (int i = 0; i < 10; i++)
+            {
+                HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/verify")
+                {
+                    Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+                };
+                httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+
+                var loopResponse = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+                Assert.NotEqual(HttpStatusCode.TooManyRequests, loopResponse.StatusCode);
+            }
+
+            HttpRequestMessage lastHttpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/verify")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            lastHttpRequestMessage = AddAuthHeadersToRequest(lastHttpRequestMessage, userId);
+
+            HttpResponseMessage response = await client.SendAsync(lastHttpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.TooManyRequests, response.StatusCode);
+        }
+
+        private static HttpRequestMessage AddAuthHeadersToRequest(HttpRequestMessage httpRequestMessage, int userId)
+        {
+            string token = PrincipalUtil.GetToken(userId);
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return httpRequestMessage;
         }
