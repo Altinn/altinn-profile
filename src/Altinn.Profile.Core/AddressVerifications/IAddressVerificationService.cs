@@ -25,7 +25,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <param name="languageCode">The language the user has chosen as their prefered language</param>
         /// <param name="partyUuid">The partyUuid for the party the address was changed for</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns></returns>
+        /// <returns>A task representing the asynchronous operation.</returns>
         Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, string languageCode, Guid partyUuid, CancellationToken cancellationToken);
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <param name="addressType">The addresstype, sms or email</param>
         /// <param name="submittedCode">The verification code provided by the user</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns></returns>
+        /// <returns>A task that represents the asynchronous operation. The task result is <c>true</c> if the submitted code is valid and the address has been successfully verified; otherwise, <c>false</c>.</returns>
         Task<bool> SubmitVerificationCodeAsync(int userid, string address, AddressType addressType, string submittedCode, CancellationToken cancellationToken);
     }
 }
