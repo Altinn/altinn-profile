@@ -308,11 +308,6 @@ void Configure()
         app.UseSwaggerUI();
     }
 
-    app.UseForwardedHeaders(new ForwardedHeadersOptions
-    {
-        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-    });
-
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
