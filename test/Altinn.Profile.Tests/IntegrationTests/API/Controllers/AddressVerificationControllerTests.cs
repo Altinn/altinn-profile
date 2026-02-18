@@ -360,42 +360,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(responseObject.Title);
         }
 
-        private static HttpRequestMessage AddAuthHeadersToRequest(HttpRequestMessage httpRequestMessage, int userId)
-        {
-            string token = PrincipalUtil.GetToken(userId);
-            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            return httpRequestMessage;
-        }
-
-        // Creates a request with a system user token (no userId claim)
-        private static HttpRequestMessage AddSystemUserAuthHeadersToRequest(HttpRequestMessage httpRequestMessage)
-        {
-            string token = PrincipalUtil.GetSystemUserToken(Guid.NewGuid());
-            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            return httpRequestMessage;
-        }
-    }
-
-    public class AddressVerificationRateLimitTests : IClassFixture<ProfileWebApplicationFactory<Program>>
-    {
-        private readonly JsonSerializerOptions _serializerOptionsCamelCase = new()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-
-        private readonly ProfileWebApplicationFactory<Program> _factory;
-
-        public AddressVerificationRateLimitTests(ProfileWebApplicationFactory<Program> factory)
-        {
-            _factory = factory;
-            _factory.AddressVerificationRepositoryMock.Reset();
-        }
-
         [Fact]
         public async Task VerifyAddress_WhenCodeIsWrongTooManyTimes_ReturnsTooManyRequests()
         {
             // Arrange
-            const int userId = 2516356;
+            const int userId = 9999999;
             var request = new AddressVerificationRequest
             {
                 Value = "address@example.com",
@@ -451,6 +420,14 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         private static HttpRequestMessage AddAuthHeadersToRequest(HttpRequestMessage httpRequestMessage, int userId)
         {
             string token = PrincipalUtil.GetToken(userId);
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            return httpRequestMessage;
+        }
+
+        // Creates a request with a system user token (no userId claim)
+        private static HttpRequestMessage AddSystemUserAuthHeadersToRequest(HttpRequestMessage httpRequestMessage)
+        {
+            string token = PrincipalUtil.GetSystemUserToken(Guid.NewGuid());
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return httpRequestMessage;
         }

@@ -220,10 +220,10 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     {
         options.AddPolicy("verify-address", httpContext =>
             RateLimitPartition.GetSlidingWindowLimiter(
-            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault() ?? "unknown",
+            partitionKey: ClaimsHelper.GetUserIdAsString(httpContext) ?? "unknown",
             factory: _ => new SlidingWindowRateLimiterOptions
             {
-                PermitLimit = 10,
+                PermitLimit = 5,
                 Window = TimeSpan.FromMinutes(1),
                 SegmentsPerWindow = 6,
                 QueueLimit = 0
