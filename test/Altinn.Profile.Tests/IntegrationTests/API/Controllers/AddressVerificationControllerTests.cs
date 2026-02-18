@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.AddressVerifications.Models;
+using Altinn.Profile.Integrations.AddressVerification;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
@@ -151,7 +152,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 VerificationCode = "123456"
             };
 
-            var hash = BCrypt.Net.BCrypt.HashPassword(request.VerificationCode);
+            var hash = VerificationCodeService.HashCode(request.VerificationCode);
 
             var verificationCode = new VerificationCode
             {
@@ -160,7 +161,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 Address = "address@example.com",
                 VerificationCodeHash = hash,
                 Expires = DateTime.UtcNow.AddHours(1),
-                FailedAttempts = 0
             };
 
             // Address will be formatted to lowercase, so mock with the formatted version
@@ -183,7 +183,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Assert
             Assert.NotNull(response);
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
 
         [Fact]
@@ -197,7 +197,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 Type = AddressType.Email,
                 VerificationCode = "wrongcode"
             };
-            var hash = BCrypt.Net.BCrypt.HashPassword("123456");
+            var hash = VerificationCodeService.HashCode("123456");
 
             var verificationCode = new VerificationCode
             {
@@ -206,7 +206,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 Address = "address@example.com",
                 VerificationCodeHash = hash,
                 Expires = DateTime.UtcNow.AddHours(1),
-                FailedAttempts = 0
             };
 
             // Address will be formatted to lowercase, so mock with the formatted version
@@ -249,7 +248,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 Type = AddressType.Email,
                 VerificationCode = "123456"
             };
-            var hash = BCrypt.Net.BCrypt.HashPassword(request.VerificationCode);
+            var hash = VerificationCodeService.HashCode(request.VerificationCode);
 
             var verificationCode = new VerificationCode
             {
@@ -258,7 +257,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 Address = "address@example.com",
                 VerificationCodeHash = hash,
                 Expires = DateTime.UtcNow.AddHours(-1),
-                FailedAttempts = 0
             };
 
             // Address will be formatted to lowercase, so mock with the formatted version
@@ -288,6 +286,37 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(responseObject);
             Assert.NotNull(responseObject.Detail);
             Assert.NotNull(responseObject.Title);
+        }
+
+        [Theory]
+        [InlineData(null, AddressType.Email, "123456")]
+        [InlineData("Address@email.com", null, "123456")]
+        [InlineData("+4798765432", AddressType.Sms, null)]
+        public async Task VerifyAddress_WhenIncompleteRequest_ReturnsBadRequest(string address, AddressType? addressType, string code)
+        {
+            // Arrange
+            const int userId = 2516356;
+            var request = new AddressVerificationRequest
+            {
+                Value = address,
+                Type = addressType,
+                VerificationCode = code
+            };
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/verify")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.AddressVerifications;
+using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Models;
 
 using Microsoft.AspNetCore.Authorization;
@@ -60,11 +61,11 @@ namespace Altinn.Profile.Controllers
         /// <param name="request">The api request containing the aadress and code to verify</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
         [HttpPost("verify")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<ActionResult<AddressVerificationResponse>> Verify([FromBody]AddressVerificationRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult> Verify([FromBody]AddressVerificationRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -77,14 +78,14 @@ namespace Altinn.Profile.Controllers
                 return validationResult;
             }
 
-            var verified = await _addressVerificationService.SubmitVerificationCodeAsync(userId, request.Value, request.Type, request.VerificationCode, cancellationToken);
+            var verified = await _addressVerificationService.SubmitVerificationCodeAsync(userId, request.Value, (AddressType)request.Type, request.VerificationCode, cancellationToken);
 
             if (!verified)
             {
                 return UnprocessableEntity(new ProblemDetails { Title = "Address could not be verified", Detail = "The given verification code does not validate for the given address." });
             }
 
-            return Ok(new AddressVerificationResponse { Success = true });
+            return NoContent();
         }
     }
 }

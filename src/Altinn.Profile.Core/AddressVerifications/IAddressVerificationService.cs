@@ -60,7 +60,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         Task<List<VerifiedAddress>> GetVerifiedAddressesAsync(int userId, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Submits a verification code for validation against the stored code for the given user and address.
+        /// Submits a verification code for the given user and address. If the code is valid, the verification process completes, and the user's address becomes verified.
         /// </summary>
         /// <param name="userid">The id of the user</param>
         /// <param name="address">The address to verify</param>

@@ -76,9 +76,9 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <inheritdoc/>
         public async Task<bool> SubmitVerificationCodeAsync(int userid, string address, AddressType addressType, string submittedCode, CancellationToken cancellationToken)
         {
-            address = VerificationCode.FormatAddress(address);
+            var formattedAddress = VerificationCode.FormatAddress(address);
 
-            var storedCode = await _addressVerificationRepository.GetVerificationCodeAsync(userid, addressType, address, cancellationToken);
+            var storedCode = await _addressVerificationRepository.GetVerificationCodeAsync(userid, addressType, formattedAddress, cancellationToken);
 
             if (storedCode is null)
             {
@@ -87,7 +87,7 @@ namespace Altinn.Profile.Core.AddressVerifications
 
             if (_verificationCodeService.VerifyCode(submittedCode, storedCode))
             {
-                await _addressVerificationRepository.CompleteAddressVerificationAsync(storedCode.VerificationCodeId, addressType, address, userid);
+                await _addressVerificationRepository.CompleteAddressVerificationAsync(storedCode.VerificationCodeId, addressType, formattedAddress, userid);
                 return true;
             }
             else

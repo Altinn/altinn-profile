@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 using Altinn.Profile.Core.AddressVerifications.Models;
 
@@ -12,20 +13,23 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// Gets or sets the address to verify, either an email or a phone number.
         /// </summary>
+        [Required]
         [JsonRequired]
-        public string Value { get; init; } = null!;
+        public required string Value { get; init; }
 
         /// <summary>
         /// Gets or sets the type of the address, either "email" or "sms".
         /// </summary>
+        [Required]
         [JsonRequired]
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public AddressType Type { get; init; }
+        public required AddressType? Type { get; init; }
 
         /// <summary>
         /// Gets or sets the verification code for the address.
         /// </summary>
+        [Required]
         [JsonRequired]
-        public string VerificationCode { get; init; } = null!;
+        public required string VerificationCode { get; init; }
     }
 }

@@ -53,7 +53,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                 Address = "user@example.com",
                 VerificationCodeHash = "hash",
                 Expires = DateTime.UtcNow.AddHours(1),
-                FailedAttempts = 0
             };
 
             await repository.AddNewVerificationCodeAsync(verificationCode);
@@ -78,7 +77,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                     Address = "not-verified@test.com",
                     VerificationCodeHash = "any-hash",
                     Expires = DateTime.UtcNow.AddHours(-1),
-                    FailedAttempts = 2
                 };
                 seedContext.VerificationCodes.Add(code);
                 await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -220,7 +218,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                     Address = "test@example.com",
                     VerificationCodeHash = "test-hash-123",
                     Expires = DateTime.UtcNow.AddHours(1),
-                    FailedAttempts = 0
                 };
                 seedContext.VerificationCodes.Add(code);
                 await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -264,7 +261,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                 Address = "complete@example.com",
                 VerificationCodeHash = "hash-to-remove",
                 Expires = DateTime.UtcNow.AddHours(1),
-                FailedAttempts = 0
             };
 
             await using (var seedContext = new ProfileDbContext(options))
@@ -303,7 +299,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                 Address = "duplicate@example.com",
                 VerificationCodeHash = "new-hash",
                 Expires = DateTime.UtcNow.AddHours(1),
-                FailedAttempts = 0
             };
 
             await using (var seedContext = new ProfileDbContext(options))
@@ -344,8 +339,9 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                 Address = "+4799999998",
                 VerificationCodeHash = "hash-fail",
                 Expires = DateTime.UtcNow.AddHours(1),
-                FailedAttempts = 2
             };
+            verificationCode.IncrementFailedAttempts();
+            verificationCode.IncrementFailedAttempts();
 
             await using (var seedContext = new ProfileDbContext(options))
             {
@@ -379,7 +375,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
                 Address = "firstfail@example.com",
                 VerificationCodeHash = "hash-first-fail",
                 Expires = DateTime.UtcNow.AddHours(1),
-                FailedAttempts = 0
             };
 
             await using (var seedContext = new ProfileDbContext(options))

@@ -39,14 +39,7 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
         return verificationCode;
     }
 
-    /// <summary>
-    /// Complete the address verification.
-    /// </summary>
-    /// <param name="verificationCodeId">The ID of the verification code that is validated.</param>
-    /// <param name="addressType">If the address is for sms or email</param>
-    /// <param name="address">The address to verify</param>
-    /// <param name="userId">The id of the user</param>
-    /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+    /// <inheritdoc/>
     public async Task CompleteAddressVerificationAsync(int verificationCodeId, AddressType addressType, string address, int userId)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
@@ -79,7 +72,7 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
         var verificationCode = await databaseContext.VerificationCodes.FindAsync(verificationCodeId);
         if (verificationCode is not null)
         {
-            verificationCode.FailedAttempts++;
+            verificationCode.IncrementFailedAttempts();
             await databaseContext.SaveChangesAsync();
         }
     }
