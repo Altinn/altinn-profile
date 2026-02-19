@@ -9,6 +9,7 @@ using Altinn.Authorization.ServiceDefaults.Jobs;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Telemetry;
+using Altinn.Profile.Integrations.Notifications;
 using Altinn.Profile.Integrations.Repositories.A2Sync;
 using Altinn.Profile.Integrations.SblBridge.Changelog;
 
@@ -80,32 +81,7 @@ namespace Altinn.Profile.Changelog
 
                 foreach (var change in page.ProfileChangeLogList)
                 {
-                    var notificationSetting = ProfessionalNotificationSettings.Deserialize(change.DataObject);
-                    if (notificationSetting == null)
-                    {
-                        _logger.LogWarning("Failed to deserialize notificationSetting change log item with id {ChangeId}", change.ProfileChangeLogId);
-                        continue;
-                    }
-
-                    change.ChangeDatetime = change.ChangeDatetime.ToUniversalTime();
-                    if (change.OperationType is OperationType.Insert or OperationType.Update)
-                    {
-                        var userPartyContactInfo = new UserPartyContactInfo
-                        {
-                            UserId = notificationSetting.UserId,
-                            PartyUuid = notificationSetting.PartyUuid,
-                            EmailAddress = notificationSetting.Email,
-                            PhoneNumber = notificationSetting.PhoneNumber,
-                            LastChanged = change.ChangeDatetime,
-                            UserPartyContactInfoResources = notificationSetting.ServiceOptions?.Where(r => !string.IsNullOrWhiteSpace(r)).Select(r => new UserPartyContactInfoResource { ResourceId = r }).ToList()
-                        };
-
-                        await _notificationSettingSyncRepository.AddOrUpdateNotificationAddressFromSyncAsync(userPartyContactInfo, cancellationToken);
-                    }
-                    else if (change.OperationType == OperationType.Delete)
-                    {
-                        await _notificationSettingSyncRepository.DeleteNotificationAddressFromSyncAsync(notificationSetting.UserId, notificationSetting.PartyUuid, cancellationToken);
-                    }
+                    await ProcessChangeAsync(change, cancellationToken);
                 }
 
                 var lastChange = page.ProfileChangeLogList[^1].ChangeDatetime;
@@ -128,6 +104,47 @@ namespace Altinn.Profile.Changelog
                 yield return response;
 
                 from = response.ProfileChangeLogList[^1].ChangeDatetime;
+            }
+        }
+
+        private static bool IsDeleted(ProfessionalNotificationSettings notificationSetting)
+        {
+            return string.IsNullOrWhiteSpace(notificationSetting.Email) && string.IsNullOrWhiteSpace(notificationSetting.PhoneNumber);
+        }
+
+        private async Task ProcessChangeAsync(ChangeLogItem change, CancellationToken cancellationToken)
+        {
+            var notificationSetting = ProfessionalNotificationSettings.Deserialize(change.DataObject);
+            if (notificationSetting == null)
+            {
+                _logger.LogWarning("Failed to deserialize notificationSetting change log item with id {ChangeId}", change.ProfileChangeLogId);
+                return;
+            }
+
+            change.ChangeDatetime = change.ChangeDatetime.ToUniversalTime();
+            if (change.OperationType is OperationType.Insert or OperationType.Update)
+            {
+                if (IsDeleted(notificationSetting))
+                {
+                    await _notificationSettingSyncRepository.DeleteNotificationAddressFromSyncAsync(notificationSetting.UserId, notificationSetting.PartyUuid, cancellationToken);
+                    return;
+                }
+
+                var userPartyContactInfo = new UserPartyContactInfo
+                {
+                    UserId = notificationSetting.UserId,
+                    PartyUuid = notificationSetting.PartyUuid,
+                    EmailAddress = notificationSetting.Email,
+                    PhoneNumber = notificationSetting.PhoneNumber,
+                    LastChanged = change.ChangeDatetime,
+                    UserPartyContactInfoResources = notificationSetting.ServiceOptions?.Where(r => !string.IsNullOrWhiteSpace(r)).Select(r => new UserPartyContactInfoResource { ResourceId = r }).ToList()
+                };
+
+                await _notificationSettingSyncRepository.AddOrUpdateNotificationAddressFromSyncAsync(userPartyContactInfo, cancellationToken);
+            }
+            else if (change.OperationType == OperationType.Delete)
+            {
+                await _notificationSettingSyncRepository.DeleteNotificationAddressFromSyncAsync(notificationSetting.UserId, notificationSetting.PartyUuid, cancellationToken);
             }
         }
 
