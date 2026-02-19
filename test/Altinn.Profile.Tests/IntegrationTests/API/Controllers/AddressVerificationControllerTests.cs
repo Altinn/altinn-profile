@@ -403,7 +403,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 Type = AddressType.Email,
                 VerificationCode = "wrongcode"
             };
-            var hash = VerificationCodeService.HashCode("123456");
+            var hash = BCrypt.Net.BCrypt.HashPassword("123456");
 
             var verificationCode = new VerificationCode
             {
