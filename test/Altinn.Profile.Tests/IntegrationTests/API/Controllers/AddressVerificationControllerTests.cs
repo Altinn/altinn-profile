@@ -195,7 +195,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 Value = "address@example.com",
                 Type = AddressType.Email,
-                VerificationCode = "wrongcode"
+                VerificationCode = "999999"
             };
             var hash = VerificationCodeService.HashCode("123456");
 
@@ -300,6 +300,38 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 Value = address,
                 Type = addressType,
+                VerificationCode = code
+            };
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/verify")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Theory]
+        [InlineData("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890", "123456")]
+        [InlineData("valid@email.com", "1234567")]
+        [InlineData("valid@email.com", "12345")]
+        [InlineData("valid@email.com", "asdfgg")]
+        public async Task VerifyAddress_WhenWrongFormatOfRequest_ReturnsBadRequest(string address, string code)
+        {
+            // Arrange
+            const int userId = 2516356;
+            var request = new AddressVerificationRequest
+            {
+                Value = address,
+                Type = AddressType.Email,
                 VerificationCode = code
             };
 

@@ -15,6 +15,7 @@ namespace Altinn.Profile.Models
         /// </summary>
         [Required]
         [JsonRequired]
+        [StringLength(320)] // max email length per RFC 5321
         public required string Value { get; init; }
 
         /// <summary>
@@ -30,6 +31,8 @@ namespace Altinn.Profile.Models
         /// </summary>
         [Required]
         [JsonRequired]
+        [StringLength(6, MinimumLength = 6)]
+        [RegularExpression(@"^\d{6}$")]
         public required string VerificationCode { get; init; }
     }
 }
