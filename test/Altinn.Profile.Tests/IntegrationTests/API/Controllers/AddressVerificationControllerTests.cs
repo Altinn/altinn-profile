@@ -152,7 +152,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 VerificationCode = "123456"
             };
 
-            var hash = VerificationCodeService.HashCode(request.VerificationCode);
+            var hash = BCrypt.Net.BCrypt.HashPassword(request.VerificationCode);
 
             var verificationCode = new VerificationCode
             {
@@ -197,7 +197,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 Type = AddressType.Email,
                 VerificationCode = "999999"
             };
-            var hash = VerificationCodeService.HashCode("123456");
+            var hash = BCrypt.Net.BCrypt.HashPassword("123456");
 
             var verificationCode = new VerificationCode
             {
@@ -248,7 +248,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 Type = AddressType.Email,
                 VerificationCode = "123456"
             };
-            var hash = VerificationCodeService.HashCode(request.VerificationCode);
+            var hash = BCrypt.Net.BCrypt.HashPassword(request.VerificationCode);
 
             var verificationCode = new VerificationCode
             {

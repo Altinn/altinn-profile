@@ -18,20 +18,10 @@ namespace Altinn.Profile.Integrations.AddressVerification
             return RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
         }
 
-        /// <summary>
-        /// Hashes the provided verification code using BCrypt.
-        /// </summary>
-        /// <param name="code">The verification code to hash.</param>
-        /// <returns>The hashed verification code.</returns>
-        public static string HashCode(string code)
-        {
-            return BCrypt.Net.BCrypt.HashPassword(code);
-        }
-
         /// <inheritdoc/>
         public VerificationCode CreateVerificationCode(int userId, string address, AddressType addressType, string verificationCode)
         {
-            var verificationCodeHash = HashCode(verificationCode);
+            var verificationCodeHash = BCrypt.Net.BCrypt.HashPassword(verificationCode);
             var verificationCodeModel = new VerificationCode
             {
                 UserId = userId,
