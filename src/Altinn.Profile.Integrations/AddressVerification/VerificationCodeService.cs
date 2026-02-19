@@ -34,5 +34,21 @@ namespace Altinn.Profile.Integrations.AddressVerification
 
             return verificationCodeModel;
         }
+
+        /// <inheritdoc/>
+        public bool VerifyCode(string code, VerificationCode verificationCode)
+        {
+            if (string.IsNullOrEmpty(verificationCode.VerificationCodeHash))
+            {
+                return false;
+            }
+
+            if (verificationCode.Expires < DateTime.UtcNow)
+            {
+                return false;
+            }
+
+            return BCrypt.Net.BCrypt.Verify(code, verificationCode.VerificationCodeHash);
+        }
     }
 }

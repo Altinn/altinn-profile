@@ -25,7 +25,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <param name="languageCode">The language the user has chosen as their prefered language</param>
         /// <param name="partyUuid">The partyUuid for the party the address was changed for</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns></returns>
+        /// <returns>A task representing the asynchronous operation.</returns>
         Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, string languageCode, Guid partyUuid, CancellationToken cancellationToken);
 
         /// <summary>
@@ -41,7 +41,6 @@ namespace Altinn.Profile.Core.AddressVerifications
 
         /// <summary>
         /// Sends an email order to the specified email address notifying the owner about an address change.
-        /// Gets the verified addresses for a given user.
         /// </summary>
         /// <param name="emailAddress">The email address to send the email to.</param>
         /// <param name="partyUuid">The partyUuid for the party the address was changed for</param>
@@ -58,5 +57,16 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a list of verified addresses.</returns>
         Task<List<VerifiedAddress>> GetVerifiedAddressesAsync(int userId, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Submits a verification code for the given user and address. If the code is valid, the verification process completes, and the user's address becomes verified.
+        /// </summary>
+        /// <param name="userid">The id of the user</param>
+        /// <param name="address">The address to verify</param>
+        /// <param name="addressType">The addresstype, sms or email</param>
+        /// <param name="submittedCode">The verification code provided by the user</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result is <c>true</c> if the submitted code is valid and the address has been successfully verified; otherwise, <c>false</c>.</returns>
+        Task<bool> SubmitVerificationCodeAsync(int userid, string address, AddressType addressType, string submittedCode, CancellationToken cancellationToken);
     }
 }

@@ -1,6 +1,4 @@
 ﻿#nullable enable
-using System;
-using System.Reflection;
 using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Persistence;
@@ -33,47 +31,49 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
         await databaseContext.SaveChangesAsync();
     }
 
-    /// <summary>
-    /// Tries to verify an address using the provided verification code hash.
-    /// </summary>
-    /// <param name="verificationCodeHash">The hash to compare</param>
-    /// <param name="addressType">If the address is for sms or email</param>
-    /// <param name="address">The address to verify</param>
-    /// <param name="userId">The id of the user</param>
-    /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    public async Task<bool> TryVerifyAddressAsync(string verificationCodeHash, AddressType addressType, string address, int userId)
+    /// <inheritdoc/>
+    public async Task<VerificationCode?> GetVerificationCodeAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken)
     {
-        var verified = false;
-        address = VerificationCode.FormatAddress(address);
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        var verificationCode = await databaseContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == address, cancellationToken);
+        return verificationCode;
+    }
 
+    /// <inheritdoc/>
+    public async Task CompleteAddressVerificationAsync(int verificationCodeId, AddressType addressType, string address, int userId)
+    {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
-        var verificationCode = await databaseContext.VerificationCodes.FirstOrDefaultAsync(vc => vc.UserId.Equals(userId) && vc.AddressType == addressType && vc.Address == address);
-        
-        if (verificationCode == null || verificationCode.Expires < DateTime.UtcNow)
+        var verifiedAddress = new VerifiedAddress
         {
-            return verified;
+            UserId = userId,
+            AddressType = addressType,
+            Address = address,
+        };
+
+        var codeToRemove = await databaseContext.VerificationCodes.FindAsync(verificationCodeId);
+        if (codeToRemove is null)
+        {
+            // This might indicate that the verification code has already been verified in another semi-concurrent process.
+            // In that case, we can safely ignore the request to complete the verification as the address is already verified.
+            return;
         }
 
-        if (verificationCode.VerificationCodeHash == verificationCodeHash)
-        {
-            var verifiedAddress = new VerifiedAddress
-            {
-                UserId = userId,
-                AddressType = addressType,
-                Address = address,
-            };
-            databaseContext.VerifiedAddresses.Add(verifiedAddress);
-            databaseContext.VerificationCodes.Remove(verificationCode);
-            verified = true;
-        }
-        else
-        {
-            verificationCode.FailedAttempts += 1;
-            databaseContext.VerificationCodes.Update(verificationCode);
-        }
+        databaseContext.VerificationCodes.Remove(codeToRemove);
+        databaseContext.VerifiedAddresses.Add(verifiedAddress);
 
         await databaseContext.SaveChangesAsync();
-        return verified;
+    }
+
+    /// <inheritdoc/>
+    public async Task IncrementFailedAttemptsAsync(int verificationCodeId)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+        var verificationCode = await databaseContext.VerificationCodes.FindAsync(verificationCodeId);
+        if (verificationCode is not null)
+        {
+            verificationCode.IncrementFailedAttempts();
+            await databaseContext.SaveChangesAsync();
+        }
     }
 
     /// <inheritdoc />

@@ -31,5 +31,32 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a list of verified addresses.</returns>
         Task<List<VerifiedAddress>> GetVerifiedAddressesAsync(int userId, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the verification code for a given address.
+        /// </summary>
+        /// <param name="userId">The id of the user</param>
+        /// <param name="addressType">If the address is for sms or email</param>
+        /// <param name="address">The address to check</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A <see cref="Task{TResult}"/> containing the <see cref="VerificationCode"/> if found; otherwise <c>null</c>.</returns>
+        Task<VerificationCode?> GetVerificationCodeAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Increments the number of failed verification attempts for a given verification code.
+        /// </summary>
+        /// <param name="verificationCodeId">The ID of the verification code that should increase number of failed attempts.</param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        Task IncrementFailedAttemptsAsync(int verificationCodeId);
+
+        /// <summary>
+        /// Complete the address verification.
+        /// </summary>
+        /// <param name="verificationCodeId">The ID of the verification code that is validated.</param>
+        /// <param name="addressType">If the address is for sms or email</param>
+        /// <param name="address">The address to verify</param>
+        /// <param name="userId">The id of the user</param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        Task CompleteAddressVerificationAsync(int verificationCodeId, AddressType addressType, string address, int userId);
     }
 }
