@@ -11,6 +11,7 @@ using Altinn.Profile.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Altinn.Profile.Controllers
 {
@@ -60,11 +61,14 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         /// <param name="request">The api request containing the aadress and code to verify</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
+        /// <remarks>This is rate limited</remarks>
         [HttpPost("verify")]
+        [EnableRateLimiting("verify-address")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
         public async Task<ActionResult> Verify([FromBody]AddressVerificationRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
