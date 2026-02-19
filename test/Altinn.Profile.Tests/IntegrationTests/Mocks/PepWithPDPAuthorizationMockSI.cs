@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Altinn.Authorization.ABAC;
@@ -299,6 +300,16 @@ namespace Altinn.Profile.Tests.IntegrationTests.Mocks
         {
             string unitTestFolder = Path.GetDirectoryName(new Uri(typeof(PepWithPDPAuthorizationMockSI).Assembly.Location).LocalPath);
             return Path.Combine(unitTestFolder, "..", "..", "..", "Testdata");
+        }
+
+        public Task<XacmlJsonResponse> GetDecisionForRequest(XacmlJsonRequestRoot xacmlJsonRequest, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> GetDecisionForUnvalidateRequest(XacmlJsonRequestRoot xacmlJsonRequest, ClaimsPrincipal user, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
     }
 }
