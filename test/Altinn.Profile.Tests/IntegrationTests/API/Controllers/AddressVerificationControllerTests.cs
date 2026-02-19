@@ -163,7 +163,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 Expires = DateTime.UtcNow.AddHours(1),
             };
 
-            // Address will be formatted to lowercase, so mock with the formatted version
             _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, verificationCode.Address, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(verificationCode);
 
@@ -208,7 +207,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 Expires = DateTime.UtcNow.AddHours(1),
             };
 
-            // Address will be formatted to lowercase, so mock with the formatted version
             _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, "address@example.com", It.IsAny<CancellationToken>()))
                 .ReturnsAsync(verificationCode);
 
@@ -259,7 +257,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 Expires = DateTime.UtcNow.AddHours(-1),
             };
 
-            // Address will be formatted to lowercase, so mock with the formatted version
             _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, "address@example.com", It.IsAny<CancellationToken>()))
                 .ReturnsAsync(verificationCode);
 
@@ -363,7 +360,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 VerificationCode = "123456"
             };
 
-            // Address will be formatted to lowercase, so mock with the formatted version
             _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, "address@example.com", It.IsAny<CancellationToken>()))
                 .ReturnsAsync((VerificationCode)null);
 
@@ -414,7 +410,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 Expires = DateTime.UtcNow.AddHours(1),
             };
 
-            // Address will be formatted to lowercase, so mock with the formatted version
             _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, "address@example.com", It.IsAny<CancellationToken>()))
                 .ReturnsAsync(verificationCode);
 
