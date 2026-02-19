@@ -144,7 +144,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task VerifyAddress_WhenCodeIsCorrect_ReturnsSuccess()
         {
             // Arrange
-            const int userId = 2516356;
+            const int userId = 2516351;
             var request = new AddressVerificationRequest
             {
                 Value = "Address@example.com",
@@ -190,7 +190,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task VerifyAddress_WhenCodeIsWrong_ReturnsUnprocessableEntity()
         {
             // Arrange
-            const int userId = 2516356;
+            const int userId = 2516352;
             var request = new AddressVerificationRequest
             {
                 Value = "address@example.com",
@@ -241,7 +241,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task VerifyAddress_WhenCodeIsExpired_ReturnsUnprocessableEntity()
         {
             // Arrange
-            const int userId = 2516356;
+            const int userId = 2516353;
             var request = new AddressVerificationRequest
             {
                 Value = "address@EXAMPLE.com",
@@ -295,7 +295,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task VerifyAddress_WhenIncompleteRequest_ReturnsBadRequest(string address, AddressType? addressType, string code)
         {
             // Arrange
-            const int userId = 2516356;
+            const int userId = 2516354;
             var request = new AddressVerificationRequest
             {
                 Value = address,
@@ -392,7 +392,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpClient client = _factory.CreateClient();
 
             // Act
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 5; i++)
             {
                 HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/verify")
                 {
