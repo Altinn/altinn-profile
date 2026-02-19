@@ -50,17 +50,16 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
             Address = address,
         };
 
-        // Remove any existing verifications for the same address before adding the new one
-        var existingVerifications = databaseContext.VerifiedAddresses.Where(va => va.UserId.Equals(userId) && va.AddressType == addressType && va.Address == address);
-        databaseContext.VerifiedAddresses.RemoveRange(existingVerifications);
-
-        databaseContext.VerifiedAddresses.Add(verifiedAddress);
-
         var codeToRemove = await databaseContext.VerificationCodes.FindAsync(verificationCodeId);
-        if (codeToRemove is not null)
+        if (codeToRemove is null)
         {
-            databaseContext.VerificationCodes.Remove(codeToRemove);
+            // This might indicate that the verification code has already been verified in another semi-concurrent process.
+            // In that case, we can safely ignore the request to complete the verification as the address is already verified.
+            return;
         }
+
+        databaseContext.VerificationCodes.Remove(codeToRemove);
+        databaseContext.VerifiedAddresses.Add(verifiedAddress);
 
         await databaseContext.SaveChangesAsync();
     }

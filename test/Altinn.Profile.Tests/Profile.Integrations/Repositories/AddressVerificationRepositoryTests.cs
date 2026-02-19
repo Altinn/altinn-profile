@@ -287,43 +287,22 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
         }
 
         [Fact]
-        public async Task CompleteAddressVerification_RemovesExistingVerificationsBeforeAdding()
+        public async Task CompleteAddressVerification_DoesNothingIfTheCodeIsAlreadyRemoved()
         {
-            var options = CreateOptions(nameof(CompleteAddressVerification_RemovesExistingVerificationsBeforeAdding));
+            var options = CreateOptions(nameof(CompleteAddressVerification_DoesNothingIfTheCodeIsAlreadyRemoved));
             var factory = new TestDbContextFactory(options);
-
-            var verificationCode = new VerificationCode
-            {
-                UserId = 8,
-                AddressType = AddressType.Email,
-                Address = "duplicate@example.com",
-                VerificationCodeHash = "new-hash",
-                Expires = DateTime.UtcNow.AddHours(1),
-            };
-
-            await using (var seedContext = new ProfileDbContext(options))
-            {
-                seedContext.VerificationCodes.Add(verificationCode);
-                seedContext.VerifiedAddresses.Add(new VerifiedAddress
-                {
-                    UserId = 8,
-                    AddressType = AddressType.Email,
-                    Address = "duplicate@example.com",
-                    VerificationType = VerificationType.Verified,
-                });
-                await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-            }
 
             var repository = new AddressVerificationRepository(factory);
 
-            await repository.CompleteAddressVerificationAsync(verificationCode.VerificationCodeId, AddressType.Email, "duplicate@example.com", 8);
+            var verificationCodeId = 999;
+            await repository.CompleteAddressVerificationAsync(verificationCodeId, AddressType.Email, "duplicate@example.com", 8);
 
             await using var assertContext = new ProfileDbContext(options);
             var verifiedAddresses = await assertContext.VerifiedAddresses
                 .Where(va => va.UserId == 8 && va.Address == "duplicate@example.com")
                 .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
 
-            Assert.Single(verifiedAddresses);
+            Assert.Empty(verifiedAddresses);
         }
 
         [Fact]
