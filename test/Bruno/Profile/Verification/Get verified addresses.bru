@@ -1,11 +1,11 @@
 meta {
-  name: Get all parties
+  name: Get verified addresses
   type: http
-  seq: 4
+  seq: 5
 }
 
 get {
-  url: {{ProfileBaseAddress}}/api/v1/users/current/notificationsettings/parties
+  url: {{ProfileBaseAddress}}/api/v1/users/current/verification/verified-addresses
   body: none
   auth: inherit
 }

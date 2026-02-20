@@ -1,0 +1,23 @@
+meta {
+  name: Verify address
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{ProfileBaseAddress}}/api/v1/users/current/verification/verify
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "verificationCode": "123456",
+    "value": "+4799999999",
+    "type": "Sms"
+  }
+}
+
+script:pre-request {
+  await bru.runRequest("TokenGenerator/portal user")
+}
