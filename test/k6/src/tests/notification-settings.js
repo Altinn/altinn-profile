@@ -185,6 +185,8 @@ export default function runTests(data) {
     addPersonalNotificationAddresses(token, partyUuid, data.notificationSettings);
     getPersonalNotificationAddresses(token, partyUuid);
     getVerifiedAddresses(token);
-    tryVerifyAddress(token, data.notificationSettings);
+    if (data.partyUuid) {
+        tryVerifyAddress(token, data.notificationSettings);
+    }
     removePersonalNotificationAddresses(token, partyUuid);
 }
