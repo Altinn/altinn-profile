@@ -99,11 +99,6 @@ function getVerifiedAddresses(token) {
  * @param {Object} notificationSettings - The notification settings to add.
  */
 function addPersonalNotificationAddresses(token, partyUuid, notificationSettings) {
-    console.log("Adding personal notification addresses...");
-    console.log(`Token: ${token}`);
-    console.log(`Party UUID: ${partyUuid}`);
-    console.log(`Notification Settings: ${JSON.stringify(notificationSettings)}`);
-
     const response = notificationSettingsApi.addPersonalNotificationAddresses(
         token,
         partyUuid,
