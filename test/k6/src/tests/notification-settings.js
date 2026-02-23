@@ -77,7 +77,7 @@ function getPersonalNotificationAddresses(token, partyUuid) {
 }
 
 /**
- * Gets all verification settings.
+ * Gets all verified addresses.
  * @param {string} token - The authentication token.
  */
 function getVerifiedAddresses(token) {
@@ -115,7 +115,7 @@ function addPersonalNotificationAddresses(token, partyUuid, notificationSettings
 /**
  * Try verifying an address.
  * @param {string} token - The authentication token.
- * @param {Object} notificationSettings - The notification settings to add.
+ * @param {Object} notificationSettings - The notification settings to verify.
  */
 function tryVerifyAddress(token, notificationSettings) {
     const request = {

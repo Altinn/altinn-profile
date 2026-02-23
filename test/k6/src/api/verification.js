@@ -11,10 +11,10 @@ export function getVerifiedAddresses(token) {
 }
 
 export function verifyAddress(token, request) {
-    const endpoint = config.profileUrl.verification + '/verify';
-  
-    const params = apiHelpers.buildHeaderWithBearerAndContentType(token);
-    const requestBody = JSON.stringify(request);
+  const endpoint = config.profileUrl.verification + '/verify';
 
-    return http.post(endpoint, requestBody, params);
+  const params = apiHelpers.buildHeaderWithBearerAndContentType(token);
+  const requestBody = JSON.stringify(request);
+
+  return http.post(endpoint, requestBody, params);
   }
