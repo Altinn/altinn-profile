@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -235,6 +234,183 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
             
             _factory.PartyGroupRepositoryMock.Verify(x => x.GetGroups(It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task Create_ReturnsCreatedGroup_WhenRequestIsValid()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            const string GroupName = "My Test Group";
+
+            var createdGroup = new Group
+            {
+                GroupId = 42,
+                UserId = UserId,
+                Name = GroupName,
+                IsFavorite = false,
+                Parties = []
+            };
+
+            _factory.PartyGroupRepositoryMock
+                .Setup(x => x.CreateGroup(UserId, GroupName, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(createdGroup);
+
+            HttpClient client = _factory.CreateClient();
+
+            var requestBody = new GroupRequest { Name = GroupName };
+            var content = new StringContent(
+                JsonSerializer.Serialize(requestBody, _serializerOptionsCamelCase),
+                System.Text.Encoding.UTF8,
+                "application/json");
+
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Post, UserId, "profile/api/v1/users/current/party-groups");
+            httpRequestMessage.Content = content;
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+            GroupResponse groupResponse = JsonSerializer.Deserialize<GroupResponse>(
+                responseContent, _serializerOptionsCamelCase);
+
+            Assert.NotNull(groupResponse);
+            Assert.Equal(42, groupResponse.GroupId);
+            Assert.Equal(GroupName, groupResponse.Name);
+            Assert.False(groupResponse.IsFavorite);
+            Assert.Empty(groupResponse.Parties);
+
+            _factory.PartyGroupRepositoryMock.Verify(
+                x => x.CreateGroup(UserId, GroupName, It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task Create_ReturnsBadRequest_WhenNameIsMissing()
+        {
+            // Arrange
+            const int UserId = 2516356;
+
+            HttpClient client = _factory.CreateClient();
+
+            var requestBody = new { };
+            var content = new StringContent(
+                JsonSerializer.Serialize(requestBody, _serializerOptionsCamelCase),
+                System.Text.Encoding.UTF8,
+                "application/json");
+
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Post, UserId, "profile/api/v1/users/current/party-groups");
+            httpRequestMessage.Content = content;
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            _factory.PartyGroupRepositoryMock.Verify(
+                x => x.CreateGroup(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        [Fact]
+        public async Task Create_ReturnsBadRequest_WhenNameIsEmpty()
+        {
+            // Arrange
+            const int UserId = 2516356;
+
+            HttpClient client = _factory.CreateClient();
+
+            var requestBody = new { name = string.Empty };
+            var content = new StringContent(
+                JsonSerializer.Serialize(requestBody, _serializerOptionsCamelCase),
+                System.Text.Encoding.UTF8,
+                "application/json");
+
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Post, UserId, "profile/api/v1/users/current/party-groups");
+            httpRequestMessage.Content = content;
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            _factory.PartyGroupRepositoryMock.Verify(
+                x => x.CreateGroup(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        [Fact]
+        public async Task Create_WhenNoUserIdClaim_ReturnsUnauthorized_AndRepositoryNotCalled()
+        {
+            // Arrange
+            HttpClient client = _factory.CreateClient();
+
+            var requestBody = new GroupRequest { Name = "Test Group" };
+            var content = new StringContent(
+                JsonSerializer.Serialize(requestBody, _serializerOptionsCamelCase),
+                System.Text.Encoding.UTF8,
+                "application/json");
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "profile/api/v1/users/current/party-groups");
+            request.Content = content;
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+
+            _factory.PartyGroupRepositoryMock.Verify(
+                x => x.CreateGroup(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        [Fact]
+        public async Task Create_ReturnsLocationHeader_WhenGroupIsCreated()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            const string GroupName = "Header Test Group";
+
+            var createdGroup = new Group
+            {
+                GroupId = 123,
+                UserId = UserId,
+                Name = GroupName,
+                IsFavorite = false,
+                Parties = []
+            };
+
+            _factory.PartyGroupRepositoryMock
+                .Setup(x => x.CreateGroup(UserId, GroupName, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(createdGroup);
+
+            HttpClient client = _factory.CreateClient();
+
+            var requestBody = new GroupRequest { Name = GroupName };
+            var content = new StringContent(
+                JsonSerializer.Serialize(requestBody, _serializerOptionsCamelCase),
+                System.Text.Encoding.UTF8,
+                "application/json");
+
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Post, UserId, "profile/api/v1/users/current/party-groups");
+            httpRequestMessage.Content = content;
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            Assert.NotNull(response.Headers.Location);
+            Assert.Contains("123", response.Headers.Location.ToString());
         }
 
         private static HttpRequestMessage CreateRequest(HttpMethod method, int userId, string requestUri)
