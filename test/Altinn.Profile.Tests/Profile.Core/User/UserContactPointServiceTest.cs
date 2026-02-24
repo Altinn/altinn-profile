@@ -169,7 +169,7 @@ public class UserContactPointServiceTest
     }
 
     [Fact]
-    public async Task GetSiContactPoints_WhenPartialMatchInSblBridge_ReturnsAllValuesFromSblBridgdeAndElseStrippedEmail()
+    public async Task GetSiContactPoints_WhenPartialMatchInSblBridge_ReturnsAllValuesFromSblBridgeAndElseStrippedEmail()
     {
         // Arrange
         var identities = new List<string>
