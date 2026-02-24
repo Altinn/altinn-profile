@@ -20,6 +20,7 @@ namespace Altinn.Profile.Controllers
     /// Initializes a new instance of the <see cref="PartyGroupsController"/> class.
     /// </remarks>
     [Authorize]
+    [ApiController]
     [Route("profile/api/v1/users/current/party-groups")]
     [Produces("application/json")]
     public class PartyGroupsController(IPartyGroupService partyGroupService) : ControllerBase
@@ -89,7 +90,7 @@ namespace Altinn.Profile.Controllers
                 GroupId = groupResponse.GroupId
             };
 
-            return Created($"profile/api/v1/users/current/party-groups/{response.GroupId}", response);
+            return Created($"/profile/api/v1/users/current/party-groups/{response.GroupId}", response);
         }
     }
 }
