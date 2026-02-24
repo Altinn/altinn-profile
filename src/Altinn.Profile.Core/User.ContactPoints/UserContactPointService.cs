@@ -92,12 +92,24 @@ public class UserContactPointService : IUserContactPointsService
                     continue;
                 }
 
-                contactPointsList.ContactPointsList.Add(new SiUserContactPoints()
-                {
-                    Email = idportenEmail.Value.Value,
-                    ExternalIdentity = urnIdentifier,
-                    MobileNumber = null
-                });
+                Result<UserProfile, bool> result = await _userProfileService.GetUserByUsername("epost:" + idportenEmail.Value.Value);
+                
+                // Build contact point from profile if found, otherwise from URN
+                var contactPoint = result.Match(
+                    profile => new SiUserContactPoints()
+                    {
+                        Email = !string.IsNullOrWhiteSpace(profile.Email) ? profile.Email : idportenEmail.Value.Value,
+                        MobileNumber = profile.PhoneNumber,
+                        ExternalIdentity = urnIdentifier
+                    },
+                    _ => new SiUserContactPoints()
+                    {
+                        Email = idportenEmail.Value.Value,
+                        ExternalIdentity = urnIdentifier,
+                        MobileNumber = null
+                    });
+
+                contactPointsList.ContactPointsList.Add(contactPoint);
             }
             else if (parsedUrn is Username username)
             {
