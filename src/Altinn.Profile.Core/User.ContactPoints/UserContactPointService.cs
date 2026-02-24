@@ -78,61 +78,70 @@ public class UserContactPointService : IUserContactPointsService
 
         foreach (var urnIdentifier in externalIdentities)
         {
-            // Attempt to parse the URN string into a CustomContactPointUrn
             if (!TryParse(urnIdentifier, out CustomContactPointUrn? parsedUrn))
             {
                 continue;
             }
 
-            // Verify the URN specifically represents an ID-porten email and extract the email value
-            if (parsedUrn is IDPortenEmail idportenEmail)
+            var contactPoint = parsedUrn switch
             {
-                if (string.IsNullOrWhiteSpace(idportenEmail.Value.Value))
-                {
-                    continue;
-                }
+                IDPortenEmail idportenEmail => await ProcessIdPortenEmail(idportenEmail, urnIdentifier),
+                Username username => await ProcessUsername(username, urnIdentifier),
+                _ => null
+            };
 
-                Result<UserProfile, bool> result = await _userProfileService.GetUserByUsername("epost:" + idportenEmail.Value.Value);
-                
-                // Build contact point from profile if found, otherwise from URN
-                var contactPoint = result.Match(
-                    profile => new SiUserContactPoints()
-                    {
-                        Email = !string.IsNullOrWhiteSpace(profile.Email) ? profile.Email : idportenEmail.Value.Value,
-                        MobileNumber = profile.PhoneNumber,
-                        ExternalIdentity = urnIdentifier
-                    },
-                    _ => new SiUserContactPoints()
-                    {
-                        Email = idportenEmail.Value.Value,
-                        ExternalIdentity = urnIdentifier,
-                        MobileNumber = null
-                    });
-
+            if (contactPoint is not null)
+            {
                 contactPointsList.ContactPointsList.Add(contactPoint);
-            }
-            else if (parsedUrn is Username username)
-            {
-                Result<UserProfile, bool> result = await _userProfileService.GetUserByUsername(username.Value.Value);
-                result.Match(
-                        profile =>
-                        {
-                            if (string.IsNullOrWhiteSpace(profile.Email) && string.IsNullOrWhiteSpace(profile.PhoneNumber))
-                            {
-                                return;
-                            }
-
-                            contactPointsList.ContactPointsList.Add(new SiUserContactPoints()
-                            {
-                                Email = profile.Email,
-                                ExternalIdentity = urnIdentifier,
-                                MobileNumber = profile.PhoneNumber,
-                            });
-                        },
-                        _ => { });
             }
         }
 
         return contactPointsList;
+    }
+
+    private async Task<SiUserContactPoints?> ProcessIdPortenEmail(IDPortenEmail idportenEmail, string urnIdentifier)
+    {
+        if (string.IsNullOrWhiteSpace(idportenEmail.Value.Value))
+        {
+            return null;
+        }
+
+        var result = await _userProfileService.GetUserByUsername("epost:" + idportenEmail.Value.Value);
+
+        return result.Match(
+            profile => new SiUserContactPoints()
+            {
+                Email = !string.IsNullOrWhiteSpace(profile.Email) ? profile.Email : idportenEmail.Value.Value,
+                MobileNumber = profile.PhoneNumber,
+                ExternalIdentity = urnIdentifier
+            },
+            _ => new SiUserContactPoints()
+            {
+                Email = idportenEmail.Value.Value,
+                ExternalIdentity = urnIdentifier,
+                MobileNumber = null
+            });
+    }
+
+    private async Task<SiUserContactPoints?> ProcessUsername(Username username, string urnIdentifier)
+    {
+        var result = await _userProfileService.GetUserByUsername(username.Value.Value);
+
+        return result.Match(
+            profile =>
+            {
+                if (string.IsNullOrWhiteSpace(profile.Email) && string.IsNullOrWhiteSpace(profile.PhoneNumber))
+                {
+                    return null;
+                }
+
+                return new SiUserContactPoints()
+                {
+                    Email = profile.Email,
+                    ExternalIdentity = urnIdentifier,
+                    MobileNumber = profile.PhoneNumber,
+                };
+            },
+            _ => (SiUserContactPoints?)null);
     }
 }
