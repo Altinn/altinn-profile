@@ -257,7 +257,6 @@ public class UserContactPointServiceTest
         Assert.NotNull(result);
         Assert.Equal(3, result.ContactPointsList.Count);
 
-        // Verify prefixed email is stripped
         Assert.Contains(result.ContactPointsList, cp =>
             cp.Email == "user1@email.com" &&
             cp.ExternalIdentity == "urn:altinn:person:idporten-email:user1@altinn.no" &&
