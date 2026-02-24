@@ -6,6 +6,11 @@
     public interface IPartyGroupService
     {
         /// <summary>
+        /// Gets a group for a given user and group id
+        /// </summary>
+        Task<Group?> GetGroup(int userId, int groupId, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Retrieves all groups for a given user. If none are found, an empty list is returned.
         /// </summary>
         Task<List<Group>> GetGroupsForAUser(int userId, CancellationToken cancellationToken);

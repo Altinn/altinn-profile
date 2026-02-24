@@ -13,6 +13,11 @@ namespace Altinn.Profile.Core.Integrations
         Task<Group?> GetFavorites(int userId, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Gets a group for a given user and group id
+        /// </summary>
+        Task<Group?> GetGroup(int userId, int groupId, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Gets the groups for a given user.
         /// </summary>
         /// <param name="userId">The logged in users userId</param>
