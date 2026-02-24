@@ -105,6 +105,20 @@ public class UserProfileService : IUserProfileService
     }
 
     /// <inheritdoc/>
+    public async Task<string> GetPreferredLanguage(int userId)
+    {
+        var profileSettings = await _profileSettingsRepository.GetProfileSettings(userId);
+        return profileSettings?.LanguageType ?? "nb";
+    }
+
+    /// <inheritdoc/>
+    public async Task<DateTime?> GetIgnoreUnitProfileDateTime(int userId)
+    {
+        var profileSettings = await _profileSettingsRepository.GetProfileSettings(userId);
+        return profileSettings?.IgnoreUnitProfileDateTime;
+    }
+
+    /// <inheritdoc/>
     public async Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings, CancellationToken cancellationToken)
     {
         return await _profileSettingsRepository.UpdateProfileSettings(profileSettings, cancellationToken);
