@@ -38,6 +38,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.RegisterClientMock.Reset();
             _factory.AuthorizationClientMock.Reset();
             _factory.AddressVerificationRepositoryMock.Reset();
+            _factory.NotificationsClientMock.Reset();
         }
 
         [Fact]
@@ -513,6 +514,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
+            _factory.AddressVerificationRepositoryMock
+                .Setup(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
+                .ReturnsAsync(true);
             SetupSblMock();
             SetupAuthHandler(partyGuid, UserId);
 
@@ -538,6 +542,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                     It.IsAny<CancellationToken>()),
                 Times.Once);
             _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.AtLeastOnce);
+            _factory.NotificationsClientMock.Verify(x => x.OrderEmailWithCode(It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -557,6 +562,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+            _factory.AddressVerificationRepositoryMock
+                .Setup(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
                 .ReturnsAsync(true);
             SetupSblMock();
             SetupAuthHandler(partyGuid, UserId);
@@ -578,9 +586,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory.ProfessionalNotificationsRepositoryMock.Verify(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()), Times.Once);
             _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.AtLeastOnce);
+            _factory.NotificationsClientMock.Verify(x => x.OrderEmailWithCode(It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
-        public async Task PutNotificationAddress_WhenFlaggingGenerateVerificationCodeButRepoReturnsFalse_ReturnsCreated(string resourceUrn, string sanitizedResourceId)
+        [Fact]
+        public async Task PutNotificationAddress_WhenFlaggingGenerateVerificationCodeButRepoReturnsFalse_ReturnsCreated()
         {
             // Arrange
             const int UserId = 2516356;
@@ -590,7 +600,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 EmailAddress = "test@example.com",
                 PhoneNumber = "12345678",
-                ResourceIncludeList = [resourceUrn],
                 GenerateVerificationCode = true
             };
 
@@ -621,8 +630,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory.ProfessionalNotificationsRepositoryMock.Verify(
                 x => x.AddOrUpdateNotificationAddressAsync(
-                    It.Is<UserPartyContactInfo>(info =>
-                        info.UserPartyContactInfoResources.Count == 1 && info.UserPartyContactInfoResources[0].ResourceId == sanitizedResourceId),
+                    It.IsAny<UserPartyContactInfo>(),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
             _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.AtLeastOnce);
