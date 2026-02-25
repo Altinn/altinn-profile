@@ -15,6 +15,10 @@ namespace Altinn.Profile.Core.Integrations
         /// <summary>
         /// Gets a group for a given user and group id
         /// </summary>
+        /// <param name="userId">The logged in users userId</param>
+        /// <param name="groupId">The group id for the group to fetch</param>
+        /// <param name="cancellationToken">A cancellation token</param>
+        /// <returns>A <see cref="Task{TResult}"/> with the group as a result.</returns>
         Task<Group?> GetGroup(int userId, int groupId, CancellationToken cancellationToken);
 
         /// <summary>
