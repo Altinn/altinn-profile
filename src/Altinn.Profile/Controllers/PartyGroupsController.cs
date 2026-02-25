@@ -21,7 +21,7 @@ namespace Altinn.Profile.Controllers
     /// Initializes a new instance of the <see cref="PartyGroupsController"/> class.
     /// </remarks>
     [Authorize]
-    [Route("profile/api/v1/users/current/party-groups")]    
+    [Route("profile/api/v1/users/current/party-groups")]
     [Produces("application/json")]
     public class PartyGroupsController(IPartyGroupService partyGroupService) : ControllerBase
     {
@@ -38,28 +38,27 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<GroupResponse>> Get([FromRoute]int groupId, CancellationToken cancellationToken)
+        public async Task<ActionResult<GroupResponse>> Get([FromRoute] int groupId, CancellationToken cancellationToken)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
             if (validationResult != null)
             {
                 return validationResult;
             }
 
-            var groupResponse = await _partyGroupService.GetGroup(userId, groupId, cancellationToken);
+            var group = await _partyGroupService.GetGroup(userId, groupId, cancellationToken);
 
-            if (groupResponse == null)
+            if (group == null)
             {
                 return NotFound();
             }
 
-            var response = new GroupResponse
-            {
-                Parties = [.. groupResponse.Parties.Select(p => p.PartyUuid)],
-                Name = groupResponse.Name,
-                IsFavorite = groupResponse.IsFavorite,
-                GroupId = groupResponse.GroupId
-            };
+            var response = MapToGroupResponse(group);
 
             return Ok(response);
         }
@@ -81,15 +80,20 @@ namespace Altinn.Profile.Controllers
 
             var groupResponse = await _partyGroupService.GetGroupsForAUser(userId, cancellationToken);
 
-            var response = groupResponse.Select(g => new GroupResponse 
-                            { 
-                                Parties = [.. g.Parties.Select(p => p.PartyUuid)],
-                                Name = g.Name, 
-                                IsFavorite = g.IsFavorite,
-                                GroupId = g.GroupId
-                            });
+            var response = groupResponse.Select(MapToGroupResponse);
 
             return Ok(response);
+        }
+
+        private GroupResponse MapToGroupResponse(Group group)
+        {
+            return new GroupResponse
+            {
+                Parties = [.. group.Parties.Select(p => p.PartyUuid)],
+                Name = group.Name,
+                IsFavorite = group.IsFavorite,
+                GroupId = group.GroupId
+            };
         }
     }
 }
