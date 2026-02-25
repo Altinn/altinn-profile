@@ -11,8 +11,8 @@ namespace Altinn.Profile.Core.Integrations
         /// Adds a new verification code to the database.
         /// </summary>
         /// <param name="verificationCode">The verification code to add.</param>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        Task AddNewVerificationCodeAsync(VerificationCode verificationCode);
+        /// <returns><c>true</c> if the verification code was successfully added; <c>false</c> if it was discarded due to a concurrent insert.</returns>
+        Task<bool> AddNewVerificationCodeAsync(VerificationCode verificationCode);
 
         /// <summary>
         /// Retrieves the verification status for an address.

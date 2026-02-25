@@ -43,7 +43,14 @@ namespace Altinn.Profile.Core.AddressVerifications
             var code = _verificationCodeService.GenerateRawCode();
             var verificationCodeModel = _verificationCodeService.CreateVerificationCode(userid, address, addressType, code);
 
-            await _addressVerificationRepository.AddNewVerificationCodeAsync(verificationCodeModel);
+            bool added = await _addressVerificationRepository.AddNewVerificationCodeAsync(verificationCodeModel);
+            if (!added)
+            {
+                // A concurrent request already inserted a verification code for this user/address/type.
+                // Discard this code and skip sending the notification.
+                return;
+            }
+
             if (addressType == AddressType.Email)
             {
                 await _notificationsClient.OrderEmailWithCode(verificationCodeModel.Address, partyUuid, languageCode, code, cancellationToken);
