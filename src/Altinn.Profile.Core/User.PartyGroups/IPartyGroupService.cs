@@ -14,6 +14,15 @@
         /// Retrieves all groups for a given user. If none are found, an empty list is returned.
         /// </summary>
         Task<List<Group>> GetGroupsForAUser(int userId, CancellationToken cancellationToken);
+        
+        /// <summary>
+        /// Creates a new group with the specified name and associates it with the given user.
+        /// </summary>
+        /// <param name="userId">The identifier of the user who will own or create the group. Must be a valid user ID.</param>
+        /// <param name="name">The name of the group to create. Cannot be null or empty.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the newly created group.</returns>
+        Task<Group> CreateGroup(int userId, string name, CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets the favorite parties for a given user. If no favorites are added, an empty group will be returned.

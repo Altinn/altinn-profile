@@ -24,6 +24,14 @@ namespace Altinn.Profile.Core.PartyGroups
         }
 
         /// <inheritdoc/>
+        public async Task<Group> CreateGroup(int userId, string name, CancellationToken cancellationToken)
+        {
+            var group = await _groupRepository.CreateGroup(userId, name, cancellationToken);
+
+            return group;
+        }
+
+        /// <inheritdoc/>
         public async Task<Group> GetFavorites(int userId, CancellationToken cancellationToken)
         {
             var favorites = await _groupRepository.GetFavorites(userId, cancellationToken);
