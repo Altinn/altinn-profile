@@ -2,6 +2,7 @@ import { check } from 'k6';
 import * as config from '../config.js';
 import { generateToken } from '../api/token-generator.js';
 import * as notificationSettingsApi from '../api/notificationsettings.js';
+import * as verificationApi from '../api/verification.js';
 import { stopIterationOnFail } from "../errorhandler.js";
 import { createCSVSharedArray, getRandomRow } from '../data/csv-loader.js';
 
@@ -47,6 +48,7 @@ export function setup() {
     const notificationSettings = {
         emailAddress: "noreply-1@altinn.no",
         phoneNumber: "+4799999997",
+        generateVerificationCode: true,
         resourceIncludeList: ["urn:altinn:resource:example"]
     }
 
@@ -75,6 +77,22 @@ function getPersonalNotificationAddresses(token, partyUuid) {
 }
 
 /**
+ * Gets all verified addresses.
+ * @param {string} token - The authentication token.
+ */
+function getVerifiedAddresses(token) {
+    const response = verificationApi.getVerifiedAddresses(
+        token
+    );
+
+    let success = check(response, {
+        'GET verified addresses: 200 OK': (r) => r.status === 200,
+    });
+
+    stopIterationOnFail("GET verified addresses failed", success);
+}
+
+/**
  * Adds a notification setting.
  * @param {string} token - The authentication token.
  * @param {string} partyUuid - The party UUID.
@@ -93,6 +111,31 @@ function addPersonalNotificationAddresses(token, partyUuid, notificationSettings
 
     stopIterationOnFail("PUT notification settings failed", success);
 }
+
+/**
+ * Try verifying an address.
+ * @param {string} token - The authentication token.
+ * @param {Object} notificationSettings - The notification settings to verify.
+ */
+function tryVerifyAddress(token, notificationSettings) {
+    const request = {
+        value: notificationSettings.phoneNumber,
+        type: "Sms",
+        verificationCode: "123456",
+    }
+
+    const response = verificationApi.verifyAddress(
+        token,
+        request
+    );
+
+    let success = check(response, {
+        'POST verification: 422 Unprocessable Entity or 429 Too Many Requests': (r) => r.status === 422 || r.status === 429,
+    });
+
+    stopIterationOnFail("POST verification failed", success);
+}
+
 
 /**
  * Removes a notification setting.
@@ -141,5 +184,9 @@ export default function runTests(data) {
     
     addPersonalNotificationAddresses(token, partyUuid, data.notificationSettings);
     getPersonalNotificationAddresses(token, partyUuid);
+    getVerifiedAddresses(token);
+    if (data.partyUuid) {
+        tryVerifyAddress(token, data.notificationSettings);
+    }
     removePersonalNotificationAddresses(token, partyUuid);
 }

@@ -31,6 +31,7 @@ export const tokenGenerator = {
 export const profileUrl = {
     currentUser: `https://platform.${baseUrl}/profile/api/v1/users/current`,
     favorites: `https://platform.${baseUrl}/profile/api/v1/users/current/party-groups/favorites`,
+    verification: `https://platform.${baseUrl}/profile/api/v1/users/current/verification`,
     modifyFavorites: (partyUuid) => `https://platform.${baseUrl}/profile/api/v1/users/current/party-groups/favorites/${partyUuid}`,
     organization: (orgNo) => `https://platform.${baseUrl}/profile/api/v1/organizations/${orgNo}/notificationaddresses/mandatory`,
     personalNotificationAddresses: (partyUuid) => `https://platform.${baseUrl}/profile/api/v1/users/current/notificationsettings/parties/${partyUuid}`,
