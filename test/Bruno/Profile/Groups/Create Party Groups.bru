@@ -1,0 +1,21 @@
+meta {
+  name: Create Party Groups
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{ProfileBaseAddress}}/api/v1/users/current/party-groups
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "test"
+  }
+}
+
+script:pre-request {
+  await bru.runRequest("TokenGenerator/portal user")
+}

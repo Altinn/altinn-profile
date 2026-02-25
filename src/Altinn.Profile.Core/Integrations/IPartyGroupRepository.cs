@@ -22,6 +22,15 @@ namespace Altinn.Profile.Core.Integrations
         Task<List<Group>> GetGroups(int userId, bool filterOnlyFavorite, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Creates a new group with the specified name and associates it with the given user.
+        /// </summary>
+        /// <param name="userId">The identifier of the user who will own or create the group. Must be a valid user ID.</param>
+        /// <param name="name">The name of the group to create. Cannot be null or empty.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the newly created group.</returns>
+        Task<Group> CreateGroup(int userId, string name, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Adds a party to the favorites group for a given user
         /// </summary>
         /// <returns>A <see cref="Task{TResult}"/> representing the result with a boolean telling whether the party was added as a favorite or if it already existed.</returns>
