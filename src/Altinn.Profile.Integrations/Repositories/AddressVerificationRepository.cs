@@ -5,6 +5,8 @@ using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;
 
+using Npgsql;
+
 namespace Altinn.Profile.Integrations.Repositories;
 
 /// <summary>
@@ -34,7 +36,7 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
             await databaseContext.SaveChangesAsync();
             return true;
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
         {
             return false;
         }
