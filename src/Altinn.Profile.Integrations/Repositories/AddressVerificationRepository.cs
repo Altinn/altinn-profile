@@ -5,6 +5,8 @@ using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;
 
+using Npgsql;
+
 namespace Altinn.Profile.Integrations.Repositories;
 
 /// <summary>
@@ -18,17 +20,26 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
     /// Adds a new verification code to the database.
     /// </summary>
     /// <param name="verificationCode">The verification code to add.</param>
-    /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    public async Task AddNewVerificationCodeAsync(VerificationCode verificationCode)
+    /// <returns><c>true</c> if the verification code was successfully added; <c>false</c> if it was discarded due to a concurrent insert.</returns>
+    public async Task<bool> AddNewVerificationCodeAsync(VerificationCode verificationCode)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
-        var verificationCodes = await databaseContext.VerificationCodes.Where(vc => vc.UserId.Equals(verificationCode.UserId) && vc.AddressType == verificationCode.AddressType && vc.Address == verificationCode.Address).ToListAsync();
 
-        // Remove any existing verification codes for the same user and address before adding the new one
-        databaseContext.VerificationCodes.RemoveRange(verificationCodes);
+        try
+        {
+            var verificationCodes = databaseContext.VerificationCodes.Where(vc => vc.UserId.Equals(verificationCode.UserId) && vc.AddressType == verificationCode.AddressType && vc.Address == verificationCode.Address);
 
-        databaseContext.VerificationCodes.Add(verificationCode);
-        await databaseContext.SaveChangesAsync();
+            // Remove any existing verification codes for the same user and address before adding the new one
+            databaseContext.VerificationCodes.RemoveRange(verificationCodes);
+
+            databaseContext.VerificationCodes.Add(verificationCode);
+            await databaseContext.SaveChangesAsync();
+            return true;
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
+        {
+            return false;
+        }
     }
 
     /// <inheritdoc/>
