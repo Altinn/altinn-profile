@@ -40,6 +40,15 @@
         Task<Group?> UpdateGroupName(int userId, int groupId, string name, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Deletes a group for a given user.
+        /// </summary>
+        /// <param name="userId">The identifier of the user who owns the group. Must be a valid user ID.</param>
+        /// <param name="groupId">The identifier of the group to delete.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result is true if the group was deleted, false if the group was not found or is a favorite group.</returns>
+        Task<bool> DeleteGroup(int userId, int groupId, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Gets the favorite parties for a given user. If no favorites are added, an empty group will be returned.
         /// </summary>
         Task<Group> GetFavorites(int userId, CancellationToken cancellationToken);

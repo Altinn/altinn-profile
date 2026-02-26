@@ -153,6 +153,34 @@ namespace Altinn.Profile.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Delete a group
+        /// </summary>
+        /// <param name="groupId">The ID of the group to delete</param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        /// <returns>NoContent if successful.</returns>
+        [HttpDelete("{groupId:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult> Delete([FromRoute] int groupId, CancellationToken cancellationToken)
+        {
+            var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            var deleted = await _partyGroupService.DeleteGroup(userId, groupId, cancellationToken);
+
+            if (!deleted)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+
         private GroupResponse MapToGroupResponse(Group group)
         {
             return new GroupResponse
