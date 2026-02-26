@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Altinn.Profile.Core.PartyGroups;
+using Altinn.Profile.Core.User.PartyGroups;
 using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;

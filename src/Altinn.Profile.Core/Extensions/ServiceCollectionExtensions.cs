@@ -1,11 +1,10 @@
 ﻿using Altinn.Profile.Core.AddressVerifications;
-using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
-using Altinn.Profile.Core.PartyGroups;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Core.User;
 using Altinn.Profile.Core.User.ContactPoints;
+using Altinn.Profile.Core.User.PartyGroups;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

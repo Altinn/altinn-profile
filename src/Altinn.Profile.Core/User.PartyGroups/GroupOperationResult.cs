@@ -1,4 +1,4 @@
-namespace Altinn.Profile.Core.PartyGroups
+namespace Altinn.Profile.Core.User.PartyGroups
 {
     /// <summary>
     /// Represents the result of a party group operation.

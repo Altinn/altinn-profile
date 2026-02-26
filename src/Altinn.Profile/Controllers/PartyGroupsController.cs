@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Authorization;
-using Altinn.Profile.Core.PartyGroups;
+using Altinn.Profile.Core.User.PartyGroups;
 using Altinn.Profile.Models;
 
 using Microsoft.AspNetCore.Authorization;
