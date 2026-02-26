@@ -137,7 +137,7 @@ namespace Altinn.Profile.Integrations.Notifications
                 "nb" => useCodeTemplate ? VerificationCodeEmailBodyNo : InformEmailBodyNo,
                 "nn" => useCodeTemplate ? VerificationCodeEmailBodyNn : InformEmailBodyNn,
                 "se" => useCodeTemplate ? VerificationCodeEmailBodyNo : InformEmailBodyNo,
-                _ => useCodeTemplate ? VerificationCodeEmailBodyNo : EmailBodyNo,
+                _ => useCodeTemplate ? VerificationCodeEmailBodyNo : InformEmailBodyNo,
             };
 
             return useCodeTemplate ? template.Replace("$code$", verificationCode) : template;

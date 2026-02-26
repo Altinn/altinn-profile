@@ -39,10 +39,10 @@ namespace Altinn.Profile.Integrations.Notifications
         }
 
         /// <inheritdoc/>
-        public async Task SendVerificationCodeAsync(int userId, string address, AddressType addressType, string verificationCode, Guid? partyUuid, CancellationToken cancellationToken)
+        public async Task SendVerificationCodeAsync(int userId, string address, AddressType addressType, string verificationCode, CancellationToken cancellationToken)
         {
             var language = await _userProfileService.GetPreferredLanguage(userId);
-            var sendersReference = partyUuid?.ToString();
+            var sendersReference = $"{userId}:{address}";
 
             if (addressType == AddressType.Sms)
             {

@@ -16,7 +16,7 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="userId">The ID of the user to notify.</param>
         /// <param name="address">The address (email or phone number) to send the notification to.</param>
         /// <param name="addressType">Whether the address is an email or SMS number.</param>
-        /// <param name="partyUuid">The UUID of the party whose settings were changed, used as a senders reference.</param>
+        /// <param name="partyUuid">The UUID of the party whose settings were changed.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         Task NotifyAddressChangeAsync(int userId, string address, AddressType addressType, Guid partyUuid, CancellationToken cancellationToken);
@@ -29,9 +29,8 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="address">The address (email or phone number) to send the code to.</param>
         /// <param name="addressType">Whether the address is an email or SMS number.</param>
         /// <param name="verificationCode">The raw (unhashed) verification code to include in the message.</param>
-        /// <param name="partyUuid">The UUID of the party, used as a senders reference. May be <c>null</c> when the party context is unavailable (e.g. during resend).</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task SendVerificationCodeAsync(int userId, string address, AddressType addressType, string verificationCode, Guid? partyUuid, CancellationToken cancellationToken);
+        Task SendVerificationCodeAsync(int userId, string address, AddressType addressType, string verificationCode, CancellationToken cancellationToken);
     }
 }

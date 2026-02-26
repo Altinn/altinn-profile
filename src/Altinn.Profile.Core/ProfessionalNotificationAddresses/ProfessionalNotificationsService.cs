@@ -104,7 +104,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             {
                 if (generateVerificationCode)
                 {
-                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.PhoneNumber!, AddressType.Sms, contactInfo.PartyUuid, CancellationToken.None);
+                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.PhoneNumber!, AddressType.Sms, CancellationToken.None);
                 }
                 else
                 {
@@ -116,7 +116,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             {
                 if (generateVerificationCode)
                 {
-                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.EmailAddress!, AddressType.Email, contactInfo.PartyUuid, CancellationToken.None);
+                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.EmailAddress!, AddressType.Email, CancellationToken.None);
                 }
                 else
                 {

@@ -32,7 +32,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         }
 
         /// <inheritdoc/>
-        public async Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, Guid partyUuid, CancellationToken cancellationToken)
+        public async Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, CancellationToken cancellationToken)
         {
             var existingVerification = await _addressVerificationRepository.GetVerificationStatusAsync(userid, addressType, address, cancellationToken);
             if (existingVerification == VerificationType.Verified)
@@ -52,7 +52,7 @@ namespace Altinn.Profile.Core.AddressVerifications
                 return;
             }
 
-            await _userNotifier.SendVerificationCodeAsync(userid, verificationCodeModel.Address, addressType, code, partyUuid, cancellationToken);
+            await _userNotifier.SendVerificationCodeAsync(userid, verificationCodeModel.Address, addressType, code, cancellationToken);
         }
 
         /// <inheritdoc/>
