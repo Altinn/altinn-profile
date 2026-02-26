@@ -1,6 +1,6 @@
 ﻿using Altinn.Profile.Core.Integrations;
 
-namespace Altinn.Profile.Core.PartyGroups
+namespace Altinn.Profile.Core.User.PartyGroups
 {
     /// <inheritdoc/>
     public class PartyGroupService(IPartyGroupRepository groupRepository) : IPartyGroupService

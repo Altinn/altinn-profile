@@ -1,5 +1,4 @@
-﻿using Altinn.Profile.Core.PartyGroups;
-using Altinn.Profile.Core.User.PartyGroups;
+﻿using Altinn.Profile.Core.User.PartyGroups;
 
 namespace Altinn.Profile.Core.Integrations
 {

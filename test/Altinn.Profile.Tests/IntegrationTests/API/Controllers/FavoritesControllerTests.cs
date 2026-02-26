@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Altinn.Profile.Core.PartyGroups;
+using Altinn.Profile.Core.User.PartyGroups;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 

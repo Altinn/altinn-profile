@@ -1,6 +1,6 @@
 ﻿#nullable disable
 
-namespace Altinn.Profile.Core.PartyGroups;
+namespace Altinn.Profile.Core.User.PartyGroups;
 
 /// <summary>
 /// An association between a party and a group
