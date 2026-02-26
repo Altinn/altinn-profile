@@ -27,6 +27,42 @@ namespace Altinn.Profile.Controllers
         private readonly IPartyGroupService _partyGroupService = partyGroupService;
 
         /// <summary>
+        /// Retrieve a specific group for a user
+        /// </summary>
+        /// <param name="groupId">The ID of the group to retrieve</param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        /// <returns>The group with that specific id for the current user.</returns>
+        [HttpGet("{groupId:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<GroupResponse>> Get([FromRoute] int groupId, CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            var group = await _partyGroupService.GetGroup(userId, groupId, cancellationToken);
+
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            var response = MapToGroupResponse(group);
+
+            return Ok(response);
+        }
+
+        /// <summary>
         /// Retrieve all groups for a user
         /// </summary>
         /// <param name="cancellationToken">Cancellation token for the operation</param>
@@ -45,13 +81,7 @@ namespace Altinn.Profile.Controllers
 
             var groupResponse = await _partyGroupService.GetGroupsForAUser(userId, cancellationToken);
 
-            var response = groupResponse.Select(g => new GroupResponse
-            {
-                Parties = [.. g.Parties.Select(p => p.PartyUuid)],
-                Name = g.Name,
-                IsFavorite = g.IsFavorite,
-                GroupId = g.GroupId
-            });
+            var response = groupResponse.Select(MapToGroupResponse);
 
             return Ok(response);
         }
@@ -81,15 +111,20 @@ namespace Altinn.Profile.Controllers
 
             var groupResponse = await _partyGroupService.CreateGroup(userId, request.Name, cancellationToken);
 
-            var response = new GroupResponse
-            {
-                Parties = [.. groupResponse.Parties.Select(p => p.PartyUuid)],
-                Name = groupResponse.Name,
-                IsFavorite = groupResponse.IsFavorite,
-                GroupId = groupResponse.GroupId
-            };
+            var response = MapToGroupResponse(groupResponse);
 
             return Created($"/profile/api/v1/users/current/party-groups/{response.GroupId}", response);
+        }
+
+        private GroupResponse MapToGroupResponse(Group group)
+        {
+            return new GroupResponse
+            {
+                Parties = [.. group.Parties.Select(p => p.PartyUuid)],
+                Name = group.Name,
+                IsFavorite = group.IsFavorite,
+                GroupId = group.GroupId
+            };
         }
     }
 }
