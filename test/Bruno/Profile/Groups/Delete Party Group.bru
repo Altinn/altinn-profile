@@ -1,0 +1,15 @@
+meta {
+  name: Delete Party Group
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{ProfileBaseAddress}}/api/v1/users/current/party-groups/90
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  await bru.runRequest("TokenGenerator/portal user")
+}
