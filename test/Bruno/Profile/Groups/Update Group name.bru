@@ -1,0 +1,21 @@
+meta {
+  name: Update Group name
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{ProfileBaseAddress}}/api/v1/users/current/party-groups/90
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Kunder"
+  }
+}
+
+script:pre-request {
+  await bru.runRequest("TokenGenerator/portal user")
+}
