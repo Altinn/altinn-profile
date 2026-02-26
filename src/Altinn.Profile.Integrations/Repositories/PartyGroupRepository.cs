@@ -68,38 +68,48 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<Group?> UpdateGroupName(int userId, int groupId, string name, CancellationToken cancellationToken)
+        public async Task<UpdateGroupResult> UpdateGroupName(int userId, int groupId, string name, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
             var group = await databaseContext.Groups.Include(g => g.Parties).Where(g => g.UserId == userId && g.GroupId == groupId).FirstOrDefaultAsync(cancellationToken);
 
-            if (group == null || group.IsFavorite)
+            if (group == null)
             {
-                return null;
+                return new UpdateGroupResult(GroupOperationResult.NotFound, null);
+            }
+
+            if (group.IsFavorite)
+            {
+                return new UpdateGroupResult(GroupOperationResult.Forbidden, null);
             }
 
             group.Name = name;
 
             await databaseContext.SaveChangesAsync(cancellationToken);
-            return group;
+            return new UpdateGroupResult(GroupOperationResult.Success, group);
         }
 
         /// <inheritdoc/>
-        public async Task<bool> DeleteGroup(int userId, int groupId, CancellationToken cancellationToken)
+        public async Task<GroupOperationResult> DeleteGroup(int userId, int groupId, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
             var group = await databaseContext.Groups.Include(g => g.Parties).Where(g => g.UserId == userId && g.GroupId == groupId).FirstOrDefaultAsync(cancellationToken);
 
-            if (group == null || group.IsFavorite)
+            if (group == null)
             {
-                return false;
+                return GroupOperationResult.NotFound;
+            }
+
+            if (group.IsFavorite)
+            {
+                return GroupOperationResult.Forbidden;
             }
 
             databaseContext.Groups.Remove(group);
             await databaseContext.SaveChangesAsync(cancellationToken);
-            return true;
+            return GroupOperationResult.Success;
         }
 
         /// <inheritdoc/>
