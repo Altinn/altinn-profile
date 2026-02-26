@@ -63,13 +63,12 @@ namespace Altinn.Profile.Controllers
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
         /// <remarks>
         /// This endpoint is rate limited using a sliding window rate limiter to prevent abuse.
-        /// Rate limit: 5 requests per 1 minute window with 6 segments per window. This is per running pod instance, so in a scaled environment the effective rate limit will be higher.
+        /// Rate limit: 10 requests per 1 minute window.
         /// When the limit is exceeded, a 429 Too Many Requests response is returned.
         /// For more information about sliding window rate limiting, see:
         /// https://devblogs.microsoft.com/dotnet/announcing-rate-limiting-for-dotnet/#sliding-window-limit
         /// </remarks>
         [HttpPost("verify")]
-        [EnableRateLimiting("verify-address")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
