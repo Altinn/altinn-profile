@@ -1,8 +1,10 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.Profile.Core.Integrations;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -12,13 +14,13 @@ namespace Altinn.Profile.Integrations.Notifications;
 /// An HTTP client to interact with the Altinn notifications service.
 /// </summary>
 /// <remarks>
-/// Initializes a new instance of the <see cref="NotificationsClient"/> class.
+/// Initializes a new instance of the <see cref="AltinnNotificationsClient"/> class.
 /// </remarks>
-public class NotificationsClient : INotificationsClient
+public class AltinnNotificationsClient : INotificationsClient
 {
     private readonly HttpClient _httpClient;
     private readonly IAccessTokenGenerator _accessTokenGenerator;
-    private readonly ILogger<NotificationsClient> _logger;
+    private readonly ILogger<AltinnNotificationsClient> _logger;
     private const string _notificationTypeSms = "sms";
     private const string _notificationTypeEmail = "email";
 
@@ -29,13 +31,13 @@ public class NotificationsClient : INotificationsClient
     };
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="NotificationsClient"/> class.
+    /// Initializes a new instance of the <see cref="AltinnNotificationsClient"/> class.
     /// </summary>
     /// <param name="httpClient">The HTTP client used to make requests to the Notifications service.</param>
     /// <param name="settings">The Notifications settings containing the API endpoint.</param>
     /// <param name="accessTokenGenerator">The access token generator.</param>
     /// <param name="logger">The logger</param>
-    public NotificationsClient(HttpClient httpClient, IOptions<NotificationsSettings> settings, IAccessTokenGenerator accessTokenGenerator, ILogger<NotificationsClient> logger)
+    public AltinnNotificationsClient(HttpClient httpClient, IOptions<NotificationsSettings> settings, IAccessTokenGenerator accessTokenGenerator, ILogger<AltinnNotificationsClient> logger)
     {
         _httpClient = httpClient;
         _accessTokenGenerator = accessTokenGenerator;

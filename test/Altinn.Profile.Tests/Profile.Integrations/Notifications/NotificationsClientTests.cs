@@ -10,8 +10,10 @@ using Altinn.Profile.Integrations.Notifications;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using Moq;
 using Moq.Protected;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
@@ -20,7 +22,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
     {
         private readonly Mock<IOptions<NotificationsSettings>> _settingsMock;
         private readonly Mock<IAccessTokenGenerator> _tokenGenMock;
-        private readonly Mock<ILogger<NotificationsClient>> _loggerMock;
+        private readonly Mock<ILogger<AltinnNotificationsClient>> _loggerMock;
         private HttpClient _httpClient;
         private const string _testBaseUrl = "https://notifications.test/";
 
@@ -33,7 +35,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             _tokenGenMock.Setup(t => t.GenerateAccessToken(It.IsAny<string>(), It.IsAny<string>()))
                          .Returns("token");
 
-            _loggerMock = new Mock<ILogger<NotificationsClient>>();
+            _loggerMock = new Mock<ILogger<AltinnNotificationsClient>>();
         }
 
         private static Mock<HttpMessageHandler> CreateHandler(
@@ -63,7 +65,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             HttpRequestMessage sentRequest = null;
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK), req => sentRequest = req);
             _httpClient = new HttpClient(handler.Object);
-            var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
             await client.OrderSms("+4799999999", Guid.NewGuid(), "nb", TestContext.Current.CancellationToken);
@@ -87,7 +89,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             HttpRequestMessage sentRequest = null;
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK), req => sentRequest = req);
             _httpClient = new HttpClient(handler.Object);
-            var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
             await client.OrderEmail("test@example.com", Guid.NewGuid(), "en", TestContext.Current.CancellationToken);
@@ -112,7 +114,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             _httpClient = new HttpClient(handler.Object);
             _tokenGenMock.Setup(t => t.GenerateAccessToken(It.IsAny<string>(), It.IsAny<string>()))
                          .Returns(string.Empty);
-            var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
             await client.OrderSms("+4799999999", Guid.NewGuid(), "nb", TestContext.Current.CancellationToken);
@@ -126,7 +128,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
                     null,
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
                 Times.Once);
-            
+
             // No HTTP request should be sent
             handler.Protected().Verify("SendAsync", Times.Never(), ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>());
         }
@@ -137,7 +139,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             // Arrange
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.BadRequest));
             _httpClient = new HttpClient(handler.Object);
-            var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
             await client.OrderSms("+4799999999", Guid.NewGuid(), "nb", TestContext.Current.CancellationToken);
@@ -161,7 +163,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             HttpRequestMessage sentRequest = null;
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK), req => sentRequest = req);
             _httpClient = new HttpClient(handler.Object);
-            var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
             var verificationCode = "999999";
 
             // Act
@@ -187,7 +189,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             HttpRequestMessage sentRequest = null;
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK), req => sentRequest = req);
             _httpClient = new HttpClient(handler.Object);
-            var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
             var verificationCode = "123456";
 
             // Act
@@ -214,7 +216,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             _httpClient = new HttpClient(handler.Object);
             _tokenGenMock.Setup(t => t.GenerateAccessToken(It.IsAny<string>(), It.IsAny<string>()))
                          .Returns(string.Empty);
-            var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
             await client.OrderSmsWithCode("+4799999999", Guid.NewGuid(), "nb", "1234", CancellationToken.None);
@@ -228,7 +230,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
                     null,
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
                 Times.Once);
-            
+
             // No HTTP request should be sent
             handler.Protected().Verify("SendAsync", Times.Never(), ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>());
         }
@@ -239,7 +241,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             // Arrange
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.BadRequest));
             _httpClient = new HttpClient(handler.Object);
-            var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
             await client.OrderSmsWithCode("+4799999999", Guid.NewGuid(), "nb", "0000", CancellationToken.None);
