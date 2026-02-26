@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -197,6 +198,40 @@ namespace Altinn.Profile.Controllers
                 GroupOperationResult.Forbidden => UnprocessableEntity("Favorite groups cannot be deleted."),
                 _ => StatusCode(StatusCodes.Status500InternalServerError)
             };
+        }
+
+        /// <summary>
+        /// Add a party to a group
+        /// </summary>
+        /// <param name="groupId">The ID of the group to add the party to</param>
+        /// <param name="partyUuid">The UUID of the party to add</param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        /// <returns>The updated group.</returns>
+        /// <response code="200">The party was successfully added to the group. Returns the updated group. If the party is already in the group, the operation is idempotent and returns the current state.</response>
+        /// <response code="401">The user is not authenticated.</response>
+        /// <response code="404">The group does not exist or the user does not have access to it.</response>
+        [HttpPut("{groupId:int}/associations/{partyUuid:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<GroupResponse>> AddPartyToGroup([FromRoute] int groupId, [FromRoute] Guid partyUuid, CancellationToken cancellationToken)
+        {
+            var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            var group = await _partyGroupService.AddPartyToGroup(userId, groupId, partyUuid, cancellationToken);
+
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            var response = MapToGroupResponse(group);
+
+            return Ok(response);
         }
 
         private GroupResponse MapToGroupResponse(Group group)
