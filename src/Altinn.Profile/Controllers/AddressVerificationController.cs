@@ -97,5 +97,39 @@ namespace Altinn.Profile.Controllers
 
             return NoContent();
         }
+
+        /// <summary>
+        /// Verify an address for the current user by providing the verification code sent to the address.
+        /// </summary>
+        /// <param name="request">The api request containing the aadress and code to verify</param>
+        /// <param name="cancellationToken"> Cancellation token for the operation</param>
+        [HttpPost("resend")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+        public async Task<ActionResult> Resend([FromBody] AddressCodeResendRequest request, CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            var hasExistingCode = await _addressVerificationService.ResendVerificationCodeAsync(userId, request.Value, (AddressType)request.Type, cancellationToken);
+
+            if (!hasExistingCode)
+            {
+                return UnprocessableEntity(new ProblemDetails { Title = "Verification code could not be resent", Detail = "The user has no active verification process for the given address." });
+            }
+
+            return NoContent();
+        }
     }
 }
