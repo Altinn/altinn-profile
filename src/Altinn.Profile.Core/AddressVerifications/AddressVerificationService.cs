@@ -85,5 +85,31 @@ namespace Altinn.Profile.Core.AddressVerifications
                 return false;
             }
         }
+
+        /// <inheritdoc/>
+        public async Task<bool> ResendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken)
+        {
+            var formattedAddress = VerificationCode.FormatAddress(address);
+
+            var existingCode = await _addressVerificationRepository.GetVerificationCodeAsync(userId, addressType, formattedAddress, cancellationToken);
+            if (existingCode is null)
+            {
+                return false;
+            }
+
+            var code = _verificationCodeService.GenerateRawCode();
+            var verificationCodeModel = _verificationCodeService.CreateVerificationCode(userId, address, addressType, code);
+
+            bool added = await _addressVerificationRepository.AddNewVerificationCodeAsync(verificationCodeModel);
+            if (!added)
+            {
+                // A concurrent request already inserted a verification code for this user/address/type.
+                return false;
+            }
+
+            await _userNotifier.SendVerificationCodeAsync(userId, verificationCodeModel.Address, addressType, code, cancellationToken);
+
+            return true;
+        }
     }
 }
