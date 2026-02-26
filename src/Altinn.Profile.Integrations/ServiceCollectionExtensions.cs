@@ -107,6 +107,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IVerificationCodeService, VerificationCodeService>();
         services.AddScoped<IAddressVerificationRepository, AddressVerificationRepository>();
+        services.AddScoped<IAltinnUserNotifier, AltinnUserNotifier>();
 
         services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString)
         .UseSnakeCaseNamingConvention());

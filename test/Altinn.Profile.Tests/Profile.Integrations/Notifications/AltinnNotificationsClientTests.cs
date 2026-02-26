@@ -18,7 +18,7 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
 {
-    public class NotificationsClientTests
+    public class AltinnNotificationsClientTests
     {
         private readonly Mock<IOptions<NotificationsSettings>> _settingsMock;
         private readonly Mock<IAccessTokenGenerator> _tokenGenMock;
@@ -26,7 +26,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
         private HttpClient _httpClient;
         private const string _testBaseUrl = "https://notifications.test/";
 
-        public NotificationsClientTests()
+        public AltinnNotificationsClientTests()
         {
             _settingsMock = new Mock<IOptions<NotificationsSettings>>();
             _settingsMock.Setup(s => s.Value).Returns(new NotificationsSettings { ApiNotificationsEndpoint = _testBaseUrl });
@@ -59,16 +59,18 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
         }
 
         [Fact]
-        public async Task SendSmsOrder_WhenLanguageNb_SendsCorrectRequest()
+        public async Task OrderSms_SendsCorrectRequest()
         {
             // Arrange
             HttpRequestMessage sentRequest = null;
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK), req => sentRequest = req);
             _httpClient = new HttpClient(handler.Object);
             var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var smsBody = "Test SMS body content";
+            var sendersReference = Guid.NewGuid().ToString();
 
             // Act
-            await client.OrderSms("+4799999999", Guid.NewGuid(), "nb", TestContext.Current.CancellationToken);
+            await client.OrderSms("+4799999999", smsBody, sendersReference, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(sentRequest);
@@ -78,21 +80,24 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             Assert.IsType<StringContent>(sentRequest.Content);
             var content = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             Assert.Contains("4799999999", content);
-            Assert.Contains("sms", content, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("oppdatert", content, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(smsBody, content);
+            Assert.Contains(sendersReference, content);
         }
 
         [Fact]
-        public async Task SendEmailOrder_WhenLanguageEn_SendsCorrectRequest()
+        public async Task OrderEmail_SendsCorrectRequest()
         {
             // Arrange
             HttpRequestMessage sentRequest = null;
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK), req => sentRequest = req);
             _httpClient = new HttpClient(handler.Object);
             var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var emailSubject = "Test subject";
+            var emailBody = "Test email body content";
+            var sendersReference = Guid.NewGuid().ToString();
 
             // Act
-            await client.OrderEmail("test@example.com", Guid.NewGuid(), "en", TestContext.Current.CancellationToken);
+            await client.OrderEmail("test@example.com", emailSubject, emailBody, sendersReference, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(sentRequest);
@@ -102,12 +107,13 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             Assert.IsType<StringContent>(sentRequest.Content);
             var content = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             Assert.Contains("test@example.com", content);
-            Assert.Contains("email", content, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("changed", content, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(emailSubject, content);
+            Assert.Contains(emailBody, content);
+            Assert.Contains(sendersReference, content);
         }
 
         [Fact]
-        public async Task SendOrder_InvalidAccessToken_LogsErrorAndDoesNotSend()
+        public async Task OrderSms_InvalidAccessToken_LogsErrorAndDoesNotSend()
         {
             // Arrange
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK));
@@ -117,7 +123,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.OrderSms("+4799999999", Guid.NewGuid(), "nb", TestContext.Current.CancellationToken);
+            await client.OrderSms("+4799999999", "body", "ref", TestContext.Current.CancellationToken);
 
             // Assert
             _loggerMock.Verify(
@@ -134,7 +140,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
         }
 
         [Fact]
-        public async Task SendOrder_UnsuccessfulResponse_LogsError()
+        public async Task OrderSms_UnsuccessfulResponse_LogsError()
         {
             // Arrange
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.BadRequest));
@@ -142,7 +148,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.OrderSms("+4799999999", Guid.NewGuid(), "nb", TestContext.Current.CancellationToken);
+            await client.OrderSms("+4799999999", "body", "ref", TestContext.Current.CancellationToken);
 
             // Assert
             _loggerMock.Verify(
@@ -155,61 +161,28 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
                 Times.Once);
         }
 
-        // New tests for methods with verification code
         [Fact]
-        public async Task SendSmsOrderWithCode_WhenLanguageNb_SendsCorrectRequest()
+        public async Task OrderSms_NullSendersReference_SendsCorrectRequest()
         {
             // Arrange
             HttpRequestMessage sentRequest = null;
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK), req => sentRequest = req);
             _httpClient = new HttpClient(handler.Object);
             var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
-            var verificationCode = "999999";
 
             // Act
-            await client.OrderSmsWithCode("+4799999999", Guid.NewGuid(), "nb", verificationCode, CancellationToken.None);
+            await client.OrderSms("+4799999999", "body", null, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(sentRequest);
             Assert.Equal(HttpMethod.Post, sentRequest.Method);
-            Assert.Equal(new Uri(_testBaseUrl + "v1/future/orders/instant/sms"), sentRequest.RequestUri);
-            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
-            Assert.IsType<StringContent>(sentRequest.Content);
             var content = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             Assert.Contains("4799999999", content);
-            Assert.Contains("sms", content, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains(verificationCode, content);
-            Assert.Contains("bekrefte", content, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("body", content);
         }
 
         [Fact]
-        public async Task SendEmailOrderWithCode_WhenLanguageEn_SendsCorrectRequest()
-        {
-            // Arrange
-            HttpRequestMessage sentRequest = null;
-            var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK), req => sentRequest = req);
-            _httpClient = new HttpClient(handler.Object);
-            var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
-            var verificationCode = "123456";
-
-            // Act
-            await client.OrderEmailWithCode("test@example.com", Guid.NewGuid(), "en", verificationCode, CancellationToken.None);
-
-            // Assert
-            Assert.NotNull(sentRequest);
-            Assert.Equal(HttpMethod.Post, sentRequest.Method);
-            Assert.Equal(new Uri(_testBaseUrl + "v1/future/orders/instant/email"), sentRequest.RequestUri);
-            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
-            Assert.IsType<StringContent>(sentRequest.Content);
-            var content = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-            Assert.Contains("test@example.com", content);
-            Assert.Contains("email", content, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains(verificationCode, content);
-            Assert.Contains("verify", content, StringComparison.OrdinalIgnoreCase);
-        }
-
-        [Fact]
-        public async Task SendOrderWithCode_InvalidAccessToken_LogsErrorAndDoesNotSend()
+        public async Task OrderEmail_InvalidAccessToken_LogsErrorAndDoesNotSend()
         {
             // Arrange
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK));
@@ -219,7 +192,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.OrderSmsWithCode("+4799999999", Guid.NewGuid(), "nb", "1234", CancellationToken.None);
+            await client.OrderEmail("test@example.com", "subject", "body", "ref", TestContext.Current.CancellationToken);
 
             // Assert
             _loggerMock.Verify(
@@ -231,12 +204,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
                 Times.Once);
 
-            // No HTTP request should be sent
             handler.Protected().Verify("SendAsync", Times.Never(), ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>());
         }
 
         [Fact]
-        public async Task SendOrderWithCode_UnsuccessfulResponse_LogsError()
+        public async Task OrderEmail_UnsuccessfulResponse_LogsError()
         {
             // Arrange
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.BadRequest));
@@ -244,7 +216,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.OrderSmsWithCode("+4799999999", Guid.NewGuid(), "nb", "0000", CancellationToken.None);
+            await client.OrderEmail("test@example.com", "subject", "body", "ref", TestContext.Current.CancellationToken);
 
             // Assert
             _loggerMock.Verify(

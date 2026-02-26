@@ -2,6 +2,7 @@
 {
     /// <summary>
     /// Interface for sending notifications such as SMS and email orders.
+    /// This interface is content-agnostic; callers are responsible for building message content.
     /// </summary>
     public interface INotificationsClient
     {
@@ -9,42 +10,21 @@
         /// Sends an SMS order to the specified phone number.
         /// </summary>
         /// <param name="phoneNumber">The phone number to send the SMS to.</param>
-        /// <param name="partyUuid">The partyUuid for the party the address was changed for</param>
-        /// <param name="languageCode">The language code for the SMS content.</param>
+        /// <param name="body">The body content of the SMS message.</param>
+        /// <param name="sendersReference">A reference string for tracking, typically a party UUID.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task OrderSms(string phoneNumber, Guid partyUuid, string languageCode, CancellationToken cancellationToken);
+        Task OrderSms(string phoneNumber, string body, string? sendersReference, CancellationToken cancellationToken);
 
         /// <summary>
         /// Sends an email order to the specified email address.
         /// </summary>
         /// <param name="emailAddress">The email address to send the email to.</param>
-        /// <param name="partyUuid">The partyUuid for the party the address was changed for</param>
-        /// <param name="languageCode">The language code for the email content.</param>
+        /// <param name="subject">The subject of the email.</param>
+        /// <param name="body">The body content of the email message.</param>
+        /// <param name="sendersReference">A reference string for tracking, typically a party UUID.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task OrderEmail(string emailAddress, Guid partyUuid, string languageCode,  CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Sends an SMS order to the specified phone number.
-        /// </summary>
-        /// <param name="phoneNumber">The phone number to send the SMS to.</param>
-        /// <param name="partyUuid">The partyUuid for the party the address was changed for</param>
-        /// <param name="languageCode">The language code for the SMS content.</param>
-        /// <param name="verificationCode">The verification code to include in the SMS content.</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        Task OrderSmsWithCode(string phoneNumber, Guid partyUuid, string languageCode, string verificationCode, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Sends an email order to the specified email address.
-        /// </summary>
-        /// <param name="emailAddress">The email address to send the email to.</param>
-        /// <param name="partyUuid">The partyUuid for the party the address was changed for</param>
-        /// <param name="languageCode">The language code for the email content.</param>
-        /// <param name="verificationCode">The verification code to include in the email content.</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        Task OrderEmailWithCode(string emailAddress, Guid partyUuid, string languageCode, string verificationCode, CancellationToken cancellationToken);
+        Task OrderEmail(string emailAddress, string subject, string body, string? sendersReference, CancellationToken cancellationToken);
     }
 }

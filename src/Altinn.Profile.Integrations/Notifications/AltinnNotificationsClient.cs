@@ -11,11 +11,9 @@ using Microsoft.Extensions.Options;
 namespace Altinn.Profile.Integrations.Notifications;
 
 /// <summary>
-/// An HTTP client to interact with the Altinn notifications service.
+/// A content-agnostic HTTP client for interacting with the Altinn notifications service.
+/// Responsible only for HTTP transport; callers build message content.
 /// </summary>
-/// <remarks>
-/// Initializes a new instance of the <see cref="AltinnNotificationsClient"/> class.
-/// </remarks>
 public class AltinnNotificationsClient : INotificationsClient
 {
     private readonly HttpClient _httpClient;
@@ -46,87 +44,40 @@ public class AltinnNotificationsClient : INotificationsClient
     }
 
     /// <inheritdoc/>
-    public async Task OrderSmsWithCode(string phoneNumber, Guid partyUuid, string languageCode, string verificationCode, CancellationToken cancellationToken)
+    public async Task OrderSms(string phoneNumber, string body, string? sendersReference, CancellationToken cancellationToken)
     {
         var request = new SmsOrderRequest
         {
             IdempotencyId = Guid.NewGuid().ToString(),
-            SendersReference = partyUuid.ToString(),
+            SendersReference = sendersReference,
             RecipientSms = new RecipientSms
             {
                 PhoneNumber = phoneNumber,
                 SmsSettings = new SmsSettings
                 {
-                    Body = OrderContentWithCode.GetSmsContent(languageCode, verificationCode),
+                    Body = body,
                 }
             }
         };
 
         var json = JsonSerializer.Serialize(request, _options);
-
         await SendOrder(json, _notificationTypeSms, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public async Task OrderEmailWithCode(string emailAddress, Guid partyUuid, string languageCode, string verificationCode, CancellationToken cancellationToken)
+    public async Task OrderEmail(string emailAddress, string subject, string body, string? sendersReference, CancellationToken cancellationToken)
     {
         var request = new EmailOrderRequest
         {
             IdempotencyId = Guid.NewGuid().ToString(),
-            SendersReference = partyUuid.ToString(),
+            SendersReference = sendersReference,
             RecipientEmail = new RecipientEmail
             {
                 EmailAddress = emailAddress,
                 EmailSettings = new EmailSettings
                 {
-                    Subject = OrderContentWithCode.GetEmailSubject(languageCode),
-                    Body = OrderContentWithCode.GetEmailBody(languageCode, verificationCode),
-                }
-            }
-        };
-
-        var json = JsonSerializer.Serialize(request, _options);
-        await SendOrder(json, _notificationTypeEmail, cancellationToken);
-    }
-
-    // Old methods to notify the user about address change. Can be deleted when we are sure that the new methods work as expected and are used by the ui.
-
-    /// <inheritdoc/>
-    public async Task OrderSms(string phoneNumber, Guid partyUuid, string languageCode, CancellationToken cancellationToken)
-    {
-        var request = new SmsOrderRequest
-        {
-            IdempotencyId = Guid.NewGuid().ToString(),
-            SendersReference = partyUuid.ToString(),
-            RecipientSms = new RecipientSms
-            {
-                PhoneNumber = phoneNumber,
-                SmsSettings = new SmsSettings
-                {
-                    Body = OrderContent.GetSmsContent(languageCode),
-                }
-            }
-        };
-
-        var json = JsonSerializer.Serialize(request, _options);
-
-        await SendOrder(json, _notificationTypeSms, cancellationToken);
-    }
-
-    /// <inheritdoc/>
-    public async Task OrderEmail(string emailAddress, Guid partyUuid, string languageCode, CancellationToken cancellationToken)
-    {
-        var request = new EmailOrderRequest
-        {
-            IdempotencyId = Guid.NewGuid().ToString(),
-            SendersReference = partyUuid.ToString(),
-            RecipientEmail = new RecipientEmail
-            {
-                EmailAddress = emailAddress,
-                EmailSettings = new EmailSettings
-                {
-                    Subject = OrderContent.GetEmailSubject(languageCode),
-                    Body = OrderContent.GetTmpEmailBody(languageCode),
+                    Subject = subject,
+                    Body = body,
                 }
             }
         };
