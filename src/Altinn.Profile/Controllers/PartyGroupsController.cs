@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Authorization;
-using Altinn.Profile.Core.PartyGroups;
+using Altinn.Profile.Core.User.PartyGroups;
 using Altinn.Profile.Models;
 
 using Microsoft.AspNetCore.Authorization;
@@ -123,10 +123,16 @@ namespace Altinn.Profile.Controllers
         /// <param name="request">The group update request containing the new group name</param>
         /// <param name="cancellationToken">Cancellation token for the operation</param>
         /// <returns>The updated group.</returns>
+        /// <response code="200">The group name was successfully updated.</response>
+        /// <response code="400">The request is invalid (e.g., missing or empty name).</response>
+        /// <response code="401">The user is not authenticated.</response>
+        /// <response code="404">The group does not exist or the user does not have access to it.</response>
+        /// <response code="422">The group exists but cannot be renamed because it is a favorite group. Favorite groups have a system-managed name and cannot be modified.</response>
         [HttpPatch("{groupId:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<GroupResponse>> UpdateName([FromRoute] int groupId, [FromBody] GroupRequest request, CancellationToken cancellationToken)
         {
@@ -141,16 +147,56 @@ namespace Altinn.Profile.Controllers
                 return validationResult;
             }
 
-            var group = await _partyGroupService.UpdateGroupName(userId, groupId, request.Name, cancellationToken);
+            var result = await _partyGroupService.UpdateGroupName(userId, groupId, request.Name, cancellationToken);
 
-            if (group == null)
+            return result.Result switch
             {
-                return NotFound();
+                GroupOperationResult.Success => Ok(MapToGroupResponse(result.Group!)),
+                GroupOperationResult.NotFound => NotFound(),
+                GroupOperationResult.Forbidden => UnprocessableEntity("Favorite groups cannot be renamed."),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            };
+        }
+
+        /// <summary>
+        /// Delete a group
+        /// </summary>
+        /// <param name="groupId">The ID of the group to delete</param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        /// <returns>NoContent if successful.</returns>
+        /// <response code="204">The group was successfully deleted.</response>
+        /// <response code="400">The request is invalid (e.g., the groupId is not a valid integer).</response>
+        /// <response code="401">The user is not authenticated.</response>
+        /// <response code="404">The group does not exist or the user does not have access to it.</response>
+        /// <response code="422">The group exists but cannot be deleted because it is a favorite group. Favorite groups are system-managed and cannot be deleted by users.</response>
+        [HttpDelete("{groupId:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult> Delete([FromRoute] int groupId, CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
             }
 
-            var response = MapToGroupResponse(group);
+            var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
 
-            return Ok(response);
+            var result = await _partyGroupService.DeleteGroup(userId, groupId, cancellationToken);
+
+            return result switch
+            {
+                GroupOperationResult.Success => NoContent(),
+                GroupOperationResult.NotFound => NotFound(),
+                GroupOperationResult.Forbidden => UnprocessableEntity("Favorite groups cannot be deleted."),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            };
         }
 
         private GroupResponse MapToGroupResponse(Group group)

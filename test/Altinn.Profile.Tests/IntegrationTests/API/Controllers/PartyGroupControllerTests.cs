@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Altinn.Profile.Core.PartyGroups;
+using Altinn.Profile.Core.User.PartyGroups;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
@@ -610,7 +610,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory.PartyGroupRepositoryMock
                 .Setup(x => x.UpdateGroupName(UserId, GroupId, UpdatedName, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(updatedGroup);
+                .ReturnsAsync(new UpdateGroupResult(GroupOperationResult.Success, updatedGroup));
 
             HttpClient client = _factory.CreateClient();
 
@@ -655,7 +655,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory.PartyGroupRepositoryMock
                 .Setup(x => x.UpdateGroupName(UserId, GroupId, UpdatedName, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Group)null);
+                .ReturnsAsync(new UpdateGroupResult(GroupOperationResult.NotFound, null));
 
             HttpClient client = _factory.CreateClient();
 
@@ -791,7 +791,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory.PartyGroupRepositoryMock
                 .Setup(x => x.UpdateGroupName(UserId, GroupId, UpdatedName, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(updatedGroup);
+                .ReturnsAsync(new UpdateGroupResult(GroupOperationResult.Success, updatedGroup));
 
             HttpClient client = _factory.CreateClient();
 
@@ -820,6 +820,135 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(2, groupResponse.Parties.Length);
             Assert.Contains(partyUuid1, groupResponse.Parties);
             Assert.Contains(partyUuid2, groupResponse.Parties);
+        }
+
+        [Fact]
+        public async Task UpdateName_ReturnsUnprocessableEntity_WhenGroupIsFavorite()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            const int GroupId = 1;
+            const string UpdatedName = "New Name";
+
+            _factory.PartyGroupRepositoryMock
+                .Setup(x => x.UpdateGroupName(UserId, GroupId, UpdatedName, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new UpdateGroupResult(GroupOperationResult.Forbidden, null));
+
+            HttpClient client = _factory.CreateClient();
+
+            var requestBody = new GroupRequest { Name = UpdatedName };
+            var content = new StringContent(
+                JsonSerializer.Serialize(requestBody, _serializerOptionsCamelCase),
+                System.Text.Encoding.UTF8,
+                "application/json");
+
+            HttpRequestMessage httpRequestMessage = CreateRequest(new HttpMethod("PATCH"), UserId, $"profile/api/v1/users/current/party-groups/{GroupId}");
+            httpRequestMessage.Content = content;
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+
+            _factory.PartyGroupRepositoryMock.Verify(
+                x => x.UpdateGroupName(UserId, GroupId, UpdatedName, It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task Delete_ReturnsNoContent_WhenGroupIsDeleted()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            const int GroupId = 42;
+
+            _factory.PartyGroupRepositoryMock
+                .Setup(x => x.DeleteGroup(UserId, GroupId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(GroupOperationResult.Success);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/party-groups/{GroupId}");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+            _factory.PartyGroupRepositoryMock.Verify(
+                x => x.DeleteGroup(UserId, GroupId, It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task Delete_ReturnsNotFound_WhenGroupDoesNotExist()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            const int GroupId = 999;
+
+            _factory.PartyGroupRepositoryMock
+                .Setup(x => x.DeleteGroup(UserId, GroupId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(GroupOperationResult.NotFound);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/party-groups/{GroupId}");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+            _factory.PartyGroupRepositoryMock.Verify(
+                x => x.DeleteGroup(UserId, GroupId, It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task Delete_ReturnsUnprocessableEntity_WhenGroupIsFavorite()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            const int GroupId = 1;
+
+            _factory.PartyGroupRepositoryMock
+                .Setup(x => x.DeleteGroup(UserId, GroupId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(GroupOperationResult.Forbidden);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/party-groups/{GroupId}");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+
+            _factory.PartyGroupRepositoryMock.Verify(
+                x => x.DeleteGroup(UserId, GroupId, It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task Delete_ReturnsUnauthorized_WhenNoUserIdClaim()
+        {
+            // Arrange
+            const int GroupId = 42;
+
+            HttpClient client = _factory.CreateClient();
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"profile/api/v1/users/current/party-groups/{GroupId}");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+
+            _factory.PartyGroupRepositoryMock.Verify(
+                x => x.DeleteGroup(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
+                Times.Never);
         }
 
         private static HttpRequestMessage CreateRequest(HttpMethod method, int userId, string requestUri)

@@ -1,6 +1,6 @@
 ﻿using Altinn.Profile.Core.Integrations;
 
-namespace Altinn.Profile.Core.PartyGroups
+namespace Altinn.Profile.Core.User.PartyGroups
 {
     /// <inheritdoc/>
     public class PartyGroupService(IPartyGroupRepository groupRepository) : IPartyGroupService
@@ -32,11 +32,19 @@ namespace Altinn.Profile.Core.PartyGroups
         }
 
         /// <inheritdoc/>
-        public async Task<Group?> UpdateGroupName(int userId, int groupId, string name, CancellationToken cancellationToken)
+        public async Task<UpdateGroupResult> UpdateGroupName(int userId, int groupId, string name, CancellationToken cancellationToken)
         {
-            var group = await _groupRepository.UpdateGroupName(userId, groupId, name, cancellationToken);
+            var result = await _groupRepository.UpdateGroupName(userId, groupId, name, cancellationToken);
 
-            return group;
+            return result;
+        }
+
+        /// <inheritdoc/>
+        public async Task<GroupOperationResult> DeleteGroup(int userId, int groupId, CancellationToken cancellationToken)
+        {
+            var result = await _groupRepository.DeleteGroup(userId, groupId, cancellationToken);
+
+            return result;
         }
 
         /// <inheritdoc/>

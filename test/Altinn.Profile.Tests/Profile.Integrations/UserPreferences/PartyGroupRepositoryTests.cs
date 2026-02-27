@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Altinn.Profile.Core.PartyGroups;
+using Altinn.Profile.Core.User.PartyGroups;
 using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
@@ -652,15 +652,16 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
             // Act
-            var updatedGroup = await _repository.UpdateGroupName(UserId, GroupId, UpdatedName, TestContext.Current.CancellationToken);
+            var result = await _repository.UpdateGroupName(UserId, GroupId, UpdatedName, TestContext.Current.CancellationToken);
 
             // Assert
-            Assert.NotNull(updatedGroup);
-            Assert.Equal(GroupId, updatedGroup.GroupId);
-            Assert.Equal(UpdatedName, updatedGroup.Name);
-            Assert.Equal(UserId, updatedGroup.UserId);
-            Assert.False(updatedGroup.IsFavorite);
-            Assert.Equal(2, updatedGroup.Parties.Count);
+            Assert.Equal(GroupOperationResult.Success, result.Result);
+            Assert.NotNull(result.Group);
+            Assert.Equal(GroupId, result.Group.GroupId);
+            Assert.Equal(UpdatedName, result.Group.Name);
+            Assert.Equal(UserId, result.Group.UserId);
+            Assert.False(result.Group.IsFavorite);
+            Assert.Equal(2, result.Group.Parties.Count);
 
             var retrievedGroup = await _repository.GetGroup(UserId, GroupId, TestContext.Current.CancellationToken);
             Assert.NotNull(retrievedGroup);
@@ -668,7 +669,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
         }
 
         [Fact]
-        public async Task UpdateGroupName_WhenGroupDoesNotExist_ReturnsNull()
+        public async Task UpdateGroupName_WhenGroupDoesNotExist_ReturnsNotFound()
         {
             // Arrange
             const int UserId = 1;
@@ -678,14 +679,15 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             await SeedTestGroupsAsync();
 
             // Act
-            var updatedGroup = await _repository.UpdateGroupName(UserId, NonExistentGroupId, UpdatedName, TestContext.Current.CancellationToken);
+            var result = await _repository.UpdateGroupName(UserId, NonExistentGroupId, UpdatedName, TestContext.Current.CancellationToken);
 
             // Assert
-            Assert.Null(updatedGroup);
+            Assert.Equal(GroupOperationResult.NotFound, result.Result);
+            Assert.Null(result.Group);
         }
 
         [Fact]
-        public async Task UpdateGroupName_WhenGroupBelongsToDifferentUser_ReturnsNull()
+        public async Task UpdateGroupName_WhenGroupBelongsToDifferentUser_ReturnsNotFound()
         {
             // Arrange
             const int UserId1 = 1;
@@ -706,10 +708,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
             // Act
-            var updatedGroup = await _repository.UpdateGroupName(UserId1, GroupId, UpdatedName, TestContext.Current.CancellationToken);
+            var result = await _repository.UpdateGroupName(UserId1, GroupId, UpdatedName, TestContext.Current.CancellationToken);
 
             // Assert
-            Assert.Null(updatedGroup);
+            Assert.Equal(GroupOperationResult.NotFound, result.Result);
+            Assert.Null(result.Group);
 
             var originalGroup = await _repository.GetGroup(UserId2, GroupId, TestContext.Current.CancellationToken);
             Assert.NotNull(originalGroup);
@@ -744,21 +747,22 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
             // Act
-            var updatedGroup = await _repository.UpdateGroupName(UserId, GroupId, UpdatedName, TestContext.Current.CancellationToken);
+            var result = await _repository.UpdateGroupName(UserId, GroupId, UpdatedName, TestContext.Current.CancellationToken);
 
             // Assert
-            Assert.NotNull(updatedGroup);
-            Assert.Equal(UpdatedName, updatedGroup.Name);
-            Assert.Equal(3, updatedGroup.Parties.Count);
-            Assert.Contains(updatedGroup.Parties, p => p.PartyUuid == partyUuid1);
-            Assert.Contains(updatedGroup.Parties, p => p.PartyUuid == partyUuid2);
-            Assert.Contains(updatedGroup.Parties, p => p.PartyUuid == partyUuid3);
-            Assert.False(updatedGroup.IsFavorite);
-            Assert.Equal(UserId, updatedGroup.UserId);
+            Assert.Equal(GroupOperationResult.Success, result.Result);
+            Assert.NotNull(result.Group);
+            Assert.Equal(UpdatedName, result.Group.Name);
+            Assert.Equal(3, result.Group.Parties.Count);
+            Assert.Contains(result.Group.Parties, p => p.PartyUuid == partyUuid1);
+            Assert.Contains(result.Group.Parties, p => p.PartyUuid == partyUuid2);
+            Assert.Contains(result.Group.Parties, p => p.PartyUuid == partyUuid3);
+            Assert.False(result.Group.IsFavorite);
+            Assert.Equal(UserId, result.Group.UserId);
         }
 
         [Fact]
-        public async Task UpdateGroupName_WhenGroupIsFavorite_ReturnsNull()
+        public async Task UpdateGroupName_WhenGroupIsFavorite_ReturnsForbidden()
         {
             // Arrange
             const int UserId = 1;
@@ -778,10 +782,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
             // Act
-            var updatedGroup = await _repository.UpdateGroupName(UserId, GroupId, UpdatedName, TestContext.Current.CancellationToken);
+            var result = await _repository.UpdateGroupName(UserId, GroupId, UpdatedName, TestContext.Current.CancellationToken);
 
             // Assert
-            Assert.Null(updatedGroup);
+            Assert.Equal(GroupOperationResult.Forbidden, result.Result);
+            Assert.Null(result.Group);
 
             var originalGroup = await _repository.GetGroup(UserId, GroupId, TestContext.Current.CancellationToken);
             Assert.NotNull(originalGroup);
@@ -802,6 +807,194 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
             // Act & Assert
             await Assert.ThrowsAsync<OperationCanceledException>(
                 () => _repository.UpdateGroupName(UserId, GroupId, UpdatedName, cts.Token));
+        }
+
+        [Fact]
+        public async Task DeleteGroup_WhenGroupExists_DeletesGroupAndReturnsSuccess()
+        {
+            // Arrange
+            const int UserId = 1;
+            const int GroupId = 70;
+            var partyUuid1 = Guid.NewGuid();
+            var partyUuid2 = Guid.NewGuid();
+
+            _databaseContext.Groups.Add(new Group
+            {
+                GroupId = GroupId,
+                UserId = UserId,
+                Name = "Group To Delete",
+                IsFavorite = false,
+                Parties = [
+                    new PartyGroupAssociation { PartyUuid = partyUuid1, AssociationId = 1, Created = DateTime.Now, GroupId = GroupId },
+                    new PartyGroupAssociation { PartyUuid = partyUuid2, AssociationId = 2, Created = DateTime.Now, GroupId = GroupId }
+                ]
+            });
+
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+            // Act
+            var result = await _repository.DeleteGroup(UserId, GroupId, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(GroupOperationResult.Success, result);
+
+            var retrievedGroup = await _repository.GetGroup(UserId, GroupId, TestContext.Current.CancellationToken);
+            Assert.Null(retrievedGroup);
+
+            var allGroups = await _repository.GetGroups(UserId, false, TestContext.Current.CancellationToken);
+            Assert.DoesNotContain(allGroups, g => g.GroupId == GroupId);
+        }
+
+        [Fact]
+        public async Task DeleteGroup_WhenGroupDoesNotExist_ReturnsNotFound()
+        {
+            // Arrange
+            const int UserId = 1;
+            const int NonExistentGroupId = 999;
+
+            await SeedTestGroupsAsync();
+
+            // Act
+            var result = await _repository.DeleteGroup(UserId, NonExistentGroupId, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(GroupOperationResult.NotFound, result);
+        }
+
+        [Fact]
+        public async Task DeleteGroup_WhenGroupBelongsToDifferentUser_ReturnsNotFound()
+        {
+            // Arrange
+            const int UserId1 = 1;
+            const int UserId2 = 2;
+            const int GroupId = 75;
+
+            _databaseContext.Groups.Add(new Group
+            {
+                GroupId = GroupId,
+                UserId = UserId2,
+                Name = "User 2 Group",
+                IsFavorite = false,
+                Parties = []
+            });
+
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+            // Act
+            var result = await _repository.DeleteGroup(UserId1, GroupId, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(GroupOperationResult.NotFound, result);
+
+            var originalGroup = await _repository.GetGroup(UserId2, GroupId, TestContext.Current.CancellationToken);
+            Assert.NotNull(originalGroup);
+        }
+
+        [Fact]
+        public async Task DeleteGroup_WhenGroupIsFavorite_ReturnsForbidden()
+        {
+            // Arrange
+            const int UserId = 1;
+            const int GroupId = 80;
+
+            _databaseContext.Groups.Add(new Group
+            {
+                GroupId = GroupId,
+                UserId = UserId,
+                Name = "Favorites",
+                IsFavorite = true,
+                Parties = [new PartyGroupAssociation { PartyUuid = Guid.NewGuid(), AssociationId = 1, Created = DateTime.Now, GroupId = GroupId }]
+            });
+
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+            // Act
+            var result = await _repository.DeleteGroup(UserId, GroupId, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(GroupOperationResult.Forbidden, result);
+
+            var originalGroup = await _repository.GetGroup(UserId, GroupId, TestContext.Current.CancellationToken);
+            Assert.NotNull(originalGroup);
+            Assert.True(originalGroup.IsFavorite);
+        }
+
+        [Fact]
+        public async Task DeleteGroup_WhenGroupHasParties_DeletesGroupAndAssociations()
+        {
+            // Arrange
+            const int UserId = 1;
+            const int GroupId = 85;
+            var partyUuid1 = Guid.NewGuid();
+            var partyUuid2 = Guid.NewGuid();
+            var partyUuid3 = Guid.NewGuid();
+
+            _databaseContext.Groups.Add(new Group
+            {
+                GroupId = GroupId,
+                UserId = UserId,
+                Name = "Group With Parties",
+                IsFavorite = false,
+                Parties = [
+                    new PartyGroupAssociation { PartyUuid = partyUuid1, AssociationId = 1, Created = DateTime.Now, GroupId = GroupId },
+                    new PartyGroupAssociation { PartyUuid = partyUuid2, AssociationId = 2, Created = DateTime.Now, GroupId = GroupId },
+                    new PartyGroupAssociation { PartyUuid = partyUuid3, AssociationId = 3, Created = DateTime.Now, GroupId = GroupId }
+                ]
+            });
+
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+            // Act
+            var result = await _repository.DeleteGroup(UserId, GroupId, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(GroupOperationResult.Success, result);
+
+            var retrievedGroup = await _repository.GetGroup(UserId, GroupId, TestContext.Current.CancellationToken);
+            Assert.Null(retrievedGroup);
+        }
+
+        [Fact]
+        public async Task DeleteGroup_WhenCancellationRequested_ThrowsOperationCanceledException()
+        {
+            // Arrange
+            const int UserId = 1;
+            const int GroupId = 90;
+            var cts = new CancellationTokenSource();
+            cts.Cancel();
+
+            // Act & Assert
+            await Assert.ThrowsAsync<OperationCanceledException>(
+                () => _repository.DeleteGroup(UserId, GroupId, cts.Token));
+        }
+
+        [Fact]
+        public async Task DeleteGroup_WhenMultipleGroupsExist_DeletesOnlySpecifiedGroup()
+        {
+            // Arrange
+            const int UserId = 1;
+            const int GroupIdToDelete = 95;
+
+            _databaseContext.Groups.AddRange(
+                new Group { GroupId = 93, UserId = UserId, Name = "Group A", IsFavorite = false, Parties = [] },
+                new Group { GroupId = 94, UserId = UserId, Name = "Group B", IsFavorite = false, Parties = [] },
+                new Group { GroupId = GroupIdToDelete, UserId = UserId, Name = "Group To Delete", IsFavorite = false, Parties = [] },
+                new Group { GroupId = 96, UserId = UserId, Name = "Group C", IsFavorite = false, Parties = [] });
+
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+            // Act
+            var result = await _repository.DeleteGroup(UserId, GroupIdToDelete, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(GroupOperationResult.Success, result);
+
+            var allGroups = await _repository.GetGroups(UserId, false, TestContext.Current.CancellationToken);
+            Assert.Equal(3, allGroups.Count);
+            Assert.DoesNotContain(allGroups, g => g.GroupId == GroupIdToDelete);
+            Assert.Contains(allGroups, g => g.GroupId == 93);
+            Assert.Contains(allGroups, g => g.GroupId == 94);
+            Assert.Contains(allGroups, g => g.GroupId == 96);
         }
 
         private static Group CreateFavoriteGroup(int userId, int groupId, string name = "Group A", List<PartyGroupAssociation> parties = null)
