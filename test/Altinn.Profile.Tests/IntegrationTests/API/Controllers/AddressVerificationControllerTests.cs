@@ -474,7 +474,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 Value = "address@example.com",
                 Type = AddressType.Email,
-                VerificationCode = "wrongcode"
+                VerificationCode = "000000" // Will mismatch with stored code
             };
             var hash = BCrypt.Net.BCrypt.HashPassword("123456");
 
