@@ -265,7 +265,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 
         private bool NeedsConfirmation(UserPartyContactInfo notificationAddress, DateTime? ignoreUnitProfileDateTime)
         {
-            if (ignoreUnitProfileDateTime.HasValue == true)
+            if (ignoreUnitProfileDateTime.HasValue)
             {
                 TimeSpan daysSinceIgnore = (TimeSpan)(DateTime.UtcNow - ignoreUnitProfileDateTime);
                 if (daysSinceIgnore.TotalDays <= _addressMaintenanceSettings.IgnoreUnitProfileConfirmationDays)
