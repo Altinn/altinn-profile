@@ -53,7 +53,7 @@ namespace Altinn.Profile.Integrations.Notifications
         public const string InformEmailBodyNo = "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din med denne e-postadressen. Ring oss om dette ikke stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldinger i Altinn. Du kan redigere dine varslingsinnstillinger under Profil på Altinn sine nettsider.<br /><br />Med vennlig hilsen<br />Altinn Brukerservice";
 
         /// <summary>Norwegian Nynorsk email body for address-change notification (no reportee name).</summary>
-        public const string InformEmailBodyNn = "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din med denne e-postadressa. Ring oss om dette ikkje stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldingar i Altinn. Du kan redigere varlingsinnstillingane dine under Profil på Altinn sine nettsider.<br /><br />Med venleg helsing<br />Altinn brukarservice";
+        public const string InformEmailBodyNn = "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din med denne e-postadressa. Ring oss om dette ikkje stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldingar i Altinn. Du kan redigere varslingsinnstillingane dine under Profil på Altinn sine nettsider.<br /><br />Med venleg helsing<br />Altinn brukarservice";
 
 
         // --- Email body templates: address-change notifications (with reportee name) ---
@@ -65,7 +65,7 @@ namespace Altinn.Profile.Integrations.Notifications
         public const string EmailBodyWithReporteeNo = "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din for $reporteeName$ med denne e-postadressen. Ring oss om dette ikke stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldinger i Altinn. Du kan redigere dine varslingsinnstillinger under Profil på Altinn sine nettsider.<br /><br />Med vennlig hilsen<br />Altinn Brukerservice";
 
         /// <summary>Norwegian Nynorsk email body template with $reporteeName$ placeholder.</summary>
-        public const string EmailBodyWithReporteeNn = "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din for $reporteeName$ med denne e-postadressa. Ring oss om dette ikkje stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldingar i Altinn. Du kan redigere varlingsinnstillingane dine under Profil på Altinn sine nettsider.<br /><br />Med venleg helsing<br />Altinn brukarservice";
+        public const string EmailBodyWithReporteeNn = "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din for $reporteeName$ med denne e-postadressa. Ring oss om dette ikkje stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldingar i Altinn. Du kan redigere varslingsinnstillingane dine under Profil på Altinn sine nettsider.<br /><br />Med venleg helsing<br />Altinn brukarservice";
 
 
         // --- Email body templates: verification-code notifications ---
@@ -77,7 +77,7 @@ namespace Altinn.Profile.Integrations.Notifications
         public const string VerificationCodeEmailBodyNo = "Oppgi koden $code$ for å bekrefte e-postadressen din i Altinn.";
 
         /// <summary>Norwegian Nynorsk email body template for verification code. Contains $code$ placeholder.</summary>
-        public const string VerificationCodeEmailBodyNn = "Skriv inn koden $code$ for å bekrefte e-postadressa di i Altinn";
+        public const string VerificationCodeEmailBodyNn = "Skriv inn koden $code$ for å bekrefte e-postadressa di i Altinn.";
 
 
         /// <summary>
