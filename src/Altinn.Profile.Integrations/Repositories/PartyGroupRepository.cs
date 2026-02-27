@@ -144,6 +144,33 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
+        public async Task<Group?> RemovePartyFromGroup(int userId, int groupId, Guid partyUuid, CancellationToken cancellationToken)
+        {
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+            var group = await databaseContext.Groups.Include(g => g.Parties).Where(g => g.UserId == userId && g.GroupId == groupId).FirstOrDefaultAsync(cancellationToken);
+
+            if (group == null)
+            {
+                return null;
+            }
+
+            var partyGroupAssociation = group.Parties.FirstOrDefault(p => p.PartyUuid == partyUuid);
+
+            if (partyGroupAssociation == null)
+            {
+                return null;
+            }
+
+            group.Parties.Remove(partyGroupAssociation);
+            databaseContext.PartyGroupAssociations.Remove(partyGroupAssociation);
+
+            await databaseContext.SaveChangesAsync(cancellationToken);
+
+            return group;
+        }
+
+        /// <inheritdoc/>
         public async Task<bool> AddPartyToFavorites(int userId, Guid partyUuid, CancellationToken cancellationToken)
         {
             var favoriteGroup = await GetFavorites(userId, cancellationToken);

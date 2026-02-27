@@ -227,6 +227,40 @@ namespace Altinn.Profile.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Remove a party from a group
+        /// </summary>
+        /// <param name="groupId">The ID of the group to remove the party from</param>
+        /// <param name="partyUuid">The UUID of the party to remove</param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        /// <returns>The updated group.</returns>
+        /// <response code="200">The party was successfully removed from the group. Returns the updated group.</response>
+        /// <response code="401">The user is not authenticated.</response>
+        /// <response code="404">The group does not exist, the user does not have access to it, or the party is not in the group.</response>
+        [HttpDelete("{groupId:int}/associations/{partyUuid:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<GroupResponse>> RemovePartyFromGroup([FromRoute] int groupId, [FromRoute] Guid partyUuid, CancellationToken cancellationToken)
+        {
+            var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            var group = await _partyGroupService.RemovePartyFromGroup(userId, groupId, partyUuid, cancellationToken);
+
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            var response = MapToGroupResponse(group);
+
+            return Ok(response);
+        }
+
         private GroupResponse MapToGroupResponse(Group group)
         {
             return new GroupResponse
