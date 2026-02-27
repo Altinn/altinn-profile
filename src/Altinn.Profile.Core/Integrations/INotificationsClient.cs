@@ -11,7 +11,7 @@
         /// </summary>
         /// <param name="phoneNumber">The phone number to send the SMS to.</param>
         /// <param name="body">The body content of the SMS message.</param>
-        /// <param name="sendersReference">A reference string for tracking, typically a party UUID.</param>
+        /// <param name="sendersReference">A reference string for tracking.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         Task OrderSmsAsync(string phoneNumber, string body, string? sendersReference, CancellationToken cancellationToken);
