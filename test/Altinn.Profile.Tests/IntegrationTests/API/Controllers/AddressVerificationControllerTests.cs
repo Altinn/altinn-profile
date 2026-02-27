@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.AddressVerifications.Models;
-using Altinn.Profile.Integrations.AddressVerification;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
@@ -141,10 +140,63 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
+        public async Task VerifyAddress_WhenRequestLacksBearerToken_ReturnsUnauthorized()
+        {
+            // Arrange
+            var request = new AddressVerificationRequest
+            {
+                Value = "address@example.com",
+                Type = AddressType.Email,
+                VerificationCode = "123456"
+            };
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "profile/api/v1/users/current/verification/verify")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task VerifyAddress_WhenSystemUserToken_ReturnsBadRequest()
+        {
+            // Arrange
+            var request = new AddressVerificationRequest
+            {
+                Value = "address@example.com",
+                Type = AddressType.Email,
+                VerificationCode = "123456"
+            };
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "profile/api/v1/users/current/verification/verify")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddSystemUserAuthHeadersToRequest(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
         public async Task VerifyAddress_WhenCodeIsCorrect_ReturnsSuccess()
         {
             // Arrange
-            const int userId = 2516351;
+            const int userId = 2516351; // Use a unique userId to prevent rate limit quota collisions between tests, as the rate limiter partitions by userId
             var request = new AddressVerificationRequest
             {
                 Value = "Address@example.com",
@@ -189,7 +241,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task VerifyAddress_WhenCodeIsWrong_ReturnsUnprocessableEntity()
         {
             // Arrange
-            const int userId = 2516352;
+            const int userId = 2516352; // Use a unique userId to prevent rate limit quota collisions between tests, as the rate limiter partitions by userId
             var request = new AddressVerificationRequest
             {
                 Value = "address@example.com",
@@ -239,7 +291,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task VerifyAddress_WhenCodeIsExpired_ReturnsUnprocessableEntity()
         {
             // Arrange
-            const int userId = 2516353;
+            const int userId = 2516353; // Use a unique userId to prevent rate limit quota collisions between tests, as the rate limiter partitions by userId
             var request = new AddressVerificationRequest
             {
                 Value = "address@EXAMPLE.com",
@@ -289,10 +341,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData(null, AddressType.Email, "123456")]
         [InlineData("Address@email.com", null, "123456")]
         [InlineData("+4798765432", AddressType.Sms, null)]
-        public async Task VerifyAddress_WhenIncompleteRequest_ReturnsBadRequest(string address, AddressType? addressType, string code)
+        public async Task VerifyAddress_WhenRequestLacksRequiredField_ReturnsBadRequest(string address, AddressType? addressType, string code)
         {
             // Arrange
-            const int userId = 2516354;
+            const int userId = 2516354; // Use a unique userId to prevent rate limit quota collisions between tests, as the rate limiter partitions by userId
             var request = new AddressVerificationRequest
             {
                 Value = address,
@@ -324,7 +376,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task VerifyAddress_WhenWrongFormatOfRequest_ReturnsBadRequest(string address, string code)
         {
             // Arrange
-            const int userId = 2516356;
+            const int userId = 2516356; // Use a unique userId to prevent rate limit quota collisions between tests, as the rate limiter partitions by userId
             var request = new AddressVerificationRequest
             {
                 Value = address,
@@ -348,11 +400,36 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
+        [Theory]
+        [InlineData("invalid")]
+        [InlineData("")]
+        public async Task VerifyAddress_WhenInvalidAddressType_ReturnsBadRequest(string invalidType)
+        {
+            // Arrange
+            const int userId = 2516357; // Use a unique userId to prevent rate limit quota collisions between tests, as the rate limiter partitions by userId
+            var json = $"{{\"value\":\"valid@email.com\",\"type\":\"{invalidType}\",\"verificationCode\":\"123456\"}}";
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "profile/api/v1/users/current/verification/verify")
+            {
+                Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
         [Fact]
         public async Task VerifyAddress_WhenUserHasNoStoredCode_ReturnsUnprocessableEntity()
         {
             // Arrange
-            const int userId = 2516356;
+            const int userId = 2516358; // Use a unique userId to prevent rate limit quota collisions between tests, as the rate limiter partitions by userId
             var request = new AddressVerificationRequest
             {
                 Value = "address@EXAMPLE.com",
@@ -392,12 +469,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task VerifyAddress_WhenCodeIsWrongTooManyTimes_ReturnsTooManyRequests()
         {
             // Arrange
-            const int userId = 9999999;
+            const int userId = 9999999; // Use a unique userId to prevent rate limit quota collisions between tests, as the rate limiter partitions by userId
             var request = new AddressVerificationRequest
             {
                 Value = "address@example.com",
                 Type = AddressType.Email,
-                VerificationCode = "wrongcode"
+                VerificationCode = "000000" // Will mismatch with stored code
             };
             var hash = BCrypt.Net.BCrypt.HashPassword("123456");
 

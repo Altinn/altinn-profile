@@ -4,11 +4,12 @@ using Altinn.Profile.Core.Integrations;
 namespace Altinn.Profile.Core.AddressVerifications
 {
     /// <summary>
-    /// A service for handling address verification processes, including generating and sending verification codes via email or SMS.
+    /// A service for handling address verification processes, including generating verification codes,
+    /// persisting them, and delegating notification delivery to <see cref="IAltinnUserNotifier"/>.
     /// </summary>
-    public class AddressVerificationService(INotificationsClient notificationsClient, IAddressVerificationRepository addressVerificationRepository, IVerificationCodeService verificationCodeService) : IAddressVerificationService
+    public class AddressVerificationService(IAltinnUserNotifier userNotifier, IAddressVerificationRepository addressVerificationRepository, IVerificationCodeService verificationCodeService) : IAddressVerificationService
     {
-        private readonly INotificationsClient _notificationsClient = notificationsClient;
+        private readonly IAltinnUserNotifier _userNotifier = userNotifier;
         private readonly IAddressVerificationRepository _addressVerificationRepository = addressVerificationRepository;
         private readonly IVerificationCodeService _verificationCodeService = verificationCodeService;
 
@@ -31,7 +32,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         }
 
         /// <inheritdoc/>
-        public async Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, string languageCode, Guid partyUuid, CancellationToken cancellationToken)
+        public async Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, CancellationToken cancellationToken)
         {
             var existingVerification = await _addressVerificationRepository.GetVerificationStatusAsync(userid, addressType, address, cancellationToken);
             if (existingVerification == VerificationType.Verified)
@@ -51,26 +52,7 @@ namespace Altinn.Profile.Core.AddressVerifications
                 return;
             }
 
-            if (addressType == AddressType.Email)
-            {
-                await _notificationsClient.OrderEmailWithCode(verificationCodeModel.Address, partyUuid, languageCode, code, cancellationToken);
-            }
-            else if (addressType == AddressType.Sms)
-            {
-                await _notificationsClient.OrderSmsWithCode(verificationCodeModel.Address, partyUuid, languageCode, code, cancellationToken);
-            }
-        }
-
-        /// <inheritdoc/>
-        public async Task NotifySmsAddressChangeAsync(string phoneNumber, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken)
-        {
-            await _notificationsClient.OrderSms(phoneNumber, partyUuid, languageCode, cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public async Task NotifyEmailAddressChangeAsync(string emailAddress, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken)
-        {
-            await _notificationsClient.OrderEmail(emailAddress, partyUuid, languageCode, cancellationToken);
+            await _userNotifier.SendVerificationCodeAsync(userid, verificationCodeModel.Address, addressType, code, cancellationToken);
         }
 
         /// <inheritdoc/>

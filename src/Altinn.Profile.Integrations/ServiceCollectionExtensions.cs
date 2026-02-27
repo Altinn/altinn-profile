@@ -83,7 +83,7 @@ public static class ServiceCollectionExtensions
         services.Configure<RegisterSettings>(config.GetSection(nameof(RegisterSettings)));
         services.AddHttpClient<IRegisterClient, RegisterClient>();
         services.Configure<NotificationsSettings>(config.GetSection(nameof(NotificationsSettings)));
-        services.AddHttpClient<INotificationsClient, NotificationsClient>();
+        services.AddHttpClient<INotificationsClient, AltinnNotificationsClient>();
         services.AddHttpClient<IAuthorizationClient, AuthorizationClient>();
 
         services.AddScoped<IPersonService, PersonRepository>();
@@ -107,6 +107,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IVerificationCodeService, VerificationCodeService>();
         services.AddScoped<IAddressVerificationRepository, AddressVerificationRepository>();
+        services.AddScoped<IAltinnUserNotifier, AltinnUserNotifier>();
 
         services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString)
         .UseSnakeCaseNamingConvention());

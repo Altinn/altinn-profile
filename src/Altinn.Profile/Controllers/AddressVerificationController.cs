@@ -75,7 +75,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
-        public async Task<ActionResult> Verify([FromBody]AddressVerificationRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult> Verify([FromBody] AddressVerificationRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
