@@ -108,7 +108,7 @@ public class UserProfileService : IUserProfileService
     public async Task<string> GetPreferredLanguage(int userId)
     {
         var profileSettings = await _profileSettingsRepository.GetProfileSettings(userId);
-        return profileSettings?.LanguageType ?? "nb";
+        return profileSettings?.LanguageType ?? LanguageType.NB;
     }
 
     /// <inheritdoc/>
