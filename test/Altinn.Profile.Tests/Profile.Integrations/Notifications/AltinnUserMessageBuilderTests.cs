@@ -81,7 +81,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
         [Theory]
         [InlineData("en", "TestName", "contact information")]
         [InlineData("nb", "Navn", "varslingsinnstillinger")]
-        [InlineData("nn", "Namn", "varlingsinnstillingane")]
+        [InlineData("nn", "Namn", "varslingsinnstillingane")]
         [InlineData("se", "Sami", "varslingsinnstillinger")]
         [InlineData("xx", "Unknown", "varslingsinnstillinger")]
         [InlineData("", "Empty", "varslingsinnstillinger")]
