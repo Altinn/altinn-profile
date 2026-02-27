@@ -1129,6 +1129,209 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Contains(partyUuid3, groupResponse.Parties);
         }
 
+        [Fact]
+        public async Task RemovePartyFromGroup_ReturnsOk_WhenPartyIsRemoved()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            const int GroupId = 42;
+            var partyUuid = Guid.NewGuid();
+
+            var group = new Group
+            {
+                GroupId = GroupId,
+                UserId = UserId,
+                Name = "Test Group",
+                IsFavorite = false,
+                Parties = []
+            };
+
+            _factory.PartyGroupRepositoryMock
+                .Setup(x => x.RemovePartyFromGroup(UserId, GroupId, partyUuid, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(group);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/party-groups/{GroupId}/associations/{partyUuid}");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            GroupResponse groupResponse = JsonSerializer.Deserialize<GroupResponse>(
+                responseContent, _serializerOptionsCamelCase);
+
+            Assert.NotNull(groupResponse);
+            Assert.Equal(GroupId, groupResponse.GroupId);
+            Assert.Equal("Test Group", groupResponse.Name);
+            Assert.False(groupResponse.IsFavorite);
+            Assert.Empty(groupResponse.Parties);
+
+            _factory.PartyGroupRepositoryMock.Verify(
+                x => x.RemovePartyFromGroup(UserId, GroupId, partyUuid, It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task RemovePartyFromGroup_ReturnsNotFound_WhenGroupDoesNotExist()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            const int GroupId = 999;
+            var partyUuid = Guid.NewGuid();
+
+            _factory.PartyGroupRepositoryMock
+                .Setup(x => x.RemovePartyFromGroup(UserId, GroupId, partyUuid, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Group)null);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/party-groups/{GroupId}/associations/{partyUuid}");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+            _factory.PartyGroupRepositoryMock.Verify(
+                x => x.RemovePartyFromGroup(UserId, GroupId, partyUuid, It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task RemovePartyFromGroup_ReturnsNotFound_WhenPartyNotInGroup()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            const int GroupId = 42;
+            var partyUuid = Guid.NewGuid();
+
+            _factory.PartyGroupRepositoryMock
+                .Setup(x => x.RemovePartyFromGroup(UserId, GroupId, partyUuid, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Group)null);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/party-groups/{GroupId}/associations/{partyUuid}");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task RemovePartyFromGroup_ReturnsUnauthorized_WhenNoUserIdClaim()
+        {
+            // Arrange
+            const int GroupId = 42;
+            var partyUuid = Guid.NewGuid();
+
+            HttpClient client = _factory.CreateClient();
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"profile/api/v1/users/current/party-groups/{GroupId}/associations/{partyUuid}");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+
+            _factory.PartyGroupRepositoryMock.Verify(
+                x => x.RemovePartyFromGroup(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        [Fact]
+        public async Task RemovePartyFromGroup_CanRemoveFromFavoriteGroup()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            const int GroupId = 1;
+            var partyUuid = Guid.NewGuid();
+
+            var group = new Group
+            {
+                GroupId = GroupId,
+                UserId = UserId,
+                Name = "Favorites",
+                IsFavorite = true,
+                Parties = []
+            };
+
+            _factory.PartyGroupRepositoryMock
+                .Setup(x => x.RemovePartyFromGroup(UserId, GroupId, partyUuid, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(group);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/party-groups/{GroupId}/associations/{partyUuid}");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            GroupResponse groupResponse = JsonSerializer.Deserialize<GroupResponse>(
+                responseContent, _serializerOptionsCamelCase);
+
+            Assert.NotNull(groupResponse);
+            Assert.True(groupResponse.IsFavorite);
+            Assert.Empty(groupResponse.Parties);
+
+            _factory.PartyGroupRepositoryMock.Verify(
+                x => x.RemovePartyFromGroup(UserId, GroupId, partyUuid, It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task RemovePartyFromGroup_ReturnsGroupWithRemainingParties()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            const int GroupId = 42;
+            var partyUuid1 = Guid.NewGuid();
+            var partyUuid2 = Guid.NewGuid();
+            var partyUuidToRemove = Guid.NewGuid();
+
+            var group = new Group
+            {
+                GroupId = GroupId,
+                UserId = UserId,
+                Name = "Test Group",
+                IsFavorite = false,
+                Parties = [
+                    new PartyGroupAssociation { PartyUuid = partyUuid1 },
+                    new PartyGroupAssociation { PartyUuid = partyUuid2 }
+                ]
+            };
+
+            _factory.PartyGroupRepositoryMock
+                .Setup(x => x.RemovePartyFromGroup(UserId, GroupId, partyUuidToRemove, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(group);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateRequest(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/party-groups/{GroupId}/associations/{partyUuidToRemove}");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            GroupResponse groupResponse = JsonSerializer.Deserialize<GroupResponse>(
+                responseContent, _serializerOptionsCamelCase);
+
+            Assert.NotNull(groupResponse);
+            Assert.Equal(2, groupResponse.Parties.Length);
+            Assert.Contains(partyUuid1, groupResponse.Parties);
+            Assert.Contains(partyUuid2, groupResponse.Parties);
+            Assert.DoesNotContain(partyUuidToRemove, groupResponse.Parties);
+        }
+
         private static HttpRequestMessage CreateRequest(HttpMethod method, int userId, string requestUri)
         {
             HttpRequestMessage httpRequestMessage = new(method, requestUri);

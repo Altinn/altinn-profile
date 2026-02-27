@@ -56,6 +56,14 @@ namespace Altinn.Profile.Core.User.PartyGroups
         }
 
         /// <inheritdoc/>
+        public async Task<Group?> RemovePartyFromGroup(int userId, int groupId, Guid partyUuid, CancellationToken cancellationToken)
+        {
+            var group = await _groupRepository.RemovePartyFromGroup(userId, groupId, partyUuid, cancellationToken);
+
+            return group;
+        }
+
+        /// <inheritdoc/>
         public async Task<Group> GetFavorites(int userId, CancellationToken cancellationToken)
         {
             var favorites = await _groupRepository.GetFavorites(userId, cancellationToken);
