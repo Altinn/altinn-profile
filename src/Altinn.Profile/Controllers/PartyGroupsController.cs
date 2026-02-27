@@ -243,6 +243,11 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<GroupResponse>> RemovePartyFromGroup([FromRoute] int groupId, [FromRoute] Guid partyUuid, CancellationToken cancellationToken)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
             if (validationResult != null)
             {
