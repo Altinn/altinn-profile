@@ -216,22 +216,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddScoped<IAuthorizationHandler, PartyAccessHandler>();
     services.AddScoped<IAuthorizationHandler, ScopeAccessHandler>();
 
-    services.AddRateLimiter(options =>
-    {
-        options.AddPolicy("verify-address", httpContext =>
-            RateLimitPartition.GetSlidingWindowLimiter(
-            partitionKey: ClaimsHelper.GetUserIdAsString(httpContext) ?? "unknown",
-            factory: _ => new SlidingWindowRateLimiterOptions
-            {
-                PermitLimit = 5,
-                Window = TimeSpan.FromMinutes(1),
-                SegmentsPerWindow = 6,
-                QueueLimit = 0
-            }));
-
-        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-    });
-
     services.AddCoreServices(config);
     services.AddRegisterService(config);
     services.AddSblBridgeClients(config);
@@ -311,7 +295,6 @@ void Configure()
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
-    app.UseRateLimiter();
 
     app.MapControllers();
     app.MapHealthChecks("/health");
