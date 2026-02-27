@@ -95,16 +95,14 @@ public class AltinnNotificationsClient : INotificationsClient
             return;
         }
 
-        var stringContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
-
-        var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"v1/future/orders/instant/{type}")
+        using var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"v1/future/orders/instant/{type}")
         {
-            Content = stringContent
+            Content = new StringContent(jsonString, Encoding.UTF8, "application/json")
         };
 
         requestMessage.Headers.Add("PlatformAccessToken", accessToken);
 
-        var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
+        using var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
