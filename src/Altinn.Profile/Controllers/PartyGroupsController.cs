@@ -249,14 +249,21 @@ namespace Altinn.Profile.Controllers
         /// <param name="cancellationToken">Cancellation token for the operation</param>
         /// <returns>The updated group.</returns>
         /// <response code="200">The party was successfully removed from the group. Returns the updated group.</response>
+        /// <response code="400">The request is invalid (e.g., the groupId is not a valid integer, or the partyUuid is not a valid GUID).</response>
         /// <response code="401">The user is not authenticated.</response>
         /// <response code="404">The group does not exist, the user does not have access to it, or the party is not in the group.</response>
         [HttpDelete("{groupId:int}/associations/{partyUuid:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<GroupResponse>> RemovePartyFromGroup([FromRoute] int groupId, [FromRoute] Guid partyUuid, CancellationToken cancellationToken)
         {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
             var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
             if (validationResult != null)
             {
