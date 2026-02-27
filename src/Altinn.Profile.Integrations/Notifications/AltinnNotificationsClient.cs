@@ -44,7 +44,7 @@ public class AltinnNotificationsClient : INotificationsClient
     }
 
     /// <inheritdoc/>
-    public async Task OrderSms(string phoneNumber, string body, string? sendersReference, CancellationToken cancellationToken)
+    public async Task OrderSmsAsync(string phoneNumber, string body, string? sendersReference, CancellationToken cancellationToken)
     {
         var request = new SmsOrderRequest
         {
@@ -65,7 +65,7 @@ public class AltinnNotificationsClient : INotificationsClient
     }
 
     /// <inheritdoc/>
-    public async Task OrderEmail(string emailAddress, string subject, string body, string? sendersReference, CancellationToken cancellationToken)
+    public async Task OrderEmailAsync(string emailAddress, string subject, string body, string? sendersReference, CancellationToken cancellationToken)
     {
         var request = new EmailOrderRequest
         {

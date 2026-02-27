@@ -28,13 +28,13 @@ namespace Altinn.Profile.Integrations.Notifications
             if (addressType == AddressType.Sms)
             {
                 var body = AltinnUserMessageBuilder.GetSmsContent(language);
-                await _notificationsClient.OrderSms(address, body, sendersReference, cancellationToken);
+                await _notificationsClient.OrderSmsAsync(address, body, sendersReference, cancellationToken);
             }
             else
             {
                 var subject = AltinnUserMessageBuilder.GetEmailSubject(language);
                 var body = AltinnUserMessageBuilder.GetEmailBody(language);
-                await _notificationsClient.OrderEmail(address, subject, body, sendersReference, cancellationToken);
+                await _notificationsClient.OrderEmailAsync(address, subject, body, sendersReference, cancellationToken);
             }
         }
 
@@ -47,13 +47,13 @@ namespace Altinn.Profile.Integrations.Notifications
             if (addressType == AddressType.Sms)
             {
                 var body = AltinnUserMessageBuilder.GetSmsContent(language, verificationCode);
-                await _notificationsClient.OrderSms(address, body, sendersReference, cancellationToken);
+                await _notificationsClient.OrderSmsAsync(address, body, sendersReference, cancellationToken);
             }
             else
             {
                 var subject = AltinnUserMessageBuilder.GetEmailSubject(language);
                 var body = AltinnUserMessageBuilder.GetEmailBody(language, verificationCode);
-                await _notificationsClient.OrderEmail(address, subject, body, sendersReference, cancellationToken);
+                await _notificationsClient.OrderEmailAsync(address, subject, body, sendersReference, cancellationToken);
             }
         }
     }

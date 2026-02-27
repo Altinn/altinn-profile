@@ -70,7 +70,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var sendersReference = Guid.NewGuid().ToString();
 
             // Act
-            await client.OrderSms("+4799999999", smsBody, sendersReference, TestContext.Current.CancellationToken);
+            await client.OrderSmsAsync("+4799999999", smsBody, sendersReference, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(sentRequest);
@@ -97,7 +97,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var sendersReference = Guid.NewGuid().ToString();
 
             // Act
-            await client.OrderEmail("test@example.com", emailSubject, emailBody, sendersReference, TestContext.Current.CancellationToken);
+            await client.OrderEmailAsync("test@example.com", emailSubject, emailBody, sendersReference, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(sentRequest);
@@ -123,7 +123,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.OrderSms("+4799999999", "body", "ref", TestContext.Current.CancellationToken);
+            await client.OrderSmsAsync("+4799999999", "body", "ref", TestContext.Current.CancellationToken);
 
             // Assert
             _loggerMock.Verify(
@@ -148,7 +148,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.OrderSms("+4799999999", "body", "ref", TestContext.Current.CancellationToken);
+            await client.OrderSmsAsync("+4799999999", "body", "ref", TestContext.Current.CancellationToken);
 
             // Assert
             _loggerMock.Verify(
@@ -171,7 +171,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.OrderSms("+4799999999", "body", null, TestContext.Current.CancellationToken);
+            await client.OrderSmsAsync("+4799999999", "body", null, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(sentRequest);
@@ -192,7 +192,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.OrderEmail("test@example.com", "subject", "body", "ref", TestContext.Current.CancellationToken);
+            await client.OrderEmailAsync("test@example.com", "subject", "body", "ref", TestContext.Current.CancellationToken);
 
             // Assert
             _loggerMock.Verify(
@@ -216,7 +216,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
-            await client.OrderEmail("test@example.com", "subject", "body", "ref", TestContext.Current.CancellationToken);
+            await client.OrderEmailAsync("test@example.com", "subject", "body", "ref", TestContext.Current.CancellationToken);
 
             // Assert
             _loggerMock.Verify(

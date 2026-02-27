@@ -14,7 +14,7 @@
         /// <param name="sendersReference">A reference string for tracking, typically a party UUID.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task OrderSms(string phoneNumber, string body, string? sendersReference, CancellationToken cancellationToken);
+        Task OrderSmsAsync(string phoneNumber, string body, string? sendersReference, CancellationToken cancellationToken);
 
         /// <summary>
         /// Sends an email order to the specified email address.
@@ -25,6 +25,6 @@
         /// <param name="sendersReference">A reference string for tracking, typically a party UUID.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task OrderEmail(string emailAddress, string subject, string body, string? sendersReference, CancellationToken cancellationToken);
+        Task OrderEmailAsync(string emailAddress, string subject, string body, string? sendersReference, CancellationToken cancellationToken);
     }
 }
