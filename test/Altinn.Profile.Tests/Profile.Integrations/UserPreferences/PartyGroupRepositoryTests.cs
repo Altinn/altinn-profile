@@ -1189,6 +1189,209 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
                 () => _repository.AddPartyToGroup(UserId, GroupId, partyUuid, cts.Token));
         }
 
+        [Fact]
+        public async Task RemovePartyFromGroup_WhenPartyExists_RemovesPartyAndReturnsGroup()
+        {
+            // Arrange
+            const int UserId = 1;
+            const int GroupId = 130;
+            var partyUuid = Guid.NewGuid();
+
+            _databaseContext.Groups.Add(new Group
+            {
+                GroupId = GroupId,
+                UserId = UserId,
+                Name = "Test Group",
+                IsFavorite = false,
+                Parties = [
+                    new PartyGroupAssociation { PartyUuid = partyUuid, AssociationId = 1, Created = DateTime.Now, GroupId = GroupId }
+                ]
+            });
+
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+            // Act
+            var group = await _repository.RemovePartyFromGroup(UserId, GroupId, partyUuid, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(group);
+            Assert.Equal(GroupId, group.GroupId);
+            Assert.Empty(group.Parties);
+
+            var retrievedGroup = await _repository.GetGroup(UserId, GroupId, TestContext.Current.CancellationToken);
+            Assert.NotNull(retrievedGroup);
+            Assert.Empty(retrievedGroup.Parties);
+        }
+
+        [Fact]
+        public async Task RemovePartyFromGroup_WhenGroupDoesNotExist_ReturnsNull()
+        {
+            // Arrange
+            const int UserId = 1;
+            const int NonExistentGroupId = 999;
+            var partyUuid = Guid.NewGuid();
+
+            await SeedTestGroupsAsync();
+
+            // Act
+            var group = await _repository.RemovePartyFromGroup(UserId, NonExistentGroupId, partyUuid, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(group);
+        }
+
+        [Fact]
+        public async Task RemovePartyFromGroup_WhenGroupBelongsToDifferentUser_ReturnsNull()
+        {
+            // Arrange
+            const int UserId1 = 1;
+            const int UserId2 = 2;
+            const int GroupId = 135;
+            var partyUuid = Guid.NewGuid();
+
+            _databaseContext.Groups.Add(new Group
+            {
+                GroupId = GroupId,
+                UserId = UserId2,
+                Name = "User 2 Group",
+                IsFavorite = false,
+                Parties = [
+                    new PartyGroupAssociation { PartyUuid = partyUuid, AssociationId = 1, Created = DateTime.Now, GroupId = GroupId }
+                ]
+            });
+
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+            // Act
+            var group = await _repository.RemovePartyFromGroup(UserId1, GroupId, partyUuid, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(group);
+
+            var originalGroup = await _repository.GetGroup(UserId2, GroupId, TestContext.Current.CancellationToken);
+            Assert.NotNull(originalGroup);
+            Assert.Single(originalGroup.Parties);
+        }
+
+        [Fact]
+        public async Task RemovePartyFromGroup_WhenPartyNotInGroup_ReturnsNull()
+        {
+            // Arrange
+            const int UserId = 1;
+            const int GroupId = 140;
+            var partyUuid = Guid.NewGuid();
+
+            _databaseContext.Groups.Add(new Group
+            {
+                GroupId = GroupId,
+                UserId = UserId,
+                Name = "Test Group",
+                IsFavorite = false,
+                Parties = []
+            });
+
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+            // Act
+            var group = await _repository.RemovePartyFromGroup(UserId, GroupId, partyUuid, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(group);
+        }
+
+        [Fact]
+        public async Task RemovePartyFromGroup_WhenGroupIsFavorite_RemovesPartySuccessfully()
+        {
+            // Arrange
+            const int UserId = 1;
+            const int GroupId = 145;
+            var partyUuid = Guid.NewGuid();
+
+            _databaseContext.Groups.Add(new Group
+            {
+                GroupId = GroupId,
+                UserId = UserId,
+                Name = "Favorites",
+                IsFavorite = true,
+                Parties = [
+                    new PartyGroupAssociation { PartyUuid = partyUuid, AssociationId = 1, Created = DateTime.Now, GroupId = GroupId }
+                ]
+            });
+
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+            // Act
+            var group = await _repository.RemovePartyFromGroup(UserId, GroupId, partyUuid, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(group);
+            Assert.True(group.IsFavorite);
+            Assert.Empty(group.Parties);
+
+            var retrievedGroup = await _repository.GetGroup(UserId, GroupId, TestContext.Current.CancellationToken);
+            Assert.NotNull(retrievedGroup);
+            Assert.True(retrievedGroup.IsFavorite);
+            Assert.Empty(retrievedGroup.Parties);
+        }
+
+        [Fact]
+        public async Task RemovePartyFromGroup_RemovesOnlySpecifiedParty()
+        {
+            // Arrange
+            const int UserId = 1;
+            const int GroupId = 150;
+            var partyUuid1 = Guid.NewGuid();
+            var partyUuid2 = Guid.NewGuid();
+            var partyUuid3 = Guid.NewGuid();
+
+            _databaseContext.Groups.Add(new Group
+            {
+                GroupId = GroupId,
+                UserId = UserId,
+                Name = "Test Group",
+                IsFavorite = false,
+                Parties = [
+                    new PartyGroupAssociation { PartyUuid = partyUuid1, AssociationId = 1, Created = DateTime.Now, GroupId = GroupId },
+                    new PartyGroupAssociation { PartyUuid = partyUuid2, AssociationId = 2, Created = DateTime.Now, GroupId = GroupId },
+                    new PartyGroupAssociation { PartyUuid = partyUuid3, AssociationId = 3, Created = DateTime.Now, GroupId = GroupId }
+                ]
+            });
+
+            await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+            // Act
+            var group = await _repository.RemovePartyFromGroup(UserId, GroupId, partyUuid2, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(group);
+            Assert.Equal(2, group.Parties.Count);
+            Assert.Contains(group.Parties, p => p.PartyUuid == partyUuid1);
+            Assert.DoesNotContain(group.Parties, p => p.PartyUuid == partyUuid2);
+            Assert.Contains(group.Parties, p => p.PartyUuid == partyUuid3);
+
+            var retrievedGroup = await _repository.GetGroup(UserId, GroupId, TestContext.Current.CancellationToken);
+            Assert.NotNull(retrievedGroup);
+            Assert.Equal(2, retrievedGroup.Parties.Count);
+            Assert.Contains(retrievedGroup.Parties, p => p.PartyUuid == partyUuid1);
+            Assert.DoesNotContain(retrievedGroup.Parties, p => p.PartyUuid == partyUuid2);
+            Assert.Contains(retrievedGroup.Parties, p => p.PartyUuid == partyUuid3);
+        }
+
+        [Fact]
+        public async Task RemovePartyFromGroup_WhenCancellationRequested_ThrowsOperationCanceledException()
+        {
+            // Arrange
+            const int UserId = 1;
+            const int GroupId = 155;
+            var partyUuid = Guid.NewGuid();
+            var cts = new CancellationTokenSource();
+            cts.Cancel();
+
+            // Act & Assert
+            await Assert.ThrowsAsync<OperationCanceledException>(
+                () => _repository.RemovePartyFromGroup(UserId, GroupId, partyUuid, cts.Token));
+        }
+
         private static Group CreateFavoriteGroup(int userId, int groupId, string name = "Group A", List<PartyGroupAssociation> parties = null)
         {
             return new Group

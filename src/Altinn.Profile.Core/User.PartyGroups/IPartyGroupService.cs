@@ -59,6 +59,16 @@
         Task<Group?> AddPartyToGroup(int userId, int groupId, Guid partyUuid, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Removes a party from a group.
+        /// </summary>
+        /// <param name="userId">The identifier of the user who owns the group. Must be a valid user ID.</param>
+        /// <param name="groupId">The identifier of the group.</param>
+        /// <param name="partyUuid">The UUID of the party to remove from the group.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the updated group, or null if the group or party was not found.</returns>
+        Task<Group?> RemovePartyFromGroup(int userId, int groupId, Guid partyUuid, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Gets the favorite parties for a given user. If no favorites are added, an empty group will be returned.
         /// </summary>
         Task<Group> GetFavorites(int userId, CancellationToken cancellationToken);

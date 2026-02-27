@@ -1,12 +1,12 @@
 meta {
-  name: Add party to group
+  name: Remove party from group
   type: http
-  seq: 5
+  seq: 6
 }
 
-put {
+delete {
   url: {{ProfileBaseAddress}}/api/v1/users/current/party-groups/{{GroupId}}/associations/{{Party_PartyUuid}}
-  body: json
+  body: none
   auth: inherit
 }
 
