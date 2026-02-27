@@ -13,7 +13,7 @@ public class SiUserContactPoints
     /// <summary>
     /// The email address associated with the self-identified user
     /// </summary>
-    public required string Email { get; init; }
+    public string? Email { get; init; }
 
     /// <summary>
     /// Gets the external identity associated with the self-identified user.

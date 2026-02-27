@@ -132,7 +132,7 @@ public class UserContactPointServiceTest
     }
 
     [Fact]
-    public async Task GetSiContactPoints_WithUrnMailtoPrefix_ReturnsStrippedEmailAndBlankMobileNumber()
+    public async Task GetSiContactPoints_WhenNoMatchInSblBridge_ReturnsStrippedEmailAndBlankMobileNumber()
     {
         // Arrange
         var identities = new List<string>
@@ -141,6 +141,8 @@ public class UserContactPointServiceTest
             "urn:altinn:person:idporten-email:user2@test.no",
             "urn:altinn:person:idporten-email:admin@altinn.no"
         };
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername(It.IsAny<string>())).ReturnsAsync(false);
+
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
         // Act
@@ -167,6 +169,62 @@ public class UserContactPointServiceTest
     }
 
     [Fact]
+    public async Task GetSiContactPoints_WhenPartialMatchInSblBridge_ReturnsAllValuesFromSblBridgeAndElseStrippedEmail()
+    {
+        // Arrange
+        var identities = new List<string>
+        {
+            "urn:altinn:person:idporten-email:user1@example.com",
+            "urn:altinn:person:idporten-email:user2@test.no",
+            "urn:altinn:person:idporten-email:user3@test.no",
+            "urn:altinn:person:idporten-email:admin@altinn.no",
+        };
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername(It.IsAny<string>())).ReturnsAsync(false);
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername("epost:user2@test.no")).ReturnsAsync(new UserProfile
+        {
+            Email = "other-user2@email.com",
+        });
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername("epost:user3@test.no")).ReturnsAsync(new UserProfile
+        {
+            PhoneNumber = "+4799999998",
+        });
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername("epost:admin@altinn.no")).ReturnsAsync(new UserProfile
+        {
+            Email = "other-email@email.com",
+            PhoneNumber = "+4799999999",
+        });
+
+        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
+
+        // Act
+        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(4, result.ContactPointsList.Count);
+
+        Assert.Contains(result.ContactPointsList, cp =>
+            cp.Email == "user1@example.com" &&
+            cp.ExternalIdentity == "urn:altinn:person:idporten-email:user1@example.com" &&
+            cp.MobileNumber is null);
+
+        Assert.Contains(result.ContactPointsList, cp =>
+            cp.Email == "other-user2@email.com" &&
+            cp.ExternalIdentity == "urn:altinn:person:idporten-email:user2@test.no" &&
+            cp.MobileNumber is null);
+
+        Assert.Contains(result.ContactPointsList, cp =>
+            cp.Email == "user3@test.no" &&
+            cp.ExternalIdentity == "urn:altinn:person:idporten-email:user3@test.no" &&
+            cp.MobileNumber == "+4799999998");
+
+        Assert.Contains(result.ContactPointsList, cp =>
+            cp.Email == "other-email@email.com" &&
+            cp.ExternalIdentity == "urn:altinn:person:idporten-email:admin@altinn.no" &&
+            cp.MobileNumber == "+4799999999");
+    }
+
+    [Fact]
     public async Task GetSiContactPoints_WithMixedFormats_MissingUrnPrefixWillBeDiscarded()
     {
         // Arrange
@@ -182,6 +240,14 @@ public class UserContactPointServiceTest
             Email = "user4@email.com",
             PhoneNumber = "+4799999999",
         });
+
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername("epost:user1@altinn.no")).ReturnsAsync(new UserProfile()
+        {
+            Email = "user1@email.com",
+        });
+
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername("epost:user2@altinn.no")).ReturnsAsync(false);
+
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
         // Act
@@ -191,9 +257,8 @@ public class UserContactPointServiceTest
         Assert.NotNull(result);
         Assert.Equal(3, result.ContactPointsList.Count);
 
-        // Verify prefixed email is stripped
         Assert.Contains(result.ContactPointsList, cp =>
-            cp.Email == "user1@altinn.no" &&
+            cp.Email == "user1@email.com" &&
             cp.ExternalIdentity == "urn:altinn:person:idporten-email:user1@altinn.no" &&
             cp.MobileNumber is null);
 
@@ -247,6 +312,8 @@ public class UserContactPointServiceTest
             // Ampersand (&) encoded as %26
             "urn:altinn:person:idporten-email:user%26company@test.org"
         };
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername(It.IsAny<string>())).ReturnsAsync(false);
+
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
         // Act
