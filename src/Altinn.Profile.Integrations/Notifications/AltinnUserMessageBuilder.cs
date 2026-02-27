@@ -47,7 +47,7 @@ namespace Altinn.Profile.Integrations.Notifications
         // --- Email body templates: address-change notifications (without reportee name) ---
 
         /// <summary>English email body for address-change notification (no reportee name).</summary>
-        public const string InformEmailBodyEn = "Hi,<br /><br />You have changed your contact information with this email address. Please call us if that's not correct. Tel: (+47) 75 00 60 00.<br /><br />You will receive notifications on new messages in Altinn. You can edit your notification settings under Profile at Altinn website .<br /><br />Best regards,<br />Altinn Support";
+        public const string InformEmailBodyEn = "Hi,<br /><br />You have changed your contact information with this email address. Please call us if that's not correct. Tel: (+47) 75 00 60 00.<br /><br />You will receive notifications on new messages in Altinn. You can edit your notification settings under Profile at Altinn website.<br /><br />Best regards,<br />Altinn Support";
 
         /// <summary>Norwegian Bokmål email body for address-change notification (no reportee name).</summary>
         public const string InformEmailBodyNo = "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din med denne e-postadressen. Ring oss om dette ikke stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldinger i Altinn. Du kan redigere dine varslingsinnstillinger under Profil på Altinn sine nettsider.<br /><br />Med vennlig hilsen<br />Altinn Brukerservice";
@@ -59,7 +59,7 @@ namespace Altinn.Profile.Integrations.Notifications
         // --- Email body templates: address-change notifications (with reportee name) ---
 
         /// <summary>English email body template with $reporteeName$ placeholder.</summary>
-        public const string EmailBodyWithReporteeEn = "Hi,<br /><br />You have changed your contact information for $reporteeName$ with this email address. Please call us if that's not correct. Tel: (+47) 75 00 60 00.<br /><br />You will receive notifications on new messages in Altinn. You can edit your notification settings under Profile at Altinn website .<br /><br />Best regards,<br />Altinn Support";
+        public const string EmailBodyWithReporteeEn = "Hi,<br /><br />You have changed your contact information for $reporteeName$ with this email address. Please call us if that's not correct. Tel: (+47) 75 00 60 00.<br /><br />You will receive notifications on new messages in Altinn. You can edit your notification settings under Profile at Altinn website.<br /><br />Best regards,<br />Altinn Support";
 
         /// <summary>Norwegian Bokmål email body template with $reporteeName$ placeholder.</summary>
         public const string EmailBodyWithReporteeNo = "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din for $reporteeName$ med denne e-postadressen. Ring oss om dette ikke stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldinger i Altinn. Du kan redigere dine varslingsinnstillinger under Profil på Altinn sine nettsider.<br /><br />Med vennlig hilsen<br />Altinn Brukerservice";
