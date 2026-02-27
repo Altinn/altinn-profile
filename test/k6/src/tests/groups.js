@@ -49,32 +49,34 @@ export function setup() {
 }
 
 /**
+ * Helper to run a k6 check and stop iteration on failure.
+ * Centralizes duplicated pattern: check(response, ...) + stopIterationOnFail(...)
+ */
+function checkAndStop(response, checksObj, failMessage) {
+    const success = check(response, checksObj);
+    stopIterationOnFail(failMessage, success);
+    return success;
+}
+
+/**
  * Gets groups.
  * @param {string} token - The authentication token.
  */
 function getGroups(token) {
     const response = groupsApi.getGroups(token);
 
-    let success = check(response, {
-        'GET groups: 200 OK': (r) => r.status === 200,
-    });
-
-    stopIterationOnFail("GET groups failed", success);
+    checkAndStop(response, { 'GET groups: 200 OK': (r) => r.status === 200 }, "GET groups failed");
 }
 
 /**
- * Adds a favorite.
+ * Creates a new group.
  * @param {string} token - The authentication token.
- * @param {string} partyUuid - The party UUID to add as favorite.
+ * @param {string} name - The name of the group to create.
  */
 function createGroup(token, name) {
     const response = groupsApi.addGroup(token, name);
 
-    let success = check(response, {
-        'POST group: 201 Created': (r) => r.status === 201,
-    });
-
-    stopIterationOnFail("POST group failed", success);
+    checkAndStop(response, { 'POST group: 201 Created': (r) => r.status === 201 }, "POST group failed");
 
     // Try to parse and return created group's id if present
     try {
@@ -86,59 +88,62 @@ function createGroup(token, name) {
     }
 }
 
+/**
+ * Renames an existing group.
+ * @param {string} token - The authentication token.
+ * @param {string} id - The id of the group to rename.
+ * @param {string} newName - The new name for the group.
+ */
 function renameGroup(token, id, newName) {
     const response = groupsApi.renameGroup(token, id, newName);
 
-    let success = check(response, {
-        'PATCH group: 200 OK or 204 No Content': (r) => r.status === 200 || r.status === 204,
-    });
-
-    stopIterationOnFail("PATCH group failed", success);
-}
-
-function addToGroup(token, id, partyUuid) {
-    const response = groupsApi.addToGroup(token, id, partyUuid);
-
-    let success = check(response, {
-        'PUT association: 200 Created': (r) => r.status === 200
-    });
-
-    stopIterationOnFail("PUT association failed", success);
+    checkAndStop(response, { 'PATCH group: 200 OK or 204 No Content': (r) => r.status === 200 || r.status === 204 }, "PATCH group failed");
 }
 
 /**
- * Removes a favorite.
+ * Adds a party to a group (association).
  * @param {string} token - The authentication token.
- * @param {string} partyUuid - The party UUID to remove from groups.
+ * @param {string} id - The id of the group.
+ * @param {string} partyUuid - The party UUID to add.
+ */
+function addToGroup(token, id, partyUuid) {
+    const response = groupsApi.addToGroup(token, id, partyUuid);
+
+    checkAndStop(response, { 'PUT association: 200 OK': (r) => r.status === 200 }, "PUT association failed");
+}
+
+/**
+ * Retrieves a single group by id.
+ * @param {string} token - The authentication token.
+ * @param {string} id - The id of the group to retrieve.
  */
 function getGroup(token, id) {
     const response = groupsApi.getGroup(token, id);
 
-    let success = check(response, {
-        'GET group: 200 OK': (r) => r.status === 200,
-    });
-
-    stopIterationOnFail("GET group failed", success);
+    checkAndStop(response, { 'GET group: 200 OK': (r) => r.status === 200 }, "GET group failed");
 }
 
+/**
+ * Removes a party from a group (association).
+ * @param {string} token - The authentication token.
+ * @param {string} id - The id of the group.
+ * @param {string} partyUuid - The party UUID to remove.
+ */
 function removeFromGroup(token, id, partyUuid) {
     const response = groupsApi.removeFromGroup(token, id, partyUuid);
 
-    let success = check(response, {
-        'DELETE association: 200 OK': (r) => r.status === 200,
-    });
-
-    stopIterationOnFail("DELETE association failed", success);
+    checkAndStop(response, { 'DELETE association: 200 OK': (r) => r.status === 200 }, "DELETE association failed");
 }
 
+/**
+ * Deletes a group by id.
+ * @param {string} token - The authentication token.
+ * @param {string} id - The id of the group to delete.
+ */
 function deleteGroup(token, id) {
     const response = groupsApi.deleteGroup(token, id);
 
-    let success = check(response, {
-        'DELETE group: 204 No Content': (r) => r.status === 204,
-    });
-
-    stopIterationOnFail("DELETE group failed", success);
+    checkAndStop(response, { 'DELETE group: 204 No Content': (r) => r.status === 204 }, "DELETE group failed");
 }
 
 /**
@@ -167,30 +172,17 @@ export default function runTests(data) {
     
     // Generate token for this iteration: environment variables take priority, CSV data used as fallback
     const token = generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
-    // Generate unique group name to avoid collisions when running multiple times
+
     const timestamp = new Date().toISOString();
-    const baseName = useTestData && testRow.groupName ? testRow.groupName : `k6-test-group`;
+    const baseName = `k6-test-group`;
     const groupName = `${baseName}-${timestamp}`;
 
     // 1. Create group
-    const createdId = createGroup(token, groupName);
+    const groupId = createGroup(token, groupName);
 
-    // If API didn't return id, try fetching groups and infer id from name
-    let groupId = createdId;
-    if (!groupId) {
-        const listResp = groupsApi.getGroups(token);
-        try {
-            const listBody = JSON.parse(listResp.body || '[]');
-            const found = (listBody || []).find((g) => g.name === groupName);
-            groupId = found && (found.id || found.groupId) ? (found.id || found.groupId) : null;
-        } catch (e) {
-            console.error('Failed to parse groups list response body:', e);
-            groupId = null;
-        }
-    }
-
-    // 2. Rename group
     if (groupId) {
+            // 2. Rename group
+
         renameGroup(token, groupId, `${groupName}-renamed`);
 
         // 3. Add association
