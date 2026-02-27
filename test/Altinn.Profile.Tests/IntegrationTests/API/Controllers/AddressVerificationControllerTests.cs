@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.AddressVerifications.Models;
-using Altinn.Profile.Integrations.AddressVerification;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
@@ -521,7 +520,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.TooManyRequests, response.StatusCode);
         }
-
 
         private static HttpRequestMessage AddAuthHeadersToRequest(HttpRequestMessage httpRequestMessage, int userId)
         {
