@@ -19,3 +19,9 @@ body:json {
 script:pre-request {
   await bru.runRequest("TokenGenerator/portal user")
 }
+
+script:post-response {
+  let data = res.getBody();
+  
+  bru.setEnvVar("GroupId", data.groupId);
+}
