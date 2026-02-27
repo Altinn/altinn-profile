@@ -165,11 +165,13 @@ namespace Altinn.Profile.Controllers
         /// <param name="cancellationToken">Cancellation token for the operation</param>
         /// <returns>NoContent if successful.</returns>
         /// <response code="204">The group was successfully deleted.</response>
+        /// <response code="400">The request is invalid (e.g., the groupId is not a valid integer).</response>
         /// <response code="401">The user is not authenticated.</response>
         /// <response code="404">The group does not exist or the user does not have access to it.</response>
         /// <response code="422">The group exists but cannot be deleted because it is a favorite group. Favorite groups are system-managed and cannot be deleted by users.</response>
         [HttpDelete("{groupId:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
