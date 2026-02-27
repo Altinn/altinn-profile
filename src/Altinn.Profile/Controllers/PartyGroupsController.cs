@@ -116,6 +116,43 @@ namespace Altinn.Profile.Controllers
             return Created($"/profile/api/v1/users/current/party-groups/{response.GroupId}", response);
         }
 
+        /// <summary>
+        /// Update the name of an existing group
+        /// </summary>
+        /// <param name="groupId">The ID of the group to update</param>
+        /// <param name="request">The group update request containing the new group name</param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        /// <returns>The updated group.</returns>
+        [HttpPatch("{groupId:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<GroupResponse>> UpdateName([FromRoute] int groupId, [FromBody] GroupRequest request, CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            var group = await _partyGroupService.UpdateGroupName(userId, groupId, request.Name, cancellationToken);
+
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            var response = MapToGroupResponse(group);
+
+            return Ok(response);
+        }
+
         private GroupResponse MapToGroupResponse(Group group)
         {
             return new GroupResponse
