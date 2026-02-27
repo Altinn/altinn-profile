@@ -22,7 +22,7 @@
         /// <param name="emailAddress">The email address to send the email to.</param>
         /// <param name="subject">The subject of the email.</param>
         /// <param name="body">The body content of the email message.</param>
-        /// <param name="sendersReference">A reference string for tracking, typically a party UUID.</param>
+        /// <param name="sendersReference">A reference string for tracking.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         Task OrderEmailAsync(string emailAddress, string subject, string body, string? sendersReference, CancellationToken cancellationToken);
