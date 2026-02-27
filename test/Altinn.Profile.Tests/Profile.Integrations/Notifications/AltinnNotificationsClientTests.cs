@@ -1,7 +1,6 @@
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -63,7 +62,17 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
         {
             // Arrange
             HttpRequestMessage sentRequest = null;
-            var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK), req => sentRequest = req);
+            string capturedContent = null;
+            var handler = CreateHandler(
+                new HttpResponseMessage(HttpStatusCode.OK),
+                req =>
+                {
+                    sentRequest = req;
+                    if (req.Content != null)
+                    {
+                        capturedContent = req.Content.ReadAsStringAsync(TestContext.Current.CancellationToken).GetAwaiter().GetResult();
+                    }
+                });
             _httpClient = new HttpClient(handler.Object);
             var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
             var smsBody = "Test SMS body content";
@@ -77,11 +86,10 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             Assert.Equal(HttpMethod.Post, sentRequest.Method);
             Assert.Equal(new Uri(_testBaseUrl + "v1/future/orders/instant/sms"), sentRequest.RequestUri);
             Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
-            Assert.IsType<StringContent>(sentRequest.Content);
-            var content = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-            Assert.Contains("4799999999", content);
-            Assert.Contains(smsBody, content);
-            Assert.Contains(sendersReference, content);
+            Assert.NotNull(capturedContent);
+            Assert.Contains("4799999999", capturedContent);
+            Assert.Contains(smsBody, capturedContent);
+            Assert.Contains(sendersReference, capturedContent);
         }
 
         [Fact]
@@ -89,7 +97,17 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
         {
             // Arrange
             HttpRequestMessage sentRequest = null;
-            var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK), req => sentRequest = req);
+            string capturedContent = null;
+            var handler = CreateHandler(
+                new HttpResponseMessage(HttpStatusCode.OK),
+                req =>
+                {
+                    sentRequest = req;
+                    if (req.Content != null)
+                    {
+                        capturedContent = req.Content.ReadAsStringAsync(TestContext.Current.CancellationToken).GetAwaiter().GetResult();
+                    }
+                });
             _httpClient = new HttpClient(handler.Object);
             var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
             var emailSubject = "Test subject";
@@ -104,12 +122,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             Assert.Equal(HttpMethod.Post, sentRequest.Method);
             Assert.Equal(new Uri(_testBaseUrl + "v1/future/orders/instant/email"), sentRequest.RequestUri);
             Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
-            Assert.IsType<StringContent>(sentRequest.Content);
-            var content = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-            Assert.Contains("test@example.com", content);
-            Assert.Contains(emailSubject, content);
-            Assert.Contains(emailBody, content);
-            Assert.Contains(sendersReference, content);
+            Assert.NotNull(capturedContent);
+            Assert.Contains("test@example.com", capturedContent);
+            Assert.Contains(emailSubject, capturedContent);
+            Assert.Contains(emailBody, capturedContent);
+            Assert.Contains(sendersReference, capturedContent);
         }
 
         [Fact]
@@ -166,7 +183,17 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
         {
             // Arrange
             HttpRequestMessage sentRequest = null;
-            var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK), req => sentRequest = req);
+            string capturedContent = null;
+            var handler = CreateHandler(
+                new HttpResponseMessage(HttpStatusCode.OK),
+                req =>
+                {
+                    sentRequest = req;
+                    if (req.Content != null)
+                    {
+                        capturedContent = req.Content.ReadAsStringAsync(TestContext.Current.CancellationToken).GetAwaiter().GetResult();
+                    }
+                });
             _httpClient = new HttpClient(handler.Object);
             var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
@@ -176,9 +203,9 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             // Assert
             Assert.NotNull(sentRequest);
             Assert.Equal(HttpMethod.Post, sentRequest.Method);
-            var content = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-            Assert.Contains("4799999999", content);
-            Assert.Contains("body", content);
+            Assert.NotNull(capturedContent);
+            Assert.Contains("4799999999", capturedContent);
+            Assert.Contains("body", capturedContent);
         }
 
         [Fact]
