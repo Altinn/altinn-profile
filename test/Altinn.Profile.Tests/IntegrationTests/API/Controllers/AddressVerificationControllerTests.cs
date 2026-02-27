@@ -1095,6 +1095,151 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 Times.Once);
         }
 
+        [Fact]
+        public async Task ResendCode_WhenUserHasExistingCodeForSmsCreatedLessThan1MinuteAgo_Returns429()
+        {
+            // Arrange
+            const int userId = 2516354;
+
+            var request = new AddressCodeResendRequest
+            {
+                Value = "99887766",
+                Type = AddressType.Sms
+            };
+
+            var existingVerificationCode = new VerificationCode
+            {
+                UserId = userId,
+                AddressType = AddressType.Sms,
+                Address = "99887766",
+                VerificationCodeHash = "somehash",
+                Expires = DateTime.UtcNow.AddSeconds(60),
+                Created = DateTime.UtcNow.AddSeconds(-30)
+            };
+
+            // _factory.ProfileSettingsRepositoryMock.Setup(repo => repo.GetProfileSettings(userId)).ReturnsAsync(new ProfileSettings { UserId = userId, IgnoreUnitProfileDateTime = null, LanguageType = "no" }); <- to mock a specific user, otherwise profile settings=null and defaults to "nb"
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, existingVerificationCode.AddressType, existingVerificationCode.Address, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingVerificationCode);
+
+            _factory.NotificationsClientMock.Setup(client => client.OrderSmsAsync(existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
+                .ReturnsAsync(true);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/resend")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.TooManyRequests, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task ResendCode_WhenUserHasExistingCodeForSmsCreatedLessThan1MinuteAgo_DoesNotCreateNewCode()
+        {
+            // Arrange
+            const int userId = 2516354;
+
+            var request = new AddressCodeResendRequest
+            {
+                Value = "99887766",
+                Type = AddressType.Sms
+            };
+
+            var existingVerificationCode = new VerificationCode
+            {
+                UserId = userId,
+                AddressType = AddressType.Sms,
+                Address = "99887766",
+                VerificationCodeHash = "somehash",
+                Expires = DateTime.UtcNow.AddSeconds(60),
+                Created = DateTime.UtcNow.AddSeconds(-30)
+            };
+
+            // _factory.ProfileSettingsRepositoryMock.Setup(repo => repo.GetProfileSettings(userId)).ReturnsAsync(new ProfileSettings { UserId = userId, IgnoreUnitProfileDateTime = null, LanguageType = "no" }); <- to mock a specific user, otherwise profile settings=null and defaults to "nb"
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, existingVerificationCode.AddressType, existingVerificationCode.Address, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingVerificationCode);
+
+            _factory.NotificationsClientMock.Setup(client => client.OrderSmsAsync(existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
+                .ReturnsAsync(true);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/resend")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task ResendCode_WhenUserHasExistingCodeForSmsCreatedLessThan1MinuteAgo_DoesNotSendSmsToThatAddress()
+        {
+            // Arrange
+            const int userId = 2516354;
+
+            var request = new AddressCodeResendRequest
+            {
+                Value = "99887766",
+                Type = AddressType.Sms
+            };
+
+            var existingVerificationCode = new VerificationCode
+            {
+                UserId = userId,
+                AddressType = AddressType.Sms,
+                Address = "99887766",
+                VerificationCodeHash = "somehash",
+                Expires = DateTime.UtcNow.AddSeconds(60),
+                Created = DateTime.UtcNow.AddSeconds(-30)
+            };
+
+            // _factory.ProfileSettingsRepositoryMock.Setup(repo => repo.GetProfileSettings(userId)).ReturnsAsync(new ProfileSettings { UserId = userId, IgnoreUnitProfileDateTime = null, LanguageType = "no" }); <- to mock a specific user, otherwise profile settings=null and defaults to "nb"
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, existingVerificationCode.AddressType, existingVerificationCode.Address, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingVerificationCode);
+
+            _factory.NotificationsClientMock.Setup(client => client.OrderSmsAsync(existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
+                .ReturnsAsync(true);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/resend")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            _factory.NotificationsClientMock.Verify(
+                x => x.OrderSmsAsync(existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
         private static HttpRequestMessage AddAuthHeadersToRequest(HttpRequestMessage httpRequestMessage, int userId)
         {
             string token = PrincipalUtil.GetToken(userId);
