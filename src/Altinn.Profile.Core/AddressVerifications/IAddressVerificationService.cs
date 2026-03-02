@@ -19,7 +19,7 @@ namespace Altinn.Profile.Core.AddressVerifications
 
         /// <summary>
         /// Generates a verification code, saves it to the database and sends it to the user via email or sms depending on the address type. The code is valid for 15 minutes.
-        /// Language resolution and notification delivery are delegated to <see cref="Integrations.IAltinnUserNotifier"/>.
+        /// Language resolution and notification delivery are delegated to <see cref="Integrations.IUserNotifier"/>.
         /// </summary>
         /// <param name="userid">The id of the user</param>
         /// <param name="address">The address to verify</param>

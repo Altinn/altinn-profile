@@ -7,7 +7,7 @@ namespace Altinn.Profile.Core.Integrations
     /// and verification codes. This abstraction encapsulates language resolution, message
     /// content building, and notification delivery.
     /// </summary>
-    public interface IAltinnUserNotifier
+    public interface IUserNotifier
     {
         /// <summary>
         /// Sends a notification to the user informing them that their contact address has been changed.

@@ -17,14 +17,14 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         IRegisterClient registerClient,
         IOptions<AddressMaintenanceSettings> addressMaintenanceSettings,
         IAddressVerificationService addressVerificationService,
-        IAltinnUserNotifier userNotifier) : IProfessionalNotificationsService
+        IUserNotifier userNotifier) : IProfessionalNotificationsService
     {
         private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
         private readonly IUserProfileService _userProfileService = userProfileService;
         private readonly IRegisterClient _registerClient = registerClient;
         private readonly AddressMaintenanceSettings _addressMaintenanceSettings = addressMaintenanceSettings.Value;
         private readonly IAddressVerificationService _addressVerificationService = addressVerificationService;
-        private readonly IAltinnUserNotifier _userNotifier = userNotifier;
+        private readonly IUserNotifier _userNotifier = userNotifier;
 
         /// <inheritdoc/>
         public async Task<ExtendedUserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
@@ -92,7 +92,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <summary>
         /// Handles sending notifications when the mobile number or email address has changed.
         /// Verification code generation is delegated to <see cref="IAddressVerificationService"/>;
-        /// address-change notifications are sent directly via <see cref="IAltinnUserNotifier"/>.
+        /// address-change notifications are sent directly via <see cref="IUserNotifier"/>.
         /// </summary>
         /// <param name="contactInfo">The updated contact info.</param>
         /// <param name="mobileNumberChanged">Indicates if the mobile number has changed.</param>

@@ -14,11 +14,11 @@ namespace Altinn.Profile.Integrations.Notifications;
 /// A content-agnostic HTTP client for interacting with the Altinn notifications service.
 /// Responsible only for HTTP transport; callers build message content.
 /// </summary>
-public class AltinnNotificationsClient : INotificationsClient
+public class NotificationsClient : INotificationsClient
 {
     private readonly HttpClient _httpClient;
     private readonly IAccessTokenGenerator _accessTokenGenerator;
-    private readonly ILogger<AltinnNotificationsClient> _logger;
+    private readonly ILogger<NotificationsClient> _logger;
     private const string _notificationTypeSms = "sms";
     private const string _notificationTypeEmail = "email";
 
@@ -29,13 +29,13 @@ public class AltinnNotificationsClient : INotificationsClient
     };
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AltinnNotificationsClient"/> class.
+    /// Initializes a new instance of the <see cref="NotificationsClient"/> class.
     /// </summary>
     /// <param name="httpClient">The HTTP client used to make requests to the Notifications service.</param>
     /// <param name="settings">The Notifications settings containing the API endpoint.</param>
     /// <param name="accessTokenGenerator">The access token generator.</param>
     /// <param name="logger">The logger</param>
-    public AltinnNotificationsClient(HttpClient httpClient, IOptions<NotificationsSettings> settings, IAccessTokenGenerator accessTokenGenerator, ILogger<AltinnNotificationsClient> logger)
+    public NotificationsClient(HttpClient httpClient, IOptions<NotificationsSettings> settings, IAccessTokenGenerator accessTokenGenerator, ILogger<NotificationsClient> logger)
     {
         _httpClient = httpClient;
         _accessTokenGenerator = accessTokenGenerator;

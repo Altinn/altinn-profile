@@ -17,15 +17,15 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
 {
-    public class AltinnNotificationsClientTests
+    public class NotificationsClientTests
     {
         private readonly Mock<IOptions<NotificationsSettings>> _settingsMock;
         private readonly Mock<IAccessTokenGenerator> _tokenGenMock;
-        private readonly Mock<ILogger<AltinnNotificationsClient>> _loggerMock;
+        private readonly Mock<ILogger<NotificationsClient>> _loggerMock;
         private HttpClient _httpClient;
         private const string _testBaseUrl = "https://notifications.test/";
 
-        public AltinnNotificationsClientTests()
+        public NotificationsClientTests()
         {
             _settingsMock = new Mock<IOptions<NotificationsSettings>>();
             _settingsMock.Setup(s => s.Value).Returns(new NotificationsSettings { ApiNotificationsEndpoint = _testBaseUrl });
@@ -34,7 +34,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             _tokenGenMock.Setup(t => t.GenerateAccessToken(It.IsAny<string>(), It.IsAny<string>()))
                          .Returns("token");
 
-            _loggerMock = new Mock<ILogger<AltinnNotificationsClient>>();
+            _loggerMock = new Mock<ILogger<NotificationsClient>>();
         }
 
         private static Mock<HttpMessageHandler> CreateHandler(
@@ -74,7 +74,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
                     }
                 });
             _httpClient = new HttpClient(handler.Object);
-            var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
             var smsBody = "Test SMS body content";
             var sendersReference = Guid.NewGuid().ToString();
 
@@ -109,7 +109,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
                     }
                 });
             _httpClient = new HttpClient(handler.Object);
-            var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
             var emailSubject = "Test subject";
             var emailBody = "Test email body content";
             var sendersReference = Guid.NewGuid().ToString();
@@ -137,7 +137,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             _httpClient = new HttpClient(handler.Object);
             _tokenGenMock.Setup(t => t.GenerateAccessToken(It.IsAny<string>(), It.IsAny<string>()))
                          .Returns(string.Empty);
-            var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
             await client.OrderSmsAsync("+4799999999", "body", "ref", TestContext.Current.CancellationToken);
@@ -162,7 +162,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             // Arrange
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.BadRequest));
             _httpClient = new HttpClient(handler.Object);
-            var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
             await client.OrderSmsAsync("+4799999999", "body", "ref", TestContext.Current.CancellationToken);
@@ -195,7 +195,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
                     }
                 });
             _httpClient = new HttpClient(handler.Object);
-            var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
             await client.OrderSmsAsync("+4799999999", "body", null, TestContext.Current.CancellationToken);
@@ -216,7 +216,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             _httpClient = new HttpClient(handler.Object);
             _tokenGenMock.Setup(t => t.GenerateAccessToken(It.IsAny<string>(), It.IsAny<string>()))
                          .Returns(string.Empty);
-            var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
             await client.OrderEmailAsync("test@example.com", "subject", "body", "ref", TestContext.Current.CancellationToken);
@@ -240,7 +240,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             // Arrange
             var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.BadRequest));
             _httpClient = new HttpClient(handler.Object);
-            var client = new AltinnNotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            var client = new NotificationsClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act
             await client.OrderEmailAsync("test@example.com", "subject", "body", "ref", TestContext.Current.CancellationToken);

@@ -6,15 +6,15 @@ namespace Altinn.Profile.Integrations.Notifications
 {
     /// <summary>
     /// Sends user-facing notifications related to address changes and verification codes.
-    /// Handles language resolution, message content building (via <see cref="AltinnUserMessageBuilder"/>),
+    /// Handles language resolution, message content building (via <see cref="UserMessageBuilder"/>),
     /// and delivery (via <see cref="INotificationsClient"/>).
     /// </summary>
     /// <remarks>
-    /// Initializes a new instance of the <see cref="AltinnUserNotifier"/> class.
+    /// Initializes a new instance of the <see cref="UserNotifier"/> class.
     /// </remarks>
     /// <param name="notificationsClient">The notifications client for sending SMS and email.</param>
     /// <param name="userProfileService">The user profile service for resolving preferred language.</param>
-    public class AltinnUserNotifier(INotificationsClient notificationsClient, IUserProfileService userProfileService) : IAltinnUserNotifier
+    public class UserNotifier(INotificationsClient notificationsClient, IUserProfileService userProfileService) : IUserNotifier
     {
         private readonly INotificationsClient _notificationsClient = notificationsClient;
         private readonly IUserProfileService _userProfileService = userProfileService;
@@ -27,13 +27,13 @@ namespace Altinn.Profile.Integrations.Notifications
 
             if (addressType == AddressType.Sms)
             {
-                var body = AltinnUserMessageBuilder.GetSmsContent(language);
+                var body = UserMessageBuilder.GetSmsContent(language);
                 await _notificationsClient.OrderSmsAsync(address, body, sendersReference, cancellationToken);
             }
             else
             {
-                var subject = AltinnUserMessageBuilder.GetEmailSubject(language);
-                var body = AltinnUserMessageBuilder.GetEmailBody(language);
+                var subject = UserMessageBuilder.GetEmailSubject(language);
+                var body = UserMessageBuilder.GetEmailBody(language);
                 await _notificationsClient.OrderEmailAsync(address, subject, body, sendersReference, cancellationToken);
             }
         }
@@ -46,13 +46,13 @@ namespace Altinn.Profile.Integrations.Notifications
 
             if (addressType == AddressType.Sms)
             {
-                var body = AltinnUserMessageBuilder.GetSmsContent(language, verificationCode);
+                var body = UserMessageBuilder.GetSmsContent(language, verificationCode);
                 await _notificationsClient.OrderSmsAsync(address, body, sendersReference, cancellationToken);
             }
             else
             {
-                var subject = AltinnUserMessageBuilder.GetEmailSubject(language);
-                var body = AltinnUserMessageBuilder.GetEmailBody(language, verificationCode);
+                var subject = UserMessageBuilder.GetEmailSubject(language);
+                var body = UserMessageBuilder.GetEmailBody(language, verificationCode);
                 await _notificationsClient.OrderEmailAsync(address, subject, body, sendersReference, cancellationToken);
             }
         }

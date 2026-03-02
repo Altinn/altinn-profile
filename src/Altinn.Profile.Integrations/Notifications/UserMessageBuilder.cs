@@ -6,7 +6,7 @@ namespace Altinn.Profile.Integrations.Notifications
     /// Provides localized message content for user notifications, including both
     /// address-change notifications and verification-code notifications.
     /// </summary>
-    public static class AltinnUserMessageBuilder
+    public static class UserMessageBuilder
     {
         // --- SMS templates: address-change notifications (informing the user their contact info was updated) ---
 

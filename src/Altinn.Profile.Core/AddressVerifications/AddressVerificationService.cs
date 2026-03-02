@@ -5,11 +5,11 @@ namespace Altinn.Profile.Core.AddressVerifications
 {
     /// <summary>
     /// A service for handling address verification processes, including generating verification codes,
-    /// persisting them, and delegating notification delivery to <see cref="IAltinnUserNotifier"/>.
+    /// persisting them, and delegating notification delivery to <see cref="IUserNotifier"/>.
     /// </summary>
-    public class AddressVerificationService(IAltinnUserNotifier userNotifier, IAddressVerificationRepository addressVerificationRepository, IVerificationCodeService verificationCodeService) : IAddressVerificationService
+    public class AddressVerificationService(IUserNotifier userNotifier, IAddressVerificationRepository addressVerificationRepository, IVerificationCodeService verificationCodeService) : IAddressVerificationService
     {
-        private readonly IAltinnUserNotifier _userNotifier = userNotifier;
+        private readonly IUserNotifier _userNotifier = userNotifier;
         private readonly IAddressVerificationRepository _addressVerificationRepository = addressVerificationRepository;
         private readonly IVerificationCodeService _verificationCodeService = verificationCodeService;
 
