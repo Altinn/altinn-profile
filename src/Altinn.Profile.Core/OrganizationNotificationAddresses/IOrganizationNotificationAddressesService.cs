@@ -19,16 +19,26 @@ public interface IOrganizationNotificationAddressesService
     /// <param name="organizationNumber">An organization number to indicate which organization to update address for</param>
     /// <param name="notificationAddress">The notification address with updated data</param>
     /// <param name="cancellationToken">To cancel the request before it is finished</param>
+    /// <returns>A tuple containing the updated notification address (or null if not found) and a boolean indicating whether the update was rejected due to a duplicate address.</returns>
     Task<(NotificationAddress? Address, bool IsDuplicate)> UpdateNotificationAddress(string organizationNumber, NotificationAddress notificationAddress, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Method for retrieving notification addresses for an organization.
+    /// Method for retrieving notification addresses for multiple organizations.
     /// </summary>
     /// <param name="organizationNumbers">A list of organization numbers to lookup contact points for</param>
     /// <param name="cancellationToken">To cancel the request before it is finished</param>
     /// <param name="useAddressFromMainUnitIfEmpty">Indicates whether to use the address from the main unit if no addresses are registered for the organization</param>
-    /// <returns>The notification addresses or a boolean if failure.</returns>
+    /// <returns>The notification addresses.</returns>
     Task<IEnumerable<Organization>> GetOrganizationNotificationAddresses(List<string> organizationNumbers, CancellationToken cancellationToken, bool useAddressFromMainUnitIfEmpty = false);
+
+    /// <summary>
+    /// Method for retrieving notification addresses for an organization.
+    /// </summary>
+    /// <param name="organizationNumber">The organization number to lookup contact points for</param>
+    /// <param name="cancellationToken">To cancel the request before it is finished</param>
+    /// <param name="useAddressFromMainUnitIfEmpty">Indicates whether to use the address from the main unit if no addresses are registered for the organization</param>
+    /// <returns>The organization with notification addresses</returns>
+    Task<Organization?> GetOrganizationNotificationAddress(string organizationNumber, CancellationToken cancellationToken, bool useAddressFromMainUnitIfEmpty = false);
 
     /// <summary>
     /// Method for retrieving notification addresses filtered by email address.

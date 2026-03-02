@@ -36,20 +36,12 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<OrganizationResponse>> GetMandatory([FromRoute]string organizationNumber, CancellationToken cancellationToken)
         {
-            var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses([organizationNumber], cancellationToken);
+            var organization = await _notificationAddressService.GetOrganizationNotificationAddress(organizationNumber, cancellationToken);
 
-            var orgCount = organizations.Count();
-
-            if (orgCount == 0)
+            if (organization is null)
             {
                 return NotFound();
             }
-            else if (orgCount > 1)
-            {
-                throw new InvalidOperationException("Indecisive organization result");
-            }
-
-            var organization = organizations.First();
 
             var response = OrganizationResponseMapper.ToOrganizationResponse(organization);
 
@@ -72,20 +64,13 @@ namespace Altinn.Profile.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses([organizationNumber], cancellationToken);
+            var organization = await _notificationAddressService.GetOrganizationNotificationAddress(organizationNumber, cancellationToken);
 
-            var orgCount = organizations.Count();
-
-            if (orgCount == 0)
+            if (organization is null)
             {
                 return NotFound();
             }
-            else if (orgCount > 1)
-            {
-                throw new InvalidOperationException("Indecisive organization result");
-            }
 
-            var organization = organizations.First();
             var notificationAddress = organization.NotificationAddresses.FirstOrDefault(n => n.NotificationAddressID == notificationAddressId);
 
             if (notificationAddress == null)
