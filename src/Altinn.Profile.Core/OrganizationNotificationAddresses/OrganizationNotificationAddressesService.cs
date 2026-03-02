@@ -115,6 +115,19 @@ namespace Altinn.Profile.Core.OrganizationNotificationAddresses
         }
 
         /// <inheritdoc/>
+        public async Task<Organization?> GetOrganizationNotificationAddress(string organizationNumber, CancellationToken cancellationToken, bool useAddressFromMainUnitIfEmpty = false)
+        {
+            var result = await GetOrganizationNotificationAddresses([organizationNumber], cancellationToken, useAddressFromMainUnitIfEmpty);
+
+            if (result.Count() > 1)
+            {
+                throw new InvalidOperationException("Indecisive organization result");
+            }
+
+            return result.FirstOrDefault();
+        }
+
+        /// <inheritdoc/>
         public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddresses(List<string> organizationNumbers, CancellationToken cancellationToken, bool useAddressFromMainUnitIfEmpty = false)
         {
             var result = await _orgRepository.GetOrganizationsAsync(organizationNumbers, cancellationToken);
