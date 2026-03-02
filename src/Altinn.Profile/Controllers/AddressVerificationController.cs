@@ -122,14 +122,21 @@ namespace Altinn.Profile.Controllers
                 return validationResult;
             }
 
-            var hasExistingCode = await _addressVerificationService.ResendVerificationCodeAsync(userId, request.Value, (AddressType)request.Type, cancellationToken);
+            var result = await _addressVerificationService.ResendVerificationCodeAsync(userId, request.Value, (AddressType)request.Type, cancellationToken);
 
-            if (!hasExistingCode)
+            return result switch
             {
-                return UnprocessableEntity(new ProblemDetails { Title = "Verification code could not be resent", Detail = "The user has no active verification process for the given address." });
-            }
+                ResendVerificationResult.Success => NoContent(),
+                ResendVerificationResult.CodeNotFound => UnprocessableEntity(new ProblemDetails { Title = "Verification code could not be resent", Detail = "The user has no active verification process for the given address." }),
+                ResendVerificationResult.CodeTooNew => TooManyRequests(new ProblemDetails { Title = "Verification code could not be resent", Detail = "The verification code was sent recently. Please wait before requesting a new code." }),
+                ResendVerificationResult.ConcurrentRequestConflict => NoContent(),
+                _ => UnprocessableEntity(new ProblemDetails { Title = "Verification code could not be resent", Detail = "An unexpected error occurred." })
+            };
+        }
 
-            return NoContent();
+        private ObjectResult TooManyRequests(ProblemDetails problemDetails)
+        {
+            return StatusCode(StatusCodes.Status429TooManyRequests, problemDetails);
         }
     }
 }
