@@ -71,7 +71,7 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
-            var notificationAddress = organization.NotificationAddresses.FirstOrDefault(n => n.NotificationAddressID == notificationAddressId);
+            var notificationAddress = organization.NotificationAddresses?.FirstOrDefault(n => n.NotificationAddressID == notificationAddressId);
 
             if (notificationAddress == null)
             {
