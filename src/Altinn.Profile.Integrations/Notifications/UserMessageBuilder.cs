@@ -56,18 +56,6 @@ namespace Altinn.Profile.Integrations.Notifications
         public const string InformEmailBodyNn = "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din med denne e-postadressa. Ring oss om dette ikkje stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldingar i Altinn. Du kan redigere varslingsinnstillingane dine under Profil på Altinn sine nettsider.<br /><br />Med venleg helsing<br />Altinn brukarservice";
 
 
-        // --- Email body templates: address-change notifications (with reportee name) ---
-
-        /// <summary>English email body template with $reporteeName$ placeholder.</summary>
-        public const string EmailBodyWithReporteeEn = "Hi,<br /><br />You have changed your contact information for $reporteeName$ with this email address. Please call us if that's not correct. Tel: (+47) 75 00 60 00.<br /><br />You will receive notifications on new messages in Altinn. You can edit your notification settings under Profile at Altinn website.<br /><br />Best regards,<br />Altinn Support";
-
-        /// <summary>Norwegian Bokmål email body template with $reporteeName$ placeholder.</summary>
-        public const string EmailBodyWithReporteeNo = "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din for $reporteeName$ med denne e-postadressen. Ring oss om dette ikke stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldinger i Altinn. Du kan redigere dine varslingsinnstillinger under Profil på Altinn sine nettsider.<br /><br />Med vennlig hilsen<br />Altinn Brukerservice";
-
-        /// <summary>Norwegian Nynorsk email body template with $reporteeName$ placeholder.</summary>
-        public const string EmailBodyWithReporteeNn = "Hei.<br /><br />Du har oppdatert kontaktinformasjonen din for $reporteeName$ med denne e-postadressa. Ring oss om dette ikkje stemmer. Tlf: 75 00 60 00.<br /><br />Du får varsling om nye meldingar i Altinn. Du kan redigere varslingsinnstillingane dine under Profil på Altinn sine nettsider.<br /><br />Med venleg helsing<br />Altinn brukarservice";
-
-
         // --- Email body templates: verification-code notifications ---
 
         /// <summary>English email body template for verification code. Contains $code$ placeholder.</summary>
@@ -141,26 +129,6 @@ namespace Altinn.Profile.Integrations.Notifications
             };
 
             return useCodeTemplate ? template.Replace("$code$", verificationCode) : template;
-        }
-
-        /// <summary>
-        /// Gets the email body for the specified language, with the reportee name inserted.
-        /// </summary>
-        /// <param name="language">The language code ("en", "nb", "nn", or "se").</param>
-        /// <param name="reporteeName">The name to insert into the email body template.</param>
-        /// <returns>The localized email body text with the reportee name inserted.</returns>
-        public static string GetEmailBodyWithReportee(string language, string reporteeName)
-        {
-            string bodyTemplate = language switch
-            {
-                "en" => EmailBodyWithReporteeEn,
-                "nb" => EmailBodyWithReporteeNo,
-                "nn" => EmailBodyWithReporteeNn,
-                "se" => EmailBodyWithReporteeNo,
-                _ => EmailBodyWithReporteeNo,
-            };
-
-            return bodyTemplate.Replace("$reporteeName$", reporteeName);
         }
     }
 }
