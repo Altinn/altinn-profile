@@ -1186,7 +1186,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.Equal(HttpStatusCode.TooManyRequests, response.StatusCode);
             _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Never);
         }
 
@@ -1234,7 +1234,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.Equal(HttpStatusCode.TooManyRequests, response.StatusCode);
             _factory.NotificationsClientMock.Verify(
                 x => x.OrderSmsAsync(existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
                 Times.Never);
