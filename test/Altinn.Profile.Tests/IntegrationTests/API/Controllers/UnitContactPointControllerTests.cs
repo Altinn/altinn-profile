@@ -62,7 +62,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
     }
 
     [Fact]
-    public async Task PostLookup_SblBridgeFeatureFlag_False_ReturnsOk()
+    public async Task PostLookup_ReturnsOk()
     {
         // Arrange
         UnitContactPointLookup input = new()
@@ -89,7 +89,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
     }
 
     [Fact]
-    public async Task PostLookup_SblBridgeFeatureFlag_False_ReturnsOkAndFilterOutBasedOnResourceID()
+    public async Task PostLookup_ReturnsOkAndFilterOutBasedOnResourceID()
     {
         // Arrange
         UnitContactPointLookup input = new()
@@ -116,7 +116,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
     }
 
     [Fact]
-    public async Task PostLookup_SblBridgeFeatureFlag_False_ReturnsOkAndIncludesBasedOnResourceID()
+    public async Task PostLookup_ReturnsOkAndIncludesBasedOnResourceID()
     {
         // Arrange
         UnitContactPointLookup input = new()
@@ -143,7 +143,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
     }
 
     [Fact]
-    public async Task PostLookup_SblBridgeFeatureFlag_False_ErrorResult_ReturnsOkWithEmptyList()
+    public async Task PostLookup_ErrorResult_ReturnsOkWithEmptyList()
     {
         // Arrange
         UnitContactPointLookup input = new()
@@ -170,7 +170,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
     }
 
     [Fact]
-    public async Task PostLookup_SblBridgeFeatureFlag_False_WhenNoResponseFromRegister_ReturnsProblem()
+    public async Task PostLookup_WhenNoResponseFromRegister_ReturnsProblem()
     {
         // Arrange
         UnitContactPointLookup input = new()

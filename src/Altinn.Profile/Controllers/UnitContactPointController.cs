@@ -74,9 +74,13 @@ public class UnitContactPointController : ControllerBase
             var result = await _contactPointsService.GetUserRegisteredContactPoints([..organizationNumbers], resourceId, cancellationToken);
             return Ok(result);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception)
         {
-            return Problem($"Could not retrieve contact points");
+            return Problem("Could not retrieve contact points");
         }
     }
 
