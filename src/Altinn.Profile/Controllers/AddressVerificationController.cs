@@ -128,8 +128,7 @@ namespace Altinn.Profile.Controllers
             {
                 ResendVerificationResult.Success => NoContent(),
                 ResendVerificationResult.CodeNotFound => UnprocessableEntity(new ProblemDetails { Title = "Verification code could not be resent", Detail = "The user has no active verification process for the given address." }),
-                ResendVerificationResult.CodeTooNew => TooManyRequests(new ProblemDetails { Title = "Verification code could not be resent", Detail = "The verification code was sent recently. Please wait before requesting a new code." }),
-                ResendVerificationResult.ConcurrentRequestConflict => NoContent(),
+                ResendVerificationResult.CodeTooNew => TooManyRequests(new ProblemDetails { Title = "Verification code could not be resent", Detail = "Code resending attempts for an address are limited to 1 request/minute. Please wait before requesting a new code." }),
                 _ => UnprocessableEntity(new ProblemDetails { Title = "Verification code could not be resent", Detail = "An unexpected error occurred." })
             };
         }

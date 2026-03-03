@@ -110,7 +110,7 @@ namespace Altinn.Profile.Core.AddressVerifications
             if (!added)
             {
                 // A concurrent request already inserted a verification code for this user/address/type.
-                return ResendVerificationResult.ConcurrentRequestConflict;
+                return ResendVerificationResult.CodeTooNew;
             }
 
             await _userNotifier.SendVerificationCodeAsync(userId, verificationCodeModel.Address, addressType, code, cancellationToken);

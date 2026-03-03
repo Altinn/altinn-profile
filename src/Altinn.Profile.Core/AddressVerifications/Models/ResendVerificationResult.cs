@@ -19,10 +19,5 @@ namespace Altinn.Profile.Core.AddressVerifications.Models
         /// The existing verification code is too new to be resent (less than 1 minute old).
         /// </summary>
         CodeTooNew,
-
-        /// <summary>
-        /// A concurrent request already inserted a verification code for this user/address/type.
-        /// </summary>
-        ConcurrentRequestConflict
     }
 }
