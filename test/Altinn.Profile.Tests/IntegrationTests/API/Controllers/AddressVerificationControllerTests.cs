@@ -163,6 +163,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            _factory.AddressVerificationRepositoryMock.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -190,6 +191,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            _factory.AddressVerificationRepositoryMock.VerifyNoOtherCalls();
         }
 
         [Fact]
