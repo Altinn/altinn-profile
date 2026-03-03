@@ -17,7 +17,6 @@ using Altinn.Profile.Integrations.Register;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Integrations.Repositories.A2Sync;
 using Altinn.Profile.Integrations.SblBridge;
-using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 using Altinn.Profile.Integrations.SblBridge.User.Favorites;
 using Altinn.Profile.Integrations.SblBridge.User.NotificationSettings;
 using Altinn.Profile.Integrations.SblBridge.User.Profile;
@@ -50,7 +49,6 @@ public static class ServiceCollectionExtensions
         services.Configure<SblBridgeSettings>(config.GetSection(nameof(SblBridgeSettings)));
         services.AddHttpClient<IUserProfileClient, UserProfileClient>();
         services.Decorate<IUserProfileClient, UserProfileCachingDecorator>();
-        services.AddHttpClient<IUnitProfileRepository, UnitProfileClient>();
         services.AddHttpClient<IUserFavoriteClient, UserFavoriteClient>();
         services.AddHttpClient<IUserNotificationSettingsClient, UserNotificationSettingsClient>();
         services.AddHttpClient<IProfileSettingsClient, ProfileSettingsClient>();
