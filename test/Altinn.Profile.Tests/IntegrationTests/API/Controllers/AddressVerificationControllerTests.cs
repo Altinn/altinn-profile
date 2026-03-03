@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.AddressVerifications.Models;
-using Altinn.Profile.Integrations.AddressVerification;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
@@ -138,6 +137,61 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task VerifyAddress_WhenRequestLacksBearerToken_ReturnsUnauthorized()
+        {
+            // Arrange
+            var request = new AddressVerificationRequest
+            {
+                Value = "address@example.com",
+                Type = AddressType.Email,
+                VerificationCode = "123456"
+            };
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "profile/api/v1/users/current/verification/verify")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            _factory.AddressVerificationRepositoryMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task VerifyAddress_WhenSystemUserToken_ReturnsBadRequest()
+        {
+            // Arrange
+            var request = new AddressVerificationRequest
+            {
+                Value = "address@example.com",
+                Type = AddressType.Email,
+                VerificationCode = "123456"
+            };
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "profile/api/v1/users/current/verification/verify")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddSystemUserAuthHeadersToRequest(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            _factory.AddressVerificationRepositoryMock.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -289,7 +343,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData(null, AddressType.Email, "123456")]
         [InlineData("Address@email.com", null, "123456")]
         [InlineData("+4798765432", AddressType.Sms, null)]
-        public async Task VerifyAddress_WhenIncompleteRequest_ReturnsBadRequest(string address, AddressType? addressType, string code)
+        public async Task VerifyAddress_WhenRequestLacksRequiredField_ReturnsBadRequest(string address, AddressType? addressType, string code)
         {
             // Arrange
             const int userId = 2516354;
@@ -348,11 +402,36 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
+        [Theory]
+        [InlineData("invalid")]
+        [InlineData("")]
+        public async Task VerifyAddress_WhenInvalidAddressType_ReturnsBadRequest(string invalidType)
+        {
+            // Arrange
+            const int userId = 2516357;
+            var json = $"{{\"value\":\"valid@email.com\",\"type\":\"{invalidType}\",\"verificationCode\":\"123456\"}}";
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "profile/api/v1/users/current/verification/verify")
+            {
+                Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
         [Fact]
         public async Task VerifyAddress_WhenUserHasNoStoredCode_ReturnsUnprocessableEntity()
         {
             // Arrange
-            const int userId = 2516356;
+            const int userId = 2516358;
             var request = new AddressVerificationRequest
             {
                 Value = "address@EXAMPLE.com",
