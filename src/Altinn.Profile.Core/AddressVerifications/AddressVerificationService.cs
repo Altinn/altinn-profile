@@ -87,14 +87,20 @@ namespace Altinn.Profile.Core.AddressVerifications
         }
 
         /// <inheritdoc/>
-        public async Task<bool> ResendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken)
+        public async Task<ResendVerificationResult> ResendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken)
         {
             var formattedAddress = VerificationCode.FormatAddress(address);
 
             var existingCode = await _addressVerificationRepository.GetVerificationCodeAsync(userId, addressType, formattedAddress, cancellationToken);
             if (existingCode is null)
             {
-                return false;
+                return ResendVerificationResult.CodeNotFound;
+            }
+
+            if (existingCode.Created.AddMinutes(1) > DateTime.UtcNow)
+            {
+                // If the existing code is less than 1 minutes old, we won't generate a new code or send a notification.
+                return ResendVerificationResult.CodeTooNew;
             }
 
             var code = _verificationCodeService.GenerateRawCode();
@@ -104,12 +110,12 @@ namespace Altinn.Profile.Core.AddressVerifications
             if (!added)
             {
                 // A concurrent request already inserted a verification code for this user/address/type.
-                return false;
+                return ResendVerificationResult.CodeTooNew;
             }
 
             await _userNotifier.SendVerificationCodeAsync(userId, verificationCodeModel.Address, addressType, code, cancellationToken);
 
-            return true;
+            return ResendVerificationResult.Success;
         }
     }
 }

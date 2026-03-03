@@ -54,7 +54,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <param name="address">The address to verify</param>
         /// <param name="addressType">The addresstype, sms or email</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result is <c>true</c> if a new verification code was generated and sent to the address; <c>false</c> if the user lacks existing verification codes for that address.</returns>
-        Task<bool> ResendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken);
+        /// <returns>A task that represents the asynchronous operation. The task result indicates the outcome of the resend operation.</returns>
+        Task<ResendVerificationResult> ResendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken);
     }
 }
