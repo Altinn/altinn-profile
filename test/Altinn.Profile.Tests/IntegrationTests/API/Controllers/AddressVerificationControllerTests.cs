@@ -196,7 +196,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task VerifyAddress_WhenCodeIsCorrect_ReturnsSuccess()
         {
             // Arrange
-            const int userId = 2516351; // Use a unique userId to prevent rate limit quota collisions between tests, as the rate limiter partitions by userId
+            const int userId = 2516351;
             var request = new AddressVerificationRequest
             {
                 Value = "Address@example.com",
@@ -241,7 +241,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task VerifyAddress_WhenCodeIsWrong_ReturnsUnprocessableEntity()
         {
             // Arrange
-            const int userId = 2516352; // Use a unique userId to prevent rate limit quota collisions between tests, as the rate limiter partitions by userId
+            const int userId = 2516352;
             var request = new AddressVerificationRequest
             {
                 Value = "address@example.com",
@@ -291,7 +291,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task VerifyAddress_WhenCodeIsExpired_ReturnsUnprocessableEntity()
         {
             // Arrange
-            const int userId = 2516353; // Use a unique userId to prevent rate limit quota collisions between tests, as the rate limiter partitions by userId
+            const int userId = 2516353;
             var request = new AddressVerificationRequest
             {
                 Value = "address@EXAMPLE.com",
@@ -344,7 +344,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task VerifyAddress_WhenRequestLacksRequiredField_ReturnsBadRequest(string address, AddressType? addressType, string code)
         {
             // Arrange
-            const int userId = 2516354; // Use a unique userId to prevent rate limit quota collisions between tests, as the rate limiter partitions by userId
+            const int userId = 2516354;
             var request = new AddressVerificationRequest
             {
                 Value = address,
@@ -376,7 +376,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task VerifyAddress_WhenWrongFormatOfRequest_ReturnsBadRequest(string address, string code)
         {
             // Arrange
-            const int userId = 2516356; // Use a unique userId to prevent rate limit quota collisions between tests, as the rate limiter partitions by userId
+            const int userId = 2516356;
             var request = new AddressVerificationRequest
             {
                 Value = address,
@@ -406,7 +406,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task VerifyAddress_WhenInvalidAddressType_ReturnsBadRequest(string invalidType)
         {
             // Arrange
-            const int userId = 2516357; // Use a unique userId to prevent rate limit quota collisions between tests, as the rate limiter partitions by userId
+            const int userId = 2516357;
             var json = $"{{\"value\":\"valid@email.com\",\"type\":\"{invalidType}\",\"verificationCode\":\"123456\"}}";
 
             HttpClient client = _factory.CreateClient();
@@ -429,7 +429,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task VerifyAddress_WhenUserHasNoStoredCode_ReturnsUnprocessableEntity()
         {
             // Arrange
-            const int userId = 2516358; // Use a unique userId to prevent rate limit quota collisions between tests, as the rate limiter partitions by userId
+            const int userId = 2516358;
             var request = new AddressVerificationRequest
             {
                 Value = "address@EXAMPLE.com",
@@ -469,7 +469,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task VerifyAddress_WhenCodeIsWrongTooManyTimes_ReturnsTooManyRequests()
         {
             // Arrange
-            const int userId = 9999999; // Use a unique userId to prevent rate limit quota collisions between tests, as the rate limiter partitions by userId
+            const int userId = 9999999;
             var request = new AddressVerificationRequest
             {
                 Value = "address@example.com",
