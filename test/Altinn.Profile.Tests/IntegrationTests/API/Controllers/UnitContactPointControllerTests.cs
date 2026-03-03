@@ -42,7 +42,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
     [InlineData("{\"organizationNumbers\":[null],\"resourceId\":null}")]
     [InlineData("{\"organizationNumbers\":null,\"resourceId\":\"resurs\"}")]
     [InlineData("{\"organizationNumbers\":[],\"resourceId\":\"resurs\"}")]
-    public async Task PostLookup_SblBridgeFeatureFlag_InvalidInputValues_ReturnsBadRequest(string input)
+    public async Task PostLookup_InvalidInputValues_ReturnsBadRequest(string input)
     {
         // Arrange
         var client = _factory.CreateClient();
@@ -73,10 +73,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
 
         var client = _factory.CreateClient();
 
-        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
-        {
-            Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
-        };
+        var httpRequestMessage = CreateHttpRequestMessage(input);
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
@@ -100,10 +97,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
 
         var client = _factory.CreateClient();
 
-        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
-        {
-            Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
-        };
+        var httpRequestMessage = CreateHttpRequestMessage(input);
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
@@ -127,10 +121,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
 
         var client = _factory.CreateClient();
 
-        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
-        {
-            Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
-        };
+        var httpRequestMessage = CreateHttpRequestMessage(input);
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
@@ -154,10 +145,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
 
         var client = _factory.CreateClient();
 
-        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
-        {
-            Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
-        };
+        var httpRequestMessage = CreateHttpRequestMessage(input);
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
@@ -184,16 +172,23 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
 
         var client = _factory.CreateClient();
 
-        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
-        {
-            Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
-        };
+        var httpRequestMessage = CreateHttpRequestMessage(input);
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+    }
+
+    private HttpRequestMessage CreateHttpRequestMessage(UnitContactPointLookup input)
+    {
+        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
+        {
+            Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+        };
+
+        return httpRequestMessage;
     }
 
     private static List<UserPartyContactInfo> GetRepositoryResponse(string partyUuid)
