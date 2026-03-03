@@ -23,7 +23,7 @@ namespace Altinn.Profile.Integrations.Notifications
         public async Task NotifyAddressChangeAsync(int userId, string address, AddressType addressType, Guid partyUuid, CancellationToken cancellationToken)
         {
             var language = await _userProfileService.GetPreferredLanguage(userId);
-            var sendersReference = partyUuid.ToString();
+            var sendersReference = $"profile-{partyUuid}";
 
             if (addressType == AddressType.Sms)
             {
@@ -42,7 +42,7 @@ namespace Altinn.Profile.Integrations.Notifications
         public async Task SendVerificationCodeAsync(int userId, string address, AddressType addressType, string verificationCode, CancellationToken cancellationToken)
         {
             var language = await _userProfileService.GetPreferredLanguage(userId);
-            var sendersReference = $"{userId}-{addressType}-{DateTime.UtcNow.Ticks}";
+            var sendersReference = $"profile-{userId}-{addressType}-{DateTime.UtcNow.Ticks}";
 
             if (addressType == AddressType.Sms)
             {
