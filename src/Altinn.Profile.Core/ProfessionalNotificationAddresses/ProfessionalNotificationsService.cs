@@ -83,7 +83,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 
             if (mobileNumberChanged || emailChanged)
             {
-                await HandleNotificationAddressChangedAsync(contactInfo, mobileNumberChanged, emailChanged, generateVerificationCode, cancellationToken);
+                await HandleNotificationAddressChangedAsync(contactInfo, mobileNumberChanged, emailChanged, generateVerificationCode);
             }
 
             return isAdded;
@@ -98,18 +98,21 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <param name="mobileNumberChanged">Indicates if the mobile number has changed.</param>
         /// <param name="emailChanged">Indicates if the email address has changed.</param>
         /// <param name="generateVerificationCode">Indicates if a verification code should be generated and sent.</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        private async Task HandleNotificationAddressChangedAsync(UserPartyContactInfo contactInfo, bool mobileNumberChanged, bool emailChanged, bool generateVerificationCode, CancellationToken cancellationToken)
+        private async Task HandleNotificationAddressChangedAsync(UserPartyContactInfo contactInfo, bool mobileNumberChanged, bool emailChanged, bool generateVerificationCode)
         {
+            // The request processing will reach this point in the flow only if cancellation has not yet occurred.
+            // Should the client cancel after this point, we still want the remaining operations proceed
+            var emptyCancellationToken = CancellationToken.None;
+
             if (mobileNumberChanged)
             {
                 if (generateVerificationCode)
                 {
-                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.PhoneNumber!, AddressType.Sms, cancellationToken);
+                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.PhoneNumber!, AddressType.Sms, emptyCancellationToken);
                 }
                 else
                 {
-                    await _userNotifier.NotifyAddressChangeAsync(contactInfo.UserId, contactInfo.PhoneNumber!, AddressType.Sms, contactInfo.PartyUuid, cancellationToken);
+                    await _userNotifier.NotifyAddressChangeAsync(contactInfo.UserId, contactInfo.PhoneNumber!, AddressType.Sms, contactInfo.PartyUuid, emptyCancellationToken);
                 }
             }
 
@@ -117,11 +120,11 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             {
                 if (generateVerificationCode)
                 {
-                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.EmailAddress!, AddressType.Email, cancellationToken);
+                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.EmailAddress!, AddressType.Email, emptyCancellationToken);
                 }
                 else
                 {
-                    await _userNotifier.NotifyAddressChangeAsync(contactInfo.UserId, contactInfo.EmailAddress!, AddressType.Email, contactInfo.PartyUuid, cancellationToken);
+                    await _userNotifier.NotifyAddressChangeAsync(contactInfo.UserId, contactInfo.EmailAddress!, AddressType.Email, contactInfo.PartyUuid, emptyCancellationToken);
                 }
             }
         }
