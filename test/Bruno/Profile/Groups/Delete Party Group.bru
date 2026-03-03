@@ -1,11 +1,11 @@
 meta {
-  name: Get Party Group
+  name: Delete Party Group
   type: http
-  seq: 3
+  seq: 7
 }
 
-get {
-  url: {{ProfileBaseAddress}}/api/v1/users/current/party-groups/90
+delete {
+  url: {{ProfileBaseAddress}}/api/v1/users/current/party-groups/{{GroupId}}
   body: none
   auth: inherit
 }

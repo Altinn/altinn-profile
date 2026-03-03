@@ -105,7 +105,6 @@ Uses Altinn PEP (Policy Enforcement Point) with custom handlers:
 ### Naming
 - Private fields: `_camelCase` prefix (enforced by .editorconfig)
 - Interfaces: `I` prefix
-- Async methods: `Async` suffix convention
 - Using directives: Outside namespace, system directives first
 
 ### StyleCop Rules
@@ -117,8 +116,6 @@ Strict enforcement (most rules are errors/warnings). Notable:
 - SA1633-SA1643: File headers (disabled)
 
 ### Patterns
-- **Result pattern**: Use `Result<T>` from Core for operation outcomes
-- **Optional pattern**: Use `Optional<T>` from Core for nullable value semantics with JSON converter support
 - **Repository pattern**: Core defines `I*Repository` interfaces; Integrations implements with EF Core
 - **Service decorators**: See `UserProfileCachingDecorator` for caching behavior
 - **Event handlers**: Domain events handled in Integrations (e.g., `FavoriteAddedEventHandler`)

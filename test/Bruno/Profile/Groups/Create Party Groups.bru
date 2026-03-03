@@ -1,7 +1,7 @@
 meta {
   name: Create Party Groups
   type: http
-  seq: 2
+  seq: 1
 }
 
 post {
@@ -12,10 +12,16 @@ post {
 
 body:json {
   {
-    "name": "test"
+    "name": "New test"
   }
 }
 
 script:pre-request {
   await bru.runRequest("TokenGenerator/portal user")
+}
+
+script:post-response {
+  let data = res.getBody();
+  
+  bru.setEnvVar("GroupId", data.groupId);
 }

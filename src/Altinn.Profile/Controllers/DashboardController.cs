@@ -48,20 +48,13 @@ namespace Altinn.Profile.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses([organizationNumber], cancellationToken, true);
+            var organization = await _notificationAddressService.GetOrganizationNotificationAddress(organizationNumber, cancellationToken, true);
 
-            var orgCount = organizations.Count();
-
-            if (orgCount == 0)
+            if (organization is null)
             {
                 return NotFound();
             }
-            else if (orgCount > 1)
-            {
-                throw new InvalidOperationException("Indecisive organization result");
-            }
 
-            var organization = organizations.First();
             var notificationAddresses = organization.NotificationAddresses;
 
             if (notificationAddresses == null)
@@ -69,7 +62,7 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
-            var addresses = FilterAndMapAddresses(organizations);
+            var addresses = FilterAndMapAddresses([organization]);
 
             return Ok(addresses);
         }
