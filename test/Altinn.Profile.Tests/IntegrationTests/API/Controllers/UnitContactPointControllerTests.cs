@@ -241,7 +241,6 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
         public MockedUnitContactPointsService(ProfileWebApplicationFactory<Program> factory)
         {
             _factory = factory;
-            _factory.InMemoryConfigurationCollection["GeneralSettings:LookupUnitContactPointsAtSblBridge"] = "false";
             _factory.UnitContactPointsServiceMock ??= new Mock<IUnitContactPointsService>();
             _factory.UnitContactPointsServiceMock.Reset();
         }
