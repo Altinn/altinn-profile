@@ -1,5 +1,5 @@
 ﻿using Altinn.Profile.Core.Integrations;
-using Altinn.Profile.Core.PartyGroups;
+using Altinn.Profile.Core.User.PartyGroups;
 using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
 
@@ -64,6 +64,109 @@ namespace Altinn.Profile.Integrations.Repositories
             databaseContext.Groups.Add(group);
 
             await databaseContext.SaveChangesAsync(cancellationToken);
+            return group;
+        }
+
+        /// <inheritdoc/>
+        public async Task<UpdateGroupResult> UpdateGroupName(int userId, int groupId, string name, CancellationToken cancellationToken)
+        {
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+            var group = await databaseContext.Groups.Include(g => g.Parties).Where(g => g.UserId == userId && g.GroupId == groupId).FirstOrDefaultAsync(cancellationToken);
+
+            if (group == null)
+            {
+                return new UpdateGroupResult(GroupOperationResult.NotFound, null);
+            }
+
+            if (group.IsFavorite)
+            {
+                return new UpdateGroupResult(GroupOperationResult.Forbidden, null);
+            }
+
+            group.Name = name;
+
+            await databaseContext.SaveChangesAsync(cancellationToken);
+            return new UpdateGroupResult(GroupOperationResult.Success, group);
+        }
+
+        /// <inheritdoc/>
+        public async Task<GroupOperationResult> DeleteGroup(int userId, int groupId, CancellationToken cancellationToken)
+        {
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+            var group = await databaseContext.Groups.Include(g => g.Parties).Where(g => g.UserId == userId && g.GroupId == groupId).FirstOrDefaultAsync(cancellationToken);
+
+            if (group == null)
+            {
+                return GroupOperationResult.NotFound;
+            }
+
+            if (group.IsFavorite)
+            {
+                return GroupOperationResult.Forbidden;
+            }
+
+            databaseContext.Groups.Remove(group);
+            await databaseContext.SaveChangesAsync(cancellationToken);
+            return GroupOperationResult.Success;
+        }
+
+        /// <inheritdoc/>
+        public async Task<Group?> AddPartyToGroup(int userId, int groupId, Guid partyUuid, CancellationToken cancellationToken)
+        {
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+            var group = await databaseContext.Groups.Include(g => g.Parties).Where(g => g.UserId == userId && g.GroupId == groupId).FirstOrDefaultAsync(cancellationToken);
+
+            if (group == null)
+            {
+                return null;
+            }
+
+            if (group.Parties.Any(p => p.PartyUuid == partyUuid))
+            {
+                return group;
+            }
+
+            var partyGroupAssociation = new PartyGroupAssociation
+            {
+                PartyUuid = partyUuid,
+                GroupId = groupId,
+            };
+
+            group.Parties.Add(partyGroupAssociation);
+            databaseContext.PartyGroupAssociations.Add(partyGroupAssociation);
+
+            await databaseContext.SaveChangesAsync(cancellationToken);
+
+            return group;
+        }
+
+        /// <inheritdoc/>
+        public async Task<Group?> RemovePartyFromGroup(int userId, int groupId, Guid partyUuid, CancellationToken cancellationToken)
+        {
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+            var group = await databaseContext.Groups.Include(g => g.Parties).Where(g => g.UserId == userId && g.GroupId == groupId).FirstOrDefaultAsync(cancellationToken);
+
+            if (group == null)
+            {
+                return null;
+            }
+
+            var partyGroupAssociation = group.Parties.FirstOrDefault(p => p.PartyUuid == partyUuid);
+
+            if (partyGroupAssociation == null)
+            {
+                return null;
+            }
+
+            group.Parties.Remove(partyGroupAssociation);
+            databaseContext.PartyGroupAssociations.Remove(partyGroupAssociation);
+
+            await databaseContext.SaveChangesAsync(cancellationToken);
+
             return group;
         }
 

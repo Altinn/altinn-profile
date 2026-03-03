@@ -1,5 +1,5 @@
-﻿using Altinn.Profile.Core.PartyGroups;
-using Altinn.Profile.Core.Telemetry;
+﻿using Altinn.Profile.Core.Telemetry;
+using Altinn.Profile.Core.User.PartyGroups;
 using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;

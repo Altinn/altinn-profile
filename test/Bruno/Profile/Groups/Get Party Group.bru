@@ -1,11 +1,11 @@
 meta {
-  name: Get Party Groups
+  name: Get Party Group
   type: http
-  seq: 3
+  seq: 4
 }
 
 get {
-  url: {{ProfileBaseAddress}}/api/v1/users/current/party-groups
+  url: {{ProfileBaseAddress}}/api/v1/users/current/party-groups/{{GroupId}}
   body: none
   auth: inherit
 }

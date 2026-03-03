@@ -2,8 +2,8 @@
 #nullable disable
 
 using Altinn.Profile.Core.AddressVerifications.Models;
-using Altinn.Profile.Core.PartyGroups;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Core.User.PartyGroups;
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Leases;

@@ -1,6 +1,6 @@
 ﻿using Altinn.Profile.Core.Integrations;
 
-namespace Altinn.Profile.Core.PartyGroups
+namespace Altinn.Profile.Core.User.PartyGroups
 {
     /// <inheritdoc/>
     public class PartyGroupService(IPartyGroupRepository groupRepository) : IPartyGroupService
@@ -27,6 +27,38 @@ namespace Altinn.Profile.Core.PartyGroups
         public async Task<Group> CreateGroup(int userId, string name, CancellationToken cancellationToken)
         {
             var group = await _groupRepository.CreateGroup(userId, name, cancellationToken);
+
+            return group;
+        }
+
+        /// <inheritdoc/>
+        public async Task<UpdateGroupResult> UpdateGroupName(int userId, int groupId, string name, CancellationToken cancellationToken)
+        {
+            var result = await _groupRepository.UpdateGroupName(userId, groupId, name, cancellationToken);
+
+            return result;
+        }
+
+        /// <inheritdoc/>
+        public async Task<GroupOperationResult> DeleteGroup(int userId, int groupId, CancellationToken cancellationToken)
+        {
+            var result = await _groupRepository.DeleteGroup(userId, groupId, cancellationToken);
+
+            return result;
+        }
+
+        /// <inheritdoc/>
+        public async Task<Group?> AddPartyToGroup(int userId, int groupId, Guid partyUuid, CancellationToken cancellationToken)
+        {
+            var group = await _groupRepository.AddPartyToGroup(userId, groupId, partyUuid, cancellationToken);
+
+            return group;
+        }
+
+        /// <inheritdoc/>
+        public async Task<Group?> RemovePartyFromGroup(int userId, int groupId, Guid partyUuid, CancellationToken cancellationToken)
+        {
+            var group = await _groupRepository.RemovePartyFromGroup(userId, groupId, partyUuid, cancellationToken);
 
             return group;
         }
