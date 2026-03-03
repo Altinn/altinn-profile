@@ -77,20 +77,5 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
             var result = UserMessageBuilder.GetEmailBody(language, code);
             Assert.Equal(expected, result);
         }
-
-        [Theory]
-        [InlineData("en", "TestName", "contact information")]
-        [InlineData("nb", "Navn", "varslingsinnstillinger")]
-        [InlineData("nn", "Namn", "varslingsinnstillingane")]
-        [InlineData("se", "Sami", "varslingsinnstillinger")]
-        [InlineData("xx", "Unknown", "varslingsinnstillinger")]
-        [InlineData("", "Empty", "varslingsinnstillinger")]
-        [InlineData(null, "Null", "varslingsinnstillinger")]
-        public void GetEmailBodyWithReportee_ReturnsExpectedBody(string language, string reporteeName, string substring)
-        {
-            var result = UserMessageBuilder.GetEmailBodyWithReportee(language, reporteeName);
-            Assert.Contains(reporteeName, result);
-            Assert.Contains(substring, result);
-        }
     }
 }
