@@ -108,7 +108,7 @@ namespace Altinn.Profile.Core.AddressVerifications
             }
 
             var code = _verificationCodeService.GenerateRawCode();
-            var verificationCodeModel = _verificationCodeService.CreateVerificationCode(userId, address, addressType, code);
+            var verificationCodeModel = _verificationCodeService.CreateVerificationCode(userId, formattedAddress, addressType, code);
 
             bool added = await _addressVerificationRepository.AddNewVerificationCodeAsync(verificationCodeModel);
             if (!added)
