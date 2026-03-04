@@ -98,7 +98,7 @@ public class UserProfileInternalController : Controller
             return BadRequest(ModelState);
         }
 
-        if (userUuidList == null || userUuidList.Count == 0)
+        if (userUuidList.Count == 0)
         {
             return BadRequest();
         }
