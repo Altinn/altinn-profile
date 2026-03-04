@@ -59,7 +59,7 @@ namespace Altinn.Profile.Controllers
         /// <summary>
         /// Verify an address for the current user by providing the verification code sent to the address.
         /// </summary>
-        /// <param name="request">The api request containing the address and code to verify</param>
+        /// <param name="request">The code to verify, the address type, and the address value</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
         /// <remarks>
         /// This endpoint is rate limited using a sliding window rate limiter to prevent abuse.
@@ -98,9 +98,9 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
-        /// Verify an address for the current user by providing the verification code sent to the address.
+        /// Resets the verification process for the current user and the given address, by regenerating a code with renewed validity period (15 mins) and sending it to the address.
         /// </summary>
-        /// <param name="request">The api request containing the aadress and code to verify</param>
+        /// <param name="request">The address type and value to resend code for</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
         [HttpPost("resend")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
