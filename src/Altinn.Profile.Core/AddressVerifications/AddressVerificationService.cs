@@ -1,17 +1,20 @@
 ﻿using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
 
+using Microsoft.Extensions.Options;
+
 namespace Altinn.Profile.Core.AddressVerifications
 {
     /// <summary>
     /// A service for handling address verification processes, including generating verification codes,
     /// persisting them, and delegating notification delivery to <see cref="IUserNotifier"/>.
     /// </summary>
-    public class AddressVerificationService(IUserNotifier userNotifier, IAddressVerificationRepository addressVerificationRepository, IVerificationCodeService verificationCodeService) : IAddressVerificationService
+    public class AddressVerificationService(IUserNotifier userNotifier, IAddressVerificationRepository addressVerificationRepository, IVerificationCodeService verificationCodeService, IOptions<AddressMaintenanceSettings> addressMaintenanceSettings) : IAddressVerificationService
     {
         private readonly IUserNotifier _userNotifier = userNotifier;
         private readonly IAddressVerificationRepository _addressVerificationRepository = addressVerificationRepository;
         private readonly IVerificationCodeService _verificationCodeService = verificationCodeService;
+        private readonly IOptions<AddressMaintenanceSettings> _addressMaintenanceSettings = addressMaintenanceSettings;
 
         /// <inheritdoc/>
         public async Task<(VerificationType? EmailVerificationStatus, VerificationType? SmsVerificationStatus)> GetVerificationStatusAsync(int userId, string? emailAddress, string? phoneNumber, CancellationToken cancellationToken)
@@ -84,6 +87,39 @@ namespace Altinn.Profile.Core.AddressVerifications
                 await _addressVerificationRepository.IncrementFailedAttemptsAsync(storedCode.VerificationCodeId);
                 return false;
             }
+        }
+
+        /// <inheritdoc/>
+        public async Task<ResendVerificationResult> ResendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken)
+        {
+            var formattedAddress = VerificationCode.FormatAddress(address);
+
+            var existingCode = await _addressVerificationRepository.GetVerificationCodeAsync(userId, addressType, formattedAddress, cancellationToken);
+            if (existingCode is null)
+            {
+                return ResendVerificationResult.CodeNotFound;
+            }
+
+            var isExistingCodeInCooldown = existingCode.Created + TimeSpan.FromSeconds(_addressMaintenanceSettings.Value.VerificationCodeResendCooldownSeconds) > DateTime.UtcNow;
+
+            if (isExistingCodeInCooldown)
+            {
+                return ResendVerificationResult.CodeCooldown; // Don't generate a new code or send a notification if there's an existing code in the cooldown state
+            }
+
+            var code = _verificationCodeService.GenerateRawCode();
+            var verificationCodeModel = _verificationCodeService.CreateVerificationCode(userId, formattedAddress, addressType, code);
+
+            bool added = await _addressVerificationRepository.AddNewVerificationCodeAsync(verificationCodeModel);
+            if (!added)
+            {
+                // A concurrent request already inserted a verification code for this user/address/type.
+                return ResendVerificationResult.CodeCooldown;
+            }
+
+            await _userNotifier.SendVerificationCodeAsync(userId, verificationCodeModel.Address, addressType, code, cancellationToken);
+
+            return ResendVerificationResult.Success;
         }
     }
 }
