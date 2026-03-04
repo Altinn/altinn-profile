@@ -16,8 +16,8 @@ namespace Altinn.Profile.Core.AddressVerifications.Models
         CodeNotFound,
 
         /// <summary>
-        /// The existing verification code is too new to be resent (less than 1 minute old).
+        /// An existing verification code was in the state of cooldown/timeout
         /// </summary>
-        CodeTooNew,
+        CodeCooldown,
     }
 }

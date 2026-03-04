@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Authorization;
+using Altinn.Profile.Core;
 using Altinn.Profile.Core.AddressVerifications;
 using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Models;
@@ -11,6 +12,7 @@ using Altinn.Profile.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Altinn.Profile.Controllers
 {
@@ -24,13 +26,15 @@ namespace Altinn.Profile.Controllers
     public class AddressVerificationController : ControllerBase
     {
         private readonly IAddressVerificationService _addressVerificationService;
+        private readonly int _verificationCodeCooldownPeriodInSeconds;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AddressVerificationController"/> class.
         /// </summary>
-        public AddressVerificationController(IAddressVerificationService addressVerificationService)
+        public AddressVerificationController(IAddressVerificationService addressVerificationService, IOptions<AddressMaintenanceSettings> addressMaintenanceSettings)
         {
             _addressVerificationService = addressVerificationService;
+            _verificationCodeCooldownPeriodInSeconds = addressMaintenanceSettings.Value.VerificationCodeResendCooldownSeconds;
         }
 
         /// <summary>
@@ -126,7 +130,7 @@ namespace Altinn.Profile.Controllers
             {
                 ResendVerificationResult.Success => NoContent(),
                 ResendVerificationResult.CodeNotFound => UnprocessableEntity(new ProblemDetails { Title = "Verification code could not be resent", Detail = "The user has no active verification process for the given address." }),
-                ResendVerificationResult.CodeTooNew => TooManyRequests(new ProblemDetails { Title = "Verification code could not be resent", Detail = "Code resending attempts for an address are limited to 1 request/minute. Please wait before requesting a new code." }),
+                ResendVerificationResult.CodeCooldown => TooManyRequests(new ProblemDetails { Title = "Verification code could not be resent", Detail = $"Code resending attempts for an address are limited to 1 request per {_verificationCodeCooldownPeriodInSeconds} seconds. Please wait before requesting a new code." }),
                 _ => InternalServerError(new ProblemDetails { Title = "Verification code could not be resent", Detail = "An unexpected error occurred." })
             };
         }

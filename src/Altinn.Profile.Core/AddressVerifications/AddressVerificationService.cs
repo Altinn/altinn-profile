@@ -1,18 +1,20 @@
 ﻿using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
 
+using Microsoft.Extensions.Options;
+
 namespace Altinn.Profile.Core.AddressVerifications
 {
     /// <summary>
     /// A service for handling address verification processes, including generating verification codes,
     /// persisting them, and delegating notification delivery to <see cref="IUserNotifier"/>.
     /// </summary>
-    public class AddressVerificationService(IUserNotifier userNotifier, IAddressVerificationRepository addressVerificationRepository, IVerificationCodeService verificationCodeService) : IAddressVerificationService
+    public class AddressVerificationService(IUserNotifier userNotifier, IAddressVerificationRepository addressVerificationRepository, IVerificationCodeService verificationCodeService, IOptions<AddressMaintenanceSettings> addressMaintenanceSettings) : IAddressVerificationService
     {
         private readonly IUserNotifier _userNotifier = userNotifier;
         private readonly IAddressVerificationRepository _addressVerificationRepository = addressVerificationRepository;
         private readonly IVerificationCodeService _verificationCodeService = verificationCodeService;
-        private static readonly TimeSpan _resendCooldown = TimeSpan.FromMinutes(1);
+        private readonly IOptions<AddressMaintenanceSettings> _addressMaintenanceSettings = addressMaintenanceSettings;
 
         /// <inheritdoc/>
         public async Task<(VerificationType? EmailVerificationStatus, VerificationType? SmsVerificationStatus)> GetVerificationStatusAsync(int userId, string? emailAddress, string? phoneNumber, CancellationToken cancellationToken)
@@ -98,10 +100,11 @@ namespace Altinn.Profile.Core.AddressVerifications
                 return ResendVerificationResult.CodeNotFound;
             }
 
-            if (existingCode.Created + _resendCooldown > DateTime.UtcNow)
+            var isExistingCodeInCooldown = existingCode.Created + TimeSpan.FromSeconds(_addressMaintenanceSettings.Value.VerificationCodeResendCooldownSeconds) > DateTime.UtcNow;
+
+            if (isExistingCodeInCooldown)
             {
-                // If the existing code is less than 1 minutes old, we won't generate a new code or send a notification.
-                return ResendVerificationResult.CodeTooNew;
+                return ResendVerificationResult.CodeCooldown; // Don't generate a new code or send a notification if there's an existing code in the cooldown state
             }
 
             var code = _verificationCodeService.GenerateRawCode();
@@ -111,7 +114,7 @@ namespace Altinn.Profile.Core.AddressVerifications
             if (!added)
             {
                 // A concurrent request already inserted a verification code for this user/address/type.
-                return ResendVerificationResult.CodeTooNew;
+                return ResendVerificationResult.CodeCooldown;
             }
 
             await _userNotifier.SendVerificationCodeAsync(userId, verificationCodeModel.Address, addressType, code, cancellationToken);
