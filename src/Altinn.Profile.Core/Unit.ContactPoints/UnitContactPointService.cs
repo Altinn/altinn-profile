@@ -1,31 +1,18 @@
-﻿using System.Threading;
-
-using Altinn.Profile.Core.Integrations;
+﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 
 namespace Altinn.Profile.Core.Unit.ContactPoints
 {
     /// <summary>
-    /// Implementation of the <see cref="IUnitContactPointsService"/> interface using an <see cref="IUnitProfileRepository"/> retrieve profile data "/>
+    /// Implementation of the <see cref="IUnitContactPointsService"/> interface using an <see cref="IProfessionalNotificationsRepository"/> to retrieve profile data.
     /// </summary>
-    public class UnitContactPointService : IUnitContactPointsService
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="UnitContactPointService"/> class.
+    /// </remarks>
+    public class UnitContactPointService(IProfessionalNotificationsRepository professionalNotificationsRepository, IRegisterClient registerClient) : IUnitContactPointsService
     {
-        private readonly IUnitProfileRepository _unitRepository;
-        private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository;
-        private readonly IRegisterClient _registerClient;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UnitContactPointService"/> class.
-        /// </summary>
-        public UnitContactPointService(IUnitProfileRepository unitRepository, IProfessionalNotificationsRepository professionalNotificationsRepository, IRegisterClient registerClient)
-        {
-            _unitRepository = unitRepository;
-            _professionalNotificationsRepository = professionalNotificationsRepository;
-            _registerClient = registerClient;
-        }
-
-        /// <inheritdoc/>
-        public async Task<Result<UnitContactPointsList, bool>> GetUserRegisteredContactPoints(UnitContactPointLookup lookup) => await _unitRepository.GetUserRegisteredContactPoints(lookup);
+        private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
+        private readonly IRegisterClient _registerClient = registerClient;
 
         /// <inheritdoc/>
         public async Task<UnitContactPointsList> GetUserRegisteredContactPoints(string[] orgNumbers, string resourceId, CancellationToken cancellationToken)
