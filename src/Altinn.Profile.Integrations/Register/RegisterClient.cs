@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Unit.ContactPoints;
+using Altinn.Register.Contracts;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -45,12 +46,12 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
-    public async Task<IReadOnlyList<Party>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Core.Unit.ContactPoints.Party>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
     {
-        var request = new QueryPartiesRequest(orgNumbers);
+        string[] identifiers = [.. orgNumbers.Where(o => !string.IsNullOrWhiteSpace(o)).Select(o => $"urn:altinn:organization:identifier-no:{o}")];
+        var request = new QueryPartiesRequest(identifiers);
 
-        var response = await SendRequest(HttpMethod.Post, "v2/internal/parties/query", request, cancellationToken);
-
+        var response = await QueryParties(request, cancellationToken: cancellationToken);
         if (response == null)
         {
             return null;
@@ -123,6 +124,96 @@ public class RegisterClient : IRegisterClient
         }
 
         return responseData[0].OrgNumber;
+    }
+
+    /// <inheritdoc/>
+    public async Task<Altinn.Register.Contracts.Party?> GetUserParty(Guid userUuid, CancellationToken cancellationToken)
+    {
+        var urn = $"urn:altinn:party:uuid:{userUuid}";
+        return await GetUserParty(urn, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<Altinn.Register.Contracts.Party?> GetUserParty(int userId, CancellationToken cancellationToken)
+    {
+        var urn = $"urn:altinn:user:id:{userId}";
+        return await GetUserParty(urn, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<Altinn.Register.Contracts.Party?> GetUserPartyByUsername(string username, CancellationToken cancellationToken)
+    {
+        var urn = $"urn:altinn:party:username:{username}";
+        return await GetUserParty(urn, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<Altinn.Register.Contracts.Party?> GetUserPartyBySsn(string ssn, CancellationToken cancellationToken)
+    {
+        var urn = $"urn:altinn:person:identifier-no:{ssn}";
+        return await GetUserParty(urn, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<IReadOnlyList<Altinn.Register.Contracts.Party>> GetUserParties(List<Guid> userUuids, CancellationToken cancellationToken)
+    {
+        var identifiers = userUuids.Select(uuid => $"urn:altinn:party:uuid:{uuid}").ToArray();
+        var request = new QueryPartiesRequest(identifiers);
+        var response = await QueryParties(request, "fields=person,party,user,si", cancellationToken: cancellationToken);
+
+        QueryUserPartiesResponse? responseObject = null;
+        if (response?.Content != null)
+        {
+            responseObject = await response.Content.ReadFromJsonAsync<QueryUserPartiesResponse>(cancellationToken);
+        }
+
+        var data = responseObject?.Data;
+
+        if (data is null or { Count: 0 })
+        {
+            return [];
+        }
+
+        var parties = data.Where(p => p.Type == PartyType.Person || p.Type == PartyType.SelfIdentifiedUser);
+
+        return [.. parties];
+    }
+
+    // Get user from party query
+    private async Task<Altinn.Register.Contracts.Party?> GetUserParty(string urn, CancellationToken cancellationToken)
+    {
+        var request = new QueryPartiesRequest([urn]);
+        var response = await QueryParties(request, "fields=person,party,user,si", cancellationToken: cancellationToken);
+
+        if (response == null)
+        {
+            return null;
+        }
+
+        var responseObject = await response.Content.ReadFromJsonAsync<QueryUserPartiesResponse>(cancellationToken);
+
+        var data = responseObject?.Data;
+
+        if (data is null or { Count: 0 })
+        {
+            return null;
+        }
+
+        var party = data.FirstOrDefault(p => p.Type == PartyType.Person || p.Type == PartyType.SelfIdentifiedUser);
+
+        return party;
+    }
+
+    private async Task<HttpResponseMessage?> QueryParties(QueryPartiesRequest request, string queryParams = "", CancellationToken cancellationToken = default)
+    {
+        var requestUri = "v2/internal/parties/query";
+        if (!string.IsNullOrEmpty(queryParams))
+        {
+            requestUri += $"?{queryParams}";
+        }
+
+        var response = await SendRequest(HttpMethod.Post, requestUri, request, cancellationToken);
+        return response;
     }
 
     private async Task<HttpResponseMessage?> SendRequest(HttpMethod method, string path, object request, CancellationToken cancellationToken)

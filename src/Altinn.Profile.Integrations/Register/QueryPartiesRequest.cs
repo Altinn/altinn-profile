@@ -8,13 +8,13 @@ namespace Altinn.Profile.Integrations.Register
     /// <remarks>
     /// Initializes a new instance of the <see cref="QueryPartiesRequest"/> class.
     /// </remarks>
-    /// <param name="orgNumbers">Organization Numbers to query parties for</param>
-    public class QueryPartiesRequest(string[] orgNumbers)
+    /// <param name="identifiers">Identifiers to query parties for</param>
+    public class QueryPartiesRequest(string[] identifiers)
     {
         /// <summary>
-        /// Data containing the urn of the organization with the orgNumber.
+        /// Data containing the urn values with identifiers for the parties to look up.
         /// </summary>
         [JsonPropertyName("data")]
-        public string[] Data { get; init; } = [.. orgNumbers.Where(o => !string.IsNullOrWhiteSpace(o)).Select(o => $"urn:altinn:organization:identifier-no:{o}")];
+        public string[] Data { get; init; } = identifiers;
     }
 }
