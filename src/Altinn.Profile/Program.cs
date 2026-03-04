@@ -1,10 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text.Json.Serialization;
-using System.Threading.RateLimiting;
 
 using Altinn.Authorization.ServiceDefaults.Leases;
 using Altinn.Common.AccessToken;
@@ -44,8 +41,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -305,7 +300,7 @@ void ConfigureWolverine(WebApplicationBuilder builder)
     builder.UseWolverine(opts =>
     {
         var connStr = builder.Configuration.GetDatabaseConnectionString();
-        
+
         // You'll need to independently tell Wolverine where and how to 
         // store messages as part of the transactional inbox/outbox
         opts.PersistMessagesWithPostgresql(connStr);
