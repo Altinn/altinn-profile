@@ -626,7 +626,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 AddressType = AddressType.Email,
                 Address = "nullstilt@altinn.xyz",
                 VerificationCodeHash = "somehash123",
-                Expires = DateTime.UtcNow.AddHours(1),
+                Created = DateTime.UtcNow.AddMinutes(-5),
+                Expires = DateTime.UtcNow.AddMinutes(10),
             };
 
             VerificationCode capturedAddedCode = null;
@@ -684,7 +685,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 AddressType = AddressType.Sms,
                 Address = "11223344",
                 VerificationCodeHash = "somehash",
-                Expires = DateTime.UtcNow.AddHours(1),
+                Created = DateTime.UtcNow.AddMinutes(-5),
+                Expires = DateTime.UtcNow.AddMinutes(20),
             };
 
             VerificationCode capturedAddedCode = null;
@@ -742,7 +744,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 AddressType = AddressType.Email,
                 Address = "nullstilt@altinn.xyz",
                 VerificationCodeHash = "somehash",
-                Expires = DateTime.UtcNow.AddSeconds(-10),
+                Created = DateTime.UtcNow.AddMinutes(-10),
+                Expires = DateTime.UtcNow.AddSeconds(-5),
             };
 
             VerificationCode capturedAddedCode = null;
@@ -783,60 +786,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task ResendCode_WhenUserHasExistingExpiredCodeForSms_GeneratesNewCodeForSameUserAddress()
-        {
-            // Arrange
-            const int userId = 2516354;
-
-            var request = new AddressCodeResendRequest
-            {
-                Value = "11223344",
-                Type = AddressType.Sms
-            };
-
-            var hashedCode = BCrypt.Net.BCrypt.HashPassword("123456");
-
-            var existingVerificationCode = new VerificationCode
-            {
-                UserId = userId,
-                AddressType = AddressType.Sms,
-                Address = "11223344",
-                VerificationCodeHash = hashedCode,
-                Expires = DateTime.UtcNow.AddSeconds(-10),
-            };
-
-            VerificationCode capturedAddedCode = null;
-
-            // _factory.ProfileSettingsRepositoryMock.Setup(repo => repo.GetProfileSettings(userId)).ReturnsAsync(new ProfileSettings { UserId = userId, IgnoreUnitProfileDateTime = null, LanguageType = "no" }); <- to mock a specific user, otherwise profile settings=null and defaults to "nb"
-            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, existingVerificationCode.AddressType, existingVerificationCode.Address, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(existingVerificationCode);
-
-            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
-                .Callback((VerificationCode vcode) => capturedAddedCode = vcode)
-                .ReturnsAsync(true);
-
-            HttpClient client = _factory.CreateClient();
-
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/resend")
-            {
-                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
-            };
-            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
-
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Once);
-            Assert.NotEqual(hashedCode, capturedAddedCode.VerificationCodeHash);
-            Assert.Equal(existingVerificationCode.Address, capturedAddedCode.Address);
-            Assert.Equal(existingVerificationCode.AddressType, capturedAddedCode.AddressType);
-            Assert.Equal(existingVerificationCode.UserId, capturedAddedCode.UserId);
-        }
-
-        [Fact]
-        public async Task ResendCode_WhenUserHasExistingExpiredCodeForSmsAddress_GeneratesNewCodeForSameUserAddressAndSendsSmsToThatAddress()
+        public async Task ResendCode_WhenUserHasExistingExpiredCodeForSmsAddress_Returns204AndGeneratesNewCodeForSameUserAddressAndSendsSmsToThatAddress()
         {
             // Arrange
             const int userId = 2516354;
@@ -881,13 +831,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
             _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Once);
             Assert.NotEqual(existingVerificationCode.VerificationCodeHash, capturedAddedCode.VerificationCodeHash);
             Assert.Equal(existingVerificationCode.Address, capturedAddedCode.Address);
             Assert.Equal(existingVerificationCode.AddressType, capturedAddedCode.AddressType);
             Assert.Equal(existingVerificationCode.UserId, capturedAddedCode.UserId);
 
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
             _factory.NotificationsClientMock.Verify(
                 x => x.OrderSmsAsync(existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
                 Times.Once);
