@@ -54,7 +54,7 @@ public class UserProfileInternalController : Controller
 
         Result<UserProfile, bool> result;
 
-        if (userProfileLookup != null && userProfileLookup.UserId.HasValue && userProfileLookup.UserId != 0)
+        if (userProfileLookup.UserId.HasValue && userProfileLookup.UserId != 0)
         {
             result = await _userProfileService.GetUser((int)userProfileLookup.UserId);
         }
