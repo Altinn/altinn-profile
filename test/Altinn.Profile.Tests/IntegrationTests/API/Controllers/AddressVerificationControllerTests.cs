@@ -803,6 +803,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 AddressType = AddressType.Sms,
                 Address = "99887766",
                 VerificationCodeHash = "somehash",
+                Created = DateTime.UtcNow.AddMinutes(-20),
                 Expires = DateTime.UtcNow.AddSeconds(-10),
             };
 
