@@ -102,7 +102,7 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
-        /// Resets the verification process for the current user and the given address, by regenerating a code with renewed validity period (15 mins) and sending it to the address.
+        /// Resets the verification process for the current user and the given address, by regenerating a code with a renewed validity period and sending it to the address.
         /// </summary>
         /// <param name="request">The address type and value to resend code for</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
