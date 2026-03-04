@@ -123,6 +123,11 @@ public class UsersController : Controller
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserProfile>> GetUserFromSSN([FromBody][Required] string ssn)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         Result<UserProfile, bool> result = await _userProfileService.GetUser(ssn);
 
         return result.Match<ActionResult<UserProfile>>(
