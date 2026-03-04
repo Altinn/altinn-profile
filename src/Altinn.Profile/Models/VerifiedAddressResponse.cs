@@ -6,7 +6,7 @@ using Altinn.Profile.Core.AddressVerifications.Models;
 namespace Altinn.Profile.Models
 {
     /// <summary>
-    /// Represents a verified address response model that contains information about a verified address, including the address value, its type (email or phone), and its verification status.
+    /// Represents a verified address response model that contains information about a verified address, including the address value and its type (email or phone).
     /// </summary>
     public class VerifiedAddressResponse
     {
