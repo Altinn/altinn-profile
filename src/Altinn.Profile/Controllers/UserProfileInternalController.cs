@@ -58,15 +58,15 @@ public class UserProfileInternalController : Controller
         {
             result = await _userProfileService.GetUser((int)userProfileLookup.UserId);
         }
-        else if (userProfileLookup?.UserUuid != null)
+        else if (userProfileLookup.UserUuid != null)
         {
             result = await _userProfileService.GetUserByUuid(userProfileLookup.UserUuid.Value);
         }
-        else if (!string.IsNullOrWhiteSpace(userProfileLookup?.Username))
+        else if (!string.IsNullOrWhiteSpace(userProfileLookup.Username))
         {
             result = await _userProfileService.GetUserByUsername(userProfileLookup.Username);
         }
-        else if (!string.IsNullOrWhiteSpace(userProfileLookup?.Ssn))
+        else if (!string.IsNullOrWhiteSpace(userProfileLookup.Ssn))
         {
             result = await _userProfileService.GetUser(userProfileLookup.Ssn);
         }
