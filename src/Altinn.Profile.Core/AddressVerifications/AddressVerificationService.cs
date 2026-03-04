@@ -12,6 +12,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         private readonly IUserNotifier _userNotifier = userNotifier;
         private readonly IAddressVerificationRepository _addressVerificationRepository = addressVerificationRepository;
         private readonly IVerificationCodeService _verificationCodeService = verificationCodeService;
+        private static readonly TimeSpan _resendCooldown = TimeSpan.FromMinutes(1);
 
         /// <inheritdoc/>
         public async Task<(VerificationType? EmailVerificationStatus, VerificationType? SmsVerificationStatus)> GetVerificationStatusAsync(int userId, string? emailAddress, string? phoneNumber, CancellationToken cancellationToken)
@@ -97,7 +98,7 @@ namespace Altinn.Profile.Core.AddressVerifications
                 return ResendVerificationResult.CodeNotFound;
             }
 
-            if (existingCode.Created.AddMinutes(1) > DateTime.UtcNow)
+            if (existingCode.Created + _resendCooldown > DateTime.UtcNow)
             {
                 // If the existing code is less than 1 minutes old, we won't generate a new code or send a notification.
                 return ResendVerificationResult.CodeTooNew;
