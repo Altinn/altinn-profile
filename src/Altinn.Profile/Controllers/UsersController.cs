@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -120,7 +121,7 @@ public class UsersController : Controller
     [Authorize(Policy = AuthConstants.PlatformAccess)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserProfile>> GetUserFromSSN([FromBody] string ssn)
+    public async Task<ActionResult<UserProfile>> GetUserFromSSN([FromBody][Required] string ssn)
     {
         Result<UserProfile, bool> result = await _userProfileService.GetUser(ssn);
 
@@ -137,7 +138,7 @@ public class UsersController : Controller
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ProfileSettingPreference>> UpdateProfileSettings([FromBody]ProfileSettingPutRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<ProfileSettingPreference>> UpdateProfileSettings([FromBody][Required] ProfileSettingPutRequest request, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
@@ -188,7 +189,7 @@ public class UsersController : Controller
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ProfileSettingPreference>> PatchProfileSettings([FromBody] ProfileSettingsPatchRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<ProfileSettingPreference>> PatchProfileSettings([FromBody][Required] ProfileSettingsPatchRequest request, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {

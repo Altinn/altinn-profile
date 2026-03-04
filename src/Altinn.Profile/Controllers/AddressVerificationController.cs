@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -77,7 +78,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
-        public async Task<ActionResult> Verify([FromBody] AddressVerificationRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult> Verify([FromBody][Required] AddressVerificationRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -111,7 +112,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
-        public async Task<ActionResult> Resend([FromBody] AddressCodeResendRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult> Resend([FromBody][Required] AddressCodeResendRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {

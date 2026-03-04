@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core;
@@ -44,7 +45,7 @@ public class UserProfileInternalController : Controller
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserProfile>> Get([FromBody] UserProfileLookup userProfileLookup)
+    public async Task<ActionResult<UserProfile>> Get([FromBody][Required] UserProfileLookup userProfileLookup)
     {
         if (!ModelState.IsValid)
         {
@@ -90,7 +91,7 @@ public class UserProfileInternalController : Controller
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Consumes("application/json")]
     [Produces("application/json")]
-    public async Task<ActionResult<List<UserProfile>>> GetList([FromBody] List<Guid> userUuidList)
+    public async Task<ActionResult<List<UserProfile>>> GetList([FromBody][Required] List<Guid> userUuidList)
     {
         if (!ModelState.IsValid)
         {
@@ -106,7 +107,7 @@ public class UserProfileInternalController : Controller
         List<UserProfile> userProfiles = result.Match(
              userProfileList => userProfileList,
              _ => []);
-             
+
         return Ok(userProfiles);
     }
 }
