@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -97,7 +98,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<GroupResponse>> Create([FromBody]GroupRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<GroupResponse>> Create([FromBody][Required] GroupRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -135,7 +136,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<GroupResponse>> UpdateName([FromRoute] int groupId, [FromBody] GroupRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<GroupResponse>> UpdateName([FromRoute] int groupId, [FromBody][Required] GroupRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {

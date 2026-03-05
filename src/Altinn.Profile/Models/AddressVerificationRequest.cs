@@ -16,6 +16,7 @@ namespace Altinn.Profile.Models
         [Required]
         [JsonRequired]
         [StringLength(320)] // max email length per RFC 5321
+        [MinLength(5)] // No valid email or phone can be shorter than this
         public required string Value { get; init; }
 
         /// <summary>

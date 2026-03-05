@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -55,7 +56,7 @@ public class UnitContactPointController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
     public async Task<ActionResult<UnitContactPointsList>> PostLookup(
-        [FromBody] UnitContactPointLookup unitContactPointLookup, CancellationToken cancellationToken)
+        [FromBody][Required] UnitContactPointLookup unitContactPointLookup, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
@@ -71,7 +72,7 @@ public class UnitContactPointController : ControllerBase
                 return Ok(new UnitContactPointsList { ContactPointsList = [] });
             }
 
-            var result = await _contactPointsService.GetUserRegisteredContactPoints([..organizationNumbers], resourceId, cancellationToken);
+            var result = await _contactPointsService.GetUserRegisteredContactPoints([.. organizationNumbers], resourceId, cancellationToken);
             return Ok(result);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
