@@ -57,6 +57,7 @@ public class RegisterClient : IRegisterClient
             return null;
         }
 
+        // We use another response type here since the contract for this method only requires party id, party uuid and organization identifier, and we want to avoid deserializing unnecessary data
         var responseObject = await response.Content.ReadFromJsonAsync<QueryPartiesResponse>(cancellationToken);
 
         return responseObject?.Data;
