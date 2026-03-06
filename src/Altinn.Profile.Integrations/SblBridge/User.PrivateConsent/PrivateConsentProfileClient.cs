@@ -34,7 +34,7 @@ public class PrivateConsentProfileClient : IPrivateConsentProfileClient
     /// <inheritdoc />
     public async Task UpdatePrivateConsent(PrivateConsentChangedRequest request)
     {
-        string endpoint = $"users/privateconsentprofile/update";
+        string endpoint = "users/privateconsentprofile/update";
 
         StringContent requestBody = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 

@@ -21,13 +21,12 @@
         public int UserId { get; set; }
 
         /// <summary>
-        /// Gets or sets the language the user has selected in Altinn portal.
+        /// Gets or sets the email address of the user. Null for no change. Use empty string if the user has no email address registered.
         /// </summary>
         public string? EmailAddress { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the user should not be prompted for party selection.
-        /// Can be set without using PreselectedPartyUuid.
+        /// Gets or sets the phone number of the user. Null for no change. Use empty string if the user has no phone number registered.
         /// </summary>
         public string? PhoneNumber { get; set; }
     }
