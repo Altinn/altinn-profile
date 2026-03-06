@@ -1130,6 +1130,32 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
         }
 
         [Fact]
+        public async Task GetUserParty_BySsn_WhenSsnIsNull_ThrowsArgumentException()
+        {
+            // Arrange
+            var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK));
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(
+                () => client.GetUserPartyBySsn(null, TestContext.Current.CancellationToken));
+        }
+
+        [Fact]
+        public async Task GetUserParty_BySsn_WhenSsnIsEmpty_ThrowsArgumentException()
+        {
+            // Arrange
+            var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK));
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(
+                () => client.GetUserPartyBySsn(string.Empty, TestContext.Current.CancellationToken));
+        }
+
+        [Fact]
         public async Task GetUserParties_ByUserUuids_WhenResponseContainsMixedPartyTypes_ReturnsOnlyUserParties()
         {
             // Arrange
