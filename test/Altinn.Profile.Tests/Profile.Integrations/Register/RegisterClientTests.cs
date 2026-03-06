@@ -9,10 +9,9 @@ using System.Threading.Tasks;
 
 using Altinn.Authorization.ModelUtils;
 using Altinn.Common.AccessTokenClient.Services;
-using Altinn.Profile.Core.Unit.ContactPoints;
-using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Register;
 using Altinn.Register.Contracts;
+using Altinn.Register.Contracts.Testing;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -763,7 +762,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
         public async Task GetUserParty_BySsn_WhenClientRespondsSuccessfully_ReturnsParty()
         {
             // Arrange
-            var ssn = "01010112345";
+            var ssn = "17902349936";
             var expectedParty = Person.Minimal(ssn);
 
             var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
@@ -846,31 +845,4 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             Assert.Equal($"urn:altinn:party:uuid:{userUuid2}", (string)sentData[1]);
         }
     }
-
-    public static class PersonTestFactory
-    {
-        public static Person Empty(string? ssn = null, Guid? uuid = null) => new()
-        {
-            PartyId = 67890,
-            Uuid = uuid ?? Guid.NewGuid(),
-            VersionId = 1UL,
-            DisplayName = FieldValue<string>.Unset,
-            CreatedAt = FieldValue<DateTimeOffset>.Unset,
-            ModifiedAt = FieldValue<DateTimeOffset>.Unset,
-            IsDeleted = FieldValue<bool>.Unset,
-            DeletedAt = FieldValue<DateTimeOffset>.Unset,
-            User = new PartyUser(
-                userId: FieldValue<uint>.Unset,
-                FieldValue<string>.Unset,
-                FieldValue<ImmutableValueArray<uint>>.Unset),
-            PersonIdentifier = PersonIdentifier.Parse(ssn ?? "17902349936"),
-            FirstName = FieldValue<string>.Unset,
-            MiddleName = FieldValue<string>.Unset,
-            LastName = FieldValue<string>.Unset,
-            ShortName = FieldValue<string>.Unset,
-            Address = FieldValue<StreetAddress>.Unset,
-            MailingAddress = FieldValue<MailingAddress>.Unset,
-            DateOfBirth = FieldValue<DateOnly>.Unset,
-            DateOfDeath = FieldValue<DateOnly>.Unset
-        };
-    }
+}
