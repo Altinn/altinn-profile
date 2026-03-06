@@ -146,6 +146,8 @@ public class RegisterClient : IRegisterClient
     /// <inheritdoc/>
     public async Task<Altinn.Register.Contracts.Party?> GetUserPartyByUsername(string username, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNullOrEmpty(username, nameof(username));
+
         var identifiers = new[] { $"urn:altinn:party:username:{username}" };
         var parties = await GetUserParties(identifiers, cancellationToken);
         return parties.FirstOrDefault(p => p.Type == PartyType.Person || p.Type == PartyType.SelfIdentifiedUser);
@@ -154,6 +156,8 @@ public class RegisterClient : IRegisterClient
     /// <inheritdoc/>
     public async Task<Altinn.Register.Contracts.Party?> GetUserPartyBySsn(string ssn, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNullOrEmpty(ssn, nameof(ssn));
+
         var identifiers = new[] { $"urn:altinn:person:identifier-no:{ssn}" };
         var parties = await GetUserParties(identifiers, cancellationToken);
         return parties.FirstOrDefault(p => p.Type == PartyType.Person || p.Type == PartyType.SelfIdentifiedUser);
