@@ -119,7 +119,7 @@ public class AddressVerificationServiceTests : IDisposable
 
         // Assert
         Assert.DoesNotContain(_recordedCounters, c =>
-            c.InstrumentName == "profile.verification.resend_code-not-found_counter" && c.Value == 1);
+            c.InstrumentName == "profile.verification.resend_code-not-found" && c.Value == 1);
     }
 
     [Fact]
@@ -133,7 +133,7 @@ public class AddressVerificationServiceTests : IDisposable
 
         // Assert
         Assert.DoesNotContain(_recordedCounters, c =>
-            c.InstrumentName == "profile.verification.resend_cooldown-rejected_counter" && c.Value == 1);
+            c.InstrumentName == "profile.verification.resend_cooldown-rejected" && c.Value == 1);
     }
 
     [Fact]
@@ -187,7 +187,7 @@ public class AddressVerificationServiceTests : IDisposable
         await _sut.ResendVerificationCodeAsync(456, "user@example.com", AddressType.Email, CancellationToken.None);
 
         // Assert
-        Assert.Contains(_recordedCounters, c => c.InstrumentName == "profile.verification.resend_cooldown-rejected_counter" && c.Value == 1);
+        Assert.Contains(_recordedCounters, c => c.InstrumentName == "profile.verification.resend_cooldown-rejected" && c.Value == 1);
     }
 
     [Fact]
@@ -214,7 +214,7 @@ public class AddressVerificationServiceTests : IDisposable
 
         // Assert
         Assert.DoesNotContain(_recordedCounters, c =>
-            c.InstrumentName == "profile.verification.resend_code-not-found_counter" && c.Value == 1);
+            c.InstrumentName == "profile.verification.resend_code-not-found" && c.Value == 1);
     }
 
     [Fact]
@@ -240,7 +240,7 @@ public class AddressVerificationServiceTests : IDisposable
         await _sut.ResendVerificationCodeAsync(789, "nocode@example.com", AddressType.Email, CancellationToken.None);
 
         // Assert
-        Assert.Contains(_recordedCounters, c => c.InstrumentName == "profile.verification.resend_code-not-found_counter" && c.Value == 1);
+        Assert.Contains(_recordedCounters, c => c.InstrumentName == "profile.verification.resend_code-not-found" && c.Value == 1);
     }
 
     [Fact]
@@ -267,7 +267,7 @@ public class AddressVerificationServiceTests : IDisposable
 
         // Assert
         Assert.DoesNotContain(_recordedCounters, c =>
-            c.InstrumentName == "profile.verification.resend_cooldown-rejected_counter" && c.Value == 1);
+            c.InstrumentName == "profile.verification.resend_cooldown-rejected" && c.Value == 1);
     }
 
     [Fact]
@@ -293,8 +293,8 @@ public class AddressVerificationServiceTests : IDisposable
         await _sut.ResendVerificationCodeAsync(999, "concurrent@example.com", AddressType.Email, CancellationToken.None);
 
         // Assert — telemetry is recorded before the insert attempt, so it should still be present
-        var measurement = Assert.Single(_recordedMeasurements, m => m.InstrumentName == "profile.verification.resend_patience_seconds");
-        Assert.Contains(measurement.Tags, t => t.Key == "address_type" && (string)t.Value == "Email");
+        var (_, _, tags) = Assert.Single(_recordedMeasurements, m => m.InstrumentName == "profile.verification.resend_patience_seconds");
+        Assert.Contains(tags, t => t.Key == "address_type" && (string)t.Value == "Email");
     }
 
     // ── Arrange helpers ─────────────────────────────────────────────────

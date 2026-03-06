@@ -56,12 +56,12 @@ partial class Telemetry
         /// <summary>
         /// The name of the metric for the number of rejected resends due to cooldown/timeout.
         /// </summary>
-        internal static readonly string _verificationResendCooldownRejectedCounterName = MetricName("resend_cooldown-rejected_counter");
+        internal static readonly string _verificationResendCooldownRejectedCounterName = MetricName("resend_cooldown-rejected");
 
         /// <summary>
         /// The name of the metric for the number of failed code lookups for the given user, address type, and address value.
         /// </summary>
-        internal static readonly string _verificationResendCodeNotFoundCounterName = MetricName("resend_code-not-found_counter");
+        internal static readonly string _verificationResendCodeNotFoundCounterName = MetricName("resend_code-not-found");
 
         private static string MetricName(string name) => Metrics.CreateName($"verification.{name}");
     }
