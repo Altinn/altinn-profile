@@ -115,9 +115,7 @@ namespace Altinn.Profile.Core.AddressVerifications
                 return ResendVerificationResult.CodeCooldown; // Don't generate a new code or send a notification if there's an existing code in the cooldown state
             }
 
-            // Record telemetry for user resend patience (seconds waited)
-            double secondsWaited = (DateTime.UtcNow - existingCode.Created).TotalSeconds;
-            _telemetry.RecordResendPatience(secondsWaited, addressType.ToString());
+            RecordResendPatienceTelemetry(addressType, existingCode.Created);
 
             var code = _verificationCodeService.GenerateRawCode();
             var verificationCodeModel = _verificationCodeService.CreateVerificationCode(userId, formattedAddress, addressType, code);
@@ -132,6 +130,12 @@ namespace Altinn.Profile.Core.AddressVerifications
             await _userNotifier.SendVerificationCodeAsync(userId, verificationCodeModel.Address, addressType, code, cancellationToken);
 
             return ResendVerificationResult.Success;
+        }
+
+        private void RecordResendPatienceTelemetry(AddressType addressType, DateTime codeCreated)
+        {
+            double secondsWaited = (DateTime.UtcNow - codeCreated).TotalSeconds;
+            _telemetry.RecordResendPatience(secondsWaited, addressType.ToString());
         }
     }
 }
