@@ -107,6 +107,8 @@ namespace Altinn.Profile.Core.AddressVerifications
                 return ResendVerificationResult.CodeNotFound;
             }
 
+            RecordResendPatienceTelemetry(addressType, existingCode.Created);
+
             var isExistingCodeInCooldown = existingCode.Created + TimeSpan.FromSeconds(_addressMaintenanceSettings.Value.VerificationCodeResendCooldownSeconds) > DateTime.UtcNow;
 
             if (isExistingCodeInCooldown)
@@ -114,8 +116,6 @@ namespace Altinn.Profile.Core.AddressVerifications
                 _telemetry.RecordVerificationResendCooldownRejected();
                 return ResendVerificationResult.CodeCooldown; // Don't generate a new code or send a notification if there's an existing code in the cooldown state
             }
-
-            RecordResendPatienceTelemetry(addressType, existingCode.Created);
 
             var code = _verificationCodeService.GenerateRawCode();
             var verificationCodeModel = _verificationCodeService.CreateVerificationCode(userId, formattedAddress, addressType, code);
@@ -135,7 +135,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         private void RecordResendPatienceTelemetry(AddressType addressType, DateTime codeCreated)
         {
             double secondsWaited = (DateTime.UtcNow - codeCreated).TotalSeconds;
-            _telemetry.RecordResendPatience(secondsWaited, addressType.ToString());
+            _telemetry.RecordResendPatience(secondsWaited, addressType);
         }
     }
 }
