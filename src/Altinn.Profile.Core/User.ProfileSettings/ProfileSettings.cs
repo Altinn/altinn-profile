@@ -27,6 +27,11 @@
         public Guid? PreselectedPartyUuid { get; set; }
 
         /// <summary>
+        /// The partyId of the preselected party. Optional.
+        /// </summary>
+        public int? PreselectedPartyId { get; set; }
+
+        /// <summary>
         /// Indicates whether client units should be shown.
         /// </summary>
         public bool ShowClientUnits { get; set; }
@@ -68,7 +73,7 @@
         /// <summary>
         /// Sets the properties of this instance to the values from a patch request with optional values.
         /// </summary>
-        public void UpdateFrom(ProfileSettingsPatchModel other)
+        public void UpdateFrom(ProfileSettingsPatchModel other, int? preselectedPartyId)
         {
             LanguageType = other.Language ?? LanguageType;
             DoNotPromptForParty = other.DoNotPromptForParty ?? DoNotPromptForParty;
@@ -80,6 +85,7 @@
             if (other.PreselectedPartyUuid.HasValue)
             {
                 PreselectedPartyUuid = other.PreselectedPartyUuid.Value;
+                PreselectedPartyId = preselectedPartyId;
             }
         }
     }

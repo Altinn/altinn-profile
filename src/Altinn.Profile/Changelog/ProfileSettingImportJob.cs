@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Authorization.ServiceDefaults.Jobs;
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Integrations.Repositories.A2Sync;
@@ -29,6 +30,7 @@ namespace Altinn.Profile.Changelog
         private readonly IChangelogSyncMetadataRepository _changelogSyncMetadataRepository;
         private readonly Telemetry _telemetry;
         private readonly IProfileSettingsSyncRepository _profileSettingsSyncRepository;
+        private readonly IRegisterClient _registerClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfileSettingImportJob"/> class.
@@ -39,6 +41,7 @@ namespace Altinn.Profile.Changelog
             TimeProvider timeProvider,
             IChangelogSyncMetadataRepository changelogSyncMetadataRepository,
             IProfileSettingsSyncRepository profileSettingsSyncRepository,
+            IRegisterClient registerClient,
             Telemetry telemetry = null)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -46,6 +49,7 @@ namespace Altinn.Profile.Changelog
             _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
             _changelogSyncMetadataRepository = changelogSyncMetadataRepository ?? throw new ArgumentNullException(nameof(changelogSyncMetadataRepository));
             _profileSettingsSyncRepository = profileSettingsSyncRepository ?? throw new ArgumentNullException(nameof(profileSettingsSyncRepository));
+            _registerClient = registerClient ?? throw new ArgumentNullException(nameof(registerClient));
             _telemetry = telemetry;
         }
 
@@ -89,6 +93,11 @@ namespace Altinn.Profile.Changelog
 
                    if (change.OperationType is OperationType.Insert or OperationType.Update)
                     {
+                        if (profileSettings.PreselectedPartyUuid != null && profileSettings.PreselectedPartyUuid != Guid.Empty)
+                        {
+                            profileSettings.PreselectedPartyId = await _registerClient.GetPartyId(profileSettings.PreselectedPartyUuid.Value, cancellationToken);
+                        }
+
                         await _profileSettingsSyncRepository.UpdateProfileSettings(profileSettings);
                     }
                 }

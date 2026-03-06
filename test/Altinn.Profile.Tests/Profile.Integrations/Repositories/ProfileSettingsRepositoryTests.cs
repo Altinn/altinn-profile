@@ -190,7 +190,7 @@ public class ProfileSettingsRepositoryTests
         };
 
         // Act
-        var result = await _repository.PatchProfileSettings(patch, TestContext.Current.CancellationToken);
+        var result = await _repository.PatchProfileSettings(patch, 1, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -201,6 +201,7 @@ public class ProfileSettingsRepositoryTests
         Assert.True(result.ShowClientUnits);
         Assert.True(result.ShouldShowSubEntities);
         Assert.True(result.ShouldShowDeletedEntities);
+        Assert.Equal(1, result.PreselectedPartyId);
 
         _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<ProfileSettingsUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
 
@@ -240,11 +241,12 @@ public class ProfileSettingsRepositoryTests
         };
 
         // Act
-        var result = await _repository.PatchProfileSettings(patch, TestContext.Current.CancellationToken);
+        var result = await _repository.PatchProfileSettings(patch, null, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(result);
         Assert.Null(result.PreselectedPartyUuid);
+        Assert.Null(result.PreselectedPartyId);
 
         _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<ProfileSettingsUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
 
@@ -284,7 +286,7 @@ public class ProfileSettingsRepositoryTests
         };
 
         // Act
-        var result = await _repository.PatchProfileSettings(patch, TestContext.Current.CancellationToken);
+        var result = await _repository.PatchProfileSettings(patch, null, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -309,7 +311,7 @@ public class ProfileSettingsRepositoryTests
         };
 
         // Act
-        var result = await _repository.PatchProfileSettings(patch, TestContext.Current.CancellationToken);
+        var result = await _repository.PatchProfileSettings(patch, null, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Null(result);

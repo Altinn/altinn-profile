@@ -1,0 +1,1 @@
+ALTER TABLE user_preferences.profile_settings ADD COLUMN IF NOT EXISTS preselected_party_id integer;
