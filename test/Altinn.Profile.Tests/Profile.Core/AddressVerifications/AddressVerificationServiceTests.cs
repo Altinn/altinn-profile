@@ -84,7 +84,7 @@ public class AddressVerificationServiceTests : IDisposable
     public async Task ResendVerificationCodeAsync_WhenResendingForEmailAddress_ReturnsSuccess()
     {
         // Arrange
-        ArrangeSuccessfulEmailResend(userId: 123, address: "test@example.com", codeCreatedMinutesAgo: 3);
+        ArrangeSuccessfulAddressResend(userId: 123, address: "test@example.com", AddressType.Email, codeCreatedMinutesAgo: 3);
 
         // Act
         var result = await _sut.ResendVerificationCodeAsync(123, "test@example.com", AddressType.Email, CancellationToken.None);
@@ -97,7 +97,7 @@ public class AddressVerificationServiceTests : IDisposable
     public async Task ResendVerificationCodeAsync_WhenResendingForEmailAddress_RecordsPatienceMeasurement()
     {
         // Arrange
-        ArrangeSuccessfulEmailResend(userId: 123, address: "test@example.com", codeCreatedMinutesAgo: 3);
+        ArrangeSuccessfulAddressResend(userId: 123, address: "test@example.com", AddressType.Email, codeCreatedMinutesAgo: 3);
 
         // Act
         await _sut.ResendVerificationCodeAsync(123, "test@example.com", AddressType.Email, CancellationToken.None);
@@ -112,7 +112,7 @@ public class AddressVerificationServiceTests : IDisposable
     public async Task ResendVerificationCodeAsync_WhenResendingForEmailAddress_DoesNotIncrementCodeNotFoundCounter()
     {
         // Arrange
-        ArrangeSuccessfulEmailResend(userId: 100, address: "nocounters@example.com", codeCreatedMinutesAgo: 3);
+        ArrangeSuccessfulAddressResend(userId: 100, address: "nocounters@example.com", AddressType.Email, codeCreatedMinutesAgo: 3);
 
         // Act
         await _sut.ResendVerificationCodeAsync(100, "nocounters@example.com", AddressType.Email, CancellationToken.None);
@@ -126,7 +126,7 @@ public class AddressVerificationServiceTests : IDisposable
     public async Task ResendVerificationCodeAsync_WhenResendingForEmailAddress_DoesNotIncrementCooldownRejectedCounter()
     {
         // Arrange
-        ArrangeSuccessfulEmailResend(userId: 100, address: "nocounters@example.com", codeCreatedMinutesAgo: 3);
+        ArrangeSuccessfulAddressResend(userId: 100, address: "nocounters@example.com", AddressType.Email, codeCreatedMinutesAgo: 3);
 
         // Act
         await _sut.ResendVerificationCodeAsync(100, "nocounters@example.com", AddressType.Email, CancellationToken.None);
@@ -140,7 +140,7 @@ public class AddressVerificationServiceTests : IDisposable
     public async Task ResendVerificationCodeAsync_WhenResendingForPhoneAddress_ReturnsSuccess()
     {
         // Arrange
-        ArrangeSuccessfulSmsResend(userId: 321, address: "12345678", codeCreatedMinutesAgo: 2);
+        ArrangeSuccessfulAddressResend(userId: 321, address: "12345678", AddressType.Sms, codeCreatedMinutesAgo: 2);
 
         // Act
         var result = await _sut.ResendVerificationCodeAsync(321, "12345678", AddressType.Sms, CancellationToken.None);
@@ -153,7 +153,7 @@ public class AddressVerificationServiceTests : IDisposable
     public async Task ResendVerificationCodeAsync_WhenResendingForPhoneAddress_RecordsPatienceMeasurementWithSmsTag()
     {
         // Arrange
-        ArrangeSuccessfulSmsResend(userId: 321, address: "12345678", codeCreatedMinutesAgo: 2);
+        ArrangeSuccessfulAddressResend(userId: 321, address: "12345678", AddressType.Sms, codeCreatedMinutesAgo: 2);
 
         // Act
         await _sut.ResendVerificationCodeAsync(321, "12345678", AddressType.Sms, CancellationToken.None);
@@ -298,12 +298,12 @@ public class AddressVerificationServiceTests : IDisposable
     }
 
     // ── Arrange helpers ─────────────────────────────────────────────────
-    private void ArrangeSuccessfulEmailResend(int userId, string address, int codeCreatedMinutesAgo)
+    private void ArrangeSuccessfulAddressResend(int userId, string address, AddressType addressType, int codeCreatedMinutesAgo)
     {
         var existingCode = new VerificationCode
         {
             UserId = userId,
-            AddressType = AddressType.Email,
+            AddressType = addressType,
             Address = address,
             VerificationCodeHash = "somehash",
             Created = DateTime.UtcNow.AddMinutes(-codeCreatedMinutesAgo),
@@ -313,47 +313,18 @@ public class AddressVerificationServiceTests : IDisposable
         var newCode = new VerificationCode
         {
             UserId = userId,
-            AddressType = AddressType.Email,
+            AddressType = addressType,
             Address = address,
             VerificationCodeHash = "newhash",
             Created = DateTime.UtcNow,
             Expires = DateTime.UtcNow.AddMinutes(10),
         };
 
-        _repositoryMock.Setup(r => r.GetVerificationCodeAsync(userId, AddressType.Email, address, It.IsAny<CancellationToken>())).ReturnsAsync(existingCode);
+        _repositoryMock.Setup(r => r.GetVerificationCodeAsync(userId, addressType, address, It.IsAny<CancellationToken>())).ReturnsAsync(existingCode);
         _verificationCodeServiceMock.Setup(s => s.GenerateRawCode()).Returns("654321");
-        _verificationCodeServiceMock.Setup(s => s.CreateVerificationCode(userId, address, AddressType.Email, "654321")).Returns(newCode);
+        _verificationCodeServiceMock.Setup(s => s.CreateVerificationCode(userId, address, addressType, "654321")).Returns(newCode);
         _repositoryMock.Setup(r => r.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>())).ReturnsAsync(true);
-        _userNotifierMock.Setup(n => n.SendVerificationCodeAsync(userId, address, AddressType.Email, "654321", It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-    }
-
-    private void ArrangeSuccessfulSmsResend(int userId, string address, int codeCreatedMinutesAgo)
-    {
-        var existingCode = new VerificationCode
-        {
-            UserId = userId,
-            AddressType = AddressType.Sms,
-            Address = address,
-            VerificationCodeHash = "somehash",
-            Created = DateTime.UtcNow.AddMinutes(-codeCreatedMinutesAgo),
-            Expires = DateTime.UtcNow.AddMinutes(10),
-        };
-
-        var newCode = new VerificationCode
-        {
-            UserId = userId,
-            AddressType = AddressType.Sms,
-            Address = address,
-            VerificationCodeHash = "newhash",
-            Created = DateTime.UtcNow,
-            Expires = DateTime.UtcNow.AddMinutes(10),
-        };
-
-        _repositoryMock.Setup(r => r.GetVerificationCodeAsync(userId, AddressType.Sms, address, It.IsAny<CancellationToken>())).ReturnsAsync(existingCode);
-        _verificationCodeServiceMock.Setup(s => s.GenerateRawCode()).Returns("111222");
-        _verificationCodeServiceMock.Setup(s => s.CreateVerificationCode(userId, address, AddressType.Sms, "111222")).Returns(newCode);
-        _repositoryMock.Setup(r => r.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>())).ReturnsAsync(true);
-        _userNotifierMock.Setup(n => n.SendVerificationCodeAsync(userId, address, AddressType.Sms, "111222", It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _userNotifierMock.Setup(n => n.SendVerificationCodeAsync(userId, address, addressType, "654321", It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
     }
 
     private void ArrangeCooldownScenario(int userId, string address, int codeCreatedSecondsAgo)
