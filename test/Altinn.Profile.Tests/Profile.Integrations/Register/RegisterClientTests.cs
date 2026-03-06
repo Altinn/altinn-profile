@@ -844,5 +844,30 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             Assert.Equal($"urn:altinn:party:uuid:{userUuid1}", (string)sentData[0]);
             Assert.Equal($"urn:altinn:party:uuid:{userUuid2}", (string)sentData[1]);
         }
+
+        [Fact]
+        public async Task GetUserParty_WhenResponseContainsOnlyOrganization_ReturnsNull()
+        {
+            var userId = 12345;
+            var orgParty = Organization.Minimal("314249879"); // Not a Person or SelfIdentifiedUser
+
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = [orgParty]
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            var result = await client.GetUserParty(userId, TestContext.Current.CancellationToken);
+
+            Assert.Null(result);
+        }
     }
 }
