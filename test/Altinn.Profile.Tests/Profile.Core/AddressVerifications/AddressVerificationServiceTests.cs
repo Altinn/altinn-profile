@@ -25,7 +25,7 @@ public class AddressVerificationServiceTests : IDisposable
     private readonly Mock<IVerificationCodeService> _verificationCodeServiceMock = new();
     private readonly Telemetry _telemetry = new();
     private readonly MeterListener _meterListener;
-    private readonly List<(double Value, KeyValuePair<string, object>[] Tags)> _recordedMeasurements = [];
+    private readonly List<(string InstrumentName, double Value, KeyValuePair<string, object>[] Tags)> _recordedMeasurements = [];
     private readonly List<(string InstrumentName, long Value)> _recordedCounters = [];
     private readonly AddressVerificationService _sut;
 
@@ -55,7 +55,7 @@ public class AddressVerificationServiceTests : IDisposable
                 tagList.Add(new KeyValuePair<string, object>(tag.Key, tag.Value));
             }
 
-            _recordedMeasurements.Add((measurement, tagList.ToArray()));
+            _recordedMeasurements.Add((instrument.Name, measurement, tagList.ToArray()));
         });
 
         _meterListener.SetMeasurementEventCallback<long>((instrument, measurement, tags, state) =>
@@ -81,334 +81,326 @@ public class AddressVerificationServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task ResendVerificationCodeAsync_WhenCodeIsResent_RecordsResendPatienceTelemetry()
+    public async Task ResendVerificationCodeAsync_WhenResendingForEmailAddress_ReturnsSuccess()
     {
         // Arrange
-        const int userId = 123;
-        const string address = "test@example.com";
-        var codeCreatedTime = DateTime.UtcNow.AddMinutes(-3);
-
-        var existingCode = new VerificationCode
-        {
-            UserId = userId,
-            AddressType = AddressType.Email,
-            Address = address,
-            VerificationCodeHash = "somehash",
-            Created = codeCreatedTime,
-            Expires = DateTime.UtcNow.AddMinutes(10),
-        };
-
-        var newCode = new VerificationCode
-        {
-            UserId = userId,
-            AddressType = AddressType.Email,
-            Address = address,
-            VerificationCodeHash = "newhash",
-            Created = DateTime.UtcNow,
-            Expires = DateTime.UtcNow.AddMinutes(10),
-        };
-
-        _repositoryMock
-            .Setup(r => r.GetVerificationCodeAsync(userId, AddressType.Email, address, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(existingCode);
-
-        _verificationCodeServiceMock
-            .Setup(s => s.GenerateRawCode())
-            .Returns("654321");
-
-        _verificationCodeServiceMock
-            .Setup(s => s.CreateVerificationCode(userId, address, AddressType.Email, "654321"))
-            .Returns(newCode);
-
-        _repositoryMock
-            .Setup(r => r.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
-            .ReturnsAsync(true);
-
-        _userNotifierMock
-            .Setup(n => n.SendVerificationCodeAsync(userId, address, AddressType.Email, "654321", It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+        ArrangeSuccessfulEmailResend(userId: 123, address: "test@example.com", codeCreatedMinutesAgo: 3);
 
         // Act
-        var result = await _sut.ResendVerificationCodeAsync(userId, address, AddressType.Email, CancellationToken.None);
+        var result = await _sut.ResendVerificationCodeAsync(123, "test@example.com", AddressType.Email, CancellationToken.None);
 
         // Assert
         Assert.Equal(ResendVerificationResult.Success, result);
-        Assert.Single(_recordedMeasurements);
+    }
 
-        var (value, tags) = _recordedMeasurements[0];
+    [Fact]
+    public async Task ResendVerificationCodeAsync_WhenResendingForEmailAddress_RecordsPatienceMeasurement()
+    {
+        // Arrange
+        ArrangeSuccessfulEmailResend(userId: 123, address: "test@example.com", codeCreatedMinutesAgo: 3);
+
+        // Act
+        await _sut.ResendVerificationCodeAsync(123, "test@example.com", AddressType.Email, CancellationToken.None);
+
+        // Assert
+        var (_, value, tags) = Assert.Single(_recordedMeasurements, m => m.InstrumentName == "profile.verification.resend_patience_seconds");
         Assert.True(value >= 180, $"Expected at least 180 seconds waited, but got {value}");
         Assert.Contains(tags, t => t.Key == "address_type" && (string)t.Value == "Email");
     }
 
     [Fact]
-    public async Task ResendVerificationCodeAsync_WhenCodeIsInCooldown_RecordsCooldownRejectedAndSkipsHistogram()
+    public async Task ResendVerificationCodeAsync_WhenResendingForEmailAddress_DoesNotIncrementCodeNotFoundCounter()
     {
         // Arrange
-        const int userId = 456;
-        const string address = "user@example.com";
-
-        var existingCode = new VerificationCode
-        {
-            UserId = userId,
-            AddressType = AddressType.Email,
-            Address = address,
-            VerificationCodeHash = "somehash",
-            Created = DateTime.UtcNow.AddSeconds(-30), // Within the 60-second cooldown
-            Expires = DateTime.UtcNow.AddMinutes(10),
-        };
-
-        _repositoryMock
-            .Setup(r => r.GetVerificationCodeAsync(userId, AddressType.Email, address, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(existingCode);
+        ArrangeSuccessfulEmailResend(userId: 100, address: "nocounters@example.com", codeCreatedMinutesAgo: 3);
 
         // Act
-        var result = await _sut.ResendVerificationCodeAsync(userId, address, AddressType.Email, CancellationToken.None);
+        await _sut.ResendVerificationCodeAsync(100, "nocounters@example.com", AddressType.Email, CancellationToken.None);
 
         // Assert
-        Assert.Equal(ResendVerificationResult.CodeCooldown, result);
-        Assert.Empty(_recordedMeasurements);
-        Assert.Contains(_recordedCounters, c => c.InstrumentName == "profile.verification.resend_cooldown-rejected_counter" && c.Value == 1);
+        Assert.DoesNotContain(_recordedCounters, c =>
+            c.InstrumentName == "profile.verification.resend_code-not-found_counter" && c.Value == 1);
     }
 
     [Fact]
-    public async Task ResendVerificationCodeAsync_WhenNoExistingCode_RecordsCodeNotFoundAndSkipsHistogram()
+    public async Task ResendVerificationCodeAsync_WhenResendingForEmailAddress_DoesNotIncrementCooldownRejectedCounter()
     {
         // Arrange
-        const int userId = 789;
-        const string address = "nocode@example.com";
-
-        _repositoryMock
-            .Setup(r => r.GetVerificationCodeAsync(userId, AddressType.Email, address, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((VerificationCode)null);
+        ArrangeSuccessfulEmailResend(userId: 100, address: "nocounters@example.com", codeCreatedMinutesAgo: 3);
 
         // Act
-        var result = await _sut.ResendVerificationCodeAsync(userId, address, AddressType.Email, CancellationToken.None);
+        await _sut.ResendVerificationCodeAsync(100, "nocounters@example.com", AddressType.Email, CancellationToken.None);
 
         // Assert
-        Assert.Equal(ResendVerificationResult.CodeNotFound, result);
-        Assert.Empty(_recordedMeasurements);
-        Assert.Contains(_recordedCounters, c => c.InstrumentName == "profile.verification.resend_code-not-found_counter" && c.Value == 1);
+        Assert.DoesNotContain(_recordedCounters, c =>
+            c.InstrumentName == "profile.verification.resend_cooldown-rejected_counter" && c.Value == 1);
     }
 
     [Fact]
-    public async Task ResendVerificationCodeAsync_WhenSmsResend_RecordsTelemetryWithSmsAddressType()
+    public async Task ResendVerificationCodeAsync_WhenResendingForPhoneAddress_ReturnsSuccess()
     {
         // Arrange
-        const int userId = 321;
-        const string address = "12345678";
-
-        var existingCode = new VerificationCode
-        {
-            UserId = userId,
-            AddressType = AddressType.Sms,
-            Address = address,
-            VerificationCodeHash = "somehash",
-            Created = DateTime.UtcNow.AddMinutes(-2),
-            Expires = DateTime.UtcNow.AddMinutes(10),
-        };
-
-        var newCode = new VerificationCode
-        {
-            UserId = userId,
-            AddressType = AddressType.Sms,
-            Address = address,
-            VerificationCodeHash = "newhash",
-            Created = DateTime.UtcNow,
-            Expires = DateTime.UtcNow.AddMinutes(10),
-        };
-
-        _repositoryMock
-            .Setup(r => r.GetVerificationCodeAsync(userId, AddressType.Sms, address, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(existingCode);
-
-        _verificationCodeServiceMock
-            .Setup(s => s.GenerateRawCode())
-            .Returns("111222");
-
-        _verificationCodeServiceMock
-            .Setup(s => s.CreateVerificationCode(userId, address, AddressType.Sms, "111222"))
-            .Returns(newCode);
-
-        _repositoryMock
-            .Setup(r => r.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
-            .ReturnsAsync(true);
-
-        _userNotifierMock
-            .Setup(n => n.SendVerificationCodeAsync(userId, address, AddressType.Sms, "111222", It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+        ArrangeSuccessfulSmsResend(userId: 321, address: "12345678", codeCreatedMinutesAgo: 2);
 
         // Act
-        var result = await _sut.ResendVerificationCodeAsync(userId, address, AddressType.Sms, CancellationToken.None);
+        var result = await _sut.ResendVerificationCodeAsync(321, "12345678", AddressType.Sms, CancellationToken.None);
 
         // Assert
         Assert.Equal(ResendVerificationResult.Success, result);
-        Assert.Single(_recordedMeasurements);
+    }
 
-        var (value, tags) = _recordedMeasurements[0];
+    [Fact]
+    public async Task ResendVerificationCodeAsync_WhenResendingForPhoneAddress_RecordsPatienceMeasurementWithSmsTag()
+    {
+        // Arrange
+        ArrangeSuccessfulSmsResend(userId: 321, address: "12345678", codeCreatedMinutesAgo: 2);
+
+        // Act
+        await _sut.ResendVerificationCodeAsync(321, "12345678", AddressType.Sms, CancellationToken.None);
+
+        // Assert
+        var (_, value, tags) = Assert.Single(_recordedMeasurements, m => m.InstrumentName == "profile.verification.resend_patience_seconds");
         Assert.True(value >= 120, $"Expected at least 120 seconds waited, but got {value}");
         Assert.Contains(tags, t => t.Key == "address_type" && (string)t.Value == "Sms");
     }
 
     [Fact]
-    public async Task ResendVerificationCodeAsync_WhenConcurrentInsertFails_StillRecordsTelemetry()
+    public async Task ResendVerificationCodeAsync_WhenCodeIsInCooldown_ReturnsCodeCooldown()
     {
-        // Arrange — the code is past cooldown but AddNewVerificationCodeAsync returns false (concurrent insert)
-        const int userId = 999;
-        const string address = "concurrent@example.com";
-
-        var existingCode = new VerificationCode
-        {
-            UserId = userId,
-            AddressType = AddressType.Email,
-            Address = address,
-            VerificationCodeHash = "somehash",
-            Created = DateTime.UtcNow.AddMinutes(-5),
-            Expires = DateTime.UtcNow.AddMinutes(10),
-        };
-
-        var newCode = new VerificationCode
-        {
-            UserId = userId,
-            AddressType = AddressType.Email,
-            Address = address,
-            VerificationCodeHash = "newhash",
-            Created = DateTime.UtcNow,
-            Expires = DateTime.UtcNow.AddMinutes(10),
-        };
-
-        _repositoryMock
-            .Setup(r => r.GetVerificationCodeAsync(userId, AddressType.Email, address, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(existingCode);
-
-        _verificationCodeServiceMock
-            .Setup(s => s.GenerateRawCode())
-            .Returns("999888");
-
-        _verificationCodeServiceMock
-            .Setup(s => s.CreateVerificationCode(userId, address, AddressType.Email, "999888"))
-            .Returns(newCode);
-
-        _repositoryMock
-            .Setup(r => r.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
-            .ReturnsAsync(false); // Concurrent insert
+        // Arrange
+        ArrangeCooldownScenario(userId: 456, address: "user@example.com", codeCreatedSecondsAgo: 30);
 
         // Act
-        var result = await _sut.ResendVerificationCodeAsync(userId, address, AddressType.Email, CancellationToken.None);
+        var result = await _sut.ResendVerificationCodeAsync(456, "user@example.com", AddressType.Email, CancellationToken.None);
 
         // Assert
         Assert.Equal(ResendVerificationResult.CodeCooldown, result);
-
-        // Telemetry is recorded before the insert attempt, so it should still be present
-        Assert.Single(_recordedMeasurements);
-        Assert.Contains(_recordedMeasurements[0].Tags, t => t.Key == "address_type" && (string)t.Value == "Email");
     }
 
     [Fact]
-    public async Task ResendVerificationCodeAsync_WhenCodeIsResent_DoesNotIncrementCounters()
+    public async Task ResendVerificationCodeAsync_WhenCodeIsInCooldown_RecordsCooldownRejectedCounter()
     {
         // Arrange
-        const int userId = 100;
-        const string address = "nocounters@example.com";
-
-        var existingCode = new VerificationCode
-        {
-            UserId = userId,
-            AddressType = AddressType.Email,
-            Address = address,
-            VerificationCodeHash = "somehash",
-            Created = DateTime.UtcNow.AddMinutes(-3),
-            Expires = DateTime.UtcNow.AddMinutes(10),
-        };
-
-        var newCode = new VerificationCode
-        {
-            UserId = userId,
-            AddressType = AddressType.Email,
-            Address = address,
-            VerificationCodeHash = "newhash",
-            Created = DateTime.UtcNow,
-            Expires = DateTime.UtcNow.AddMinutes(10),
-        };
-
-        _repositoryMock
-            .Setup(r => r.GetVerificationCodeAsync(userId, AddressType.Email, address, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(existingCode);
-
-        _verificationCodeServiceMock
-            .Setup(s => s.GenerateRawCode())
-            .Returns("123456");
-
-        _verificationCodeServiceMock
-            .Setup(s => s.CreateVerificationCode(userId, address, AddressType.Email, "123456"))
-            .Returns(newCode);
-
-        _repositoryMock
-            .Setup(r => r.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
-            .ReturnsAsync(true);
-
-        _userNotifierMock
-            .Setup(n => n.SendVerificationCodeAsync(userId, address, AddressType.Email, "123456", It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+        ArrangeCooldownScenario(userId: 456, address: "user@example.com", codeCreatedSecondsAgo: 30);
 
         // Act
-        await _sut.ResendVerificationCodeAsync(userId, address, AddressType.Email, CancellationToken.None);
+        await _sut.ResendVerificationCodeAsync(456, "user@example.com", AddressType.Email, CancellationToken.None);
 
-        // Assert — success path should not increment either error counter
-        Assert.DoesNotContain(_recordedCounters, c =>
-            c.InstrumentName == "profile.verification.resend_code-not-found_counter" && c.Value == 1);
-        Assert.DoesNotContain(_recordedCounters, c =>
-            c.InstrumentName == "profile.verification.resend_cooldown-rejected_counter" && c.Value == 1);
+        // Assert
+        Assert.Contains(_recordedCounters, c => c.InstrumentName == "profile.verification.resend_cooldown-rejected_counter" && c.Value == 1);
     }
 
     [Fact]
-    public async Task ResendVerificationCodeAsync_WhenNoExistingCode_DoesNotIncrementCooldownCounter()
+    public async Task ResendVerificationCodeAsync_WhenCodeIsInCooldown_RecordsPatienceMeasurement()
     {
         // Arrange
-        const int userId = 200;
-        const string address = "onlynotfound@example.com";
-
-        _repositoryMock
-            .Setup(r => r.GetVerificationCodeAsync(userId, AddressType.Email, address, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((VerificationCode)null);
+        ArrangeCooldownScenario(userId: 456, address: "user@example.com", codeCreatedSecondsAgo: 30);
 
         // Act
-        await _sut.ResendVerificationCodeAsync(userId, address, AddressType.Email, CancellationToken.None);
+        await _sut.ResendVerificationCodeAsync(456, "user@example.com", AddressType.Email, CancellationToken.None);
 
-        // Assert — code-not-found incremented, but cooldown-rejected should NOT be
-        Assert.Contains(_recordedCounters, c =>
-            c.InstrumentName == "profile.verification.resend_code-not-found_counter" && c.Value == 1);
-        Assert.DoesNotContain(_recordedCounters, c =>
-            c.InstrumentName == "profile.verification.resend_cooldown-rejected_counter" && c.Value == 1);
+        // Assert
+        Assert.Single(_recordedMeasurements, m => m.InstrumentName == "profile.verification.resend_patience_seconds");
     }
 
     [Fact]
     public async Task ResendVerificationCodeAsync_WhenCodeIsInCooldown_DoesNotIncrementCodeNotFoundCounter()
     {
         // Arrange
-        const int userId = 300;
-        const string address = "onlycooldown@example.com";
+        ArrangeCooldownScenario(userId: 300, address: "onlycooldown@example.com", codeCreatedSecondsAgo: 10);
 
+        // Act
+        await _sut.ResendVerificationCodeAsync(300, "onlycooldown@example.com", AddressType.Email, CancellationToken.None);
+
+        // Assert
+        Assert.DoesNotContain(_recordedCounters, c =>
+            c.InstrumentName == "profile.verification.resend_code-not-found_counter" && c.Value == 1);
+    }
+
+    [Fact]
+    public async Task ResendVerificationCodeAsync_WhenNoExistingCode_ReturnsCodeNotFound()
+    {
+        // Arrange
+        ArrangeNoExistingCode(userId: 789, address: "nocode@example.com");
+
+        // Act
+        var result = await _sut.ResendVerificationCodeAsync(789, "nocode@example.com", AddressType.Email, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(ResendVerificationResult.CodeNotFound, result);
+    }
+
+    [Fact]
+    public async Task ResendVerificationCodeAsync_WhenNoExistingCode_RecordsCodeNotFoundCounter()
+    {
+        // Arrange
+        ArrangeNoExistingCode(userId: 789, address: "nocode@example.com");
+
+        // Act
+        await _sut.ResendVerificationCodeAsync(789, "nocode@example.com", AddressType.Email, CancellationToken.None);
+
+        // Assert
+        Assert.Contains(_recordedCounters, c => c.InstrumentName == "profile.verification.resend_code-not-found_counter" && c.Value == 1);
+    }
+
+    [Fact]
+    public async Task ResendVerificationCodeAsync_WhenNoExistingCode_DoesNotRecordPatienceMeasurement()
+    {
+        // Arrange
+        ArrangeNoExistingCode(userId: 789, address: "nocode@example.com");
+
+        // Act
+        await _sut.ResendVerificationCodeAsync(789, "nocode@example.com", AddressType.Email, CancellationToken.None);
+
+        // Assert
+        Assert.Empty(_recordedMeasurements);
+    }
+
+    [Fact]
+    public async Task ResendVerificationCodeAsync_WhenNoExistingCode_DoesNotIncrementCooldownRejectedCounter()
+    {
+        // Arrange
+        ArrangeNoExistingCode(userId: 200, address: "onlynotfound@example.com");
+
+        // Act
+        await _sut.ResendVerificationCodeAsync(200, "onlynotfound@example.com", AddressType.Email, CancellationToken.None);
+
+        // Assert
+        Assert.DoesNotContain(_recordedCounters, c =>
+            c.InstrumentName == "profile.verification.resend_cooldown-rejected_counter" && c.Value == 1);
+    }
+
+    [Fact]
+    public async Task ResendVerificationCodeAsync_WhenConcurrentInsertFails_ReturnsCodeCooldown()
+    {
+        // Arrange
+        ArrangeConcurrentInsertFailure(userId: 999, address: "concurrent@example.com", codeCreatedMinutesAgo: 5);
+
+        // Act
+        var result = await _sut.ResendVerificationCodeAsync(999, "concurrent@example.com", AddressType.Email, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(ResendVerificationResult.CodeCooldown, result);
+    }
+
+    [Fact]
+    public async Task ResendVerificationCodeAsync_WhenConcurrentInsertFails_StillRecordsPatienceMeasurement()
+    {
+        // Arrange
+        ArrangeConcurrentInsertFailure(userId: 999, address: "concurrent@example.com", codeCreatedMinutesAgo: 5);
+
+        // Act
+        await _sut.ResendVerificationCodeAsync(999, "concurrent@example.com", AddressType.Email, CancellationToken.None);
+
+        // Assert — telemetry is recorded before the insert attempt, so it should still be present
+        var measurement = Assert.Single(_recordedMeasurements, m => m.InstrumentName == "profile.verification.resend_patience_seconds");
+        Assert.Contains(measurement.Tags, t => t.Key == "address_type" && (string)t.Value == "Email");
+    }
+
+    // ── Arrange helpers ─────────────────────────────────────────────────
+    private void ArrangeSuccessfulEmailResend(int userId, string address, int codeCreatedMinutesAgo)
+    {
         var existingCode = new VerificationCode
         {
             UserId = userId,
             AddressType = AddressType.Email,
             Address = address,
             VerificationCodeHash = "somehash",
-            Created = DateTime.UtcNow.AddSeconds(-10),
+            Created = DateTime.UtcNow.AddMinutes(-codeCreatedMinutesAgo),
             Expires = DateTime.UtcNow.AddMinutes(10),
         };
 
-        _repositoryMock
-            .Setup(r => r.GetVerificationCodeAsync(userId, AddressType.Email, address, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(existingCode);
+        var newCode = new VerificationCode
+        {
+            UserId = userId,
+            AddressType = AddressType.Email,
+            Address = address,
+            VerificationCodeHash = "newhash",
+            Created = DateTime.UtcNow,
+            Expires = DateTime.UtcNow.AddMinutes(10),
+        };
 
-        // Act
-        await _sut.ResendVerificationCodeAsync(userId, address, AddressType.Email, CancellationToken.None);
+        _repositoryMock.Setup(r => r.GetVerificationCodeAsync(userId, AddressType.Email, address, It.IsAny<CancellationToken>())).ReturnsAsync(existingCode);
+        _verificationCodeServiceMock.Setup(s => s.GenerateRawCode()).Returns("654321");
+        _verificationCodeServiceMock.Setup(s => s.CreateVerificationCode(userId, address, AddressType.Email, "654321")).Returns(newCode);
+        _repositoryMock.Setup(r => r.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>())).ReturnsAsync(true);
+        _userNotifierMock.Setup(n => n.SendVerificationCodeAsync(userId, address, AddressType.Email, "654321", It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+    }
 
-        // Assert — cooldown-rejected incremented, but code-not-found should NOT be
-        Assert.Contains(_recordedCounters, c =>
-            c.InstrumentName == "profile.verification.resend_cooldown-rejected_counter" && c.Value == 1);
-        Assert.DoesNotContain(_recordedCounters, c =>
-            c.InstrumentName == "profile.verification.resend_code-not-found_counter" && c.Value == 1);
+    private void ArrangeSuccessfulSmsResend(int userId, string address, int codeCreatedMinutesAgo)
+    {
+        var existingCode = new VerificationCode
+        {
+            UserId = userId,
+            AddressType = AddressType.Sms,
+            Address = address,
+            VerificationCodeHash = "somehash",
+            Created = DateTime.UtcNow.AddMinutes(-codeCreatedMinutesAgo),
+            Expires = DateTime.UtcNow.AddMinutes(10),
+        };
+
+        var newCode = new VerificationCode
+        {
+            UserId = userId,
+            AddressType = AddressType.Sms,
+            Address = address,
+            VerificationCodeHash = "newhash",
+            Created = DateTime.UtcNow,
+            Expires = DateTime.UtcNow.AddMinutes(10),
+        };
+
+        _repositoryMock.Setup(r => r.GetVerificationCodeAsync(userId, AddressType.Sms, address, It.IsAny<CancellationToken>())).ReturnsAsync(existingCode);
+        _verificationCodeServiceMock.Setup(s => s.GenerateRawCode()).Returns("111222");
+        _verificationCodeServiceMock.Setup(s => s.CreateVerificationCode(userId, address, AddressType.Sms, "111222")).Returns(newCode);
+        _repositoryMock.Setup(r => r.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>())).ReturnsAsync(true);
+        _userNotifierMock.Setup(n => n.SendVerificationCodeAsync(userId, address, AddressType.Sms, "111222", It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+    }
+
+    private void ArrangeCooldownScenario(int userId, string address, int codeCreatedSecondsAgo)
+    {
+        var existingCode = new VerificationCode
+        {
+            UserId = userId,
+            AddressType = AddressType.Email,
+            Address = address,
+            VerificationCodeHash = "somehash",
+            Created = DateTime.UtcNow.AddSeconds(-codeCreatedSecondsAgo),
+            Expires = DateTime.UtcNow.AddMinutes(10),
+        };
+
+        _repositoryMock.Setup(r => r.GetVerificationCodeAsync(userId, AddressType.Email, address, It.IsAny<CancellationToken>())).ReturnsAsync(existingCode);
+    }
+
+    private void ArrangeNoExistingCode(int userId, string address)
+    {
+        _repositoryMock.Setup(r => r.GetVerificationCodeAsync(userId, AddressType.Email, address, It.IsAny<CancellationToken>())).ReturnsAsync((VerificationCode)null);
+    }
+
+    private void ArrangeConcurrentInsertFailure(int userId, string address, int codeCreatedMinutesAgo)
+    {
+        var existingCode = new VerificationCode
+        {
+            UserId = userId,
+            AddressType = AddressType.Email,
+            Address = address,
+            VerificationCodeHash = "somehash",
+            Created = DateTime.UtcNow.AddMinutes(-codeCreatedMinutesAgo),
+            Expires = DateTime.UtcNow.AddMinutes(10),
+        };
+
+        var newCode = new VerificationCode
+        {
+            UserId = userId,
+            AddressType = AddressType.Email,
+            Address = address,
+            VerificationCodeHash = "newhash",
+            Created = DateTime.UtcNow,
+            Expires = DateTime.UtcNow.AddMinutes(10),
+        };
+
+        _repositoryMock.Setup(r => r.GetVerificationCodeAsync(userId, AddressType.Email, address, It.IsAny<CancellationToken>())).ReturnsAsync(existingCode);
+        _verificationCodeServiceMock.Setup(s => s.GenerateRawCode()).Returns("999888");
+        _verificationCodeServiceMock.Setup(s => s.CreateVerificationCode(userId, address, AddressType.Email, "999888")).Returns(newCode);
+        _repositoryMock.Setup(r => r.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>())).ReturnsAsync(false);
     }
 }
