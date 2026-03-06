@@ -45,7 +45,7 @@ namespace Altinn.Profile.Integrations.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchModel profileSettings, CancellationToken cancellationToken)
+        public async Task<ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchModel profileSettings, int? preselectedPartyId, CancellationToken cancellationToken)
         {
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
@@ -57,7 +57,7 @@ namespace Altinn.Profile.Integrations.Repositories
                 return null;
             }
 
-            existing.UpdateFrom(profileSettings);
+            existing.UpdateFrom(profileSettings, preselectedPartyId);
 
             ProfileSettingsUpdatedEvent NotifyProfileSettingsUpdated() => new(profileSettings.UserId, DateTime.UtcNow, existing.LanguageType, existing.DoNotPromptForParty, existing.PreselectedPartyUuid, existing.ShowClientUnits, existing.ShouldShowSubEntities, existing.ShouldShowDeletedEntities, existing.IgnoreUnitProfileDateTime);
             await NotifyAndSave(databaseContext, NotifyProfileSettingsUpdated, CancellationToken.None);

@@ -19,9 +19,10 @@ namespace Altinn.Profile.Core.Integrations
         /// Patches the profile settings for a user.
         /// </summary>
         /// <param name="profileSettings">The profile settings to update.</param>
+        /// <param name="preselectedPartyId">The preselected party ID to update.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task<ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchModel profileSettings, CancellationToken cancellationToken);
+        Task<ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchModel profileSettings, int? preselectedPartyId, CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets the local profile settings for a given user ID.

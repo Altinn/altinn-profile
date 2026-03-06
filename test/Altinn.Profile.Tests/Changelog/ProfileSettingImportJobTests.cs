@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Changelog;
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Integrations.Repositories.A2Sync;
@@ -31,6 +32,7 @@ namespace Altinn.Profile.Tests.Changelog
             profileSettingsSyncRepository
                 .Setup(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>()))
                 .Returns(Task.CompletedTask);
+            var registerClient = new Mock<IRegisterClient>();
 
             var testChangeDate = DateTime.UtcNow.AddDays(-1);
 
@@ -81,6 +83,7 @@ namespace Altinn.Profile.Tests.Changelog
                 timeProvider,
                 changelogSyncMetadataRepository.Object,
                 profileSettingsSyncRepository.Object,
+                registerClient.Object,
                 null);
 
             // Act
@@ -92,6 +95,7 @@ namespace Altinn.Profile.Tests.Changelog
                     p.UserId == expectedUserId &&
                     !string.IsNullOrEmpty(p.LanguageType))), // exact mapping handled by LanguageType.GetFromAltinn2Code
                 Times.Once);
+            registerClient.Verify(c => c.GetPartyId(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
 
             changelogSyncMetadataRepository.Verify(
                 r => r.UpdateLatestChangeTimestampAsync(
@@ -115,6 +119,7 @@ namespace Altinn.Profile.Tests.Changelog
             var changelogSyncMetadataRepository = new Mock<IChangelogSyncMetadataRepository>();
 
             var profileSettingsSyncRepository = new Mock<IProfileSettingsSyncRepository>();
+            var registerClient = new Mock<IRegisterClient>();
 
             // Setup metadata repo to return null so we fetch from DateTime.MinValue
             changelogSyncMetadataRepository
@@ -151,6 +156,7 @@ namespace Altinn.Profile.Tests.Changelog
                 timeProvider,
                 changelogSyncMetadataRepository.Object,
                 profileSettingsSyncRepository.Object,
+                registerClient.Object,
                 null);
 
             // Act
@@ -180,8 +186,9 @@ namespace Altinn.Profile.Tests.Changelog
                 TimeProvider timeProvider,
                 IChangelogSyncMetadataRepository changelogSyncMetadataRepository,
                 IProfileSettingsSyncRepository profileSettingsSyncRepository,
+                IRegisterClient registerClient,
                 Telemetry telemetry = null)
-                : base(logger, changeLogClient, timeProvider, changelogSyncMetadataRepository, profileSettingsSyncRepository, telemetry)
+                : base(logger, changeLogClient, timeProvider, changelogSyncMetadataRepository, profileSettingsSyncRepository, registerClient, telemetry)
             {
             }
 

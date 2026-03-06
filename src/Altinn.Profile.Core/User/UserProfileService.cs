@@ -11,16 +11,19 @@ public class UserProfileService : IUserProfileService
 {
     private readonly IUserProfileClient _userProfileClient;
     private readonly IProfileSettingsRepository _profileSettingsRepository;
+    private readonly IRegisterClient _registerClient;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserProfileService"/> class.
     /// </summary>
     /// <param name="userProfileClient">The user profile client available through DI</param>
     /// <param name="profileSettingsRepository">The profile settings repository available through DI</param>
-    public UserProfileService(IUserProfileClient userProfileClient, IProfileSettingsRepository profileSettingsRepository)
+    /// <param name="registerClient">The register client available through DI</param>
+    public UserProfileService(IUserProfileClient userProfileClient, IProfileSettingsRepository profileSettingsRepository, IRegisterClient registerClient)
     {
         _userProfileClient = userProfileClient;
         _profileSettingsRepository = profileSettingsRepository;
+        _registerClient = registerClient;
     }
 
     /// <inheritdoc/>
@@ -121,13 +124,28 @@ public class UserProfileService : IUserProfileService
     /// <inheritdoc/>
     public async Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings, CancellationToken cancellationToken)
     {
+        if (profileSettings.PreselectedPartyUuid != null)
+        {
+            // If a preselected party UUID is provided, we need to fetch the corresponding party ID from the register to ensure data consistency.
+            int? partyId = await _registerClient.GetPartyId(profileSettings.PreselectedPartyUuid.Value, cancellationToken);
+            profileSettings.PreselectedPartyId = partyId;
+        }
+
         return await _profileSettingsRepository.UpdateProfileSettings(profileSettings, cancellationToken);
     }
 
     /// <inheritdoc/>
     public async Task<ProfileSettings.ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchModel profileSettings, CancellationToken cancellationToken)
     {
-        return await _profileSettingsRepository.PatchProfileSettings(profileSettings, cancellationToken);
+        int? preselectedPartyId = null;
+        if (profileSettings.PreselectedPartyUuid.HasValue && profileSettings.PreselectedPartyUuid.Value != null)
+        {
+            // If a preselected party UUID is provided, we need to fetch the corresponding party ID from the register to ensure data consistency.
+            int? partyId = await _registerClient.GetPartyId((Guid)profileSettings.PreselectedPartyUuid.Value, cancellationToken);
+            preselectedPartyId = partyId;
+        }
+
+        return await _profileSettingsRepository.PatchProfileSettings(profileSettings, preselectedPartyId, cancellationToken);
     }
 
     private async Task<UserProfile> EnrichWithProfileSettings(UserProfile userProfile)
