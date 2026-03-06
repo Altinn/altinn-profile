@@ -644,7 +644,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
 
             var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
             {
-                Data = new List<Altinn.Register.Contracts.Party> { expectedParty }
+                Data = [expectedParty]
             });
 
             var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -685,7 +685,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
 
             var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
             {
-                Data = new List<Altinn.Register.Contracts.Party> { expectedParty }
+                Data = [expectedParty]
             });
 
             var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -726,7 +726,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
 
             var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
             {
-                Data = new List<Altinn.Register.Contracts.Party> { expectedParty }
+                Data = [expectedParty]
             });
 
             var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -767,7 +767,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
 
             var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
             {
-                Data = new List<Altinn.Register.Contracts.Party> { expectedParty }
+                Data = [expectedParty]
             });
 
             var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -812,7 +812,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
 
             var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
             {
-                Data = new List<Altinn.Register.Contracts.Party> { expectedParty1, expectedParty2 }
+                Data = [expectedParty1, expectedParty2]
             });
 
             var response = new HttpResponseMessage(HttpStatusCode.OK)
