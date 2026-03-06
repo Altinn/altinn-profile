@@ -146,7 +146,7 @@ public class RegisterClient : IRegisterClient
     /// <inheritdoc/>
     public async Task<Altinn.Register.Contracts.Party?> GetUserPartyByUsername(string username, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNullOrEmpty(username, nameof(username));
+        ArgumentNullException.ThrowIfNullOrEmpty(username);
 
         var identifiers = new[] { $"urn:altinn:party:username:{username}" };
         var parties = await GetUserParties(identifiers, cancellationToken);
@@ -156,7 +156,7 @@ public class RegisterClient : IRegisterClient
     /// <inheritdoc/>
     public async Task<Altinn.Register.Contracts.Party?> GetUserPartyBySsn(string ssn, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNullOrEmpty(ssn, nameof(ssn));
+        ArgumentNullException.ThrowIfNullOrEmpty(ssn);
 
         var identifiers = new[] { $"urn:altinn:person:identifier-no:{ssn}" };
         var parties = await GetUserParties(identifiers, cancellationToken);
@@ -166,6 +166,12 @@ public class RegisterClient : IRegisterClient
     /// <inheritdoc/>
     public async Task<IReadOnlyList<Altinn.Register.Contracts.Party>> GetUserParties(List<Guid> userUuids, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(userUuids);
+        if (userUuids.Count == 0)
+        {
+            return [];
+        }
+
         var identifiers = userUuids.Select(uuid => $"urn:altinn:party:uuid:{uuid}").ToArray();
         return [.. await GetUserParties(identifiers, cancellationToken)];
     }
