@@ -1151,7 +1151,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
             // Act & Assert
-            await Assert.ThrowsAsync<ArgumentNullException>(
+            await Assert.ThrowsAsync<ArgumentException>(
                 () => client.GetUserPartyBySsn(string.Empty, TestContext.Current.CancellationToken));
         }
 
