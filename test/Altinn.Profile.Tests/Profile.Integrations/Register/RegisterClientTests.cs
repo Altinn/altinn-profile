@@ -7,9 +7,11 @@ using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Altinn.Authorization.ModelUtils;
 using Altinn.Common.AccessTokenClient.Services;
-using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Integrations.Register;
+using Altinn.Register.Contracts;
+using Altinn.Register.Contracts.Testing;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -317,7 +319,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
         {
             // Arrange
             var orgNumbers = new[] { "111111111", "222222222" };
-            var expectedParties = new List<Party>
+            var expectedParties = new List<Altinn.Profile.Core.Unit.ContactPoints.Party>
             {
                 new() { OrganizationIdentifier = "111111111", PartyUuid = Guid.NewGuid() },
                 new() { OrganizationIdentifier = "222222222", PartyUuid = Guid.NewGuid() }
@@ -431,7 +433,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var orgNumbers = new[] { "111111111" };
             var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
             {
-                Data = new List<Party>()
+                Data = new List<Altinn.Profile.Core.Unit.ContactPoints.Party>()
             });
 
             var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -631,6 +633,425 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             // Act & Assert
             await Assert.ThrowsAsync<TaskCanceledException>(
             () => client.GetOrganizationNumberByPartyUuid(partyUuid, cts.Token));
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserId_WhenClientRespondsSuccessfully_ReturnsParty()
+        {
+            // Arrange
+            var userId = 12345;
+            var expectedParty = Person.Minimal("17902349936");
+
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = [expectedParty]
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            HttpRequestMessage sentRequest = null;
+            var handler = CreateHandler(response, req => sentRequest = req);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParty(userId, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedParty.PartyId, result.PartyId);
+            Assert.Equal(expectedParty.Uuid, result.Uuid);
+            Assert.Equal(expectedParty.Type, result.Type);
+            Assert.Equal(HttpMethod.Post, sentRequest.Method);
+            Assert.Contains("v2/internal/parties/query?fields=person,party,user,si", sentRequest.RequestUri.ToString());
+            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
+
+            var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var sentPayload = JsonNode.Parse(requestContent);
+            var sentData = sentPayload["data"].AsArray();
+            Assert.Single(sentData);
+            Assert.Equal($"urn:altinn:user:id:{userId}", (string)sentData[0]);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserUuid_WhenClientRespondsSuccessfully_ReturnsParty()
+        {
+            // Arrange
+            var userUuid = Guid.NewGuid();
+            var expectedParty = Person.Minimal("17902349936", userUuid);
+
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = [expectedParty]
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            HttpRequestMessage sentRequest = null;
+            var handler = CreateHandler(response, req => sentRequest = req);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParty(userUuid, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedParty.PartyId, result.PartyId);
+            Assert.Equal(expectedParty.Uuid, result.Uuid);
+            Assert.Equal(expectedParty.Type, result.Type);
+            Assert.Equal(HttpMethod.Post, sentRequest.Method);
+            Assert.Contains("v2/internal/parties/query?fields=person,party,user,si", sentRequest.RequestUri.ToString());
+            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
+
+            var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var sentPayload = JsonNode.Parse(requestContent);
+            var sentData = sentPayload["data"].AsArray();
+            Assert.Single(sentData);
+            Assert.Equal($"urn:altinn:party:uuid:{userUuid}", (string)sentData[0]);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUsername_WhenClientRespondsSuccessfully_ReturnsParty()
+        {
+            // Arrange
+            var username = "testuser";
+            var expectedParty = SelfIdentifiedUser.MinimalLegacy(username);
+
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = [expectedParty]
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            HttpRequestMessage sentRequest = null;
+            var handler = CreateHandler(response, req => sentRequest = req);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserPartyByUsername(username, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedParty.PartyId, result.PartyId);
+            Assert.Equal(expectedParty.Uuid, result.Uuid);
+            Assert.Equal(expectedParty.Type, result.Type);
+            Assert.Equal(HttpMethod.Post, sentRequest.Method);
+            Assert.Contains("v2/internal/parties/query?fields=person,party,user,si", sentRequest.RequestUri.ToString());
+            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
+
+            var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var sentPayload = JsonNode.Parse(requestContent);
+            var sentData = sentPayload["data"].AsArray();
+            Assert.Single(sentData);
+            Assert.Equal($"urn:altinn:party:username:{username}", (string)sentData[0]);
+        }
+
+        [Fact]
+        public async Task GetUserParty_BySsn_WhenClientRespondsSuccessfully_ReturnsParty()
+        {
+            // Arrange
+            var ssn = "17902349936";
+            var expectedParty = Person.Minimal(ssn);
+
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = [expectedParty]
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            HttpRequestMessage sentRequest = null;
+            var handler = CreateHandler(response, req => sentRequest = req);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserPartyBySsn(ssn, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedParty.PartyId, result.PartyId);
+            Assert.Equal(expectedParty.Uuid, result.Uuid);
+            Assert.Equal(expectedParty.Type, result.Type);
+            Assert.Equal(HttpMethod.Post, sentRequest.Method);
+            Assert.Contains("v2/internal/parties/query?fields=person,party,user,si", sentRequest.RequestUri.ToString());
+            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
+
+            var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var sentPayload = JsonNode.Parse(requestContent);
+            var sentData = sentPayload["data"].AsArray();
+            Assert.Single(sentData);
+            Assert.Equal($"urn:altinn:person:identifier-no:{ssn}", (string)sentData[0]);
+        }
+
+        [Fact]
+        public async Task GetUserParties_ByUserUuids_WhenClientRespondsSuccessfully_ReturnsParties()
+        {
+            // Arrange
+            var userUuid1 = Guid.NewGuid();
+            var userUuid2 = Guid.NewGuid();
+            var userUuids = new List<Guid> { userUuid1, userUuid2 };
+
+            var expectedParty1 = Person.Minimal("17902349936", userUuid1) with { Uuid = userUuid1 };
+            var expectedParty2 = Person.Minimal("17902349936", userUuid2) with { Uuid = userUuid2 };
+
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = [expectedParty1, expectedParty2]
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            HttpRequestMessage sentRequest = null;
+            var handler = CreateHandler(response, req => sentRequest = req);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Equal(expectedParty1.PartyId, result[0].PartyId);
+            Assert.Equal(expectedParty2.PartyId, result[1].PartyId);
+            Assert.Equal(HttpMethod.Post, sentRequest.Method);
+            Assert.Contains("v2/internal/parties/query?fields=person,party,user,si", sentRequest.RequestUri.ToString());
+            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
+
+            var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var sentPayload = JsonNode.Parse(requestContent);
+            var sentData = sentPayload["data"].AsArray();
+            Assert.Equal(2, sentData.Count);
+            Assert.Equal($"urn:altinn:party:uuid:{userUuid1}", (string)sentData[0]);
+            Assert.Equal($"urn:altinn:party:uuid:{userUuid2}", (string)sentData[1]);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserUuid_WhenResponseContainsOnlyOrganization_ReturnsNull()
+        {
+            // Arrange
+            var userUuid = Guid.NewGuid();
+            var orgParty = Organization.Minimal("314249879");
+
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = [orgParty]
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParty(userUuid, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserUuid_WhenRegisterReturns500_ReturnsNull()
+        {
+            // Arrange
+            var userUuid = Guid.NewGuid();
+            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParty(userUuid, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserUuid_WhenResponseDataIsNull_ReturnsNull()
+        {
+            // Arrange
+            var userUuid = Guid.NewGuid();
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = null
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParty(userUuid, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserParty_BySsn_WhenSsnIsNull_ThrowsArgumentException()
+        {
+            // Arrange
+            var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK));
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(
+                () => client.GetUserPartyBySsn(null, TestContext.Current.CancellationToken));
+        }
+
+        [Fact]
+        public async Task GetUserParty_BySsn_WhenSsnIsEmpty_ThrowsArgumentException()
+        {
+            // Arrange
+            var handler = CreateHandler(new HttpResponseMessage(HttpStatusCode.OK));
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(
+                () => client.GetUserPartyBySsn(string.Empty, TestContext.Current.CancellationToken));
+        }
+
+        [Fact]
+        public async Task GetUserParties_ByUserUuids_WhenResponseContainsMixedPartyTypes_ReturnsOnlyUserParties()
+        {
+            // Arrange
+            var userUuid1 = Guid.NewGuid();
+            var userUuid2 = Guid.NewGuid();
+            var userUuid3 = Guid.NewGuid();
+            var userUuids = new List<Guid> { userUuid1, userUuid2, userUuid3 };
+
+            var expectedParty1 = Person.Minimal("17902349936", userUuid1);
+            var orgParty = Organization.Minimal("314249879");
+            var expectedParty2 = SelfIdentifiedUser.MinimalLegacy("testuser") with { Uuid = userUuid3 };
+
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = [expectedParty1, orgParty, expectedParty2]
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Equal(expectedParty1.PartyId, result[0].PartyId);
+            Assert.Equal(expectedParty2.PartyId, result[1].PartyId);
+        }
+
+        [Fact]
+        public async Task GetUserParties_ByUserUuids_WhenRegisterReturns500_ReturnsEmptyList()
+        {
+            // Arrange
+            var userUuids = new List<Guid> { Guid.NewGuid() };
+            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetUserParties_ByUserUuids_WhenResponseDataIsNull_ReturnsEmptyList()
+        {
+            // Arrange
+            var userUuids = new List<Guid> { Guid.NewGuid() };
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = null
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetUserParties_ByUserUuids_WhenResponseContainsOnlyOrganizations_ReturnsEmptyList()
+        {
+            // Arrange
+            var userUuids = new List<Guid> { Guid.NewGuid() };
+            var orgParty1 = Organization.Minimal("314249879");
+            var orgParty2 = Organization.Minimal("311443755");
+
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = [orgParty1, orgParty2]
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
         }
     }
 }

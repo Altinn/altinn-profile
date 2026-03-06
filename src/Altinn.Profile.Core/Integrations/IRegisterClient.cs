@@ -37,5 +37,45 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="cancellationToken">Cancel the current request</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         Task<string?> GetOrganizationNumberByPartyUuid(Guid partyUuid, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get party information for a user based on their UUID.
+        /// </summary>
+        /// <param name="userUuid">The UUID of the user to look up.</param>
+        /// <param name="cancellationToken">Cancel the current request</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<Register.Contracts.Party?> GetUserParty(Guid userUuid, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get party information for a user based on their user ID.
+        /// </summary>
+        /// <param name="userId">The user ID to look up.</param>
+        /// <param name="cancellationToken">Cancel the current request</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<Register.Contracts.Party?> GetUserParty(int userId, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get party information for a user based on their username.
+        /// </summary>
+        /// <param name="username">The username to look up.</param>
+        /// <param name="cancellationToken">Cancel the current request</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<Register.Contracts.Party?> GetUserPartyByUsername(string username, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get party information for a user based on their national identification number (SSN).
+        /// </summary>
+        /// <param name="ssn">The national identification number to look up.</param>
+        /// <param name="cancellationToken">Cancel the current request</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<Register.Contracts.Party?> GetUserPartyBySsn(string ssn, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get party information for multiple users based on their UUIDs.
+        /// </summary>
+        /// <param name="userUuids">The list of user UUIDs to look up.</param>
+        /// <param name="cancellationToken">Cancel the current request</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<IReadOnlyList<Register.Contracts.Party>> GetUserParties(List<Guid> userUuids, CancellationToken cancellationToken);
     }
 }
