@@ -1,5 +1,7 @@
 using System.Diagnostics.Metrics;
 
+using Altinn.Profile.Core.AddressVerifications.Models;
+
 using static Altinn.Profile.Core.Telemetry.Telemetry.AddressVerification;
 
 namespace Altinn.Profile.Core.Telemetry;
@@ -36,9 +38,9 @@ partial class Telemetry
     /// </summary>
     /// <param name="secondsWaited">The number of seconds between code creation and resend request.</param>
     /// <param name="addressType">The type of address (e.g., Email, Sms).</param>
-    public void RecordResendPatience(double secondsWaited, string addressType)
+    public void RecordResendPatience(double secondsWaited, AddressType addressType)
     {
-        _resendPatienceHistogram.Record(secondsWaited, new KeyValuePair<string, object?>("address_type", addressType));
+        _resendPatienceHistogram.Record(secondsWaited, new KeyValuePair<string, object?>("address_type", addressType.ToString()));
     }
 
     /// <summary>
