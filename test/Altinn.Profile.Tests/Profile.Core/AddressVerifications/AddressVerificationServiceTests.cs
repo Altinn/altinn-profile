@@ -26,7 +26,7 @@ public class AddressVerificationServiceTests : IDisposable
     private readonly Telemetry _telemetry = new();
     private readonly MeterListener _meterListener;
     private readonly List<(string InstrumentName, double Value, KeyValuePair<string, object>[] Tags)> _recordedMeasurements = [];
-    private readonly List<(string InstrumentName, long Value)> _recordedCounters = [];
+    private readonly List<(string InstrumentName, long Value, KeyValuePair<string, object>[] Tags)> _recordedCounters = [];
     private readonly AddressVerificationService _sut;
 
     public AddressVerificationServiceTests()
@@ -60,7 +60,13 @@ public class AddressVerificationServiceTests : IDisposable
 
         _meterListener.SetMeasurementEventCallback<long>((instrument, measurement, tags, state) =>
         {
-            _recordedCounters.Add((instrument.Name, measurement));
+            var tagList = new List<KeyValuePair<string, object>>();
+            foreach (var tag in tags)
+            {
+                tagList.Add(new KeyValuePair<string, object>(tag.Key, tag.Value));
+            }
+
+            _recordedCounters.Add((instrument.Name, measurement, tagList.ToArray()));
         });
 
         _meterListener.Start();
@@ -119,7 +125,9 @@ public class AddressVerificationServiceTests : IDisposable
 
         // Assert
         Assert.DoesNotContain(_recordedCounters, c =>
-            c.InstrumentName == "profile.verification.resend_code-not-found" && c.Value == 1);
+            c.InstrumentName == "profile.verification.resend_code-not-found"
+            && c.Value == 1
+            && Array.Exists(c.Tags, t => t.Key == "address_type" && (string)t.Value == "Email"));
     }
 
     [Fact]
@@ -133,7 +141,9 @@ public class AddressVerificationServiceTests : IDisposable
 
         // Assert
         Assert.DoesNotContain(_recordedCounters, c =>
-            c.InstrumentName == "profile.verification.resend_cooldown-rejected" && c.Value == 1);
+            c.InstrumentName == "profile.verification.resend_cooldown-rejected"
+            && c.Value == 1
+            && Array.Exists(c.Tags, t => t.Key == "address_type" && (string)t.Value == "Email"));
     }
 
     [Fact]
@@ -187,7 +197,9 @@ public class AddressVerificationServiceTests : IDisposable
         await _sut.ResendVerificationCodeAsync(456, "user@example.com", AddressType.Email, CancellationToken.None);
 
         // Assert
-        Assert.Contains(_recordedCounters, c => c.InstrumentName == "profile.verification.resend_cooldown-rejected" && c.Value == 1);
+        var (_, _, tags) = Assert.Single(_recordedCounters, c =>
+            c.InstrumentName == "profile.verification.resend_cooldown-rejected" && c.Value == 1);
+        Assert.Contains(tags, t => t.Key == "address_type" && (string)t.Value == "Email");
     }
 
     [Fact]
@@ -214,7 +226,9 @@ public class AddressVerificationServiceTests : IDisposable
 
         // Assert
         Assert.DoesNotContain(_recordedCounters, c =>
-            c.InstrumentName == "profile.verification.resend_code-not-found" && c.Value == 1);
+            c.InstrumentName == "profile.verification.resend_code-not-found"
+            && c.Value == 1
+            && Array.Exists(c.Tags, t => t.Key == "address_type" && (string)t.Value == "Email"));
     }
 
     [Fact]
@@ -240,7 +254,9 @@ public class AddressVerificationServiceTests : IDisposable
         await _sut.ResendVerificationCodeAsync(789, "nocode@example.com", AddressType.Email, CancellationToken.None);
 
         // Assert
-        Assert.Contains(_recordedCounters, c => c.InstrumentName == "profile.verification.resend_code-not-found" && c.Value == 1);
+        var (_, _, tags) = Assert.Single(_recordedCounters, c =>
+            c.InstrumentName == "profile.verification.resend_code-not-found" && c.Value == 1);
+        Assert.Contains(tags, t => t.Key == "address_type" && (string)t.Value == "Email");
     }
 
     [Fact]
@@ -267,7 +283,9 @@ public class AddressVerificationServiceTests : IDisposable
 
         // Assert
         Assert.DoesNotContain(_recordedCounters, c =>
-            c.InstrumentName == "profile.verification.resend_cooldown-rejected" && c.Value == 1);
+            c.InstrumentName == "profile.verification.resend_cooldown-rejected"
+            && c.Value == 1
+            && Array.Exists(c.Tags, t => t.Key == "address_type" && (string)t.Value == "Email"));
     }
 
     [Fact]

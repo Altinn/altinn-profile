@@ -103,7 +103,7 @@ namespace Altinn.Profile.Core.AddressVerifications
             var existingCode = await _addressVerificationRepository.GetVerificationCodeAsync(userId, addressType, formattedAddress, cancellationToken);
             if (existingCode is null)
             {
-                _telemetry.RecordVerificationResendCodeNotFound();
+                _telemetry.RecordVerificationResendCodeNotFound(addressType);
                 return ResendVerificationResult.CodeNotFound;
             }
 
@@ -113,7 +113,7 @@ namespace Altinn.Profile.Core.AddressVerifications
 
             if (isExistingCodeInCooldown)
             {
-                _telemetry.RecordVerificationResendCooldownRejected();
+                _telemetry.RecordVerificationResendCooldownRejected(addressType);
                 return ResendVerificationResult.CodeCooldown; // Don't generate a new code or send a notification if there's an existing code in the cooldown state
             }
 

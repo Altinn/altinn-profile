@@ -26,12 +26,12 @@ partial class Telemetry
     /// <summary>
     /// Increments the counter for the number of verification codes not found when resending.
     /// </summary>
-    public void RecordVerificationResendCodeNotFound() => _counters[_verificationResendCodeNotFoundCounterName].Add(1);
+    public void RecordVerificationResendCodeNotFound(AddressType addressType) => _counters[_verificationResendCodeNotFoundCounterName].Add(1, AddressTypeTag(addressType));
 
     /// <summary>
     /// Increments the counter for the number of resend requests rejected due to cooldown.
     /// </summary>
-    public void RecordVerificationResendCooldownRejected() => _counters[_verificationResendCooldownRejectedCounterName].Add(1);
+    public void RecordVerificationResendCooldownRejected(AddressType addressType) => _counters[_verificationResendCooldownRejectedCounterName].Add(1, AddressTypeTag(addressType));
 
     /// <summary>
     /// Records the time (in seconds) a user waited before requesting a new verification code.
@@ -40,8 +40,10 @@ partial class Telemetry
     /// <param name="addressType">The type of address (e.g., Email, Sms).</param>
     public void RecordResendPatience(double secondsWaited, AddressType addressType)
     {
-        _resendPatienceHistogram.Record(secondsWaited, new KeyValuePair<string, object?>("address_type", addressType.ToString()));
+        _resendPatienceHistogram.Record(secondsWaited, AddressTypeTag(addressType));
     }
+
+    private static KeyValuePair<string, object?> AddressTypeTag(AddressType addressType) => new("address_type", addressType.ToString());
 
     /// <summary>
     /// Constants for address verification telemetry metrics.
