@@ -9,12 +9,18 @@ namespace Altinn.Profile.Core.AddressVerifications
     /// A service for handling address verification processes, including generating verification codes,
     /// persisting them, and delegating notification delivery to <see cref="IUserNotifier"/>.
     /// </summary>
-    public class AddressVerificationService(IUserNotifier userNotifier, IAddressVerificationRepository addressVerificationRepository, IVerificationCodeService verificationCodeService, IOptions<AddressMaintenanceSettings> addressMaintenanceSettings) : IAddressVerificationService
+    public class AddressVerificationService(
+        IUserNotifier userNotifier,
+        IAddressVerificationRepository addressVerificationRepository,
+        IVerificationCodeService verificationCodeService,
+        IOptions<AddressMaintenanceSettings> addressMaintenanceSettings,
+        Telemetry.Telemetry telemetry) : IAddressVerificationService
     {
         private readonly IUserNotifier _userNotifier = userNotifier;
         private readonly IAddressVerificationRepository _addressVerificationRepository = addressVerificationRepository;
         private readonly IVerificationCodeService _verificationCodeService = verificationCodeService;
         private readonly IOptions<AddressMaintenanceSettings> _addressMaintenanceSettings = addressMaintenanceSettings;
+        private readonly Telemetry.Telemetry _telemetry = telemetry;
 
         /// <inheritdoc/>
         public async Task<(VerificationType? EmailVerificationStatus, VerificationType? SmsVerificationStatus)> GetVerificationStatusAsync(int userId, string? emailAddress, string? phoneNumber, CancellationToken cancellationToken)
@@ -97,6 +103,7 @@ namespace Altinn.Profile.Core.AddressVerifications
             var existingCode = await _addressVerificationRepository.GetVerificationCodeAsync(userId, addressType, formattedAddress, cancellationToken);
             if (existingCode is null)
             {
+                _telemetry.RecordVerificationResendCodeNotFound();
                 return ResendVerificationResult.CodeNotFound;
             }
 
@@ -104,8 +111,13 @@ namespace Altinn.Profile.Core.AddressVerifications
 
             if (isExistingCodeInCooldown)
             {
+                _telemetry.RecordVerificationResendCooldownRejected();
                 return ResendVerificationResult.CodeCooldown; // Don't generate a new code or send a notification if there's an existing code in the cooldown state
             }
+
+            // Record telemetry for user resend patience (seconds waited)
+            double secondsWaited = (DateTime.UtcNow - existingCode.Created).TotalSeconds;
+            _telemetry.RecordResendPatience(secondsWaited, addressType.ToString());
 
             var code = _verificationCodeService.GenerateRawCode();
             var verificationCodeModel = _verificationCodeService.CreateVerificationCode(userId, formattedAddress, addressType, code);
