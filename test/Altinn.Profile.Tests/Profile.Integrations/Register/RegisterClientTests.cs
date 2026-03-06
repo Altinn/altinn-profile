@@ -846,10 +846,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
         }
 
         [Fact]
-        public async Task GetUserParty_WhenResponseContainsOnlyOrganization_ReturnsNull()
+        public async Task GetUserParty_ByUserId_WhenResponseContainsOnlyOrganization_ReturnsNull()
         {
+            // Arrange
             var userId = 12345;
-            var orgParty = Organization.Minimal("314249879"); // Not a Person or SelfIdentifiedUser
+            var orgParty = Organization.Minimal("314249879");
 
             var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
             {
@@ -865,9 +866,379 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             _httpClient = new HttpClient(handler.Object);
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
+            // Act
             var result = await client.GetUserParty(userId, TestContext.Current.CancellationToken);
 
+            // Assert
             Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserId_WhenRegisterReturns500_ReturnsNull()
+        {
+            // Arrange
+            var userId = 12345;
+            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParty(userId, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserId_WhenResponseDataIsNull_ReturnsNull()
+        {
+            // Arrange
+            var userId = 12345;
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = null
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParty(userId, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserUuid_WhenResponseContainsOnlyOrganization_ReturnsNull()
+        {
+            // Arrange
+            var userUuid = Guid.NewGuid();
+            var orgParty = Organization.Minimal("314249879");
+
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = [orgParty]
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParty(userUuid, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserUuid_WhenRegisterReturns500_ReturnsNull()
+        {
+            // Arrange
+            var userUuid = Guid.NewGuid();
+            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParty(userUuid, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserUuid_WhenResponseDataIsNull_ReturnsNull()
+        {
+            // Arrange
+            var userUuid = Guid.NewGuid();
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = null
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParty(userUuid, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUsername_WhenResponseContainsOnlyOrganization_ReturnsNull()
+        {
+            // Arrange
+            var username = "testuser";
+            var orgParty = Organization.Minimal("314249879");
+
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = [orgParty]
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserPartyByUsername(username, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUsername_WhenRegisterReturns500_ReturnsNull()
+        {
+            // Arrange
+            var username = "testuser";
+            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserPartyByUsername(username, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUsername_WhenResponseDataIsNull_ReturnsNull()
+        {
+            // Arrange
+            var username = "testuser";
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = null
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserPartyByUsername(username, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserParty_BySsn_WhenResponseContainsOnlyOrganization_ReturnsNull()
+        {
+            // Arrange
+            var ssn = "17902349936";
+            var orgParty = Organization.Minimal("314249879");
+
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = [orgParty]
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserPartyBySsn(ssn, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserParty_BySsn_WhenRegisterReturns500_ReturnsNull()
+        {
+            // Arrange
+            var ssn = "17902349936";
+            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserPartyBySsn(ssn, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserParty_BySsn_WhenResponseDataIsNull_ReturnsNull()
+        {
+            // Arrange
+            var ssn = "17902349936";
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = null
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserPartyBySsn(ssn, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserParties_ByUserUuids_WhenResponseContainsMixedPartyTypes_ReturnsOnlyUserParties()
+        {
+            // Arrange
+            var userUuid1 = Guid.NewGuid();
+            var userUuid2 = Guid.NewGuid();
+            var userUuid3 = Guid.NewGuid();
+            var userUuids = new List<Guid> { userUuid1, userUuid2, userUuid3 };
+
+            var expectedParty1 = Person.Minimal("17902349936", userUuid1);
+            var orgParty = Organization.Minimal("314249879");
+            var expectedParty2 = SelfIdentifiedUser.MinimalLegacy("testuser") with { Uuid = userUuid3 };
+
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = [expectedParty1, orgParty, expectedParty2]
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Equal(expectedParty1.PartyId, result[0].PartyId);
+            Assert.Equal(expectedParty2.PartyId, result[1].PartyId);
+        }
+
+        [Fact]
+        public async Task GetUserParties_ByUserUuids_WhenRegisterReturns500_ReturnsEmptyList()
+        {
+            // Arrange
+            var userUuids = new List<Guid> { Guid.NewGuid() };
+            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetUserParties_ByUserUuids_WhenResponseDataIsNull_ReturnsEmptyList()
+        {
+            // Arrange
+            var userUuids = new List<Guid> { Guid.NewGuid() };
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = null
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetUserParties_ByUserUuids_WhenResponseContainsOnlyOrganizations_ReturnsEmptyList()
+        {
+            // Arrange
+            var userUuids = new List<Guid> { Guid.NewGuid() };
+            var orgParty1 = Organization.Minimal("314249879");
+            var orgParty2 = Organization.Minimal("311443755");
+
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = [orgParty1, orgParty2]
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
         }
     }
 }
