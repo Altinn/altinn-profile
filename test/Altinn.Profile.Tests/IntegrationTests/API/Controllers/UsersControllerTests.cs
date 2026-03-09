@@ -226,6 +226,8 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
                 ShowClientUnits = true,
                 ShouldShowDeletedEntities = false,
             });
+        _factory.PersonServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new PersonContactPreferences { Email = "test@mail.com", NationalIdentityNumber = "1", MobileNumber = "+4798765432", IsReserved = true }]);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
 
@@ -259,6 +261,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.True(actualUser.ProfileSettingPreference.ShowClientUnits);
         Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
         Assert.True(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
+        Assert.True(actualUser.IsReserved);
+        Assert.Equal("test@mail.com", actualUser.Email);
+        Assert.Equal("+4798765432", actualUser.PhoneNumber);
     }
 
     [Fact]
@@ -461,6 +466,8 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
                 DoNotPromptForParty = true,
                 PreselectedPartyUuid = null,
             });
+        _factory.PersonServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new PersonContactPreferences { Email = "test@mail.com", NationalIdentityNumber = "1", MobileNumber = "+4798765432", IsReserved = true }]);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/byuuid/{userUuid}");
 
@@ -492,6 +499,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal("nb", actualUser.ProfileSettingPreference.Language);
         Assert.True(actualUser.ProfileSettingPreference.DoNotPromptForParty);
         Assert.Null(actualUser.ProfileSettingPreference.PreselectedPartyUuid);
+        Assert.True(actualUser.IsReserved);
+        Assert.Equal("test@mail.com", actualUser.Email);
+        Assert.Equal("+4798765432", actualUser.PhoneNumber);
     }
 
     [Fact]
@@ -700,6 +710,8 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
                 DoNotPromptForParty = true,
                 PreselectedPartyUuid = null,
             });
+        _factory.PersonServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new PersonContactPreferences { Email = "test@mail.com", NationalIdentityNumber = "1", MobileNumber = "+4798765432", IsReserved = true }]);
 
         StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
         HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
@@ -737,6 +749,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal("en", actualUser.ProfileSettingPreference.Language);
         Assert.True(actualUser.ProfileSettingPreference.DoNotPromptForParty);
         Assert.Null(actualUser.ProfileSettingPreference.PreselectedPartyUuid);
+        Assert.True(actualUser.IsReserved);
+        Assert.Equal("test@mail.com", actualUser.Email);
+        Assert.Equal("+4798765432", actualUser.PhoneNumber);
     }
 
     [Fact]
