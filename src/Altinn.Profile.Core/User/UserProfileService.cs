@@ -164,6 +164,8 @@ public class UserProfileService : IUserProfileService
     {
         if (userProfile.Party == null || string.IsNullOrEmpty(userProfile.Party.SSN))
         {
+            // If the user profile does not have a party or SSN, we cannot enrich it with KRR data, so we return the original user profile. 
+            // This is the case for self-identified users. 
             return userProfile;
         }
 
