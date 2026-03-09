@@ -38,6 +38,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     {
         _factory = factory;
         _factory.MemoryCache.Clear();
+        _factory.PersonServiceMock.Reset();
     }
 
     [Fact]
