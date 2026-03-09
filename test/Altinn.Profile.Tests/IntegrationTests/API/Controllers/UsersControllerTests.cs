@@ -55,7 +55,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _factory.PersonRepositoryMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+        _factory.PersonServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new PersonContactPreferences { Email = "test@mail.com", NationalIdentityNumber = "1", MobileNumber = "+4798765432", IsReserved = true }]);
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
             .ReturnsAsync(new ProfileSettings
