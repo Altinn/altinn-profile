@@ -76,6 +76,8 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
 
     public Mock<IProfileSettingsRepository> ProfileSettingsRepositoryMock { get; set; } = new();
 
+    public Mock<IPersonService> PersonRepositoryMock { get; set; } = new(); 
+
     public Mock<IAddressVerificationRepository> AddressVerificationRepositoryMock { get; set; } = new();
 
     public Mock<INotificationsClient> NotificationsClientMock { get; set; } = new();
@@ -144,6 +146,7 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
             services.AddSingleton(ProfessionalNotificationsRepositoryMock.Object);
             services.AddSingleton(RegisterClientMock.Object);
             services.AddSingleton(ProfileSettingsRepositoryMock.Object);
+            services.AddSingleton(PersonRepositoryMock.Object);
             services.AddSingleton(AddressVerificationRepositoryMock.Object);
             services.AddSingleton(NotificationsClientMock.Object);
             services.AddSingleton(sp =>

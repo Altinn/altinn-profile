@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -8,8 +9,10 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 
+using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
@@ -18,8 +21,6 @@ using Altinn.Profile.Tests.Testdata;
 using Moq;
 
 using Xunit;
-
-using static Altinn.Register.Contracts.PartyUrn;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
@@ -54,7 +55,8 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-
+        _factory.PersonRepositoryMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new PersonContactPreferences { Email = "test@mail.com", NationalIdentityNumber = "1", MobileNumber = "+4798765432", IsReserved = true }]);
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
             .ReturnsAsync(new ProfileSettings
             {
@@ -94,6 +96,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.False(actualUser.ProfileSettingPreference.ShowClientUnits);
         Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
         Assert.False(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
+        Assert.True(actualUser.IsReserved);
+        Assert.Equal("test@mail.com", actualUser.Email);
+        Assert.Equal("+4798765432", actualUser.PhoneNumber);
     }
 
     [Fact]
