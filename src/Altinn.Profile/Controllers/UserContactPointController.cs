@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -35,7 +36,7 @@ public class UserContactPointController : ControllerBase
     /// <returns>Returns an overview of the availability of various contact points for the user</returns>
     [HttpPost("availability")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<UserContactPointAvailabilityList>> PostAvailabilityLookup([FromBody] UserContactDetailsLookupCriteria userContactPointLookup)
+    public async Task<ActionResult<UserContactPointAvailabilityList>> PostAvailabilityLookup([FromBody][Required] UserContactDetailsLookupCriteria userContactPointLookup)
     {
         if (userContactPointLookup.NationalIdentityNumbers.Count == 0)
         {
@@ -52,13 +53,13 @@ public class UserContactPointController : ControllerBase
     /// <returns>Returns an overview of the contact points for the user</returns>
     [HttpPost("lookup")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<UserContactPointsList>> PostLookup([FromBody] UserContactDetailsLookupCriteria userContactPointLookup, CancellationToken cancellationToken)
+    public async Task<ActionResult<UserContactPointsList>> PostLookup([FromBody][Required] UserContactDetailsLookupCriteria userContactPointLookup, CancellationToken cancellationToken)
     {
         if (userContactPointLookup.NationalIdentityNumbers.Count == 0)
         {
             return Ok(new UserContactPointsList());
         }
- 
+
         UserContactPointsList userContactPointsList = await _contactPointService.GetContactPoints(userContactPointLookup.NationalIdentityNumbers, cancellationToken);
         return Ok(userContactPointsList);
     }
@@ -71,7 +72,7 @@ public class UserContactPointController : ControllerBase
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
     [HttpPost("lookupsi")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<SelfIdentifiedUserContactPointsList>> PostLookupSi([FromBody] SelfIdentifiedContactDetailsLookupCriteria selfIdentifiedContactPointLookup, CancellationToken cancellationToken)
+    public async Task<ActionResult<SelfIdentifiedUserContactPointsList>> PostLookupSi([FromBody][Required] SelfIdentifiedContactDetailsLookupCriteria selfIdentifiedContactPointLookup, CancellationToken cancellationToken)
     {
         if (selfIdentifiedContactPointLookup.ExternalIdentities.Count == 0)
         {

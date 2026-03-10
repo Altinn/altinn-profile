@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 using Altinn.Profile.Core.AddressVerifications.Models;
@@ -6,9 +6,9 @@ using Altinn.Profile.Core.AddressVerifications.Models;
 namespace Altinn.Profile.Models
 {
     /// <summary>
-    /// Represents a request to verify an address, such as an email or phone number, using a verification code.
+    /// Represents a request to resend a verification code for a given address (email or phone number)
     /// </summary>
-    public class AddressVerificationRequest
+    public class AddressCodeResendRequest
     {
         /// <summary>
         /// Gets or sets the address to verify, either an email or a phone number.
@@ -26,14 +26,5 @@ namespace Altinn.Profile.Models
         [JsonRequired]
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public required AddressType? Type { get; init; }
-
-        /// <summary>
-        /// Gets or sets the verification code for the address.
-        /// </summary>
-        [Required]
-        [JsonRequired]
-        [StringLength(6, MinimumLength = 6)]
-        [RegularExpression(@"^\d{6}$")]
-        public required string VerificationCode { get; init; }
     }
 }

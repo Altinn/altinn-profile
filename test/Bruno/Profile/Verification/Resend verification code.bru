@@ -1,0 +1,22 @@
+meta {
+  name: Resend verification code
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{ProfileBaseAddress}}/api/v1/users/current/verification/resend
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "value": "+4799999999",
+    "type": "Sms"
+  }
+}
+
+script:pre-request {
+  await bru.runRequest("TokenGenerator/portal user")
+}

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core;
@@ -44,7 +45,7 @@ public class UserProfileInternalController : Controller
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserProfile>> Get([FromBody] UserProfileLookup userProfileLookup)
+    public async Task<ActionResult<UserProfile>> Get([FromBody][Required] UserProfileLookup userProfileLookup)
     {
         if (!ModelState.IsValid)
         {
@@ -53,7 +54,7 @@ public class UserProfileInternalController : Controller
 
         Result<UserProfile, bool> result;
 
-        if (userProfileLookup != null && userProfileLookup.UserId.HasValue && userProfileLookup.UserId != 0)
+        if (userProfileLookup?.UserId.HasValue == true && userProfileLookup.UserId != 0)
         {
             result = await _userProfileService.GetUser((int)userProfileLookup.UserId);
         }
@@ -90,14 +91,14 @@ public class UserProfileInternalController : Controller
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Consumes("application/json")]
     [Produces("application/json")]
-    public async Task<ActionResult<List<UserProfile>>> GetList([FromBody] List<Guid> userUuidList)
+    public async Task<ActionResult<List<UserProfile>>> GetList([FromBody][Required] List<Guid> userUuidList)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        if (userUuidList == null || userUuidList.Count == 0)
+        if (userUuidList.Count == 0)
         {
             return BadRequest();
         }
@@ -106,7 +107,7 @@ public class UserProfileInternalController : Controller
         List<UserProfile> userProfiles = result.Match(
              userProfileList => userProfileList,
              _ => []);
-             
+
         return Ok(userProfiles);
     }
 }

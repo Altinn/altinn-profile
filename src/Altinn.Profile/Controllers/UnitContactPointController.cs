@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,7 +29,6 @@ namespace Altinn.Profile.Controllers;
 public class UnitContactPointController : ControllerBase
 {
     private readonly IUnitContactPointsService _contactPointsService;
-    private readonly IOptionsMonitor<GeneralSettings> _settings;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UnitContactPointController"/> class.
@@ -37,11 +37,9 @@ public class UnitContactPointController : ControllerBase
     /// A service implementation of <see cref="IUnitContactPointsService"/> that handles business logic
     /// related to professional notification addresses.
     /// </param>
-    /// <param name="settings">The general settings.</param>
-    public UnitContactPointController(IUnitContactPointsService contactPointsService, IOptionsMonitor<GeneralSettings> settings)
+    public UnitContactPointController(IUnitContactPointsService contactPointsService)
     {
         _contactPointsService = contactPointsService;
-        _settings = settings;
     }
 
     /// <summary>
@@ -58,40 +56,32 @@ public class UnitContactPointController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
     public async Task<ActionResult<UnitContactPointsList>> PostLookup(
-        [FromBody] UnitContactPointLookup unitContactPointLookup, CancellationToken cancellationToken)
+        [FromBody][Required] UnitContactPointLookup unitContactPointLookup, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        if (_settings.CurrentValue.LookupUnitContactPointsAtSblBridge)
+        try
         {
-            Result<UnitContactPointsList, bool> result =
-            await _contactPointsService.GetUserRegisteredContactPoints(unitContactPointLookup);
+            var resourceId = GetSanitizedResourceId(unitContactPointLookup.ResourceId);
+            var organizationNumbers = unitContactPointLookup.OrganizationNumbers.Where(o => !string.IsNullOrWhiteSpace(o)).Select(o => o.Trim()).Distinct();
+            if (!organizationNumbers.Any())
+            {
+                return Ok(new UnitContactPointsList { ContactPointsList = [] });
+            }
 
-            return result.Match<ActionResult<UnitContactPointsList>>(
-                success => Ok(success),
-                _ => Problem("Could not retrieve contact points"));
+            var result = await _contactPointsService.GetUserRegisteredContactPoints([.. organizationNumbers], resourceId, cancellationToken);
+            return Ok(result);
         }
-        else
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            try
-            {
-                var resourceId = GetSanitizedResourceId(unitContactPointLookup.ResourceId);
-                var organizationNumbers = unitContactPointLookup.OrganizationNumbers.Where(o => !string.IsNullOrWhiteSpace(o)).Select(o => o.Trim()).Distinct();
-                if (!organizationNumbers.Any())
-                {
-                    return Ok(new UnitContactPointsList { ContactPointsList = [] });
-                }
-
-                var result = await _contactPointsService.GetUserRegisteredContactPoints([..organizationNumbers], resourceId, cancellationToken);
-                return Ok(result);
-            }
-            catch (Exception)
-            {
-                return Problem($"Could not retrieve contact points");
-            }
+            throw;
+        }
+        catch (Exception)
+        {
+            return Problem("Could not retrieve contact points");
         }
     }
 

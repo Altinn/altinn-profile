@@ -16,13 +16,15 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         IUserProfileService userProfileService,
         IRegisterClient registerClient,
         IOptions<AddressMaintenanceSettings> addressMaintenanceSettings,
-        IAddressVerificationService addressVerificationService) : IProfessionalNotificationsService
+        IAddressVerificationService addressVerificationService,
+        IUserNotifier userNotifier) : IProfessionalNotificationsService
     {
         private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
         private readonly IUserProfileService _userProfileService = userProfileService;
         private readonly IRegisterClient _registerClient = registerClient;
         private readonly AddressMaintenanceSettings _addressMaintenanceSettings = addressMaintenanceSettings.Value;
         private readonly IAddressVerificationService _addressVerificationService = addressVerificationService;
+        private readonly IUserNotifier _userNotifier = userNotifier;
 
         /// <inheritdoc/>
         public async Task<ExtendedUserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
@@ -34,9 +36,9 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             }
 
             var (emailVerificationStatus, smsVerificationStatus) = await _addressVerificationService.GetVerificationStatusAsync(notificationSettings.UserId, notificationSettings.EmailAddress, notificationSettings.PhoneNumber, cancellationToken);
-            var profileSettings = await _userProfileService.GetProfileSettings(userId);
+            var ignoreUnitProfileDateTime = await _userProfileService.GetIgnoreUnitProfileDateTime(userId);
 
-            var needsConfirmation = NeedsConfirmation(notificationSettings, profileSettings);
+            var needsConfirmation = NeedsConfirmation(notificationSettings, ignoreUnitProfileDateTime);
             var extendedInfo = new ExtendedUserPartyContactInfo(
                     notificationSettings,
                     needsConfirmation,
@@ -49,7 +51,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <inheritdoc/>
         public async Task<IReadOnlyList<ExtendedUserPartyContactInfo>> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken)
         {
-            var profileSettings = await _userProfileService.GetProfileSettings(userId);
+            var ignoreUnitProfileDateTime = await _userProfileService.GetIgnoreUnitProfileDateTime(userId);
 
             var notificationSettings = await _professionalNotificationsRepository.GetAllNotificationAddressesForUserAsync(userId, cancellationToken);
 
@@ -57,7 +59,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 
             foreach (var notificationSetting in notificationSettings)
             {
-                var needsConfirmation = NeedsConfirmation(notificationSetting, profileSettings);
+                var needsConfirmation = NeedsConfirmation(notificationSetting, ignoreUnitProfileDateTime);
                 var (emailVerificationStatus, smsVerificationStatus) = await _addressVerificationService.GetVerificationStatusAsync(notificationSetting.UserId, notificationSetting.EmailAddress, notificationSetting.PhoneNumber, cancellationToken);
                 enrichedNotificationSettings.Add(new ExtendedUserPartyContactInfo(
                     notificationSetting,
@@ -89,6 +91,8 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 
         /// <summary>
         /// Handles sending notifications when the mobile number or email address has changed.
+        /// Verification code generation is delegated to <see cref="IAddressVerificationService"/>;
+        /// address-change notifications are sent directly via <see cref="IUserNotifier"/>.
         /// </summary>
         /// <param name="contactInfo">The updated contact info.</param>
         /// <param name="mobileNumberChanged">Indicates if the mobile number has changed.</param>
@@ -96,19 +100,19 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <param name="generateVerificationCode">Indicates if a verification code should be generated and sent.</param>
         private async Task HandleNotificationAddressChangedAsync(UserPartyContactInfo contactInfo, bool mobileNumberChanged, bool emailChanged, bool generateVerificationCode)
         {
-            var profileSettings = await _userProfileService.GetProfileSettings(contactInfo.UserId);
-
-            var language = profileSettings?.LanguageType ?? "nb";
+            // The request processing will reach this point in the flow only if cancellation has not yet occurred.
+            // Should the client cancel after this point, we still want the remaining operations proceed
+            var emptyCancellationToken = CancellationToken.None;
 
             if (mobileNumberChanged)
             {
                 if (generateVerificationCode)
                 {
-                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.PhoneNumber!, AddressType.Sms, language, contactInfo.PartyUuid, CancellationToken.None);
+                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.PhoneNumber!, AddressType.Sms, emptyCancellationToken);
                 }
                 else
                 {
-                    await _addressVerificationService.NotifySmsAddressChangeAsync(contactInfo.PhoneNumber!, contactInfo.PartyUuid, language, contactInfo.UserId, CancellationToken.None);
+                    await _userNotifier.NotifyAddressChangeAsync(contactInfo.UserId, contactInfo.PhoneNumber!, AddressType.Sms, contactInfo.PartyUuid, emptyCancellationToken);
                 }
             }
 
@@ -116,11 +120,11 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             {
                 if (generateVerificationCode)
                 {
-                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.EmailAddress!, AddressType.Email, language, contactInfo.PartyUuid, CancellationToken.None);
+                    await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.EmailAddress!, AddressType.Email, emptyCancellationToken);
                 }
                 else
                 {
-                    await _addressVerificationService.NotifyEmailAddressChangeAsync(contactInfo.EmailAddress!, contactInfo.PartyUuid, language, contactInfo.UserId, CancellationToken.None);
+                    await _userNotifier.NotifyAddressChangeAsync(contactInfo.UserId, contactInfo.EmailAddress!, AddressType.Email, contactInfo.PartyUuid, emptyCancellationToken);
                 }
             }
         }
@@ -189,7 +193,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                     });
             }
 
-            return results;        
+            return results;
         }
 
         /// <inheritdoc/>
@@ -228,7 +232,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             var results = new List<UserPartyContactInfoWithIdentity>();
 
             foreach (var contactInfo in contactInfos)
-            {                                    
+            {
                 var orgNumber = await _registerClient.GetOrganizationNumberByPartyUuid(contactInfo.PartyUuid, cancellationToken);
 
                 // Note: IUserProfileService.GetUser does not support cancellation token at this time
@@ -262,11 +266,11 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             return results;
         }
 
-        private bool NeedsConfirmation(UserPartyContactInfo notificationAddress, ProfileSettings? profileSettingPreference)
+        private bool NeedsConfirmation(UserPartyContactInfo notificationAddress, DateTime? ignoreUnitProfileDateTime)
         {
-            if (profileSettingPreference?.IgnoreUnitProfileDateTime.HasValue == true)
+            if (ignoreUnitProfileDateTime.HasValue)
             {
-                TimeSpan daysSinceIgnore = (TimeSpan)(DateTime.UtcNow - profileSettingPreference.IgnoreUnitProfileDateTime);
+                TimeSpan daysSinceIgnore = (TimeSpan)(DateTime.UtcNow - ignoreUnitProfileDateTime);
                 if (daysSinceIgnore.TotalDays <= _addressMaintenanceSettings.IgnoreUnitProfileConfirmationDays)
                 {
                     return false;

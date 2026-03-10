@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Authorization;
+using Altinn.Profile.Core;
 using Altinn.Profile.Core.AddressVerifications;
 using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Models;
@@ -11,7 +13,7 @@ using Altinn.Profile.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 
 namespace Altinn.Profile.Controllers
 {
@@ -25,13 +27,15 @@ namespace Altinn.Profile.Controllers
     public class AddressVerificationController : ControllerBase
     {
         private readonly IAddressVerificationService _addressVerificationService;
+        private readonly int _verificationCodeCooldownPeriodInSeconds;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AddressVerificationController"/> class.
         /// </summary>
-        public AddressVerificationController(IAddressVerificationService addressVerificationService)
+        public AddressVerificationController(IAddressVerificationService addressVerificationService, IOptions<AddressMaintenanceSettings> addressMaintenanceSettings)
         {
             _addressVerificationService = addressVerificationService;
+            _verificationCodeCooldownPeriodInSeconds = addressMaintenanceSettings.Value.VerificationCodeResendCooldownSeconds;
         }
 
         /// <summary>
@@ -59,7 +63,7 @@ namespace Altinn.Profile.Controllers
         /// <summary>
         /// Verify an address for the current user by providing the verification code sent to the address.
         /// </summary>
-        /// <param name="request">The api request containing the address and code to verify</param>
+        /// <param name="request">The code to verify, the address type, and the address value</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
         /// <remarks>
         /// This endpoint is rate limited using a sliding window rate limiter to prevent abuse.
@@ -74,7 +78,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
-        public async Task<ActionResult> Verify([FromBody]AddressVerificationRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult> Verify([FromBody][Required] AddressVerificationRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -95,6 +99,51 @@ namespace Altinn.Profile.Controllers
             }
 
             return NoContent();
+        }
+
+        /// <summary>
+        /// Resets the verification process for the current user and the given address, by regenerating a code with a renewed validity period and sending it to the address.
+        /// </summary>
+        /// <param name="request">The address type and value to resend code for</param>
+        /// <param name="cancellationToken"> Cancellation token for the operation</param>
+        [HttpPost("resend")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+        public async Task<ActionResult> Resend([FromBody][Required] AddressCodeResendRequest request, CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            var result = await _addressVerificationService.ResendVerificationCodeAsync(userId, request.Value, (AddressType)request.Type, cancellationToken);
+
+            return result switch
+            {
+                ResendVerificationResult.Success => NoContent(),
+                ResendVerificationResult.CodeNotFound => UnprocessableEntity(new ProblemDetails { Title = "Verification code could not be resent", Detail = "The user has no active verification process for the given address." }),
+                ResendVerificationResult.CodeCooldown => TooManyRequests(new ProblemDetails { Title = "Verification code could not be resent", Detail = $"Code resending attempts for an address are limited to 1 request per {_verificationCodeCooldownPeriodInSeconds} seconds. Please wait before requesting a new code." }),
+                _ => InternalServerError(new ProblemDetails { Title = "Verification code could not be resent", Detail = "An unexpected error occurred." })
+            };
+        }
+
+        private ObjectResult TooManyRequests(ProblemDetails problemDetails)
+        {
+            return StatusCode(StatusCodes.Status429TooManyRequests, problemDetails);
+        }
+
+        private ObjectResult InternalServerError(ProblemDetails problemDetails)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, problemDetails);
         }
     }
 }
