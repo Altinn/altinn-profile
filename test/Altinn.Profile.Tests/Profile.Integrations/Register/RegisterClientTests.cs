@@ -352,7 +352,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             Assert.Equal(expectedParties[1].PartyUuid, result[1].PartyUuid);
 
             Assert.Equal(HttpMethod.Post, sentRequest.Method);
-            Assert.Equal(new Uri(_testBaseUrl + "v2/internal/parties/query"), sentRequest.RequestUri);
+            Assert.Equal(new Uri(_testBaseUrl + "v2/internal/parties/query?fields=id,uuid,org-id"), sentRequest.RequestUri);
             Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
 
             var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -883,11 +883,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             _httpClient = new HttpClient(handler.Object);
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
-            // Act
-            var result = await client.GetUserParty(userUuid, TestContext.Current.CancellationToken);
-
-            // Assert
-            Assert.Null(result);
+            // Act & Assert
+            await Assert.ThrowsAsync<PartyNotFoundException>(() => client.GetUserParty(userUuid, TestContext.Current.CancellationToken));
         }
 
         [Fact]
@@ -909,11 +906,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             _httpClient = new HttpClient(handler.Object);
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
-            // Act
-            var result = await client.GetUserParty(userUuid, TestContext.Current.CancellationToken);
-
-            // Assert
-            Assert.Null(result);
+            // Act & Assert
+            await Assert.ThrowsAsync<PartyNotFoundException>(() => client.GetUserParty(userUuid, TestContext.Current.CancellationToken));
         }
 
         [Fact]
@@ -989,12 +983,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             _httpClient = new HttpClient(handler.Object);
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
-            // Act
-            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Empty(result);
+            // Act & Assert
+            await Assert.ThrowsAsync<PartyNotFoundException>(() => client.GetUserParties(userUuids, TestContext.Current.CancellationToken));
         }
 
         [Fact]
@@ -1016,12 +1006,8 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             _httpClient = new HttpClient(handler.Object);
             var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
 
-            // Act
-            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Empty(result);
+            // Act & Assert
+            await Assert.ThrowsAsync<PartyNotFoundException>(() => client.GetUserParties(userUuids, TestContext.Current.CancellationToken));
         }
 
         [Fact]
