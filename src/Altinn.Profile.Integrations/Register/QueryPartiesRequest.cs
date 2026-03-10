@@ -8,7 +8,7 @@ namespace Altinn.Profile.Integrations.Register
     /// <remarks>
     /// Initializes a new instance of the <see cref="QueryPartiesRequest"/> class.
     /// </remarks>
-    /// <param name="identifiers">Identifiers to query parties for</param>
+    /// <param name="identifiers">URN-formatted identifiers to query parties for</param>
     public class QueryPartiesRequest(string[] identifiers)
     {
         /// <summary>

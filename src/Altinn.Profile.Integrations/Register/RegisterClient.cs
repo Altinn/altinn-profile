@@ -51,7 +51,7 @@ public class RegisterClient : IRegisterClient
         string[] identifiers = [.. orgNumbers.Where(o => !string.IsNullOrWhiteSpace(o)).Select(o => $"urn:altinn:organization:identifier-no:{o}")];
         var request = new QueryPartiesRequest(identifiers);
 
-        var response = await QueryParties(request, cancellationToken: cancellationToken);
+        var response = await QueryParties(request, "fields=id,uuid,org-id", cancellationToken: cancellationToken);
         if (response == null)
         {
             return null;
@@ -132,7 +132,7 @@ public class RegisterClient : IRegisterClient
     {
         var identifiers = new[] { $"urn:altinn:party:uuid:{userUuid}" };
         var parties = await GetUserParties(identifiers, cancellationToken);
-        return parties.FirstOrDefault(p => p.Type == PartyType.Person || p.Type == PartyType.SelfIdentifiedUser);
+        return parties.FirstOrDefault();
     }
 
     /// <inheritdoc/>
@@ -140,7 +140,7 @@ public class RegisterClient : IRegisterClient
     {
         var identifiers = new[] { $"urn:altinn:user:id:{userId}" };
         var parties = await GetUserParties(identifiers, cancellationToken);
-        return parties.FirstOrDefault(p => p.Type == PartyType.Person || p.Type == PartyType.SelfIdentifiedUser);
+        return parties.FirstOrDefault();
     }
 
     /// <inheritdoc/>
@@ -150,7 +150,7 @@ public class RegisterClient : IRegisterClient
 
         var identifiers = new[] { $"urn:altinn:party:username:{username}" };
         var parties = await GetUserParties(identifiers, cancellationToken);
-        return parties.FirstOrDefault(p => p.Type == PartyType.Person || p.Type == PartyType.SelfIdentifiedUser);
+        return parties.FirstOrDefault();
     }
 
     /// <inheritdoc/>
@@ -160,7 +160,7 @@ public class RegisterClient : IRegisterClient
 
         var identifiers = new[] { $"urn:altinn:person:identifier-no:{ssn}" };
         var parties = await GetUserParties(identifiers, cancellationToken);
-        return parties.FirstOrDefault(p => p.Type == PartyType.Person || p.Type == PartyType.SelfIdentifiedUser);
+        return parties.FirstOrDefault();
     }
 
     /// <inheritdoc/>
@@ -169,7 +169,7 @@ public class RegisterClient : IRegisterClient
         ArgumentNullException.ThrowIfNull(userUuids);
         if (userUuids.Count == 0)
         {
-            return [];
+            throw new ArgumentException("The list of user UUIDs cannot be empty.", nameof(userUuids));
         }
 
         var identifiers = userUuids.Select(uuid => $"urn:altinn:party:uuid:{uuid}").ToArray();
@@ -183,7 +183,7 @@ public class RegisterClient : IRegisterClient
 
         if (response == null)
         {
-            return [];
+            throw new PartyNotFoundException("No response from Register when looking up parties for user(s)");
         }
 
         var responseObject = await response.Content.ReadFromJsonAsync<QueryUserPartiesResponse>(cancellationToken);
@@ -191,7 +191,7 @@ public class RegisterClient : IRegisterClient
 
         if (data is null or { Count: 0 })
         {
-            return [];
+            throw new PartyNotFoundException("Empty response from Register when looking up parties for user(s)");
         }
 
         return data.Where(p => p.Type == PartyType.Person || p.Type == PartyType.SelfIdentifiedUser);
