@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-using Altinn.Profile.Core.Unit.ContactPoints;
+using Altinn.Register.Contracts;
 
 namespace Altinn.Profile.Integrations.Register
 {

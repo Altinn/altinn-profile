@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -7,7 +8,6 @@ using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Altinn.Authorization.ModelUtils;
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.Profile.Integrations.Register;
 using Altinn.Register.Contracts;
@@ -319,15 +319,15 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
         {
             // Arrange
             var orgNumbers = new[] { "111111111", "222222222" };
-            var expectedParties = new List<Altinn.Profile.Core.Unit.ContactPoints.Party>
-            {
-                new() { OrganizationIdentifier = "111111111", PartyUuid = Guid.NewGuid() },
-                new() { OrganizationIdentifier = "222222222", PartyUuid = Guid.NewGuid() }
-            };
 
+            var expectedParties = new List<Organization>
+            {
+                Organization.Minimal(OrganizationIdentifier.Parse("111111111"), Guid.NewGuid()),
+                Organization.Minimal(OrganizationIdentifier.Parse("222222222"), Guid.NewGuid())
+            };
             var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
             {
-                Data = expectedParties
+                Data = expectedParties.Cast<Party>().ToList()
             });
 
             var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -342,14 +342,16 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
 
             // Act
             var result = await client.GetPartyUuids(orgNumbers, TestContext.Current.CancellationToken);
+            var org1 = expectedParties[0] as Organization;
+            var org2 = expectedParties[1] as Organization;
 
             // Assert
             Assert.NotNull(result);
             Assert.Equal(expectedParties.Count, result.Count);
-            Assert.Equal(expectedParties[0].OrganizationIdentifier, result[0].OrganizationIdentifier);
-            Assert.Equal(expectedParties[0].PartyUuid, result[0].PartyUuid);
-            Assert.Equal(expectedParties[1].OrganizationIdentifier, result[1].OrganizationIdentifier);
-            Assert.Equal(expectedParties[1].PartyUuid, result[1].PartyUuid);
+            Assert.Equal(expectedParties[0].OrganizationIdentifier.ToString(), org1.OrganizationIdentifier.ToString());
+            Assert.Equal(expectedParties[0].Uuid, org1.Uuid);
+            Assert.Equal(expectedParties[1].OrganizationIdentifier.ToString(), org2.OrganizationIdentifier.ToString());
+            Assert.Equal(expectedParties[1].Uuid, org2.Uuid);
 
             Assert.Equal(HttpMethod.Post, sentRequest.Method);
             Assert.Equal(new Uri(_testBaseUrl + "v2/internal/parties/query?fields=id,uuid,org-id"), sentRequest.RequestUri);
@@ -433,7 +435,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var orgNumbers = new[] { "111111111" };
             var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
             {
-                Data = new List<Altinn.Profile.Core.Unit.ContactPoints.Party>()
+                Data = new List<Party>()
             });
 
             var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -642,7 +644,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var userId = 12345;
             var expectedParty = Person.Minimal("17902349936");
 
-            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
             {
                 Data = [expectedParty]
             });
@@ -683,7 +685,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var userUuid = Guid.NewGuid();
             var expectedParty = Person.Minimal("17902349936", userUuid);
 
-            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
             {
                 Data = [expectedParty]
             });
@@ -724,7 +726,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var username = "testuser";
             var expectedParty = SelfIdentifiedUser.MinimalLegacy(username);
 
-            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
             {
                 Data = [expectedParty]
             });
@@ -765,7 +767,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var ssn = "17902349936";
             var expectedParty = Person.Minimal(ssn);
 
-            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
             {
                 Data = [expectedParty]
             });
@@ -810,7 +812,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var expectedParty1 = Person.Minimal("17902349936", userUuid1) with { Uuid = userUuid1 };
             var expectedParty2 = Person.Minimal("17902349936", userUuid2) with { Uuid = userUuid2 };
 
-            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
             {
                 Data = [expectedParty1, expectedParty2]
             });
@@ -852,7 +854,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var userUuid = Guid.NewGuid();
             var orgParty = Organization.Minimal("314249879");
 
-            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
             {
                 Data = [orgParty]
             });
@@ -892,7 +894,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
         {
             // Arrange
             var userUuid = Guid.NewGuid();
-            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
             {
                 Data = null
             });
@@ -949,7 +951,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var orgParty = Organization.Minimal("314249879");
             var expectedParty2 = SelfIdentifiedUser.MinimalLegacy("testuser") with { Uuid = userUuid3 };
 
-            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
             {
                 Data = [expectedParty1, orgParty, expectedParty2]
             });
@@ -992,7 +994,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
         {
             // Arrange
             var userUuids = new List<Guid> { Guid.NewGuid() };
-            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
             {
                 Data = null
             });
@@ -1018,7 +1020,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var orgParty1 = Organization.Minimal("314249879");
             var orgParty2 = Organization.Minimal("311443755");
 
-            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
             {
                 Data = [orgParty1, orgParty2]
             });

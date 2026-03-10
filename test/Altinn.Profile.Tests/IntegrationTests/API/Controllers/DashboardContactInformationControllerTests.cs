@@ -13,12 +13,12 @@ using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Altinn.Profile.Tests.Testdata;
+using Altinn.Register.Contracts;
+using Altinn.Register.Contracts.Testing;
 
 using Moq;
 
 using Xunit;
-
-using RegisterParty = Altinn.Profile.Core.Unit.ContactPoints.Party;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
@@ -38,6 +38,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             _factory = factory;
             _factory.MemoryCache.Clear();
+            _factory.RegisterClientMock.Reset();
         }
 
         [Fact]
@@ -67,13 +68,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
             });
 
-            string orgNumber = "123456789";
+            string orgNumber = "313605590";
             Guid partyUuid = Guid.NewGuid();
 
             // Mock Register Client - translate org number to party UUID
-            var parties = new List<RegisterParty>
+            var parties = new List<Organization>
             {
-                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
+                Organization.Minimal(OrganizationIdentifier.Parse(orgNumber), partyUuid) with { PartyId = 12345 },
             };
             _factory.RegisterClientMock
                 .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
@@ -137,13 +138,14 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task GetContactInformationByOrgNumber_WhenOrgHasNoContactInfo_ReturnsEmptyList()
         {
             // Arrange
-            string orgNumber = "987654321";
+            string orgNumber = "313605590";
             Guid partyUuid = Guid.NewGuid();
 
-            var parties = new List<RegisterParty>
+            var parties = new List<Organization>
             {
-                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
+                Organization.Minimal(OrganizationIdentifier.Parse(orgNumber), partyUuid) with { PartyId = 12345 },
             };
+
             _factory.RegisterClientMock
                 .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(parties);
@@ -172,7 +174,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task GetContactInformationByOrgNumber_WhenOrgNotFound_ReturnsEmptyList()
         {
             // Arrange
-            string orgNumber = "888888888";
+            string orgNumber = "313605590";
 
             _factory.RegisterClientMock
                 .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
@@ -198,7 +200,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task GetContactInformationByOrgNumber_WhenNoAccess_ReturnsForbidden()
         {
             // Arrange
-            string orgNumber = "123456789";
+            string orgNumber = "313605590";
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/contactinformation");
@@ -235,12 +237,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
             });
 
-            string orgNumber = "111222333";
+            string orgNumber = "313605590";
             Guid partyUuid = Guid.NewGuid();
 
-            var parties = new List<RegisterParty>
+            var parties = new List<Organization>
             {
-                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
+                Organization.Minimal(OrganizationIdentifier.Parse(orgNumber), partyUuid) with { PartyId = 12345 },
             };
             _factory.RegisterClientMock
                 .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
@@ -296,14 +298,14 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task GetContactInformationByOrgNumber_WhenMultiplePartiesFound_ReturnsInternalServerError()
         {
             // Arrange
-            string orgNumber = "999888777";
+            string orgNumber = "313605590";
             Guid partyUuid1 = Guid.NewGuid();
             Guid partyUuid2 = Guid.NewGuid();
 
-            var parties = new List<RegisterParty>
+            var parties = new List<Organization>
             {
-                new() { PartyId = 12345, PartyUuid = partyUuid1, OrganizationIdentifier = orgNumber },
-                new() { PartyId = 67890, PartyUuid = partyUuid2, OrganizationIdentifier = orgNumber }
+                Organization.Minimal(OrganizationIdentifier.Parse(orgNumber), partyUuid1) with { PartyId = 12345 },
+                Organization.Minimal(OrganizationIdentifier.Parse(orgNumber), partyUuid2) with { PartyId = 67890 },
             };
             _factory.RegisterClientMock
                 .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
@@ -338,12 +340,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
             });
 
-            string orgNumber = "555666777";
+            string orgNumber = "313605590";
             Guid partyUuid = Guid.NewGuid();
 
-            var parties = new List<RegisterParty>
+            var parties = new List<Organization>
             {
-                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
+                Organization.Minimal(OrganizationIdentifier.Parse(orgNumber), partyUuid) with { PartyId = 12345 },
             };
             _factory.RegisterClientMock
                 .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
@@ -401,12 +403,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
             });
 
-            string orgNumber = "444555666";
+            string orgNumber = "313605590";
             Guid partyUuid = Guid.NewGuid();
 
-            var parties = new List<RegisterParty>
+            var parties = new List<Organization>
             {
-                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
+                Organization.Minimal(OrganizationIdentifier.Parse(orgNumber), partyUuid) with { PartyId = 12345 },
             };
             _factory.RegisterClientMock
                 .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
@@ -462,12 +464,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
             });
 
-            string orgNumber = "333444555";
+            string orgNumber = "313605590";
             Guid partyUuid = Guid.NewGuid();
-
-            var parties = new List<RegisterParty>
+            var parties = new List<Organization>
             {
-                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
+                Organization.Minimal(OrganizationIdentifier.Parse(orgNumber), partyUuid) with { PartyId = 12345 },
             };
             _factory.RegisterClientMock
                 .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
@@ -528,12 +529,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
             });
 
-            string orgNumber = "222333444";
+            string orgNumber = "313605590";
             Guid partyUuid = Guid.NewGuid();
 
-            var parties = new List<RegisterParty>
+            var parties = new List<Organization>
             {
-                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
+                Organization.Minimal(OrganizationIdentifier.Parse(orgNumber), partyUuid) with { PartyId = 12345 },
             };
             _factory.RegisterClientMock
                 .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))

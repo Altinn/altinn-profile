@@ -46,7 +46,7 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
-    public async Task<IReadOnlyList<Core.Unit.ContactPoints.Party>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Organization>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
     {
         string[] identifiers = [.. orgNumbers.Where(o => !string.IsNullOrWhiteSpace(o)).Select(o => $"urn:altinn:organization:identifier-no:{o}")];
         var request = new QueryPartiesRequest(identifiers);
@@ -60,7 +60,10 @@ public class RegisterClient : IRegisterClient
         // We use another response type here since the contract for this method only requires party id, party uuid and organization identifier, and we want to avoid deserializing unnecessary data
         var responseObject = await response.Content.ReadFromJsonAsync<QueryPartiesResponse>(cancellationToken);
 
-        return responseObject?.Data;
+        return responseObject?.Data?
+            .Where(p => p.Type == PartyType.Organization)
+            .OfType<Organization>()
+            .ToList();
     }
 
     /// <inheritdoc/>
@@ -128,7 +131,7 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
-    public async Task<Altinn.Register.Contracts.Party?> GetUserParty(Guid userUuid, CancellationToken cancellationToken)
+    public async Task<Party?> GetUserParty(Guid userUuid, CancellationToken cancellationToken)
     {
         var identifiers = new[] { $"urn:altinn:party:uuid:{userUuid}" };
         var parties = await GetUserParties(identifiers, cancellationToken);
@@ -136,7 +139,7 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
-    public async Task<Altinn.Register.Contracts.Party?> GetUserParty(int userId, CancellationToken cancellationToken)
+    public async Task<Party?> GetUserParty(int userId, CancellationToken cancellationToken)
     {
         var identifiers = new[] { $"urn:altinn:user:id:{userId}" };
         var parties = await GetUserParties(identifiers, cancellationToken);
@@ -144,7 +147,7 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
-    public async Task<Altinn.Register.Contracts.Party?> GetUserPartyByUsername(string username, CancellationToken cancellationToken)
+    public async Task<Party?> GetUserPartyByUsername(string username, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNullOrEmpty(username);
 
@@ -154,7 +157,7 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
-    public async Task<Altinn.Register.Contracts.Party?> GetUserPartyBySsn(string ssn, CancellationToken cancellationToken)
+    public async Task<Party?> GetUserPartyBySsn(string ssn, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNullOrEmpty(ssn);
 
@@ -164,7 +167,7 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
-    public async Task<IReadOnlyList<Altinn.Register.Contracts.Party>> GetUserParties(List<Guid> userUuids, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Party>> GetUserParties(List<Guid> userUuids, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(userUuids);
         if (userUuids.Count == 0)
@@ -176,7 +179,7 @@ public class RegisterClient : IRegisterClient
         return [.. await GetUserParties(identifiers, cancellationToken)];
     }
 
-    private async Task<IEnumerable<Altinn.Register.Contracts.Party>> GetUserParties(string[] urns, CancellationToken cancellationToken)
+    private async Task<IEnumerable<Party>> GetUserParties(string[] urns, CancellationToken cancellationToken)
     {
         var request = new QueryPartiesRequest(urns);
         var response = await QueryParties(request, "fields=person,party,user,si", cancellationToken: cancellationToken);
@@ -186,7 +189,7 @@ public class RegisterClient : IRegisterClient
             throw new PartyNotFoundException("No response from Register when looking up parties for user(s)");
         }
 
-        var responseObject = await response.Content.ReadFromJsonAsync<QueryUserPartiesResponse>(cancellationToken);
+        var responseObject = await response.Content.ReadFromJsonAsync<QueryPartiesResponse>(cancellationToken);
         var data = responseObject?.Data;
 
         if (data is null or { Count: 0 })

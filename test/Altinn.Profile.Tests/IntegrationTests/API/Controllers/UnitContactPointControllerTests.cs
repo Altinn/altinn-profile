@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
+using Altinn.Register.Contracts;
+using Altinn.Register.Contracts.Testing;
 
 using Moq;
 
@@ -52,7 +54,7 @@ public class UnitContactPointControllerTests
             // Arrange
             UnitContactPointLookup input = new()
             {
-                OrganizationNumbers = ["123456789"],
+                OrganizationNumbers = ["313605590"],
                 ResourceId = "app_ttd_apps-test"
             };
 
@@ -152,7 +154,7 @@ public class UnitContactPointControllerTests
             // Arrange
             UnitContactPointLookup input = new()
             {
-                OrganizationNumbers = ["123456789"],
+                OrganizationNumbers = ["313605590"],
                 ResourceId = "app_ttd_apps-test"
             };
 
@@ -179,7 +181,7 @@ public class UnitContactPointControllerTests
             // Arrange
             UnitContactPointLookup input = new()
             {
-                OrganizationNumbers = ["111111111"],
+                OrganizationNumbers = ["313441571"],
                 ResourceId = "app_ttd_apps-test"
             };
 
@@ -206,7 +208,7 @@ public class UnitContactPointControllerTests
             // Arrange
             UnitContactPointLookup input = new()
             {
-                OrganizationNumbers = ["111111111"],
+                OrganizationNumbers = ["313441571"],
                 ResourceId = "app_ttd_storage-end-to-end"
             };
 
@@ -345,14 +347,14 @@ public class UnitContactPointControllerTests
             var expectedSanitizedResourceId = "app_ttd_storage-end-to-end";
             var input = new UnitContactPointLookup
             {
-                OrganizationNumbers = ["111111111"],
+                OrganizationNumbers = ["313441571"],
                 ResourceId = originalResourceId
             };
 
             string actualResourceId = null;
 
             _factory.UnitContactPointsServiceMock.Setup(s => s.GetUserRegisteredContactPoints(
-                    It.Is<string[]>(arr => arr.Length == 1 && arr[0] == "111111111"),
+                    It.Is<string[]>(arr => arr.Length == 1 && arr[0] == "313441571"),
                     It.Is<string>(r => r == expectedSanitizedResourceId),
                     It.IsAny<CancellationToken>()))
                 .Callback((string[] orgs, string resourceId, CancellationToken _) => actualResourceId = resourceId)
@@ -378,7 +380,7 @@ public class UnitContactPointControllerTests
     {
         switch (orgNo)
         {
-            case "123456789":
+            case "313605590":
                 var input = new List<PartyNotificationContactPoints>()
                 {
                     new PartyNotificationContactPoints()
@@ -390,7 +392,7 @@ public class UnitContactPointControllerTests
                         }
                          ],
                         LegacyPartyId = 50001,
-                        OrganizationNumber = "123456789",
+                        OrganizationNumber = "313605590",
                         PartyId = Guid.NewGuid()
                     }
                 };
@@ -401,9 +403,9 @@ public class UnitContactPointControllerTests
         }
     }
 
-    public static List<Party> GetRegisterResponse(string[] orgNo)
+    public static List<Organization> GetRegisterResponse(string[] orgNo)
     {
-        var parties = new List<Party>();
+        var parties = new List<Organization>();
         foreach (var org in orgNo)
         {
             var party = GetPartyUuidForOrgNo(org);
@@ -416,22 +418,12 @@ public class UnitContactPointControllerTests
         return parties;
     }
 
-    public static Party GetPartyUuidForOrgNo(string orgNo)
+    public static Organization GetPartyUuidForOrgNo(string orgNo)
     {
         return orgNo switch
         {
-            "123456789" => new Party()
-            {
-                PartyId = 50001,
-                OrganizationIdentifier = "123456789",
-                PartyUuid = Guid.Parse("8baab949-07f9-4ac5-b8cb-af6208b59092"),
-            },
-            "111111111" => new Party()
-            {
-                PartyId = 50002,
-                OrganizationIdentifier = "111111111",
-                PartyUuid = Guid.Parse("f81d7b22-4acb-4d59-b544-ef028f183ebc"),
-            },
+            "313605590" => Organization.Minimal(OrganizationIdentifier.Parse("313605590"), Guid.Parse("8baab949-07f9-4ac5-b8cb-af6208b59092")) with { PartyId = 50001 },
+             "313441571" => Organization.Minimal(OrganizationIdentifier.Parse("313441571"), Guid.Parse("f81d7b22-4acb-4d59-b544-ef028f183ebc")) with { PartyId = 50002 },
             _ => null,
         };
     }
