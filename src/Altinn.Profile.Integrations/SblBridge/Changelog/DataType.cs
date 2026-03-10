@@ -19,4 +19,9 @@ public enum DataType
     /// The change happened to portal settings. Must use the same name as in A2.
     /// </summary>
     PortalSettingPreferences,
+
+    /// <summary>
+    /// The change happened to SI user addresses. Must use the same name as in A2.
+    /// </summary>
+    SIUserAddresses,
 }

@@ -20,5 +20,10 @@
         /// Gets or sets a value indicating whether the portal settings import is enabled.
         /// </summary>
         public bool ProfileSettingsImportEnabled { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the SI user address import is enabled.
+        /// </summary>
+        public bool SIUserAddressImportEnabled { get; set; } = false;
     }
 }

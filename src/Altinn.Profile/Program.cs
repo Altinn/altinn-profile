@@ -355,6 +355,15 @@ void SetupImportJobs(IServiceCollection services, IConfiguration config)
             settings.Interval = TimeSpan.FromMinutes(1);
         });
     }
+
+    if (config.GetValue<bool>("ImportJobSettings:SIUserAddressImportEnabled"))
+    {
+        services.AddRecurringJob<SIUserAddressImportJob>(settings =>
+        {
+            settings.LeaseName = LeaseNames.SIUserAddressImport;
+            settings.Interval = TimeSpan.FromMinutes(1);
+        });
+    }
 }
 
 /// <summary>
