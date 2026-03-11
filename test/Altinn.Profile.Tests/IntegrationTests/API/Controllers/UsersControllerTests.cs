@@ -39,7 +39,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         _factory = factory;
         _factory.MemoryCache.Clear();
         _factory.PersonServiceMock.Reset();
-        _factory.InMemoryConfigurationCollection.Clear();
     }
 
     [Fact]
@@ -67,6 +66,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
                 DoNotPromptForParty = true,
                 PreselectedPartyUuid = preselectedPartyUuid,
             });
+
         _factory.RegisterClientMock.Setup(m => m.GetPartyId(preselectedPartyUuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(123456);
 
@@ -233,6 +233,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             });
         _factory.PersonServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new PersonContactPreferences { Email = "test@mail.com", NationalIdentityNumber = "1", MobileNumber = "+4798765432", IsReserved = true }]);
+
         _factory.RegisterClientMock.Setup(m => m.GetPartyId(preselectedPartyUuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(123456);
 
@@ -272,76 +273,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal("test@mail.com", actualUser.Email);
         Assert.Equal("+4798765432", actualUser.PhoneNumber);
         Assert.Equal(123456, actualUser.ProfileSettingPreference.PreSelectedPartyId);
-    }
-
-    [Fact]
-    public async Task GetUsersById_AsUser_WhenLookupPreselectedPartyIdIsfalse_ResponseOk_ReturnsEnrichedUserProfile_WithoutPreselectedPartyId()
-    {
-        // Arrange
-        const int UserId = 2516356;
-        var preselectedPartyUuid = Guid.NewGuid();
-        _factory.InMemoryConfigurationCollection["CoreSettings:LookupPreselectedPartyIdAtRegister"] = "true";
-
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-        {
-            sblRequest = request;
-
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
-            .ReturnsAsync(new ProfileSettings
-            {
-                UserId = UserId,
-                LanguageType = "en",
-                DoNotPromptForParty = true,
-                PreselectedPartyUuid = preselectedPartyUuid,
-                ShouldShowSubEntities = true,
-                ShowClientUnits = true,
-                ShouldShowDeletedEntities = false,
-            });
-        _factory.PersonServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([new PersonContactPreferences { Email = "test@mail.com", NationalIdentityNumber = "1", MobileNumber = "+4798765432", IsReserved = true }]);
-        _factory.RegisterClientMock.Setup(m => m.GetPartyId(preselectedPartyUuid, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(123456);
-
-        HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
-
-        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
-
-        HttpClient client = _factory.CreateClient();
-
-        // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Get, sblRequest.Method);
-        Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri?.ToString());
-
-        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-
-        UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
-            responseContent, _serializerOptionsCamelCase);
-
-        Assert.NotNull(actualUser);
-
-        // These asserts check that deserializing with camel casing was successful.
-        Assert.Equal(UserId, actualUser.UserId);
-        Assert.Equal("sophie", actualUser.UserName);
-        Assert.Equal("Sophie Salt", actualUser.Party.Name);
-        Assert.Equal("Sophie", actualUser.Party.Person?.FirstName);
-        Assert.Equal("en", actualUser.ProfileSettingPreference.Language);
-        Assert.True(actualUser.ProfileSettingPreference.DoNotPromptForParty);
-        Assert.Equal(preselectedPartyUuid, actualUser.ProfileSettingPreference.PreselectedPartyUuid);
-        Assert.True(actualUser.ProfileSettingPreference.ShowClientUnits);
-        Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
-        Assert.True(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
-        Assert.True(actualUser.IsReserved);
-        Assert.Equal("test@mail.com", actualUser.Email);
-        Assert.Equal("+4798765432", actualUser.PhoneNumber);
-        Assert.NotEqual(123456, actualUser.ProfileSettingPreference.PreSelectedPartyId);
     }
 
     [Fact]

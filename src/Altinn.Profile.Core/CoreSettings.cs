@@ -13,5 +13,5 @@ public class CoreSettings
     /// <summary>
     /// A flag indicating whether to perform a lookup for a preselected party ID at the register when fetching the user profile. If not, the value from SBLBridge must be provided.
     /// </summary>
-    public bool LoookupPreselectedPartyIdAtRegister { get; set; }
+    public bool LookupPreselectedPartyIdAtRegister { get; set; }
 }
