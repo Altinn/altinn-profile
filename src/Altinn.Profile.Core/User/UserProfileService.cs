@@ -115,12 +115,6 @@ public class UserProfileService : IUserProfileService
     }
 
     /// <inheritdoc/>
-    public async Task<ProfileSettings.ProfileSettings?> GetProfileSettings(int userId)
-    {
-        return await _profileSettingsRepository.GetProfileSettings(userId);
-    }
-
-    /// <inheritdoc/>
     public async Task<string> GetPreferredLanguage(int userId)
     {
         var profileSettings = await _profileSettingsRepository.GetProfileSettings(userId);
