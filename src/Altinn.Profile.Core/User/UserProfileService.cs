@@ -11,19 +11,16 @@ public class UserProfileService : IUserProfileService
 {
     private readonly IUserProfileClient _userProfileClient;
     private readonly IProfileSettingsRepository _profileSettingsRepository;
-    private readonly IPersonService _personRepository;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserProfileService"/> class.
     /// </summary>
     /// <param name="userProfileClient">The user profile client available through DI</param>
     /// <param name="profileSettingsRepository">The profile settings repository available through DI</param>
-    /// <param name="personRepository">The person repository available through DI</param>
-    public UserProfileService(IUserProfileClient userProfileClient, IProfileSettingsRepository profileSettingsRepository, IPersonService personRepository)
+    public UserProfileService(IUserProfileClient userProfileClient, IProfileSettingsRepository profileSettingsRepository)
     {
         _userProfileClient = userProfileClient;
         _profileSettingsRepository = profileSettingsRepository;
-        _personRepository = personRepository;
     }
 
     /// <inheritdoc/>
@@ -34,7 +31,6 @@ public class UserProfileService : IUserProfileService
         if (result.IsSuccess)
         {
             var enriched = await EnrichWithProfileSettings(result.Match(userProfile => userProfile, _ => default!));
-            enriched = await EnrichWithKrrData(enriched);
             return enriched;
         }
 
@@ -48,7 +44,6 @@ public class UserProfileService : IUserProfileService
         if (result.IsSuccess)
         {
             var enriched = await EnrichWithProfileSettings(result.Match(userProfile => userProfile, _ => default!));
-            enriched = await EnrichWithKrrData(enriched);
             return enriched;
         }
 
@@ -62,7 +57,6 @@ public class UserProfileService : IUserProfileService
         if (result.IsSuccess)
         {
             var enriched = await EnrichWithProfileSettings(result.Match(userProfile => userProfile, _ => default!));
-            enriched = await EnrichWithKrrData(enriched);
             return enriched;
         }
 
@@ -76,7 +70,6 @@ public class UserProfileService : IUserProfileService
         if (result.IsSuccess)
         {
             var enriched = await EnrichWithProfileSettings(result.Match(userProfile => userProfile, _ => default!));
-            enriched = await EnrichWithKrrData(enriched);
             return enriched;
         }
 
@@ -95,8 +88,7 @@ public class UserProfileService : IUserProfileService
                 {
                     foreach (UserProfile userProfile in userProfiles)
                     {
-                        var enrichedUser = await EnrichWithKrrData(userProfile);
-                        enriched.Add(await EnrichWithProfileSettings(enrichedUser));
+                        enriched.Add(await EnrichWithProfileSettings(userProfile));
                     }
                 },
                 _ => { });
@@ -110,20 +102,6 @@ public class UserProfileService : IUserProfileService
     public async Task<ProfileSettings.ProfileSettings?> GetProfileSettings(int userId)
     {
         return await _profileSettingsRepository.GetProfileSettings(userId);
-    }
-
-    /// <inheritdoc/>
-    public async Task<string> GetPreferredLanguage(int userId)
-    {
-        var profileSettings = await _profileSettingsRepository.GetProfileSettings(userId);
-        return profileSettings?.LanguageType ?? LanguageType.NB;
-    }
-
-    /// <inheritdoc/>
-    public async Task<DateTime?> GetIgnoreUnitProfileDateTime(int userId)
-    {
-        var profileSettings = await _profileSettingsRepository.GetProfileSettings(userId);
-        return profileSettings?.IgnoreUnitProfileDateTime;
     }
 
     /// <inheritdoc/>
@@ -155,26 +133,6 @@ public class UserProfileService : IUserProfileService
         {
             // If there are no profile settings for the user, we initialize it with default values to ensure that the user profile always has valid profile settings.
             userProfile.ProfileSettingPreference ??= ProfileSettingPreference.GetDefaultValues();
-        }
-
-        return userProfile;
-    }
-
-    private async Task<UserProfile> EnrichWithKrrData(UserProfile userProfile, CancellationToken cancellationToken = default)
-    {
-        if (userProfile.Party == null || string.IsNullOrEmpty(userProfile.Party.SSN))
-        {
-            // If the user profile does not have a party or SSN, we cannot enrich it with KRR data, so we return the original user profile. 
-            // This is the case for self-identified users. 
-            return userProfile;
-        }
-
-        var contactPreferences = await _personRepository.GetContactPreferencesAsync([userProfile.Party.SSN], cancellationToken);
-        if (contactPreferences != null && contactPreferences.Count > 0)
-        {
-            userProfile.PhoneNumber = contactPreferences[0].MobileNumber;
-            userProfile.Email = contactPreferences[0].Email;
-            userProfile.IsReserved = contactPreferences[0].IsReserved;
         }
 
         return userProfile;

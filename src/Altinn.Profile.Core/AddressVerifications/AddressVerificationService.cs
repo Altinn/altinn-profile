@@ -1,26 +1,16 @@
 ﻿using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
 
-using Microsoft.Extensions.Options;
-
 namespace Altinn.Profile.Core.AddressVerifications
 {
     /// <summary>
-    /// A service for handling address verification processes, including generating verification codes,
-    /// persisting them, and delegating notification delivery to <see cref="IUserNotifier"/>.
+    /// A service for handling address verification processes, including generating and sending verification codes via email or SMS.
     /// </summary>
-    public class AddressVerificationService(
-        IUserNotifier userNotifier,
-        IAddressVerificationRepository addressVerificationRepository,
-        IVerificationCodeService verificationCodeService,
-        IOptions<AddressMaintenanceSettings> addressMaintenanceSettings,
-        Telemetry.Telemetry telemetry) : IAddressVerificationService
+    public class AddressVerificationService(INotificationsClient notificationsClient, IAddressVerificationRepository addressVerificationRepository, IVerificationCodeService verificationCodeService) : IAddressVerificationService
     {
-        private readonly IUserNotifier _userNotifier = userNotifier;
+        private readonly INotificationsClient _notificationsClient = notificationsClient;
         private readonly IAddressVerificationRepository _addressVerificationRepository = addressVerificationRepository;
         private readonly IVerificationCodeService _verificationCodeService = verificationCodeService;
-        private readonly IOptions<AddressMaintenanceSettings> _addressMaintenanceSettings = addressMaintenanceSettings;
-        private readonly Telemetry.Telemetry _telemetry = telemetry;
 
         /// <inheritdoc/>
         public async Task<(VerificationType? EmailVerificationStatus, VerificationType? SmsVerificationStatus)> GetVerificationStatusAsync(int userId, string? emailAddress, string? phoneNumber, CancellationToken cancellationToken)
@@ -41,7 +31,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         }
 
         /// <inheritdoc/>
-        public async Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, CancellationToken cancellationToken)
+        public async Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, string languageCode, Guid partyUuid, CancellationToken cancellationToken)
         {
             var existingVerification = await _addressVerificationRepository.GetVerificationStatusAsync(userid, addressType, address, cancellationToken);
             if (existingVerification == VerificationType.Verified)
@@ -61,7 +51,26 @@ namespace Altinn.Profile.Core.AddressVerifications
                 return;
             }
 
-            await _userNotifier.SendVerificationCodeAsync(userid, verificationCodeModel.Address, addressType, code, cancellationToken);
+            if (addressType == AddressType.Email)
+            {
+                await _notificationsClient.OrderEmailWithCode(verificationCodeModel.Address, partyUuid, languageCode, code, cancellationToken);
+            }
+            else if (addressType == AddressType.Sms)
+            {
+                await _notificationsClient.OrderSmsWithCode(verificationCodeModel.Address, partyUuid, languageCode, code, cancellationToken);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task NotifySmsAddressChangeAsync(string phoneNumber, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken)
+        {
+            await _notificationsClient.OrderSms(phoneNumber, partyUuid, languageCode, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task NotifyEmailAddressChangeAsync(string emailAddress, Guid partyUuid, string languageCode, int userid, CancellationToken cancellationToken)
+        {
+            await _notificationsClient.OrderEmail(emailAddress, partyUuid, languageCode, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -93,49 +102,6 @@ namespace Altinn.Profile.Core.AddressVerifications
                 await _addressVerificationRepository.IncrementFailedAttemptsAsync(storedCode.VerificationCodeId);
                 return false;
             }
-        }
-
-        /// <inheritdoc/>
-        public async Task<ResendVerificationResult> ResendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken)
-        {
-            var formattedAddress = VerificationCode.FormatAddress(address);
-
-            var existingCode = await _addressVerificationRepository.GetVerificationCodeAsync(userId, addressType, formattedAddress, cancellationToken);
-            if (existingCode is null)
-            {
-                _telemetry.RecordVerificationResendCodeNotFound(addressType);
-                return ResendVerificationResult.CodeNotFound;
-            }
-
-            RecordResendPatienceTelemetry(addressType, existingCode.Created);
-
-            var isExistingCodeInCooldown = existingCode.Created + TimeSpan.FromSeconds(_addressMaintenanceSettings.Value.VerificationCodeResendCooldownSeconds) > DateTime.UtcNow;
-
-            if (isExistingCodeInCooldown)
-            {
-                _telemetry.RecordVerificationResendCooldownRejected(addressType);
-                return ResendVerificationResult.CodeCooldown; // Don't generate a new code or send a notification if there's an existing code in the cooldown state
-            }
-
-            var code = _verificationCodeService.GenerateRawCode();
-            var verificationCodeModel = _verificationCodeService.CreateVerificationCode(userId, formattedAddress, addressType, code);
-
-            bool added = await _addressVerificationRepository.AddNewVerificationCodeAsync(verificationCodeModel);
-            if (!added)
-            {
-                // A concurrent request already inserted a verification code for this user/address/type.
-                return ResendVerificationResult.CodeCooldown;
-            }
-
-            await _userNotifier.SendVerificationCodeAsync(userId, verificationCodeModel.Address, addressType, code, cancellationToken);
-
-            return ResendVerificationResult.Success;
-        }
-
-        private void RecordResendPatienceTelemetry(AddressType addressType, DateTime codeCreated)
-        {
-            double secondsWaited = (DateTime.UtcNow - codeCreated).TotalSeconds;
-            _telemetry.RecordResendPatience(secondsWaited, addressType);
         }
     }
 }

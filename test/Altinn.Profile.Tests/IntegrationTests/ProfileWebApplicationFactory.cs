@@ -17,6 +17,7 @@ using Altinn.Profile.Integrations.Authorization;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.SblBridge;
+using Altinn.Profile.Integrations.SblBridge.Unit.Profile;
 using Altinn.Profile.Integrations.SblBridge.User.Profile;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Mocks.Authentication;
@@ -71,6 +72,8 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
     public DelegatingHandlerStub SblBridgeHttpMessageHandler { get; set; } = new();
 
     public Mock<IOptions<SblBridgeSettings>> SblBridgeSettingsOptions { get; set; } = new();
+
+    public Mock<ILogger<UnitProfileClient>> UnitProfileClientLogger { get; set; } = new();
 
     public Mock<ILogger<UserProfileClient>> UserProfileClientLogger { get; set; } = new();
 
@@ -165,6 +168,12 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
                     new HttpClient(SblBridgeHttpMessageHandler),
                     UserProfileClientLogger.Object,
                     SblBridgeSettingsOptions.Object));
+
+            services.AddSingleton<IUnitProfileRepository>(
+                new UnitProfileClient(
+                   new HttpClient(SblBridgeHttpMessageHandler),
+                   UnitProfileClientLogger.Object,
+                   SblBridgeSettingsOptions.Object));
         });
     }
 
