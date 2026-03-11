@@ -1,14 +1,11 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Mappers;
 using Altinn.Profile.Models;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -37,7 +34,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<OrganizationResponse>> GetMandatory([FromRoute] string organizationNumber, CancellationToken cancellationToken)
+        public async Task<ActionResult<OrganizationResponse>> GetMandatory([FromRoute]string organizationNumber, CancellationToken cancellationToken)
         {
             var organization = await _notificationAddressService.GetOrganizationNotificationAddress(organizationNumber, cancellationToken);
 
@@ -98,7 +95,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<NotificationAddressResponse>> CreateNotificationAddress([FromRoute] string organizationNumber, [FromBody][Required] NotificationAddressRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<NotificationAddressResponse>> CreateNotificationAddress([FromRoute] string organizationNumber, [FromBody] NotificationAddressRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -137,7 +134,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-        public async Task<ActionResult<NotificationAddressResponse>> UpdateNotificationAddress([FromRoute] string organizationNumber, [FromRoute] int notificationAddressId, [FromBody][Required] NotificationAddressRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<NotificationAddressResponse>> UpdateNotificationAddress([FromRoute] string organizationNumber, [FromRoute] int notificationAddressId, [FromBody] NotificationAddressRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -174,8 +171,8 @@ namespace Altinn.Profile.Controllers
 
             return Ok(response);
         }
-
-        /// <summary>
+        
+          /// <summary>
         /// Delete a notification address for an organization
         /// </summary>
         /// <returns>Returns an overview of the registered notification addresses for the given organization</returns>
@@ -208,7 +205,7 @@ namespace Altinn.Profile.Controllers
 
                 return Ok(response);
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException ex) 
                 when (ex.Message.Equals("Cannot delete the last notification address", StringComparison.InvariantCultureIgnoreCase))
             {
                 var problemDetails = new ProblemDetails

@@ -15,10 +15,5 @@
         /// Called PersonalEntityConsentValidationReminderDays in Altinn2
         /// </summary>
         public int ValidationReminderDays { get; set; }
-
-        /// <summary>
-        /// The time interval for which a user should be prevented in requesting new verification codes
-        /// </summary>
-        public int VerificationCodeResendCooldownSeconds { get; set; } = 60;
     }
 }

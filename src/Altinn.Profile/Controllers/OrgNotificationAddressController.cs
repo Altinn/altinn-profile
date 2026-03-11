@@ -1,15 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Models;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 using static Altinn.Profile.Models.OrgNotificationAddressesResponse;
 
 namespace Altinn.Profile.Controllers
@@ -36,7 +33,7 @@ namespace Altinn.Profile.Controllers
         [HttpPost("lookup")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<OrgNotificationAddressesResponse>> PostLookup([FromBody][Required] OrgNotificationAddressRequest orgContactPointLookup, CancellationToken cancellationToken)
+        public async Task<ActionResult<OrgNotificationAddressesResponse>> PostLookup([FromBody] OrgNotificationAddressRequest orgContactPointLookup, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {

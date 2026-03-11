@@ -1,19 +1,19 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.Profile.Core.Integrations;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Altinn.Profile.Integrations.Notifications;
 
 /// <summary>
-/// A content-agnostic HTTP client for interacting with the Altinn notifications service.
-/// Responsible only for HTTP transport; callers build message content.
+/// An HTTP client to interact with the Altinn notifications service.
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="NotificationsClient"/> class.
+/// </remarks>
 public class NotificationsClient : INotificationsClient
 {
     private readonly HttpClient _httpClient;
@@ -44,40 +44,87 @@ public class NotificationsClient : INotificationsClient
     }
 
     /// <inheritdoc/>
-    public async Task OrderSmsAsync(string phoneNumber, string body, string? sendersReference, CancellationToken cancellationToken)
+    public async Task OrderSmsWithCode(string phoneNumber, Guid partyUuid, string languageCode, string verificationCode, CancellationToken cancellationToken)
     {
         var request = new SmsOrderRequest
         {
             IdempotencyId = Guid.NewGuid().ToString(),
-            SendersReference = sendersReference,
+            SendersReference = partyUuid.ToString(),
             RecipientSms = new RecipientSms
             {
                 PhoneNumber = phoneNumber,
                 SmsSettings = new SmsSettings
                 {
-                    Body = body,
+                    Body = OrderContentWithCode.GetSmsContent(languageCode, verificationCode),
                 }
             }
         };
 
         var json = JsonSerializer.Serialize(request, _options);
+
         await SendOrder(json, _notificationTypeSms, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public async Task OrderEmailAsync(string emailAddress, string subject, string body, string? sendersReference, CancellationToken cancellationToken)
+    public async Task OrderEmailWithCode(string emailAddress, Guid partyUuid, string languageCode, string verificationCode, CancellationToken cancellationToken)
     {
         var request = new EmailOrderRequest
         {
             IdempotencyId = Guid.NewGuid().ToString(),
-            SendersReference = sendersReference,
+            SendersReference = partyUuid.ToString(),
             RecipientEmail = new RecipientEmail
             {
                 EmailAddress = emailAddress,
                 EmailSettings = new EmailSettings
                 {
-                    Subject = subject,
-                    Body = body,
+                    Subject = OrderContentWithCode.GetEmailSubject(languageCode),
+                    Body = OrderContentWithCode.GetEmailBody(languageCode, verificationCode),
+                }
+            }
+        };
+
+        var json = JsonSerializer.Serialize(request, _options);
+        await SendOrder(json, _notificationTypeEmail, cancellationToken);
+    }
+
+    // Old methods to notify the user about address change. Can be deleted when we are sure that the new methods work as expected and are used by the ui.
+
+    /// <inheritdoc/>
+    public async Task OrderSms(string phoneNumber, Guid partyUuid, string languageCode, CancellationToken cancellationToken)
+    {
+        var request = new SmsOrderRequest
+        {
+            IdempotencyId = Guid.NewGuid().ToString(),
+            SendersReference = partyUuid.ToString(),
+            RecipientSms = new RecipientSms
+            {
+                PhoneNumber = phoneNumber,
+                SmsSettings = new SmsSettings
+                {
+                    Body = OrderContent.GetSmsContent(languageCode),
+                }
+            }
+        };
+
+        var json = JsonSerializer.Serialize(request, _options);
+
+        await SendOrder(json, _notificationTypeSms, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task OrderEmail(string emailAddress, Guid partyUuid, string languageCode, CancellationToken cancellationToken)
+    {
+        var request = new EmailOrderRequest
+        {
+            IdempotencyId = Guid.NewGuid().ToString(),
+            SendersReference = partyUuid.ToString(),
+            RecipientEmail = new RecipientEmail
+            {
+                EmailAddress = emailAddress,
+                EmailSettings = new EmailSettings
+                {
+                    Subject = OrderContent.GetEmailSubject(languageCode),
+                    Body = OrderContent.GetTmpEmailBody(languageCode),
                 }
             }
         };
@@ -95,14 +142,16 @@ public class NotificationsClient : INotificationsClient
             return;
         }
 
-        using var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"v1/future/orders/instant/{type}")
+        var stringContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+        var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"v1/future/orders/instant/{type}")
         {
-            Content = new StringContent(jsonString, Encoding.UTF8, "application/json")
+            Content = stringContent
         };
 
         requestMessage.Headers.Add("PlatformAccessToken", accessToken);
 
-        using var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
+        var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
