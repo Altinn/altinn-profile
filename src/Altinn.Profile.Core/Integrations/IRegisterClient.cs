@@ -1,4 +1,4 @@
-﻿using Altinn.Register.Contracts;
+﻿using Altinn.Profile.Core.Unit.ContactPoints;
 
 namespace Altinn.Profile.Core.Integrations
 {
@@ -28,7 +28,7 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="orgNumbers">The organization numbers to look up</param>
         /// <param name="cancellationToken">Cancel the current request</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        Task<IReadOnlyList<Organization>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken);
+        Task<IReadOnlyList<Party>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken);
 
         /// <summary>
         /// Get organization number for a party based on its UUID.

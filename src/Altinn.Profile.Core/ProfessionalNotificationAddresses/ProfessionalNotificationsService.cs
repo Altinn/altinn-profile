@@ -147,7 +147,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                 throw new InvalidOperationException("Indecisive organization result");
             }
 
-            var partyUuid = parties[0].Uuid;
+            var partyUuid = parties[0].PartyUuid;
 
             // Step 2: Get all user contact info for this party
             var contactInfos = await _professionalNotificationsRepository

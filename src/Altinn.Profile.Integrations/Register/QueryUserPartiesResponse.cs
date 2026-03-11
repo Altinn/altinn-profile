@@ -1,18 +1,16 @@
 ﻿using System.Text.Json.Serialization;
 
-using Altinn.Profile.Core.Unit.ContactPoints;
-
 namespace Altinn.Profile.Integrations.Register
 {
     /// <summary>
     /// Response model for the lookup resource for parties
     /// </summary>
-    public class QueryPartiesResponse
+    public class QueryUserPartiesResponse
     {
         /// <summary>
         /// Data containing the party list.
         /// </summary>
         [JsonPropertyName("data")]
-        public List<Party> Data { get; init; } = [];
+        public List<Altinn.Register.Contracts.Party> Data { get; init; } = [];
     }
 }

@@ -2,7 +2,6 @@
 
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
-using Altinn.Register.Contracts;
 
 namespace Altinn.Profile.Core.Unit.ContactPoints
 {
@@ -50,22 +49,16 @@ namespace Altinn.Profile.Core.Unit.ContactPoints
 
             foreach (var party in partyList)
             {
-                var validContactPoints = await GetValidNotificationAddressesForParty(party.Uuid, resourceId, cancellationToken);
+                var validContactPoints = await GetValidNotificationAddressesForParty(party.PartyUuid, resourceId, cancellationToken);
                 if (!validContactPoints.Any())
-                {
-                    continue;
-                }
-
-                var org = party as Organization;
-                if (string.IsNullOrEmpty(org?.OrganizationIdentifier.ToString()))
                 {
                     continue;
                 }
 
                 result.ContactPointsList.Add(new UnitContactPoints
                 {
-                    OrganizationNumber = org.OrganizationIdentifier.ToString(),
-                    PartyId = (int)party.PartyId.Value,
+                    OrganizationNumber = party.OrganizationIdentifier,
+                    PartyId = party.PartyId,
                     UserContactPoints = [.. validContactPoints.Select(c => new UserRegisteredContactPoint { Email = c.EmailAddress, MobileNumber = c.PhoneNumber, UserId = c.UserId })],
                 });
             }
