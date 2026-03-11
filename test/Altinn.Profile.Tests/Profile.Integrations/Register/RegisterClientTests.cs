@@ -708,7 +708,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             Assert.Equal(expectedParty.Type, result.Type);
             Assert.Equal(HttpMethod.Post, sentRequest.Method);
             Assert.Contains("v2/internal/parties/query?fields=person,party,user,si", sentRequest.RequestUri.ToString());
-            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
+            Assert.Contains(sentRequest.Headers, h => h.Key == "PlatformAccessToken");
 
             var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var sentPayload = JsonNode.Parse(requestContent);

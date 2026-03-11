@@ -146,7 +146,7 @@ public class RegisterClient : IRegisterClient
     /// <inheritdoc/>
     public async Task<Altinn.Register.Contracts.Party?> GetUserPartyByUsername(string username, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNullOrEmpty(username);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(username);
 
         var identifiers = new[] { $"urn:altinn:party:username:{username}" };
         var parties = await GetUserParties(identifiers, cancellationToken);
@@ -156,7 +156,7 @@ public class RegisterClient : IRegisterClient
     /// <inheritdoc/>
     public async Task<Altinn.Register.Contracts.Party?> GetUserPartyBySsn(string ssn, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNullOrEmpty(ssn);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(ssn);
 
         var identifiers = new[] { $"urn:altinn:person:identifier-no:{ssn}" };
         var parties = await GetUserParties(identifiers, cancellationToken);
@@ -183,7 +183,7 @@ public class RegisterClient : IRegisterClient
 
         if (response == null)
         {
-            throw new PartyNotFoundException("No response from Register when looking up parties for user(s)");
+            throw new RegisterException("No response from Register when looking up parties for user(s)");
         }
 
         var responseObject = await response.Content.ReadFromJsonAsync<QueryUserPartiesResponse>(cancellationToken);
