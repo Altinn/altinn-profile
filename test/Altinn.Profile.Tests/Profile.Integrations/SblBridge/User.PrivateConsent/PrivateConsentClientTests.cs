@@ -4,46 +4,23 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.User.PrivateConsent;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using Moq;
 using Moq.Protected;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.User.PrivateConsent;
 
 public class PrivateConsentClientTests
 {
-    private static PrivateConsentChangedRequest GetValidRequest() => new()
-    {
-        ChangeType = "insert",
-        ChangeDateTime = DateTime.UtcNow,
-        UserId = 123,
-        PhoneNumber = "+4798765432",
-        EmailAddress = "test@test.com"
-    };
-
-    private static PrivateConsentProfileClient CreateClient(HttpResponseMessage response, out Mock<ILogger<PrivateConsentProfileClient>> loggerMock)
-    {
-        var handlerMock = new Mock<HttpMessageHandler>();
-        handlerMock.Protected()
-            .Setup<Task<HttpResponseMessage>>(
-                "SendAsync",
-                ItExpr.IsAny<HttpRequestMessage>(),
-                ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(response);
-
-        var httpClient = new HttpClient(handlerMock.Object);
-        var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
-        settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { ApiProfileEndpoint = "http://localhost/" });
-
-        loggerMock = new Mock<ILogger<PrivateConsentProfileClient>>();
-
-        return new PrivateConsentProfileClient(httpClient, loggerMock.Object, settingsMock.Object);
-    }
-
     [Fact]
     public async Task UpdatePrivateConsent_SuccessfulRequest_DoesNotThrow()
     {
@@ -93,5 +70,35 @@ public class PrivateConsentClientTests
                 null,
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
+    }
+
+    private static PrivateConsentChangedRequest GetValidRequest() => new()
+    {
+        ChangeType = "insert",
+        ChangeDateTime = DateTime.UtcNow,
+        UserId = 123,
+        PhoneNumber = "+4798765432",
+        EmailAddress = "test@test.com"
+    };
+
+    private static PrivateConsentProfileClient CreateClient(HttpResponseMessage response, out Mock<ILogger<PrivateConsentProfileClient>> loggerMock)
+    {
+        HttpClient httpClient;
+        if (response != null)
+        {
+            DelegatingHandlerStub messageHandler = new((request, cancellationToken) => Task.FromResult(response));
+            httpClient = new HttpClient(messageHandler);
+        }
+        else
+        {
+            httpClient = new HttpClient();
+        }
+
+        var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
+        settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { ApiProfileEndpoint = "http://localhost/" });
+
+        loggerMock = new Mock<ILogger<PrivateConsentProfileClient>>();
+
+        return new PrivateConsentProfileClient(httpClient, loggerMock.Object, settingsMock.Object);
     }
 }
