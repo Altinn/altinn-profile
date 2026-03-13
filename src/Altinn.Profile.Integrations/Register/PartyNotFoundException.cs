@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents an exception that is thrown when a party cannot be found in the register.
     /// </summary>
-    public class PartyNotFoundException : Exception
+    public class PartyNotFoundException : RegisterException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PartyNotFoundException"/> class.

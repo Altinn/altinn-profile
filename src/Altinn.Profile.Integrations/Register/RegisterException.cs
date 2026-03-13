@@ -1,7 +1,7 @@
 ﻿namespace Altinn.Profile.Integrations.Register
 {
     /// <summary>
-    /// Represents an exception that is thrown when a party cannot be found in the register.
+    /// Represents an exception that is thrown when register does not respond as expected.
     /// </summary>
     public class RegisterException : Exception
     {
