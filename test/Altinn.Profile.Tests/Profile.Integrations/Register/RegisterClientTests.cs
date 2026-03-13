@@ -44,48 +44,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             _loggerMock = new Mock<ILogger<RegisterClient>>();
         }
 
-        private static Mock<HttpMessageHandler> CreateHandler(
-            HttpResponseMessage response,
-            Action<HttpRequestMessage> requestCallback = null,
-            Action<CancellationToken> cancelCallback = null)
-        {
-            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-            handlerMock.Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync((HttpRequestMessage req, CancellationToken ct) =>
-                {
-                    requestCallback?.Invoke(req);
-                    cancelCallback?.Invoke(ct);
-                    return response;
-                });
-            return handlerMock;
-        }
-
-        private HttpResponseMessage CreateQueryUserPartiesResponse(params Altinn.Register.Contracts.Party[] parties)
-        {
-            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
-            {
-                Data = parties.Length > 0 ? [.. parties] : null
-            });
-
-            return new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
-            };
-        }
-
-        private (RegisterClient Client, Mock<HttpMessageHandler> Handler, Func<HttpRequestMessage> GetCapturedRequest) CreateClientWithCapture(HttpResponseMessage response)
-        {
-            HttpRequestMessage sentRequest = null;
-            var handler = CreateHandler(response, req => sentRequest = req);
-            var httpClient = new HttpClient(handler.Object);
-            var client = new RegisterClient(httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
-            return (client, handler, () => sentRequest);
-        }
-
         [Fact]
         public void Constructor_BaseAddressIsSetFromSettings()
         {
@@ -976,6 +934,48 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             // Assert
             Assert.NotNull(result);
             Assert.Empty(result);
+        }
+
+        private static Mock<HttpMessageHandler> CreateHandler(
+            HttpResponseMessage response,
+            Action<HttpRequestMessage> requestCallback = null,
+            Action<CancellationToken> cancelCallback = null)
+        {
+            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+            handlerMock.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync((HttpRequestMessage req, CancellationToken ct) =>
+                {
+                    requestCallback?.Invoke(req);
+                    cancelCallback?.Invoke(ct);
+                    return response;
+                });
+            return handlerMock;
+        }
+
+        private static HttpResponseMessage CreateQueryUserPartiesResponse(params Altinn.Register.Contracts.Party[] parties)
+        {
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = parties.Length > 0 ? [.. parties] : null
+            });
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+        }
+
+        private (RegisterClient Client, Mock<HttpMessageHandler> Handler, Func<HttpRequestMessage> GetCapturedRequest) CreateClientWithCapture(HttpResponseMessage response)
+        {
+            HttpRequestMessage sentRequest = null;
+            var handler = CreateHandler(response, req => sentRequest = req);
+            var httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            return (client, handler, () => sentRequest);
         }
     }
 }
