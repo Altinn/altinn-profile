@@ -29,17 +29,17 @@ public partial class ProfileDbContext : DbContext
     }
 
     /// <summary>
-    /// Gets or sets the <see cref="DbSet{MailboxSupplier}"/> representing the mailbox suppliers.
+    /// The <see cref="DbSet{MailboxSupplier}"/> representing the mailbox suppliers.
     /// </summary>
     public virtual DbSet<MailboxSupplier> MailboxSuppliers { get; set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="DbSet{Metadata}"/> representing the metadata.
+    /// The <see cref="DbSet{Metadata}"/> representing the metadata.
     /// </summary>
     public virtual DbSet<Metadata> Metadata { get; set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="DbSet{Person}"/> representing the people.
+    /// The <see cref="DbSet{Person}"/> representing the people.
     /// </summary>
     public virtual DbSet<Person> People { get; set; }
 
@@ -94,12 +94,12 @@ public partial class ProfileDbContext : DbContext
     public virtual DbSet<ProfileSettings> ProfileSettings { get; set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="DbSet{VerificationCode}"/> representing the verification codes for address verification.
+    /// The <see cref="DbSet{VerificationCode}"/> representing the verification codes for address verification.
     /// </summary>
     public virtual DbSet<VerificationCode> VerificationCodes { get; set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="DbSet{VerifiedAddress}"/> representing the verified addresses for users.
+    /// The <see cref="DbSet{VerifiedAddress}"/> representing the verified addresses for users.
     /// </summary>
     public virtual DbSet<VerifiedAddress> VerifiedAddresses { get; set; }
 
@@ -208,7 +208,7 @@ public partial class ProfileDbContext : DbContext
 
             entity.HasIndex(e => new { e.PartyUuid, e.UserId }, "ix_user_party_contact_info_party_uuid_user_id");
             entity.HasIndex(e => e.UserId, "ix_user_party_contact_info_user_id");
-            entity.HasIndex(e => e.EmailAddress, "ix_email_address");            
+            entity.HasIndex(e => e.EmailAddress, "ix_email_address");
             entity.HasIndex(e => e.PhoneNumber, "ix_user_party_contact_info_phone_number");
 
             entity.HasMany(e => e.UserPartyContactInfoResources)
