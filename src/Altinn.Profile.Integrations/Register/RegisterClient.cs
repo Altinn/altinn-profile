@@ -6,6 +6,7 @@ using Altinn.Common.AccessTokenClient.Services;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Register.Contracts;
+using Altinn.Urn;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -48,7 +49,7 @@ public class RegisterClient : IRegisterClient
     /// <inheritdoc/>
     public async Task<IReadOnlyList<Core.Unit.ContactPoints.Party>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
     {
-        string[] identifiers = [.. orgNumbers.Where(o => !string.IsNullOrWhiteSpace(o)).Select(o => $"urn:altinn:organization:identifier-no:{o}")];
+        string[] identifiers = [.. orgNumbers.Where(o => !string.IsNullOrWhiteSpace(o)).Select(UrnPrefixes.ToOrgNumberUrn)];
         var request = new QueryPartiesRequest(identifiers);
 
         var response = await QueryParties(request, "fields=id,uuid,org-id", cancellationToken: cancellationToken);
@@ -130,7 +131,7 @@ public class RegisterClient : IRegisterClient
     /// <inheritdoc/>
     public async Task<Altinn.Register.Contracts.Party?> GetUserParty(Guid userUuid, CancellationToken cancellationToken)
     {
-        var identifiers = new[] { $"urn:altinn:party:uuid:{userUuid}" };
+        var identifiers = new[] { UrnPrefixes.ToPartyUuidUrn(userUuid) };
         var parties = await GetUserParties(identifiers, cancellationToken);
         return parties.FirstOrDefault();
     }
@@ -138,7 +139,7 @@ public class RegisterClient : IRegisterClient
     /// <inheritdoc/>
     public async Task<Altinn.Register.Contracts.Party?> GetUserParty(int userId, CancellationToken cancellationToken)
     {
-        var identifiers = new[] { $"urn:altinn:user:id:{userId}" };
+        var identifiers = new[] { UrnPrefixes.ToUserIdUrn(userId) };
         var parties = await GetUserParties(identifiers, cancellationToken);
         return parties.FirstOrDefault();
     }
@@ -148,7 +149,7 @@ public class RegisterClient : IRegisterClient
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(username);
 
-        var identifiers = new[] { $"urn:altinn:party:username:{username}" };
+        var identifiers = new[] { UrnPrefixes.ToUserNameUrn(username) };
         var parties = await GetUserParties(identifiers, cancellationToken);
         return parties.FirstOrDefault();
     }
@@ -158,7 +159,7 @@ public class RegisterClient : IRegisterClient
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(ssn);
 
-        var identifiers = new[] { $"urn:altinn:person:identifier-no:{ssn}" };
+        var identifiers = new[] { UrnPrefixes.ToPersonUrn(ssn) };
         var parties = await GetUserParties(identifiers, cancellationToken);
         return parties.FirstOrDefault();
     }
@@ -172,7 +173,7 @@ public class RegisterClient : IRegisterClient
             throw new ArgumentException("The list of user UUIDs cannot be empty.", nameof(userUuids));
         }
 
-        var identifiers = userUuids.Select(uuid => $"urn:altinn:party:uuid:{uuid}").ToArray();
+        var identifiers = userUuids.Select(UrnPrefixes.ToPartyUuidUrn).ToArray();
         return [.. await GetUserParties(identifiers, cancellationToken)];
     }
 
