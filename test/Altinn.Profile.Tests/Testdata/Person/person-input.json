@@ -1,0 +1,41 @@
+{
+  "partyType": "person",
+  "personIdentifier": "17902349936",
+  "firstName": "SMISKENDE",
+  "middleName": null,
+  "lastName": "BILLETT",
+  "shortName": "BILLETT SMISKENDE",
+  "address": {
+      "municipalNumber": "1804",
+      "municipalName": "BODØ",
+      "streetName": "Gammelveien",
+      "houseNumber": "0046",
+      "houseLetter": null,
+      "postalCode": "8030",
+      "city": "BODØ"
+  },
+  "mailingAddress": {
+      "address": "Gammelveien 46",
+      "postalCode": "8030",
+      "city": "BODØ"
+  },
+  "dateOfBirth": "1923-10-17",
+  "dateOfDeath": null,
+  "partyUuid": "629fa2c0-27cd-40a2-ac6a-99bdf374dba2",
+  "versionId": 447657101,
+  "urn": "urn:altinn:party:uuid:629fa2c0-27cd-40a2-ac6a-99bdf374dba2",
+  "externalUrn": "urn:altinn:person:identifier-no:17902349936",
+  "partyId": 50891883,
+  "displayName": "SMISKENDE BILLETT",
+  "createdAt": "2025-03-14T11:30:24.823491+00:00",
+  "modifiedAt": "2025-07-15T02:32:08.160072+00:00",
+  "isDeleted": false,
+  "deletedAt": null,
+  "user": {
+      "userId": 20462603,
+      "username": null,
+      "userIds": [
+          20462603
+      ]
+  }
+}
