@@ -23,5 +23,5 @@ public enum DataType
     /// <summary>
     /// The change happened to SI user addresses. Must use the same name as in A2.
     /// </summary>
-    SIUserAddresses,
+    PrivateConsentProfile,
 }

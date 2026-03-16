@@ -65,7 +65,7 @@ namespace Altinn.Profile.Changelog
 
         private async Task RunProfileSettingsImport(CancellationToken cancellationToken)
         {
-            var lastChangeDate = await _changelogSyncMetadataRepository.GetLatestSyncTimestampAsync(DataType.PortalSettingPreferences, cancellationToken);
+            var lastChangeDate = await _changelogSyncMetadataRepository.GetLatestSyncTimestampAsync(DataType.PrivateConsentProfile, cancellationToken);
 
             var changes = GetChangeLogPage(lastChangeDate ?? DateTime.MinValue, cancellationToken);
 
@@ -94,7 +94,7 @@ namespace Altinn.Profile.Changelog
                 }
 
                 var lastChange = page.ProfileChangeLogList[^1].ChangeDatetime.ToUniversalTime();
-                await _changelogSyncMetadataRepository.UpdateLatestChangeTimestampAsync(lastChange, DataType.PortalSettingPreferences);
+                await _changelogSyncMetadataRepository.UpdateLatestChangeTimestampAsync(lastChange, DataType.PrivateConsentProfile);
             }
         }
 
@@ -103,7 +103,7 @@ namespace Altinn.Profile.Changelog
             ChangeLog response;
             while (true)
             {
-                response = await _changeLogClient.GetChangeLog(from, DataType.PortalSettingPreferences, cancellationToken);
+                response = await _changeLogClient.GetChangeLog(from, DataType.PrivateConsentProfile, cancellationToken);
 
                 if (response == null || response.ProfileChangeLogList.Count == 0)
                 {
