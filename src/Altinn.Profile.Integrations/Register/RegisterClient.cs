@@ -5,6 +5,8 @@ using System.Text.Json.Serialization;
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Unit.ContactPoints;
+using Altinn.Register.Contracts;
+using Altinn.Urn;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -45,17 +47,18 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
-    public async Task<IReadOnlyList<Party>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Core.Unit.ContactPoints.Party>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
     {
-        var request = new QueryPartiesRequest(orgNumbers);
+        string[] identifiers = [.. orgNumbers.Where(o => !string.IsNullOrWhiteSpace(o)).Select(UrnPrefixes.ToOrgNumberUrn)];
+        var request = new QueryPartiesRequest(identifiers);
 
-        var response = await SendRequest(HttpMethod.Post, "v2/internal/parties/query", request, cancellationToken);
-
+        var response = await QueryParties(request, "fields=id,uuid,org-id", cancellationToken: cancellationToken);
         if (response == null)
         {
             return null;
         }
 
+        // We use another response type here since the contract for this method only requires party id, party uuid and organization identifier, and we want to avoid deserializing unnecessary data
         var responseObject = await response.Content.ReadFromJsonAsync<QueryPartiesResponse>(cancellationToken);
 
         return responseObject?.Data;
@@ -123,6 +126,88 @@ public class RegisterClient : IRegisterClient
         }
 
         return responseData[0].OrgNumber;
+    }
+
+    /// <inheritdoc/>
+    public async Task<Altinn.Register.Contracts.Party?> GetUserParty(Guid userUuid, CancellationToken cancellationToken)
+    {
+        var identifiers = new[] { UrnPrefixes.ToPartyUuidUrn(userUuid) };
+        var parties = await GetUserParties(identifiers, cancellationToken);
+        return parties.FirstOrDefault();
+    }
+
+    /// <inheritdoc/>
+    public async Task<Altinn.Register.Contracts.Party?> GetUserParty(int userId, CancellationToken cancellationToken)
+    {
+        var identifiers = new[] { UrnPrefixes.ToUserIdUrn(userId) };
+        var parties = await GetUserParties(identifiers, cancellationToken);
+        return parties.FirstOrDefault();
+    }
+
+    /// <inheritdoc/>
+    public async Task<Altinn.Register.Contracts.Party?> GetUserPartyByUsername(string username, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(username);
+
+        var identifiers = new[] { UrnPrefixes.ToUserNameUrn(username) };
+        var parties = await GetUserParties(identifiers, cancellationToken);
+        return parties.FirstOrDefault();
+    }
+
+    /// <inheritdoc/>
+    public async Task<Altinn.Register.Contracts.Party?> GetUserPartyBySsn(string ssn, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(ssn);
+
+        var identifiers = new[] { UrnPrefixes.ToPersonUrn(ssn) };
+        var parties = await GetUserParties(identifiers, cancellationToken);
+        return parties.FirstOrDefault();
+    }
+
+    /// <inheritdoc/>
+    public async Task<IReadOnlyList<Altinn.Register.Contracts.Party>> GetUserParties(List<Guid> userUuids, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(userUuids);
+        if (userUuids.Count == 0)
+        {
+            throw new ArgumentException("The list of user UUIDs cannot be empty.", nameof(userUuids));
+        }
+
+        var identifiers = userUuids.Select(UrnPrefixes.ToPartyUuidUrn).ToArray();
+        return [.. await GetUserParties(identifiers, cancellationToken)];
+    }
+
+    private async Task<IEnumerable<Altinn.Register.Contracts.Party>> GetUserParties(string[] urns, CancellationToken cancellationToken)
+    {
+        var request = new QueryPartiesRequest(urns);
+        var response = await QueryParties(request, "fields=person,party,user,si", cancellationToken: cancellationToken);
+
+        if (response == null)
+        {
+            throw new RegisterException("No response from Register when looking up parties for user(s)");
+        }
+
+        var responseObject = await response.Content.ReadFromJsonAsync<QueryUserPartiesResponse>(cancellationToken);
+        var data = responseObject?.Data;
+
+        if (data is null or { Count: 0 })
+        {
+            throw new PartyNotFoundException("Empty response from Register when looking up parties for user(s)");
+        }
+
+        return data.Where(p => p.Type == PartyType.Person || p.Type == PartyType.SelfIdentifiedUser);
+    }
+
+    private async Task<HttpResponseMessage?> QueryParties(QueryPartiesRequest request, string queryParams = "", CancellationToken cancellationToken = default)
+    {
+        var requestUri = "v2/internal/parties/query";
+        if (!string.IsNullOrEmpty(queryParams))
+        {
+            requestUri += $"?{queryParams}";
+        }
+
+        var response = await SendRequest(HttpMethod.Post, requestUri, request, cancellationToken);
+        return response;
     }
 
     private async Task<HttpResponseMessage?> SendRequest(HttpMethod method, string path, object request, CancellationToken cancellationToken)

@@ -1,0 +1,21 @@
+meta {
+  name: user by uuid
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{ProfileBaseAddress}}/api/v1/users/byuuid/{{AuthN_PartyUuid}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  PlatformAccessToken: {{AccessToken}}
+}
+
+script:pre-request {
+  await bru.runRequest("TokenGenerator/portal user")
+  await bru.runRequest("TokenGenerator/platform access token")
+  
+}

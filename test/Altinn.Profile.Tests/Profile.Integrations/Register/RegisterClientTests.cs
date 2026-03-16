@@ -7,9 +7,12 @@ using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Altinn.Authorization.ModelUtils;
 using Altinn.Common.AccessTokenClient.Services;
-using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Integrations.Register;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
+using Altinn.Register.Contracts;
+using Altinn.Register.Contracts.Testing;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -39,26 +42,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
                          .Returns("token");
 
             _loggerMock = new Mock<ILogger<RegisterClient>>();
-        }
-
-        private static Mock<HttpMessageHandler> CreateHandler(
-            HttpResponseMessage response,
-            Action<HttpRequestMessage> requestCallback = null,
-            Action<CancellationToken> cancelCallback = null)
-        {
-            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-            handlerMock.Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync((HttpRequestMessage req, CancellationToken ct) =>
-                {
-                    requestCallback?.Invoke(req);
-                    cancelCallback?.Invoke(ct);
-                    return response;
-                });
-            return handlerMock;
         }
 
         [Fact]
@@ -317,7 +300,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
         {
             // Arrange
             var orgNumbers = new[] { "111111111", "222222222" };
-            var expectedParties = new List<Party>
+            var expectedParties = new List<Altinn.Profile.Core.Unit.ContactPoints.Party>
             {
                 new() { OrganizationIdentifier = "111111111", PartyUuid = Guid.NewGuid() },
                 new() { OrganizationIdentifier = "222222222", PartyUuid = Guid.NewGuid() }
@@ -350,7 +333,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             Assert.Equal(expectedParties[1].PartyUuid, result[1].PartyUuid);
 
             Assert.Equal(HttpMethod.Post, sentRequest.Method);
-            Assert.Equal(new Uri(_testBaseUrl + "v2/internal/parties/query"), sentRequest.RequestUri);
+            Assert.Equal(new Uri(_testBaseUrl + "v2/internal/parties/query?fields=id,uuid,org-id"), sentRequest.RequestUri);
             Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
 
             var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -431,7 +414,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             var orgNumbers = new[] { "111111111" };
             var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
             {
-                Data = new List<Party>()
+                Data = new List<Altinn.Profile.Core.Unit.ContactPoints.Party>()
             });
 
             var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -631,6 +614,368 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             // Act & Assert
             await Assert.ThrowsAsync<TaskCanceledException>(
             () => client.GetOrganizationNumberByPartyUuid(partyUuid, cts.Token));
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserId_WhenClientRespondsSuccessfully_ReturnsParty()
+        {
+            // Arrange
+            var userId = 12345;
+            var expectedParty = Person.Minimal("17902349936");
+            var (client, _, _) = CreateClientWithCapture(CreateQueryUserPartiesResponse(expectedParty));
+
+            // Act
+            var result = await client.GetUserParty(userId, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedParty.PartyId, result.PartyId);
+            Assert.Equal(expectedParty.Uuid, result.Uuid);
+            Assert.Equal(expectedParty.Type, result.Type);
+        }
+                
+        [Fact]
+        public async Task GetUserParty_ByUserId_SetsUpRequestCorrectly()
+        {
+            // Arrange
+            var userId = 12345;
+            var expectedParty = Person.Minimal("17902349936");
+            var (client, _, getCapturedRequest) = CreateClientWithCapture(CreateQueryUserPartiesResponse(expectedParty));
+
+            // Act
+            await client.GetUserParty(userId, TestContext.Current.CancellationToken);
+            var sentRequest = getCapturedRequest();
+
+            // Assert
+            Assert.Equal(HttpMethod.Post, sentRequest.Method);
+            Assert.Contains("v2/internal/parties/query?fields=person,party,user,si", sentRequest.RequestUri.ToString());
+            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
+
+            var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var sentPayload = JsonNode.Parse(requestContent);
+            var sentData = sentPayload["data"].AsArray();
+            Assert.Single(sentData);
+            Assert.Equal($"urn:altinn:user:id:{userId}", (string)sentData[0]);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserId_WhenRegisterReturns500_ThrowsRegisterException()
+        {
+            // Arrange
+            var userId = 12345;
+            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            var (client, _, _) = CreateClientWithCapture(response);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<RegisterException>(
+                () => client.GetUserParty(userId, TestContext.Current.CancellationToken));
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserId_WhenResponseDataIsNull_ThrowsPartyNotFoundException()
+        {
+            // Arrange
+            var userId = 12345;
+            var (client, _, _) = CreateClientWithCapture(CreateQueryUserPartiesResponse());
+
+            // Act & Assert
+            await Assert.ThrowsAsync<PartyNotFoundException>(
+                () => client.GetUserParty(userId, TestContext.Current.CancellationToken));
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserUuid_WhenClientRespondsSuccessfully_ReturnsParty()
+        {
+            // Arrange
+            var userUuid = Guid.NewGuid();
+            var expectedParty = Person.Minimal("17902349936", userUuid);
+            var (client, _, _) = CreateClientWithCapture(CreateQueryUserPartiesResponse(expectedParty));
+
+            // Act
+            var result = await client.GetUserParty(userUuid, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedParty.PartyId, result.PartyId);
+            Assert.Equal(expectedParty.Uuid, result.Uuid);
+            Assert.Equal(expectedParty.Type, result.Type);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserUuid_SetsUpRequestCorrectly()
+        {
+            // Arrange
+            var userUuid = Guid.NewGuid();
+            var expectedParty = Person.Minimal("17902349936", userUuid);
+            var (client, _, getCapturedRequest) = CreateClientWithCapture(CreateQueryUserPartiesResponse(expectedParty));
+
+            // Act
+            await client.GetUserParty(userUuid, TestContext.Current.CancellationToken);
+            var sentRequest = getCapturedRequest();
+
+            // Assert
+            Assert.Equal(HttpMethod.Post, sentRequest.Method);
+            Assert.Contains("v2/internal/parties/query?fields=person,party,user,si", sentRequest.RequestUri.ToString());
+            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
+
+            var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var sentPayload = JsonNode.Parse(requestContent);
+            var sentData = sentPayload["data"].AsArray();
+            Assert.Single(sentData);
+            Assert.Equal($"urn:altinn:party:uuid:{userUuid}", (string)sentData[0]);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserUuid_WhenRegisterReturns500_ThrowsRegisterException()
+        {
+            // Arrange
+            var userUuid = Guid.NewGuid();
+            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            var (client, _, _) = CreateClientWithCapture(response);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<RegisterException>(
+                () => client.GetUserParty(userUuid, TestContext.Current.CancellationToken));
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserUuid_WhenResponseDataIsNull_ThrowsPartyNotFoundException()
+        {
+            // Arrange
+            var userUuid = Guid.NewGuid();
+            var (client, _, _) = CreateClientWithCapture(CreateQueryUserPartiesResponse());
+
+            // Act & Assert
+            await Assert.ThrowsAsync<PartyNotFoundException>(
+                () => client.GetUserParty(userUuid, TestContext.Current.CancellationToken));
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUsername_WhenClientRespondsSuccessfully_ReturnsParty()
+        {
+            // Arrange
+            var username = "testuser";
+            var expectedParty = SelfIdentifiedUser.MinimalLegacy(username);
+            var (client, _, _) = CreateClientWithCapture(CreateQueryUserPartiesResponse(expectedParty));
+
+            // Act
+            var result = await client.GetUserPartyByUsername(username, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedParty.PartyId, result.PartyId);
+            Assert.Equal(expectedParty.Uuid, result.Uuid);
+            Assert.Equal(expectedParty.Type, result.Type);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUsername_SetsUpRequestCorrectly()
+        {
+            // Arrange
+            var username = "testuser";
+            var expectedParty = SelfIdentifiedUser.MinimalLegacy(username);
+            var (client, _, getCapturedRequest) = CreateClientWithCapture(CreateQueryUserPartiesResponse(expectedParty));
+
+            // Act
+            await client.GetUserPartyByUsername(username, TestContext.Current.CancellationToken);
+            var sentRequest = getCapturedRequest();
+
+            // Assert
+            Assert.Equal(HttpMethod.Post, sentRequest.Method);
+            Assert.Contains("v2/internal/parties/query?fields=person,party,user,si", sentRequest.RequestUri.ToString());
+            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
+
+            var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var sentPayload = JsonNode.Parse(requestContent);
+            var sentData = sentPayload["data"].AsArray();
+            Assert.Single(sentData);
+            Assert.Equal($"urn:altinn:party:username:{username}", (string)sentData[0]);
+        }
+
+        [Fact]
+        public async Task GetUserParty_BySsn_WhenClientRespondsSuccessfully_ReturnsParty()
+        {
+            // Arrange
+            var ssn = "17902349936";
+            var expectedParty = Person.Minimal(ssn);
+            var (client, _, _) = CreateClientWithCapture(CreateQueryUserPartiesResponse(expectedParty));
+
+            // Act
+            var result = await client.GetUserPartyBySsn(ssn, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedParty.PartyId, result.PartyId);
+            Assert.Equal(expectedParty.Uuid, result.Uuid);
+            Assert.Equal(expectedParty.Type, result.Type);
+        }
+
+        [Fact]
+        public async Task GetUserParty_BySsn_SetUpRequestCorrectly()
+        {
+            // Arrange
+            var ssn = "17902349936";
+            var expectedParty = Person.Minimal(ssn);
+            var (client, _, getCapturedRequest) = CreateClientWithCapture(CreateQueryUserPartiesResponse(expectedParty));
+
+            // Act
+            await client.GetUserPartyBySsn(ssn, TestContext.Current.CancellationToken);
+            var sentRequest = getCapturedRequest();
+
+            // Assert
+            Assert.Equal(HttpMethod.Post, sentRequest.Method);
+            Assert.Contains("v2/internal/parties/query?fields=person,party,user,si", sentRequest.RequestUri.ToString());
+            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
+
+            var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var sentPayload = JsonNode.Parse(requestContent);
+            var sentData = sentPayload["data"].AsArray();
+            Assert.Single(sentData);
+            Assert.Equal($"urn:altinn:person:identifier-no:{ssn}", (string)sentData[0]);
+        }
+
+        [Fact]
+        public async Task GetUserParties_ByUserUuids_WhenClientRespondsSuccessfully_ReturnsParties()
+        {
+            // Arrange
+            var userUuid1 = Guid.NewGuid();
+            var userUuid2 = Guid.NewGuid();
+            var userUuids = new List<Guid> { userUuid1, userUuid2 };
+
+            var expectedParty1 = Person.Minimal("17902349936", userUuid1) with { Uuid = userUuid1 };
+            var expectedParty2 = Person.Minimal("17902349936", userUuid2) with { Uuid = userUuid2 };
+            var (client, _, _) = CreateClientWithCapture(CreateQueryUserPartiesResponse(expectedParty1, expectedParty2));
+
+            // Act
+            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Equal(expectedParty1.PartyId, result[0].PartyId);
+            Assert.Equal(expectedParty2.PartyId, result[1].PartyId);
+        }
+
+        [Fact]
+        public async Task GetUserParties_ByUserUuids_SetUpRequestCorrectly()
+        {
+            // Arrange
+            var userUuid1 = Guid.NewGuid();
+            var userUuid2 = Guid.NewGuid();
+            var userUuids = new List<Guid> { userUuid1, userUuid2 };
+
+            var expectedParty1 = Person.Minimal("17902349936", userUuid1) with { Uuid = userUuid1 };
+            var expectedParty2 = Person.Minimal("17902349936", userUuid2) with { Uuid = userUuid2 };
+            var (client, _, getCapturedRequest) = CreateClientWithCapture(CreateQueryUserPartiesResponse(expectedParty1, expectedParty2));
+
+            // Act
+            await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
+            var sentRequest = getCapturedRequest();
+
+            // Assert
+            Assert.Equal(HttpMethod.Post, sentRequest.Method);
+            Assert.Contains("v2/internal/parties/query?fields=person,party,user,si", sentRequest.RequestUri.ToString());
+            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
+
+            var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var sentPayload = JsonNode.Parse(requestContent);
+            var sentData = sentPayload["data"].AsArray();
+            Assert.Equal(2, sentData.Count);
+            Assert.Equal($"urn:altinn:party:uuid:{userUuid1}", (string)sentData[0]);
+            Assert.Equal($"urn:altinn:party:uuid:{userUuid2}", (string)sentData[1]);
+        }
+
+        [Fact]
+        public async Task GetUserParty_ByUserUuid_WhenResponseContainsOnlyOrganization_ReturnsNull()
+        {
+            // Arrange
+            var userUuid = Guid.NewGuid();
+            var (client, _, _) = CreateClientWithCapture(CreateQueryUserPartiesResponse(Organization.Minimal("314249879")));
+
+            // Act
+            var result = await client.GetUserParty(userUuid, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserParties_ByUserUuids_WhenResponseContainsMixedPartyTypes_ReturnsOnlyUserParties()
+        {
+            // Arrange
+            var userUuid1 = Guid.NewGuid();
+            var userUuid3 = Guid.NewGuid();
+            var userUuids = new List<Guid> { userUuid1, Guid.NewGuid(), userUuid3 };
+
+            var expectedParty1 = Person.Minimal("17902349936", userUuid1);
+            var expectedParty2 = SelfIdentifiedUser.MinimalLegacy("testuser") with { Uuid = userUuid3 };
+            var (client, _, _) = CreateClientWithCapture(CreateQueryUserPartiesResponse(expectedParty1, Organization.Minimal("314249879"), expectedParty2));
+
+            // Act
+            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Equal(expectedParty1.PartyId, result[0].PartyId);
+            Assert.Equal(expectedParty2.PartyId, result[1].PartyId);
+        }
+
+        [Fact]
+        public async Task GetUserParties_ByUserUuids_WhenResponseContainsOnlyOrganizations_ReturnsEmptyList()
+        {
+            // Arrange
+            var userUuids = new List<Guid> { Guid.NewGuid() };
+            var (client, _, _) = CreateClientWithCapture(CreateQueryUserPartiesResponse(Organization.Minimal("314249879"), Organization.Minimal("311443755")));
+
+            // Act
+            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
+        private static Mock<HttpMessageHandler> CreateHandler(
+            HttpResponseMessage response,
+            Action<HttpRequestMessage> requestCallback = null,
+            Action<CancellationToken> cancelCallback = null)
+        {
+            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+            handlerMock.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync((HttpRequestMessage req, CancellationToken ct) =>
+                {
+                    requestCallback?.Invoke(req);
+                    cancelCallback?.Invoke(ct);
+                    return response;
+                });
+            return handlerMock;
+        }
+
+        private static HttpResponseMessage CreateQueryUserPartiesResponse(params Altinn.Register.Contracts.Party[] parties)
+        {
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
+            {
+                Data = parties.Length > 0 ? [.. parties] : null
+            });
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+        }
+
+        private (RegisterClient Client, Mock<HttpMessageHandler> Handler, Func<HttpRequestMessage> GetCapturedRequest) CreateClientWithCapture(HttpResponseMessage response)
+        {
+            HttpRequestMessage sentRequest = null;
+            var handler = CreateHandler(response, req => sentRequest = req);
+            var httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+            return (client, handler, () => sentRequest);
         }
     }
 }
