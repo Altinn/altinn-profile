@@ -1,0 +1,22 @@
+{
+  "partyType": "self-identified-user",
+  "selfIdentifiedUserType": "idporten-email",
+  "email": "test@digdir.no",
+  "partyUuid": "f1493696-8d4a-443d-9c78-aac1c77fe1f3",
+  "versionId": 448653890,
+  "urn": "urn:altinn:party:uuid:f1493696-8d4a-443d-9c78-aac1c77fe1f3",
+  "externalUrn": "urn:altinn:person:idporten-email:test@digdir.no",
+  "partyId": 51782301,
+  "displayName": "test@digdir.no",
+  "createdAt": "2026-02-23T08:37:47.982467+00:00",
+  "modifiedAt": "2026-02-23T08:40:51.579118+00:00",
+  "isDeleted": false,
+  "deletedAt": null,
+  "user": {
+    "userId": 21168927,
+    "username": "epost:test@digdir.no",
+    "userIds": [
+      21168927
+    ]
+  }
+}

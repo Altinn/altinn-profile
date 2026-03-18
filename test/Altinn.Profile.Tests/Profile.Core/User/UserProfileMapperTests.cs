@@ -15,6 +15,8 @@ namespace Altinn.Profile.Tests.Profile.Core.User
         public async Task MapFromPerson()
         {
             var input = await TestDataLoader.Load<Person>("person-input");
+
+            // Note that expected is userProfile without portal settings preferences, as those are not mapped from Person
             var expected = await TestDataLoader.Load<UserProfile>("person-expected");
 
             var result = UserProfileMapper.MapFromPerson(input);
@@ -54,10 +56,72 @@ namespace Altinn.Profile.Tests.Profile.Core.User
         }
 
         [Fact]
-        public async Task MapFromSiUser_InputToExpected()
+        public async Task MapFromSiUser_EduUSer_InputToExpected()
         {
-            var input = await TestDataLoader.Load<Register.Contracts.SelfIdentifiedUser>("siuser-input");
+            var input = await TestDataLoader.Load<SelfIdentifiedUser>("siuser-input");
+
+            // Note that expected is userProfile without portal settings preferences, as those are not mapped from Register
             var expected = await TestDataLoader.Load<UserProfile>("siuser-expected");
+
+            var result = UserProfileMapper.MapFromSiUser(input);
+
+            // Top-level UserProfile fields
+            Assert.Equal(expected.UserId, result.UserId);
+            Assert.Equal(expected.UserUuid, result.UserUuid);
+            Assert.Equal(expected.UserName, result.UserName);
+            Assert.Equal(expected.PartyId, result.PartyId);
+            Assert.Equal(expected.ExternalIdentity, result.ExternalIdentity); // SI-specific
+            Assert.Equal(expected.UserType, result.UserType);
+
+            // Party fields
+            Assert.Equal(expected.Party.PartyId, result.Party.PartyId);
+            Assert.Equal(expected.Party.PartyUuid, result.Party.PartyUuid);
+            Assert.Equal(expected.Party.PartyTypeName, result.Party.PartyTypeName);
+            Assert.Equal(expected.Party.Name, result.Party.Name);
+            Assert.Equal(expected.Party.IsDeleted, result.Party.IsDeleted);
+            Assert.Equal(expected.Party.LastChangedInAltinn, result.Party.LastChangedInAltinn);
+            Assert.Empty(result.Party.SSN);      // always empty string in mapper
+            Assert.Empty(result.Party.OrgNumber); // always empty string in mapper
+            Assert.Null(result.Party.Person);    // no Person for SI users
+        }
+
+        [Fact]
+        public async Task MapFromSiUser_LegacyUser_InputToExpected()
+        {
+            var input = await TestDataLoader.Load<SelfIdentifiedUser>("legacy-input");
+
+            // Note that expected is userProfile without portal settings preferences, as those are not mapped from Register
+            var expected = await TestDataLoader.Load<UserProfile>("legacy-expected");
+
+            var result = UserProfileMapper.MapFromSiUser(input);
+
+            // Top-level UserProfile fields
+            Assert.Equal(expected.UserId, result.UserId);
+            Assert.Equal(expected.UserUuid, result.UserUuid);
+            Assert.Equal(expected.UserName, result.UserName);
+            Assert.Equal(expected.PartyId, result.PartyId);
+            Assert.Equal(expected.ExternalIdentity, result.ExternalIdentity); // SI-specific
+            Assert.Equal(expected.UserType, result.UserType);
+
+            // Party fields
+            Assert.Equal(expected.Party.PartyId, result.Party.PartyId);
+            Assert.Equal(expected.Party.PartyUuid, result.Party.PartyUuid);
+            Assert.Equal(expected.Party.PartyTypeName, result.Party.PartyTypeName);
+            Assert.Equal(expected.Party.Name, result.Party.Name);
+            Assert.Equal(expected.Party.IsDeleted, result.Party.IsDeleted);
+            Assert.Equal(expected.Party.LastChangedInAltinn, result.Party.LastChangedInAltinn);
+            Assert.Empty(result.Party.SSN);      // always empty string in mapper
+            Assert.Empty(result.Party.OrgNumber); // always empty string in mapper
+            Assert.Null(result.Party.Person);    // no Person for SI users
+        }
+
+        [Fact]
+        public async Task MapFromSiUser_EmailyUser_InputToExpected()
+        {
+            var input = await TestDataLoader.Load<SelfIdentifiedUser>("emailuser-input");
+
+            // Note that expected is userProfile without portal settings preferences, as those are not mapped from Register
+            var expected = await TestDataLoader.Load<UserProfile>("emailuser-expected");
 
             var result = UserProfileMapper.MapFromSiUser(input);
 

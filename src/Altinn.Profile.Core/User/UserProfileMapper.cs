@@ -47,7 +47,7 @@ namespace Altinn.Profile.Core.User
             {
                 UserId = (int?)user?.UserId.Value ?? 0,
                 UserUuid = person.Uuid,
-                UserName = user?.Username.Value,
+                UserName = user?.Username.Value ?? string.Empty,
                 PartyId = (int)person.PartyId.Value,
                 Party = new Register.Contracts.V1.Party
                 {
@@ -63,8 +63,9 @@ namespace Altinn.Profile.Core.User
                         Name = person.ShortName.Value,
                         FirstName = person.FirstName.Value,
                         LastName = person.LastName.Value,
-                        MiddleName = person.MiddleName.Value,
-                        TelephoneNumber = null,
+                        MiddleName = person.MiddleName.Value ?? string.Empty,
+                        TelephoneNumber = string.Empty,
+                        MobileNumber = string.Empty,
                         MailingAddress = person.MailingAddress.Value?.Address,
                         MailingPostalCode = person.MailingAddress.Value?.PostalCode,
                         MailingPostalCity = person.MailingAddress.Value?.City,
@@ -72,10 +73,10 @@ namespace Altinn.Profile.Core.User
                         AddressMunicipalName = person.Address.Value?.MunicipalName,
                         AddressStreetName = person.Address.Value?.StreetName,
                         AddressHouseNumber = person.Address.Value?.HouseNumber,
-                        AddressHouseLetter = person.Address.Value?.HouseLetter,
+                        AddressHouseLetter = person.Address.Value?.HouseLetter ?? string.Empty,
                         AddressPostalCode = person.Address.Value?.PostalCode,
                         AddressCity = person.Address.Value?.City,
-                        DateOfDeath = person.DateOfDeath.Value.ToDateTime(default),
+                        DateOfDeath = person.DateOfDeath.HasValue ? person.DateOfDeath.Value.ToDateTime(default) : null,
                     },
                     LastChangedInAltinn = person.ModifiedAt.Value,
                 },
@@ -91,6 +92,14 @@ namespace Altinn.Profile.Core.User
         public static UserProfile MapFromSiUser(SelfIdentifiedUser si)
         {
             var user = si.User.Value;
+            var selfIdentifiedUserType = si.SelfIdentifiedUserType.Value;
+            var displayName = si.DisplayName.Value;
+
+            if (selfIdentifiedUserType == SelfIdentifiedUserType.IdPortenEmail)
+            {
+                displayName = "epost:" + displayName;
+            }
+
             return new UserProfile
             {
                 UserId = (int?)user?.UserId.Value ?? 0,
@@ -105,7 +114,7 @@ namespace Altinn.Profile.Core.User
                     PartyTypeName = Register.Contracts.V1.PartyType.SelfIdentified,
                     SSN = string.Empty,
                     OrgNumber = string.Empty,
-                    Name = si.DisplayName.Value,
+                    Name = displayName,
                     IsDeleted = si.IsDeleted.Value,
                     LastChangedInAltinn = si.ModifiedAt.Value,
                 },

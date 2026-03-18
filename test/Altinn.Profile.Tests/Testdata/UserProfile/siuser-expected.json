@@ -3,9 +3,6 @@
   "userUuid": "b07236de-b091-4c94-b522-43016d770d41",
   "userName": "uidp_p9zpzf9ti9fff1RiIF",
   "externalIdentity": "uidp:948d27581d020ccbc3b236ef2dad09a34527139efa901a5611a1703a22d91bf1",
-  "isReserved": false,
-  "phoneNumber": null,
-  "email": null,
   "partyId": 51842423,
   "party": {
     "partyId": 51842423,
@@ -20,17 +17,8 @@
     "person": null,
     "organization": null,
     "childParties": null,
-    "lastChangedInAltinn": "2025-11-05T08:00:36.89+01:00",
+    "lastChangedInAltinn": "2026-02-04T13:18:01.643189+00:00",
     "lastChangedInExternalRegister": null
   },
-  "userType": 2,
-  "profileSettingPreference": {
-    "language": "nb",
-    "preSelectedPartyId": 0,
-    "doNotPromptForParty": true,
-    "preselectedPartyUuid": null,
-    "showClientUnits": false,
-    "shouldShowSubEntities": false,
-    "shouldShowDeletedEntities": false
-  }
+  "userType": 2
 }

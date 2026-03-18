@@ -3,9 +3,6 @@
   "userUuid": "629fa2c0-27cd-40a2-ac6a-99bdf374dba2",
   "userName": "",
   "externalIdentity": "",
-  "isReserved": false,
-  "phoneNumber": "+4791516872",
-  "email": "nullstilt@altinn.xyz",
   "partyId": 50891883,
   "party": {
     "partyId": 50891883,
@@ -25,7 +22,7 @@
       "lastName": "BILLETT",
       "telephoneNumber": "",
       "mobileNumber": "",
-      "mailingAddress": "Bodøveien 46",
+      "mailingAddress": "Gammelveien 46",
       "mailingPostalCode": "8030",
       "mailingPostalCity": "BODØ",
       "addressMunicipalNumber": "1804",
@@ -39,17 +36,8 @@
     },
     "organization": null,
     "childParties": null,
-    "lastChangedInAltinn": "2022-03-29T08:26:08.263+02:00",
+    "lastChangedInAltinn": "2025-07-15T02:32:08.160072+00:00",
     "lastChangedInExternalRegister": "2022-03-29T00:00:00+02:00"
   },
-  "userType": 1,
-  "profileSettingPreference": {
-    "language": "en",
-    "preSelectedPartyId": 50891883,
-    "doNotPromptForParty": false,
-    "preselectedPartyUuid": null,
-    "showClientUnits": false,
-    "shouldShowSubEntities": false,
-    "shouldShowDeletedEntities": false
-  }
+  "userType": 1
 }

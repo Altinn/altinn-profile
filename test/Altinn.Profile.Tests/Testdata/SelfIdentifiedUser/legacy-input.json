@@ -1,0 +1,22 @@
+{
+  "partyType": "self-identified-user",
+  "selfIdentifiedUserType": "legacy",
+  "email": null,
+  "partyUuid": "0d34c0eb-fd3d-416b-8ee4-ecd4c331a57c",
+  "versionId": 448654825,
+  "urn": "urn:altinn:party:uuid:0d34c0eb-fd3d-416b-8ee4-ecd4c331a57c",
+  "externalUrn": "urn:altinn:person:legacy-selfidentified:test1234",
+  "partyId": 51782302,
+  "displayName": "sigrid",
+  "createdAt": "2026-02-23T13:45:27.169837+00:00",
+  "modifiedAt": "2026-03-16T10:46:25.227979+00:00",
+  "isDeleted": false,
+  "deletedAt": null,
+  "user": {
+    "userId": 21168928,
+    "username": "test1234",
+    "userIds": [
+      21168928
+    ]
+  }
+}
