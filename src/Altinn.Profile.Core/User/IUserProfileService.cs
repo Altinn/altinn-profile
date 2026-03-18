@@ -60,11 +60,6 @@ public interface IUserProfileService
     Task<ProfileSettings.ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchModel profileSettings, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Gets the profile settings for a given user ID.
-    /// </summary>
-    Task<ProfileSettings.ProfileSettings?> GetProfileSettings(int userId);
-
-    /// <summary>
     /// Gets the profile's preferred language (or, if not set, a default) for a given user ID.
     /// </summary>
     Task<string> GetPreferredLanguage(int userId);

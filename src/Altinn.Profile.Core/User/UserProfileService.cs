@@ -2,6 +2,8 @@
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
 
+using Microsoft.Extensions.Options;
+
 namespace Altinn.Profile.Core.User;
 
 /// <summary>
@@ -12,6 +14,8 @@ public class UserProfileService : IUserProfileService
     private readonly IUserProfileClient _userProfileClient;
     private readonly IProfileSettingsRepository _profileSettingsRepository;
     private readonly IPersonService _personRepository;
+    private readonly IRegisterClient _registerClient;
+    private readonly CoreSettings _settings;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserProfileService"/> class.
@@ -19,11 +23,15 @@ public class UserProfileService : IUserProfileService
     /// <param name="userProfileClient">The user profile client available through DI</param>
     /// <param name="profileSettingsRepository">The profile settings repository available through DI</param>
     /// <param name="personRepository">The person repository available through DI</param>
-    public UserProfileService(IUserProfileClient userProfileClient, IProfileSettingsRepository profileSettingsRepository, IPersonService personRepository)
+    /// <param name="registerClient">The register client available through DI</param>
+    /// <param name="settings">The core settings available through DI</param>
+    public UserProfileService(IUserProfileClient userProfileClient, IProfileSettingsRepository profileSettingsRepository, IPersonService personRepository, IRegisterClient registerClient, IOptionsMonitor<CoreSettings> settings)
     {
         _userProfileClient = userProfileClient;
         _profileSettingsRepository = profileSettingsRepository;
         _personRepository = personRepository;
+        _registerClient = registerClient;
+        _settings = settings.CurrentValue;
     }
 
     /// <inheritdoc/>
@@ -107,12 +115,6 @@ public class UserProfileService : IUserProfileService
     }
 
     /// <inheritdoc/>
-    public async Task<ProfileSettings.ProfileSettings?> GetProfileSettings(int userId)
-    {
-        return await _profileSettingsRepository.GetProfileSettings(userId);
-    }
-
-    /// <inheritdoc/>
     public async Task<string> GetPreferredLanguage(int userId)
     {
         var profileSettings = await _profileSettingsRepository.GetProfileSettings(userId);
@@ -155,6 +157,13 @@ public class UserProfileService : IUserProfileService
         {
             // If there are no profile settings for the user, we initialize it with default values to ensure that the user profile always has valid profile settings.
             userProfile.ProfileSettingPreference ??= ProfileSettingPreference.GetDefaultValues();
+        }
+
+        if (userProfile.ProfileSettingPreference.PreselectedPartyUuid != null && _settings.LookupPreselectedPartyIdAtRegister)
+        {
+            // If a preselected party UUID is provided, we need to fetch the corresponding party ID from the register to ensure data consistency.
+            int? partyId = await _registerClient.GetPartyId(userProfile.ProfileSettingPreference.PreselectedPartyUuid.Value, default);
+            userProfile.ProfileSettingPreference.PreSelectedPartyId = partyId ?? 0;
         }
 
         return userProfile;
