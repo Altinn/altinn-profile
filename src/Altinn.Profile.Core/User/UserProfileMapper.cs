@@ -15,7 +15,7 @@ namespace Altinn.Profile.Core.User
         /// <returns>
         /// A <see cref="UserProfile"/> instance if mapping is successful; otherwise, <c>null</c>.
         /// </returns>
-        internal static UserProfile? MapFromParty(Party party)
+        public static UserProfile? MapFromParty(Party party)
         {
             if (party == null)
             {
