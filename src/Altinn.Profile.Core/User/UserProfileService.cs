@@ -60,7 +60,12 @@ public class UserProfileService : IUserProfileService
 
         _userProfileComparer.CompareAndLog(legacyProfile, registerProfile);
 
-        return legacyProfile is not null ? legacyProfile : false;
+        if (legacyProfile is null)
+        {
+            return false;
+        }
+
+        return legacyProfile;
     }
 
     /// <inheritdoc/>
@@ -83,7 +88,12 @@ public class UserProfileService : IUserProfileService
 
         _userProfileComparer.CompareAndLog(legacyProfile, registerProfile);
 
-        return legacyProfile is not null ? legacyProfile : false;
+        if (legacyProfile is null)
+        {
+            return false;
+        }
+
+        return legacyProfile;
     }
 
     /// <inheritdoc/>
@@ -106,7 +116,12 @@ public class UserProfileService : IUserProfileService
 
         _userProfileComparer.CompareAndLog(legacyProfile, registerProfile);
 
-        return legacyProfile is not null ? legacyProfile : false;
+        if (legacyProfile is null)
+        {
+            return false;
+        }
+
+        return legacyProfile;
     }
 
     /// <inheritdoc/>
@@ -128,8 +143,12 @@ public class UserProfileService : IUserProfileService
         }
 
         _userProfileComparer.CompareAndLog(legacyProfile, registerProfile);
+        if (legacyProfile is null)
+        {
+            return false;
+        }
 
-        return legacyProfile is not null ? legacyProfile : false;
+        return legacyProfile;
     }
 
     /// <inheritdoc/>
