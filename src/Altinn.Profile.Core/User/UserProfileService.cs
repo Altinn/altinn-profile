@@ -15,6 +15,7 @@ namespace Altinn.Profile.Core.User;
 public class UserProfileService : IUserProfileService
 {
     private readonly IUserProfileClient _userProfileClient;
+    private readonly IUserProfileComparer _userProfileComparer;
     private readonly IProfileSettingsRepository _profileSettingsRepository;
     private readonly IPersonService _personRepository;
     private readonly IRegisterClient _registerClient;
@@ -24,13 +25,15 @@ public class UserProfileService : IUserProfileService
     /// Initializes a new instance of the <see cref="UserProfileService"/> class.
     /// </summary>
     /// <param name="userProfileClient">The user profile client available through DI</param>
+    /// <param name="userProfileComparer">The user profile comparer available through DI</param>
     /// <param name="profileSettingsRepository">The profile settings repository available through DI</param>
     /// <param name="personRepository">The person repository available through DI</param>
     /// <param name="registerClient">The register client available through DI</param>
     /// <param name="settings">The core settings available through DI</param>
-    public UserProfileService(IUserProfileClient userProfileClient, IProfileSettingsRepository profileSettingsRepository, IPersonService personRepository, IRegisterClient registerClient, IOptionsMonitor<CoreSettings> settings)
+    public UserProfileService(IUserProfileClient userProfileClient, IUserProfileComparer userProfileComparer, IProfileSettingsRepository profileSettingsRepository, IPersonService personRepository, IRegisterClient registerClient, IOptionsMonitor<CoreSettings> settings)
     {
         _userProfileClient = userProfileClient;
+        _userProfileComparer = userProfileComparer;
         _profileSettingsRepository = profileSettingsRepository;
         _personRepository = personRepository;
         _registerClient = registerClient;
@@ -40,136 +43,190 @@ public class UserProfileService : IUserProfileService
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUser(int userId)
     {
-        if (_settings.LookupUsersFromRegister)
-        {
-            var party = await _registerClient.GetUserParty(userId, default);
-            var userProfile = UserProfileMapper.MapFromParty(party);
+        Task<Result<UserProfile, bool>> legacyTask = _userProfileClient.GetUser(userId);
+        Task<UserProfile?> registerTask = GetUserFromRegister(_registerClient.GetUserParty(userId, default));
 
-            if (userProfile != null)
-            {
-                if (party?.Type == PartyType.Person)
-                {
-                    userProfile = await EnrichWithProfileSettings(userProfile);
-                    userProfile = await EnrichWithKrrData(userProfile);
-                    return userProfile;
-                }
-            }
+        await Task.WhenAll(legacyTask, registerTask);
+
+        UserProfile? registerProfile = await registerTask;
+        Result<UserProfile, bool> legacyResult = await legacyTask;
+        UserProfile? legacyProfile = null;
+
+        if (legacyResult.IsSuccess)
+        {
+            legacyProfile = await EnrichWithProfileSettings(legacyResult.Match(userProfile => userProfile, _ => default!));
+            legacyProfile = await EnrichWithKrrData(legacyProfile);
         }
 
-        // Using this flow as a fallback if the user is not found in the register, or if the setting to lookup users from the register is disabled.
-        // This ensures that we can still fetch user profiles for self-identified where we do not have all data locally yet
-        var result = await _userProfileClient.GetUser(userId);
+        _userProfileComparer.CompareAndLog(legacyProfile, registerProfile);
 
-        if (result.IsSuccess)
-        {
-            var enriched = await EnrichWithProfileSettings(result.Match(userProfile => userProfile, _ => default!));
-            enriched = await EnrichWithKrrData(enriched);
-            return enriched;
-        }
-
-        return false;
+        return legacyProfile is not null ? legacyProfile : false;
     }
 
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUser(string ssn)
     {
-        if (_settings.LookupUsersFromRegister)
-        {
-            var party = await _registerClient.GetUserPartyBySsn(ssn, default);
-            var userProfile = UserProfileMapper.MapFromParty(party);
+        Task<Result<UserProfile, bool>> legacyTask = _userProfileClient.GetUser(ssn);
+        Task<UserProfile?> registerTask = GetUserFromRegister(_registerClient.GetUserPartyBySsn(ssn, default));
 
-            if (userProfile != null)
-            {
-                if (party?.Type == PartyType.Person)
-                {
-                    userProfile = await EnrichWithProfileSettings(userProfile);
-                    userProfile = await EnrichWithKrrData(userProfile);
-                    return userProfile;
-                }
-            }
+        await Task.WhenAll(legacyTask, registerTask);
+
+        UserProfile? registerProfile = await registerTask;
+        Result<UserProfile, bool> legacyResult = await legacyTask;
+        UserProfile? legacyProfile = null;
+
+        if (legacyResult.IsSuccess)
+        {
+            legacyProfile = await EnrichWithProfileSettings(legacyResult.Match(userProfile => userProfile, _ => default!));
+            legacyProfile = await EnrichWithKrrData(legacyProfile);
         }
 
-        // Using this flow as a fallback if the user is not found in the register, or if the setting to lookup users from the register is disabled.
-        // This ensures that we can still fetch user profiles for self-identified where we do not have all data locally yet
-        var result = await _userProfileClient.GetUser(ssn);
-        if (result.IsSuccess)
-        {
-            var enriched = await EnrichWithProfileSettings(result.Match(userProfile => userProfile, _ => default!));
-            enriched = await EnrichWithKrrData(enriched);
-            return enriched;
-        }
+        _userProfileComparer.CompareAndLog(legacyProfile, registerProfile);
 
-        return false;
+        return legacyProfile is not null ? legacyProfile : false;
     }
 
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUserByUsername(string username)
     {
-        // Using SBL Bridge to fetch users as we do not have necessary data locally yet. 
-        var result = await _userProfileClient.GetUserByUsername(username);
-        if (result.IsSuccess)
+        Task<Result<UserProfile, bool>> legacyTask = _userProfileClient.GetUserByUsername(username);
+        Task<UserProfile?> registerTask = GetUserFromRegister(_registerClient.GetUserPartyByUsername(username, default), enrichWithKrrData: false);
+
+        await Task.WhenAll(legacyTask, registerTask);
+
+        UserProfile? registerProfile = await registerTask;
+        Result<UserProfile, bool> legacyResult = await legacyTask;
+        UserProfile? legacyProfile = null;
+
+        if (legacyResult.IsSuccess)
         {
-            var enriched = await EnrichWithProfileSettings(result.Match(userProfile => userProfile, _ => default!));
-            enriched = await EnrichWithKrrData(enriched);
-            return enriched;
+            legacyProfile = await EnrichWithProfileSettings(legacyResult.Match(userProfile => userProfile, _ => default!));
+            legacyProfile = await EnrichWithKrrData(legacyProfile);
         }
 
-        return false;
+        _userProfileComparer.CompareAndLog(legacyProfile, registerProfile);
+
+        return legacyProfile is not null ? legacyProfile : false;
     }
 
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUserByUuid(Guid userUuid)
     {
-        if (_settings.LookupUsersFromRegister)
-        {
-            var party = await _registerClient.GetUserParty(userUuid, default);
-            var userProfile = UserProfileMapper.MapFromParty(party);
+        Task<Result<UserProfile, bool>> legacyTask = _userProfileClient.GetUserByUuid(userUuid);
+        Task<UserProfile?> registerTask = GetUserFromRegister(_registerClient.GetUserParty(userUuid, default));
 
-            if (userProfile != null)
-            {
-                if (party?.Type == PartyType.Person)
-                {
-                    userProfile = await EnrichWithProfileSettings(userProfile);
-                    userProfile = await EnrichWithKrrData(userProfile);
-                    return userProfile;
-                }
-            }
+        await Task.WhenAll(legacyTask, registerTask);
+
+        UserProfile? registerProfile = await registerTask;
+        Result<UserProfile, bool> legacyResult = await legacyTask;
+        UserProfile? legacyProfile = null;
+
+        if (legacyResult.IsSuccess)
+        {
+            legacyProfile = await EnrichWithProfileSettings(legacyResult.Match(userProfile => userProfile, _ => default!));
+            legacyProfile = await EnrichWithKrrData(legacyProfile);
         }
 
-        // Using this flow as a fallback if the user is not found in the register, or if the setting to lookup users from the register is disabled.
-        // This ensures that we can still fetch user profiles for self-identified where we do not have all data locally yet
-        var result = await _userProfileClient.GetUserByUuid(userUuid);
-        if (result.IsSuccess)
-        {
-            var enriched = await EnrichWithProfileSettings(result.Match(userProfile => userProfile, _ => default!));
-            enriched = await EnrichWithKrrData(enriched);
-            return enriched;
-        }
+        _userProfileComparer.CompareAndLog(legacyProfile, registerProfile);
 
-        return false;
+        return legacyProfile is not null ? legacyProfile : false;
     }
 
     /// <inheritdoc/>
     public async Task<Result<List<UserProfile>, bool>> GetUserListByUuid(List<Guid> userUuidList)
     {
-        var result = await _userProfileClient.GetUserListByUuid(userUuidList);
-        if (result.IsSuccess)
+        Task<Result<List<UserProfile>, bool>> legacyTask = _userProfileClient.GetUserListByUuid(userUuidList);
+        Task<List<UserProfile>> registerTask = GetUserListFromRegister(userUuidList);
+
+        await Task.WhenAll(legacyTask, registerTask);
+
+        Result<List<UserProfile>, bool> legacyResult = await legacyTask;
+        List<UserProfile> registerProfiles = await registerTask;
+
+        if (!legacyResult.IsSuccess)
         {
-            var enriched = new List<UserProfile>();
-            result.Match(
-                async userProfiles =>
-                {
-                    foreach (UserProfile userProfile in userProfiles)
-                    {
-                        var enrichedUser = await EnrichWithKrrData(userProfile);
-                        enriched.Add(await EnrichWithProfileSettings(enrichedUser));
-                    }
-                },
-                _ => { });
-            return enriched;
+            foreach (UserProfile registerProfile in registerProfiles)
+            {
+                _userProfileComparer.CompareAndLog(null, registerProfile);
+            }
+
+            return false;
         }
 
-        return false;
+        List<UserProfile> legacyProfiles = legacyResult.Match(userProfiles => userProfiles, _ => []);
+        List<UserProfile> enriched = new(legacyProfiles.Count);
+        foreach (UserProfile userProfile in legacyProfiles)
+        {
+            UserProfile enrichedUser = await EnrichWithKrrData(userProfile);
+            enriched.Add(await EnrichWithProfileSettings(enrichedUser));
+        }
+
+        CompareUserProfilesByUuid(enriched, registerProfiles, userUuidList);
+
+        return enriched;
+    }
+
+    private void CompareUserProfilesByUuid(List<UserProfile> source, List<UserProfile> target, IEnumerable<Guid> userUuids)
+    {
+        Dictionary<Guid, UserProfile> sourceByUuid = source
+            .Where(userProfile => userProfile.UserUuid.HasValue && userProfile.UserUuid.Value != Guid.Empty)
+            .ToDictionary(userProfile => userProfile.UserUuid!.Value, userProfile => userProfile);
+
+        Dictionary<Guid, UserProfile> targetByUuid = target
+            .Where(userProfile => userProfile.UserUuid.HasValue && userProfile.UserUuid.Value != Guid.Empty)
+            .ToDictionary(userProfile => userProfile.UserUuid!.Value, userProfile => userProfile);
+
+        foreach (Guid userUuid in userUuids.Distinct())
+        {
+            sourceByUuid.TryGetValue(userUuid, out UserProfile? sourceProfile);
+            targetByUuid.TryGetValue(userUuid, out UserProfile? targetProfile);
+            _userProfileComparer.CompareAndLog(sourceProfile, targetProfile);
+        }
+    }
+
+    private async Task<List<UserProfile>> GetUserListFromRegister(List<Guid> userUuidList)
+    {
+        IReadOnlyList<Register.Contracts.Party> registerParties = await _registerClient.GetUserParties(userUuidList, default);
+        List<UserProfile> registerProfiles = new(registerParties?.Count ?? 0);
+        if (registerParties == null)
+        {
+            return registerProfiles;
+        }
+
+        foreach (Register.Contracts.Party registerParty in registerParties)
+        {
+            UserProfile? userProfile = await CreateAndEnrichProfileFromParty(registerParty);
+            if (userProfile != null)
+            {
+                registerProfiles.Add(userProfile);
+            }
+        }
+
+        return registerProfiles;
+    }
+
+    private async Task<UserProfile?> GetUserFromRegister(Task<Register.Contracts.Party?> registerPartyTask, bool enrichWithKrrData = true)
+    {
+        Register.Contracts.Party? registerParty = await registerPartyTask;
+        return await CreateAndEnrichProfileFromParty(registerParty, enrichWithKrrData);
+    }
+
+    private async Task<UserProfile?> CreateAndEnrichProfileFromParty(Register.Contracts.Party? party, bool enrichWithKrrData = true)
+    {
+        UserProfile? userProfile = UserProfileMapper.MapFromParty(party);
+        if (userProfile is null)
+        {
+            return null;
+        }
+
+        userProfile = await EnrichWithProfileSettings(userProfile);
+
+        if (enrichWithKrrData)
+        {
+            userProfile = await EnrichWithKrrData(userProfile);
+        }
+
+        return userProfile;
     }
 
     /// <inheritdoc/>
