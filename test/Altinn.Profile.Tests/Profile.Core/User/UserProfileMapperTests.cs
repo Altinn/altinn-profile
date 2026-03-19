@@ -227,7 +227,7 @@ namespace Altinn.Profile.Tests.Profile.Core.User
         }
 
         [Fact]
-        public async Task MapFromSiUser_EmailyUser_InputToExpected()
+        public async Task MapFromSiUser_EmailUser_InputToExpected()
         {
             var input = await TestDataLoader.Load<SelfIdentifiedUser>("emailuser-input");
 
@@ -257,7 +257,7 @@ namespace Altinn.Profile.Tests.Profile.Core.User
         }
 
         [Fact]
-        public async Task MapFromParty_EmailyUser_InputToExpected()
+        public async Task MapFromParty_EmailUser_InputToExpected()
         {
             var input = await TestDataLoader.Load<SelfIdentifiedUser>("emailuser-input");
 
@@ -331,14 +331,14 @@ namespace Altinn.Profile.Tests.Profile.Core.User
         }
 
         [Fact]
-        public async Task MapFromParty_WhenNeitherPersonNorSelfIdentified_ReturnsNull()
+        public void MapFromParty_WhenNeitherPersonNorSelfIdentified_ReturnsNull()
         {
             var result = UserProfileMapper.MapFromParty(Organization.Minimal("314249879"));
             Assert.Null(result);
         }
 
         [Fact]
-        public async Task MapFromParty_WhenNull_ReturnsNull()
+        public void MapFromParty_WhenNull_ReturnsNull()
         {
             var result = UserProfileMapper.MapFromParty(null);
             Assert.Null(result);
