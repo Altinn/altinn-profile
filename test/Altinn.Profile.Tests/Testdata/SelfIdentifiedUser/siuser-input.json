@@ -1,0 +1,22 @@
+{
+    "partyType": "self-identified-user",
+    "selfIdentifiedUserType": "edu",
+    "email": null,
+    "partyUuid": "b07236de-b091-4c94-b522-43016d770d41",
+    "versionId": 639717917,
+    "urn": "urn:altinn:party:uuid:b07236de-b091-4c94-b522-43016d770d41",
+    "externalUrn": null,
+    "partyId": 51842423,
+    "displayName": "uidp_p9zpzf9ti9fff1RiIF",
+    "createdAt": "2025-11-05T07:00:38.26759+00:00",
+    "modifiedAt": "2026-02-04T13:18:01.643189+00:00",
+    "isDeleted": false,
+    "deletedAt": null,
+    "user": {
+        "userId": 21226106,
+        "username": "uidp_p9zpzf9ti9fff1RiIF",
+        "userIds": [
+            21226106
+        ]
+    }
+}
