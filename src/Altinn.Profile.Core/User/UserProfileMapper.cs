@@ -6,7 +6,7 @@ namespace Altinn.Profile.Core.User
     /// <summary>
     /// Provides mapping functionality from <see cref="Party"/> objects to <see cref="UserProfile"/> objects.
     /// </summary>
-    public class UserProfileMapper
+    public static class UserProfileMapper
     {
         /// <summary>
         /// Maps a <see cref="Party"/> instance to a <see cref="UserProfile"/> instance.
