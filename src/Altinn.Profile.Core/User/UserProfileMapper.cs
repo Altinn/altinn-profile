@@ -48,12 +48,14 @@ namespace Altinn.Profile.Core.User
                 UserId = (int?)user?.UserId.Value ?? 0,
                 UserUuid = person.Uuid,
                 UserName = user?.Username.Value ?? string.Empty,
+                ExternalIdentity = string.Empty,
                 PartyId = (int)person.PartyId.Value,
                 Party = new Register.Contracts.V1.Party
                 {
                     PartyId = (int)person.PartyId.Value,
                     PartyUuid = person.Uuid,
                     PartyTypeName = Register.Contracts.V1.PartyType.Person,
+                    OrgNumber = string.Empty,
                     SSN = person.PersonIdentifier.ToString(),
                     Name = person.ShortName.Value,
                     IsDeleted = person.IsDeleted.Value,
