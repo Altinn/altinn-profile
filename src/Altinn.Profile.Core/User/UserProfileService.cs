@@ -1,8 +1,11 @@
 ﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
+using Altinn.Register.Contracts;
 
 using Microsoft.Extensions.Options;
+
+using static Altinn.Register.Contracts.PartyUrn;
 
 namespace Altinn.Profile.Core.User;
 
@@ -37,6 +40,24 @@ public class UserProfileService : IUserProfileService
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUser(int userId)
     {
+        if (_settings.LookupUsersFromRegister)
+        {
+            var party = await _registerClient.GetUserParty(userId, default);
+            var userProfile = UserProfileMapper.MapFromParty(party);
+
+            if (userProfile != null)
+            {
+                if (party?.Type == PartyType.Person)
+                {
+                    userProfile = await EnrichWithProfileSettings(userProfile);
+                    userProfile = await EnrichWithKrrData(userProfile);
+                    return userProfile;
+                }
+            }
+        }
+
+        // Using this flow as a fallback if the user is not found in the register, or if the setting to lookup users from the register is disabled.
+        // This ensures that we can still fetch user profiles for self-identified where we do not have all data locally yet
         var result = await _userProfileClient.GetUser(userId);
 
         if (result.IsSuccess)
@@ -52,6 +73,24 @@ public class UserProfileService : IUserProfileService
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUser(string ssn)
     {
+        if (_settings.LookupUsersFromRegister)
+        {
+            var party = await _registerClient.GetUserPartyBySsn(ssn, default);
+            var userProfile = UserProfileMapper.MapFromParty(party);
+
+            if (userProfile != null)
+            {
+                if (party?.Type == PartyType.Person)
+                {
+                    userProfile = await EnrichWithProfileSettings(userProfile);
+                    userProfile = await EnrichWithKrrData(userProfile);
+                    return userProfile;
+                }
+            }
+        }
+
+        // Using this flow as a fallback if the user is not found in the register, or if the setting to lookup users from the register is disabled.
+        // This ensures that we can still fetch user profiles for self-identified where we do not have all data locally yet
         var result = await _userProfileClient.GetUser(ssn);
         if (result.IsSuccess)
         {
@@ -66,6 +105,7 @@ public class UserProfileService : IUserProfileService
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUserByUsername(string username)
     {
+        // Using SBL Bridge to fetch users as we do not have necessary data locally yet. 
         var result = await _userProfileClient.GetUserByUsername(username);
         if (result.IsSuccess)
         {
@@ -80,6 +120,24 @@ public class UserProfileService : IUserProfileService
     /// <inheritdoc/>
     public async Task<Result<UserProfile, bool>> GetUserByUuid(Guid userUuid)
     {
+        if (_settings.LookupUsersFromRegister)
+        {
+            var party = await _registerClient.GetUserParty(userUuid, default);
+            var userProfile = UserProfileMapper.MapFromParty(party);
+
+            if (userProfile != null)
+            {
+                if (party?.Type == PartyType.Person)
+                {
+                    userProfile = await EnrichWithProfileSettings(userProfile);
+                    userProfile = await EnrichWithKrrData(userProfile);
+                    return userProfile;
+                }
+            }
+        }
+
+        // Using this flow as a fallback if the user is not found in the register, or if the setting to lookup users from the register is disabled.
+        // This ensures that we can still fetch user profiles for self-identified where we do not have all data locally yet
         var result = await _userProfileClient.GetUserByUuid(userUuid);
         if (result.IsSuccess)
         {
