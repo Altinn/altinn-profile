@@ -497,7 +497,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData("urn:altinn:resource:app_other_vale", "app_other_vale")]
         [InlineData("urn:altinn:resource:ttd-resource-1", "ttd-resource-1")]
 
-        public async Task PutNotificationAddress_WhenFlaggingGenerateVerificationCode_ReturnsCreated(string resourceUrn, string sanitizedResourceId)
+        public async Task PutNotificationAddress_WhenFlaggingGenerateVerificationCode_ReturnsCreatedAndOrdersNotificationWithCountryCode(string resourceUrn, string sanitizedResourceId)
         {
             // Arrange
             const int UserId = 2516356;
@@ -506,7 +506,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var userPartyContactInfo = new NotificationSettingsRequest
             {
                 EmailAddress = "test@example.com",
-                PhoneNumber = "12345678",
+                PhoneNumber = "98765432",
                 ResourceIncludeList = [resourceUrn],
                 GenerateVerificationCode = true
             };
@@ -543,7 +543,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 Times.Once);
             _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Exactly(2));
             _factory.NotificationsClientMock.Verify(x => x.OrderEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
-            _factory.NotificationsClientMock.Verify(x => x.OrderSmsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+            _factory.NotificationsClientMock.Verify(x => x.OrderSmsAsync("+4798765432", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]

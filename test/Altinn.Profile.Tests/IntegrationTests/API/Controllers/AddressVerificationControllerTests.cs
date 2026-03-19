@@ -840,7 +840,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(existingVerificationCode.UserId, capturedAddedCode.UserId);
 
             _factory.NotificationsClientMock.Verify(
-                x => x.OrderSmsAsync(existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+                x => x.OrderSmsAsync("+47" + existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
 
