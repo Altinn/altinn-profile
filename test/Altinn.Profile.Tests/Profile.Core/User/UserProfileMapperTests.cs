@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.User;
@@ -54,6 +55,114 @@ namespace Altinn.Profile.Tests.Profile.Core.User
             Assert.Equal(expected.Party.Person.AddressPostalCode, result.Party.Person.AddressPostalCode);
             Assert.Equal(expected.Party.Person.AddressCity, result.Party.Person.AddressCity);
             Assert.Equal(expected.Party.Person.DateOfDeath, result.Party.Person.DateOfDeath);
+        }
+
+        [Fact]
+        public void MapFromPerson_WithNullableFields_HandlesNullsCorrectly()
+        {
+            // Arrange - Create a minimal Person with various null fields
+            var person = Person.Minimal("17902349936") with
+            {
+                PartyId = 123456,
+                Uuid = Guid.Parse("629fa2c0-27cd-40a2-ac6a-99bdf374dba2"),
+                ShortName = "Test Person",
+                FirstName = "Test",
+                LastName = "Person",
+                ModifiedAt = DateTimeOffset.Parse("2025-03-14T11:30:24.823491+00:00"),
+                IsDeleted = false,
+                User = null, 
+                MiddleName = null,
+                Address = null,
+                MailingAddress = null,
+            };
+
+            // Act
+            var result = UserProfileMapper.MapFromPerson(person);
+
+            // Assert
+            Assert.NotNull(result);
+
+            Assert.Equal(0, result.UserId);
+            Assert.Equal(string.Empty, result.UserName);
+            Assert.Equal(string.Empty, result.Party.Person.MiddleName);
+            Assert.Equal(string.Empty, result.Party.Person.MailingAddress);
+            Assert.Equal(string.Empty, result.Party.Person.MailingPostalCode);
+            Assert.Equal(string.Empty, result.Party.Person.MailingPostalCity);
+            Assert.Equal(string.Empty, result.Party.Person.AddressMunicipalNumber);
+            Assert.Equal(string.Empty, result.Party.Person.AddressMunicipalName);
+            Assert.Equal(string.Empty, result.Party.Person.AddressStreetName);
+            Assert.Equal(string.Empty, result.Party.Person.AddressHouseNumber);
+            Assert.Equal(string.Empty, result.Party.Person.AddressHouseLetter); // defaults to empty string
+            Assert.Equal(string.Empty, result.Party.Person.AddressPostalCode);
+            Assert.Equal(string.Empty, result.Party.Person.AddressCity);
+            Assert.Null(result.Party.Person.DateOfDeath);
+            Assert.Equal(123456, result.PartyId);
+            Assert.Equal("Test Person", result.Party.Name);
+        }
+
+        [Fact]
+        public void MapFromPerson_WithAddressButNullHouseLetter_DefaultsToEmptyString()
+        {
+            // Arrange - Person with Address but null HouseLetter
+            var person = Person.Minimal("17902349936") with
+            {
+                PartyId = 123456,
+                Uuid = Guid.Parse("629fa2c0-27cd-40a2-ac6a-99bdf374dba2"),
+                ShortName = "Test Person",
+                FirstName = "Test",
+                LastName = "Person",
+                ModifiedAt = DateTimeOffset.Parse("2025-03-14T11:30:24.823491+00:00"),
+                IsDeleted = false,
+                Address = new StreetAddress
+                {
+                    MunicipalNumber = "0301",
+                    MunicipalName = "Oslo",
+                    StreetName = "Test Street",
+                    HouseNumber = "123",
+                    HouseLetter = null, // Explicitly null
+                    PostalCode = "0123",
+                    City = "Oslo"
+                }
+            };
+
+            // Act
+            var result = UserProfileMapper.MapFromPerson(person);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("0301", result.Party.Person.AddressMunicipalNumber);
+            Assert.Equal("Oslo", result.Party.Person.AddressMunicipalName);
+            Assert.Equal("Test Street", result.Party.Person.AddressStreetName);
+            Assert.Equal("123", result.Party.Person.AddressHouseNumber);
+            Assert.Equal(string.Empty, result.Party.Person.AddressHouseLetter); // null becomes empty string
+            Assert.Equal("0123", result.Party.Person.AddressPostalCode);
+            Assert.Equal("Oslo", result.Party.Person.AddressCity);
+        }
+
+        [Fact]
+        public void MapFromPerson_WithDateOfDeath_MapsCorrectly()
+        {
+            // Arrange - Person with DateOfDeath
+            var dateOfDeath = new DateOnly(2024, 12, 31);
+            var person = Person.Minimal("17902349936") with
+            {
+                PartyId = 123456,
+                Uuid = Guid.Parse("629fa2c0-27cd-40a2-ac6a-99bdf374dba2"),
+                ShortName = "Test Person",
+                FirstName = "Test",
+                LastName = "Person",
+                ModifiedAt = DateTimeOffset.Parse("2025-03-14T11:30:24.823491+00:00"),
+                IsDeleted = false,
+                DateOfDeath = dateOfDeath
+            };
+
+            // Act
+            var result = UserProfileMapper.MapFromPerson(person);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.NotNull(result.Party.Person.DateOfDeath);
+            Assert.Equal(new DateTime(2024, 12, 31), result.Party.Person.DateOfDeath);
         }
 
         [Fact(Skip = "Not yet ready for testing as ExternalIdentity is not correct")]
