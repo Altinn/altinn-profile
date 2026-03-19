@@ -4,6 +4,7 @@ using Altinn.Profile.Core.User;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.Testdata;
 using Altinn.Register.Contracts;
+using Altinn.Register.Contracts.Testing;
 
 using Xunit;
 
@@ -217,6 +218,13 @@ namespace Altinn.Profile.Tests.Profile.Core.User
             Assert.Equal(expected.Party.Person.AddressPostalCode, result.Party.Person.AddressPostalCode);
             Assert.Equal(expected.Party.Person.AddressCity, result.Party.Person.AddressCity);
             Assert.Equal(expected.Party.Person.DateOfDeath, result.Party.Person.DateOfDeath);
+        }
+
+        [Fact]
+        public async Task MapFromParty_WhenNeitherPersonNorSelfIdentified_ReturnsNull()
+        {
+            var result = UserProfileMapper.MapFromParty(Organization.Minimal("314249879"));
+            Assert.Null(result);
         }
 
         [Fact]
