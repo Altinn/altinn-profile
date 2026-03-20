@@ -75,7 +75,6 @@ public sealed class UserProfileComparer : IUserProfileComparer
         CompareField("Party.SSN", source.SSN, target.SSN, mismatches);
         CompareField("Party.Name", source.Name, target.Name, mismatches);
         CompareField("Party.IsDeleted", source.IsDeleted, target.IsDeleted, mismatches);
-        CompareField("Party.LastChangedInAltinn", source.LastChangedInAltinn, target.LastChangedInAltinn, mismatches);
 
         ComparePerson(source.Person, target.Person, mismatches);
     }
