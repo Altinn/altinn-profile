@@ -497,7 +497,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData("urn:altinn:resource:app_other_vale", "app_other_vale")]
         [InlineData("urn:altinn:resource:ttd-resource-1", "ttd-resource-1")]
 
-        public async Task PutNotificationAddress_WhenFlaggingGenerateVerificationCode_ReturnsCreatedAndOrdersNotificationWithCountryCode(string resourceUrn, string sanitizedResourceId)
+        public async Task PutNotificationAddress_ReturnsCreatedAndOrdersNotificationWithCountryCode(string resourceUrn, string sanitizedResourceId)
         {
             // Arrange
             const int UserId = 2516356;
@@ -508,7 +508,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 EmailAddress = "test@example.com",
                 PhoneNumber = "98765432",
                 ResourceIncludeList = [resourceUrn],
-                GenerateVerificationCode = true
             };
 
             _factory.ProfessionalNotificationsRepositoryMock
@@ -548,7 +547,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         [Fact]
 
-        public async Task PutNotificationAddress_WhenNoResourceFlaggingGenerateVerificationCode_ReturnsCreated()
+        public async Task PutNotificationAddress_WhenNoResource_ReturnsCreated()
         {
             // Arrange
             const int UserId = 2516356;
@@ -558,7 +557,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 EmailAddress = "test@example.com",
                 PhoneNumber = "12345678",
-                GenerateVerificationCode = true
             };
 
             _factory.ProfessionalNotificationsRepositoryMock
@@ -592,7 +590,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task PutNotificationAddress_WhenFlaggingGenerateVerificationCodeButRepoReturnsFalse_ReturnsCreated()
+        public async Task PutNotificationAddress_WhenRepoReturnsFalse_ReturnsCreated()
         {
             // Arrange
             const int UserId = 2516356;
@@ -602,7 +600,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 EmailAddress = "test@example.com",
                 PhoneNumber = "12345678",
-                GenerateVerificationCode = true
             };
 
             _factory.ProfessionalNotificationsRepositoryMock
