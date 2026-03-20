@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Core.Utils;
 using Altinn.Profile.Models;
 
 using Microsoft.AspNetCore.Authorization;
@@ -141,6 +142,70 @@ namespace Altinn.Profile.Controllers
                     .Select(s => new UserPartyContactInfoResource { ResourceId = s })
                     .ToList()
             };
+            var added = await _professionalNotificationsService.AddOrUpdateNotificationAddressAsync(userPartyContactInfo, request.GenerateVerificationCode ?? false, cancellationToken);
+
+            if (added)
+            {
+                return CreatedAtAction(nameof(Get), new { partyUuid }, null);
+            }
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Add or update the notification addresses the current user has registered for a party
+        /// </summary>
+        /// <param name="partyUuid">The UUID of the party for which the notification address is being set</param>
+        /// <param name="request"> The request containing the notification address details</param>
+        /// <param name="cancellationToken"> Cancellation token for the operation</param>
+        [Authorize(Policy = AuthConstants.UserPartyAccess)]
+        [HttpPatch("parties/{partyUuid:guid}")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> Patch([FromRoute] Guid partyUuid, [FromBody][Required] NotificationSettingsPatchRequest request, CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            if (partyUuid == Guid.Empty)
+            {
+                return BadRequest("Party UUID cannot be empty.");
+            }
+
+            var userPartyContactInfo = new PatchUserPartyContactInfo
+            {
+                UserId = userId,
+                PartyUuid = partyUuid,
+                EmailAddress = request.EmailAddress,
+                PhoneNumber = request.PhoneNumber,
+            };
+
+            if (request.ResourceIncludeList.HasValue)
+            {
+                if (request.ResourceIncludeList.Value.Count == 0)
+                {
+                    userPartyContactInfo.UserPartyContactInfoResources = new Optional<List<UserPartyContactInfoResource>>([]);
+                }
+                else
+                {
+                    userPartyContactInfo.UserPartyContactInfoResources = new Optional<List<UserPartyContactInfoResource>>(request.ResourceIncludeList.Value
+                    .Select(resource => ResourceIdFormatter.GetSanitizedResourceId(resource))
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Select(s => new UserPartyContactInfoResource { ResourceId = s })
+                    .ToList());
+                }
+            }
+
             var added = await _professionalNotificationsService.AddOrUpdateNotificationAddressAsync(userPartyContactInfo, request.GenerateVerificationCode ?? false, cancellationToken);
 
             if (added)

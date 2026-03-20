@@ -89,6 +89,33 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             return isAdded;
         }
 
+        /// <inheritdoc/>
+        public async Task<bool> AddOrUpdateNotificationAddressAsync(PatchUserPartyContactInfo contactInfo, bool generateVerificationCode, CancellationToken cancellationToken)
+        {
+            var existingContactInfo = await _professionalNotificationsRepository.GetNotificationAddressAsync(contactInfo.UserId, contactInfo.PartyUuid, cancellationToken);
+
+            var updatedContactInfo = new UserPartyContactInfo
+            {
+                UserId = contactInfo.UserId,
+                PartyUuid = contactInfo.PartyUuid,
+                EmailAddress = contactInfo.EmailAddress.HasValue ? contactInfo.EmailAddress.Value : existingContactInfo?.EmailAddress,
+                PhoneNumber = contactInfo.PhoneNumber.HasValue ? contactInfo.PhoneNumber.Value : existingContactInfo?.PhoneNumber,
+                UserPartyContactInfoResources = contactInfo.UserPartyContactInfoResources.HasValue ? contactInfo.UserPartyContactInfoResources.Value : existingContactInfo?.UserPartyContactInfoResources
+            };
+
+            var mobileNumberChanged = !string.IsNullOrWhiteSpace(updatedContactInfo.PhoneNumber) && existingContactInfo?.PhoneNumber != updatedContactInfo.PhoneNumber;
+            var emailChanged = !string.IsNullOrWhiteSpace(updatedContactInfo.EmailAddress) && existingContactInfo?.EmailAddress != updatedContactInfo.EmailAddress;
+
+            var isAdded = await _professionalNotificationsRepository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, cancellationToken);
+
+            if (mobileNumberChanged || emailChanged)
+            {
+                await HandleNotificationAddressChangedAsync(updatedContactInfo, mobileNumberChanged, emailChanged, generateVerificationCode);
+            }
+
+            return isAdded;
+        }
+
         /// <summary>
         /// Handles sending notifications when the mobile number or email address has changed.
         /// Verification code generation is delegated to <see cref="IAddressVerificationService"/>;
