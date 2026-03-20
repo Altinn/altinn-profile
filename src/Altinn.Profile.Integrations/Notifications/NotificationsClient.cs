@@ -95,22 +95,34 @@ public class NotificationsClient : INotificationsClient
             return false;
         }
 
-        using var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"v1/future/orders/instant/{type}")
+        try
         {
-            Content = new StringContent(jsonString, Encoding.UTF8, "application/json")
-        };
+            using var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"v1/future/orders/instant/{type}")
+            {
+                Content = new StringContent(jsonString, Encoding.UTF8, "application/json")
+            };
 
-        requestMessage.Headers.Add("PlatformAccessToken", accessToken);
+            requestMessage.Headers.Add("PlatformAccessToken", accessToken);
 
-        using var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
+            using var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
 
-        if (!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                _logger.LogError("Failed to send order request. Status code: {StatusCode}, Response: {ResponseContent}", response.StatusCode, responseContent);
+                return false;
+            }
+
+            return true;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            _logger.LogError("Failed to send order request. Status code: {StatusCode}, Response: {ResponseContent}", response.StatusCode, responseContent);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Exception occurred while sending order request to notifications service.");
             return false;
         }
-
-        return true;
     }
 }

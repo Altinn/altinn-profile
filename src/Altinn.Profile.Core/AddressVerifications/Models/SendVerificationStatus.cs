@@ -1,7 +1,7 @@
 namespace Altinn.Profile.Core.AddressVerifications.Models
 {
     /// <summary>
-    /// Specifies the result of a resend verification code operation.
+    /// Specifies the outcome of sending or resending a verification code.
     /// </summary>
     public enum SendVerificationStatus
     {

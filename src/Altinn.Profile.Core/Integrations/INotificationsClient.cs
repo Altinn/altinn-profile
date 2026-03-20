@@ -13,7 +13,7 @@
         /// <param name="body">The body content of the SMS message.</param>
         /// <param name="sendersReference">A reference string for tracking.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A task representing the asynchronous operation containing a boolean to indicate wheter the operation was a success or not.</returns>
+        /// <returns>A task representing the asynchronous operation containing a boolean to indicate whether the operation was a success or not.</returns>
         Task<bool> OrderSmsAsync(string phoneNumber, string body, string? sendersReference, CancellationToken cancellationToken);
 
         /// <summary>
@@ -24,7 +24,7 @@
         /// <param name="body">The body content of the email message.</param>
         /// <param name="sendersReference">A reference string for tracking.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A task representing the asynchronous operation containing a boolean to indicate wheter the operation was a success or not.</returns>
+        /// <returns>A task representing the asynchronous operation containing a boolean to indicate whether the operation was a success or not.</returns>
         Task<bool> OrderEmailAsync(string emailAddress, string subject, string body, string? sendersReference, CancellationToken cancellationToken);
     }
 }

@@ -3,8 +3,6 @@ using Altinn.Profile.Core.Integrations;
 
 using Microsoft.Extensions.Options;
 
-using static Altinn.Register.Contracts.PartyUrn;
-
 namespace Altinn.Profile.Core.AddressVerifications
 {
     /// <summary>
@@ -102,7 +100,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         {
             var formattedAddress = VerificationCode.FormatAddress(address);
 
-            var existingVerification = await _addressVerificationRepository.GetVerificationStatusAsync(userId, addressType, address, cancellationToken);
+            var existingVerification = await _addressVerificationRepository.GetVerificationStatusAsync(userId, addressType, formattedAddress, cancellationToken);
             if (existingVerification == VerificationType.Verified)
             {
                 // If the address is already verified, we don't need to generate a new code or send a notification.

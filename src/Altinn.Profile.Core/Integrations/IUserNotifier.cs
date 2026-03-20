@@ -18,7 +18,7 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="addressType">Whether the address is an email or SMS number.</param>
         /// <param name="partyUuid">The UUID of the party whose settings were changed.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A task representing the asynchronous operation containing a boolean to indicate wheter the operation was a success or not.</returns>
+        /// <returns>A task representing the asynchronous operation containing a boolean to indicate whether the operation was a success or not.</returns>
         Task<bool> NotifyAddressChangeAsync(int userId, string address, AddressType addressType, Guid partyUuid, CancellationToken cancellationToken);
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="addressType">Whether the address is an email or SMS number.</param>
         /// <param name="verificationCode">The raw (unhashed) verification code to include in the message.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A task representing the asynchronous operation containing a boolean to indicate wheter the operation was a success or not.</returns>
+        /// <returns>A task representing the asynchronous operation containing a boolean to indicate whether the operation was a success or not.</returns>
         Task<bool> SendVerificationCodeAsync(int userId, string address, AddressType addressType, string verificationCode, CancellationToken cancellationToken);
     }
 }

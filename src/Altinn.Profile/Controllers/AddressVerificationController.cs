@@ -108,7 +108,7 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         /// <param name="request">The address type and value to send code for</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
-        /// <response code="200">Indicates that the verification code was usccessfully generated and sent</response>
+        /// <response code="200">Indicates that the verification code was successfully generated and sent</response>
         /// <response code="400">Indicates that the request was malformed, e.g. missing required properties or invalid address format</response>
         /// <response code="403">Indicates that the user is not authenticated</response>
         /// <response code="422">Indicates that the address is already verified for the user, and thus a code cannot be sent</response>
