@@ -226,8 +226,16 @@ public class UserProfileService : IUserProfileService
 
     private async Task<UserProfile?> GetUserFromRegister(Task<Register.Contracts.Party?> registerPartyTask, bool enrichWithKrrData = true)
     {
-        Register.Contracts.Party? registerParty = await registerPartyTask;
-        return await CreateAndEnrichProfileFromParty(registerParty, enrichWithKrrData);
+        try
+        {
+            Party? registerParty = await registerPartyTask;
+            return await CreateAndEnrichProfileFromParty(registerParty, enrichWithKrrData);
+        }
+        catch (Exception)
+        {
+            // in shadow mode, exceptions from the register client should not affect the user experience.
+            return null;
+        }
     }
 
     private async Task<UserProfile?> CreateAndEnrichProfileFromParty(Register.Contracts.Party? party, bool enrichWithKrrData = true)

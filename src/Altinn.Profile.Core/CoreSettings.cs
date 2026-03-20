@@ -16,12 +16,7 @@ public class CoreSettings
     public bool LookupPreselectedPartyIdAtRegister { get; set; }
 
     /// <summary>
-    /// A flag indicating whether to perform a lookup for users from the register
+    /// A flag indicating whether to perform a lookup for users from the register and compare this
     /// </summary>
-    public bool LookupUsersFromRegister { get; set; }
-
-    /// <summary>
-    /// A flag indicating whether to map SI users from the register
-    /// </summary>
-    public bool MapSiUsersFromRegister { get; set; }
+    public bool RegisterLookupInShadowMode { get; set; }
 }
