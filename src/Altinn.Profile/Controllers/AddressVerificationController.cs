@@ -112,11 +112,13 @@ namespace Altinn.Profile.Controllers
         /// <response code="400">Indicates that the request was malformed, e.g. missing required properties or invalid address format</response>
         /// <response code="403">Indicates that the user is not authenticated</response>
         /// <response code="422">Indicates that the address is already verified for the user, and thus a code cannot be sent</response>
+        /// <response code="500">Indicates that an unexpected error occurred on the server while processing the request, such as being unable to send the verification code</response>
         [HttpPost("send")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> Send([FromBody][Required] AddressCodeResendRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
