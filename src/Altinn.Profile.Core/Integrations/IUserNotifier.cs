@@ -10,18 +10,6 @@ namespace Altinn.Profile.Core.Integrations
     public interface IUserNotifier
     {
         /// <summary>
-        /// Sends a notification to the user informing them that their contact address has been changed.
-        /// The user's preferred language is resolved internally.
-        /// </summary>
-        /// <param name="userId">The ID of the user to notify.</param>
-        /// <param name="address">The address (email or phone number) to send the notification to.</param>
-        /// <param name="addressType">Whether the address is an email or SMS number.</param>
-        /// <param name="partyUuid">The UUID of the party whose settings were changed.</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        Task NotifyAddressChangeAsync(int userId, string address, AddressType addressType, Guid partyUuid, CancellationToken cancellationToken);
-
-        /// <summary>
         /// Sends a verification code to the user via e-mail or SMS. The user's preferred language
         /// is resolved internally and used to build localized message content.
         /// </summary>

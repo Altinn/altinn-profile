@@ -141,7 +141,7 @@ namespace Altinn.Profile.Controllers
                     .Select(s => new UserPartyContactInfoResource { ResourceId = s })
                     .ToList()
             };
-            var added = await _professionalNotificationsService.AddOrUpdateNotificationAddressAsync(userPartyContactInfo, request.GenerateVerificationCode ?? false, cancellationToken);
+            var added = await _professionalNotificationsService.AddOrUpdateNotificationAddressAsync(userPartyContactInfo, cancellationToken);
 
             if (added)
             {
