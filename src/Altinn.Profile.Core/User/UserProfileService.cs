@@ -178,11 +178,13 @@ public class UserProfileService : IUserProfileService
     {
         Dictionary<Guid, UserProfile> sourceByUuid = source
             .Where(userProfile => userProfile.UserUuid.HasValue && userProfile.UserUuid.Value != Guid.Empty)
-            .ToDictionary(userProfile => userProfile.UserUuid!.Value, userProfile => userProfile);
+            .GroupBy(userProfile => userProfile.UserUuid!.Value)
+            .ToDictionary(g => g.Key, g => g.First());
 
         Dictionary<Guid, UserProfile> targetByUuid = target
             .Where(userProfile => userProfile.UserUuid.HasValue && userProfile.UserUuid.Value != Guid.Empty)
-            .ToDictionary(userProfile => userProfile.UserUuid!.Value, userProfile => userProfile);
+            .GroupBy(userProfile => userProfile.UserUuid!.Value)
+            .ToDictionary(g => g.Key, g => g.First());
 
         foreach (Guid userUuid in userUuids.Distinct())
         {

@@ -5,7 +5,7 @@ using static Altinn.Profile.Core.User.UserProfileComparer;
 namespace Altinn.Profile.Core.User;
 
 /// <summary>
-/// Defines comparison functionality for user profile data during shadow/parallell reads.
+/// Defines comparison functionality for user profile data during shadow/parallel reads.
 /// </summary>
 public interface IUserProfileComparer
 {
