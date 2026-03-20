@@ -2,7 +2,6 @@
 using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.User;
-using Altinn.Profile.Core.User.ProfileSettings;
 
 using Microsoft.Extensions.Options;
 
@@ -16,15 +15,13 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         IUserProfileService userProfileService,
         IRegisterClient registerClient,
         IOptions<AddressMaintenanceSettings> addressMaintenanceSettings,
-        IAddressVerificationService addressVerificationService,
-        IUserNotifier userNotifier) : IProfessionalNotificationsService
+        IAddressVerificationService addressVerificationService) : IProfessionalNotificationsService
     {
         private readonly IProfessionalNotificationsRepository _professionalNotificationsRepository = professionalNotificationsRepository;
         private readonly IUserProfileService _userProfileService = userProfileService;
         private readonly IRegisterClient _registerClient = registerClient;
         private readonly AddressMaintenanceSettings _addressMaintenanceSettings = addressMaintenanceSettings.Value;
         private readonly IAddressVerificationService _addressVerificationService = addressVerificationService;
-        private readonly IUserNotifier _userNotifier = userNotifier;
 
         /// <inheritdoc/>
         public async Task<ExtendedUserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
