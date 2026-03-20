@@ -119,7 +119,7 @@ public sealed class UserProfileComparer : IUserProfileComparer
             return false;
         }
 
-        if (source == null && target != null)
+        if (source == null)
         {
             mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.MissingField));
             return false;
