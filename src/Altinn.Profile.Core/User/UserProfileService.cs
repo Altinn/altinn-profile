@@ -61,7 +61,7 @@ public class UserProfileService : IUserProfileService
     {
         return await GetUserWithOptionalRegisterLookup(
             _userProfileClient.GetUserByUsername(username),
-            () => GetUserFromRegister(_registerClient.GetUserPartyByUsername(username, default), enrichWithKrrData: false));
+            () => GetUserFromRegister(_registerClient.GetUserPartyByUsername(username, default)));
     }
 
     /// <inheritdoc/>
@@ -213,12 +213,12 @@ public class UserProfileService : IUserProfileService
         return registerProfiles;
     }
 
-    private async Task<UserProfile?> GetUserFromRegister(Task<Party?> registerPartyTask, bool enrichWithKrrData = true)
+    private async Task<UserProfile?> GetUserFromRegister(Task<Party?> registerPartyTask)
     {
         try
         {
             Party? registerParty = await registerPartyTask;
-            return await CreateAndEnrichProfileFromParty(registerParty, enrichWithKrrData);
+            return await CreateAndEnrichProfileFromParty(registerParty);
         }
         catch (Exception)
         {
@@ -227,7 +227,7 @@ public class UserProfileService : IUserProfileService
         }
     }
 
-    private async Task<UserProfile?> CreateAndEnrichProfileFromParty(Party? party, bool enrichWithKrrData = true)
+    private async Task<UserProfile?> CreateAndEnrichProfileFromParty(Party? party)
     {
         UserProfile? userProfile = UserProfileMapper.MapFromParty(party);
         if (userProfile is null)
@@ -236,11 +236,7 @@ public class UserProfileService : IUserProfileService
         }
 
         userProfile = await EnrichWithProfileSettings(userProfile);
-
-        if (enrichWithKrrData)
-        {
-            userProfile = await EnrichWithKrrData(userProfile);
-        }
+        userProfile = await EnrichWithKrrData(userProfile);
 
         return userProfile;
     }
