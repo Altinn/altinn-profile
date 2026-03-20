@@ -113,6 +113,12 @@ public sealed class UserProfileComparer : IUserProfileComparer
             return false;
         }
 
+        if (source != null && target == null)
+        {
+            mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.NotFoundInRegister));
+            return false;
+        }
+
         if (source == null || target == null)
         {
             mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.MissingField));
@@ -177,6 +183,11 @@ public sealed class UserProfileComparer : IUserProfileComparer
         /// Both sides have values, but the values are different.
         /// </summary>
         WrongValue,
+
+        /// <summary>
+        /// The userProfile could not be found in register
+        /// </summary>
+        NotFoundInRegister,
     }
 
     /// <summary>
