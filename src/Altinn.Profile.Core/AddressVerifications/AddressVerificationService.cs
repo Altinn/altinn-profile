@@ -3,6 +3,8 @@ using Altinn.Profile.Core.Integrations;
 
 using Microsoft.Extensions.Options;
 
+using static Altinn.Register.Contracts.PartyUrn;
+
 namespace Altinn.Profile.Core.AddressVerifications
 {
     /// <summary>
@@ -96,25 +98,43 @@ namespace Altinn.Profile.Core.AddressVerifications
         }
 
         /// <inheritdoc/>
-        public async Task<ResendVerificationResult> ResendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken)
+        public async Task<SendVerificationCodeResult> SendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken)
         {
             var formattedAddress = VerificationCode.FormatAddress(address);
 
-            var existingCode = await _addressVerificationRepository.GetVerificationCodeAsync(userId, addressType, formattedAddress, cancellationToken);
-            if (existingCode is null)
+            var existingVerification = await _addressVerificationRepository.GetVerificationStatusAsync(userId, addressType, address, cancellationToken);
+            if (existingVerification == VerificationType.Verified)
             {
-                _telemetry.RecordVerificationResendCodeNotFound(addressType);
-                return ResendVerificationResult.CodeNotFound;
+                // If the address is already verified, we don't need to generate a new code or send a notification.
+                return new SendVerificationCodeResult
+                {
+                    Status = SendVerificationStatus.AddressAlreadyVerified,
+                    Cooldown = 0,
+                    NotificationSent = false
+                };
             }
 
-            RecordResendPatienceTelemetry(addressType, existingCode.Created);
+            var coolDownTime = _addressMaintenanceSettings.Value.VerificationCodeResendCooldownSeconds; // Default cooldown time in seconds
 
-            var isExistingCodeInCooldown = existingCode.Created + TimeSpan.FromSeconds(_addressMaintenanceSettings.Value.VerificationCodeResendCooldownSeconds) > DateTime.UtcNow;
-
-            if (isExistingCodeInCooldown)
+            var existingCode = await _addressVerificationRepository.GetVerificationCodeAsync(userId, addressType, formattedAddress, cancellationToken);
+            if (existingCode is not null)
             {
-                _telemetry.RecordVerificationResendCooldownRejected(addressType);
-                return ResendVerificationResult.CodeCooldown; // Don't generate a new code or send a notification if there's an existing code in the cooldown state
+                RecordResendPatienceTelemetry(addressType, existingCode.Created);
+
+                var secondsSinceCreation = (DateTime.UtcNow - existingCode.Created).TotalSeconds;
+                var isExistingCodeInCooldown = secondsSinceCreation < coolDownTime;
+
+                if (isExistingCodeInCooldown)
+                {
+                    coolDownTime = _addressMaintenanceSettings.Value.VerificationCodeResendCooldownSeconds - (int)secondsSinceCreation;
+                    _telemetry.RecordVerificationResendCooldownRejected(addressType);
+                    return new SendVerificationCodeResult
+                    {
+                        Status = SendVerificationStatus.CodeCooldown,
+                        Cooldown = coolDownTime,
+                        NotificationSent = false
+                    }; // Don't generate a new code or send a notification if there's an existing code in the cooldown state
+                }
             }
 
             var code = _verificationCodeService.GenerateRawCode();
@@ -124,12 +144,59 @@ namespace Altinn.Profile.Core.AddressVerifications
             if (!added)
             {
                 // A concurrent request already inserted a verification code for this user/address/type.
-                return ResendVerificationResult.CodeCooldown;
+                return new SendVerificationCodeResult
+                {
+                    Status = SendVerificationStatus.CodeCooldown,
+                    Cooldown = coolDownTime,
+                    NotificationSent = false
+                };
+            }
+
+            var notificationSent = await _userNotifier.SendVerificationCodeAsync(userId, verificationCodeModel.Address, addressType, code, cancellationToken);
+
+            return new SendVerificationCodeResult
+            {
+                Status = SendVerificationStatus.Success,
+                Cooldown = coolDownTime,
+                NotificationSent = notificationSent
+            };
+        }
+
+        /// <inheritdoc/>
+        public async Task<SendVerificationStatus> ResendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken)
+        {
+            var formattedAddress = VerificationCode.FormatAddress(address);
+
+            var existingCode = await _addressVerificationRepository.GetVerificationCodeAsync(userId, addressType, formattedAddress, cancellationToken);
+            if (existingCode is null)
+            {
+                _telemetry.RecordVerificationResendCodeNotFound(addressType);
+                return SendVerificationStatus.CodeNotFound;
+            }
+
+            RecordResendPatienceTelemetry(addressType, existingCode.Created);
+
+            var isExistingCodeInCooldown = existingCode.Created + TimeSpan.FromSeconds(_addressMaintenanceSettings.Value.VerificationCodeResendCooldownSeconds) > DateTime.UtcNow;
+
+            if (isExistingCodeInCooldown)
+            {
+                _telemetry.RecordVerificationResendCooldownRejected(addressType);
+                return SendVerificationStatus.CodeCooldown; // Don't generate a new code or send a notification if there's an existing code in the cooldown state
+            }
+
+            var code = _verificationCodeService.GenerateRawCode();
+            var verificationCodeModel = _verificationCodeService.CreateVerificationCode(userId, formattedAddress, addressType, code);
+
+            bool added = await _addressVerificationRepository.AddNewVerificationCodeAsync(verificationCodeModel);
+            if (!added)
+            {
+                // A concurrent request already inserted a verification code for this user/address/type.
+                return SendVerificationStatus.CodeCooldown;
             }
 
             await _userNotifier.SendVerificationCodeAsync(userId, verificationCodeModel.Address, addressType, code, cancellationToken);
 
-            return ResendVerificationResult.Success;
+            return SendVerificationStatus.Success;
         }
 
         private void RecordResendPatienceTelemetry(AddressType addressType, DateTime codeCreated)

@@ -469,6 +469,266 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
+        public async Task SendCode_WhenRequestLacksBearerToken_ReturnsUnauthorized()
+        {
+            // Arrange
+            var request = new AddressCodeResendRequest
+            {
+                Value = "some@email.com",
+                Type = AddressType.Email
+            };
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "profile/api/v1/users/current/verification/send")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task SendCode_WhenSystemUserToken_ReturnsBadRequest()
+        {
+            // Arrange
+            var request = new AddressCodeResendRequest
+            {
+                Value = "some@email.com",
+                Type = AddressType.Email
+            };
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "profile/api/v1/users/current/verification/send")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddSystemUserAuthHeadersToRequest(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Theory]
+        [InlineData(null, AddressType.Email)]
+        [InlineData("Address@email.com", null)]
+        [InlineData(null, AddressType.Sms)]
+        [InlineData("+4798765432", null)]
+        public async Task SendCode_WhenRequestLacksRequiredFields_ReturnsBadRequest(string address, AddressType? addressType)
+        {
+            // Arrange
+            const int userId = 2516360;
+            var request = new AddressCodeResendRequest
+            {
+                Value = address,
+                Type = addressType
+            };
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "profile/api/v1/users/current/verification/send")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task SendCode_WhenAddressAlreadyVerified_Returns422AndDoesNotCreateNewCodeOrSendNotification()
+        {
+            // Arrange
+            const int userId = 2516361;
+            var request = new AddressCodeResendRequest
+            {
+                Value = "verified@altinn.xyz",
+                Type = AddressType.Email
+            };
+
+            _factory.AddressVerificationRepositoryMock
+                .Setup(repo => repo.GetVerificationStatusAsync(userId, AddressType.Email, request.Value, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(VerificationType.Verified);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "profile/api/v1/users/current/verification/send")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Never);
+            _factory.NotificationsClientMock.Verify(
+                x => x.OrderEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        [Fact]
+        public async Task SendCode_WhenCodeIsInCooldown_Returns200AndDoesNotCreateNewCodeOrSendNotification()
+        {
+            // Arrange
+            const int userId = 2516362;
+            var request = new AddressCodeResendRequest
+            {
+                Value = "cooldown@altinn.xyz",
+                Type = AddressType.Email
+            };
+
+            var existingVerificationCode = new VerificationCode
+            {
+                UserId = userId,
+                AddressType = AddressType.Email,
+                Address = request.Value,
+                VerificationCodeHash = "somehash",
+                Expires = DateTime.UtcNow.AddMinutes(5),
+                Created = DateTime.UtcNow.AddSeconds(-30)
+            };
+
+            _factory.AddressVerificationRepositoryMock
+                .Setup(repo => repo.GetVerificationStatusAsync(userId, AddressType.Email, request.Value, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(VerificationType.Legacy);
+
+            _factory.AddressVerificationRepositoryMock
+                .Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, request.Value, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingVerificationCode);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "profile/api/v1/users/current/verification/send")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var responseObject = JsonSerializer.Deserialize<AddressVerificationResponse>(responseContent, _serializerOptionsCamelCase);
+            Assert.NotNull(responseObject);
+            Assert.False(responseObject.NotificationSent);
+            Assert.True(responseObject.CooldownSeconds > 0);
+            Assert.True(responseObject.CooldownSeconds < 59);
+
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Never);
+            _factory.NotificationsClientMock.Verify(
+                x => x.OrderEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        [Fact]
+        public async Task SendCode_WhenSuccessful_Returns200AndResponseBodyWithNotificationSent()
+        {
+            // Arrange
+            const int userId = 2516363;
+            var request = new AddressCodeResendRequest
+            {
+                Value = "send-success@altinn.xyz",
+                Type = AddressType.Email
+            };
+
+            _factory.AddressVerificationRepositoryMock
+                .Setup(repo => repo.GetVerificationStatusAsync(userId, AddressType.Email, request.Value, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(VerificationType.Legacy);
+
+            _factory.AddressVerificationRepositoryMock
+                .Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, request.Value, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((VerificationCode)null);
+
+            _factory.AddressVerificationRepositoryMock
+                .Setup(repo => repo.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
+                .ReturnsAsync(true);
+
+            _factory.NotificationsClientMock
+                .Setup(client => client.OrderEmailAsync(request.Value, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "profile/api/v1/users/current/verification/send")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var responseObject = JsonSerializer.Deserialize<AddressVerificationResponse>(responseContent, _serializerOptionsCamelCase);
+            Assert.NotNull(responseObject);
+            Assert.True(responseObject.NotificationSent);
+            Assert.True(responseObject.CooldownSeconds > 0);
+        }
+
+        [Fact]
+        public async Task SendCode_WhenNotificationFails_Returns500()
+        {
+            // Arrange
+            const int userId = 2516364;
+            var request = new AddressCodeResendRequest
+            {
+                Value = "send-fail@altinn.xyz",
+                Type = AddressType.Email
+            };
+
+            _factory.AddressVerificationRepositoryMock
+                .Setup(repo => repo.GetVerificationStatusAsync(userId, AddressType.Email, request.Value, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(VerificationType.Legacy);
+
+            _factory.AddressVerificationRepositoryMock
+                .Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, request.Value, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((VerificationCode)null);
+
+            _factory.AddressVerificationRepositoryMock
+                .Setup(repo => repo.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
+                .ReturnsAsync(true);
+
+            _factory.NotificationsClientMock
+                .Setup(client => client.OrderEmailAsync(request.Value, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "profile/api/v1/users/current/verification/send")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
+        [Fact]
         public async Task ResendCode_WhenRequestLacksBearerToken_ReturnsUnauthorized()
         {
             // Arrange
@@ -637,7 +897,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(existingVerificationCode);
 
             _factory.NotificationsClientMock.Setup(client => client.OrderEmailAsync(existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+                .ReturnsAsync(true);
 
             _factory.AddressVerificationRepositoryMock.Setup(repo => repo.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
                 .Callback((VerificationCode vcode) => capturedAddedCode = vcode)
@@ -696,7 +956,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(existingVerificationCode);
 
             _factory.NotificationsClientMock.Setup(client => client.OrderSmsAsync(existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+                .ReturnsAsync(true);
 
             _factory.AddressVerificationRepositoryMock.Setup(repo => repo.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
                 .Callback((VerificationCode vcode) => capturedAddedCode = vcode)
@@ -755,7 +1015,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(existingVerificationCode);
 
             _factory.NotificationsClientMock.Setup(client => client.OrderEmailAsync(existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+                .ReturnsAsync(true);
 
             _factory.AddressVerificationRepositoryMock.Setup(repo => repo.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
                 .Callback((VerificationCode vcode) => capturedAddedCode = vcode)
@@ -814,7 +1074,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(existingVerificationCode);
 
             _factory.NotificationsClientMock.Setup(client => client.OrderSmsAsync(existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+                .ReturnsAsync(true);
 
             _factory.AddressVerificationRepositoryMock.Setup(repo => repo.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
                 .Callback((VerificationCode newCode) => capturedAddedCode = newCode)
@@ -871,7 +1131,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(existingVerificationCode);
 
             _factory.NotificationsClientMock.Setup(client => client.OrderSmsAsync(existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+                .ReturnsAsync(true);
 
             _factory.AddressVerificationRepositoryMock.Setup(repo => repo.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
                 .ReturnsAsync(true);
@@ -922,7 +1182,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(existingVerificationCode);
 
             _factory.NotificationsClientMock.Setup(client => client.OrderEmailAsync(existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+                .ReturnsAsync(true);
 
             _factory.AddressVerificationRepositoryMock.Setup(repo => repo.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
                 .ReturnsAsync(true);

@@ -44,7 +44,7 @@ public class NotificationsClient : INotificationsClient
     }
 
     /// <inheritdoc/>
-    public async Task OrderSmsAsync(string phoneNumber, string body, string? sendersReference, CancellationToken cancellationToken)
+    public async Task<bool> OrderSmsAsync(string phoneNumber, string body, string? sendersReference, CancellationToken cancellationToken)
     {
         var request = new SmsOrderRequest
         {
@@ -61,11 +61,11 @@ public class NotificationsClient : INotificationsClient
         };
 
         var json = JsonSerializer.Serialize(request, _options);
-        await SendOrder(json, _notificationTypeSms, cancellationToken);
+        return await SendOrder(json, _notificationTypeSms, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public async Task OrderEmailAsync(string emailAddress, string subject, string body, string? sendersReference, CancellationToken cancellationToken)
+    public async Task<bool> OrderEmailAsync(string emailAddress, string subject, string body, string? sendersReference, CancellationToken cancellationToken)
     {
         var request = new EmailOrderRequest
         {
@@ -83,16 +83,16 @@ public class NotificationsClient : INotificationsClient
         };
 
         var json = JsonSerializer.Serialize(request, _options);
-        await SendOrder(json, _notificationTypeEmail, cancellationToken);
+        return await SendOrder(json, _notificationTypeEmail, cancellationToken);
     }
 
-    private async Task SendOrder(string jsonString, string type, CancellationToken cancellationToken)
+    private async Task<bool> SendOrder(string jsonString, string type, CancellationToken cancellationToken)
     {
         var accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "profile");
         if (string.IsNullOrEmpty(accessToken))
         {
             _logger.LogError("Invalid access token generated for notification order.");
-            return;
+            return false;
         }
 
         using var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"v1/future/orders/instant/{type}")
@@ -108,6 +108,9 @@ public class NotificationsClient : INotificationsClient
         {
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
             _logger.LogError("Failed to send order request. Status code: {StatusCode}, Response: {ResponseContent}", response.StatusCode, responseContent);
+            return false;
         }
+
+        return true;
     }
 }
