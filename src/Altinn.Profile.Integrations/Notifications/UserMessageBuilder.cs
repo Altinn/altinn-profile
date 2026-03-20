@@ -3,8 +3,7 @@
 namespace Altinn.Profile.Integrations.Notifications
 {
     /// <summary>
-    /// Provides localized message content for user notifications, including both
-    /// address-change notifications and verification-code notifications.
+    /// Provides localized message content for verification-code notifications.
     /// </summary>
     public static class UserMessageBuilder
     {
@@ -44,12 +43,10 @@ namespace Altinn.Profile.Integrations.Notifications
 
 
         /// <summary>
-        /// Gets the SMS content for the specified language. When a verification code is provided,
-        /// returns the verification-code template with the code substituted; otherwise returns
-        /// the address-change notification template.
+        /// Gets the SMS content for the specified language with the verification code substituted.
         /// </summary>
         /// <param name="language">The language code ("en", "nb", "nn", or "se").</param>
-        /// <param name="verificationCode">Optional verification code to include in the message.</param>
+        /// <param name="verificationCode">Verification code to include in the message.</param>
         /// <returns>The localized SMS body text.</returns>
         public static string GetSmsContent(string language, string verificationCode)
         {
@@ -83,9 +80,7 @@ namespace Altinn.Profile.Integrations.Notifications
         }
 
         /// <summary>
-        /// Gets the email body for the specified language. When a verification code is provided,
-        /// returns the verification-code template with the code substituted; otherwise returns
-        /// the address-change notification template (without reportee name).
+        /// Gets the SMS content for the specified language with the verification code substituted.
         /// </summary>
         /// <param name="language">The language code ("en", "nb", "nn", or "se").</param>
         /// <param name="verificationCode">Verification code to include in the message.</param>
