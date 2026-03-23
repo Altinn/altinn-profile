@@ -9,7 +9,7 @@ using Party = Altinn.Register.Contracts.Party;
 
 namespace Altinn.Profile.Integrations.Register;
 
-/// <summary>.
+/// <summary>
 /// Decorates an implementation of IRegisterClient by caching the response object.
 /// If available, object is retrieved from cache without calling the client
 /// </summary>
@@ -105,7 +105,7 @@ public class RegisterCachingDecorator : IRegisterClient
             foreach (ContactPointParty party in fetchedParties)
             {
                 string uniqueCacheKey = $"PartyUuid_{party.OrganizationIdentifier}";
-                _memoryCache.Set(uniqueCacheKey, party);
+                _memoryCache.Set(uniqueCacheKey, party, _cacheOptions);
 
                 result.Add(party);
             }

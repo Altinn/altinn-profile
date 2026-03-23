@@ -27,6 +27,7 @@ public class RegisterCachingDecoratorTest
 
     public RegisterCachingDecoratorTest()
     {
+        _decoratedServiceMock.Reset();
         _coreSettingsOptions
             .Setup(s => s.Value)
             .Returns(new CoreSettings { ProfileCacheLifetimeSeconds = 600 });
