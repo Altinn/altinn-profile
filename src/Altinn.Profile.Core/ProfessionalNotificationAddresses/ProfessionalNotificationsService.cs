@@ -108,11 +108,8 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
 
             var isAdded = await _professionalNotificationsRepository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, cancellationToken);
 
-            if (mobileNumberChanged || emailChanged)
-            {
-                // Verification flow is allways activated now, but we don't send a notification if the address is already verified
-                await HandleNotificationAddressChangedAsync(updatedContactInfo, mobileNumberChanged, emailChanged);
-            }
+            // Verification flow is allways activated now, but we don't send a notification if the address is already verified
+            await HandleNotificationAddressChangedAsync(updatedContactInfo, mobileNumberChanged, emailChanged);
 
             return isAdded;
         }

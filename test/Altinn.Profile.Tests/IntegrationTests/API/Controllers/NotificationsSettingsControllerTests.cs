@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.User.ProfileSettings;
+using Altinn.Profile.Core.Utils;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
@@ -29,6 +30,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         private readonly JsonSerializerOptions _serializerOptionsCamelCase = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
+        private readonly JsonSerializerOptions _serializerOptionsWithOptional = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            Converters = { new OptionalJsonConverterFactory() }
         };
 
         public NotificationsSettingsControllerTests(ProfileWebApplicationFactory<Program> factory)
@@ -133,22 +140,43 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Contains("Notification addresses not found", responseContent);
         }
 
-        [Fact]
-        public async Task GetNotificationAddress_WhenNoUserId_ReturnsUnauthorized()
+        [Theory]
+        [InlineData("GET", false)]
+        [InlineData("GET", true)]
+        [InlineData("PUT", true)]
+        [InlineData("PATCH", true)]
+        public async Task NotificationEndpoint_WhenUnauthenticated_ReturnsUnauthorized(string httpMethod, bool isPartyEndpoint)
         {
-            // Arrange
             var partyGuid = Guid.NewGuid();
+            string url = isPartyEndpoint
+                ? $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}"
+                : "profile/api/v1/users/current/notificationsettings/parties";
 
             HttpClient client = _factory.CreateClient();
+            HttpRequestMessage request = new(new HttpMethod(httpMethod), url);
 
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
+            HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
-
-            // Assert
-            Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Theory]
+        [InlineData("GET")]
+        [InlineData("PUT")]
+        [InlineData("PATCH")]
+        public async Task PartyNotificationEndpoint_WhenUserLacksPartyAccess_ReturnsForbidden(string httpMethod)
+        {
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+            SetupAuthHandler(partyGuid, UserId, false);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage request = new(new HttpMethod(httpMethod), $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
+            request = AddAuthHeadersToRequest(request, UserId);
+
+            HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
         [Fact]
@@ -242,36 +270,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpRequestMessage httpRequestMessage = CreateRequestWithSystemUser(HttpMethod.Get, "profile/api/v1/users/current/notificationsettings/parties");
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        }
-
-        [Fact]
-        public async Task PutNotificationAddress_WhenUserIDoesNotHaveAccess_ReturnForbidden()
-        {
-            // Arrange
-            var partyGuid = Guid.NewGuid();
-            var userId = 2516356;
-
-            var userPartyContactInfo = new NotificationSettingsRequest
-            {
-                EmailAddress = "test@example.com",
-                PhoneNumber = "+4798765432",
-            };
-
-            HttpClient client = _factory.CreateClient();
-            SetupAuthHandler(partyGuid, userId, false);
-
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
-            {
-                Content = new StringContent(JsonSerializer.Serialize(userPartyContactInfo, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
-            };
-            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, userId);
-
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
-
-            // Assert
-            Assert.NotNull(response);
-            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
         [Fact]
@@ -489,7 +487,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                         info.UserPartyContactInfoResources.Count == 1 && info.UserPartyContactInfoResources[0].ResourceId == sanitizedResourceId),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
-            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Never);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Exactly(2));
         }
 
         [Theory]
@@ -546,7 +544,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-
         public async Task PutNotificationAddress_WhenNoResource_ReturnsCreated()
         {
             // Arrange
@@ -570,9 +567,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
+            // Omit resourceIncludeList from JSON entirely so HasValue = false; sending null would
+            // produce HasValue = true with a null list, which crashes .Count in the controller.
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
             {
-                Content = new StringContent(JsonSerializer.Serialize(userPartyContactInfo, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+                Content = new StringContent("{\"emailAddress\":\"test@example.com\",\"phoneNumber\":\"12345678\"}", System.Text.Encoding.UTF8, "application/json")
             };
             httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
 
@@ -675,57 +674,345 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task DeleteNotificationAddress_WhenRepositoryReturnsNull_ReturnsNotFound()
+        public async Task PatchNotificationAddress_WhenBothFieldsAreOmitted_ReturnsBadRequest()
         {
             // Arrange
             const int UserId = 2516356;
             var partyGuid = Guid.NewGuid();
 
-            _factory
-                .ProfessionalNotificationsRepositoryMock
-                .Setup(x => x.DeleteNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((UserPartyContactInfo)null);
             SetupAuthHandler(partyGuid, UserId);
-
             HttpClient client = _factory.CreateClient();
 
-            HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
+            // Explicit nulls: both EmailAddress and PhoneNumber have HasValue = true, Value = null,
+            // which passes the regex (empty string) but fails the "must include one" semantic validation.
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Patch, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent("{\"emailAddress\":null,\"phoneNumber\":null}", System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(response);
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(content, _serializerOptionsCamelCase);
 
-            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-            Assert.Contains("Notification addresses not found", responseContent);
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal("One or more validation errors occurred.", actual.Title);
+            Assert.Equal(2, actual.Errors.Count);
+            Assert.NotNull(actual.Errors["EmailAddress"]);
+            Assert.NotNull(actual.Errors["PhoneNumber"]);
+            Assert.True(actual.Errors.TryGetValue("EmailAddress", out var message));
+            Assert.Contains("The notification setting for a party must include either EmailAddress, PhoneNumber, or both.", message[0]);
+        }
+
+        [Theory]
+        [InlineData("example")]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")] // whitespace
+        [InlineData("urn:altinn:resource")]
+        [InlineData("urn:altinn:resource:abc")] // Too short resource ID
+        [InlineData("urn:altinn:resource:some*resource")] // Contains invalid char
+        public async Task PatchNotificationAddress_WhenResourceIsInvalid_ReturnsBadRequest(string resource)
+        {
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+
+            var request = new NotificationSettingsPatchRequest
+            {
+                EmailAddress = new Optional<string?>("test@example.com"),
+                PhoneNumber = new Optional<string?>("+4798765432"),
+                ResourceIncludeList = new Optional<List<string>>([resource]),
+            };
+            SetupAuthHandler(partyGuid, UserId);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Patch, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsWithOptional), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(content, _serializerOptionsCamelCase);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal("One or more validation errors occurred.", actual.Title);
+            Assert.Single(actual.Errors);
+            Assert.True(actual.Errors.TryGetValue("ResourceIncludeList", out var message));
+            Assert.Contains("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 4 or more characters of lowercase letter, number, underscore or hyphen", message[0]);
         }
 
         [Fact]
-        public async Task DeleteNotificationAddress_WhenRepositoryReturnsAddress_ReturnsOk()
+        public async Task PatchNotificationAddress_WhenResourceContainsDuplicates_ReturnsBadRequest()
         {
             // Arrange
             const int UserId = 2516356;
             var partyGuid = Guid.NewGuid();
 
-            // Reset existing mock instance
-            _factory
-                .ProfessionalNotificationsRepositoryMock
-                .Setup(x => x.DeleteNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new UserPartyContactInfo());
-            SetupAuthHandler(partyGuid, UserId);
+            var request = new NotificationSettingsPatchRequest
+            {
+                EmailAddress = new Optional<string?>("test@example.com"),
+                PhoneNumber = new Optional<string?>("+4798765432"),
+                ResourceIncludeList = new Optional<List<string>>(["urn:altinn:resource:example", "urn:altinn:resource:example"]),
+            };
 
             HttpClient client = _factory.CreateClient();
+            SetupAuthHandler(partyGuid, UserId);
 
-            HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Delete, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Patch, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsWithOptional), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
             Assert.NotNull(response);
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(content, _serializerOptionsCamelCase);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal("One or more validation errors occurred.", actual.Title);
+            Assert.Single(actual.Errors);
+            Assert.True(actual.Errors.TryGetValue("ResourceIncludeList", out var message));
+            Assert.Contains("ResourceIncludeList cannot contain duplicates", message[0]);
+        }
+
+        [Theory]
+        [InlineData("urn:altinn:resource:example", "example")]
+        [InlineData("urn:altinn:resource:app_other_vale", "app_other_vale")]
+        [InlineData("urn:altinn:resource:ttd-resource-1", "ttd-resource-1")]
+        public async Task PatchNotificationAddress_WhenContactInfoIsNew_ReturnsCreated(string resourceUrn, string sanitizedResourceId)
+        {
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+
+            var request = new NotificationSettingsPatchRequest
+            {
+                EmailAddress = new Optional<string?>("test@example.com"),
+                PhoneNumber = new Optional<string?>("12345678"),
+                ResourceIncludeList = new Optional<List<string>>([resourceUrn]),
+            };
+
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+            SetupSblMock();
+            SetupAuthHandler(partyGuid, UserId);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Patch, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsWithOptional), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+            _factory.ProfessionalNotificationsRepositoryMock.Verify(
+                x => x.AddOrUpdateNotificationAddressAsync(
+                    It.Is<UserPartyContactInfo>(info =>
+                        info.UserPartyContactInfoResources.Count == 1 && info.UserPartyContactInfoResources[0].ResourceId == sanitizedResourceId),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Exactly(2));
+        }
+
+        [Theory]
+        [InlineData("urn:altinn:resource:example", "example")]
+        [InlineData("urn:altinn:resource:app_other_vale", "app_other_vale")]
+        [InlineData("urn:altinn:resource:ttd-resource-1", "ttd-resource-1")]
+        public async Task PatchNotificationAddress_ReturnsCreatedAndOrdersNotificationWithCountryCode(string resourceUrn, string sanitizedResourceId)
+        {
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+
+            var request = new NotificationSettingsPatchRequest
+            {
+                EmailAddress = new Optional<string?>("test@example.com"),
+                PhoneNumber = new Optional<string?>("98765432"),
+                ResourceIncludeList = new Optional<List<string>>([resourceUrn]),
+            };
+
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+            _factory.AddressVerificationRepositoryMock
+                .Setup(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
+                .ReturnsAsync(true);
+            SetupSblMock();
+            SetupAuthHandler(partyGuid, UserId);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Patch, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsWithOptional), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+            _factory.ProfessionalNotificationsRepositoryMock.Verify(
+                x => x.AddOrUpdateNotificationAddressAsync(
+                    It.Is<UserPartyContactInfo>(info =>
+                        info.UserPartyContactInfoResources.Count == 1 && info.UserPartyContactInfoResources[0].ResourceId == sanitizedResourceId),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Exactly(2));
+            _factory.NotificationsClientMock.Verify(x => x.OrderEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+            _factory.NotificationsClientMock.Verify(x => x.OrderSmsAsync("+4798765432", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task PatchNotificationAddress_WhenNoResource_ReturnsCreated()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+
+            var userPartyContactInfo = new NotificationSettingsRequest
+            {
+                EmailAddress = "test@example.com",
+                PhoneNumber = "12345678",
+            };
+
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+            _factory.AddressVerificationRepositoryMock
+                .Setup(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
+                .ReturnsAsync(true);
+            SetupSblMock();
+            SetupAuthHandler(partyGuid, UserId);
+
+            HttpClient client = _factory.CreateClient();
+
+            // Omit resourceIncludeList from JSON entirely so HasValue = false; sending null would
+            // produce HasValue = true with a null list, which crashes .Count in the controller.
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Patch, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent("{\"emailAddress\":\"test@example.com\",\"phoneNumber\":\"12345678\"}", System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+            _factory.ProfessionalNotificationsRepositoryMock.Verify(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()), Times.Once);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Exactly(2));
+            _factory.NotificationsClientMock.Verify(x => x.OrderEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+            _factory.NotificationsClientMock.Verify(x => x.OrderSmsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task PatchNotificationAddress_WhenContactInfoAlreadyExists_ReturnsNoContent()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+
+            var request = new NotificationSettingsPatchRequest
+            {
+                EmailAddress = new Optional<string?>("test@example.com"),
+                PhoneNumber = new Optional<string?>("12345678"),
+                ResourceIncludeList = new Optional<List<string>>(["urn:altinn:resource:example"]),
+            };
+
+            SetupAuthHandler(partyGuid, UserId);
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+            SetupSblMock();
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Patch, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsWithOptional), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task PatchNotificationAddress_WhenOnlyEmailProvided_ReturnsCreated()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+
+            _factory.ProfessionalNotificationsRepositoryMock
+                .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+            _factory.AddressVerificationRepositoryMock
+                .Setup(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
+                .ReturnsAsync(true);
+            SetupSblMock();
+            SetupAuthHandler(partyGuid, UserId);
+
+            HttpClient client = _factory.CreateClient();
+
+            // phoneNumber is sent as null (HasValue = true, Value = null) to pass the regex validator.
+            // An absent phone property (HasValue = false) would fail the regex because Optional.ToString()
+            // returns "(no value)" which does not match the phone pattern.
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Patch, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent("{\"emailAddress\":\"test@example.com\",\"phoneNumber\":null}", System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+            _factory.ProfessionalNotificationsRepositoryMock.Verify(
+                x => x.AddOrUpdateNotificationAddressAsync(
+                    It.Is<UserPartyContactInfo>(info => info.EmailAddress == "test@example.com"),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
         }
 
         // Creates a request with a valid userId claim
