@@ -21,18 +21,18 @@ namespace Altinn.Profile.Models
         /// The email address. May be null if no email address is set.
         /// </summary>
         [CustomRegexForNotificationAddresses("ProfessionalEmail")]
-        public Optional<string?> EmailAddress { get; set; }
+        public Optional<string?> EmailAddress { get; set; } = new();
 
         /// <summary>
         /// The phone number. May be null if no phone number is set. 
         /// </summary>
         [CustomRegexForNotificationAddresses("ProfessionalPhone")]
-        public Optional<string?> PhoneNumber { get; set; }
+        public Optional<string?> PhoneNumber { get; set; } = new();
 
         /// <summary>
         /// A list of resources that the user has registered to receive notifications for. The format is in URN. This is used to determine which resources the user can receive notifications for.
         /// </summary>
-        public Optional<List<string>> ResourceIncludeList { get; set; }
+        public Optional<List<string>> ResourceIncludeList { get; set; } = new();
 
         /// <inheritdoc/>
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

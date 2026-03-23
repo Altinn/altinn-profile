@@ -192,7 +192,7 @@ namespace Altinn.Profile.Controllers
 
             if (request.ResourceIncludeList.HasValue)
             {
-                if (request.ResourceIncludeList.Value.Count == 0)
+                if (request.ResourceIncludeList.Value?.Count == 0)
                 {
                     userPartyContactInfo.UserPartyContactInfoResources = new Optional<List<UserPartyContactInfoResource>>([]);
                 }
