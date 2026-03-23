@@ -192,7 +192,7 @@ public class RegisterClient : IRegisterClient
 
         if (data is null or { Count: 0 })
         {
-            throw new PartyNotFoundException("Empty response from Register when looking up parties for user(s)");
+            return [];
         }
 
         return data.Where(p => p.Type == PartyType.Person || p.Type == PartyType.SelfIdentifiedUser);
@@ -231,6 +231,12 @@ public class RegisterClient : IRegisterClient
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogError("Failed to call register. Status code: {StatusCode}", response.StatusCode);
+            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest && response.Content != null)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                _logger.LogError("Response content: {ResponseContent}", responseContent);
+            }
+
             return null;
         }
 

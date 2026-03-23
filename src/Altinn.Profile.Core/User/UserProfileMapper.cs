@@ -15,7 +15,7 @@ namespace Altinn.Profile.Core.User
         /// <returns>
         /// A <see cref="UserProfile"/> instance if mapping is successful; otherwise, <c>null</c>.
         /// </returns>
-        public static UserProfile? MapFromParty(Party party)
+        public static UserProfile? MapFromParty(Party? party)
         {
             if (party == null)
             {
@@ -109,6 +109,7 @@ namespace Altinn.Profile.Core.User
                 UserName = user?.Username.Value,
                 PartyId = (int)si.PartyId.Value,
                 ExternalIdentity = si.ExternalUrn.Value?.ToString(),
+                PhoneNumber = string.Empty,
                 Party = new Register.Contracts.V1.Party
                 {
                     PartyId = (int)si.PartyId.Value,
