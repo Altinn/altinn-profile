@@ -20,26 +20,6 @@ namespace Altinn.Profile.Integrations.Notifications
         private readonly IUserProfileService _userProfileService = userProfileService;
 
         /// <inheritdoc/>
-        public async Task<bool> NotifyAddressChangeAsync(int userId, string address, AddressType addressType, Guid partyUuid, CancellationToken cancellationToken)
-        {
-            var language = await _userProfileService.GetPreferredLanguage(userId);
-            var sendersReference = $"profile-{partyUuid}";
-
-            if (addressType == AddressType.Sms)
-            {
-                var phoneNumberWithCountryCode = EnsureCountryCodeIfValidNumber(address);
-                var body = UserMessageBuilder.GetSmsContent(language);
-                return await _notificationsClient.OrderSmsAsync(phoneNumberWithCountryCode, body, sendersReference, cancellationToken);
-            }
-            else
-            {
-                var subject = UserMessageBuilder.GetEmailSubject(language);
-                var body = UserMessageBuilder.GetEmailBody(language);
-                return await _notificationsClient.OrderEmailAsync(address, subject, body, sendersReference, cancellationToken);
-            }
-        }
-
-        /// <inheritdoc/>
         public async Task<bool> SendVerificationCodeAsync(int userId, string address, AddressType addressType, string verificationCode, CancellationToken cancellationToken)
         {
             var language = await _userProfileService.GetPreferredLanguage(userId);
