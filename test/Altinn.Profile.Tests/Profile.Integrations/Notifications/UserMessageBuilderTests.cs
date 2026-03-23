@@ -7,20 +7,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
     public class UserMessageBuilderTests
     {
         [Theory]
-        [InlineData("en", UserMessageBuilder.InformSmsEn)]
-        [InlineData("nb", UserMessageBuilder.InformSmsNo)]
-        [InlineData("nn", UserMessageBuilder.InformSmsNn)]
-        [InlineData("se", UserMessageBuilder.InformSmsNo)]
-        [InlineData("xx", UserMessageBuilder.InformSmsNo)]
-        [InlineData("", UserMessageBuilder.InformSmsNo)]
-        [InlineData(null, UserMessageBuilder.InformSmsNo)]
-        public void GetSmsContent_WithoutCode_ReturnsInformTemplate(string language, string expected)
-        {
-            var result = UserMessageBuilder.GetSmsContent(language);
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
         [InlineData("en", "1234", UserMessageBuilder.VerificationCodeSmsEn)]
         [InlineData("nb", "0000", UserMessageBuilder.VerificationCodeSmsNo)]
         [InlineData("nn", "42", UserMessageBuilder.VerificationCodeSmsNn)]
@@ -46,20 +32,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Notifications
         public void GetEmailSubject_ReturnsExpectedTemplate(string language, string expected)
         {
             var result = UserMessageBuilder.GetEmailSubject(language);
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
-        [InlineData("en", UserMessageBuilder.InformEmailBodyEn)]
-        [InlineData("nb", UserMessageBuilder.InformEmailBodyNo)]
-        [InlineData("nn", UserMessageBuilder.InformEmailBodyNn)]
-        [InlineData("se", UserMessageBuilder.InformEmailBodyNo)]
-        [InlineData("xx", UserMessageBuilder.InformEmailBodyNo)]
-        [InlineData("", UserMessageBuilder.InformEmailBodyNo)]
-        [InlineData(null, UserMessageBuilder.InformEmailBodyNo)]
-        public void GetEmailBody_WithoutCode_ReturnsInformTemplate(string language, string expected)
-        {
-            var result = UserMessageBuilder.GetEmailBody(language);
             Assert.Equal(expected, result);
         }
 

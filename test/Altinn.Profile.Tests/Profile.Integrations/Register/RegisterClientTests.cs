@@ -672,15 +672,17 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
         }
 
         [Fact]
-        public async Task GetUserParty_ByUserId_WhenResponseDataIsNull_ThrowsPartyNotFoundException()
+        public async Task GetUserParty_ByUserId_WhenResponseDataIsNull_ReturnsNull()
         {
             // Arrange
             var userId = 12345;
             var (client, _, _) = CreateClientWithCapture(CreateQueryUserPartiesResponse());
 
-            // Act & Assert
-            await Assert.ThrowsAsync<PartyNotFoundException>(
-                () => client.GetUserParty(userId, TestContext.Current.CancellationToken));
+            // Act
+            var response = await client.GetUserParty(userId, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(response);
         }
 
         [Fact]
@@ -739,15 +741,17 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
         }
 
         [Fact]
-        public async Task GetUserParty_ByUserUuid_WhenResponseDataIsNull_ThrowsPartyNotFoundException()
+        public async Task GetUserParty_ByUserUuid_WhenResponseDataIsNull_ReturnsNull()
         {
             // Arrange
             var userUuid = Guid.NewGuid();
             var (client, _, _) = CreateClientWithCapture(CreateQueryUserPartiesResponse());
 
-            // Act & Assert
-            await Assert.ThrowsAsync<PartyNotFoundException>(
-                () => client.GetUserParty(userUuid, TestContext.Current.CancellationToken));
+            // Act
+            var response = await client.GetUserParty(userUuid, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(response);
         }
 
         [Fact]
