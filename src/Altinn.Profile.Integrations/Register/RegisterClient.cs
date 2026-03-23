@@ -4,9 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.Profile.Core.Integrations;
-using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Register.Contracts;
-using Altinn.Urn;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

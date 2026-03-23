@@ -80,6 +80,7 @@ public static class ServiceCollectionExtensions
 
         services.Configure<RegisterSettings>(config.GetSection(nameof(RegisterSettings)));
         services.AddHttpClient<IRegisterClient, RegisterClient>();
+        services.Decorate<IRegisterClient, RegisterCachingDecorator>();
         services.Configure<NotificationsSettings>(config.GetSection(nameof(NotificationsSettings)));
         services.AddHttpClient<INotificationsClient, NotificationsClient>();
         services.AddHttpClient<IAuthorizationClient, AuthorizationClient>();
