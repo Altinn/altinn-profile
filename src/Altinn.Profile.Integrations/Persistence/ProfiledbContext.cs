@@ -3,6 +3,7 @@
 
 using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Core.User.PartyGroups;
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Integrations.Entities;
@@ -102,6 +103,12 @@ public partial class ProfileDbContext : DbContext
     /// The <see cref="DbSet{VerifiedAddress}"/> representing the verified addresses for users.
     /// </summary>
     public virtual DbSet<VerifiedAddress> VerifiedAddresses { get; set; }
+
+    /// <summary>
+    /// The <see cref="DbSet{UserContactInfo}"/> representing the notification addresses for non-citizen users.
+    /// </summary>
+    public virtual DbSet<UserContactInfo> SelfIdentifiedUsers { get; set; }
+
 
     /// <summary>
     /// Configures the schema needed for the context.

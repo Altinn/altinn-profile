@@ -1,0 +1,43 @@
+namespace Altinn.Profile.Core.User.ContactInfo
+{
+    /// <summary>
+    /// The personal contact information for a non-citizen user.
+    /// </summary>
+    public record UserContactInfo
+    {
+        /// <summary>
+        /// The user identifier.
+        /// </summary>
+        public required int UserId { get; init; }
+
+        /// <summary>
+        /// UUID of the user
+        /// </summary>
+        public required Guid UserUuid { get; init; }
+
+        /// <summary>
+        /// The Username
+        /// </summary>
+        public required string Username { get; init; }
+
+        /// <summary>
+        /// The email address
+        /// </summary>
+        public required string EmailAddress { get; init; }
+
+        /// <summary>
+        /// The timestamp (with time-zone) for the event where the user registered the email address
+        /// </summary>
+        public required DateTime EmailAddressRegistered { get; init; }
+
+        /// <summary>
+        /// The mobile number
+        /// </summary>
+        public required string? MobileNumber { get; init; }
+
+        /// <summary>
+        /// The timestamp (with time-zone) for the event where the user registered the mobile number
+        /// </summary>
+        public required DateTime MobileNumberRegistered { get; init; }
+    }
+}
