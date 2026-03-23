@@ -42,7 +42,7 @@ public class RegisterCachingDecoratorTest
 
         RegisterCachingDecorator target = CreateTarget(memoryCache);
 
-        string? result = await target.GetMainUnit(orgNumber, CancellationToken.None);
+        string result = await target.GetMainUnit(orgNumber, CancellationToken.None);
 
         Assert.Equal(mainUnit, result);
         _decoratedServiceMock.Verify(service => service.GetMainUnit(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never());
@@ -61,11 +61,11 @@ public class RegisterCachingDecoratorTest
 
         RegisterCachingDecorator target = CreateTarget(memoryCache);
 
-        string? result = await target.GetMainUnit(orgNumber, CancellationToken.None);
+        string result = await target.GetMainUnit(orgNumber, CancellationToken.None);
 
         Assert.Equal(mainUnit, result);
         _decoratedServiceMock.Verify(service => service.GetMainUnit(orgNumber, It.IsAny<CancellationToken>()), Times.Once());
-        Assert.True(memoryCache.TryGetValue($"MainUnit_{orgNumber}", out string? cachedMainUnit));
+        Assert.True(memoryCache.TryGetValue($"MainUnit_{orgNumber}", out string cachedMainUnit));
         Assert.Equal(mainUnit, cachedMainUnit);
     }
 
@@ -77,15 +77,15 @@ public class RegisterCachingDecoratorTest
 
         _decoratedServiceMock
             .Setup(service => service.GetMainUnit(orgNumber, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((string?)null);
+            .ReturnsAsync((string)null);
 
         RegisterCachingDecorator target = CreateTarget(memoryCache);
 
-        string? result = await target.GetMainUnit(orgNumber, CancellationToken.None);
+        string result = await target.GetMainUnit(orgNumber, CancellationToken.None);
 
         Assert.Null(result);
         _decoratedServiceMock.Verify(service => service.GetMainUnit(orgNumber, It.IsAny<CancellationToken>()), Times.Once());
-        Assert.False(memoryCache.TryGetValue($"MainUnit_{orgNumber}", out string? _));
+        Assert.False(memoryCache.TryGetValue($"MainUnit_{orgNumber}", out string _));
     }
 
     [Fact]
@@ -195,7 +195,7 @@ public class RegisterCachingDecoratorTest
                 It.Is<string[]>(numbers => numbers.SequenceEqual(expectedMissingOrgNumbers)),
                 It.IsAny<CancellationToken>()),
             Times.Once());
-        Assert.True(memoryCache.TryGetValue($"PartyUuid_{fetchedParty.OrganizationIdentifier}", out ContactPointParty? cachedFetchedParty));
+        Assert.True(memoryCache.TryGetValue($"PartyUuid_{fetchedParty.OrganizationIdentifier}", out ContactPointParty cachedFetchedParty));
         Assert.NotNull(cachedFetchedParty);
         Assert.Equal(fetchedParty.PartyUuid, cachedFetchedParty.PartyUuid);
     }
@@ -214,7 +214,7 @@ public class RegisterCachingDecoratorTest
             .Setup(service => service.GetPartyUuids(
                 It.Is<string[]>(numbers => numbers.SequenceEqual(expectedMissingOrgNumbers)),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync((IReadOnlyList<ContactPointParty>?)null);
+            .ReturnsAsync((IReadOnlyList<ContactPointParty>)null);
 
         RegisterCachingDecorator target = CreateTarget(memoryCache);
 
@@ -223,7 +223,7 @@ public class RegisterCachingDecoratorTest
         Assert.NotNull(result);
         ContactPointParty singleParty = Assert.Single(result);
         Assert.Equal(cachedParty.OrganizationIdentifier, singleParty.OrganizationIdentifier);
-        Assert.False(memoryCache.TryGetValue($"PartyUuid_{missingOrgNumber}", out ContactPointParty? _));
+        Assert.False(memoryCache.TryGetValue($"PartyUuid_{missingOrgNumber}", out ContactPointParty _));
     }
 
     [Fact]
@@ -236,7 +236,7 @@ public class RegisterCachingDecoratorTest
 
         RegisterCachingDecorator target = CreateTarget(memoryCache);
 
-        string? result = await target.GetOrganizationNumberByPartyUuid(partyUuid, CancellationToken.None);
+        string result = await target.GetOrganizationNumberByPartyUuid(partyUuid, CancellationToken.None);
 
         Assert.Equal(orgNumber, result);
         _decoratedServiceMock.Verify(service => service.GetOrganizationNumberByPartyUuid(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never());
@@ -271,7 +271,7 @@ public class RegisterCachingDecoratorTest
 
         _decoratedServiceMock
             .Setup(service => service.GetOrganizationNumberByPartyUuid(partyUuid, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((string?)null);
+            .ReturnsAsync((string)null);
 
         RegisterCachingDecorator target = CreateTarget(memoryCache);
 

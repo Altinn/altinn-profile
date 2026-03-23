@@ -246,7 +246,7 @@ public class RegisterCachingDecorator : IRegisterClient
     // Private methods
     private void AddUserToCache(string uniqueCacheKey, Party userProfile)
     {
-        if (userProfile.User.HasValue == false || userProfile.User.Value.UserId.HasValue == false)
+        if (!userProfile.User.HasValue || !userProfile.User.Value.UserId.HasValue)
         {
             return;
         }
@@ -262,7 +262,7 @@ public class RegisterCachingDecorator : IRegisterClient
 
     private void AddUserToCache(Party userProfile)
     {
-        if (userProfile.User.HasValue == false || userProfile.User.Value.UserId.HasValue == false)
+        if (!userProfile.User.HasValue || !userProfile.User.Value.UserId.HasValue)
         {
             return;
         }
