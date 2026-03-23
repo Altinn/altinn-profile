@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Altinn.Profile.Core.User;
 
 /// <summary>
-/// Compares user profiles and logs mismatch metadata without logging personal values.
+/// Compares user profiles and logs mismatch metadata without logging sensitive values.
 /// </summary>
 public sealed class UserProfileComparer : IUserProfileComparer
 {
