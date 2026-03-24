@@ -113,7 +113,6 @@ namespace Altinn.Profile.Core.AddressVerifications
                 var remainingCoolDownTime = _resendCoolDownSeconds - (int)secondsWaited;
                 _telemetry.RecordVerificationResendCooldownRejected(addressType);
                 return SendVerificationCodeResult.CoolDown(remainingCoolDownTime);
-                
             }
 
             var code = _verificationCodeService.GenerateRawCode();
