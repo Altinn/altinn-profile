@@ -1,6 +1,5 @@
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.Integrations;
-using Altinn.Register.Contracts;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
