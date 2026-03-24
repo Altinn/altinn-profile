@@ -108,14 +108,12 @@ namespace Altinn.Profile.Core.AddressVerifications
             }
 
             var existingCode = await _addressVerificationRepository.GetVerificationCodeAsync(userId, addressType, formattedAddress, cancellationToken);
-            if (existingCode is not null)
+            if (existingCode is not null && IsInCooldown(existingCode, out double secondsWaited))
             {
-                if (IsInCooldown(existingCode, out double secondsWaited))
-                {
-                    var remainingCoolDownTime = _resendCoolDownSeconds - (int)secondsWaited;
-                    _telemetry.RecordVerificationResendCooldownRejected(addressType);
-                    return SendVerificationCodeResult.CoolDown(remainingCoolDownTime);
-                }
+                var remainingCoolDownTime = _resendCoolDownSeconds - (int)secondsWaited;
+                _telemetry.RecordVerificationResendCooldownRejected(addressType);
+                return SendVerificationCodeResult.CoolDown(remainingCoolDownTime);
+                
             }
 
             var code = _verificationCodeService.GenerateRawCode();
