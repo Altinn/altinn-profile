@@ -143,25 +143,8 @@ namespace Altinn.Profile.Core.AddressVerifications
                 return SendVerificationStatus.CodeNotFound;
             }
 
-            if (IsInCooldown(existingCode, out _))
-            {
-                _telemetry.RecordVerificationResendCooldownRejected(addressType);
-                return SendVerificationStatus.CodeCooldown; // Don't generate a new code or send a notification if there's an existing code in the cooldown state
-            }
-
-            var code = _verificationCodeService.GenerateRawCode();
-            var verificationCodeModel = _verificationCodeService.CreateVerificationCode(userId, formattedAddress, addressType, code);
-
-            bool added = await _addressVerificationRepository.AddNewVerificationCodeAsync(verificationCodeModel);
-            if (!added)
-            {
-                // A concurrent request already inserted a verification code for this user/address/type.
-                return SendVerificationStatus.CodeCooldown;
-            }
-
-            await _userNotifier.SendVerificationCodeAsync(userId, verificationCodeModel.Address, addressType, code, cancellationToken);
-
-            return SendVerificationStatus.Success;
+            var sendResult = await SendVerificationCodeAsync(userId, formattedAddress, addressType, cancellationToken);
+            return sendResult.Status;
         }
 
         private bool IsInCooldown(VerificationCode existingCode, out double secondsWaited)
