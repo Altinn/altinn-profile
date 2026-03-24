@@ -45,7 +45,7 @@ public class UserProfileService : IUserProfileService
     {
         return await GetUserWithOptionalRegisterLookup(
             _userProfileClient.GetUser(userId),
-            () => GetUserFromRegister(_registerClient.GetUserParty(userId, default)));
+            GetUserFromRegister(_registerClient.GetUserParty(userId, default)));
     }
 
     /// <inheritdoc/>
@@ -53,7 +53,7 @@ public class UserProfileService : IUserProfileService
     {
         return await GetUserWithOptionalRegisterLookup(
             _userProfileClient.GetUser(ssn),
-            () => GetUserFromRegister(_registerClient.GetUserPartyBySsn(ssn, default)));
+            GetUserFromRegister(_registerClient.GetUserPartyBySsn(ssn, default)));
     }
 
     /// <inheritdoc/>
@@ -61,7 +61,7 @@ public class UserProfileService : IUserProfileService
     {
         return await GetUserWithOptionalRegisterLookup(
             _userProfileClient.GetUserByUsername(username),
-            () => GetUserFromRegister(_registerClient.GetUserPartyByUsername(username, default)));
+            GetUserFromRegister(_registerClient.GetUserPartyByUsername(username, default)));
     }
 
     /// <inheritdoc/>
@@ -69,7 +69,7 @@ public class UserProfileService : IUserProfileService
     {
         return await GetUserWithOptionalRegisterLookup(
             _userProfileClient.GetUserByUuid(userUuid),
-            () => GetUserFromRegister(_registerClient.GetUserParty(userUuid, default)));
+            GetUserFromRegister(_registerClient.GetUserParty(userUuid, default)));
     }
 
     /// <inheritdoc/>
@@ -113,14 +113,19 @@ public class UserProfileService : IUserProfileService
         return legacyProfilesWithEnrichment;
     }
 
-    private async Task<Result<UserProfile, bool>> GetUserWithOptionalRegisterLookup(Task<Result<UserProfile, bool>> legacyTask, Func<Task<UserProfile?>> registerLookup)
+    private async Task<Result<UserProfile, bool>> GetUserWithOptionalRegisterLookup(Task<Result<UserProfile, bool>> legacyTask, Task<UserProfile?> registerTask)
     {
         if (!_settings.RegisterLookupInShadowMode)
         {
-            return await GetLegacyUserResult(legacyTask);
+            UserProfile? userProfile = await GetEnrichedLegacyUserProfile(legacyTask);
+            if (userProfile is null)
+            {
+                return false;
+            }
+
+            return userProfile;
         }
 
-        Task<UserProfile?> registerTask = registerLookup();
         await Task.WhenAll(legacyTask, registerTask);
 
         UserProfile? registerProfile = await registerTask;
@@ -128,17 +133,6 @@ public class UserProfileService : IUserProfileService
 
         _userProfileComparer.CompareAndLog(legacyProfile, registerProfile);
 
-        if (legacyProfile is null)
-        {
-            return false;
-        }
-
-        return legacyProfile;
-    }
-
-    private async Task<Result<UserProfile, bool>> GetLegacyUserResult(Task<Result<UserProfile, bool>> legacyTask)
-    {
-        UserProfile? legacyProfile = await GetEnrichedLegacyUserProfile(legacyTask);
         if (legacyProfile is null)
         {
             return false;
@@ -196,14 +190,14 @@ public class UserProfileService : IUserProfileService
 
     private async Task<List<UserProfile>> GetUserListFromRegister(List<Guid> userUuidList)
     {
-        IReadOnlyList<Register.Contracts.Party> registerParties = await _registerClient.GetUserParties(userUuidList, default);
+        IReadOnlyList<Party> registerParties = await _registerClient.GetUserParties(userUuidList, default);
         List<UserProfile> registerProfiles = new(registerParties?.Count ?? 0);
         if (registerParties == null)
         {
             return registerProfiles;
         }
 
-        foreach (Register.Contracts.Party registerParty in registerParties)
+        foreach (Party registerParty in registerParties)
         {
             UserProfile? userProfile = await CreateAndEnrichProfileFromParty(registerParty);
             if (userProfile != null)
