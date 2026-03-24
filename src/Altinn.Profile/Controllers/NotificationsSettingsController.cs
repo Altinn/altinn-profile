@@ -193,13 +193,14 @@ namespace Altinn.Profile.Controllers
 
             if (request.ResourceIncludeList.HasValue)
             {
-                if (request.ResourceIncludeList.Value?.Count == 0)
+                var resources = request.ResourceIncludeList.Value;
+                if (resources == null || resources.Count == 0)
                 {
                     userPartyContactInfo.UserPartyContactInfoResources = new Optional<List<UserPartyContactInfoResource>>([]);
                 }
                 else
                 {
-                    userPartyContactInfo.UserPartyContactInfoResources = new Optional<List<UserPartyContactInfoResource>>(request.ResourceIncludeList.Value
+                    userPartyContactInfo.UserPartyContactInfoResources = new Optional<List<UserPartyContactInfoResource>>(resources
                     .Select(resource => ResourceIdFormatter.GetSanitizedResourceId(resource))
                     .Where(s => !string.IsNullOrWhiteSpace(s))
                     .Select(s => new UserPartyContactInfoResource { ResourceId = s })

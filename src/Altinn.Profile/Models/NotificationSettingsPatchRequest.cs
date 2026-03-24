@@ -20,13 +20,11 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// The email address. May be null if no email address is set.
         /// </summary>
-        [CustomRegexForNotificationAddresses("ProfessionalEmail")]
         public Optional<string?> EmailAddress { get; set; } = new();
 
         /// <summary>
         /// The phone number. May be null if no phone number is set. 
         /// </summary>
-        [CustomRegexForNotificationAddresses("ProfessionalPhone")]
         public Optional<string?> PhoneNumber { get; set; } = new();
 
         /// <summary>
@@ -37,6 +35,24 @@ namespace Altinn.Profile.Models
         /// <inheritdoc/>
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
+            if (EmailAddress.HasValue)
+            {
+                var validationError = new CustomRegexForNotificationAddressesAttribute("ProfessionalEmail").GetValidationResult(EmailAddress.Value, new ValidationContext(this) { MemberName = nameof(EmailAddress) });
+                if (validationError != null && validationError != ValidationResult.Success)
+                {
+                    yield return validationError;
+                }
+            }
+
+            if (PhoneNumber.HasValue)
+            {
+                var validationError = new CustomRegexForNotificationAddressesAttribute("ProfessionalPhone").GetValidationResult(PhoneNumber.Value, new ValidationContext(this) { MemberName = nameof(PhoneNumber) });
+                if (validationError != null && validationError != ValidationResult.Success)
+                {
+                    yield return validationError;
+                }
+            }
+
             if (ResourceIncludeList.HasValue && ResourceIncludeList.Value?.Any(r => string.IsNullOrWhiteSpace(r) || !ResourceIdRegex().IsMatch(r)) == true)
             {
                 yield return new ValidationResult("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 4 or more characters of lowercase letter, number, underscore or hyphen", [nameof(ResourceIncludeList)]);

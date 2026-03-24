@@ -79,8 +79,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.AddressVerificationRepositoryMock
                 .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Sms, It.Is<string>(e => e == "12345678"), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(VerificationType.Unverified);
-
-            SetupSblMock();
+            
             SetupAuthHandler(partyGuid, UserId);
 
             HttpClient client = _factory.CreateClient();
@@ -122,7 +121,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.GetNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((UserPartyContactInfo)null);
-            SetupSblMock();
+            
             SetupAuthHandler(partyGuid, UserId);
 
             HttpClient client = _factory.CreateClient();
@@ -188,8 +187,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.GetAllNotificationAddressesForUserAsync(UserId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<UserPartyContactInfo>());
-            SetupSblMock();
-
+            
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Get, UserId, "profile/api/v1/users/current/notificationsettings/parties");
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
@@ -213,7 +211,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.GetAllNotificationAddressesForUserAsync(UserId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(infos);
-            SetupSblMock();
+            
             _factory.ProfileSettingsRepositoryMock
                 .Setup(x => x.GetProfileSettings(UserId))
                 .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = DateTime.Today, LanguageType = "no" });
@@ -254,8 +252,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.GetAllNotificationAddressesForUserAsync(UserId, It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception("fail"));
-            SetupSblMock();
-
+          
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Get, UserId, "profile/api/v1/users/current/notificationsettings/parties");
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
@@ -467,7 +464,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.AddressVerificationRepositoryMock
                 .Setup(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
                 .ReturnsAsync(true);
-            SetupSblMock();
+            
             SetupAuthHandler(partyGuid, UserId);
 
             HttpClient client = _factory.CreateClient();
@@ -516,7 +513,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.AddressVerificationRepositoryMock
                 .Setup(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
                 .ReturnsAsync(true);
-            SetupSblMock();
+            
             SetupAuthHandler(partyGuid, UserId);
 
             HttpClient client = _factory.CreateClient();
@@ -558,7 +555,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
-            SetupSblMock();
+            
             SetupAuthHandler(partyGuid, UserId);
 
             _factory.AddressVerificationRepositoryMock
@@ -609,8 +606,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
-            SetupSblMock();
-
+          
             HttpClient client = _factory.CreateClient();
 
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
@@ -768,7 +764,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
-            SetupSblMock();
+            
             SetupAuthHandler(partyGuid, UserId);
 
             HttpClient client = _factory.CreateClient();
@@ -818,7 +814,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.AddressVerificationRepositoryMock
                 .Setup(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
                 .ReturnsAsync(true);
-            SetupSblMock();
+            
             SetupAuthHandler(partyGuid, UserId);
 
             HttpClient client = _factory.CreateClient();
@@ -866,7 +862,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.AddressVerificationRepositoryMock
                 .Setup(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
                 .ReturnsAsync(true);
-            SetupSblMock();
+            
             SetupAuthHandler(partyGuid, UserId);
 
             HttpClient client = _factory.CreateClient();
@@ -910,7 +906,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
-            SetupSblMock();
 
             HttpClient client = _factory.CreateClient();
 
@@ -941,17 +936,18 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.AddressVerificationRepositoryMock
                 .Setup(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
                 .ReturnsAsync(true);
-            SetupSblMock();
+            
             SetupAuthHandler(partyGuid, UserId);
 
             HttpClient client = _factory.CreateClient();
+            var request = new NotificationSettingsPatchRequest
+            {
+                EmailAddress = new Optional<string>("test@example.com")
+            };
 
-            // phoneNumber is sent as null (HasValue = true, Value = null) to pass the regex validator.
-            // An absent phone property (HasValue = false) would fail the regex because Optional.ToString()
-            // returns "(no value)" which does not match the phone pattern.
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Patch, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
             {
-                Content = new StringContent("{\"emailAddress\":\"test@example.com\",\"phoneNumber\":null}", System.Text.Encoding.UTF8, "application/json")
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsWithOptional), System.Text.Encoding.UTF8, "application/json")
             };
             httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
 
@@ -1001,15 +997,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.AuthorizationClientMock
                 .Setup(x => x.ValidateSelectedParty(UserId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(access);
-        }
-
-        private void SetupSblMock()
-        {
-            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction((request, token) =>
-            {
-                UserProfile userProfile = new() { ProfileSettingPreference = new ProfileSettingPreference { Language = "nb" } };
-                return Task.FromResult(new HttpResponseMessage() { Content = JsonContent.Create(userProfile) });
-            });
         }
     }
 }
