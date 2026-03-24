@@ -624,7 +624,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task PatchNotificationAddress_WhenBothFieldsAreOmitted_ReturnsBadRequest()
+        public async Task PatchNotificationAddress_WhenBothAddressesAreNull_ReturnsBadRequest()
         {
             // Arrange
             const int UserId = 2516356;
@@ -850,10 +850,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int UserId = 2516356;
             var partyGuid = Guid.NewGuid();
 
-            var userPartyContactInfo = new NotificationSettingsRequest
+            var request = new NotificationSettingsPatchRequest
             {
-                EmailAddress = "test@example.com",
-                PhoneNumber = "12345678",
+                EmailAddress = new Optional<string>("test@example.com"),
+                PhoneNumber = new Optional<string>("12345678"),
             };
 
             _factory.ProfessionalNotificationsRepositoryMock
@@ -871,7 +871,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // produce HasValue = true with a null list, which crashes .Count in the controller.
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Patch, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
             {
-                Content = new StringContent("{\"emailAddress\":\"test@example.com\",\"phoneNumber\":\"12345678\"}", System.Text.Encoding.UTF8, "application/json")
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsWithOptional), System.Text.Encoding.UTF8, "application/json")
             };
             httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
 

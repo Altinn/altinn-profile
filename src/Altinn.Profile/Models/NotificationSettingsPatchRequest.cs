@@ -35,37 +35,53 @@ namespace Altinn.Profile.Models
         /// <inheritdoc/>
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (EmailAddress.HasValue)
+            ValidationResult? emailValidationError = GetAddressValidationError(this, EmailAddress, "ProfessionalEmail", nameof(EmailAddress));
+            if (emailValidationError is not null)
             {
-                var validationError = new CustomRegexForNotificationAddressesAttribute("ProfessionalEmail").GetValidationResult(EmailAddress.Value, new ValidationContext(this) { MemberName = nameof(EmailAddress) });
-                if (validationError != null && validationError != ValidationResult.Success)
-                {
-                    yield return validationError;
-                }
+                yield return emailValidationError;
             }
 
-            if (PhoneNumber.HasValue)
+            ValidationResult? phoneValidationError = GetAddressValidationError(this, PhoneNumber, "ProfessionalPhone", nameof(PhoneNumber));
+            if (phoneValidationError is not null)
             {
-                var validationError = new CustomRegexForNotificationAddressesAttribute("ProfessionalPhone").GetValidationResult(PhoneNumber.Value, new ValidationContext(this) { MemberName = nameof(PhoneNumber) });
-                if (validationError != null && validationError != ValidationResult.Success)
-                {
-                    yield return validationError;
-                }
+                yield return phoneValidationError;
             }
 
-            if (ResourceIncludeList.HasValue && ResourceIncludeList.Value?.Any(r => string.IsNullOrWhiteSpace(r) || !ResourceIdRegex().IsMatch(r)) == true)
+            bool hasResourceIncludeList = ResourceIncludeList.HasValue;
+            List<string>? resourceIncludeList = ResourceIncludeList.Value;
+
+            if (hasResourceIncludeList && resourceIncludeList?.Any(r => string.IsNullOrWhiteSpace(r) || !ResourceIdRegex().IsMatch(r)) == true)
             {
                 yield return new ValidationResult("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 4 or more characters of lowercase letter, number, underscore or hyphen", [nameof(ResourceIncludeList)]);
             }
 
-            if (ResourceIncludeList.HasValue && ResourceIncludeList.Value != null && ResourceIncludeList.Value.Count > ResourceIncludeList.Value.Distinct().Count())
+            if (hasResourceIncludeList && resourceIncludeList != null && resourceIncludeList.Count > resourceIncludeList.Distinct().Count())
             {
                 yield return new ValidationResult("ResourceIncludeList cannot contain duplicates", [nameof(ResourceIncludeList)]);
             }
 
-            if ((!EmailAddress.HasValue || string.IsNullOrWhiteSpace(EmailAddress.Value)) && (!PhoneNumber.HasValue || string.IsNullOrWhiteSpace(PhoneNumber.Value)))
+            bool hasNoEmail = !EmailAddress.HasValue || string.IsNullOrWhiteSpace(EmailAddress.Value);
+            bool hasNoPhone = !PhoneNumber.HasValue || string.IsNullOrWhiteSpace(PhoneNumber.Value);
+            if (hasNoEmail && hasNoPhone)
             {
                 yield return new ValidationResult("The notification setting for a party must include either EmailAddress, PhoneNumber, or both.", [nameof(EmailAddress), nameof(PhoneNumber)]);
+            }
+
+            static ValidationResult? GetAddressValidationError(
+                NotificationSettingsPatchRequest request,
+                Optional<string?> value,
+                string addressType,
+                string memberName)
+            {
+                if (!value.HasValue)
+                {
+                    return null;
+                }
+
+                ValidationResult? validationError = new CustomRegexForNotificationAddressesAttribute(addressType)
+                    .GetValidationResult(value.Value, new ValidationContext(request) { MemberName = memberName });
+
+                return validationError is null || validationError == ValidationResult.Success ? null : validationError;
             }
         }
 
