@@ -867,8 +867,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            // Omit resourceIncludeList from JSON entirely so HasValue = false; sending null would
-            // produce HasValue = true with a null list, which crashes .Count in the controller.
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Patch, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
             {
                 Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsWithOptional), System.Text.Encoding.UTF8, "application/json")

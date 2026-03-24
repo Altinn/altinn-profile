@@ -60,9 +60,9 @@ namespace Altinn.Profile.Models
                 yield return new ValidationResult("ResourceIncludeList cannot contain duplicates", [nameof(ResourceIncludeList)]);
             }
 
-            bool hasNoEmail = !EmailAddress.HasValue || string.IsNullOrWhiteSpace(EmailAddress.Value);
-            bool hasNoPhone = !PhoneNumber.HasValue || string.IsNullOrWhiteSpace(PhoneNumber.Value);
-            if (hasNoEmail && hasNoPhone)
+            bool setsEmailToNull = EmailAddress.HasValue && string.IsNullOrWhiteSpace(EmailAddress.Value);
+            bool setsPhoneToNull = PhoneNumber.HasValue && string.IsNullOrWhiteSpace(PhoneNumber.Value);
+            if (setsEmailToNull && setsPhoneToNull)
             {
                 yield return new ValidationResult("The notification setting for a party must include either EmailAddress, PhoneNumber, or both.", [nameof(EmailAddress), nameof(PhoneNumber)]);
             }
