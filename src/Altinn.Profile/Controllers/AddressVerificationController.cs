@@ -28,6 +28,7 @@ namespace Altinn.Profile.Controllers
     {
         private readonly IAddressVerificationService _addressVerificationService;
         private readonly int _verificationCodeCooldownPeriodInSeconds;
+        private readonly string _verificationCodeNotSentMessage = "Verification code could not be sent";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AddressVerificationController"/> class.
@@ -137,10 +138,10 @@ namespace Altinn.Profile.Controllers
             return sendResult.Status switch
             {
                 SendVerificationStatus.Success => new OkObjectResult(new AddressVerificationResponse { CooldownSeconds = sendResult.Cooldown, NotificationSent = true }),
-                SendVerificationStatus.NotificationOrderFailed => InternalServerError(new ProblemDetails { Title = "Verification code could not be sent", Detail = "The verification process was created, but notification delivery failed." }),
-                SendVerificationStatus.AddressAlreadyVerified => UnprocessableEntity(new ProblemDetails { Title = "Verification code could not be sent", Detail = "The address is already verified for this user." }),
+                SendVerificationStatus.NotificationOrderFailed => InternalServerError(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = "The verification process was created, but notification delivery failed." }),
+                SendVerificationStatus.AddressAlreadyVerified => UnprocessableEntity(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = "The address is already verified for this user." }),
                 SendVerificationStatus.CodeCooldown => new OkObjectResult(new AddressVerificationResponse { CooldownSeconds = sendResult.Cooldown, NotificationSent = false }),
-                _ => InternalServerError(new ProblemDetails { Title = "Verification code could not be sent", Detail = "An unexpected error occurred." })
+                _ => InternalServerError(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = "An unexpected error occurred." })
             };
         }
 
@@ -173,11 +174,11 @@ namespace Altinn.Profile.Controllers
             return result switch
             {
                 SendVerificationStatus.Success => NoContent(),
-                SendVerificationStatus.NotificationOrderFailed => InternalServerError(new ProblemDetails { Title = "Verification code could not be sent", Detail = "The verification process was created, but notification delivery failed." }),
-                SendVerificationStatus.CodeNotFound => UnprocessableEntity(new ProblemDetails { Title = "Verification code could not be resent", Detail = "The user has no active verification process for the given address." }),
-                SendVerificationStatus.AddressAlreadyVerified => UnprocessableEntity(new ProblemDetails { Title = "Verification code could not be sent", Detail = "The address is already verified for this user." }),
-                SendVerificationStatus.CodeCooldown => TooManyRequests(new ProblemDetails { Title = "Verification code could not be resent", Detail = $"Code resending attempts for an address are limited to 1 request per {_verificationCodeCooldownPeriodInSeconds} seconds. Please wait before requesting a new code." }),
-                _ => InternalServerError(new ProblemDetails { Title = "Verification code could not be resent", Detail = "An unexpected error occurred." })
+                SendVerificationStatus.NotificationOrderFailed => InternalServerError(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = "The verification process was created, but notification delivery failed." }),
+                SendVerificationStatus.CodeNotFound => UnprocessableEntity(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = "The user has no active verification process for the given address." }),
+                SendVerificationStatus.AddressAlreadyVerified => UnprocessableEntity(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = "The address is already verified for this user." }),
+                SendVerificationStatus.CodeCooldown => TooManyRequests(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = $"Code resending attempts for an address are limited to 1 request per {_verificationCodeCooldownPeriodInSeconds} seconds. Please wait before requesting a new code." }),
+                _ => InternalServerError(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = "An unexpected error occurred." })
             };
         }
 
