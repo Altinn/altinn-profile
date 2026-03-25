@@ -154,7 +154,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Null(actualUser.ProfileSettingPreference.PreselectedPartyUuid);
         Assert.False(actualUser.ProfileSettingPreference.ShowClientUnits);
         Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
-        Assert.False(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
+        Assert.True(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
     }
 
     [Fact]
@@ -323,7 +323,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Null(actualUser.ProfileSettingPreference.PreselectedPartyUuid);
         Assert.False(actualUser.ProfileSettingPreference.ShowClientUnits);
         Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
-        Assert.False(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
+        Assert.True(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
     }
 
     [Fact]
@@ -562,7 +562,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Null(actualUser.ProfileSettingPreference.PreselectedPartyUuid);
         Assert.False(actualUser.ProfileSettingPreference.ShowClientUnits);
         Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
-        Assert.False(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
+        Assert.True(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
     }
 
     [Fact]
@@ -812,7 +812,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Null(actualUser.ProfileSettingPreference.PreselectedPartyUuid);
         Assert.False(actualUser.ProfileSettingPreference.ShowClientUnits);
         Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
-        Assert.False(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
+        Assert.True(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
     }
 
     [Fact]
