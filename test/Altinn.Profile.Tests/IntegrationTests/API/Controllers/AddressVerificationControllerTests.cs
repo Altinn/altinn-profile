@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -585,7 +586,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task SendCode_WhenCodeIsInCooldown_Returns200AndDoesNotCreateNewCodeOrSendNotification()
+        public async Task SendCode_WhenCodeIsInCooldown_Returns429AndDoesNotCreateNewCodeOrSendNotification()
         {
             // Arrange
             const int userId = 2516362;
@@ -625,13 +626,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-            var responseObject = JsonSerializer.Deserialize<AddressVerificationResponse>(responseContent, _serializerOptionsCamelCase);
-            Assert.NotNull(responseObject);
-            Assert.False(responseObject.NotificationSent);
-            Assert.True(responseObject.CooldownSeconds > 0);
-            Assert.True(responseObject.CooldownSeconds < 59);
+            Assert.Equal(HttpStatusCode.TooManyRequests, response.StatusCode);
+            Assert.True(response.Headers.TryGetValues("Retry-After", out var retryAfterValues));
+            var retryAfterSeconds = int.Parse(retryAfterValues.First());
+
+            Assert.True(retryAfterSeconds > 0);
+            Assert.True(retryAfterSeconds < 59);
 
             _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Never);
             _factory.NotificationsClientMock.Verify(
@@ -1149,6 +1149,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Assert
             Assert.Equal(HttpStatusCode.TooManyRequests, response.StatusCode);
+
             _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Never);
             _factory.NotificationsClientMock.Verify(
                 x => x.OrderSmsAsync(existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),

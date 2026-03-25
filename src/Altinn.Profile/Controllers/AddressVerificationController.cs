@@ -28,7 +28,9 @@ namespace Altinn.Profile.Controllers
     {
         private readonly IAddressVerificationService _addressVerificationService;
         private readonly int _verificationCodeCooldownPeriodInSeconds;
-        private readonly string _verificationCodeNotSentMessage = "Verification code could not be sent";
+        private const string _verificationCodeNotSentMessage = "Verification code could not be sent";
+        private const string _remainingSecondsBodyName = "retryAfterSeconds";
+        private const string _retryAfterHeaderName = "Retry-After";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AddressVerificationController"/> class.
@@ -140,7 +142,7 @@ namespace Altinn.Profile.Controllers
                 SendVerificationStatus.Success => new OkObjectResult(new AddressVerificationResponse { CooldownSeconds = sendResult.Cooldown, NotificationSent = true }),
                 SendVerificationStatus.NotificationOrderFailed => InternalServerError(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = "The verification process was created, but notification delivery failed." }),
                 SendVerificationStatus.AddressAlreadyVerified => UnprocessableEntity(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = "The address is already verified for this user." }),
-                SendVerificationStatus.CodeCooldown => new OkObjectResult(new AddressVerificationResponse { CooldownSeconds = sendResult.Cooldown, NotificationSent = false }),
+                SendVerificationStatus.CodeCooldown => TooManyRequests(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = $"Code resending attempts for an address are limited to 1 request per {_verificationCodeCooldownPeriodInSeconds} seconds. Please wait {sendResult.Cooldown}s before requesting a new code." }, sendResult.Cooldown),
                 _ => InternalServerError(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = "An unexpected error occurred." })
             };
         }
@@ -182,8 +184,15 @@ namespace Altinn.Profile.Controllers
             };
         }
 
-        private ObjectResult TooManyRequests(ProblemDetails problemDetails)
+        private ObjectResult TooManyRequests(ProblemDetails problemDetails, int? retryAfter = null)
         {
+            if (retryAfter.HasValue)
+            {
+                Response.Headers[_retryAfterHeaderName] = retryAfter.Value.ToString();
+
+                problemDetails.Extensions[_remainingSecondsBodyName] = retryAfter.Value;
+            }
+
             return StatusCode(StatusCodes.Status429TooManyRequests, problemDetails);
         }
 
