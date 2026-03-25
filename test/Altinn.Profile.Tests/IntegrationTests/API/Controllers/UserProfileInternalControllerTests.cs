@@ -35,6 +35,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
     {
         _factory = factory;
         _factory.MemoryCache.Clear();
+        _factory.RegisterClientMock.Reset();
     }
 
     [Fact]
