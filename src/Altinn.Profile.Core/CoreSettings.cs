@@ -16,7 +16,12 @@ public class CoreSettings
     public bool LookupPreselectedPartyIdAtRegister { get; set; }
 
     /// <summary>
-    /// A flag indicating whether to perform a lookup for users from the register and compare this
+    /// A flag indicating whether to perform a lookup for users from the register and compare this.
     /// </summary>
     public bool RegisterLookupInShadowMode { get; set; }
+
+    /// <summary>
+    /// A flag indicating whether register should be primary source for user profiles, with fallback to legacy source.
+    /// </summary>
+    public bool RegisterAsPrimaryUserProfileSource { get; set; }
 }
