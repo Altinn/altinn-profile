@@ -16,11 +16,6 @@ namespace Altinn.Profile.Core.AddressVerifications.Models
         public required int Cooldown { get; init; }
 
         /// <summary>
-        /// Gets a value indicating whether notification delivery was accepted by the notification provider.
-        /// </summary>
-        public required bool NotificationSent { get; init; }
-
-        /// <summary>
         /// Creates a result indicating that the address has already been verified.
         /// </summary>
         /// <returns>A <see cref="SendVerificationCodeResult"/> with status <see cref="SendVerificationStatus.AddressAlreadyVerified"/>.</returns>
@@ -30,7 +25,6 @@ namespace Altinn.Profile.Core.AddressVerifications.Models
             {
                 Status = SendVerificationStatus.AddressAlreadyVerified,
                 Cooldown = 0,
-                NotificationSent = false
             };
         }
 
@@ -45,7 +39,6 @@ namespace Altinn.Profile.Core.AddressVerifications.Models
             {
                 Status = SendVerificationStatus.CodeCooldown,
                 Cooldown = cooldown,
-                NotificationSent = false
             };
         }
 
@@ -53,15 +46,26 @@ namespace Altinn.Profile.Core.AddressVerifications.Models
         /// Creates a result indicating that a verification code was successfully sent.
         /// </summary>
         /// <param name="cooldown">The cooldown period in seconds before a new verification code can be sent.</param>
-        /// <param name="notificationSent">A value indicating whether the notification was accepted by the notification provider.</param>
         /// <returns>A <see cref="SendVerificationCodeResult"/> with status <see cref="SendVerificationStatus.Success"/>.</returns>
-        public static SendVerificationCodeResult Success(int cooldown, bool notificationSent)
+        public static SendVerificationCodeResult Success(int cooldown)
         {
             return new SendVerificationCodeResult
             {
                 Status = SendVerificationStatus.Success,
                 Cooldown = cooldown,
-                NotificationSent = notificationSent
+            };
+        }
+
+        /// <summary>
+        /// Creates a result indicating that the notification order failed.
+        /// </summary>
+        /// <returns>A <see cref="SendVerificationCodeResult"/> with status <see cref="SendVerificationStatus.NotificationOrderFailed"/>.</returns>
+        public static SendVerificationCodeResult NotificationOrderFailed()
+        {
+            return new SendVerificationCodeResult
+            {
+                Status = SendVerificationStatus.NotificationOrderFailed,
+                Cooldown = 0,
             };
         }
     }

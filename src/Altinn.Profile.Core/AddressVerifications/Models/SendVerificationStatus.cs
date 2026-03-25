@@ -24,5 +24,10 @@ namespace Altinn.Profile.Core.AddressVerifications.Models
         /// The address was already verified for this user, so no new code was generated or sent.
         /// </summary>
         AddressAlreadyVerified,
+
+        /// <summary>
+        /// Ordering the verification code failed due to an error in the underlying notification service.
+        /// </summary>
+        NotificationOrderFailed,
     }
 }

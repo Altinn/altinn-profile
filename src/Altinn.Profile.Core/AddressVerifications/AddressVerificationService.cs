@@ -127,7 +127,7 @@ namespace Altinn.Profile.Core.AddressVerifications
 
             var notificationSent = await _userNotifier.SendVerificationCodeAsync(userId, verificationCodeModel.Address, addressType, code, cancellationToken);
 
-            return SendVerificationCodeResult.Success(_resendCoolDownSeconds, notificationSent);
+            return notificationSent ? SendVerificationCodeResult.Success(_resendCoolDownSeconds) : SendVerificationCodeResult.NotificationOrderFailed();
         }
 
         /// <inheritdoc/>

@@ -1073,7 +1073,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, existingVerificationCode.AddressType, existingVerificationCode.Address, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existingVerificationCode);
 
-            _factory.NotificationsClientMock.Setup(client => client.OrderSmsAsync(existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            _factory.NotificationsClientMock.Setup(client => client.OrderSmsAsync("+47" + existingVerificationCode.Address, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
             _factory.AddressVerificationRepositoryMock.Setup(repo => repo.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
