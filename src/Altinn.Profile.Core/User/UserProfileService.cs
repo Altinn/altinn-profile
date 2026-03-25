@@ -41,39 +41,39 @@ public class UserProfileService : IUserProfileService
     }
 
     /// <inheritdoc/>
-    public async Task<Result<UserProfile, bool>> GetUser(int userId)
+    public async Task<Result<UserProfile, bool>> GetUser(int userId, CancellationToken cancellationToken)
     {
         return await GetUserWithOptionalRegisterLookup(
             _userProfileClient.GetUser(userId),
-            GetUserFromRegister(_registerClient.GetUserParty(userId, default)));
+            GetUserFromRegister(_registerClient.GetUserParty(userId, cancellationToken)));
     }
 
     /// <inheritdoc/>
-    public async Task<Result<UserProfile, bool>> GetUser(string ssn)
+    public async Task<Result<UserProfile, bool>> GetUser(string ssn, CancellationToken cancellationToken)
     {
         return await GetUserWithOptionalRegisterLookup(
             _userProfileClient.GetUser(ssn),
-            GetUserFromRegister(_registerClient.GetUserPartyBySsn(ssn, default)));
+            GetUserFromRegister(_registerClient.GetUserPartyBySsn(ssn, cancellationToken)));
     }
 
     /// <inheritdoc/>
-    public async Task<Result<UserProfile, bool>> GetUserByUsername(string username)
+    public async Task<Result<UserProfile, bool>> GetUserByUsername(string username, CancellationToken cancellationToken)
     {
         return await GetUserWithOptionalRegisterLookup(
             _userProfileClient.GetUserByUsername(username),
-            GetUserFromRegister(_registerClient.GetUserPartyByUsername(username, default)));
+            GetUserFromRegister(_registerClient.GetUserPartyByUsername(username, cancellationToken)));
     }
 
     /// <inheritdoc/>
-    public async Task<Result<UserProfile, bool>> GetUserByUuid(Guid userUuid)
+    public async Task<Result<UserProfile, bool>> GetUserByUuid(Guid userUuid, CancellationToken cancellationToken)
     {
         return await GetUserWithOptionalRegisterLookup(
             _userProfileClient.GetUserByUuid(userUuid),
-            GetUserFromRegister(_registerClient.GetUserParty(userUuid, default)));
+            GetUserFromRegister(_registerClient.GetUserParty(userUuid, cancellationToken)));
     }
 
     /// <inheritdoc/>
-    public async Task<Result<List<UserProfile>, bool>> GetUserListByUuid(List<Guid> userUuidList)
+    public async Task<Result<List<UserProfile>, bool>> GetUserListByUuid(List<Guid> userUuidList, CancellationToken cancellationToken)
     {
         Task<Result<List<UserProfile>, bool>> legacyTask = _userProfileClient.GetUserListByUuid(userUuidList);
 
@@ -89,7 +89,7 @@ public class UserProfileService : IUserProfileService
             return await EnrichWithKrrDataAndProfileSettings(legacyProfiles);
         }
 
-        Task<List<UserProfile>> registerTask = GetUserListFromRegister(userUuidList);
+        Task<List<UserProfile>> registerTask = GetUserListFromRegister(userUuidList, cancellationToken);
 
         await Task.WhenAll(legacyTask, registerTask);
 
@@ -188,9 +188,9 @@ public class UserProfileService : IUserProfileService
         }
     }
 
-    private async Task<List<UserProfile>> GetUserListFromRegister(List<Guid> userUuidList)
+    private async Task<List<UserProfile>> GetUserListFromRegister(List<Guid> userUuidList, CancellationToken cancellationToken)
     {
-        IReadOnlyList<Party> registerParties = await _registerClient.GetUserParties(userUuidList, default);
+        IReadOnlyList<Party> registerParties = await _registerClient.GetUserParties(userUuidList, cancellationToken);
         List<UserProfile> registerProfiles = new(registerParties?.Count ?? 0);
         if (registerParties == null)
         {

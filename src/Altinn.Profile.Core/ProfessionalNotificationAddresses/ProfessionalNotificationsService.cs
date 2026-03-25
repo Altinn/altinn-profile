@@ -148,7 +148,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             foreach (var contactInfo in contactInfos)
             {
                 // Note: IUserProfileService.GetUser does not support cancellation token at this time
-                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId);
+                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId, cancellationToken);
 
                 userProfileResult.Match(
                     profile =>
@@ -218,7 +218,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                 var orgNumber = await _registerClient.GetOrganizationNumberByPartyUuid(contactInfo.PartyUuid, cancellationToken);
 
                 // Note: IUserProfileService.GetUser does not support cancellation token at this time
-                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId);
+                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId, cancellationToken);
 
                 userProfileResult.Match(
                     profile =>

@@ -42,12 +42,13 @@ public class UsersController : Controller
     /// Gets the user profile for a given user id
     /// </summary>
     /// <param name="userID">The user id</param>
+    /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>The information about a given user</returns>
     [HttpGet("{userID:int}")]
     [Authorize(Policy = AuthConstants.PlatformAccess)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserProfile>> Get(int userID)
+    public async Task<ActionResult<UserProfile>> Get(int userID, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
@@ -59,7 +60,7 @@ public class UsersController : Controller
             return NotFound();
         }
 
-        Result<UserProfile, bool> result = await _userProfileService.GetUser(userID);
+        Result<UserProfile, bool> result = await _userProfileService.GetUser(userID, cancellationToken);
 
         return result.Match<ActionResult<UserProfile>>(
             userProfile => Ok(userProfile),
@@ -70,19 +71,20 @@ public class UsersController : Controller
     /// Gets the user profile for a given user uuid
     /// </summary>
     /// <param name="userUuid">The user uuid</param>
+    /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>The information about a given user</returns>
     [HttpGet("byuuid/{userUuid:Guid}")]
     [Authorize(Policy = AuthConstants.PlatformAccess)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserProfile>> Get([FromRoute] Guid userUuid)
+    public async Task<ActionResult<UserProfile>> Get([FromRoute] Guid userUuid, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        Result<UserProfile, bool> result = await _userProfileService.GetUserByUuid(userUuid);
+        Result<UserProfile, bool> result = await _userProfileService.GetUserByUuid(userUuid, cancellationToken);
 
         return result.Match<ActionResult<UserProfile>>(
             userProfile => Ok(userProfile),
@@ -96,7 +98,7 @@ public class UsersController : Controller
     [HttpGet("current")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserProfile>> Get()
+    public async Task<ActionResult<UserProfile>> Get(CancellationToken cancellationToken)
     {
         string userIdString = Request.HttpContext.User.Claims
             .Where(c => c.Type == AltinnCoreClaimTypes.UserId)
@@ -109,26 +111,27 @@ public class UsersController : Controller
 
         int userId = int.Parse(userIdString);
 
-        return await Get(userId);
+        return await Get(userId, cancellationToken);
     }
 
     /// <summary>
     /// Gets the user profile for a given SSN
     /// </summary>
     /// <param name="ssn">The user's social security number</param>
+    /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>User profile connected to given SSN </returns>
     [HttpPost]
     [Authorize(Policy = AuthConstants.PlatformAccess)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserProfile>> GetUserFromSSN([FromBody][Required] string ssn)
+    public async Task<ActionResult<UserProfile>> GetUserFromSSN([FromBody][Required] string ssn, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        Result<UserProfile, bool> result = await _userProfileService.GetUser(ssn);
+        Result<UserProfile, bool> result = await _userProfileService.GetUser(ssn, cancellationToken);
 
         return result.Match<ActionResult<UserProfile>>(
             userProfile => Ok(userProfile),

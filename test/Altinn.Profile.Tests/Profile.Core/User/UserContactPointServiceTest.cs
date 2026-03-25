@@ -62,8 +62,8 @@ public class UserContactPointServiceTest
             IsReserved = userProfileB.IsReserved,
             MobileNumber = userProfileB.PhoneNumber,
         };
-        _userProfileServiceMock.Setup(m => m.GetUser(userProfileA.Party.SSN)).ReturnsAsync(userProfileA);
-        _userProfileServiceMock.Setup(m => m.GetUser(userProfileB.Party.SSN)).ReturnsAsync(userProfileB);
+        _userProfileServiceMock.Setup(m => m.GetUser(userProfileA.Party.SSN, It.IsAny<CancellationToken>())).ReturnsAsync(userProfileA);
+        _userProfileServiceMock.Setup(m => m.GetUser(userProfileB.Party.SSN, It.IsAny<CancellationToken>())).ReturnsAsync(userProfileB);
         _personServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>())).ReturnsAsync([contactPreferencesA, contactPreferencesB]);
 
         return [expectedUserContactPointA, expectedUserContactPointB];
@@ -82,7 +82,7 @@ public class UserContactPointServiceTest
                 expectedUsers[0].NationalIdentityNumber,
                 expectedUsers[1].NationalIdentityNumber
             ],
-            CancellationToken.None);
+            TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result.IsSuccess, "Expected a success result");
@@ -141,12 +141,12 @@ public class UserContactPointServiceTest
             "urn:altinn:person:idporten-email:user2@test.no",
             "urn:altinn:person:idporten-email:admin@altinn.no"
         };
-        _userProfileServiceMock.Setup(service => service.GetUserByUsername(It.IsAny<string>())).ReturnsAsync(false);
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
         // Act
-        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, CancellationToken.None);
+        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -179,16 +179,16 @@ public class UserContactPointServiceTest
             "urn:altinn:person:idporten-email:user3@test.no",
             "urn:altinn:person:idporten-email:admin@altinn.no",
         };
-        _userProfileServiceMock.Setup(service => service.GetUserByUsername(It.IsAny<string>())).ReturnsAsync(false);
-        _userProfileServiceMock.Setup(service => service.GetUserByUsername("epost:user2@test.no")).ReturnsAsync(new UserProfile
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername("epost:user2@test.no", It.IsAny<CancellationToken>())).ReturnsAsync(new UserProfile
         {
             Email = "other-user2@email.com",
         });
-        _userProfileServiceMock.Setup(service => service.GetUserByUsername("epost:user3@test.no")).ReturnsAsync(new UserProfile
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername("epost:user3@test.no", It.IsAny<CancellationToken>())).ReturnsAsync(new UserProfile
         {
             PhoneNumber = "+4799999998",
         });
-        _userProfileServiceMock.Setup(service => service.GetUserByUsername("epost:admin@altinn.no")).ReturnsAsync(new UserProfile
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername("epost:admin@altinn.no", It.IsAny<CancellationToken>())).ReturnsAsync(new UserProfile
         {
             Email = "other-email@email.com",
             PhoneNumber = "+4799999999",
@@ -197,7 +197,7 @@ public class UserContactPointServiceTest
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
         // Act
-        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, CancellationToken.None);
+        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -235,23 +235,23 @@ public class UserContactPointServiceTest
             "unprefixed@test.no",
             "urn:altinn:party:username:myusername",
         };
-        _userProfileServiceMock.Setup(service => service.GetUserByUsername("myusername")).ReturnsAsync(new UserProfile()
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername("myusername", It.IsAny<CancellationToken>())).ReturnsAsync(new UserProfile()
         {
             Email = "user4@email.com",
             PhoneNumber = "+4799999999",
         });
 
-        _userProfileServiceMock.Setup(service => service.GetUserByUsername("epost:user1@altinn.no")).ReturnsAsync(new UserProfile()
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername("epost:user1@altinn.no", It.IsAny<CancellationToken>())).ReturnsAsync(new UserProfile()
         {
             Email = "user1@email.com",
         });
 
-        _userProfileServiceMock.Setup(service => service.GetUserByUsername("epost:user2@altinn.no")).ReturnsAsync(false);
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername("epost:user2@altinn.no", It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
         // Act
-        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, CancellationToken.None);
+        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -281,7 +281,7 @@ public class UserContactPointServiceTest
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
         // Act
-        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(emailIdentifiers, CancellationToken.None);
+        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(emailIdentifiers, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -312,12 +312,12 @@ public class UserContactPointServiceTest
             // Ampersand (&) encoded as %26
             "urn:altinn:person:idporten-email:user%26company@test.org"
         };
-        _userProfileServiceMock.Setup(service => service.GetUserByUsername(It.IsAny<string>())).ReturnsAsync(false);
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
         // Act
-        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, CancellationToken.None);
+        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -365,17 +365,17 @@ public class UserContactPointServiceTest
             "urn:altinn:username:mysecondusername",
             "urn:altinn:person:legacy-selfidentified:mythirdusername"
         };
-        _userProfileServiceMock.Setup(service => service.GetUserByUsername("myusername")).ReturnsAsync(new UserProfile()
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername("myusername", It.IsAny<CancellationToken>())).ReturnsAsync(new UserProfile()
         {
             Email = "user1@example.com",
             PhoneNumber = "+4799999999",
         });
-        _userProfileServiceMock.Setup(service => service.GetUserByUsername("mysecondusername")).ReturnsAsync(new UserProfile()
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername("mysecondusername", It.IsAny<CancellationToken>())).ReturnsAsync(new UserProfile()
         {
             Email = string.Empty,
             PhoneNumber = string.Empty,
         });
-        _userProfileServiceMock.Setup(service => service.GetUserByUsername("mythirdusername")).ReturnsAsync(new UserProfile()
+        _userProfileServiceMock.Setup(service => service.GetUserByUsername("mythirdusername", It.IsAny<CancellationToken>())).ReturnsAsync(new UserProfile()
         {
             Email = "admin@altinn.no",
             PhoneNumber = "+4799999999",
@@ -383,7 +383,7 @@ public class UserContactPointServiceTest
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object);
 
         // Act
-        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, CancellationToken.None);
+        SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(result);

@@ -36,14 +36,14 @@ public class UserContactPointController : ControllerBase
     /// <returns>Returns an overview of the availability of various contact points for the user</returns>
     [HttpPost("availability")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<UserContactPointAvailabilityList>> PostAvailabilityLookup([FromBody][Required] UserContactDetailsLookupCriteria userContactPointLookup)
+    public async Task<ActionResult<UserContactPointAvailabilityList>> PostAvailabilityLookup([FromBody][Required] UserContactDetailsLookupCriteria userContactPointLookup, CancellationToken cancellationToken)
     {
         if (userContactPointLookup.NationalIdentityNumbers.Count == 0)
         {
             return new UserContactPointAvailabilityList();
         }
 
-        UserContactPointAvailabilityList result = await _contactPointService.GetContactPointAvailability(userContactPointLookup.NationalIdentityNumbers);
+        UserContactPointAvailabilityList result = await _contactPointService.GetContactPointAvailability(userContactPointLookup.NationalIdentityNumbers, cancellationToken);
         return Ok(result);
     }
 
