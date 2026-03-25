@@ -294,6 +294,18 @@ public partial class ProfileDbContext : DbContext
             entity.HasIndex(e => new { e.UserId, e.Address, e.AddressType }, "ix_user_id_address_address_type").IsUnique();
         });
 
+        modelBuilder.Entity<UserContactInfo>(entity =>
+        {
+            entity.ToTable("self_identified_users", "user_preferences");
+            entity.HasKey(e => e.UserId);
+            entity.Property(e => e.UserUuid).IsRequired();
+            entity.Property(e => e.Username);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()").ValueGeneratedOnAdd();
+            entity.Property(e => e.EmailAddress).HasMaxLength(400);
+            entity.Property(e => e.MobileNumber).HasMaxLength(26);
+            entity.Property(e => e.MobileNumberRegistered);
+        });
+
         OnModelCreatingPartial(modelBuilder);
     }
 
