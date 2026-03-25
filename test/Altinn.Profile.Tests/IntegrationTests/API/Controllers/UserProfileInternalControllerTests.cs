@@ -749,7 +749,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         {
             builder.ConfigureAppConfiguration((_, config) =>
             {
-                config.AddInMemoryCollection(new Dictionary<string, string?>
+                config.AddInMemoryCollection(new Dictionary<string, string>
                 {
                     ["CoreSettings:RegisterAsPrimaryUserProfileSource"] = "true",
                     ["CoreSettings:RegisterLookupInShadowMode"] = "false",

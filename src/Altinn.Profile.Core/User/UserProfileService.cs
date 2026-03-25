@@ -126,7 +126,7 @@ public class UserProfileService : IUserProfileService
             }
 
             UserProfile? fallbackLegacy = await GetEnrichedLegacyUserProfile(getLegacy());
-            return fallbackLegacy is null ? false : fallbackLegacy;
+            return CreateUserProfileResult(fallbackLegacy);
         }
 
         if (_settings.RegisterLookupInShadowMode)
@@ -141,11 +141,21 @@ public class UserProfileService : IUserProfileService
 
             _userProfileComparer.CompareAndLog(legacyProfile, registerProfile);
 
-            return legacyProfile is null ? false : legacyProfile;
+            return CreateUserProfileResult(legacyProfile);
         }
 
         UserProfile? legacyOnly = await GetEnrichedLegacyUserProfile(getLegacy());
-        return legacyOnly is null ? false : legacyOnly;
+        return CreateUserProfileResult(legacyOnly);
+    }
+
+    private static Result<UserProfile, bool> CreateUserProfileResult(UserProfile? userProfile)
+    {
+        if (userProfile is null)
+        {
+            return false;
+        }
+
+        return userProfile;
     }
 
     private static bool IsEligibleRegisterProfile(UserProfile userProfile)
@@ -155,7 +165,7 @@ public class UserProfileService : IUserProfileService
         return !string.IsNullOrWhiteSpace(userProfile.Party?.SSN);
     }
 
-    private async Task<UserProfile?> TryGetEligibleRegisterProfile(Func<Task<UserProfile?>> getRegister)
+    private static async Task<UserProfile?> TryGetEligibleRegisterProfile(Func<Task<UserProfile?>> getRegister)
     {
         try
         {
