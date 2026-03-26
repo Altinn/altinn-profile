@@ -295,4 +295,40 @@ public class UserContactInfoRepositoryTests
         Assert.NotNull(updatedUserContactInfo.PhoneNumberLastChanged);
         Assert.InRange(updatedUserContactInfo.PhoneNumberLastChanged.Value, before, after);
     }
+
+    [Fact]
+    public async Task UpdatePhoneNumber_WhenUserExists_ReturnsUpdatedContactInfo()
+    {
+        // Arrange
+        var options = CreateOptions(nameof(UpdatePhoneNumber_WhenUserExists_UpdatesPhoneNumberRegisteredToNow));
+        var factory = new TestDbContextFactory(options);
+        var repository = new UserContactInfoRepository(factory);
+
+        int testUserId = 9;
+
+        await using var seedContext = new ProfileDbContext(options);
+        var userContactInfo = new UserContactInfo()
+        {
+            UserId = testUserId,
+            UserUuid = Guid.NewGuid(),
+            Username = "foobar",
+            CreatedAt = DateTime.Now.AddMinutes(-2),
+            EmailAddress = "some@mail.no",
+            PhoneNumber = "+4798765430",
+            PhoneNumberLastChanged = DateTime.Now.AddMinutes(-1)
+        };
+        seedContext.SelfIdentifiedUsers.Add(userContactInfo);
+        await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var before = DateTime.UtcNow;
+        var result = await repository.UpdatePhoneNumber(testUserId, "+4798765433", CancellationToken.None);
+        var after = DateTime.UtcNow;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("+4798765433", result.PhoneNumber);
+        Assert.NotNull(result.PhoneNumberLastChanged);
+        Assert.InRange(result.PhoneNumberLastChanged.Value, before, after);
+    }
 }
