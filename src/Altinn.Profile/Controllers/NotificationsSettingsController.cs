@@ -208,6 +208,12 @@ namespace Altinn.Profile.Controllers
                 }
             }
 
+            var isVerifiedOrNull = await _professionalNotificationsService.IsContactInfoVerifiedOrNullAsync(userPartyContactInfo, cancellationToken);
+            if (!isVerifiedOrNull)
+            {
+                return UnprocessableEntity("Provided email address or phone number is not verified.");
+            }
+
             var added = await _professionalNotificationsService.AddOrUpdateNotificationAddressAsync(userPartyContactInfo, cancellationToken);
 
             if (added)

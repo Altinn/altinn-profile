@@ -87,6 +87,26 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         }
 
         /// <inheritdoc/>
+        public async Task<bool> IsContactInfoVerifiedOrNullAsync(PatchUserPartyContactInfo contactInfo, CancellationToken cancellationToken)
+        {
+            if (!contactInfo.EmailAddress.HasValue && !contactInfo.PhoneNumber.HasValue)
+            {
+                return true;
+            }
+
+            var (emailVerificationStatus, smsVerificationStatus) = await _addressVerificationService.GetVerificationStatusAsync(contactInfo.UserId, contactInfo.EmailAddress.Value, contactInfo.PhoneNumber.Value, cancellationToken);
+
+            // valid values are Verified or null (not set). If the value is Unverified, or if one of the values is Verified and the other is Unverified, we return false.
+            if ((emailVerificationStatus.HasValue && emailVerificationStatus != VerificationType.Verified)
+                || (smsVerificationStatus.HasValue && smsVerificationStatus != VerificationType.Verified))
+            {
+                return false;
+            }
+
+            return true;
+            }
+
+        /// <inheritdoc/>
         public async Task<bool> AddOrUpdateNotificationAddressAsync(PatchUserPartyContactInfo contactInfo, CancellationToken cancellationToken)
         {
             var existingContactInfo = await _professionalNotificationsRepository.GetNotificationAddressAsync(contactInfo.UserId, contactInfo.PartyUuid, cancellationToken);
@@ -100,13 +120,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                 UserPartyContactInfoResources = contactInfo.UserPartyContactInfoResources.HasValue ? contactInfo.UserPartyContactInfoResources.Value : existingContactInfo?.UserPartyContactInfoResources
             };
 
-            var mobileNumberChanged = !string.IsNullOrWhiteSpace(updatedContactInfo.PhoneNumber) && existingContactInfo?.PhoneNumber != updatedContactInfo.PhoneNumber;
-            var emailChanged = !string.IsNullOrWhiteSpace(updatedContactInfo.EmailAddress) && existingContactInfo?.EmailAddress != updatedContactInfo.EmailAddress;
-
             var isAdded = await _professionalNotificationsRepository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, cancellationToken);
-
-            // Verification flow is allways activated now, but we don't send a notification if the address is already verified
-            await HandleNotificationAddressChangedAsync(updatedContactInfo, mobileNumberChanged, emailChanged);
 
             return isAdded;
         }
