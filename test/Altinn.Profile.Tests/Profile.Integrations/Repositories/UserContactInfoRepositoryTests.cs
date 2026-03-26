@@ -81,7 +81,7 @@ public class UserContactInfoRepositoryTests
         var updatedUserContactInfo = await assertContext.SelfIdentifiedUsers.FirstOrDefaultAsync(
             u => u.UserId == testUserId,
             cancellationToken: TestContext.Current.CancellationToken);
-        Assert.Equal(existingNumber, newNumber);
+        Assert.Equal(newNumber, updatedUserContactInfo.MobileNumber);
     }
 
     [Fact]
