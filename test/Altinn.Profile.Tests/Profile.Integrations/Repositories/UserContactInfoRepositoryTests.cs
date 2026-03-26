@@ -39,7 +39,7 @@ public class UserContactInfoRepositoryTests
         var repository = new UserContactInfoRepository(factory);
 
         // Act
-        var result = await repository.UpdateMobileNumber(4, "+4798765431");
+        var result = await repository.UpdateMobileNumber(4, "+4798765431", CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -74,7 +74,7 @@ public class UserContactInfoRepositoryTests
         }
 
         // Act
-        var result = await repository.UpdateMobileNumber(testUserId, newNumber);
+        var result = await repository.UpdateMobileNumber(testUserId, newNumber, CancellationToken.None);
 
         // Assert
         await using var assertContext = new ProfileDbContext(options);
@@ -111,7 +111,7 @@ public class UserContactInfoRepositoryTests
         }
 
         // Act
-        var result = await repository.UpdateMobileNumber(testUserId, "+4798765433");
+        var result = await repository.UpdateMobileNumber(testUserId, "+4798765433", CancellationToken.None);
 
         // Assert
         await using var assertContext = new ProfileDbContext(options);
