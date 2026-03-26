@@ -67,10 +67,14 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
             return null;
         }
 
-        userContactInfo.PhoneNumber = phoneNumber;
-        userContactInfo.PhoneNumberLastChanged = DateTime.UtcNow;
+        bool numberHasChanged = !string.Equals(userContactInfo.PhoneNumber, phoneNumber, StringComparison.Ordinal);
+        if (numberHasChanged)
+        {
+            userContactInfo.PhoneNumber = phoneNumber;
+            userContactInfo.PhoneNumberLastChanged = DateTime.UtcNow;
+            await databaseContext.SaveChangesAsync(cancellationToken);
+        }
 
-        await databaseContext.SaveChangesAsync(cancellationToken);
         return userContactInfo;
     }
 }

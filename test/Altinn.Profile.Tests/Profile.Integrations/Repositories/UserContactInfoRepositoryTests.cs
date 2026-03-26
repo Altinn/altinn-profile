@@ -331,4 +331,36 @@ public class UserContactInfoRepositoryTests
         Assert.NotNull(result.PhoneNumberLastChanged);
         Assert.InRange(result.PhoneNumberLastChanged.Value, before, after);
     }
+
+    [Fact]
+    public async Task UpdatePhoneNumber_WhenUserAndNumberAlreadyExists_DoesNotUpdateLastChanged()
+    {
+        // Arrange
+        var options = CreateOptions(nameof(UpdatePhoneNumber_WhenUserAndNumberAlreadyExists_DoesNotUpdateLastChanged));
+        var factory = new TestDbContextFactory(options);
+        var repository = new UserContactInfoRepository(factory);
+
+        int testUserId = 10;
+        var existingNumberLastChanged = DateTime.Now.AddMinutes(-1);
+
+        await using var seedContext = new ProfileDbContext(options);
+        var userContactInfo = new UserContactInfo()
+        {
+            UserId = testUserId,
+            UserUuid = Guid.NewGuid(),
+            Username = "foobar",
+            CreatedAt = DateTime.Now.AddMinutes(-2),
+            EmailAddress = "some@mail.no",
+            PhoneNumber = "+4798765430",
+            PhoneNumberLastChanged = existingNumberLastChanged
+        };
+        seedContext.SelfIdentifiedUsers.Add(userContactInfo);
+        await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await repository.UpdatePhoneNumber(testUserId, "+4798765430", CancellationToken.None);
+
+        // Assert
+        Assert.Equal(existingNumberLastChanged.Ticks, result.PhoneNumberLastChanged.Value.Ticks);
+    }
 }
