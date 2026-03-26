@@ -33,7 +33,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             }
 
             var (emailVerificationStatus, smsVerificationStatus) = await _addressVerificationService.GetVerificationStatusAsync(notificationSettings.UserId, notificationSettings.EmailAddress, notificationSettings.PhoneNumber, cancellationToken);
-            var ignoreUnitProfileDateTime = await _userProfileService.GetIgnoreUnitProfileDateTime(userId);
+            var ignoreUnitProfileDateTime = await _userProfileService.GetIgnoreUnitProfileDateTime(userId, cancellationToken);
 
             var needsConfirmation = NeedsConfirmation(notificationSettings, ignoreUnitProfileDateTime);
             var extendedInfo = new ExtendedUserPartyContactInfo(
@@ -48,7 +48,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <inheritdoc/>
         public async Task<IReadOnlyList<ExtendedUserPartyContactInfo>> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken)
         {
-            var ignoreUnitProfileDateTime = await _userProfileService.GetIgnoreUnitProfileDateTime(userId);
+            var ignoreUnitProfileDateTime = await _userProfileService.GetIgnoreUnitProfileDateTime(userId, cancellationToken);
 
             var notificationSettings = await _professionalNotificationsRepository.GetAllNotificationAddressesForUserAsync(userId, cancellationToken);
 

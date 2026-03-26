@@ -64,7 +64,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         });
         _factory.PersonServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new PersonContactPreferences { Email = "test@mail.com", NationalIdentityNumber = "1", MobileNumber = "+4798765432", IsReserved = true }]);
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProfileSettings
             {
                 UserId = UserId,
@@ -126,7 +126,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/current");
@@ -226,7 +226,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProfileSettings
             {
                 UserId = UserId,
@@ -295,7 +295,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
@@ -473,7 +473,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(userId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProfileSettings
             {
                 UserId = userId,
@@ -534,7 +534,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/byuuid/{userUuid}");
@@ -717,7 +717,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
 
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProfileSettings
             {
                 UserId = UserId,
@@ -783,7 +783,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
 
         StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
@@ -954,7 +954,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             .ReturnsAsync(registerPerson);
 
         _factory.ProfileSettingsRepositoryMock
-            .Setup(m => m.GetProfileSettings(It.IsAny<int>()))
+            .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
 
         _factory.PersonServiceMock
@@ -1003,7 +1003,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             .ThrowsAsync(new HttpRequestException("Register unavailable"));
 
         _factory.ProfileSettingsRepositoryMock
-            .Setup(m => m.GetProfileSettings(It.IsAny<int>()))
+            .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
 
         _factory.PersonServiceMock
@@ -1046,7 +1046,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             .ReturnsAsync(selfIdentifiedFromRegister);
 
         _factory.ProfileSettingsRepositoryMock
-            .Setup(m => m.GetProfileSettings(It.IsAny<int>()))
+            .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
 
         _factory.PersonServiceMock

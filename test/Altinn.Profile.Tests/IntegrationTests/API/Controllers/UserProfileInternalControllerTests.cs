@@ -499,7 +499,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings)null);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Username = username });

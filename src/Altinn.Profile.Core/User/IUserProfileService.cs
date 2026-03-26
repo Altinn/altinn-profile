@@ -67,10 +67,10 @@ public interface IUserProfileService
     /// <summary>
     /// Gets the profile's preferred language (or, if not set, a default) for a given user ID.
     /// </summary>
-    Task<string> GetPreferredLanguage(int userId);
+    Task<string> GetPreferredLanguage(int userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets the timestamp for the event (if it has occurred, otherwise null) when the user chose to ignore updates to unit profiles.
     /// </summary>
-    Task<DateTime?> GetIgnoreUnitProfileDateTime(int userId);
+    Task<DateTime?> GetIgnoreUnitProfileDateTime(int userId, CancellationToken cancellationToken = default);
 }
