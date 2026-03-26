@@ -13,7 +13,7 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// <param name="contextFactory">A factory for creating instances of <see cref="ProfileDbContext"/></param>
 public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> contextFactory) : IUserContactInfoRepository
 {
-    private IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
+    private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
     /// <inheritdoc/>
     public Task<UserContactInfo?> UpdateMobileNumber(int userId, string phoneNumber)
