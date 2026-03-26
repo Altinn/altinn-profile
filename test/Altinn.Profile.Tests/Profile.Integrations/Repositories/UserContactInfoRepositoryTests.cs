@@ -119,6 +119,6 @@ public class UserContactInfoRepositoryTests
             u => u.UserId == testUserId,
             cancellationToken: TestContext.Current.CancellationToken);
         TimeSpan tolerance = TimeSpan.FromMilliseconds(5);
-        Assert.Equal(DateTime.Now, updatedUserContactInfo.MobileNumberRegistered, tolerance); // The new timestamp should be approx. equal to now
+        Assert.Equal(DateTime.Now, updatedUserContactInfo.MobileNumberRegistered.Value, tolerance); // The new timestamp should be approx. equal to now
     }
 }
