@@ -43,7 +43,7 @@ public sealed class UserProfileComparer : IUserProfileComparer
 
     private static void CompareUserProfile(UserProfile? source, UserProfile? target, ICollection<UserProfileMismatch> mismatches)
     {
-        if (!CompareObjectPresence("UserProfile", source, target, mismatches))
+        if (!CompareObjectPresence("UserProfile", source, target, mismatches, source?.UserType == Models.Enums.UserType.EnterpriseIdentified))
         {
             return;
         }
@@ -53,8 +53,6 @@ public sealed class UserProfileComparer : IUserProfileComparer
         CompareField("UserName", source.UserName, target.UserName, mismatches);
         CompareField("ExternalIdentity", source.ExternalIdentity, target.ExternalIdentity, mismatches);
         CompareField("IsReserved", source.IsReserved, target.IsReserved, mismatches);
-        CompareField("PhoneNumber", source.PhoneNumber, target.PhoneNumber, mismatches);
-        CompareField("Email", source.Email, target.Email, mismatches);
         CompareField("PartyId", source.PartyId, target.PartyId, mismatches);
         CompareField("UserType", source.UserType, target.UserType, mismatches);
 
@@ -92,7 +90,6 @@ public sealed class UserProfileComparer : IUserProfileComparer
         CompareField("Party.Person.MiddleName", source.MiddleName, target.MiddleName, mismatches);
         CompareField("Party.Person.LastName", source.LastName, target.LastName, mismatches);
         CompareField("Party.Person.TelephoneNumber", source.TelephoneNumber, target.TelephoneNumber, mismatches);
-        CompareField("Party.Person.MobileNumber", source.MobileNumber, target.MobileNumber, mismatches);
         CompareField("Party.Person.MailingAddress", source.MailingAddress, target.MailingAddress, mismatches);
         CompareField("Party.Person.MailingPostalCode", source.MailingPostalCode, target.MailingPostalCode, mismatches);
         CompareField("Party.Person.MailingPostalCity", source.MailingPostalCity, target.MailingPostalCity, mismatches);
@@ -106,7 +103,7 @@ public sealed class UserProfileComparer : IUserProfileComparer
         CompareField("Party.Person.DateOfDeath", source.DateOfDeath, target.DateOfDeath, mismatches);
     }
 
-    private static bool CompareObjectPresence(string fieldPath, object? source, object? target, ICollection<UserProfileMismatch> mismatches)
+    private static bool CompareObjectPresence(string fieldPath, object? source, object? target, ICollection<UserProfileMismatch> mismatches, bool isEnterpriseUser = false)
     {
         if (source == null && target == null)
         {
@@ -115,6 +112,12 @@ public sealed class UserProfileComparer : IUserProfileComparer
 
         if (source != null && target == null)
         {
+            if (isEnterpriseUser)
+            {
+                mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.EnterpriseUser));
+                return false;
+            }
+
             mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.NotFoundInRegister));
             return false;
         }
@@ -188,6 +191,11 @@ public sealed class UserProfileComparer : IUserProfileComparer
         /// The userProfile could not be found in register
         /// </summary>
         NotFoundInRegister,
+
+        /// <summary>
+        /// The user is an enterprise user
+        /// </summary>
+        EnterpriseUser
     }
 
     /// <summary>
