@@ -18,7 +18,7 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
     /// <inheritdoc/>
     public async Task<UserContactInfo?> UpdatePhoneNumber(int userId, string phoneNumber, CancellationToken cancellationToken)
     {
-        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
         var userContactInfo = await databaseContext.SelfIdentifiedUsers.FirstOrDefaultAsync(u => u.UserId.Equals(userId), cancellationToken);
         if (userContactInfo == null)
         {
