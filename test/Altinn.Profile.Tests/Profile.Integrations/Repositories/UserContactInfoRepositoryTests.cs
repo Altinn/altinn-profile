@@ -81,6 +81,7 @@ public class UserContactInfoRepositoryTests
         var updatedUserContactInfo = await assertContext.SelfIdentifiedUsers.FirstOrDefaultAsync(
             u => u.UserId == testUserId,
             cancellationToken: TestContext.Current.CancellationToken);
+        Assert.NotNull(updatedUserContactInfo);
         Assert.Equal(newNumber, updatedUserContactInfo.MobileNumber);
     }
 
@@ -118,6 +119,8 @@ public class UserContactInfoRepositoryTests
         var updatedUserContactInfo = await assertContext.SelfIdentifiedUsers.FirstOrDefaultAsync(
             u => u.UserId == testUserId,
             cancellationToken: TestContext.Current.CancellationToken);
+        Assert.NotNull(updatedUserContactInfo);
+        Assert.NotNull(updatedUserContactInfo.MobileNumberRegistered);
         TimeSpan tolerance = TimeSpan.FromMilliseconds(5);
         Assert.Equal(DateTime.Now, updatedUserContactInfo.MobileNumberRegistered.Value, tolerance); // The new timestamp should be approx. equal to now
     }
