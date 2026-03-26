@@ -31,6 +31,176 @@ public class UserContactInfoRepositoryTests
     }
 
     [Fact]
+    public async Task CreateUserContactInfo_WhenUserWithSameIdAlreadyExists_Throws()
+    {
+        // Arrange
+        var options = CreateOptions(nameof(CreateUserContactInfo_WhenPhoneNumberIsIncluded_SetsCorrectPropertiesInDbRecord));
+        var factory = new TestDbContextFactory(options);
+        var repository = new UserContactInfoRepository(factory);
+
+        await using var seedContext = new ProfileDbContext(options);
+        var existingUserContactInfo = new UserContactInfo()
+        {
+            UserId = 4,
+            UserUuid = Guid.NewGuid(),
+            Username = "foobar",
+            CreatedAt = DateTime.Now.AddMinutes(-2),
+            EmailAddress = "some@email.com",
+            PhoneNumber = null,
+            PhoneNumberLastChanged = null
+        };
+        seedContext.SelfIdentifiedUsers.Add(existingUserContactInfo);
+        await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var userContactInfoToCreate = new UserContactInfoCreateModel()
+        {
+            UserId = 4,
+            UserUuid = Guid.NewGuid(),
+            Username = "barfoo",
+            EmailAddress = "some@email.com"
+        };
+
+        // Act & Assert
+        await Assert.ThrowsAsync<UserContactInfoAlreadyExistsException>(() =>
+            repository.CreateUserContactInfo(userContactInfoToCreate, TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
+    public async Task CreateUserContactInfo_WhenPhoneNumberIsIncluded_SetsCorrectPropertiesInDbRecord()
+    {
+        // Arrange
+        var options = CreateOptions(nameof(CreateUserContactInfo_WhenPhoneNumberIsIncluded_SetsCorrectPropertiesInDbRecord));
+        var factory = new TestDbContextFactory(options);
+        var repository = new UserContactInfoRepository(factory);
+
+        var userContactInfoToCreate = new UserContactInfoCreateModel()
+        {
+            UserId = 4,
+            UserUuid = Guid.NewGuid(),
+            Username = "barfoo",
+            EmailAddress = "some@email.com",
+            PhoneNumber = "+4798765432"
+        };
+
+        // Act
+        var before = DateTime.UtcNow;
+        var result = await repository.CreateUserContactInfo(userContactInfoToCreate, TestContext.Current.CancellationToken);
+        var after = DateTime.UtcNow;
+
+        // Assert
+        await using var assertContext = new ProfileDbContext(options);
+        var updatedUserContactInfo = await assertContext.SelfIdentifiedUsers.FirstOrDefaultAsync(
+            u => u.UserId == 4,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(updatedUserContactInfo);
+        Assert.InRange(updatedUserContactInfo.CreatedAt, before, after);
+        Assert.Equal(userContactInfoToCreate.UserUuid, updatedUserContactInfo.UserUuid);
+        Assert.Equal(userContactInfoToCreate.Username, updatedUserContactInfo.Username);
+        Assert.Equal(userContactInfoToCreate.EmailAddress, updatedUserContactInfo.EmailAddress);
+        Assert.Equal(userContactInfoToCreate.PhoneNumber, updatedUserContactInfo.PhoneNumber);
+        Assert.NotNull(updatedUserContactInfo.PhoneNumberLastChanged);
+        Assert.InRange(updatedUserContactInfo.PhoneNumberLastChanged.Value, before, after);
+    }
+
+    [Fact]
+    public async Task CreateUserContactInfo_WhenPhoneNumberIsIncluded_ReturnsModelWithCorrectProperties()
+    {
+        // Arrange
+        var options = CreateOptions(nameof(CreateUserContactInfo_WhenPhoneNumberIsIncluded_ReturnsModelWithCorrectProperties));
+        var factory = new TestDbContextFactory(options);
+        var repository = new UserContactInfoRepository(factory);
+        var userContactInfoToCreate = new UserContactInfoCreateModel()
+        {
+            UserId = 9,
+            UserUuid = Guid.NewGuid(),
+            Username = "barfoo",
+            EmailAddress = "some@email.com",
+            PhoneNumber = "+4798765432"
+        };
+
+        // Act
+        var before = DateTime.UtcNow;
+        var result = await repository.CreateUserContactInfo(userContactInfoToCreate, TestContext.Current.CancellationToken);
+        var after = DateTime.UtcNow;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(userContactInfoToCreate.UserId, result.UserId);
+        Assert.Equal(userContactInfoToCreate.UserUuid, result.UserUuid);
+        Assert.Equal(userContactInfoToCreate.Username, result.Username);
+        Assert.Equal(userContactInfoToCreate.EmailAddress, result.EmailAddress);
+        Assert.Equal(userContactInfoToCreate.PhoneNumber, result.PhoneNumber);
+        Assert.NotNull(result.PhoneNumberLastChanged);
+        Assert.InRange(result.PhoneNumberLastChanged.Value, before, after);
+    }
+
+    [Fact]
+    public async Task CreateUserContactInfo_WhenPhoneNumberIsExcluded_SetsCorrectPropertiesInDbRecord()
+    {
+        // Arrange
+        var options = CreateOptions(nameof(CreateUserContactInfo_WhenPhoneNumberIsExcluded_SetsCorrectPropertiesInDbRecord));
+        var factory = new TestDbContextFactory(options);
+        var repository = new UserContactInfoRepository(factory);
+        var userContactInfoToCreate = new UserContactInfoCreateModel()
+        {
+            UserId = 8,
+            UserUuid = Guid.NewGuid(),
+            Username = "barfoo",
+            EmailAddress = "some@email.com",
+        };
+
+        // Act
+        var before = DateTime.UtcNow;
+        var result = await repository.CreateUserContactInfo(userContactInfoToCreate, TestContext.Current.CancellationToken);
+        var after = DateTime.UtcNow;
+
+        // Assert
+        await using var assertContext = new ProfileDbContext(options);
+        var updatedUserContactInfo = await assertContext.SelfIdentifiedUsers.FirstOrDefaultAsync(
+            u => u.UserId == 8,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(updatedUserContactInfo);
+        Assert.InRange(updatedUserContactInfo.CreatedAt, before, after);
+        Assert.Equal(userContactInfoToCreate.UserUuid, updatedUserContactInfo.UserUuid);
+        Assert.Equal(userContactInfoToCreate.Username, updatedUserContactInfo.Username);
+        Assert.Equal(userContactInfoToCreate.EmailAddress, updatedUserContactInfo.EmailAddress);
+        Assert.Null(userContactInfoToCreate.PhoneNumber);
+        Assert.Null(updatedUserContactInfo.PhoneNumberLastChanged);
+    }
+
+    [Fact]
+    public async Task CreateUserContactInfo_WhenPhoneNumberIsExcluded_ReturnsModelWithCorrectProperties()
+    {
+        // Arrange
+        var options = CreateOptions(nameof(CreateUserContactInfo_WhenPhoneNumberIsExcluded_ReturnsModelWithCorrectProperties));
+        var factory = new TestDbContextFactory(options);
+        var repository = new UserContactInfoRepository(factory);
+        var userContactInfoToCreate = new UserContactInfoCreateModel()
+        {
+            UserId = 4,
+            UserUuid = Guid.NewGuid(),
+            Username = "barfoo",
+            EmailAddress = "some@email.com"
+        };
+
+        // Act
+        var before = DateTime.UtcNow;
+        var result = await repository.CreateUserContactInfo(userContactInfoToCreate, TestContext.Current.CancellationToken);
+        var after = DateTime.UtcNow;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(userContactInfoToCreate.UserId, result.UserId);
+        Assert.Equal(userContactInfoToCreate.UserUuid, result.UserUuid);
+        Assert.Equal(userContactInfoToCreate.Username, result.Username);
+        Assert.Equal(userContactInfoToCreate.EmailAddress, result.EmailAddress);
+        Assert.Null(result.PhoneNumber);
+        Assert.Null(result.PhoneNumberLastChanged);
+    }
+
+    [Fact]
     public async Task UpdatePhoneNumber_WhenUserDoesNotExist_ReturnsNull()
     {
         // Arrange
