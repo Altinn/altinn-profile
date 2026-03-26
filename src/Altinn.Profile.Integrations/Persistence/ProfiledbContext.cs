@@ -303,8 +303,8 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.Username).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("now()").ValueGeneratedOnAdd();
             entity.Property(e => e.EmailAddress).IsRequired().HasMaxLength(400);
-            entity.Property(e => e.MobileNumber).HasMaxLength(26);
-            entity.Property(e => e.MobileNumberRegistered);
+            entity.Property(e => e.PhoneNumber).HasMaxLength(26);
+            entity.Property(e => e.PhoneNumberLastChanged);
         });
 
         OnModelCreatingPartial(modelBuilder);

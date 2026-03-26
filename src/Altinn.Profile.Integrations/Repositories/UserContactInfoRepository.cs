@@ -16,7 +16,7 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
     /// <inheritdoc/>
-    public Task<UserContactInfo?> UpdateMobileNumber(int userId, string phoneNumber, CancellationToken cancellationToken)
+    public Task<UserContactInfo?> UpdatePhoneNumber(int userId, string phoneNumber, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

@@ -31,25 +31,25 @@ public class UserContactInfoRepositoryTests
     }
 
     [Fact]
-    public async Task UpdateMobileNumber_WhenUserDoesNotExist_ReturnsNull()
+    public async Task UpdatePhoneNumber_WhenUserDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var options = CreateOptions(nameof(UpdateMobileNumber_WhenUserDoesNotExist_ReturnsNull));
+        var options = CreateOptions(nameof(UpdatePhoneNumber_WhenUserDoesNotExist_ReturnsNull));
         var factory = new TestDbContextFactory(options);
         var repository = new UserContactInfoRepository(factory);
 
         // Act
-        var result = await repository.UpdateMobileNumber(4, "+4798765431", CancellationToken.None);
+        var result = await repository.UpdatePhoneNumber(4, "+4798765431", CancellationToken.None);
 
         // Assert
         Assert.Null(result);
     }
 
     [Fact]
-    public async Task UpdateMobileNumber_WhenUserExists_UpdatesPhoneNumber()
+    public async Task UpdatePhoneNumber_WhenUserExists_UpdatesPhoneNumber()
     {
         // Arrange
-        var options = CreateOptions(nameof(UpdateMobileNumber_WhenUserExists_UpdatesPhoneNumber));
+        var options = CreateOptions(nameof(UpdatePhoneNumber_WhenUserExists_UpdatesPhoneNumber));
         var factory = new TestDbContextFactory(options);
         var repository = new UserContactInfoRepository(factory);
 
@@ -66,15 +66,15 @@ public class UserContactInfoRepositoryTests
                 Username = "foobar",
                 CreatedAt = DateTime.Now.AddMinutes(-2),
                 EmailAddress = "some@email.com",
-                MobileNumber = existingNumber,
-                MobileNumberRegistered = DateTime.Now.AddMinutes(-1)
+                PhoneNumber = existingNumber,
+                PhoneNumberLastChanged = DateTime.Now.AddMinutes(-1)
             };
             seedContext.SelfIdentifiedUsers.Add(userContactInfo);
             await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         // Act
-        var result = await repository.UpdateMobileNumber(testUserId, newNumber, CancellationToken.None);
+        var result = await repository.UpdatePhoneNumber(testUserId, newNumber, CancellationToken.None);
 
         // Assert
         await using var assertContext = new ProfileDbContext(options);
@@ -82,14 +82,14 @@ public class UserContactInfoRepositoryTests
             u => u.UserId == testUserId,
             cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(updatedUserContactInfo);
-        Assert.Equal(newNumber, updatedUserContactInfo.MobileNumber);
+        Assert.Equal(newNumber, updatedUserContactInfo.PhoneNumber);
     }
 
     [Fact]
-    public async Task UpdateMobileNumber_WhenUserExists_UpdatesPhoneNumberRegisteredToNow()
+    public async Task UpdatePhoneNumber_WhenUserExists_UpdatesPhoneNumberRegisteredToNow()
     {
         // Arrange
-        var options = CreateOptions(nameof(UpdateMobileNumber_WhenUserExists_UpdatesPhoneNumberRegisteredToNow));
+        var options = CreateOptions(nameof(UpdatePhoneNumber_WhenUserExists_UpdatesPhoneNumberRegisteredToNow));
         var factory = new TestDbContextFactory(options);
         var repository = new UserContactInfoRepository(factory);
 
@@ -104,15 +104,17 @@ public class UserContactInfoRepositoryTests
                 Username = "foobar",
                 CreatedAt = DateTime.Now.AddMinutes(-2),
                 EmailAddress = "some@mail.no",
-                MobileNumber = "+4798765430",
-                MobileNumberRegistered = DateTime.Now.AddMinutes(-1)
+                PhoneNumber = "+4798765430",
+                PhoneNumberLastChanged = DateTime.Now.AddMinutes(-1)
             };
             seedContext.SelfIdentifiedUsers.Add(userContactInfo);
             await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
         // Act
-        var result = await repository.UpdateMobileNumber(testUserId, "+4798765433", CancellationToken.None);
+        var before = DateTime.UtcNow;
+        var result = await repository.UpdatePhoneNumber(testUserId, "+4798765433", CancellationToken.None);
+        var after = DateTime.UtcNow;
 
         // Assert
         await using var assertContext = new ProfileDbContext(options);
@@ -120,8 +122,7 @@ public class UserContactInfoRepositoryTests
             u => u.UserId == testUserId,
             cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(updatedUserContactInfo);
-        Assert.NotNull(updatedUserContactInfo.MobileNumberRegistered);
-        TimeSpan tolerance = TimeSpan.FromMilliseconds(5);
-        Assert.Equal(DateTime.Now, updatedUserContactInfo.MobileNumberRegistered.Value, tolerance); // The new timestamp should be approx. equal to now
+        Assert.NotNull(updatedUserContactInfo.PhoneNumberLastChanged);
+        Assert.InRange(updatedUserContactInfo.PhoneNumberLastChanged.Value, before, after);
     }
 }

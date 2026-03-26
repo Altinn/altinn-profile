@@ -14,5 +14,5 @@ public interface IUserContactInfoRepository
     /// <param name="phoneNumber">The new phonenumber to set</param>
     /// <param name="cancellationToken">Cancel the current request</param>
     /// <returns>A Task containing the <see cref="UserContactInfo"/> if the address was updated, or null if the user was not found.</returns>
-    public Task<UserContactInfo?> UpdateMobileNumber(int userId, string phoneNumber, CancellationToken cancellationToken);
+    public Task<UserContactInfo?> UpdatePhoneNumber(int userId, string phoneNumber, CancellationToken cancellationToken);
 }

@@ -31,13 +31,13 @@ namespace Altinn.Profile.Core.User.ContactInfo
         public required string EmailAddress { get; init; }
 
         /// <summary>
-        /// The mobile number
+        /// The phone number
         /// </summary>
-        public string? MobileNumber { get; set; }
+        public string? PhoneNumber { get; set; }
 
         /// <summary>
         /// The timestamp (with time-zone) for the event where the user registered the mobile number
         /// </summary>
-        public DateTime? MobileNumberRegistered { get; set; }
+        public DateTime? PhoneNumberLastChanged { get; set; }
     }
 }
