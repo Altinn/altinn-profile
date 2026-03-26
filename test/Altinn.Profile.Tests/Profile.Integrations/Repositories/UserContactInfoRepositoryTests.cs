@@ -34,7 +34,7 @@ public class UserContactInfoRepositoryTests
     public async Task CreateUserContactInfo_WhenUserWithSameIdAlreadyExists_Throws()
     {
         // Arrange
-        var options = CreateOptions(nameof(CreateUserContactInfo_WhenPhoneNumberIsIncluded_SetsCorrectPropertiesInDbRecord));
+        var options = CreateOptions(nameof(CreateUserContactInfo_WhenUserWithSameIdAlreadyExists_Throws));
         var factory = new TestDbContextFactory(options);
         var repository = new UserContactInfoRepository(factory);
 
@@ -166,7 +166,7 @@ public class UserContactInfoRepositoryTests
         Assert.Equal(userContactInfoToCreate.UserUuid, updatedUserContactInfo.UserUuid);
         Assert.Equal(userContactInfoToCreate.Username, updatedUserContactInfo.Username);
         Assert.Equal(userContactInfoToCreate.EmailAddress, updatedUserContactInfo.EmailAddress);
-        Assert.Null(userContactInfoToCreate.PhoneNumber);
+        Assert.Null(updatedUserContactInfo.PhoneNumber);
         Assert.Null(updatedUserContactInfo.PhoneNumberLastChanged);
     }
 
@@ -300,7 +300,7 @@ public class UserContactInfoRepositoryTests
     public async Task UpdatePhoneNumber_WhenUserExists_ReturnsUpdatedContactInfo()
     {
         // Arrange
-        var options = CreateOptions(nameof(UpdatePhoneNumber_WhenUserExists_UpdatesPhoneNumberRegisteredToNow));
+        var options = CreateOptions(nameof(UpdatePhoneNumber_WhenUserExists_ReturnsUpdatedContactInfo));
         var factory = new TestDbContextFactory(options);
         var repository = new UserContactInfoRepository(factory);
 
