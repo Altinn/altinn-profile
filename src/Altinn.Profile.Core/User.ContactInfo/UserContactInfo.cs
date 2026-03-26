@@ -33,11 +33,11 @@ namespace Altinn.Profile.Core.User.ContactInfo
         /// <summary>
         /// The mobile number
         /// </summary>
-        public string? MobileNumber { get; init; }
+        public string? MobileNumber { get; set; }
 
         /// <summary>
         /// The timestamp (with time-zone) for the event where the user registered the mobile number
         /// </summary>
-        public DateTime? MobileNumberRegistered { get; init; }
+        public DateTime? MobileNumberRegistered { get; set; }
     }
 }
