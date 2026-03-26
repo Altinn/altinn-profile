@@ -20,8 +20,8 @@ public interface IUserContactInfoRepository
     /// <summary>
     /// Instantiates contact information for the given user
     /// </summary>
-    /// <param name="userContactInfo">The user contact info to create</param>
+    /// <param name="userContactInfoToCreate">The user contact info to create</param>
     /// <param name="cancellationToken">Cancel the current request</param>
     /// <returns>A Task containing the <see cref="UserContactInfo"/> for the created user.</returns>
-    public Task<UserContactInfo> CreateUserContactInfo(UserContactInfoCreateModel userContactInfo, CancellationToken cancellationToken);
+    public Task<UserContactInfo> CreateUserContactInfo(UserContactInfoCreateModel userContactInfoToCreate, CancellationToken cancellationToken);
 }
