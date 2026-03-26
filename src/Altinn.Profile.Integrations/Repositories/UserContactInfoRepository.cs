@@ -16,6 +16,12 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
     /// <inheritdoc/>
+    public Task<UserContactInfo> CreateUserContactInfo(UserContactInfoCreateModel userContactInfo, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
     public async Task<UserContactInfo?> UpdatePhoneNumber(int userId, string phoneNumber, CancellationToken cancellationToken)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
