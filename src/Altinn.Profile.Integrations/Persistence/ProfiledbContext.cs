@@ -298,10 +298,11 @@ public partial class ProfileDbContext : DbContext
         {
             entity.ToTable("self_identified_users", "user_preferences");
             entity.HasKey(e => e.UserId);
+            entity.Property(e => e.UserId).IsRequired().ValueGeneratedNever();
             entity.Property(e => e.UserUuid).IsRequired();
-            entity.Property(e => e.Username);
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()").ValueGeneratedOnAdd();
-            entity.Property(e => e.EmailAddress).HasMaxLength(400);
+            entity.Property(e => e.Username).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("now()").ValueGeneratedOnAdd();
+            entity.Property(e => e.EmailAddress).IsRequired().HasMaxLength(400);
             entity.Property(e => e.MobileNumber).HasMaxLength(26);
             entity.Property(e => e.MobileNumberRegistered);
         });
