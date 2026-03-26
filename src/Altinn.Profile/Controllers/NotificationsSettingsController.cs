@@ -26,7 +26,7 @@ namespace Altinn.Profile.Controllers
     public class NotificationsSettingsController : ControllerBase
     {
         private readonly IProfessionalNotificationsService _professionalNotificationsService;
-        private readonly string _partyUuidEmptyErrorMessage = "Party UUID cannot be empty.";
+        private const string _partyUuidEmptyErrorMessage = "Party UUID cannot be empty.";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NotificationsSettingsController"/> class.

@@ -35,7 +35,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         private readonly JsonSerializerOptions _serializerOptionsWithOptional = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            Converters = { new OptionalJsonConverterFactory() }
+            Converters = { new OptionalJsonConverterFactory() },
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
         };
 
         public NotificationsSettingsControllerTests(ProfileWebApplicationFactory<Program> factory)
@@ -797,7 +798,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData("urn:altinn:resource:example", "example")]
         [InlineData("urn:altinn:resource:app_other_vale", "app_other_vale")]
         [InlineData("urn:altinn:resource:ttd-resource-1", "ttd-resource-1")]
-        public async Task PatchNotificationAddress_ReturnsCreatedAndOrdersNotificationWithCountryCode(string resourceUrn, string sanitizedResourceId)
+        public async Task PatchNotificationAddress_WhenVerified_ReturnsCreated(string resourceUrn, string sanitizedResourceId)
         {
             // Arrange
             const int UserId = 2516356;
@@ -966,8 +967,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 Times.Once);
         }
 
-        [Fact]
-        public async Task PatchNotificationAddress_WhenUnverifiedEmailProvided_ReturnsUnprocessableEntity()
+        [Theory]
+        [InlineData("test@example.com", VerificationType.Unverified, null, null)]
+        [InlineData("test@example.com", VerificationType.Unverified, "+4799999999", VerificationType.Verified)]
+        [InlineData("test@example.com", VerificationType.Verified, "+4799999999", VerificationType.Unverified)]
+        [InlineData(null, null, "+4799999999", VerificationType.Unverified)]
+        public async Task PatchNotificationAddress_WhenUnverifiedAddressProvided_ReturnsUnprocessableEntity(string email, VerificationType? emailVerificationStatus, string phone, VerificationType? smsVerificationStatus)
         {
             // Arrange
             const int UserId = 2516356;
@@ -979,16 +984,27 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.AddressVerificationRepositoryMock
                 .Setup(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
                 .ReturnsAsync(true);
-            _factory.AddressVerificationRepositoryMock
-                .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(VerificationType.Unverified);
+            if (emailVerificationStatus.HasValue)
+            {
+                _factory.AddressVerificationRepositoryMock
+                    .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(emailVerificationStatus.Value);
+            }
+
+            if (smsVerificationStatus.HasValue)
+            {
+                _factory.AddressVerificationRepositoryMock
+                    .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Sms, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(smsVerificationStatus.Value);
+            }
 
             SetupAuthHandler(partyGuid, UserId);
 
             HttpClient client = _factory.CreateClient();
             var request = new NotificationSettingsPatchRequest
             {
-                EmailAddress = new Optional<string>("test@example.com")
+                EmailAddress = new Optional<string>(email),
+                PhoneNumber = new Optional<string>(phone)
             };
 
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Patch, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")

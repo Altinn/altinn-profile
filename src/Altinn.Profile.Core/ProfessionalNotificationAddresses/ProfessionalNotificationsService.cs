@@ -87,6 +87,25 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         }
 
         /// <inheritdoc/>
+        public async Task<bool> AddOrUpdateNotificationAddressAsync(PatchUserPartyContactInfo contactInfo, CancellationToken cancellationToken)
+        {
+            var existingContactInfo = await _professionalNotificationsRepository.GetNotificationAddressAsync(contactInfo.UserId, contactInfo.PartyUuid, cancellationToken);
+
+            var updatedContactInfo = new UserPartyContactInfo
+            {
+                UserId = contactInfo.UserId,
+                PartyUuid = contactInfo.PartyUuid,
+                EmailAddress = contactInfo.EmailAddress.HasValue ? contactInfo.EmailAddress.Value : existingContactInfo?.EmailAddress,
+                PhoneNumber = contactInfo.PhoneNumber.HasValue ? contactInfo.PhoneNumber.Value : existingContactInfo?.PhoneNumber,
+                UserPartyContactInfoResources = contactInfo.UserPartyContactInfoResources.HasValue ? contactInfo.UserPartyContactInfoResources.Value : existingContactInfo?.UserPartyContactInfoResources
+            };
+
+            var isAdded = await _professionalNotificationsRepository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, cancellationToken);
+
+            return isAdded;
+        }
+
+        /// <inheritdoc/>
         public async Task<bool> IsContactInfoVerifiedOrNullAsync(PatchUserPartyContactInfo contactInfo, CancellationToken cancellationToken)
         {
             if (!contactInfo.EmailAddress.HasValue && !contactInfo.PhoneNumber.HasValue)
@@ -104,25 +123,6 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             }
 
             return true;
-            }
-
-        /// <inheritdoc/>
-        public async Task<bool> AddOrUpdateNotificationAddressAsync(PatchUserPartyContactInfo contactInfo, CancellationToken cancellationToken)
-        {
-            var existingContactInfo = await _professionalNotificationsRepository.GetNotificationAddressAsync(contactInfo.UserId, contactInfo.PartyUuid, cancellationToken);
-
-            var updatedContactInfo = new UserPartyContactInfo
-            {
-                UserId = contactInfo.UserId,
-                PartyUuid = contactInfo.PartyUuid,
-                EmailAddress = contactInfo.EmailAddress.HasValue ? contactInfo.EmailAddress.Value : existingContactInfo?.EmailAddress,
-                PhoneNumber = contactInfo.PhoneNumber.HasValue ? contactInfo.PhoneNumber.Value : existingContactInfo?.PhoneNumber,
-                UserPartyContactInfoResources = contactInfo.UserPartyContactInfoResources.HasValue ? contactInfo.UserPartyContactInfoResources.Value : existingContactInfo?.UserPartyContactInfoResources
-            };
-
-            var isAdded = await _professionalNotificationsRepository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, cancellationToken);
-
-            return isAdded;
         }
 
         /// <summary>

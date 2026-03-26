@@ -34,14 +34,6 @@
         Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Checks if the provided contact information is either verified or null for the specified user.
-        /// </summary>
-        /// <param name="contactInfo">The contact info to be added</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests</param>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        Task<bool> IsContactInfoVerifiedOrNullAsync(PatchUserPartyContactInfo contactInfo, CancellationToken cancellationToken);
-
-        /// <summary>
         /// Adds a new or updates an existing notification address for a user and party.
         /// Returns <c>true</c> if a new record was created, <c>false</c> if an existing record was updated.
         /// </summary>
@@ -51,6 +43,14 @@
         /// Returns <c>true</c> if a new record was added, <c>false</c> if an existing record was updated.
         /// </returns>
         Task<bool> AddOrUpdateNotificationAddressAsync(PatchUserPartyContactInfo contactInfo, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Checks if the provided contact information is either verified or null for the specified user.
+        /// </summary>
+        /// <param name="contactInfo">The contact info to be added</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<bool> IsContactInfoVerifiedOrNullAsync(PatchUserPartyContactInfo contactInfo, CancellationToken cancellationToken);
 
         /// <summary>
         /// Deletes the notification addresses that the given user has associated with the given party.
