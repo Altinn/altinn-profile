@@ -27,7 +27,7 @@ public class UserProfileService : IUserProfileService
     }
 
     /// <inheritdoc/>
-    public async Task<Result<UserProfile, bool>> GetUser(int userId) // Add enrichment for SI users?
+    public async Task<Result<UserProfile, bool>> GetUser(int userId)
     {
         var result = await _userProfileClient.GetUser(userId);
 
