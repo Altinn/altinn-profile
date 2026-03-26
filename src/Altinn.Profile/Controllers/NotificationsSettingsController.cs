@@ -26,7 +26,7 @@ namespace Altinn.Profile.Controllers
     public class NotificationsSettingsController : ControllerBase
     {
         private readonly IProfessionalNotificationsService _professionalNotificationsService;
-        private readonly string _partyUuidEmtyErrorMessage = "Party UUID cannot be empty.";
+        private readonly string _partyUuidEmptyErrorMessage = "Party UUID cannot be empty.";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NotificationsSettingsController"/> class.
@@ -62,7 +62,7 @@ namespace Altinn.Profile.Controllers
 
             if (partyUuid == Guid.Empty)
             {
-                return BadRequest(_partyUuidEmtyErrorMessage);
+                return BadRequest(_partyUuidEmptyErrorMessage);
             }
 
             var notificationSettings = await _professionalNotificationsService.GetNotificationAddressAsync(userId, partyUuid, cancellationToken);
@@ -128,7 +128,7 @@ namespace Altinn.Profile.Controllers
 
             if (partyUuid == Guid.Empty)
             {
-                return BadRequest(_partyUuidEmtyErrorMessage);
+                return BadRequest(_partyUuidEmptyErrorMessage);
             }
 
             var userPartyContactInfo = new UserPartyContactInfo
@@ -180,7 +180,7 @@ namespace Altinn.Profile.Controllers
 
             if (partyUuid == Guid.Empty)
             {
-                return BadRequest(_partyUuidEmtyErrorMessage);
+                return BadRequest(_partyUuidEmptyErrorMessage);
             }
 
             var userPartyContactInfo = new PatchUserPartyContactInfo
@@ -243,7 +243,7 @@ namespace Altinn.Profile.Controllers
 
             if (partyUuid == Guid.Empty)
             {
-                return BadRequest(_partyUuidEmtyErrorMessage);
+                return BadRequest(_partyUuidEmptyErrorMessage);
             }
 
             var notificationAddress = await _professionalNotificationsService.DeleteNotificationAddressAsync(userId, partyUuid, cancellationToken);
