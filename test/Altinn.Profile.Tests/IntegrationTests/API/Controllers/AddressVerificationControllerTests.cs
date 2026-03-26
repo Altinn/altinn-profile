@@ -640,7 +640,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task SendCode_WhenSuccessful_Returns200AndResponseBodyWithNotificationSent()
+        public async Task SendCode_WhenSuccessful_Returns204()
         {
             // Arrange
             const int userId = 2516363;
@@ -678,12 +678,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-            var responseObject = JsonSerializer.Deserialize<AddressVerificationResponse>(responseContent, _serializerOptionsCamelCase);
-            Assert.NotNull(responseObject);
-            Assert.True(responseObject.NotificationSent);
-            Assert.True(responseObject.CooldownSeconds > 0);
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
 
         [Fact]

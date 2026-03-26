@@ -45,14 +45,13 @@ namespace Altinn.Profile.Core.AddressVerifications.Models
         /// <summary>
         /// Creates a result indicating that a verification code was successfully sent.
         /// </summary>
-        /// <param name="cooldown">The cooldown period in seconds before a new verification code can be sent.</param>
         /// <returns>A <see cref="SendVerificationCodeResult"/> with status <see cref="SendVerificationStatus.Success"/>.</returns>
-        public static SendVerificationCodeResult Success(int cooldown)
+        public static SendVerificationCodeResult Success()
         {
             return new SendVerificationCodeResult
             {
                 Status = SendVerificationStatus.Success,
-                Cooldown = cooldown,
+                Cooldown = 0,
             };
         }
 

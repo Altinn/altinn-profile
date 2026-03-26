@@ -111,13 +111,13 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         /// <param name="request">The address type and value to send code for</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
-        /// <response code="200">Indicates that the verification code was successfully generated and sent</response>
+        /// <response code="204">Indicates that the verification code was successfully generated and sent</response>
         /// <response code="400">Indicates that the request was malformed, e.g. missing required properties or invalid address format</response>
         /// <response code="403">Indicates that the user is not authenticated</response>
         /// <response code="422">Indicates that the address is already verified for the user, and thus a code cannot be sent</response>
         /// <response code="500">Indicates that an unexpected error occurred on the server while processing the request, such as being unable to send the verification code</response>
         [HttpPost("send")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -139,7 +139,7 @@ namespace Altinn.Profile.Controllers
 
             return sendResult.Status switch
             {
-                SendVerificationStatus.Success => new OkObjectResult(new AddressVerificationResponse { CooldownSeconds = sendResult.Cooldown, NotificationSent = true }),
+                SendVerificationStatus.Success => new NoContentResult(),
                 SendVerificationStatus.NotificationOrderFailed => InternalServerError(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = "The verification process was created, but notification delivery failed." }),
                 SendVerificationStatus.AddressAlreadyVerified => UnprocessableEntity(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = "The address is already verified for this user." }),
                 SendVerificationStatus.CodeCooldown => TooManyRequests(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = $"Code resending attempts for an address are limited to 1 request per {_verificationCodeCooldownPeriodInSeconds} seconds. Please wait {sendResult.Cooldown}s before requesting a new code." }, sendResult.Cooldown),
