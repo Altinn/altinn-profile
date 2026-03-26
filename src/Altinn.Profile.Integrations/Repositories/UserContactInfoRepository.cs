@@ -4,6 +4,8 @@ using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;
 
+using Npgsql;
+
 namespace Altinn.Profile.Integrations.Repositories;
 
 /// <inheritdoc/>
@@ -19,8 +21,10 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
     public async Task<UserContactInfo> CreateUserContactInfo(UserContactInfoCreateModel userContactInfoToCreate, CancellationToken cancellationToken)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
-        var existsRecordWithSameUserId = await databaseContext.SelfIdentifiedUsers.AnyAsync(u => u.UserId == userContactInfoToCreate.UserId, cancellationToken);
-        if (existsRecordWithSameUserId)
+
+        // Check-then-insert with a catch for race conditions: The AnyAsync check handles the common case. If a concurrent insert occurs between the check and SaveChangesAsync, the PK constraint violation is caught and mapped to the same domain exception.
+        var userIdAlreadyExists = await databaseContext.SelfIdentifiedUsers.AnyAsync(u => u.UserId == userContactInfoToCreate.UserId, cancellationToken);
+        if (userIdAlreadyExists)
         {
             throw new UserContactInfoAlreadyExistsException(userContactInfoToCreate.UserId);
         }
@@ -38,12 +42,20 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
             PhoneNumberLastChanged = string.IsNullOrWhiteSpace(userContactInfoToCreate.PhoneNumber) ? null : currentDateTime
         };
 
-        databaseContext.SelfIdentifiedUsers.Add(userContactInfo);
-
-        await databaseContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            databaseContext.SelfIdentifiedUsers.Add(userContactInfo);
+            await databaseContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (IsUserIdConflict(ex))
+        {
+            throw new UserContactInfoAlreadyExistsException(userContactInfoToCreate.UserId);
+        }
 
         return userContactInfo;
     }
+
+    private static bool IsUserIdConflict(DbUpdateException ex) => ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: "pk_self_identified_users" };
 
     /// <inheritdoc/>
     public async Task<UserContactInfo?> UpdatePhoneNumber(int userId, string phoneNumber, CancellationToken cancellationToken)

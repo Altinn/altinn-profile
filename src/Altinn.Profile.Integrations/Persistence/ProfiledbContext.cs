@@ -297,7 +297,7 @@ public partial class ProfileDbContext : DbContext
         modelBuilder.Entity<UserContactInfo>(entity =>
         {
             entity.ToTable("self_identified_users", "user_preferences");
-            entity.HasKey(e => e.UserId);
+            entity.HasKey(e => e.UserId).HasName("pk_self_identified_users");
             entity.Property(e => e.UserId).IsRequired().ValueGeneratedNever();
             entity.Property(e => e.UserUuid).IsRequired();
             entity.Property(e => e.Username).IsRequired();
