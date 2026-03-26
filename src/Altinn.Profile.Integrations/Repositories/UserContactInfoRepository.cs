@@ -16,9 +16,33 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
     /// <inheritdoc/>
-    public Task<UserContactInfo> CreateUserContactInfo(UserContactInfoCreateModel userContactInfo, CancellationToken cancellationToken)
+    public async Task<UserContactInfo> CreateUserContactInfo(UserContactInfoCreateModel userContactInfoToCreate, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        var existsRecordWithSameUserId = await databaseContext.SelfIdentifiedUsers.AnyAsync(u => u.UserId == userContactInfoToCreate.UserId, cancellationToken);
+        if (existsRecordWithSameUserId)
+        {
+            throw new UserContactInfoAlreadyExistsException(userContactInfoToCreate.UserId);
+        }
+
+        var currentDateTime = DateTime.UtcNow;
+
+        var userContactInfo = new UserContactInfo()
+        {
+            CreatedAt = currentDateTime,
+            UserId = userContactInfoToCreate.UserId,
+            UserUuid = userContactInfoToCreate.UserUuid,
+            Username = userContactInfoToCreate.Username,
+            EmailAddress = userContactInfoToCreate.EmailAddress,
+            PhoneNumber = userContactInfoToCreate.PhoneNumber,
+            PhoneNumberLastChanged = string.IsNullOrWhiteSpace(userContactInfoToCreate.PhoneNumber) ? null : currentDateTime
+        };
+
+        databaseContext.SelfIdentifiedUsers.Add(userContactInfo);
+
+        await databaseContext.SaveChangesAsync(cancellationToken);
+
+        return userContactInfo;
     }
 
     /// <inheritdoc/>

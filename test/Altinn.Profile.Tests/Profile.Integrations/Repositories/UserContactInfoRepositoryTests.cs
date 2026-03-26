@@ -41,7 +41,7 @@ public class UserContactInfoRepositoryTests
         await using var seedContext = new ProfileDbContext(options);
         var existingUserContactInfo = new UserContactInfo()
         {
-            UserId = 4,
+            UserId = 1,
             UserUuid = Guid.NewGuid(),
             Username = "foobar",
             CreatedAt = DateTime.Now.AddMinutes(-2),
@@ -54,7 +54,7 @@ public class UserContactInfoRepositoryTests
 
         var userContactInfoToCreate = new UserContactInfoCreateModel()
         {
-            UserId = 4,
+            UserId = 1,
             UserUuid = Guid.NewGuid(),
             Username = "barfoo",
             EmailAddress = "some@email.com"
@@ -75,7 +75,7 @@ public class UserContactInfoRepositoryTests
 
         var userContactInfoToCreate = new UserContactInfoCreateModel()
         {
-            UserId = 4,
+            UserId = 2,
             UserUuid = Guid.NewGuid(),
             Username = "barfoo",
             EmailAddress = "some@email.com",
@@ -90,7 +90,7 @@ public class UserContactInfoRepositoryTests
         // Assert
         await using var assertContext = new ProfileDbContext(options);
         var updatedUserContactInfo = await assertContext.SelfIdentifiedUsers.FirstOrDefaultAsync(
-            u => u.UserId == 4,
+            u => u.UserId == 2,
             cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.NotNull(updatedUserContactInfo);
@@ -112,7 +112,7 @@ public class UserContactInfoRepositoryTests
         var repository = new UserContactInfoRepository(factory);
         var userContactInfoToCreate = new UserContactInfoCreateModel()
         {
-            UserId = 9,
+            UserId = 3,
             UserUuid = Guid.NewGuid(),
             Username = "barfoo",
             EmailAddress = "some@email.com",
@@ -144,7 +144,7 @@ public class UserContactInfoRepositoryTests
         var repository = new UserContactInfoRepository(factory);
         var userContactInfoToCreate = new UserContactInfoCreateModel()
         {
-            UserId = 8,
+            UserId = 4,
             UserUuid = Guid.NewGuid(),
             Username = "barfoo",
             EmailAddress = "some@email.com",
@@ -158,7 +158,7 @@ public class UserContactInfoRepositoryTests
         // Assert
         await using var assertContext = new ProfileDbContext(options);
         var updatedUserContactInfo = await assertContext.SelfIdentifiedUsers.FirstOrDefaultAsync(
-            u => u.UserId == 8,
+            u => u.UserId == 4,
             cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.NotNull(updatedUserContactInfo);
@@ -179,7 +179,7 @@ public class UserContactInfoRepositoryTests
         var repository = new UserContactInfoRepository(factory);
         var userContactInfoToCreate = new UserContactInfoCreateModel()
         {
-            UserId = 4,
+            UserId = 5,
             UserUuid = Guid.NewGuid(),
             Username = "barfoo",
             EmailAddress = "some@email.com"
@@ -209,7 +209,7 @@ public class UserContactInfoRepositoryTests
         var repository = new UserContactInfoRepository(factory);
 
         // Act
-        var result = await repository.UpdatePhoneNumber(4, "+4798765431", CancellationToken.None);
+        var result = await repository.UpdatePhoneNumber(6, "+4798765431", CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -223,7 +223,7 @@ public class UserContactInfoRepositoryTests
         var factory = new TestDbContextFactory(options);
         var repository = new UserContactInfoRepository(factory);
 
-        int testUserId = 5;
+        int testUserId = 7;
         string existingNumber = "+4798765431";
         string newNumber = "+4798765432";
 
@@ -263,7 +263,7 @@ public class UserContactInfoRepositoryTests
         var factory = new TestDbContextFactory(options);
         var repository = new UserContactInfoRepository(factory);
 
-        int testUserId = 6;
+        int testUserId = 8;
 
         await using (var seedContext = new ProfileDbContext(options))
         {
