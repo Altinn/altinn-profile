@@ -25,19 +25,22 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <inheritdoc/>
         public async Task<(VerificationType? EmailVerificationStatus, VerificationType? SmsVerificationStatus)> GetVerificationStatusAsync(int userId, string? emailAddress, string? phoneNumber, CancellationToken cancellationToken)
         {
-            VerificationType? emailVerificationStatus = null;
-            VerificationType? smsVerificationStatus = null;
-            if (!string.IsNullOrWhiteSpace(emailAddress))
-            {
-                emailVerificationStatus = await _addressVerificationRepository.GetVerificationStatusAsync(userId, AddressType.Email, emailAddress, cancellationToken);
-            }
-
-            if (!string.IsNullOrWhiteSpace(phoneNumber))
-            {
-                smsVerificationStatus = await _addressVerificationRepository.GetVerificationStatusAsync(userId, AddressType.Sms, phoneNumber, cancellationToken);
-            }
+            VerificationType? emailVerificationStatus = await GetVerificationStatusAsync(userId, AddressType.Email, emailAddress, cancellationToken);
+            VerificationType? smsVerificationStatus = await GetVerificationStatusAsync(userId, AddressType.Sms, phoneNumber, cancellationToken);
 
             return (emailVerificationStatus, smsVerificationStatus);
+        }
+
+        /// <inheritdoc/>
+        public async Task<VerificationType?> GetVerificationStatusAsync(int userId, AddressType addressType, string? address, CancellationToken cancellationToken)
+        {
+            VerificationType? verificationStatus = null;
+            if (!string.IsNullOrWhiteSpace(address))
+            {
+                verificationStatus = await _addressVerificationRepository.GetVerificationStatusAsync(userId, addressType, address, cancellationToken);
+            }
+
+            return verificationStatus;
         }
 
         /// <inheritdoc/>

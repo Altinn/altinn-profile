@@ -154,8 +154,12 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
-        /// Add or update the notification addresses the current user has registered for a party
+        /// Add or update the notification addresses the current user has registered for a party. This endpoint allows partial updates, meaning that the user can choose to update only the email address,
+        /// only the phone number, or only the resource include list without affecting the other fields.
         /// </summary>
+        /// <remarks>
+        /// Note that addresses are required to be verified. If the user attempts to add or update an address that has not been verified, the operation will be rejected with a 422 Unprocessable Entity response, and the notification address will not be added or updated.
+        /// </remarks>
         /// <param name="partyUuid">The UUID of the party for which the notification address is being set</param>
         /// <param name="request"> The request containing the notification address details</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
@@ -165,6 +169,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<ActionResult> Patch([FromRoute] Guid partyUuid, [FromBody][Required] NotificationSettingsPatchRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)

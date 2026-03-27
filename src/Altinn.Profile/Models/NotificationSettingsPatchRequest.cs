@@ -18,12 +18,12 @@ namespace Altinn.Profile.Models
         private const string _resourceIdRegex = "^urn:altinn:resource:[a-z0-9_-]{4,}$";
 
         /// <summary>
-        /// The email address. May be null if no email address is set.
+        /// The email address. May be null if no email address is set. If not null, the address must be verified.
         /// </summary>
         public Optional<string?> EmailAddress { get; set; } = new();
 
         /// <summary>
-        /// The phone number. May be null if no phone number is set. 
+        /// The phone number. May be null if no phone number is set. If not null, the address must be verified.
         /// </summary>
         public Optional<string?> PhoneNumber { get; set; } = new();
 

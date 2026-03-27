@@ -108,18 +108,22 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <inheritdoc/>
         public async Task<bool> IsContactInfoVerifiedOrNullAsync(PatchUserPartyContactInfo contactInfo, CancellationToken cancellationToken)
         {
-            if (!contactInfo.EmailAddress.HasValue && !contactInfo.PhoneNumber.HasValue)
+            if (contactInfo.EmailAddress.HasValue && !string.IsNullOrEmpty(contactInfo.EmailAddress.Value))
             {
-                return true;
+                var emailVerificationStatus = await _addressVerificationService.GetVerificationStatusAsync(contactInfo.UserId, AddressType.Email, contactInfo.EmailAddress.Value, cancellationToken);
+                if (emailVerificationStatus.HasValue && emailVerificationStatus != VerificationType.Verified)
+                {
+                    return false;
+                }
             }
 
-            var (emailVerificationStatus, smsVerificationStatus) = await _addressVerificationService.GetVerificationStatusAsync(contactInfo.UserId, contactInfo.EmailAddress.Value, contactInfo.PhoneNumber.Value, cancellationToken);
-
-            // valid values are Verified or null (not set). If the value is Unverified, or if one of the values is Verified and the other is Unverified, we return false.
-            if ((emailVerificationStatus.HasValue && emailVerificationStatus != VerificationType.Verified)
-                || (smsVerificationStatus.HasValue && smsVerificationStatus != VerificationType.Verified))
+            if (contactInfo.PhoneNumber.HasValue && !string.IsNullOrEmpty(contactInfo.PhoneNumber.Value))
             {
-                return false;
+                var smsVerificationStatus = await _addressVerificationService.GetVerificationStatusAsync(contactInfo.UserId, AddressType.Sms, contactInfo.PhoneNumber.Value, cancellationToken);
+                if (smsVerificationStatus.HasValue && smsVerificationStatus != VerificationType.Verified)
+                {
+                    return false;
+                }
             }
 
             return true;
