@@ -105,7 +105,7 @@ public partial class ProfileDbContext : DbContext
     public virtual DbSet<VerifiedAddress> VerifiedAddresses { get; set; }
 
     /// <summary>
-    /// The <see cref="DbSet{UserContactInfo}"/> representing the notification addresses for non-citizen users.
+    /// The <see cref="DbSet{UserContactInfo}"/> representing the contact information for self-identified/non-citizen users.
     /// </summary>
     public virtual DbSet<UserContactInfo> SelfIdentifiedUsers { get; set; }
 
