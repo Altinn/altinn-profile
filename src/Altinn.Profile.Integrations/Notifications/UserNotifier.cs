@@ -20,7 +20,7 @@ namespace Altinn.Profile.Integrations.Notifications
         private readonly IUserProfileService _userProfileService = userProfileService;
 
         /// <inheritdoc/>
-        public async Task SendVerificationCodeAsync(int userId, string address, AddressType addressType, string verificationCode, CancellationToken cancellationToken)
+        public async Task<bool> SendVerificationCodeAsync(int userId, string address, AddressType addressType, string verificationCode, CancellationToken cancellationToken)
         {
             var language = await _userProfileService.GetPreferredLanguage(userId);
             var sendersReference = $"profile-{userId}-{addressType}-{DateTime.UtcNow.Ticks}";
@@ -29,13 +29,13 @@ namespace Altinn.Profile.Integrations.Notifications
             {
                 var phoneNumberWithCountryCode = EnsureCountryCodeIfValidNumber(address);
                 var body = UserMessageBuilder.GetSmsContent(language, verificationCode);
-                await _notificationsClient.OrderSmsAsync(phoneNumberWithCountryCode, body, sendersReference, cancellationToken);
+                return await _notificationsClient.OrderSmsAsync(phoneNumberWithCountryCode, body, sendersReference, cancellationToken);
             }
             else
             {
                 var subject = UserMessageBuilder.GetEmailSubject(language);
                 var body = UserMessageBuilder.GetEmailBody(language, verificationCode);
-                await _notificationsClient.OrderEmailAsync(address, subject, body, sendersReference, cancellationToken);
+                return await _notificationsClient.OrderEmailAsync(address, subject, body, sendersReference, cancellationToken);
             }
         }
 

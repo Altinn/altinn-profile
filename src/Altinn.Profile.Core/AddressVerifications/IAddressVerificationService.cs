@@ -58,6 +58,20 @@ namespace Altinn.Profile.Core.AddressVerifications
         Task<bool> SubmitVerificationCodeAsync(int userid, string address, AddressType addressType, string submittedCode, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Starts the verification process and sends a verification code for/to the given user and address.
+        /// Also handles resend attempts by enforcing cooldown behavior.
+        /// </summary>
+        /// <param name="userId">The id of the user</param>
+        /// <param name="address">The address to verify</param>
+        /// <param name="addressType">The addresstype, sms or email</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation. The task result contains the send outcome,
+        /// the calculated cooldown value, and whether the notification provider accepted the send request.
+        /// </returns>
+        Task<SendVerificationCodeResult> SendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Regenerates and sends a verification code for/to the given user and address.
         /// </summary>
         /// <param name="userId">The id of the user</param>
@@ -65,6 +79,6 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <param name="addressType">The addresstype, sms or email</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation. The task result indicates the outcome of the resend operation.</returns>
-        Task<ResendVerificationResult> ResendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken);
+        Task<SendVerificationStatus> ResendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken);
     }
 }
