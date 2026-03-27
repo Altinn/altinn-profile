@@ -8,3 +8,5 @@ CREATE TABLE user_preferences.self_identified_users (
     phone_number_last_changed timestamp with time zone,
     CONSTRAINT pk_self_identified_users PRIMARY KEY (user_id)
 );
+
+GRANT DELETE, INSERT, SELECT, UPDATE ON TABLE user_preferences.self_identified_users TO platform_profile;
