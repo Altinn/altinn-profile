@@ -207,41 +207,6 @@ public class RegisterCachingDecorator : IRegisterClient
         return party;
     }
 
-    /// <inheritdoc/>
-    public async Task<IReadOnlyList<Party>> GetUserParties(List<Guid> userUuids, CancellationToken cancellationToken)
-    {
-        List<Guid> userUuidListNotInCache = [];
-        List<Party> result = [];
-
-        foreach (Guid userUuid in userUuids)
-        {
-            string uniqueCacheKey = $"Party_UserId_UserUuid_{userUuid}";
-            if (TryGetUserFromCache(uniqueCacheKey, out Party? user))
-            {
-                result.Add(user!);
-            }
-            else
-            {
-                userUuidListNotInCache.Add(userUuid);
-            }
-        }
-
-        if (userUuidListNotInCache.Count > 0)
-        {
-            IReadOnlyList<Party> fetchedUserProfiles = await _decoratedService.GetUserParties(userUuidListNotInCache, cancellationToken);
-
-            foreach (Party user in fetchedUserProfiles)
-            {
-                string uniqueCacheKey = $"Party_UserId_UserUuid_{user.Uuid}";
-                AddUserToCache(uniqueCacheKey, user);
-
-                result.Add(user);
-            }
-        }
-
-        return result;
-    }
-
     // Private methods
     private void AddUserToCache(string uniqueCacheKey, Party userProfile)
     {
