@@ -110,9 +110,12 @@ Uses Altinn PEP (Policy Enforcement Point) with custom handlers:
 ### Language
 - All code, comments, and XML documentation must be written in English
 
+### XML Documentation
+All public types and members require `<summary>` docs (and `<param>`/`<returns>` where applicable) — SA1600/SA1601 are build errors. This is a common oversight in AI-generated code.
+
 ### StyleCop Rules
 Strict enforcement (most rules are errors/warnings). Notable:
-- SA1600/SA1601: XML documentation required (errors)
+- SA1600/SA1601: XML documentation required on all public members (errors — see above)
 - SA1309: Field names not prefixed with underscore (disabled - we use `_` prefix)
 - SA1101: Prefix local calls with this (disabled)
 - SA1200: Using directives placement (disabled - handled by .editorconfig)
