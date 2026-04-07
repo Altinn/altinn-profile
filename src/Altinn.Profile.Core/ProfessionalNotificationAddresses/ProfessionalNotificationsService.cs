@@ -86,6 +86,49 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             return isAdded;
         }
 
+        /// <inheritdoc/>
+        public async Task<bool> AddOrUpdateNotificationAddressAsync(PatchUserPartyContactInfo contactInfo, CancellationToken cancellationToken)
+        {
+            var existingContactInfo = await _professionalNotificationsRepository.GetNotificationAddressAsync(contactInfo.UserId, contactInfo.PartyUuid, cancellationToken);
+
+            var updatedContactInfo = new UserPartyContactInfo
+            {
+                UserId = contactInfo.UserId,
+                PartyUuid = contactInfo.PartyUuid,
+                EmailAddress = contactInfo.EmailAddress.HasValue ? contactInfo.EmailAddress.Value : existingContactInfo?.EmailAddress,
+                PhoneNumber = contactInfo.PhoneNumber.HasValue ? contactInfo.PhoneNumber.Value : existingContactInfo?.PhoneNumber,
+                UserPartyContactInfoResources = contactInfo.UserPartyContactInfoResources.HasValue ? contactInfo.UserPartyContactInfoResources.Value : existingContactInfo?.UserPartyContactInfoResources
+            };
+
+            var isAdded = await _professionalNotificationsRepository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, cancellationToken);
+
+            return isAdded;
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> IsContactInfoVerifiedOrNullAsync(PatchUserPartyContactInfo contactInfo, CancellationToken cancellationToken)
+        {
+            if (contactInfo.EmailAddress.HasValue && !string.IsNullOrEmpty(contactInfo.EmailAddress.Value))
+            {
+                var emailVerificationStatus = await _addressVerificationService.GetVerificationStatusAsync(contactInfo.UserId, AddressType.Email, contactInfo.EmailAddress.Value, cancellationToken);
+                if (emailVerificationStatus.HasValue && emailVerificationStatus != VerificationType.Verified)
+                {
+                    return false;
+                }
+            }
+
+            if (contactInfo.PhoneNumber.HasValue && !string.IsNullOrEmpty(contactInfo.PhoneNumber.Value))
+            {
+                var smsVerificationStatus = await _addressVerificationService.GetVerificationStatusAsync(contactInfo.UserId, AddressType.Sms, contactInfo.PhoneNumber.Value, cancellationToken);
+                if (smsVerificationStatus.HasValue && smsVerificationStatus != VerificationType.Verified)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Handles sending notifications when the mobile number or email address has changed.
         /// Verification code generation is delegated to <see cref="IAddressVerificationService"/>;

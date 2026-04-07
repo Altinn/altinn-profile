@@ -1,10 +1,10 @@
 meta {
-  name: Put party
+  name: Patch party
   type: http
-  seq: 2
+  seq: 5
 }
 
-put {
+patch {
   url: {{ProfileBaseAddress}}/api/v1/users/current/notificationsettings/parties/{{Party_PartyUuid}}
   body: json
   auth: inherit
@@ -25,5 +25,5 @@ script:pre-request {
 }
 
 docs {
-  Sets all properties of the notification settings for a party for the user
+  Update some of the settings for the user
 }
