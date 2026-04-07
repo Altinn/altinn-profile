@@ -12,6 +12,10 @@ namespace Altinn.Profile.Core.Telemetry;
 /// </summary>
 partial class Telemetry
 {
+    private const string _metricNameAdded = "added";
+    private const string _metricNameUpdated = "updated";
+    private const string _metricNameDeleted = "deleted";
+
     private void InitFavoriteImportJob(InitContext context)
     {
         InitMetricCounter(context, MetricNameFavoriteAdded, init: static m => m.Add(0));
@@ -105,12 +109,12 @@ partial class Telemetry
         /// <summary>
         /// The name of the metric for the number of favorites added through the sync job.
         /// </summary>
-        internal static readonly string MetricNameFavoriteAdded = MetricName("added");
+        internal static readonly string MetricNameFavoriteAdded = MetricName(_metricNameAdded);
 
         /// <summary>
         /// The name of the metric for the number of favorites deleted through the sync job.
         /// </summary>
-        internal static readonly string MetricNameFavoriteDeleted = MetricName("deleted");
+        internal static readonly string MetricNameFavoriteDeleted = MetricName(_metricNameDeleted);
 
         private static string MetricName(string name) => Metrics.CreateName($"favorites.{name}");
     }
@@ -128,17 +132,17 @@ partial class Telemetry
         /// <summary>
         /// The name of the metric for the number of favorites added through the sync job.
         /// </summary>
-        internal static readonly string MetricNameNotificationSettingsAdded = MetricName("added");
+        internal static readonly string MetricNameNotificationSettingsAdded = MetricName(_metricNameAdded);
 
         /// <summary>
         /// The name of the metric for the number of favorites added through the sync job.
         /// </summary>
-        internal static readonly string MetricNameNotificationSettingsUpdated = MetricName("updated");
+        internal static readonly string MetricNameNotificationSettingsUpdated = MetricName(_metricNameUpdated);
 
         /// <summary>
         /// The name of the metric for the number of favorites deleted through the sync job.
         /// </summary>
-        internal static readonly string MetricNameNotificationSettingsDeleted = MetricName("deleted");
+        internal static readonly string MetricNameNotificationSettingsDeleted = MetricName(_metricNameDeleted);
 
         private static string MetricName(string name) => Metrics.CreateName($"notificationsettings.{name}");
     }
@@ -156,12 +160,12 @@ partial class Telemetry
         /// <summary>
         /// The name of the metric for the number of profileSettings added through the sync job.
         /// </summary>
-        internal static readonly string MetricNameProfileSettingsAdded = MetricName("added");
+        internal static readonly string MetricNameProfileSettingsAdded = MetricName(_metricNameAdded);
 
         /// <summary>
         /// The name of the metric for the number of profileSettings updated through the sync job.
         /// </summary>
-        internal static readonly string MetricNameProfileSettingsUpdated = MetricName("updated");
+        internal static readonly string MetricNameProfileSettingsUpdated = MetricName(_metricNameUpdated);
 
         private static string MetricName(string name) => Metrics.CreateName($"profilesettings.{name}");
     }
@@ -179,12 +183,12 @@ partial class Telemetry
         /// <summary>
         /// The name of the metric for the number of si users contact settings added through the sync job.
         /// </summary>
-        internal static readonly string MetricNameSIUserContactSettingsAdded = MetricName("added");
+        internal static readonly string MetricNameSIUserContactSettingsAdded = MetricName(_metricNameAdded);
 
         /// <summary>
         /// The name of the metric for the number of si users contact settings updated through the sync job.
         /// </summary>
-        internal static readonly string MetricNameSIUserContactSettingsUpdated = MetricName("updated");
+        internal static readonly string MetricNameSIUserContactSettingsUpdated = MetricName(_metricNameUpdated);
 
         private static string MetricName(string name) => Metrics.CreateName($"siusercontactsettings.{name}");
     }

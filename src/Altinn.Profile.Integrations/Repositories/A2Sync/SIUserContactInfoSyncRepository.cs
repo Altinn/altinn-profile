@@ -38,8 +38,6 @@ namespace Altinn.Profile.Integrations.Repositories.A2Sync
                 return existingUser;
             }
 
-            var currentDateTime = DateTime.UtcNow;
-
             var userContactInfo = new UserContactInfo()
             {
                 CreatedAt = updatedDatetime,
