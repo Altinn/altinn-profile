@@ -96,7 +96,7 @@ public class AddressVerificationServiceTests : IDisposable
         var result = await _sut.ResendVerificationCodeAsync(123, "test@example.com", AddressType.Email, CancellationToken.None);
 
         // Assert
-        Assert.Equal(ResendVerificationResult.Success, result);
+        Assert.Equal(SendVerificationStatus.Success, result);
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public class AddressVerificationServiceTests : IDisposable
         var result = await _sut.ResendVerificationCodeAsync(321, "12345678", AddressType.Sms, CancellationToken.None);
 
         // Assert
-        Assert.Equal(ResendVerificationResult.Success, result);
+        Assert.Equal(SendVerificationStatus.Success, result);
     }
 
     [Fact]
@@ -184,7 +184,7 @@ public class AddressVerificationServiceTests : IDisposable
         var result = await _sut.ResendVerificationCodeAsync(456, "user@example.com", AddressType.Email, CancellationToken.None);
 
         // Assert
-        Assert.Equal(ResendVerificationResult.CodeCooldown, result);
+        Assert.Equal(SendVerificationStatus.CodeCooldown, result);
     }
 
     [Fact]
@@ -241,7 +241,7 @@ public class AddressVerificationServiceTests : IDisposable
         var result = await _sut.ResendVerificationCodeAsync(789, "nocode@example.com", AddressType.Email, CancellationToken.None);
 
         // Assert
-        Assert.Equal(ResendVerificationResult.CodeNotFound, result);
+        Assert.Equal(SendVerificationStatus.CodeNotFound, result);
     }
 
     [Fact]
@@ -298,7 +298,7 @@ public class AddressVerificationServiceTests : IDisposable
         var result = await _sut.ResendVerificationCodeAsync(999, "concurrent@example.com", AddressType.Email, CancellationToken.None);
 
         // Assert
-        Assert.Equal(ResendVerificationResult.CodeCooldown, result);
+        Assert.Equal(SendVerificationStatus.CodeCooldown, result);
     }
 
     [Fact]
@@ -342,7 +342,7 @@ public class AddressVerificationServiceTests : IDisposable
         _verificationCodeServiceMock.Setup(s => s.GenerateRawCode()).Returns("654321");
         _verificationCodeServiceMock.Setup(s => s.CreateVerificationCode(userId, address, addressType, "654321")).Returns(newCode);
         _repositoryMock.Setup(r => r.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>())).ReturnsAsync(true);
-        _userNotifierMock.Setup(n => n.SendVerificationCodeAsync(userId, address, addressType, "654321", It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _userNotifierMock.Setup(n => n.SendVerificationCodeAsync(userId, address, addressType, "654321", It.IsAny<CancellationToken>())).ReturnsAsync(true);
     }
 
     private void ArrangeCooldownScenario(int userId, string address, int codeCreatedSecondsAgo)

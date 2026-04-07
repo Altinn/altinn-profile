@@ -1,0 +1,36 @@
+{
+  "userId": 21168927,
+  "userUuid": "f1493696-8d4a-443d-9c78-aac1c77fe1f3",
+  "userName": "epost:test@digdir.no",
+  "externalIdentity": "urn:altinn:person:idporten-email:test@digdir.no",
+  "isReserved": false,
+  "phoneNumber": "+4791516872",
+  "email": "sigbrats@gmail.com",
+  "partyId": 51782301,
+  "party": {
+    "partyId": 51782301,
+    "partyUuid": "f1493696-8d4a-443d-9c78-aac1c77fe1f3",
+    "partyTypeName": 3,
+    "orgNumber": "",
+    "ssn": "",
+    "unitType": null,
+    "name": "epost:test@digdir.no",
+    "isDeleted": false,
+    "onlyHierarchyElementWithNoAccess": false,
+    "person": null,
+    "organization": null,
+    "childParties": null,
+    "lastChangedInAltinn": "2026-02-23T08:40:51.579118+00:00",
+    "lastChangedInExternalRegister": null
+  },
+  "userType": 2,
+  "profileSettingPreference": {
+    "language": "nb",
+    "preSelectedPartyId": 0,
+    "doNotPromptForParty": true,
+    "preselectedPartyUuid": null,
+    "showClientUnits": false,
+    "shouldShowSubEntities": true,
+    "shouldShowDeletedEntities": false
+  }
+}

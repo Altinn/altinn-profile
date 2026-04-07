@@ -1,0 +1,24 @@
+{
+  "userId": 21168928,
+  "userUuid": "0d34c0eb-fd3d-416b-8ee4-ecd4c331a57c",
+  "userName": "test1234",
+  "externalIdentity": "",
+  "partyId": 51782302,
+  "party": {
+    "partyId": 51782302,
+    "partyUuid": "0d34c0eb-fd3d-416b-8ee4-ecd4c331a57c",
+    "partyTypeName": 3,
+    "orgNumber": "",
+    "ssn": "",
+    "unitType": null,
+    "name": "test1234",
+    "isDeleted": false,
+    "onlyHierarchyElementWithNoAccess": false,
+    "person": null,
+    "organization": null,
+    "childParties": null,
+    "lastChangedInAltinn": "2026-03-16T10:46:25.227979+00:00",
+    "lastChangedInExternalRegister": null
+  },
+  "userType": 2
+}

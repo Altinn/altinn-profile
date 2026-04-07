@@ -80,6 +80,7 @@ public static class ServiceCollectionExtensions
 
         services.Configure<RegisterSettings>(config.GetSection(nameof(RegisterSettings)));
         services.AddHttpClient<IRegisterClient, RegisterClient>();
+        services.Decorate<IRegisterClient, RegisterCachingDecorator>();
         services.Configure<NotificationsSettings>(config.GetSection(nameof(NotificationsSettings)));
         services.AddHttpClient<INotificationsClient, NotificationsClient>();
         services.AddHttpClient<IAuthorizationClient, AuthorizationClient>();
@@ -89,6 +90,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMetadataRepository, MetadataRepository>();
         services.AddScoped<IContactRegisterUpdateJob, ContactRegisterUpdateJob>();
         services.AddScoped<IProfileSettingsRepository, ProfileSettingsRepository>();
+        services.AddScoped<IUserContactInfoRepository, UserContactInfoRepository>();
 
         services.AddSingleton<INationalIdentityNumberChecker, NationalIdentityNumberChecker>();
 

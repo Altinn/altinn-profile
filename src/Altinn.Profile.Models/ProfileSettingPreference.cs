@@ -71,7 +71,7 @@
                 DoNotPromptForParty = false,
                 PreselectedPartyUuid = null,
                 ShowClientUnits = false,
-                ShouldShowSubEntities = false,
+                ShouldShowSubEntities = true,
                 ShouldShowDeletedEntities = false
             };
         }

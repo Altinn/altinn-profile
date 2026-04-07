@@ -449,7 +449,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData("urn:altinn:resource:example", "example")]
         [InlineData("urn:altinn:resource:app_other_vale", "app_other_vale")]
         [InlineData("urn:altinn:resource:ttd-resource-1", "ttd-resource-1")]
-        public async Task PutNotificationAddress_WhenContactInfoIsNew_ReturnsCreated(string resourceUrn, string sanitizedResourceId)
+
+        public async Task PutNotificationAddress_WhenContactInfoIsNew_ReturnsCreatedAndOrdersNotificationWithCountryCode(string resourceUrn, string sanitizedResourceId)
         {
             // Arrange
             const int UserId = 2516356;
@@ -458,57 +459,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var userPartyContactInfo = new NotificationSettingsRequest
             {
                 EmailAddress = "test@example.com",
-                PhoneNumber = "12345678",
-                ResourceIncludeList = [resourceUrn]
-            };
-
-            _factory.ProfessionalNotificationsRepositoryMock
-                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
-                 .ReturnsAsync(true);
-            SetupSblMock();
-            SetupAuthHandler(partyGuid, UserId);
-
-            HttpClient client = _factory.CreateClient();
-
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
-            {
-                Content = new StringContent(JsonSerializer.Serialize(userPartyContactInfo, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
-            };
-            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
-
-            // Act
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
-
-            // Assert
-            Assert.NotNull(response);
-            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-
-            _factory.ProfessionalNotificationsRepositoryMock.Verify(
-                x => x.AddOrUpdateNotificationAddressAsync(
-                    It.Is<UserPartyContactInfo>(info =>
-                        info.UserPartyContactInfoResources.Count == 1 && info.UserPartyContactInfoResources[0].ResourceId == sanitizedResourceId),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Never);
-        }
-
-        [Theory]
-        [InlineData("urn:altinn:resource:example", "example")]
-        [InlineData("urn:altinn:resource:app_other_vale", "app_other_vale")]
-        [InlineData("urn:altinn:resource:ttd-resource-1", "ttd-resource-1")]
-
-        public async Task PutNotificationAddress_WhenFlaggingGenerateVerificationCode_ReturnsCreated(string resourceUrn, string sanitizedResourceId)
-        {
-            // Arrange
-            const int UserId = 2516356;
-            var partyGuid = Guid.NewGuid();
-
-            var userPartyContactInfo = new NotificationSettingsRequest
-            {
-                EmailAddress = "test@example.com",
-                PhoneNumber = "12345678",
+                PhoneNumber = "98765432",
                 ResourceIncludeList = [resourceUrn],
-                GenerateVerificationCode = true
             };
 
             _factory.ProfessionalNotificationsRepositoryMock
@@ -543,12 +495,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 Times.Once);
             _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Exactly(2));
             _factory.NotificationsClientMock.Verify(x => x.OrderEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
-            _factory.NotificationsClientMock.Verify(x => x.OrderSmsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+            _factory.NotificationsClientMock.Verify(x => x.OrderSmsAsync("+4798765432", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
 
-        public async Task PutNotificationAddress_WhenNoResourceFlaggingGenerateVerificationCode_ReturnsCreated()
+        public async Task PutNotificationAddress_WhenNoResource_ReturnsCreated()
         {
             // Arrange
             const int UserId = 2516356;
@@ -558,7 +510,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 EmailAddress = "test@example.com",
                 PhoneNumber = "12345678",
-                GenerateVerificationCode = true
             };
 
             _factory.ProfessionalNotificationsRepositoryMock
@@ -592,7 +543,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task PutNotificationAddress_WhenFlaggingGenerateVerificationCodeButRepoReturnsFalse_ReturnsCreated()
+        public async Task PutNotificationAddress_WhenRepoReturnsFalse_ReturnsCreated()
         {
             // Arrange
             const int UserId = 2516356;
@@ -602,7 +553,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 EmailAddress = "test@example.com",
                 PhoneNumber = "12345678",
-                GenerateVerificationCode = true
             };
 
             _factory.ProfessionalNotificationsRepositoryMock

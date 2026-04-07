@@ -67,6 +67,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
                 PreselectedPartyUuid = preselectedPartyUuid,
             });
 
+        _factory.RegisterClientMock.Setup(m => m.GetPartyId(preselectedPartyUuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(123456);
+
         HttpClient client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "/profile/api/v1/users/current");
@@ -94,6 +97,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal("nn", actualUser.ProfileSettingPreference.Language);
         Assert.True(actualUser.ProfileSettingPreference.DoNotPromptForParty);
         Assert.Equal(preselectedPartyUuid, actualUser.ProfileSettingPreference.PreselectedPartyUuid);
+        Assert.Equal(123456, actualUser.ProfileSettingPreference.PreSelectedPartyId);
         Assert.False(actualUser.ProfileSettingPreference.ShowClientUnits);
         Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
         Assert.False(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
@@ -150,7 +154,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Null(actualUser.ProfileSettingPreference.PreselectedPartyUuid);
         Assert.False(actualUser.ProfileSettingPreference.ShowClientUnits);
         Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
-        Assert.False(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
+        Assert.True(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
     }
 
     [Fact]
@@ -230,6 +234,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         _factory.PersonServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new PersonContactPreferences { Email = "test@mail.com", NationalIdentityNumber = "1", MobileNumber = "+4798765432", IsReserved = true }]);
 
+        _factory.RegisterClientMock.Setup(m => m.GetPartyId(preselectedPartyUuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(123456);
+
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
@@ -265,6 +272,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.True(actualUser.IsReserved);
         Assert.Equal("test@mail.com", actualUser.Email);
         Assert.Equal("+4798765432", actualUser.PhoneNumber);
+        Assert.Equal(123456, actualUser.ProfileSettingPreference.PreSelectedPartyId);
     }
 
     [Fact]
@@ -315,7 +323,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Null(actualUser.ProfileSettingPreference.PreselectedPartyUuid);
         Assert.False(actualUser.ProfileSettingPreference.ShowClientUnits);
         Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
-        Assert.False(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
+        Assert.True(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
     }
 
     [Fact]
@@ -554,7 +562,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Null(actualUser.ProfileSettingPreference.PreselectedPartyUuid);
         Assert.False(actualUser.ProfileSettingPreference.ShowClientUnits);
         Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
-        Assert.False(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
+        Assert.True(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
     }
 
     [Fact]
@@ -804,7 +812,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Null(actualUser.ProfileSettingPreference.PreselectedPartyUuid);
         Assert.False(actualUser.ProfileSettingPreference.ShowClientUnits);
         Assert.False(actualUser.ProfileSettingPreference.ShouldShowDeletedEntities);
-        Assert.False(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
+        Assert.True(actualUser.ProfileSettingPreference.ShouldShowSubEntities);
     }
 
     [Fact]
