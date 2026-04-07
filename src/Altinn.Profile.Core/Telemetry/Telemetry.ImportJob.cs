@@ -3,6 +3,7 @@ using System.Diagnostics;
 using static Altinn.Profile.Core.Telemetry.Telemetry.Favorites;
 using static Altinn.Profile.Core.Telemetry.Telemetry.NotificationSettings;
 using static Altinn.Profile.Core.Telemetry.Telemetry.ProfileSettings;
+using static Altinn.Profile.Core.Telemetry.Telemetry.SIUserContactSettings;
 
 namespace Altinn.Profile.Core.Telemetry;
 
@@ -64,6 +65,22 @@ partial class Telemetry
     /// Increments the counter for the number of ProfileSettings added.
     /// </summary>
     public void ProfileSettingsAdded() => _counters[MetricNameProfileSettingsAdded].Add(1);
+
+    private void InitSIUserContactSettingsImportJob(InitContext context)
+    {
+        InitMetricCounter(context, MetricNameSIUserContactSettingsAdded, init: static m => m.Add(0));
+        InitMetricCounter(context, MetricNameSIUserContactSettingsUpdated, init: static m => m.Add(0));
+    }
+
+    /// <summary>
+    /// Increments the counter for the number of SI user contact settings added.
+    /// </summary>
+    public void SiUserContactSettingsAdded() => _counters[SIUserContactSettings.MetricNameSIUserContactSettingsAdded].Add(1);
+
+    /// <summary>
+    /// Increments the counter for the number of SI user contact settings updated.
+    /// </summary>
+    public void SiUserContactSettingsUpdated() => _counters[SIUserContactSettings.MetricNameSIUserContactSettingsUpdated].Add(1);
 
     /// <summary>
     /// Starts a telemetry activity for the contact registry update job.
@@ -147,5 +164,28 @@ partial class Telemetry
         internal static readonly string MetricNameProfileSettingsUpdated = MetricName("updated");
 
         private static string MetricName(string name) => Metrics.CreateName($"profilesettings.{name}");
+    }
+
+    /// <summary>
+    /// This class holds a set of constants for the telemetry metrics of the si users contact settings sync job.
+    /// </summary>
+    internal static class SIUserContactSettings
+    {
+        /// <summary>
+        /// The prefix for all telemetry activities related to the si users contact settings sync.
+        /// </summary>
+        internal const string ActivityPrefix = "SiUserContactSettings";
+
+        /// <summary>
+        /// The name of the metric for the number of si users contact settings added through the sync job.
+        /// </summary>
+        internal static readonly string MetricNameSIUserContactSettingsAdded = MetricName("added");
+
+        /// <summary>
+        /// The name of the metric for the number of si users contact settings updated through the sync job.
+        /// </summary>
+        internal static readonly string MetricNameSIUserContactSettingsUpdated = MetricName("updated");
+
+        private static string MetricName(string name) => Metrics.CreateName($"siusercontactsettings.{name}");
     }
 }

@@ -6,12 +6,17 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Authorization.ServiceDefaults.Jobs;
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Integrations.Repositories.A2Sync;
 using Altinn.Profile.Integrations.SblBridge.Changelog;
+using Altinn.Profile.Integrations.SblBridge.User.PrivateConsent;
 
 using Microsoft.Extensions.Logging;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 using static Altinn.Profile.Integrations.SblBridge.Changelog.ChangeLogItem;
 
@@ -28,7 +33,8 @@ namespace Altinn.Profile.Changelog
         private readonly IChangeLogClient _changeLogClient;
         private readonly IChangelogSyncMetadataRepository _changelogSyncMetadataRepository;
         private readonly Telemetry _telemetry;
-        private readonly IProfileSettingsSyncRepository _profileSettingsSyncRepository;
+        private readonly ISIUserContactInfoSyncRepository _siUserContactInfoSyncRepository;
+        private readonly IRegisterClient _registerClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SIUserAddressImportJob"/> class.
@@ -38,14 +44,16 @@ namespace Altinn.Profile.Changelog
             IChangeLogClient changeLogClient,
             TimeProvider timeProvider,
             IChangelogSyncMetadataRepository changelogSyncMetadataRepository,
-            IProfileSettingsSyncRepository profileSettingsSyncRepository,
+            ISIUserContactInfoSyncRepository userContactInfoSyncRepository,
+            IRegisterClient registerClient,
             Telemetry telemetry = null)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _changeLogClient = changeLogClient ?? throw new ArgumentNullException(nameof(changeLogClient));
             _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
             _changelogSyncMetadataRepository = changelogSyncMetadataRepository ?? throw new ArgumentNullException(nameof(changelogSyncMetadataRepository));
-            _profileSettingsSyncRepository = profileSettingsSyncRepository ?? throw new ArgumentNullException(nameof(profileSettingsSyncRepository));
+            _siUserContactInfoSyncRepository = userContactInfoSyncRepository ?? throw new ArgumentNullException(nameof(userContactInfoSyncRepository));
+            _registerClient = registerClient ?? throw new ArgumentNullException(nameof(registerClient));
             _telemetry = telemetry;
         }
 
@@ -57,13 +65,13 @@ namespace Altinn.Profile.Changelog
 
             using var activity = _telemetry?.StartA2ImportJob("SIUserAddress");
 
-            await RunProfileSettingsImport(cancellationToken);
+            await RunSIUserContactSettingsImport(cancellationToken);
             var duration = _timeProvider.GetElapsedTime(start);
 
             Log.FinishedSIUserAddressImport(_logger, duration);
         }
 
-        private async Task RunProfileSettingsImport(CancellationToken cancellationToken)
+        private async Task RunSIUserContactSettingsImport(CancellationToken cancellationToken)
         {
             var lastChangeDate = await _changelogSyncMetadataRepository.GetLatestSyncTimestampAsync(DataType.PrivateConsentProfile, cancellationToken);
 
@@ -79,17 +87,24 @@ namespace Altinn.Profile.Changelog
 
                 foreach (var change in page.ProfileChangeLogList)
                 {
-                   PortalSettings portalSetting = Deserialize(change);
-                   if (portalSetting == null)
+                    SiUserContactSettings contactSettings = Deserialize(change);
+                    if (contactSettings == null)
                     {
                         continue;
                     }
 
-                   var profileSettings = MapToProfileSettings(portalSetting);
-
-                   if (change.OperationType is OperationType.Insert or OperationType.Update)
+                    var userUuid = await _registerClient.GetUserUuid(contactSettings.UserId, cancellationToken);
+                    if (userUuid == null)
                     {
-                        await _profileSettingsSyncRepository.UpdateProfileSettings(profileSettings);
+                        _logger.LogWarning("Could not find user with id {UserId} in Register when processing change log item with id {ChangeId}. Skipping.", contactSettings.UserId, change.ProfileChangeLogId);
+                        continue;
+                    }
+
+                    contactSettings.UserUuid = (Guid)userUuid;
+
+                    if (change.OperationType is OperationType.Insert or OperationType.Update)
+                    {
+                        await _siUserContactInfoSyncRepository.InsertOrUpdate(contactSettings, change.ChangeDatetime, cancellationToken);
                     }
                 }
 
@@ -116,37 +131,20 @@ namespace Altinn.Profile.Changelog
             }
         }
 
-        private PortalSettings Deserialize(ChangeLogItem change)
+        private SiUserContactSettings Deserialize(ChangeLogItem change)
         {
-            PortalSettings portalSetting;
+            SiUserContactSettings contactSettings;
             try
             {
-                portalSetting = PortalSettings.Deserialize(change.DataObject);
+                contactSettings = SiUserContactSettings.Deserialize(change.DataObject);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to deserialize ProfileSetting change log item with id {ChangeId}", change.ProfileChangeLogId);
+                _logger.LogWarning(ex, "Failed to deserialize SiUserContactSettings change log item with id {ChangeId}", change.ProfileChangeLogId);
                 return null;
             }
 
-            return portalSetting;
-        }
-
-        private static ProfileSettings MapToProfileSettings(PortalSettings portalSettings)
-        {
-            var ignoreUnitProfileDateTime = portalSettings.IgnoreUnitProfileDateTime > DateTime.MinValue ? portalSettings.IgnoreUnitProfileDateTime?.ToUniversalTime() : null;
-
-            return new ProfileSettings
-            {
-                LanguageType = LanguageType.GetFromAltinn2Code(portalSettings.LanguageType),
-                UserId = portalSettings.UserId,
-                DoNotPromptForParty = portalSettings.DoNotPromptForParty,
-                PreselectedPartyUuid = portalSettings.PreselectedPartyUuid,
-                ShowClientUnits = portalSettings.ShowClientUnits,
-                ShouldShowSubEntities = portalSettings.ShouldShowSubEntities,
-                ShouldShowDeletedEntities = portalSettings.ShouldShowDeletedEntities,
-                IgnoreUnitProfileDateTime = ignoreUnitProfileDateTime,
-            };
+            return contactSettings;
         }
 
         private static partial class Log

@@ -82,6 +82,7 @@ public sealed partial class Telemetry : IDisposable
             InitNotificationSettingImportJob(context);
             InitFavoriteImportJob(context);
             InitProfileSettingImportJob(context);
+            InitSIUserContactSettingsImportJob(context);
             InitAddressVerification(context);
 
             // NOTE: This Telemetry class is registered as a singleton

@@ -77,5 +77,13 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="cancellationToken">Cancel the current request</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation, carrying a list of <see cref="Register.Contracts.Party"/> matching the given user UUIDs, or empty list if no match was found.</returns>
         Task<IReadOnlyList<Register.Contracts.Party>> GetUserParties(List<Guid> userUuids, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get user UUID for a user based on their user ID.
+        /// </summary>
+        /// <param name="userId">The user ID to look up.</param>
+        /// <param name="cancellationToken">Cancel the current request</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation, carrying the user UUID, or null if no match was found.</returns>
+        Task<Guid?> GetUserUuid(int userId, CancellationToken cancellationToken);
     }
 }

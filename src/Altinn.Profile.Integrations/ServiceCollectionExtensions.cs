@@ -104,6 +104,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IProfessionalNotificationsRepository>(sp => sp.GetRequiredService<ProfessionalNotificationsRepository>());
         services.AddScoped<IProfessionalNotificationSyncRepository>(sp => sp.GetRequiredService<ProfessionalNotificationsRepository>());
         services.AddScoped<IProfileSettingsSyncRepository, ProfileSettingsSyncRepository>();
+        services.AddScoped<ISIUserContactInfoSyncRepository, SIUserContactInfoSyncRepository>();
 
         services.AddScoped<IVerificationCodeService, VerificationCodeService>();
         services.AddScoped<IAddressVerificationRepository, AddressVerificationRepository>();
