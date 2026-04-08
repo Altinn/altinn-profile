@@ -52,7 +52,7 @@ namespace Altinn.Profile.Models
 
                 if (!PhoneNumberValidator.IsValidPhoneNumber(Value))
                 {
-                    yield return new ValidationResult("Phone number is not valid.", [nameof(PhoneNumber)]);
+                    yield return new ValidationResult("Phone number is not valid.", [nameof(Value)]);
                 }
             }
         }

@@ -37,6 +37,24 @@ namespace Altinn.Profile.Tests.Profile.ModelValidation
             Assert.Contains(validationResults, r => r.ErrorMessage == "Phone number is not valid.");
         }
 
+        [Theory]
+        [InlineData("12345")]
+        [InlineData("abcdefg")]
+        [InlineData("98765432")]
+        [InlineData("004798765432")]
+        public void Validate_WhenTypeIsSmsAndPhoneNumberHasWrongFormat_ReturnsValidationError(string phoneNumber)
+        {
+            var model = new AddressCodeSendRequest
+            {
+                Type = AddressType.Sms,
+                Value = phoneNumber,
+            };
+
+            var validationResults = model.Validate(new ValidationContext(model)).ToList();
+
+            Assert.Contains(validationResults, r => r.ErrorMessage == "The field Value must match the regular expression '^(((\\+[0-9]{2})[0-9]+))$'.");
+        }
+
         [Fact]
         public void Validate_WhenTypeIsSmsAndPhoneNumberIsValid_ReturnsNoValidationErrors()
         {
