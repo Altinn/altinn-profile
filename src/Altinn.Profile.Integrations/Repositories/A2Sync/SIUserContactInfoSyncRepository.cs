@@ -25,7 +25,7 @@ namespace Altinn.Profile.Integrations.Repositories.A2Sync
             {
                 existingUser.EmailAddress = userContactSettings.EmailAddress ?? string.Empty;
                 existingUser.PhoneNumber = userContactSettings.PhoneNumber;
-                existingUser.PhoneNumberLastChanged = string.IsNullOrWhiteSpace(userContactSettings.PhoneNumber) ? null : updatedDatetime;
+                existingUser.PhoneNumberLastChanged = string.IsNullOrWhiteSpace(userContactSettings.PhoneNumber) ? existingUser.PhoneNumberLastChanged : updatedDatetime;
                 databaseContext.SelfIdentifiedUsers.Update(existingUser);
                 await databaseContext.SaveChangesAsync(cancellationToken);
                 _telemetry?.SiUserContactSettingsUpdated();

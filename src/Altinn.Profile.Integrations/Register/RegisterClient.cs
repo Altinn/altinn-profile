@@ -80,7 +80,7 @@ public class RegisterClient : IRegisterClient
             return null;
         }
 
-        return responseObject?.Data[0].PartyUuid;
+        return responseObject.Data[0].PartyUuid;
     }
 
     /// <inheritdoc/>
