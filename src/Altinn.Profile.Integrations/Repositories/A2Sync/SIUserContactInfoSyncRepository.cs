@@ -10,7 +10,7 @@ namespace Altinn.Profile.Integrations.Repositories.A2Sync
     /// <summary>
     /// Repository for synchronizing self-identified user contact information from Altinn 2.
     /// </summary>
-    public class SIUserContactInfoSyncRepository(IDbContextFactory<ProfileDbContext> contextFactory, Telemetry telemetry) : ISIUserContactInfoSyncRepository
+    public class SIUserContactInfoSyncRepository(IDbContextFactory<ProfileDbContext> contextFactory, Telemetry? telemetry = null) : ISIUserContactInfoSyncRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
         private readonly Telemetry? _telemetry = telemetry;
@@ -23,10 +23,11 @@ namespace Altinn.Profile.Integrations.Repositories.A2Sync
             var existingUser = await databaseContext.SelfIdentifiedUsers.FirstOrDefaultAsync(u => u.UserId == userContactSettings.UserId, cancellationToken);
             if (existingUser != null)
             {
+                var phoneNumberUpdated = existingUser.PhoneNumber != userContactSettings.PhoneNumber;
+
                 existingUser.EmailAddress = userContactSettings.EmailAddress ?? string.Empty;
                 existingUser.PhoneNumber = userContactSettings.PhoneNumber;
-                existingUser.PhoneNumberLastChanged = string.IsNullOrWhiteSpace(userContactSettings.PhoneNumber) ? existingUser.PhoneNumberLastChanged : updatedDatetime;
-                databaseContext.SelfIdentifiedUsers.Update(existingUser);
+                existingUser.PhoneNumberLastChanged = phoneNumberUpdated ? updatedDatetime : existingUser.PhoneNumberLastChanged;
                 await databaseContext.SaveChangesAsync(cancellationToken);
                 _telemetry?.SiUserContactSettingsUpdated();
 

@@ -271,14 +271,15 @@ public class SIUserContactInfoSyncRepositoryTests
     }
 
     [Fact]
-    public async Task InsertOrUpdate_WhenUserExists_WithNullPhoneNumber_SetsPhoneNumberLastChangedToNull()
+    public async Task InsertOrUpdate_WhenUserExists_WitPhoneNumberUnchanged_KeepsPhoneNumberLastChanged()
     {
         // Arrange
-        var options = CreateOptions(nameof(InsertOrUpdate_WhenUserExists_WithNullPhoneNumber_SetsPhoneNumberLastChangedToNull));
+        var options = CreateOptions(nameof(InsertOrUpdate_WhenUserExists_WitPhoneNumberUnchanged_KeepsPhoneNumberLastChanged));
         var factory = new TestDbContextFactory(options);
         var repository = new SIUserContactInfoSyncRepository(factory, null);
 
         var userId = 9;
+        var phone = "+4711111111";
 
         await using (var seedContext = new ProfileDbContext(options))
         {
@@ -289,20 +290,21 @@ public class SIUserContactInfoSyncRepositoryTests
                 Username = "user",
                 CreatedAt = DateTime.UtcNow.AddDays(-1),
                 EmailAddress = "old@example.com",
-                PhoneNumber = "+4711111111",
+                PhoneNumber = phone,
                 PhoneNumberLastChanged = DateTime.UtcNow.AddDays(-1)
             });
             await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
-        var contactSettings = CreateContactSettings(userId, Guid.NewGuid(), phone: null);
+        var contactSettings = CreateContactSettings(userId, Guid.NewGuid(), phone: phone);
 
         // Act
         var result = await repository.InsertOrUpdate(contactSettings, DateTime.UtcNow, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Null(result.PhoneNumber);
-        Assert.Null(result.PhoneNumberLastChanged);
+        Assert.Equal(phone, result.PhoneNumber);
+        Assert.NotNull(result.PhoneNumberLastChanged);
+        Assert.Equal(DateTime.UtcNow.AddDays(-1).Date, result.PhoneNumberLastChanged.Value.Date);
     }
 
     [Fact]
