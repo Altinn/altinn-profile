@@ -8,6 +8,8 @@ using System.Text.RegularExpressions;
 using Altinn.Profile.Core.Utils;
 using Altinn.Profile.Validators;
 
+using PhoneNumbers;
+
 namespace Altinn.Profile.Models
 {
     /// <summary>
@@ -41,10 +43,15 @@ namespace Altinn.Profile.Models
                 yield return emailValidationError;
             }
 
-            ValidationResult? phoneValidationError = GetAddressValidationError(this, PhoneNumber, "ProfessionalPhone", nameof(PhoneNumber));
+            ValidationResult? phoneValidationError = GetAddressValidationError(this, PhoneNumber, "ProfessionalPhoneWithCountryCode", nameof(PhoneNumber));
             if (phoneValidationError is not null)
             {
                 yield return phoneValidationError;
+            }
+
+            if (PhoneNumber.HasValue && PhoneNumber.Value != null && PhoneNumberValidator.IsValidPhoneNumber(PhoneNumber.Value) == false)
+            {
+                yield return new ValidationResult("Phone number is not valid.", [nameof(PhoneNumber)]);
             }
 
             bool hasResourceIncludeList = ResourceIncludeList.HasValue;

@@ -122,7 +122,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> Send([FromBody][Required] AddressCodeResendRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult> Send([FromBody][Required] AddressCodeSendRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {

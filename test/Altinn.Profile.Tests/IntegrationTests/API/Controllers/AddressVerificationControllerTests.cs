@@ -556,7 +556,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             const int userId = 2516361;
-            var request = new AddressCodeResendRequest
+            var request = new AddressCodeSendRequest
             {
                 Value = "verified@altinn.xyz",
                 Type = AddressType.Email
@@ -590,7 +590,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             const int userId = 2516362;
-            var request = new AddressCodeResendRequest
+            var request = new AddressCodeSendRequest
             {
                 Value = "cooldown@altinn.xyz",
                 Type = AddressType.Email

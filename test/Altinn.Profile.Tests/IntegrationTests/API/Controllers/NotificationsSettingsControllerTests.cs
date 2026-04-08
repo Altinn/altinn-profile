@@ -758,7 +758,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var request = new NotificationSettingsPatchRequest
             {
                 EmailAddress = new Optional<string>("test@example.com"),
-                PhoneNumber = new Optional<string>("12345678"),
+                PhoneNumber = new Optional<string>("+4799999999"),
                 ResourceIncludeList = new Optional<List<string>>([resourceUrn]),
             };
 
@@ -807,7 +807,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var request = new NotificationSettingsPatchRequest
             {
                 EmailAddress = new Optional<string>("test@example.com"),
-                PhoneNumber = new Optional<string>("98765432"),
+                PhoneNumber = new Optional<string>("+4798765432"),
                 ResourceIncludeList = new Optional<List<string>>([resourceUrn]),
             };
 
@@ -854,7 +854,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var request = new NotificationSettingsPatchRequest
             {
                 EmailAddress = new Optional<string>("test@example.com"),
-                PhoneNumber = new Optional<string>("12345678"),
+                PhoneNumber = new Optional<string>("+46798765432"),
             };
 
             _factory.AddressVerificationRepositoryMock
@@ -894,7 +894,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var request = new NotificationSettingsPatchRequest
             {
                 EmailAddress = new Optional<string>("test@example.com"),
-                PhoneNumber = new Optional<string>("12345678"),
+                PhoneNumber = new Optional<string>("+4798765432"),
                 ResourceIncludeList = new Optional<List<string>>(["urn:altinn:resource:example"]),
             };
 
