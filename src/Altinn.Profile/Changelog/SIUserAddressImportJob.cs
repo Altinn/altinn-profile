@@ -8,17 +8,11 @@ using System.Threading.Tasks;
 using Altinn.Authorization.ServiceDefaults.Jobs;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Telemetry;
-using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Integrations.Repositories.A2Sync;
 using Altinn.Profile.Integrations.SblBridge.Changelog;
 using Altinn.Profile.Integrations.SblBridge.User.PrivateConsent;
 
 using Microsoft.Extensions.Logging;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-
-using static Altinn.Profile.Integrations.SblBridge.Changelog.ChangeLogItem;
 
 namespace Altinn.Profile.Changelog
 {

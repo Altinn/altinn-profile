@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using Altinn.Profile.Core.Integrations;
-using Altinn.Profile.Core.Telemetry;
+﻿using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.SblBridge.User.PrivateConsent;
@@ -51,6 +46,7 @@ namespace Altinn.Profile.Integrations.Repositories.A2Sync
 
             databaseContext.SelfIdentifiedUsers.Add(userContactInfo);
             await databaseContext.SaveChangesAsync(cancellationToken);
+            _telemetry?.SiUserContactSettingsAdded();
 
             return userContactInfo;
         }

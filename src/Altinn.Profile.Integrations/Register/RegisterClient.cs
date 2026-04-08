@@ -65,7 +65,7 @@ public class RegisterClient : IRegisterClient
     /// <inheritdoc/>
     public async Task<Guid?> GetUserUuid(int userId, CancellationToken cancellationToken)
     {
-        string[] identifiers = new[] { UrnPrefixes.ToUserIdUrn(userId) };
+        string[] identifiers = [UrnPrefixes.ToUserIdUrn(userId)];
         var request = new QueryPartiesRequest(identifiers);
 
         var response = await QueryParties(request, "fields=id,uuid,org-id", cancellationToken: cancellationToken);
@@ -74,8 +74,11 @@ public class RegisterClient : IRegisterClient
             return null;
         }
 
-        // We use another response type here since the contract for this method only requires party id, party uuid and organization identifier, and we want to avoid deserializing unnecessary data
         var responseObject = await response.Content.ReadFromJsonAsync<QueryPartiesResponse>(cancellationToken);
+        if (!(responseObject?.Data?.Count > 0))
+        {
+            return null;
+        }
 
         return responseObject?.Data[0].PartyUuid;
     }
