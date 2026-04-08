@@ -19,9 +19,10 @@ namespace Altinn.Profile.Tests.Profile.ModelValidation
             };
 
             var validationResults = model.Validate(new ValidationContext(model)).ToList();
+            var validationResult = Assert.Single(validationResults);
 
-            Assert.Single(validationResults);
-            Assert.Contains("ResourceIncludeList must contain valid URN values", validationResults[0].ErrorMessage);
+            Assert.Contains("ResourceIncludeList must contain valid URN values", validationResult.ErrorMessage);
+            Assert.Contains(nameof(NotificationSettingsPatchRequest.ResourceIncludeList), validationResult.MemberNames);
         }
 
         [Fact]
@@ -33,9 +34,10 @@ namespace Altinn.Profile.Tests.Profile.ModelValidation
             };
 
             var validationResults = model.Validate(new ValidationContext(model)).ToList();
+            var validationResult = Assert.Single(validationResults);
 
-            Assert.Single(validationResults);
-            Assert.Equal("ResourceIncludeList cannot contain duplicates", validationResults[0].ErrorMessage);
+            Assert.Equal("ResourceIncludeList cannot contain duplicates", validationResult.ErrorMessage);
+            Assert.Contains(nameof(NotificationSettingsPatchRequest.ResourceIncludeList), validationResult.MemberNames);
         }
 
         [Fact]
@@ -48,9 +50,38 @@ namespace Altinn.Profile.Tests.Profile.ModelValidation
             };
 
             var validationResults = model.Validate(new ValidationContext(model)).ToList();
+            var validationResult = Assert.Single(validationResults);
 
-            Assert.Single(validationResults);
-            Assert.Equal("The notification setting for a party must include either EmailAddress, PhoneNumber, or both.", validationResults[0].ErrorMessage);
+            Assert.Equal("The notification setting for a party must include either EmailAddress, PhoneNumber, or both.", validationResult.ErrorMessage);
+            Assert.Contains(nameof(NotificationSettingsPatchRequest.EmailAddress), validationResult.MemberNames);
+            Assert.Contains(nameof(NotificationSettingsPatchRequest.PhoneNumber), validationResult.MemberNames);
+        }
+
+        [Fact]
+        public void Validate_WhenPhoneNumberHasNoCountryCode_ReturnsValidationError()
+        {
+            var model = new NotificationSettingsPatchRequest
+            {
+                PhoneNumber = new Optional<string>("98765432"),
+            };
+
+            var validationResults = model.Validate(new ValidationContext(model)).ToList();
+            var validationResult = Assert.Single(validationResults);
+
+            Assert.Contains(nameof(NotificationSettingsPatchRequest.PhoneNumber), validationResult.MemberNames);
+        }
+
+        [Fact]
+        public void Validate_WhenPhoneNumberHasCountryCode_ReturnsNoValidationError()
+        {
+            var model = new NotificationSettingsPatchRequest
+            {
+                PhoneNumber = new Optional<string>("+4798765432"),
+            };
+
+            var validationResults = model.Validate(new ValidationContext(model)).ToList();
+
+            Assert.Empty(validationResults);
         }
 
         [Fact]

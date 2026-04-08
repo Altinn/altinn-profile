@@ -19,8 +19,9 @@ namespace Altinn.Profile.Tests.Profile.ModelValidation
             };
 
             var validationResults = model.Validate(new ValidationContext(model)).ToList();
+            var validationResult = Assert.Single(validationResults);
 
-            Assert.NotEmpty(validationResults);
+            Assert.Contains(nameof(AddressCodeSendRequest.Value), validationResult.MemberNames);
         }
 
         [Fact]
@@ -33,8 +34,9 @@ namespace Altinn.Profile.Tests.Profile.ModelValidation
             };
 
             var validationResults = model.Validate(new ValidationContext(model)).ToList();
+            var validationResult = Assert.Single(validationResults, r => r.ErrorMessage == "Phone number is not valid.");
 
-            Assert.Contains(validationResults, r => r.ErrorMessage == "Phone number is not valid.");
+            Assert.Contains(nameof(AddressCodeSendRequest.Value), validationResult.MemberNames);
         }
 
         [Theory]
@@ -51,8 +53,9 @@ namespace Altinn.Profile.Tests.Profile.ModelValidation
             };
 
             var validationResults = model.Validate(new ValidationContext(model)).ToList();
+            var validationResult = Assert.Single(validationResults, r => r.ErrorMessage == "The field Value must match the regular expression '^(((\\+[0-9]{2})[0-9]+))$'.");
 
-            Assert.Contains(validationResults, r => r.ErrorMessage == "The field Value must match the regular expression '^(((\\+[0-9]{2})[0-9]+))$'.");
+            Assert.Contains(nameof(AddressCodeSendRequest.Value), validationResult.MemberNames);
         }
 
         [Fact]
