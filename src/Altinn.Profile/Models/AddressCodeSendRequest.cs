@@ -50,7 +50,7 @@ namespace Altinn.Profile.Models
                     yield return phoneValidationError;
                 }
 
-                if (PhoneNumberValidator.IsValidPhoneNumber(Value) == false)
+                if (!PhoneNumberValidator.IsValidPhoneNumber(Value))
                 {
                     yield return new ValidationResult("Phone number is not valid.", [nameof(PhoneNumber)]);
                 }

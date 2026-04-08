@@ -49,7 +49,7 @@ namespace Altinn.Profile.Models
                 yield return phoneValidationError;
             }
 
-            if (PhoneNumber.HasValue && PhoneNumber.Value != null && PhoneNumberValidator.IsValidPhoneNumber(PhoneNumber.Value) == false)
+            if (PhoneNumber.HasValue && PhoneNumber.Value != null && !PhoneNumberValidator.IsValidPhoneNumber(PhoneNumber.Value))
             {
                 yield return new ValidationResult("Phone number is not valid.", [nameof(PhoneNumber)]);
             }
