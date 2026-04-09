@@ -893,38 +893,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal("\"01017512345\"", requestContent);
     }
 
-    private static HttpRequestMessage CreateGetRequest(int userId, string requestUri)
-    {
-        HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, requestUri);
-        string token = PrincipalUtil.GetToken(userId);
-        httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        return httpRequestMessage;
-    }
-
-    private static HttpRequestMessage CreatePostRequest(int userId, string requestUri, StringContent content)
-    {
-        HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri);
-        string token = PrincipalUtil.GetToken(userId);
-        httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        httpRequestMessage.Content = content;
-        return httpRequestMessage;
-    }
-
-    private WebApplicationFactory<Program> CreateFactoryWithRegisterAsPrimaryEnabled()
-    {
-        return _factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureAppConfiguration((_, config) =>
-            {
-                config.AddInMemoryCollection(new Dictionary<string, string?>
-                {
-                    ["CoreSettings:RegisterAsPrimaryUserProfileSource"] = "true",
-                    ["CoreSettings:RegisterLookupInShadowMode"] = "false",
-                });
-            });
-        });
-    }
-
     [Fact]
     public async Task GetUsersById_AsUser_RegisterAsPrimaryEnabled_RegisterHasSsn_UsesRegisterAndSkipsSbl()
     {
@@ -1066,5 +1034,37 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(sblRequest); // no SSN => should fallback
         Assert.EndsWith($"users/{userId}", sblRequest!.RequestUri?.ToString());
+    }
+
+    private static HttpRequestMessage CreateGetRequest(int userId, string requestUri)
+    {
+        HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, requestUri);
+        string token = PrincipalUtil.GetToken(userId);
+        httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        return httpRequestMessage;
+    }
+
+    private static HttpRequestMessage CreatePostRequest(int userId, string requestUri, StringContent content)
+    {
+        HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri);
+        string token = PrincipalUtil.GetToken(userId);
+        httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        httpRequestMessage.Content = content;
+        return httpRequestMessage;
+    }
+
+    private WebApplicationFactory<Program> CreateFactoryWithRegisterAsPrimaryEnabled()
+    {
+        return _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["CoreSettings:RegisterAsPrimaryUserProfileSource"] = "true",
+                    ["CoreSettings:RegisterLookupInShadowMode"] = "false",
+                });
+            });
+        });
     }
 }
