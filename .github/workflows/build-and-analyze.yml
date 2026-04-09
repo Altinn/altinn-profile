@@ -19,7 +19,7 @@ jobs:
       checks: write
     services:
       postgres:
-        image: postgres:17.9@sha256:7ad98329d513dd497293b951c195ca354274a77f12ddbbbbf85e68a811823d72
+        image: postgres:18.2@sha256:a688ae5c99f86c1424e046ace0de890608cc0ddb5ec8ef72a6ff8305fdc8f4d2
         env:
           POSTGRES_USER: platform_profile_admin
           POSTGRES_PASSWORD: Password
