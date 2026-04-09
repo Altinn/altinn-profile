@@ -37,13 +37,13 @@ namespace Altinn.Profile.Models
         /// <inheritdoc/>
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            ValidationResult? emailValidationError = GetAddressValidationError(this, EmailAddress, "ProfessionalEmail", nameof(EmailAddress));
+            ValidationResult? emailValidationError = GetAddressValidationError(this, EmailAddress, ValidationRule.EmailAddress, nameof(EmailAddress));
             if (emailValidationError is not null)
             {
                 yield return emailValidationError;
             }
 
-            ValidationResult? phoneValidationError = GetAddressValidationError(this, PhoneNumber, "ProfessionalPhoneWithCountryCode", nameof(PhoneNumber));
+            ValidationResult? phoneValidationError = GetAddressValidationError(this, PhoneNumber, ValidationRule.InternationalPhoneNumber, nameof(PhoneNumber));
             if (phoneValidationError is not null)
             {
                 yield return phoneValidationError;

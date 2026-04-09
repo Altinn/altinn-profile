@@ -10,19 +10,19 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// Country code for phone number
         /// </summary>
-        [CustomRegexForNotificationAddresses(ValidationRule.CountryCode)]
+        [CustomRegexForNotificationAddresses(ValidationRule.OrganizationCountryCode)]
         public string CountryCode { get; set; }
 
         /// <summary>
         /// Email address
         /// </summary>
-        [CustomRegexForNotificationAddresses(ValidationRule.Email)]
+        [CustomRegexForNotificationAddresses(ValidationRule.OrganizationEmail)]
         public string Email { get; set; }
 
         /// <summary>
         /// Phone number
         /// </summary>
-        [CustomRegexForNotificationAddresses(ValidationRule.Phone)]
+        [CustomRegexForNotificationAddresses(ValidationRule.OrganizationPhone)]
         public string Phone { get; set; }
     }
 }
