@@ -151,6 +151,7 @@ public sealed class UserProfileComparer : IUserProfileComparer
         {
             if (!string.Equals(left, right, StringComparison.Ordinal))
             {
+                // this means the strings are different, but we want to check if they are only different due to extra whitespace before logging a WrongValue mismatch, since extra whitespace is a known data issue that we want to identify separately.
                 if (string.Equals(NormalizeWhitespace(left), NormalizeWhitespace(right), StringComparison.Ordinal))
                 {
                     mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.ExtraSpaces));
@@ -203,7 +204,6 @@ public sealed class UserProfileComparer : IUserProfileComparer
         /// The userProfile could not be found in register
         /// </summary>
         NotFoundInRegister,
-
     }
 
     /// <summary>
