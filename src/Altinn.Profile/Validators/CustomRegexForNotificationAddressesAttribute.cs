@@ -14,7 +14,7 @@ namespace Altinn.Profile.Validators
         private const string _professionalPhoneRegexPattern = @"^(([0-9]{5})|([0-9]{8})|((00[0-9]{2})[0-9]+)|((\+[0-9]{2})[0-9]+))$";
         private const string _professionalPhoneRegexPatternWithCountryCode = @"^(((\+[0-9]{2})[0-9]+))$";
 
-        // Organization notification addresses
+        // Organization notification addresses (KoFuVi)
         private const string _emailRegexPattern = @"^((([a-zA-Z0-9!#$%&'*+\-=?\^_`{}~])+(\.([a-zA-Z0-9!#$%&'*+\-=?\^_`{}~])+)*)@(((([a-zA-Z0-9æøåÆØÅ]([a-zA-Z0-9\-æøåÆØÅ]{0,61})[a-zA-Z0-9æøåÆØÅ]\.)|[a-zA-Z0-9æøåÆØÅ]\.){1,9})([a-zA-Z]{2,14})))$";
         private const string _phoneRegexPattern = @"(^[0-9]+$)";
         private const string _countryCodeRegexPattern = @"(^\+([0-9]{1,3}))";
@@ -32,14 +32,50 @@ namespace Altinn.Profile.Validators
         {
             return inputType switch
             {
-                "ProfessionalEmail" => _professionalEmailRegexPattern,
-                "ProfessionalPhone" => _professionalPhoneRegexPattern,
-                "ProfessionalPhoneWithCountryCode" => _professionalPhoneRegexPatternWithCountryCode,
-                "Email" => _emailRegexPattern,
-                "Phone" => _phoneRegexPattern,
-                "CountryCode" => _countryCodeRegexPattern,
+                ValidationRule.ProfessionalEmail => _professionalEmailRegexPattern,
+                ValidationRule.ProfessionalPhone => _professionalPhoneRegexPattern,
+                ValidationRule.ProfessionalPhoneWithCountryCode => _professionalPhoneRegexPatternWithCountryCode,
+                ValidationRule.Email => _emailRegexPattern,
+                ValidationRule.Phone => _phoneRegexPattern,
+                ValidationRule.CountryCode => _countryCodeRegexPattern,
                 _ => throw new ArgumentException($"Unknown input type: {inputType}", nameof(inputType)),
             };
         }
+    }
+
+    /// <summary>
+    /// Constants for validation rule types used with CustomRegexForNotificationAddressesAttribute
+    /// </summary>
+    public class ValidationRule
+    {
+        /// <summary>
+        /// Professional email address validation rule
+        /// </summary>
+        public const string ProfessionalEmail = "ProfessionalEmail";
+
+        /// <summary>
+        /// Professional phone number validation rule
+        /// </summary>
+        public const string ProfessionalPhone = "ProfessionalPhone";
+
+        /// <summary>
+        /// Professional phone number with country code validation rule
+        /// </summary>
+        public const string ProfessionalPhoneWithCountryCode = "ProfessionalPhoneWithCountryCode";
+
+        /// <summary>
+        /// Organization email address validation rule
+        /// </summary>
+        public const string Email = "Email";
+
+        /// <summary>
+        /// Organization phone number validation rule
+        /// </summary>
+        public const string Phone = "Phone";
+
+        /// <summary>
+        /// Country code validation rule
+        /// </summary>
+        public const string CountryCode = "CountryCode";
     }
 }

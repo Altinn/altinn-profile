@@ -36,7 +36,7 @@ namespace Altinn.Profile.Models
         {
             if (Type == AddressType.Email)
             {
-                ValidationResult validationError = new CustomRegexForNotificationAddressesAttribute("ProfessionalEmail").GetValidationResult(Value, new ValidationContext(this) { MemberName = nameof(Value) });
+                ValidationResult validationError = new CustomRegexForNotificationAddressesAttribute(ValidationRule.ProfessionalEmail).GetValidationResult(Value, new ValidationContext(this) { MemberName = nameof(Value) });
                 if (validationError is not null)
                 {
                     yield return validationError;
@@ -44,7 +44,7 @@ namespace Altinn.Profile.Models
             }
             else if (Type == AddressType.Sms)
             {
-                ValidationResult phoneValidationError = new CustomRegexForNotificationAddressesAttribute("ProfessionalPhoneWithCountryCode").GetValidationResult(Value, new ValidationContext(this) { MemberName = nameof(Value) });
+                ValidationResult phoneValidationError = new CustomRegexForNotificationAddressesAttribute(ValidationRule.ProfessionalPhoneWithCountryCode).GetValidationResult(Value, new ValidationContext(this) { MemberName = nameof(Value) });
                 if (phoneValidationError is not null)
                 {
                     yield return phoneValidationError;

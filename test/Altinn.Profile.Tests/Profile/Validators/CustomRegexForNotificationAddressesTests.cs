@@ -15,7 +15,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData(null)]
         public void CustomRegexForProfessional_WhenPhoneHasAllowedValues_ReturnsValidResult(string input)
         {
-            var attribute = new CustomRegexForNotificationAddressesAttribute("ProfessionalPhone");
+            var attribute = new CustomRegexForNotificationAddressesAttribute(ValidationRule.ProfessionalPhone);
 
             var validationResult = attribute.IsValid(input);
 
@@ -28,7 +28,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData("+47")]
         public void CustomRegexForProfessional_WhenPhoneHasInvalidValues_IsInvalid(string input)
         {
-            var attribute = new CustomRegexForNotificationAddressesAttribute("ProfessionalPhone");
+            var attribute = new CustomRegexForNotificationAddressesAttribute(ValidationRule.ProfessionalPhone);
 
             var validationResult = attribute.IsValid(input);
 
@@ -43,7 +43,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData(null)]
         public void CustomRegexForProfessional_WhenEmailHasAllowedValues_IsValid(string input)
         {
-            var attribute = new CustomRegexForNotificationAddressesAttribute("ProfessionalEmail");
+            var attribute = new CustomRegexForNotificationAddressesAttribute(ValidationRule.ProfessionalEmail);
 
             var validationResult = attribute.IsValid(input);
 
@@ -57,7 +57,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData("test@test..com")]
         public void CustomRegexForProfessional_WhenEmailHasWrongFormat_IsInvalid(string input)
         {
-            var attribute = new CustomRegexForNotificationAddressesAttribute("ProfessionalEmail");
+            var attribute = new CustomRegexForNotificationAddressesAttribute(ValidationRule.ProfessionalEmail);
 
             var validationResult = attribute.IsValid(input);
 
@@ -72,7 +72,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData(null)]
         public void CustomRegex_WhenPhoneHasAllowedValues_ReturnsValidResult(string input)
         {
-            var attribute = new CustomRegexForNotificationAddressesAttribute("Phone");
+            var attribute = new CustomRegexForNotificationAddressesAttribute(ValidationRule.Phone);
 
             var validationResult = attribute.IsValid(input);
 
@@ -85,7 +85,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData("+47")]
         public void CustomRegex_WhenPhoneHasInvalidValues_IsInvalid(string input)
         {
-            var attribute = new CustomRegexForNotificationAddressesAttribute("Phone");
+            var attribute = new CustomRegexForNotificationAddressesAttribute(ValidationRule.Phone);
 
             var validationResult = attribute.IsValid(input);
 
@@ -99,7 +99,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData(null)]
         public void CustomRegex_WhenCountryCodeHasAllowedValues_IsValid(string input)
         {
-            var attribute = new CustomRegexForNotificationAddressesAttribute("CountryCode");
+            var attribute = new CustomRegexForNotificationAddressesAttribute(ValidationRule.CountryCode);
 
             var validationResult = attribute.IsValid(input);
 
@@ -113,7 +113,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData("0047")]
         public void CustomRegex_WhenCountryCodeHasWrongFormat_IsInvalid(string input)
         {
-            var attribute = new CustomRegexForNotificationAddressesAttribute("CountryCode");
+            var attribute = new CustomRegexForNotificationAddressesAttribute(ValidationRule.CountryCode);
 
             var validationResult = attribute.IsValid(input);
 
@@ -128,7 +128,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData(null)]
         public void CustomRegex_WhenEmailHasAllowedValues_IsValid(string input)
         {
-            var attribute = new CustomRegexForNotificationAddressesAttribute("Email");
+            var attribute = new CustomRegexForNotificationAddressesAttribute(ValidationRule.Email);
 
             var validationResult = attribute.IsValid(input);
 
@@ -142,7 +142,7 @@ namespace Altinn.Profile.Tests.Profile.Validators
         [InlineData("test@test..com")]
         public void CustomRegex_WhenEmailHasWrongFormat_IsInvalid(string input)
         {
-            var attribute = new CustomRegexForNotificationAddressesAttribute("Email");
+            var attribute = new CustomRegexForNotificationAddressesAttribute(ValidationRule.Email);
 
             var validationResult = attribute.IsValid(input);
 
