@@ -56,11 +56,49 @@ public class UserProfileComparerTests
                 It.Is<It.IsAnyType>((v, t) =>
                     v.ToString()!.Contains("UserName", StringComparison.Ordinal)
                     && v.ToString()!.Contains(UserProfileMismatchType.NullVsEmptyString.ToString(), StringComparison.Ordinal)
+                    && v.ToString()!.Contains(source.UserType.ToString(), StringComparison.Ordinal)
                     && !v.ToString()!.Contains("source-user", StringComparison.Ordinal)
                     && !v.ToString()!.Contains("target-user", StringComparison.Ordinal)),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
+    }
+
+    [Fact]
+    public void CompareAndLog_StringWithExtraSpaces_ReportsExtraSpaces()
+    {
+        Mock<ILogger<UserProfileComparer>> loggerMock = new();
+        UserProfileComparer target = new(loggerMock.Object);
+
+        UserProfile source = CreateUserProfile();
+        UserProfile compared = CreateUserProfile();
+        compared.UserName = $" {source.UserName} ";
+
+        IReadOnlyList<UserProfileMismatch> mismatches = target.CompareAndLog(source, compared);
+
+        UserProfileMismatch mismatch = Assert.Single(mismatches);
+        Assert.Equal("UserName", mismatch.FieldPath);
+        Assert.Equal(UserProfileMismatchType.ExtraSpaces, mismatch.MismatchType);
+        VerifyWarningCount(loggerMock, Times.Once());
+    }
+
+    [Fact]
+    public void CompareAndLog_StringWithExtraSpacesInside_ReportsExtraSpaces()
+    {
+        Mock<ILogger<UserProfileComparer>> loggerMock = new();
+        UserProfileComparer target = new(loggerMock.Object);
+
+        UserProfile source = CreateUserProfile();
+        UserProfile compared = CreateUserProfile();
+        source.UserName = "Firstname Lastname";
+        compared.UserName = "Firstname  Lastname";
+
+        IReadOnlyList<UserProfileMismatch> mismatches = target.CompareAndLog(source, compared);
+
+        UserProfileMismatch mismatch = Assert.Single(mismatches);
+        Assert.Equal("UserName", mismatch.FieldPath);
+        Assert.Equal(UserProfileMismatchType.ExtraSpaces, mismatch.MismatchType);
+        VerifyWarningCount(loggerMock, Times.Once());
     }
 
     [Fact]

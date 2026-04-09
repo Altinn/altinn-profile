@@ -28,12 +28,14 @@ public sealed class UserProfileComparer : IUserProfileComparer
         CompareUserProfile(source, target, mismatches);
 
         int userId = source?.UserId ?? target?.UserId ?? 0;
+        Models.Enums.UserType userType = source?.UserType ?? target?.UserType ?? Models.Enums.UserType.None;
 
         foreach (UserProfileMismatch mismatch in mismatches)
         {
             _logger.LogWarning(
-                "User profile shadow mismatch detected for userId {UserId}. Field: {FieldPath}. MismatchType: {MismatchType}.",
+                "User profile shadow mismatch detected for userId {UserId} and userType {UserType}. Field: {FieldPath}. MismatchType: {MismatchType}.",
                 userId,
+                userType,
                 mismatch.FieldPath,
                 mismatch.MismatchType);
         }
@@ -43,7 +45,7 @@ public sealed class UserProfileComparer : IUserProfileComparer
 
     private static void CompareUserProfile(UserProfile? source, UserProfile? target, ICollection<UserProfileMismatch> mismatches)
     {
-        if (!CompareObjectPresence("UserProfile", source, target, mismatches, source?.UserType == Models.Enums.UserType.EnterpriseIdentified))
+        if (!CompareObjectPresence("UserProfile", source, target, mismatches))
         {
             return;
         }
@@ -103,7 +105,7 @@ public sealed class UserProfileComparer : IUserProfileComparer
         CompareField("Party.Person.DateOfDeath", source.DateOfDeath, target.DateOfDeath, mismatches);
     }
 
-    private static bool CompareObjectPresence(string fieldPath, object? source, object? target, ICollection<UserProfileMismatch> mismatches, bool isEnterpriseUser = false)
+    private static bool CompareObjectPresence(string fieldPath, object? source, object? target, ICollection<UserProfileMismatch> mismatches)
     {
         if (source == null && target == null)
         {
@@ -112,12 +114,6 @@ public sealed class UserProfileComparer : IUserProfileComparer
 
         if (source != null && target == null)
         {
-            if (isEnterpriseUser)
-            {
-                mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.EnterpriseUser));
-                return false;
-            }
-
             mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.NotFoundInRegister));
             return false;
         }
@@ -155,6 +151,12 @@ public sealed class UserProfileComparer : IUserProfileComparer
         {
             if (!string.Equals(left, right, StringComparison.Ordinal))
             {
+                if (string.Equals(NormalizeWhitespace(left), NormalizeWhitespace(right), StringComparison.Ordinal))
+                {
+                    mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.ExtraSpaces));
+                    return;
+                }
+
                 mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.WrongValue));
             }
 
@@ -165,6 +167,11 @@ public sealed class UserProfileComparer : IUserProfileComparer
         {
             mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.WrongValue));
         }
+    }
+
+    private static string NormalizeWhitespace(string value)
+    {
+        return string.Join(' ', value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
     }
 
     /// <summary>
@@ -183,6 +190,11 @@ public sealed class UserProfileComparer : IUserProfileComparer
         NullVsEmptyString,
 
         /// <summary>
+        /// Both sides have values, but one side has extra or repeated spaces.
+        /// </summary>
+        ExtraSpaces,
+
+        /// <summary>
         /// Both sides have values, but the values are different.
         /// </summary>
         WrongValue,
@@ -192,10 +204,6 @@ public sealed class UserProfileComparer : IUserProfileComparer
         /// </summary>
         NotFoundInRegister,
 
-        /// <summary>
-        /// The user is an enterprise user
-        /// </summary>
-        EnterpriseUser
     }
 
     /// <summary>

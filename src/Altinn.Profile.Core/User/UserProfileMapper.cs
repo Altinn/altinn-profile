@@ -57,12 +57,12 @@ namespace Altinn.Profile.Core.User
                     PartyTypeName = Register.Contracts.V1.PartyType.Person,
                     OrgNumber = string.Empty,
                     SSN = person.PersonIdentifier.ToString(),
-                    Name = person.ShortName.Value,
+                    Name = person.ShortName.HasValue ? person.ShortName.Value : person.DisplayName.Value,
                     IsDeleted = person.IsDeleted.Value,
                     Person = new Register.Contracts.V1.Person
                     {
                         SSN = person.PersonIdentifier.ToString(),
-                        Name = person.ShortName.Value,
+                        Name = person.ShortName.HasValue ? person.ShortName.Value : person.DisplayName.Value,
                         FirstName = person.FirstName.Value,
                         LastName = person.LastName.Value,
                         MiddleName = person.MiddleName.Value ?? string.Empty,
