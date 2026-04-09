@@ -9,6 +9,7 @@ namespace Altinn.Profile.Core.User;
 /// </summary>
 public sealed class UserProfileComparer : IUserProfileComparer
 {
+    private static readonly TimeSpan RecentChangeWindow = TimeSpan.FromMinutes(15);
     private readonly ILogger<UserProfileComparer> _logger;
 
     /// <summary>
@@ -29,15 +30,20 @@ public sealed class UserProfileComparer : IUserProfileComparer
 
         int userId = source?.UserId ?? target?.UserId ?? 0;
         Models.Enums.UserType userType = source?.UserType ?? target?.UserType ?? Models.Enums.UserType.None;
+        DateTimeOffset recentChangeThreshold = DateTimeOffset.UtcNow - RecentChangeWindow;
+        bool sourceChangedRecentlyInAltinn = IsChangedRecently(source?.Party?.LastChangedInAltinn, recentChangeThreshold);
+        bool targetChangedRecentlyInAltinn = IsChangedRecently(target?.Party?.LastChangedInAltinn, recentChangeThreshold);
 
         foreach (UserProfileMismatch mismatch in mismatches)
         {
             _logger.LogWarning(
-                "User profile shadow mismatch detected for userId {UserId} and userType {UserType}. Field: {FieldPath}. MismatchType: {MismatchType}.",
+                "User profile shadow mismatch detected for userId {UserId} and userType {UserType}. Field: {FieldPath}. MismatchType: {MismatchType}. SourceChangedRecently: {SourceChangedRecently}. TargetChangedRecently: {TargetChangedRecently}.",
                 userId,
                 userType,
                 mismatch.FieldPath,
-                mismatch.MismatchType);
+                mismatch.MismatchType,
+                sourceChangedRecentlyInAltinn,
+                targetChangedRecentlyInAltinn);
         }
 
         return mismatches;
@@ -173,6 +179,11 @@ public sealed class UserProfileComparer : IUserProfileComparer
     private static string NormalizeWhitespace(string value)
     {
         return string.Join(' ', value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+    }
+
+    private static bool IsChangedRecently(DateTimeOffset? value, DateTimeOffset threshold)
+    {
+        return value.HasValue && value.Value >= threshold;
     }
 
     /// <summary>
