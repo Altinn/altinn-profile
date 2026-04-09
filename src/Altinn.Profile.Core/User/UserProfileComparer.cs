@@ -176,6 +176,7 @@ public sealed class UserProfileComparer : IUserProfileComparer
         }
     }
 
+    /// <summary>Collapses runs of any whitespace to single spaces.</summary>
     private static string NormalizeWhitespace(string value)
     {
         return string.Join(' ', value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));

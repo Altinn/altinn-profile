@@ -43,6 +43,7 @@ namespace Altinn.Profile.Core.User
         public static UserProfile MapFromPerson(Register.Contracts.Person person)
         {
             var user = person.User.Value;
+            var name = person.ShortName.HasValue ? person.ShortName.Value : person.DisplayName.Value;
             return new UserProfile
             {
                 UserId = (int?)user?.UserId.Value ?? 0,
@@ -57,12 +58,12 @@ namespace Altinn.Profile.Core.User
                     PartyTypeName = Register.Contracts.V1.PartyType.Person,
                     OrgNumber = string.Empty,
                     SSN = person.PersonIdentifier.ToString(),
-                    Name = person.ShortName.HasValue ? person.ShortName.Value : person.DisplayName.Value,
+                    Name = name,
                     IsDeleted = person.IsDeleted.Value,
                     Person = new Register.Contracts.V1.Person
                     {
                         SSN = person.PersonIdentifier.ToString(),
-                        Name = person.ShortName.HasValue ? person.ShortName.Value : person.DisplayName.Value,
+                        Name = name,
                         FirstName = person.FirstName.Value,
                         LastName = person.LastName.Value,
                         MiddleName = person.MiddleName.Value ?? string.Empty,
