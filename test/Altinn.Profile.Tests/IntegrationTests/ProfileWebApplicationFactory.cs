@@ -95,6 +95,12 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.ConfigureLogging(logging =>
+        {
+            logging.ClearProviders();
+            logging.SetMinimumLevel(LogLevel.Warning);
+        });
+
         builder.ConfigureAppConfiguration((context, config) =>
         {
             config.SetBasePath(Directory.GetCurrentDirectory());

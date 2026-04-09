@@ -72,7 +72,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(x => x.GetNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(userPartyContactInfo);
             _factory.ProfileSettingsRepositoryMock
-                .Setup(x => x.GetProfileSettings(UserId))
+                .Setup(x => x.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = null, LanguageType = "no" });
             _factory.AddressVerificationRepositoryMock
                 .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "test@example.com"), It.IsAny<CancellationToken>()))
@@ -214,7 +214,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(infos);
             
             _factory.ProfileSettingsRepositoryMock
-                .Setup(x => x.GetProfileSettings(UserId))
+                .Setup(x => x.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = DateTime.Today, LanguageType = "no" });
             _factory.AddressVerificationRepositoryMock
                 .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "a@b.com"), It.IsAny<CancellationToken>()))

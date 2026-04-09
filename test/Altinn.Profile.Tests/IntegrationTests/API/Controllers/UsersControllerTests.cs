@@ -17,6 +17,11 @@ using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Altinn.Profile.Tests.Testdata;
+using Altinn.Register.Contracts;
+using Altinn.Register.Contracts.Testing;
+
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 
 using Moq;
 
@@ -39,6 +44,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         _factory = factory;
         _factory.MemoryCache.Clear();
         _factory.PersonServiceMock.Reset();
+        _factory.RegisterClientMock.Reset();
     }
 
     [Fact]
@@ -58,7 +64,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         });
         _factory.PersonServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new PersonContactPreferences { Email = "test@mail.com", NationalIdentityNumber = "1", MobileNumber = "+4798765432", IsReserved = true }]);
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProfileSettings
             {
                 UserId = UserId,
@@ -120,7 +126,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/current");
@@ -220,7 +226,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProfileSettings
             {
                 UserId = UserId,
@@ -289,7 +295,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
@@ -467,7 +473,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(userId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProfileSettings
             {
                 UserId = userId,
@@ -528,7 +534,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/byuuid/{userUuid}");
@@ -711,7 +717,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
 
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProfileSettings
             {
                 UserId = UserId,
@@ -777,7 +783,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
 
         StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
@@ -887,6 +893,149 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal("\"01017512345\"", requestContent);
     }
 
+    [Fact]
+    public async Task GetUsersById_AsUser_RegisterAsPrimaryEnabled_RegisterHasSsn_UsesRegisterAndSkipsSbl()
+    {
+        // Arrange
+        const int userId = 2516356;
+
+        HttpRequestMessage? sblRequest = null;
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction((request, token) =>
+        {
+            sblRequest = request;
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
+        });
+
+        Person registerPerson = Person.Minimal("14836498780") with
+        {
+            PartyId = 987654,
+            Uuid = Guid.NewGuid(),
+            ShortName = "Register Person",
+            FirstName = "Register",
+            LastName = "Person",
+            ModifiedAt = DateTimeOffset.UtcNow,
+            IsDeleted = false,
+        };
+
+        _factory.RegisterClientMock
+            .Setup(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(registerPerson);
+
+        _factory.ProfileSettingsRepositoryMock
+            .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProfileSettings?)null);
+
+        _factory.PersonServiceMock
+            .Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        using WebApplicationFactory<Program> registerPrimaryFactory = CreateFactoryWithRegisterAsPrimaryEnabled();
+        HttpClient client = registerPrimaryFactory.CreateClient();
+
+        HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userId}");
+        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Null(sblRequest); // register path should not call legacy
+
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(responseContent, _serializerOptionsCamelCase);
+
+        Assert.NotNull(actualUser);
+        Assert.Equal("Register Person", actualUser.Party.Name);
+        Assert.Equal("14836498780", actualUser.Party.SSN);
+
+        _factory.RegisterClientMock.Verify(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetUsersById_AsUser_RegisterAsPrimaryEnabled_RegisterThrows_FallsBackToSbl()
+    {
+        // Arrange
+        const int userId = 2516356;
+
+        HttpRequestMessage? sblRequest = null;
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        {
+            sblRequest = request;
+            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userId.ToString());
+            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+        });
+
+        _factory.RegisterClientMock
+            .Setup(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new HttpRequestException("Register unavailable"));
+
+        _factory.ProfileSettingsRepositoryMock
+            .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProfileSettings?)null);
+
+        _factory.PersonServiceMock
+            .Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        using WebApplicationFactory<Program> registerPrimaryFactory = CreateFactoryWithRegisterAsPrimaryEnabled();
+        HttpClient client = registerPrimaryFactory.CreateClient();
+
+        HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userId}");
+        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(sblRequest); // fallback path must call legacy
+        Assert.EndsWith($"users/{userId}", sblRequest!.RequestUri?.ToString());
+    }
+
+    [Fact]
+    public async Task GetUsersById_AsUser_RegisterAsPrimaryEnabled_RegisterReturnsSelfIdentified_FallsBackToSbl()
+    {
+        // Arrange
+        const int userId = 2516356;
+
+        HttpRequestMessage? sblRequest = null;
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        {
+            sblRequest = request;
+            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userId.ToString());
+            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+        });
+
+        SelfIdentifiedUser selfIdentifiedFromRegister = await TestDataLoader.Load<SelfIdentifiedUser>("siuser-input");
+
+        _factory.RegisterClientMock
+            .Setup(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(selfIdentifiedFromRegister);
+
+        _factory.ProfileSettingsRepositoryMock
+            .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProfileSettings?)null);
+
+        _factory.PersonServiceMock
+            .Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        using WebApplicationFactory<Program> registerPrimaryFactory = CreateFactoryWithRegisterAsPrimaryEnabled();
+        HttpClient client = registerPrimaryFactory.CreateClient();
+
+        HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userId}");
+        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(sblRequest); // no SSN => should fallback
+        Assert.EndsWith($"users/{userId}", sblRequest!.RequestUri?.ToString());
+    }
+
     private static HttpRequestMessage CreateGetRequest(int userId, string requestUri)
     {
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, requestUri);
@@ -902,5 +1051,20 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         httpRequestMessage.Content = content;
         return httpRequestMessage;
+    }
+
+    private WebApplicationFactory<Program> CreateFactoryWithRegisterAsPrimaryEnabled()
+    {
+        return _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["CoreSettings:RegisterAsPrimaryUserProfileSource"] = "true",
+                    ["CoreSettings:RegisterLookupInShadowMode"] = "false",
+                });
+            });
+        });
     }
 }

@@ -29,6 +29,7 @@ public interface IUserContactPointsService
     /// Method for retriveing information about the availability of contact points for a user 
     /// </summary>
     /// <param name="nationalIdentityNumbers">A list of national identity numbers to look up availability for</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>Information on the existense of the users' contact points and reservation status or a boolean if failure.</returns>
-    Task<UserContactPointAvailabilityList> GetContactPointAvailability(List<string> nationalIdentityNumbers);
+    Task<UserContactPointAvailabilityList> GetContactPointAvailability(List<string> nationalIdentityNumbers, CancellationToken cancellationToken);
 }

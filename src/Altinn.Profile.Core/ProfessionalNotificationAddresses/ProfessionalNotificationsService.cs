@@ -33,7 +33,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             }
 
             var (emailVerificationStatus, smsVerificationStatus) = await _addressVerificationService.GetVerificationStatusAsync(notificationSettings.UserId, notificationSettings.EmailAddress, notificationSettings.PhoneNumber, cancellationToken);
-            var ignoreUnitProfileDateTime = await _userProfileService.GetIgnoreUnitProfileDateTime(userId);
+            var ignoreUnitProfileDateTime = await _userProfileService.GetIgnoreUnitProfileDateTime(userId, cancellationToken);
 
             var needsConfirmation = NeedsConfirmation(notificationSettings, ignoreUnitProfileDateTime);
             var extendedInfo = new ExtendedUserPartyContactInfo(
@@ -48,7 +48,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <inheritdoc/>
         public async Task<IReadOnlyList<ExtendedUserPartyContactInfo>> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken)
         {
-            var ignoreUnitProfileDateTime = await _userProfileService.GetIgnoreUnitProfileDateTime(userId);
+            var ignoreUnitProfileDateTime = await _userProfileService.GetIgnoreUnitProfileDateTime(userId, cancellationToken);
 
             var notificationSettings = await _professionalNotificationsRepository.GetAllNotificationAddressesForUserAsync(userId, cancellationToken);
 
@@ -191,7 +191,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             foreach (var contactInfo in contactInfos)
             {
                 // Note: IUserProfileService.GetUser does not support cancellation token at this time
-                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId);
+                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId, cancellationToken);
 
                 userProfileResult.Match(
                     profile =>
@@ -261,7 +261,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                 var orgNumber = await _registerClient.GetOrganizationNumberByPartyUuid(contactInfo.PartyUuid, cancellationToken);
 
                 // Note: IUserProfileService.GetUser does not support cancellation token at this time
-                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId);
+                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId, cancellationToken);
 
                 userProfileResult.Match(
                     profile =>
