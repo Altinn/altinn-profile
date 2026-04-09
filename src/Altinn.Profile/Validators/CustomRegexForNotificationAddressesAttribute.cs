@@ -46,7 +46,7 @@ namespace Altinn.Profile.Validators
     /// <summary>
     /// Constants for validation rule types used with CustomRegexForNotificationAddressesAttribute
     /// </summary>
-    public class ValidationRule
+    public static class ValidationRule
     {
         /// <summary>
         /// Professional email address validation rule
