@@ -206,7 +206,7 @@ public class UserProfileService : IUserProfileService
         }
 
         UserProfile legacyProfile = legacyResult.Match(userProfile => userProfile, _ => default!);
-        legacyProfile = await EnrichWithProfileSettings(legacyProfile, false, default);
+        legacyProfile = await EnrichWithProfileSettings(legacyProfile, default);
         legacyProfile = await EnrichWithKrrData(legacyProfile);
 
         return legacyProfile;
@@ -218,7 +218,7 @@ public class UserProfileService : IUserProfileService
         foreach (UserProfile userProfile in legacyProfiles)
         {
             UserProfile enrichedUser = await EnrichWithKrrData(userProfile, default);
-            enriched.Add(await EnrichWithProfileSettings(enrichedUser, false, default));
+            enriched.Add(await EnrichWithProfileSettings(enrichedUser, default));
         }
 
         return enriched;
@@ -294,7 +294,7 @@ public class UserProfileService : IUserProfileService
             return null;
         }
 
-        userProfile = await EnrichWithProfileSettings(userProfile, true, cancellationToken);
+        userProfile = await EnrichWithProfileSettings(userProfile, cancellationToken);
         userProfile = await EnrichWithKrrData(userProfile, cancellationToken);
 
         return userProfile;
@@ -326,7 +326,7 @@ public class UserProfileService : IUserProfileService
         return await _profileSettingsRepository.PatchProfileSettings(profileSettings, cancellationToken);
     }
 
-    private async Task<UserProfile> EnrichWithProfileSettings(UserProfile userProfile, bool useRegisterLookup, CancellationToken cancellationToken)
+    private async Task<UserProfile> EnrichWithProfileSettings(UserProfile userProfile, CancellationToken cancellationToken)
     {
         ProfileSettings.ProfileSettings? profileSettings = await _profileSettingsRepository.GetProfileSettings(userProfile.UserId, cancellationToken);
         if (profileSettings != null)
@@ -345,7 +345,7 @@ public class UserProfileService : IUserProfileService
             userProfile.ProfileSettingPreference ??= ProfileSettingPreference.GetDefaultValues();
         }
 
-        if (userProfile.ProfileSettingPreference.PreselectedPartyUuid != null && (useRegisterLookup || _settings.LookupPreselectedPartyIdAtRegister))
+        if (userProfile.ProfileSettingPreference.PreselectedPartyUuid != null && _settings.LookupPreselectedPartyIdAtRegister)
         {
             // If a preselected party UUID is provided, we need to fetch the corresponding party ID from the register to ensure data consistency.
             int? partyId = await _registerClient.GetPartyId(userProfile.ProfileSettingPreference.PreselectedPartyUuid.Value, default);
