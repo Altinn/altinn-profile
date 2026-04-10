@@ -138,7 +138,7 @@ public class UserProfileComparerTests
     }
 
     [Fact]
-    public void CompareAndLog_SourceChangedRecently_LogsSourceChangedRecentlyTrue()
+    public void CompareAndLog_Altinn2ChangedRecently_LogsAltinn2ChangedRecentlyTrue()
     {
         Mock<ILogger<UserProfileComparer>> loggerMock = new();
         UserProfileComparer target = new(loggerMock.Object);
@@ -156,15 +156,15 @@ public class UserProfileComparerTests
                 LogLevel.Warning,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) =>
-                    v.ToString()!.Contains("SourceChangedRecently: True", StringComparison.Ordinal)
-                    && v.ToString()!.Contains("TargetChangedRecently: False", StringComparison.Ordinal)),
+                    v.ToString()!.Contains("Altinn2ChangedRecently: True", StringComparison.Ordinal)
+                    && v.ToString()!.Contains("Altinn3ChangedRecently: False", StringComparison.Ordinal)),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
     }
 
     [Fact]
-    public void CompareAndLog_TargetChangedRecently_LogsTargetChangedRecentlyTrue()
+    public void CompareAndLog_Altinn3ChangedRecently_LogsAltinn3ChangedRecentlyTrue()
     {
         Mock<ILogger<UserProfileComparer>> loggerMock = new();
         UserProfileComparer target = new(loggerMock.Object);
@@ -182,8 +182,8 @@ public class UserProfileComparerTests
                 LogLevel.Warning,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) =>
-                    v.ToString()!.Contains("SourceChangedRecently: False", StringComparison.Ordinal)
-                    && v.ToString()!.Contains("TargetChangedRecently: True", StringComparison.Ordinal)),
+                    v.ToString()!.Contains("Altinn2ChangedRecently: False", StringComparison.Ordinal)
+                    && v.ToString()!.Contains("Altinn3ChangedRecently: True", StringComparison.Ordinal)),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -209,8 +209,8 @@ public class UserProfileComparerTests
                 LogLevel.Warning,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) =>
-                    v.ToString()!.Contains("SourceChangedRecently: True", StringComparison.Ordinal)
-                    && v.ToString()!.Contains("TargetChangedRecently: True", StringComparison.Ordinal)),
+                    v.ToString()!.Contains("Altinn2ChangedRecently: True", StringComparison.Ordinal)
+                    && v.ToString()!.Contains("Altinn3ChangedRecently: True", StringComparison.Ordinal)),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -234,8 +234,8 @@ public class UserProfileComparerTests
                 LogLevel.Warning,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) =>
-                    v.ToString()!.Contains("SourceChangedRecently: False", StringComparison.Ordinal)
-                    && v.ToString()!.Contains("TargetChangedRecently: False", StringComparison.Ordinal)),
+                    v.ToString()!.Contains("Altinn2ChangedRecently: False", StringComparison.Ordinal)
+                    && v.ToString()!.Contains("Altinn3ChangedRecently: False", StringComparison.Ordinal)),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);

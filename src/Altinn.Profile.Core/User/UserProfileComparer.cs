@@ -37,7 +37,7 @@ public sealed class UserProfileComparer : IUserProfileComparer
         foreach (UserProfileMismatch mismatch in mismatches)
         {
             _logger.LogWarning(
-                "User profile shadow mismatch detected for userId {UserId} and userType {UserType}. Field: {FieldPath}. MismatchType: {MismatchType}. SourceChangedRecently: {SourceChangedRecently}. TargetChangedRecently: {TargetChangedRecently}.",
+                "User profile shadow mismatch detected for userId {UserId} and userType {UserType}. Field: {FieldPath}. MismatchType: {MismatchType}. Altinn2ChangedRecently: {Altinn2ChangedRecently}. Altinn3ChangedRecently: {Altinn3ChangedRecently}.",
                 userId,
                 userType,
                 mismatch.FieldPath,
