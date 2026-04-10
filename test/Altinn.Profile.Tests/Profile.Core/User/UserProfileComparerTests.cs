@@ -137,6 +137,110 @@ public class UserProfileComparerTests
         VerifyWarningCount(loggerMock, Times.Once());
     }
 
+    [Fact]
+    public void CompareAndLog_SourceChangedRecently_LogsSourceChangedRecentlyTrue()
+    {
+        Mock<ILogger<UserProfileComparer>> loggerMock = new();
+        UserProfileComparer target = new(loggerMock.Object);
+
+        UserProfile source = CreateUserProfile();
+        UserProfile compared = CreateUserProfile();
+        source.Party.LastChangedInAltinn = DateTimeOffset.UtcNow;
+        compared.UserType = Models.Enums.UserType.SelfIdentified;
+
+        IReadOnlyList<UserProfileMismatch> mismatches = target.CompareAndLog(source, compared);
+
+        Assert.Single(mismatches);
+        loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) =>
+                    v.ToString()!.Contains("SourceChangedRecently: True", StringComparison.Ordinal)
+                    && v.ToString()!.Contains("TargetChangedRecently: False", StringComparison.Ordinal)),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public void CompareAndLog_TargetChangedRecently_LogsTargetChangedRecentlyTrue()
+    {
+        Mock<ILogger<UserProfileComparer>> loggerMock = new();
+        UserProfileComparer target = new(loggerMock.Object);
+
+        UserProfile source = CreateUserProfile();
+        UserProfile compared = CreateUserProfile();
+        compared.Party.LastChangedInAltinn = DateTimeOffset.UtcNow;
+        compared.UserType = Models.Enums.UserType.SelfIdentified;
+
+        IReadOnlyList<UserProfileMismatch> mismatches = target.CompareAndLog(source, compared);
+
+        Assert.Single(mismatches);
+        loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) =>
+                    v.ToString()!.Contains("SourceChangedRecently: False", StringComparison.Ordinal)
+                    && v.ToString()!.Contains("TargetChangedRecently: True", StringComparison.Ordinal)),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public void CompareAndLog_BothChangedRecently_LogsBothChangedRecentlyTrue()
+    {
+        Mock<ILogger<UserProfileComparer>> loggerMock = new();
+        UserProfileComparer target = new(loggerMock.Object);
+
+        UserProfile source = CreateUserProfile();
+        UserProfile compared = CreateUserProfile();
+        source.Party.LastChangedInAltinn = DateTimeOffset.UtcNow;
+        compared.Party.LastChangedInAltinn = DateTimeOffset.UtcNow;
+        compared.UserType = Models.Enums.UserType.SelfIdentified;
+
+        IReadOnlyList<UserProfileMismatch> mismatches = target.CompareAndLog(source, compared);
+
+        Assert.Single(mismatches);
+        loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) =>
+                    v.ToString()!.Contains("SourceChangedRecently: True", StringComparison.Ordinal)
+                    && v.ToString()!.Contains("TargetChangedRecently: True", StringComparison.Ordinal)),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public void CompareAndLog_NeitherChangedRecently_LogsBothChangedRecentlyFalse()
+    {
+        Mock<ILogger<UserProfileComparer>> loggerMock = new();
+        UserProfileComparer target = new(loggerMock.Object);
+
+        UserProfile source = CreateUserProfile();
+        UserProfile compared = CreateUserProfile();
+        compared.UserType = Models.Enums.UserType.SelfIdentified;
+
+        IReadOnlyList<UserProfileMismatch> mismatches = target.CompareAndLog(source, compared);
+
+        Assert.Single(mismatches);
+        loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) =>
+                    v.ToString()!.Contains("SourceChangedRecently: False", StringComparison.Ordinal)
+                    && v.ToString()!.Contains("TargetChangedRecently: False", StringComparison.Ordinal)),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+
     private static UserProfile CreateUserProfile()
     {
         return new UserProfile
