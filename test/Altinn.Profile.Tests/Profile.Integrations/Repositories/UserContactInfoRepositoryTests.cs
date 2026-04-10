@@ -403,7 +403,7 @@ public class UserContactInfoRepositoryTests
         void EventRaisingCallback(SiUserContactInfoUpdatedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
         MockDbContextOutbox((Action<SiUserContactInfoUpdatedEvent, DeliveryOptions>)EventRaisingCallback);
 
-        var options = CreateOptions(nameof(UpdatePhoneNumber_WhenUserExists_ReturnsUpdatedContactInfo));
+        var options = CreateOptions(nameof(UpdatePhoneNumber_WhenNumberIsRemoved_ReturnsUpdatedContactInfo));
         var factory = new TestDbContextFactory(options);
         var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
 

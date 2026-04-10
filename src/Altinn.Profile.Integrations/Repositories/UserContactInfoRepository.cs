@@ -16,6 +16,7 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// Initializes a new instance of the <see cref="UserContactInfoRepository"/> class.
 /// </summary>
 /// <param name="contextFactory">A factory for creating instances of <see cref="ProfileDbContext"/></param>
+/// <param name="databaseContextOutbox">The outbox for handling transactional operations</param>
 public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> contextFactory, IDbContextOutbox databaseContextOutbox) : EFCoreTransactionalOutbox(databaseContextOutbox), IUserContactInfoRepository
 {
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
