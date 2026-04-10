@@ -407,7 +407,7 @@ public class UserContactInfoRepositoryTests
         var factory = new TestDbContextFactory(options);
         var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
 
-        int testUserId = 9;
+        int testUserId = 11;
 
         await using var seedContext = new ProfileDbContext(options);
         var userContactInfo = new UserContactInfo()
