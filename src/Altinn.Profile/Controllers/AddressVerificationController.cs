@@ -8,7 +8,7 @@ using Altinn.Profile.Authorization;
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.AddressVerifications;
 using Altinn.Profile.Core.AddressVerifications.Models;
-using Altinn.Profile.Models;
+using Altinn.Profile.Models.AddressVerification;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

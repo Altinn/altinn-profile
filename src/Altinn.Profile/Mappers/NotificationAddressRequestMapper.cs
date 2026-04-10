@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
-using Altinn.Profile.Models;
+using Altinn.Profile.Models.OrganizationNotificationAddresses;
 
 namespace Altinn.Profile.Mappers
 {

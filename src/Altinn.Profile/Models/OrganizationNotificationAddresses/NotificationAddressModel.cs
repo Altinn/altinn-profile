@@ -1,6 +1,6 @@
 ﻿using Altinn.Profile.Validators;
 
-namespace Altinn.Profile.Models
+namespace Altinn.Profile.Models.OrganizationNotificationAddresses
 {
     /// <summary>
     /// Represents a notification address

@@ -5,12 +5,12 @@ using System.Text.Json.Serialization;
 
 using Altinn.Profile.Core.AddressVerifications.Models;
 
-namespace Altinn.Profile.Models
+namespace Altinn.Profile.Models.ProfessionalNotificationSettings
 {
     /// <summary>
     /// Response model for the professional notification address for an organization, also called personal notification address.
     /// </summary>
-    public class NotificationSettingsResponse : ProfessionalNotificationAddress
+    public class NotificationSettingsResponse : ProfessionalNotificationSettings
     {
         /// <summary>
         /// The user id of logged-in user for whom the specific contact information belongs to.

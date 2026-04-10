@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Mappers;
-using Altinn.Profile.Models;
+using Altinn.Profile.Models.OrganizationNotificationAddresses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

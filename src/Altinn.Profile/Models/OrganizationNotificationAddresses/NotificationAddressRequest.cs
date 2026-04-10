@@ -5,7 +5,7 @@ using Altinn.Profile.Validators;
 
 using PhoneNumbers;
 
-namespace Altinn.Profile.Models
+namespace Altinn.Profile.Models.OrganizationNotificationAddresses
 {
     /// <summary>
     /// Represents a notification address

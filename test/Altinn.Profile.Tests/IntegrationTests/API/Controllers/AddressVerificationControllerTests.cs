@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.AddressVerifications.Models;
-using Altinn.Profile.Models;
+using Altinn.Profile.Models.AddressVerification;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
 using Microsoft.AspNetCore.Mvc;

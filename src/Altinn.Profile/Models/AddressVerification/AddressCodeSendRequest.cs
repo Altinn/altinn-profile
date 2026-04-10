@@ -7,7 +7,7 @@ using Altinn.Profile.Validators;
 
 using PhoneNumbers;
 
-namespace Altinn.Profile.Models
+namespace Altinn.Profile.Models.AddressVerification
 {
     /// <summary>
     /// Represents a request to send a verification code for a given address (email or phone number)

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 using Altinn.Profile.Core.AddressVerifications.Models;
 
-namespace Altinn.Profile.Models
+namespace Altinn.Profile.Models.AddressVerification
 {
     /// <summary>
     /// Represents a verified address response model that contains information about a verified address, including the address value and its type (email or phone).

@@ -2,7 +2,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 using Altinn.Profile.Core.AddressVerifications.Models;
-using Altinn.Profile.Models;
+using Altinn.Profile.Models.AddressVerification;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.ModelValidation
