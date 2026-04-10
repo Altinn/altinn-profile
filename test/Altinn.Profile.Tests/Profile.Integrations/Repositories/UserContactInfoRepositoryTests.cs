@@ -490,9 +490,9 @@ public class UserContactInfoRepositoryTests
 
         _dbContextOutboxMock
             .Setup(mock => mock.SaveChangesAndFlushMessagesAsync(It.IsAny<CancellationToken>()))
-            .Returns(async () =>
+            .Returns(async (CancellationToken ct) =>
             {
-                await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+                await context.SaveChangesAsync(ct);
             });
 
         _dbContextOutboxMock
