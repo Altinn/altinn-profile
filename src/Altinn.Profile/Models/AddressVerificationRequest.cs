@@ -1,11 +1,7 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 using Altinn.Profile.Core.AddressVerifications.Models;
-using Altinn.Profile.Validators;
-
-using PhoneNumbers;
 
 namespace Altinn.Profile.Models
 {

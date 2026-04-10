@@ -43,12 +43,14 @@ namespace Altinn.Profile.Models
                 yield return emailValidationError;
             }
 
+            // Simple regex validation for "+xxx..." format of number
             ValidationResult? phoneValidationError = GetAddressValidationError(this, PhoneNumber, ValidationRule.InternationalPhoneNumber, nameof(PhoneNumber));
             if (phoneValidationError is not null)
             {
                 yield return phoneValidationError;
             }
 
+            // Full validation of a phone number for a region using length and prefix information
             if (PhoneNumber.HasValue && PhoneNumber.Value != null && !PhoneNumberValidator.IsValidPhoneNumber(PhoneNumber.Value))
             {
                 yield return new ValidationResult("Phone number is not valid.", [nameof(PhoneNumber)]);
