@@ -8,12 +8,16 @@ on:
     paths:
       - 'src/**'
       - 'Dockerfile'
+      - '.trivyignore.yaml'
+      - '.github/workflows/container-scan.yml'
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
     paths:
       - 'src/**'
       - 'Dockerfile'
+      - '.trivyignore.yaml'
+      - '.github/workflows/container-scan.yml'
 jobs:
   scan:
     runs-on: ubuntu-latest
