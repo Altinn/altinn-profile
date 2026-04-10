@@ -496,7 +496,7 @@ public class UserContactInfoRepositoryTests
             });
 
         _dbContextOutboxMock
-            .Setup(mock => mock.PublishAsync(It.IsAny<TEvent>(), null))
+            .Setup(mock => mock.PublishAsync(It.IsAny<TEvent>(), It.IsAny<DeliveryOptions>()))
             .Callback(callback);
     }
 }

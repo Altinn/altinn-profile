@@ -24,7 +24,7 @@ public class SiUserContactInfoHandlerTests
         var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
         settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2PrivateConsentProfile = false });
 
-        var handler = new SiUserConactInfoUpdatedHandler(clientMock.Object, settingsMock.Object);
+        var handler = new SiUserContactInfoUpdatedHandler(clientMock.Object, settingsMock.Object);
 
         var changeEvent = new SiUserContactInfoUpdatedEvent(
             UserId: 42,
@@ -53,7 +53,7 @@ public class SiUserContactInfoHandlerTests
         var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
         settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2PrivateConsentProfile = true });
 
-        var handler = new SiUserConactInfoUpdatedHandler(clientMock.Object, settingsMock.Object);
+        var handler = new SiUserContactInfoUpdatedHandler(clientMock.Object, settingsMock.Object);
 
         var changeEvent = new SiUserContactInfoUpdatedEvent(
             UserId: 123,
@@ -82,7 +82,7 @@ public class SiUserContactInfoHandlerTests
         var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
         settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2PrivateConsentProfile = false });
 
-        var handler = new SiUserConactInfoAddedHandler(clientMock.Object, settingsMock.Object);
+        var handler = new SiUserContactInfoAddedHandler(clientMock.Object, settingsMock.Object);
 
         var changeEvent = new SiUserContactInfoAddedEvent(
             UserId: 42,
@@ -111,7 +111,7 @@ public class SiUserContactInfoHandlerTests
         var settingsMock = new Mock<IOptions<SblBridgeSettings>>();
         settingsMock.Setup(s => s.Value).Returns(new SblBridgeSettings { UpdateA2PrivateConsentProfile = true });
 
-        var handler = new SiUserConactInfoAddedHandler(clientMock.Object, settingsMock.Object);
+        var handler = new SiUserContactInfoAddedHandler(clientMock.Object, settingsMock.Object);
 
         var changeEvent = new SiUserContactInfoAddedEvent(
             UserId: 456,

@@ -16,7 +16,7 @@ namespace Altinn.Profile.Integrations.Handlers;
 /// </remarks>
 /// <param name="privateConsentProfileClient">The private consent profile client</param>
 /// <param name="settings">Config to indicate if the handler should update Altinn 2</param>
-public class SiUserConactInfoUpdatedHandler(IPrivateConsentProfileClient privateConsentProfileClient, IOptions<SblBridgeSettings> settings)
+public class SiUserContactInfoUpdatedHandler(IPrivateConsentProfileClient privateConsentProfileClient, IOptions<SblBridgeSettings> settings)
 {
     private readonly bool _updateA2 = settings.Value.UpdateA2PrivateConsentProfile;
     private readonly IPrivateConsentProfileClient _privateConsentProfileClient = privateConsentProfileClient;

@@ -50,7 +50,7 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
         {
             databaseContext.SelfIdentifiedUsers.Add(userContactInfo);
 
-            SiUserContactInfoAddedEvent NotifySiUserContactInfoAdded() => new(userContactInfo.UserId, DateTime.UtcNow, userContactInfo.EmailAddress, userContactInfo.PhoneNumber);
+            SiUserContactInfoAddedEvent NotifySiUserContactInfoAdded() => new(userContactInfo.UserId, currentDateTime, userContactInfo.EmailAddress, userContactInfo.PhoneNumber);
             await NotifyAndSave(databaseContext, NotifySiUserContactInfoAdded, CancellationToken.None);
         }
         catch (DbUpdateException ex) when (IsUserIdConflict(ex))
@@ -76,11 +76,12 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
         bool numberHasChanged = !string.Equals(userContactInfo.PhoneNumber, phoneNumber, StringComparison.Ordinal);
         if (numberHasChanged)
         {
+            var currentDateTime = DateTime.UtcNow;
             userContactInfo.PhoneNumber = phoneNumber;
-            userContactInfo.PhoneNumberLastChanged = DateTime.UtcNow;
+            userContactInfo.PhoneNumberLastChanged = currentDateTime;
 
             // Empty string is used to indicate removal of phone number
-            SiUserContactInfoUpdatedEvent NotifySiUserContactInfoUpdated() => new(userContactInfo.UserId, DateTime.UtcNow, userContactInfo.EmailAddress, userContactInfo.PhoneNumber ?? string.Empty);
+            SiUserContactInfoUpdatedEvent NotifySiUserContactInfoUpdated() => new(userContactInfo.UserId, currentDateTime, userContactInfo.EmailAddress, userContactInfo.PhoneNumber ?? string.Empty);
             await NotifyAndSave(databaseContext, NotifySiUserContactInfoUpdated, CancellationToken.None);
         }
 
