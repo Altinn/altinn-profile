@@ -68,7 +68,7 @@ public class RegisterClient : IRegisterClient
         string[] identifiers = [UrnPrefixes.ToUserIdUrn(userId)];
         var request = new QueryPartiesRequest(identifiers);
 
-        var response = await QueryParties(request, "fields=id,uuid,org-id", cancellationToken: cancellationToken);
+        var response = await QueryParties(request, "fields=id,uuid", cancellationToken: cancellationToken);
         if (response == null)
         {
             return null;

@@ -967,7 +967,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             // Assert
             Assert.NotNull(result);
             Assert.Equal(HttpMethod.Post, sentRequest.Method);
-            Assert.Equal(new Uri(_testBaseUrl + "v2/internal/parties/query?fields=id,uuid,org-id"), sentRequest.RequestUri);
+            Assert.Equal(new Uri(_testBaseUrl + "v2/internal/parties/query?fields=id,uuid"), sentRequest.RequestUri);
             Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
 
             var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);

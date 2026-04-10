@@ -73,6 +73,8 @@ namespace Altinn.Profile.Changelog
 
             await foreach (var page in changes.WithCancellation(cancellationToken))
             {
+                var lastChange = page.ProfileChangeLogList[^1].ChangeDatetime.ToUniversalTime();
+
                 if (page.ProfileChangeLogList.Count == 0)
                 {
                     // Skip empty pages.
@@ -90,8 +92,9 @@ namespace Altinn.Profile.Changelog
                     var userUuid = await _registerClient.GetUserUuid(contactSettings.UserId, cancellationToken);
                     if (userUuid == null)
                     {
-                        _logger.LogWarning("Could not find user with id {UserId} in Register when processing change log item with id {ChangeId}. Skipping.", contactSettings.UserId, change.ProfileChangeLogId);
-                        continue;
+                        await _changelogSyncMetadataRepository.UpdateLatestChangeTimestampAsync(lastChange, DataType.PrivateConsentProfile);
+                        _logger.LogWarning("Could not find user with id {UserId} in Register, breaking the import. Change log item id: {ChangeId}", contactSettings.UserId, change.ProfileChangeLogId);
+                        return;
                     }
 
                     contactSettings.UserUuid = (Guid)userUuid;
@@ -100,9 +103,10 @@ namespace Altinn.Profile.Changelog
                     {
                         await _siUserContactInfoSyncRepository.InsertOrUpdate(contactSettings, change.ChangeDatetime, cancellationToken);
                     }
+
+                    lastChange = change.ChangeDatetime.ToUniversalTime();
                 }
 
-                var lastChange = page.ProfileChangeLogList[^1].ChangeDatetime.ToUniversalTime();
                 await _changelogSyncMetadataRepository.UpdateLatestChangeTimestampAsync(lastChange, DataType.PrivateConsentProfile);
             }
         }
