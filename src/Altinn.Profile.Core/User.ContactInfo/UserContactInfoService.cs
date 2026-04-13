@@ -11,8 +11,8 @@ namespace Altinn.Profile.Core.User.ContactInfo
     /// <param name="addressVerificationService">Service for address verification operations.</param>
     public class UserContactInfoService(IUserContactInfoRepository userContactInfoRepository, IAddressVerificationService addressVerificationService) : IUserContactInfoService
     {
-        private IUserContactInfoRepository _userContactInfoRepository = userContactInfoRepository;
-        private IAddressVerificationService _addressVerificationService = addressVerificationService;
+        private readonly IUserContactInfoRepository _userContactInfoRepository = userContactInfoRepository;
+        private readonly IAddressVerificationService _addressVerificationService = addressVerificationService;
 
         /// <summary>
         /// Checks if the phone number has been verified, or if the phone number is null. If the phone number is null, this method returns true, as there is no phone number to verify.
