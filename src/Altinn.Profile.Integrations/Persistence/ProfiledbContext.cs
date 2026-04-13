@@ -3,6 +3,7 @@
 
 using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Core.User.PartyGroups;
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Integrations.Entities;
@@ -29,17 +30,17 @@ public partial class ProfileDbContext : DbContext
     }
 
     /// <summary>
-    /// Gets or sets the <see cref="DbSet{MailboxSupplier}"/> representing the mailbox suppliers.
+    /// The <see cref="DbSet{MailboxSupplier}"/> representing the mailbox suppliers.
     /// </summary>
     public virtual DbSet<MailboxSupplier> MailboxSuppliers { get; set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="DbSet{Metadata}"/> representing the metadata.
+    /// The <see cref="DbSet{Metadata}"/> representing the metadata.
     /// </summary>
     public virtual DbSet<Metadata> Metadata { get; set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="DbSet{Person}"/> representing the people.
+    /// The <see cref="DbSet{Person}"/> representing the people.
     /// </summary>
     public virtual DbSet<Person> People { get; set; }
 
@@ -94,14 +95,20 @@ public partial class ProfileDbContext : DbContext
     public virtual DbSet<ProfileSettings> ProfileSettings { get; set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="DbSet{VerificationCode}"/> representing the verification codes for address verification.
+    /// The <see cref="DbSet{VerificationCode}"/> representing the verification codes for address verification.
     /// </summary>
     public virtual DbSet<VerificationCode> VerificationCodes { get; set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="DbSet{VerifiedAddress}"/> representing the verified addresses for users.
+    /// The <see cref="DbSet{VerifiedAddress}"/> representing the verified addresses for users.
     /// </summary>
     public virtual DbSet<VerifiedAddress> VerifiedAddresses { get; set; }
+
+    /// <summary>
+    /// The <see cref="DbSet{UserContactInfo}"/> representing the contact information for self-identified/non-citizen users.
+    /// </summary>
+    public virtual DbSet<UserContactInfo> SelfIdentifiedUsers { get; set; }
+
 
     /// <summary>
     /// Configures the schema needed for the context.
@@ -208,7 +215,7 @@ public partial class ProfileDbContext : DbContext
 
             entity.HasIndex(e => new { e.PartyUuid, e.UserId }, "ix_user_party_contact_info_party_uuid_user_id");
             entity.HasIndex(e => e.UserId, "ix_user_party_contact_info_user_id");
-            entity.HasIndex(e => e.EmailAddress, "ix_email_address");            
+            entity.HasIndex(e => e.EmailAddress, "ix_email_address");
             entity.HasIndex(e => e.PhoneNumber, "ix_user_party_contact_info_phone_number");
 
             entity.HasMany(e => e.UserPartyContactInfoResources)
@@ -285,6 +292,19 @@ public partial class ProfileDbContext : DbContext
             entity.Ignore(e => e.VerificationType);
 
             entity.HasIndex(e => new { e.UserId, e.Address, e.AddressType }, "ix_user_id_address_address_type").IsUnique();
+        });
+
+        modelBuilder.Entity<UserContactInfo>(entity =>
+        {
+            entity.ToTable("self_identified_users", "user_preferences");
+            entity.HasKey(e => e.UserId).HasName("pk_self_identified_users");
+            entity.Property(e => e.UserId).IsRequired().ValueGeneratedNever();
+            entity.Property(e => e.UserUuid).IsRequired();
+            entity.Property(e => e.Username).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("now()").ValueGeneratedOnAdd();
+            entity.Property(e => e.EmailAddress).IsRequired().HasMaxLength(400);
+            entity.Property(e => e.PhoneNumber).HasMaxLength(26);
+            entity.Property(e => e.PhoneNumberLastChanged);
         });
 
         OnModelCreatingPartial(modelBuilder);

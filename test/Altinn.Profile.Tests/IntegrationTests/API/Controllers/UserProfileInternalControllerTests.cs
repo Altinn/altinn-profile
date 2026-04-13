@@ -6,17 +6,17 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
-
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
-
 using Altinn.Profile.Tests.Testdata;
-
+using Altinn.Register.Contracts;
+using Altinn.Register.Contracts.Testing;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Moq;
-
 using Xunit;
-
 using static Altinn.Register.Contracts.PartyUrn;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
@@ -35,6 +35,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
     {
         _factory = factory;
         _factory.MemoryCache.Clear();
+        _factory.RegisterClientMock.Reset();
     }
 
     [Fact]
@@ -394,7 +395,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
             UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
-        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId))
+        _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings)null);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Username = username });
@@ -519,6 +520,139 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetUserById_RegisterAsPrimaryEnabled_RegisterHasSsn_UsesRegisterAndSkipsSbl()
+    {
+        // Arrange
+        const int userId = 2516356;
+
+        HttpRequestMessage sblRequest = null;
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction((request, token) =>
+        {
+            sblRequest = request;
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
+        });
+
+        Person registerPerson = Person.Minimal("14836498780") with
+        {
+            PartyId = 987654,
+            Uuid = Guid.NewGuid(),
+            ShortName = "Register Person",
+            FirstName = "Register",
+            LastName = "Person",
+            ModifiedAt = DateTimeOffset.UtcNow,
+            IsDeleted = false,
+        };
+
+        _factory.RegisterClientMock
+            .Setup(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(registerPerson);
+
+        using WebApplicationFactory<Program> registerPrimaryFactory = CreateFactoryWithRegisterAsPrimaryEnabled();
+        HttpClient client = registerPrimaryFactory.CreateClient();
+
+        HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/internal/user/", new UserProfileLookup { UserId = userId });
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Null(sblRequest);
+
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        UserProfile actualUser = JsonSerializer.Deserialize<UserProfile>(responseContent, serializerOptionsCamelCase);
+
+        Assert.NotNull(actualUser);
+        Assert.Equal("Register Person", actualUser.Party.Name);
+        Assert.Equal("14836498780", actualUser.Party.SSN);
+
+        _factory.RegisterClientMock.Verify(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetUserByUsername_RegisterAsPrimaryEnabled_RegisterThrows_FallsBackToSbl()
+    {
+        // Arrange
+        const string username = "OrstaECUser";
+
+        HttpRequestMessage sblRequest = null;
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        {
+            sblRequest = request;
+            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(username);
+            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+        });
+
+        _factory.RegisterClientMock
+            .Setup(m => m.GetUserPartyByUsername(username, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new HttpRequestException("Register unavailable"));
+
+        using WebApplicationFactory<Program> registerPrimaryFactory = CreateFactoryWithRegisterAsPrimaryEnabled();
+        HttpClient client = registerPrimaryFactory.CreateClient();
+
+        HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/internal/user/", new UserProfileLookup { Username = username });
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(sblRequest);
+        Assert.Equal(HttpMethod.Get, sblRequest.Method);
+        Assert.EndsWith($"sblbridge/profile/api/users/?username={username}", sblRequest.RequestUri.ToString());
+    }
+
+    [Fact]
+    public async Task GetUserBySsn_RegisterAsPrimaryEnabled_RegisterReturnsSelfIdentified_FallsBackToSbl()
+    {
+        // Arrange
+        const string ssn = "01017512345";
+
+        HttpRequestMessage sblRequest = null;
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        {
+            sblRequest = request;
+            UserProfile userProfile = await TestDataLoader.Load<UserProfile>("2516356");
+            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+        });
+
+        SelfIdentifiedUser selfIdentifiedFromRegister = await TestDataLoader.Load<SelfIdentifiedUser>("siuser-input");
+
+        _factory.RegisterClientMock
+            .Setup(m => m.GetUserPartyBySsn(ssn, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(selfIdentifiedFromRegister);
+
+        using WebApplicationFactory<Program> registerPrimaryFactory = CreateFactoryWithRegisterAsPrimaryEnabled();
+        HttpClient client = registerPrimaryFactory.CreateClient();
+
+        HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/internal/user/", new UserProfileLookup { Ssn = ssn });
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(sblRequest);
+        Assert.Equal(HttpMethod.Post, sblRequest.Method);
+        Assert.EndsWith("sblbridge/profile/api/users", sblRequest.RequestUri.ToString());
+    }
+
+    private WebApplicationFactory<Program> CreateFactoryWithRegisterAsPrimaryEnabled()
+    {
+        return _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    ["CoreSettings:RegisterAsPrimaryUserProfileSource"] = "true",
+                    ["CoreSettings:RegisterLookupInShadowMode"] = "false",
+                });
+            });
+        });
     }
 
     private static HttpRequestMessage CreatePostRequest(string requestUri, UserProfileLookup lookupRequest)

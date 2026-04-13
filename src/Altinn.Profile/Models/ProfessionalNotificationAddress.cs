@@ -19,13 +19,13 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// The email address. May be null if no email address is set.
         /// </summary>
-        [CustomRegexForNotificationAddresses("ProfessionalEmail")]
+        [CustomRegexForNotificationAddresses(ValidationRule.EmailAddress)]
         public string? EmailAddress { get; set; }
 
         /// <summary>
         /// The phone number. May be null if no phone number is set. 
         /// </summary>
-        [CustomRegexForNotificationAddresses("ProfessionalPhone")]
+        [CustomRegexForNotificationAddresses(ValidationRule.PhoneNumber)]
         public string? PhoneNumber { get; set; }
 
         /// <summary>

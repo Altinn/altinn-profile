@@ -9,6 +9,7 @@ namespace Altinn.Profile.Core.User;
 /// </summary>
 public sealed class UserProfileComparer : IUserProfileComparer
 {
+    private static readonly TimeSpan RecentChangeWindow = TimeSpan.FromMinutes(15);
     private readonly ILogger<UserProfileComparer> _logger;
 
     /// <summary>
@@ -28,14 +29,21 @@ public sealed class UserProfileComparer : IUserProfileComparer
         CompareUserProfile(source, target, mismatches);
 
         int userId = source?.UserId ?? target?.UserId ?? 0;
+        Models.Enums.UserType userType = source?.UserType ?? target?.UserType ?? Models.Enums.UserType.None;
+        DateTimeOffset recentChangeThreshold = DateTimeOffset.UtcNow - RecentChangeWindow;
+        bool sourceChangedRecentlyInAltinn = IsChangedRecently(source?.Party?.LastChangedInAltinn, recentChangeThreshold);
+        bool targetChangedRecentlyInAltinn = IsChangedRecently(target?.Party?.LastChangedInAltinn, recentChangeThreshold);
 
         foreach (UserProfileMismatch mismatch in mismatches)
         {
             _logger.LogWarning(
-                "User profile shadow mismatch detected for userId {UserId}. Field: {FieldPath}. MismatchType: {MismatchType}.",
+                "User profile shadow mismatch detected for userId {UserId} and userType {UserType}. Field: {FieldPath}. MismatchType: {MismatchType}. Altinn2ChangedRecently: {Altinn2ChangedRecently}. Altinn3ChangedRecently: {Altinn3ChangedRecently}.",
                 userId,
+                userType,
                 mismatch.FieldPath,
-                mismatch.MismatchType);
+                mismatch.MismatchType,
+                sourceChangedRecentlyInAltinn,
+                targetChangedRecentlyInAltinn);
         }
 
         return mismatches;
@@ -53,8 +61,6 @@ public sealed class UserProfileComparer : IUserProfileComparer
         CompareField("UserName", source.UserName, target.UserName, mismatches);
         CompareField("ExternalIdentity", source.ExternalIdentity, target.ExternalIdentity, mismatches);
         CompareField("IsReserved", source.IsReserved, target.IsReserved, mismatches);
-        CompareField("PhoneNumber", source.PhoneNumber, target.PhoneNumber, mismatches);
-        CompareField("Email", source.Email, target.Email, mismatches);
         CompareField("PartyId", source.PartyId, target.PartyId, mismatches);
         CompareField("UserType", source.UserType, target.UserType, mismatches);
 
@@ -92,7 +98,6 @@ public sealed class UserProfileComparer : IUserProfileComparer
         CompareField("Party.Person.MiddleName", source.MiddleName, target.MiddleName, mismatches);
         CompareField("Party.Person.LastName", source.LastName, target.LastName, mismatches);
         CompareField("Party.Person.TelephoneNumber", source.TelephoneNumber, target.TelephoneNumber, mismatches);
-        CompareField("Party.Person.MobileNumber", source.MobileNumber, target.MobileNumber, mismatches);
         CompareField("Party.Person.MailingAddress", source.MailingAddress, target.MailingAddress, mismatches);
         CompareField("Party.Person.MailingPostalCode", source.MailingPostalCode, target.MailingPostalCode, mismatches);
         CompareField("Party.Person.MailingPostalCity", source.MailingPostalCity, target.MailingPostalCity, mismatches);
@@ -152,6 +157,13 @@ public sealed class UserProfileComparer : IUserProfileComparer
         {
             if (!string.Equals(left, right, StringComparison.Ordinal))
             {
+                // this means the strings are different, but we want to check if they are only different due to extra whitespace before logging a WrongValue mismatch, since extra whitespace is a known data issue that we want to identify separately.
+                if (string.Equals(NormalizeWhitespace(left), NormalizeWhitespace(right), StringComparison.Ordinal))
+                {
+                    mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.ExtraSpaces));
+                    return;
+                }
+
                 mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.WrongValue));
             }
 
@@ -162,6 +174,17 @@ public sealed class UserProfileComparer : IUserProfileComparer
         {
             mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.WrongValue));
         }
+    }
+
+    /// <summary>Collapses runs of any whitespace to single spaces.</summary>
+    private static string NormalizeWhitespace(string value)
+    {
+        return string.Join(' ', value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+    }
+
+    private static bool IsChangedRecently(DateTimeOffset? value, DateTimeOffset threshold)
+    {
+        return value.HasValue && value.Value >= threshold;
     }
 
     /// <summary>
@@ -178,6 +201,11 @@ public sealed class UserProfileComparer : IUserProfileComparer
         /// One side is <see langword="null"/> while the other side is an empty string.
         /// </summary>
         NullVsEmptyString,
+
+        /// <summary>
+        /// Both sides have values, but one side has extra or repeated spaces.
+        /// </summary>
+        ExtraSpaces,
 
         /// <summary>
         /// Both sides have values, but the values are different.

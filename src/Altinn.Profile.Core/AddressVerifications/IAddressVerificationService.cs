@@ -18,6 +18,16 @@ namespace Altinn.Profile.Core.AddressVerifications
         Task<(VerificationType? EmailVerificationStatus, VerificationType? SmsVerificationStatus)> GetVerificationStatusAsync(int userId, string? emailAddress, string? phoneNumber, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Retrieves the verification status for an address if not null.
+        /// </summary>
+        /// <param name="userId">The id of the user</param>
+        /// <param name="addressType">If the address is for sms or email</param>
+        /// <param name="address">The address to check</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A Task containing the <see cref="VerificationType"/> or null if no address.</returns>
+        Task<VerificationType?> GetVerificationStatusAsync(int userId, AddressType addressType, string? address, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Generates a verification code, saves it to the database and sends it to the user via email or sms depending on the address type. The code is valid for 15 minutes.
         /// Language resolution and notification delivery are delegated to <see cref="Integrations.IUserNotifier"/>.
         /// </summary>
