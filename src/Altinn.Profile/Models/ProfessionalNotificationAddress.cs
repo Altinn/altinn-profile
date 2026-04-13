@@ -20,7 +20,7 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// The email address. May be null if no email address is set.
         /// </summary>
-        /// <example>example@domain.com</example>
+        /// <example>user@example.com</example>
         [CustomRegexForNotificationAddresses(ValidationRule.EmailAddress)]
         public string? EmailAddress { get; set; }
 

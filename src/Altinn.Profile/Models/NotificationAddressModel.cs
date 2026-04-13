@@ -17,7 +17,7 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// Email address
         /// </summary>
-        /// <example>example@domain.com</example>
+        /// <example>user@example.com</example>
         [CustomRegexForNotificationAddresses(ValidationRule.OrganizationEmail)]
         public string Email { get; set; }
 
