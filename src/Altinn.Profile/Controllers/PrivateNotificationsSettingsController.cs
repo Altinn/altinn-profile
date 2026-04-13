@@ -32,9 +32,10 @@ namespace Altinn.Profile.Controllers
         {
             _userContactInfoService = userContactInfoService;
         }
-   
+
         /// <summary>
-        /// Add or update the notification addresses the current user has registered for a party
+        /// Add or update the users telephone number. This is only available for Self-Identified users, and the phone number must be verified before it can be added as a notification address. 
+        /// If the user already has a phone number registered, it will be replaced with the new one.
         /// </summary>
         /// <param name="request"> The request containing the notification address details</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
@@ -56,7 +57,11 @@ namespace Altinn.Profile.Controllers
                 return validationResult;
             }
 
-            //// TODO: Validate that the user is self-identified
+            var authenticationMethod = ClaimsHelper.GetAuthenticateMethodAsString(Request.HttpContext);
+            if (authenticationMethod != "SelfIdentified" || authenticationMethod != "IdportenEpost")
+            {
+                return Forbid("Only self-identified users can update their phone number.");
+            }
 
             var isVerifiedOrNull = await _userContactInfoService.IsAddressVerifiedOrNull(userId, request.Value, cancellationToken);
             if (!isVerifiedOrNull)
