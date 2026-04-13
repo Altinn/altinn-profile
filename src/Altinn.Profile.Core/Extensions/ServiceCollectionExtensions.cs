@@ -3,6 +3,7 @@ using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Core.User;
+using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Core.User.PartyGroups;
 
@@ -33,6 +34,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<IOrganizationNotificationAddressesService, OrganizationNotificationAddressesService>()
             .AddScoped<IPartyGroupService, PartyGroupService>()
             .AddScoped<IProfessionalNotificationsService, ProfessionalNotificationsService>()
-            .AddScoped<IAddressVerificationService, AddressVerificationService>();
+            .AddScoped<IAddressVerificationService, AddressVerificationService>()
+            .AddScoped<IUserContactInfoService, UserContactInfoService>();
     }
 }

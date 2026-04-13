@@ -58,9 +58,9 @@ namespace Altinn.Profile.Controllers
             }
 
             var authenticationMethod = ClaimsHelper.GetAuthenticateMethodAsString(Request.HttpContext);
-            if (authenticationMethod != "SelfIdentified" || authenticationMethod != "IdportenEpost")
+            if (authenticationMethod != "SelfIdentified" && authenticationMethod != "IdportenEpost")
             {
-                return Forbid("Only self-identified users can update their phone number.");
+                return Forbid();
             }
 
             var isVerifiedOrNull = await _userContactInfoService.IsAddressVerifiedOrNull(userId, request.Value, cancellationToken);
