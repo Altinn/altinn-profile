@@ -76,7 +76,10 @@ public class UserProfileService : IUserProfileService
             cancellationToken);
     }
 
-    private async Task<Result<UserProfile, bool>> GetUserWithOptionalRegisterLookup(Task<Result<UserProfile, bool>> legacyTask, Func<Task<UserProfile?>> registerLookup)
+    private async Task<Result<UserProfile, bool>> GetUserWithSourceSelection(
+           Func<Task<Result<UserProfile, bool>>> getLegacy,
+           Func<Task<Party?>> getRegisterParty,
+           CancellationToken cancellationToken)
     {
         if (_settings.RegisterAsPrimaryUserProfileSource)
         {
@@ -168,7 +171,7 @@ public class UserProfileService : IUserProfileService
         return legacyProfile;
     }
 
-    private async Task<UserProfile?> GetUserFromRegister(Task<Party?> registerPartyTask)
+    private async Task<UserProfile?> GetUserFromRegister(Task<Party?> registerPartyTask, CancellationToken cancellationToken)
     {
         Party? registerParty;
 
