@@ -21,25 +21,26 @@ namespace Altinn.Profile.Core.User.ContactInfo
         /// <param name="phoneNumber">The phone number to check.</param>
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>True if the phone number is verified or null, otherwise false.</returns>
-        public async Task<bool> IsAddressVerifiedOrNull(int userId, string phoneNumber, CancellationToken cancellationToken)
+        public async Task<bool> IsAddressVerifiedOrNull(int userId, string? phoneNumber, CancellationToken cancellationToken)
         {
-            if (phoneNumber != null)
+            if (phoneNumber == null)
             {
-                var smsVerificationStatus = await _addressVerificationService.GetVerificationStatusAsync(userId, AddressType.Sms, phoneNumber, cancellationToken);
-                if (smsVerificationStatus.HasValue && smsVerificationStatus != VerificationType.Verified)
-                {
-                    return false;
-                }
+                return true;
             }
 
-            return true;
+            var smsVerificationStatus = await _addressVerificationService.GetVerificationStatusAsync(userId, AddressType.Sms, phoneNumber, cancellationToken);
+            if (smsVerificationStatus == VerificationType.Verified)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /// <inheritdoc/>
-        public async Task<UserContactInfo> UpdatePhoneNumber(int userId, string? phoneNumber, CancellationToken cancellationToken)
+        public async Task<UserContactInfo?> UpdatePhoneNumber(int userId, string? phoneNumber, CancellationToken cancellationToken)
         {
-            var updatedContactInfo = await _userContactInfoRepository.UpdatePhoneNumber(userId, phoneNumber, cancellationToken);
-            return updatedContactInfo;
+            return await _userContactInfoRepository.UpdatePhoneNumber(userId, phoneNumber, cancellationToken);
         }
     }
 }

@@ -12,7 +12,7 @@
         /// <param name="phoneNumber">The phone number to check.</param>
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>True if the phone number is verified or null, otherwise false.</returns>
-        Task<bool> IsAddressVerifiedOrNull(int userId, string phoneNumber, CancellationToken cancellationToken);
+        Task<bool> IsAddressVerifiedOrNull(int userId, string? phoneNumber, CancellationToken cancellationToken);
 
         /// <summary>
         /// Updates the phone number for the given user
