@@ -28,7 +28,6 @@ namespace Altinn.Profile.Models
         /// </summary>
         [Required]
         [JsonRequired]
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public required AddressType? Type { get; init; }
 
         /// <inheritdoc/>
