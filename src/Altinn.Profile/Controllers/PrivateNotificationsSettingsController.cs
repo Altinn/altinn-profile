@@ -76,7 +76,7 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
-            return Ok(new PrivateNotificationSettingsRequest { Value = response });
+            return Ok(new PrivateNotificationSettingsRequest { Value = response.PhoneNumber });
         }
     }
 }

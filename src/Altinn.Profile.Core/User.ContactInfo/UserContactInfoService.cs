@@ -36,10 +36,10 @@ namespace Altinn.Profile.Core.User.ContactInfo
         }
 
         /// <inheritdoc/>
-        public async Task<string?> UpdatePhoneNumber(int userId, string? phoneNumber, CancellationToken cancellationToken)
+        public async Task<UserContactInfo> UpdatePhoneNumber(int userId, string? phoneNumber, CancellationToken cancellationToken)
         {
             var updatedContactInfo = await _userContactInfoRepository.UpdatePhoneNumber(userId, phoneNumber, cancellationToken);
-            return updatedContactInfo?.PhoneNumber;
+            return updatedContactInfo;
         }
     }
 }

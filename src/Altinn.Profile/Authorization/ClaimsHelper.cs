@@ -58,7 +58,7 @@ namespace Altinn.Profile.Authorization
         /// multiple claims of this type exist, the value of the first one is returned. Returns null if no such claim is
         /// found.</remarks>
         /// <param name="context">The HTTP context containing the user claims from which to extract the authentication method. Cannot be null.</param>
-        /// <returns>A string representing the user identifier if present in the claims; otherwise, null.</returns>
+        /// <returns>A string representing the authentication method if present in the claims; otherwise, null.</returns>
         public static string GetAuthenticateMethodAsString(HttpContext context)
         {
             return context.User.Claims

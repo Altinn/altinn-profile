@@ -21,7 +21,7 @@ namespace Altinn.Profile.Models
         /// <inheritdoc/>
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (!PhoneNumberValidator.IsValidPhoneNumber(Value))
+            if (Value != null && !PhoneNumberValidator.IsValidPhoneNumber(Value))
             {
                 yield return new ValidationResult("Phone number is not valid.", [nameof(Value)]);
             }

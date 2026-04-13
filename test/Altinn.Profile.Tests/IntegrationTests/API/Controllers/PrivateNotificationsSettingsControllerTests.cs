@@ -40,7 +40,7 @@ public class PrivateNotificationsSettingsControllerTests : IClassFixture<Profile
         HttpClient client = _factory.CreateClient();
         var request = new HttpRequestMessage(HttpMethod.Put, "profile/api/v1/users/current/notificationsettings/private/phonenumber")
         {
-            Content = CreateJsonContent(new PrivateNotificationSettingsRequest { Value = "+4798765432" })
+            Content = CreateJsonContent(new PrivateNotificationSettingsRequest { Value = null })
         };
 
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
@@ -54,7 +54,7 @@ public class PrivateNotificationsSettingsControllerTests : IClassFixture<Profile
         HttpClient client = _factory.CreateClient();
         HttpRequestMessage request = new(HttpMethod.Put, "profile/api/v1/users/current/notificationsettings/private/phonenumber")
         {
-            Content = CreateJsonContent(new PrivateNotificationSettingsRequest { Value = "+4798765432" })
+            Content = CreateJsonContent(new PrivateNotificationSettingsRequest { Value = null })
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetSystemUserToken(System.Guid.NewGuid()));
 
@@ -69,7 +69,7 @@ public class PrivateNotificationsSettingsControllerTests : IClassFixture<Profile
         const int UserId = 2516356;
 
         HttpClient client = _factory.CreateClient();
-        HttpRequestMessage request = CreateRequestWithUserIdAndAuthMethod(HttpMethod.Put, UserId, "Mock", "profile/api/v1/users/current/notificationsettings/private/phonenumber", new PrivateNotificationSettingsRequest { Value = "+4798765432" });
+        HttpRequestMessage request = CreateRequestWithUserIdAndAuthMethod(HttpMethod.Put, UserId, "Mock", "profile/api/v1/users/current/notificationsettings/private/phonenumber", new PrivateNotificationSettingsRequest { Value = null });
 
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
@@ -82,7 +82,7 @@ public class PrivateNotificationsSettingsControllerTests : IClassFixture<Profile
         const int UserId = 2516356;
 
         _factory.AddressVerificationRepositoryMock
-            .Setup(x => x.GetVerificationStatusAsync(UserId, Core.AddressVerifications.Models.AddressType.Sms, "+4798765432", It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetVerificationStatusAsync(UserId, Core.AddressVerifications.Models.AddressType.Sms, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Core.AddressVerifications.Models.VerificationType.Unverified);
 
         HttpClient client = _factory.CreateClient();
@@ -99,15 +99,15 @@ public class PrivateNotificationsSettingsControllerTests : IClassFixture<Profile
         const int UserId = 2516356;
 
         _factory.AddressVerificationRepositoryMock
-            .Setup(x => x.GetVerificationStatusAsync(UserId, Core.AddressVerifications.Models.AddressType.Sms, "+4798765432", It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetVerificationStatusAsync(UserId, Core.AddressVerifications.Models.AddressType.Sms, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Core.AddressVerifications.Models.VerificationType.Verified);
 
         _factory.UserContactInfoRepositoryMock
-            .Setup(x => x.UpdatePhoneNumber(UserId, "+4798765432", It.IsAny<CancellationToken>()))
+            .Setup(x => x.UpdatePhoneNumber(UserId, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserContactInfo)null);
 
         HttpClient client = _factory.CreateClient();
-        HttpRequestMessage request = CreateRequestWithUserIdAndAuthMethod(HttpMethod.Put, UserId, "IdportenEpost", "profile/api/v1/users/current/notificationsettings/private/phonenumber", new PrivateNotificationSettingsRequest { Value = "+4798765432" });
+        HttpRequestMessage request = CreateRequestWithUserIdAndAuthMethod(HttpMethod.Put, UserId, "IdportenEpost", "profile/api/v1/users/current/notificationsettings/private/phonenumber", new PrivateNotificationSettingsRequest { Value = null });
 
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
@@ -118,13 +118,14 @@ public class PrivateNotificationsSettingsControllerTests : IClassFixture<Profile
     public async Task PutPhoneNumber_WhenRequestIsValid_ReturnsOkAndUpdatedValue()
     {
         const int UserId = 2516356;
+        const string phoneNumber = "+4798765432";
 
         _factory.AddressVerificationRepositoryMock
-            .Setup(x => x.GetVerificationStatusAsync(UserId, Core.AddressVerifications.Models.AddressType.Sms, "+4798765432", It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetVerificationStatusAsync(UserId, Core.AddressVerifications.Models.AddressType.Sms, phoneNumber, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Core.AddressVerifications.Models.VerificationType.Verified);
 
         _factory.UserContactInfoRepositoryMock
-            .Setup(x => x.UpdatePhoneNumber(UserId, "+4798765432", It.IsAny<CancellationToken>()))
+            .Setup(x => x.UpdatePhoneNumber(UserId, phoneNumber, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new UserContactInfo
             {
                 UserId = UserId,
@@ -132,11 +133,44 @@ public class PrivateNotificationsSettingsControllerTests : IClassFixture<Profile
                 Username = "test-user",
                 CreatedAt = System.DateTime.UtcNow,
                 EmailAddress = "test@example.com",
-                PhoneNumber = "+4798765432"
+                PhoneNumber = phoneNumber
             });
 
         HttpClient client = _factory.CreateClient();
-        HttpRequestMessage request = CreateRequestWithUserIdAndAuthMethod(HttpMethod.Put, UserId, "SelfIdentified", "profile/api/v1/users/current/notificationsettings/private/phonenumber", new PrivateNotificationSettingsRequest { Value = "+4798765432" });
+        HttpRequestMessage request = CreateRequestWithUserIdAndAuthMethod(HttpMethod.Put, UserId, "SelfIdentified", "profile/api/v1/users/current/notificationsettings/private/phonenumber", new PrivateNotificationSettingsRequest { Value = phoneNumber });
+        HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        string content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var actual = JsonSerializer.Deserialize<PrivateNotificationSettingsRequest>(content, _serializerOptionsCamelCase);
+
+        Assert.NotNull(actual);
+        Assert.Equal(phoneNumber, actual.Value);
+
+        _factory.AddressVerificationRepositoryMock.Verify(x => x.GetVerificationStatusAsync(UserId, Core.AddressVerifications.Models.AddressType.Sms, phoneNumber, It.IsAny<CancellationToken>()), Times.Once);
+        _factory.UserContactInfoRepositoryMock.Verify(x => x.UpdatePhoneNumber(UserId, phoneNumber, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task PutPhoneNumber_WhenRequestIsValidAndContainsNull_ReturnsOkAndUpdatedValue()
+    {
+        const int UserId = 2516356;
+
+        _factory.UserContactInfoRepositoryMock
+            .Setup(x => x.UpdatePhoneNumber(UserId, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UserContactInfo
+            {
+                UserId = UserId,
+                UserUuid = System.Guid.NewGuid(),
+                Username = "test-user",
+                CreatedAt = System.DateTime.UtcNow,
+                EmailAddress = "test@example.com",
+                PhoneNumber = null
+            });
+
+        HttpClient client = _factory.CreateClient();
+        HttpRequestMessage request = CreateRequestWithUserIdAndAuthMethod(HttpMethod.Put, UserId, "SelfIdentified", "profile/api/v1/users/current/notificationsettings/private/phonenumber", new PrivateNotificationSettingsRequest { Value = null });
 
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
@@ -146,10 +180,9 @@ public class PrivateNotificationsSettingsControllerTests : IClassFixture<Profile
         var actual = JsonSerializer.Deserialize<PrivateNotificationSettingsRequest>(content, _serializerOptionsCamelCase);
 
         Assert.NotNull(actual);
-        Assert.Equal("+4798765432", actual.Value);
+        Assert.Null(actual.Value);
 
-        _factory.AddressVerificationRepositoryMock.Verify(x => x.GetVerificationStatusAsync(UserId, Core.AddressVerifications.Models.AddressType.Sms, "+4798765432", It.IsAny<CancellationToken>()), Times.Once);
-        _factory.UserContactInfoRepositoryMock.Verify(x => x.UpdatePhoneNumber(UserId, "+4798765432", It.IsAny<CancellationToken>()), Times.Once);
+        _factory.UserContactInfoRepositoryMock.Verify(x => x.UpdatePhoneNumber(UserId, null, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static HttpRequestMessage CreateRequestWithUserIdAndAuthMethod(HttpMethod method, int userId, string authMethod, string requestUri, PrivateNotificationSettingsRequest body)
