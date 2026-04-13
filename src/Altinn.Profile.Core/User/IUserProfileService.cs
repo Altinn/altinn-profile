@@ -33,14 +33,6 @@ public interface IUserProfileService
     Task<Result<UserProfile, bool>> GetUserByUuid(Guid userUuid, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Method that fetches a list of users based on a list of user uuid
-    /// </summary>
-    /// <param name="userUuidList">The list of user uuids</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>List of User profiles with given user uuids or a boolean if failure.</returns>
-    Task<Result<List<UserProfile>, bool>> GetUserListByUuid(List<Guid> userUuidList, CancellationToken cancellationToken);
-
-    /// <summary>
     /// Method that fetches a user based on username.
     /// </summary>
     /// <param name="username">The user's username.</param>
