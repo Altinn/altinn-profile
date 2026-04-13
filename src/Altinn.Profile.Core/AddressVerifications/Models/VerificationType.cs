@@ -1,8 +1,11 @@
-﻿namespace Altinn.Profile.Core.AddressVerifications.Models
+﻿using System.Text.Json.Serialization;
+
+namespace Altinn.Profile.Core.AddressVerifications.Models
 {
     /// <summary>
     /// Specifies the type of address verification.
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum VerificationType
     {
         /// <summary>
