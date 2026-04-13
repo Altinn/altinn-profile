@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
-using System.Text.Json.Serialization;
 
 using Altinn.Authorization.ServiceDefaults.Leases;
 using Altinn.Common.AccessToken;
