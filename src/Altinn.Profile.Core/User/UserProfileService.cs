@@ -77,9 +77,9 @@ public class UserProfileService : IUserProfileService
     }
 
     private async Task<Result<UserProfile, bool>> GetUserWithSourceSelection(
-           Func<Task<Result<UserProfile, bool>>> getLegacy,
-           Func<Task<Party?>> getRegisterParty,
-           CancellationToken cancellationToken)
+       Func<Task<Result<UserProfile, bool>>> getLegacy,
+       Func<Task<Party?>> getRegisterParty,
+       CancellationToken cancellationToken)
     {
         if (_settings.RegisterAsPrimaryUserProfileSource)
         {
