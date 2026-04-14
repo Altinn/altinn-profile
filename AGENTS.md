@@ -138,11 +138,11 @@ Uses xUnit, Moq for mocking. Integration tests use in-memory test doubles and cu
 
 ### GitHub workflows
 - When creating new workflows or introducing the new jobs or steps, follow the principle of least privilege in GITHUB_TOKEN permission grants for the build workflow jobs. Do so by using `permissions` to modify the default permissions granted to the GITHUB_TOKEN, so that you only allow the minimum required access to the workflow jobs. Always set permissions on the workflow-level, but only specify the permissions that _all_ jobs require. If there are no shared permission requirements among the jobs, set `permissions: {}` at the workflow-level to to avoid unwanted inheritance of workflow-level permission grants to jobs that don't require them. When there are some jobs that require special permissions, set a job-level `permissions` block. Be aware that all unspecified permissions are set to `none` when you specify `permissions` at the job level (i.e., that job won't inherit any grants from the workflow-level permissions).
-Examples:
-  - A workflow has jobs A (needs `contents: read`) and B (needs `contents: read` and `contents: write`). Acceptable solutions are: 
+  Examples:
+  - A workflow has jobs A (needs `contents: read`) and B (needs `contents: read` and `contents: write`). Acceptable solutions are:
     - (a) Setting `contents: read` in the workflow permissions; setting a permissions block with `contents: read` and `contents: write` on job B
     - (b) Setting `{}` in the workflow permissions; setting a permissions block with `contents: read` on job A; setting a permissions block with `contents: read` and `contents: write` on job B
- - A workflow has jobs A (needs no permissions) and B (needs `contents: read`). The workflow should have `permissions: {}` at the top level, and job B should have its own `permissions` with `contents: read`.
+  - A workflow has jobs A (needs no permissions) and B (needs `contents: read`). The workflow should have `permissions: {}` at the top level, and job B should have its own `permissions` with `contents: read`.
 
 ## Branching and Commit Conventions
 
