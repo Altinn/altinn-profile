@@ -41,7 +41,7 @@ namespace Altinn.Profile.Tests.Changelog
                 ""userId"": {expectedUserId},
                 ""userName"": ""testuser"",
                 ""emailAddress"": ""test@example.com"",
-                ""phoneNumber"": ""+4712345678""
+                ""phoneNumber"": ""12345678""
             }}";
 
             var changeLogItem = new ChangeLogItem
@@ -75,7 +75,8 @@ namespace Altinn.Profile.Tests.Changelog
                     UserUuid = expectedUserUuid,
                     Username = "testuser",
                     CreatedAt = DateTime.UtcNow,
-                    EmailAddress = "test@example.com"
+                    EmailAddress = "test@example.com",
+                    PhoneNumber = "+4712345678",
                 });
 
             var job = new TestableSIUserAddressImportJob(
@@ -199,7 +200,7 @@ namespace Altinn.Profile.Tests.Changelog
             var contactSettingsJson = $@"{{
                 ""userId"": {expectedUserId},
                 ""userName"": ""unknownuser"",
-                ""emailAddress"": null,
+                ""emailAddress"": ""some@value.com"",
                 ""phoneNumber"": null
             }}";
 

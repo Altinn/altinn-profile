@@ -139,23 +139,6 @@ public class SIUserContactInfoSyncRepositoryTests
     }
 
     [Fact]
-    public async Task InsertOrUpdate_WhenUserDoesNotExist_WithNullEmailAddress_FallsBackToEmptyString()
-    {
-        // Arrange
-        var options = CreateOptions(nameof(InsertOrUpdate_WhenUserDoesNotExist_WithNullEmailAddress_FallsBackToEmptyString));
-        var factory = new TestDbContextFactory(options);
-        var repository = new SIUserContactInfoSyncRepository(factory, null);
-
-        var contactSettings = CreateContactSettings(5, Guid.NewGuid(), email: null);
-
-        // Act
-        var result = await repository.InsertOrUpdate(contactSettings, DateTime.UtcNow, TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.Equal(string.Empty, result.EmailAddress);
-    }
-
-    [Fact]
     public async Task InsertOrUpdate_WhenUserExists_UpdatesEmailAndPhoneNumber()
     {
         // Arrange

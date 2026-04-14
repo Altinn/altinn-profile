@@ -1,0 +1,1 @@
+ALTER TABLE user_preferences.self_identified_users ALTER COLUMN email_address DROP NOT NULL;

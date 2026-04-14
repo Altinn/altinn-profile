@@ -84,7 +84,7 @@ namespace Altinn.Profile.Changelog
                 foreach (var change in page.ProfileChangeLogList)
                 {
                     SiUserContactSettings contactSettings = Deserialize(change);
-                    if (contactSettings == null)
+                    if (contactSettings == null || (string.IsNullOrEmpty(contactSettings.PhoneNumber) && string.IsNullOrEmpty(contactSettings.EmailAddress)))
                     {
                         continue;
                     }
@@ -135,6 +135,7 @@ namespace Altinn.Profile.Changelog
             try
             {
                 contactSettings = SiUserContactSettings.Deserialize(change.DataObject);
+                contactSettings.PhoneNumber = SiUserContactSettings.FormatMobileNumber(contactSettings.PhoneNumber);
             }
             catch (Exception ex)
             {

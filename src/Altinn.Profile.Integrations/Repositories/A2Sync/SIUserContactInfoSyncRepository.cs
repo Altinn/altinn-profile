@@ -25,7 +25,7 @@ namespace Altinn.Profile.Integrations.Repositories.A2Sync
             {
                 var phoneNumberUpdated = existingUser.PhoneNumber != userContactSettings.PhoneNumber;
 
-                existingUser.EmailAddress = userContactSettings.EmailAddress ?? string.Empty;
+                existingUser.EmailAddress = userContactSettings.EmailAddress;
                 existingUser.PhoneNumber = userContactSettings.PhoneNumber;
                 existingUser.PhoneNumberLastChanged = phoneNumberUpdated ? updatedDatetime : existingUser.PhoneNumberLastChanged;
                 await databaseContext.SaveChangesAsync(cancellationToken);
@@ -40,7 +40,7 @@ namespace Altinn.Profile.Integrations.Repositories.A2Sync
                 UserId = userContactSettings.UserId,
                 UserUuid = userContactSettings.UserUuid,
                 Username = userContactSettings.UserName,
-                EmailAddress = userContactSettings.EmailAddress ?? string.Empty,
+                EmailAddress = userContactSettings.EmailAddress,
                 PhoneNumber = userContactSettings.PhoneNumber,
                 PhoneNumberLastChanged = string.IsNullOrWhiteSpace(userContactSettings.PhoneNumber) ? null : updatedDatetime
             };

@@ -31,7 +31,7 @@ namespace Altinn.Profile.Integrations.SblBridge.User.PrivateConsent
         /// <summary>
         /// Gets the phone number.
         /// </summary>
-        public string? PhoneNumber { get; init; }
+        public string? PhoneNumber { get; set; }
 
         /// <summary>
         /// Deserializes a JSON string into a <see cref="SiUserContactSettings"/> object.
@@ -46,6 +46,33 @@ namespace Altinn.Profile.Integrations.SblBridge.User.PrivateConsent
             };
 
             return JsonConvert.DeserializeObject<SiUserContactSettings>(data, settings);
+        }
+
+        /// <summary>
+        /// Formats a mobile number by standardizing its international prefix format.
+        /// </summary>
+        /// <param name="mobileNumber">The mobile number to format.</param>
+        /// <returns>The formatted mobile number with standardized prefix, or the original number if it's already in the correct format or is a local 8-digit number.</returns>
+        public static string FormatMobileNumber(string mobileNumber)
+        {
+            if (string.IsNullOrWhiteSpace(mobileNumber))
+            {
+                return mobileNumber;
+            }
+
+            // If the number starts with '00', replace it with '+'
+            if (mobileNumber.StartsWith("00"))
+            {
+                mobileNumber = string.Concat("+", mobileNumber.AsSpan(2));
+            }
+
+            // Assume 8 digit numbers without international prefix are local and should be formatted with norwegian country code
+            if (!mobileNumber.StartsWith('+') && !mobileNumber.StartsWith("00") && mobileNumber.Length == 8)
+            {
+                return string.Concat("+47", mobileNumber);
+            }
+
+            return mobileNumber;
         }
     }
 }
