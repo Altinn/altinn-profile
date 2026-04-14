@@ -64,17 +64,13 @@ namespace Altinn.Profile.Integrations.Repositories
             return existing;
         }
 
-        /// <summary>
-        /// Retrieves the profile settings for a given user ID.
-        /// </summary>
-        /// <param name="userId">The id of the user</param>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        public async Task<ProfileSettings?> GetProfileSettings(int userId)
+        /// <inheritdoc/>
+        public async Task<ProfileSettings?> GetProfileSettings(int userId, CancellationToken cancellationToken)
         {
-            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
             return await databaseContext.ProfileSettings
                 .AsNoTracking()
-                .SingleOrDefaultAsync(g => g.UserId == userId);
+                .SingleOrDefaultAsync(g => g.UserId == userId, cancellationToken);
         }
     }
 }

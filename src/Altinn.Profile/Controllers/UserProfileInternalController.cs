@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core;
@@ -40,12 +41,13 @@ public class UserProfileInternalController : Controller
     ///     SSN/Dnr (from Freg)
     /// </summary>
     /// <param name="userProfileLookup">Input model for providing one of the supported lookup parameters</param>
+    /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>User profile of the given user</returns>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserProfile>> Get([FromBody][Required] UserProfileLookup userProfileLookup)
+    public async Task<ActionResult<UserProfile>> Get([FromBody][Required] UserProfileLookup userProfileLookup, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
@@ -56,19 +58,19 @@ public class UserProfileInternalController : Controller
 
         if (userProfileLookup?.UserId.HasValue == true && userProfileLookup.UserId != 0)
         {
-            result = await _userProfileService.GetUser((int)userProfileLookup.UserId);
+            result = await _userProfileService.GetUser((int)userProfileLookup.UserId, cancellationToken);
         }
         else if (userProfileLookup?.UserUuid != null)
         {
-            result = await _userProfileService.GetUserByUuid(userProfileLookup.UserUuid.Value);
+            result = await _userProfileService.GetUserByUuid(userProfileLookup.UserUuid.Value, cancellationToken);
         }
         else if (!string.IsNullOrWhiteSpace(userProfileLookup?.Username))
         {
-            result = await _userProfileService.GetUserByUsername(userProfileLookup.Username);
+            result = await _userProfileService.GetUserByUsername(userProfileLookup.Username, cancellationToken);
         }
         else if (!string.IsNullOrWhiteSpace(userProfileLookup?.Ssn))
         {
-            result = await _userProfileService.GetUser(userProfileLookup.Ssn);
+            result = await _userProfileService.GetUser(userProfileLookup.Ssn, cancellationToken);
         }
         else
         {
@@ -78,36 +80,5 @@ public class UserProfileInternalController : Controller
         return result.Match<ActionResult<UserProfile>>(
               userProfile => Ok(userProfile),
               _ => NotFound());
-    }
-
-    /// <summary>
-    /// Gets a list of user profiles for a list of of users identified by userUuid.
-    /// </summary>
-    /// <param name="userUuidList">List of uuid identifying the users profiles to return</param>
-    /// <returns>List of user profiles</returns>
-    [HttpPost]
-    [Route("listbyuuid")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [Consumes("application/json")]
-    [Produces("application/json")]
-    public async Task<ActionResult<List<UserProfile>>> GetList([FromBody][Required] List<Guid> userUuidList)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        if (userUuidList.Count == 0)
-        {
-            return BadRequest();
-        }
-
-        Result<List<UserProfile>, bool> result = await _userProfileService.GetUserListByUuid(userUuidList);
-        List<UserProfile> userProfiles = result.Match(
-             userProfileList => userProfileList,
-             _ => []);
-
-        return Ok(userProfiles);
     }
 }

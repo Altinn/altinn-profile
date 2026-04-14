@@ -24,13 +24,13 @@ public class UserContactPointService : IUserContactPointsService
     }
 
     /// <inheritdoc/>
-    public async Task<UserContactPointAvailabilityList> GetContactPointAvailability(List<string> nationalIdentityNumbers)
+    public async Task<UserContactPointAvailabilityList> GetContactPointAvailability(List<string> nationalIdentityNumbers, CancellationToken cancellationToken)
     {
         UserContactPointAvailabilityList availabilityResult = new();
 
         foreach (var nationalIdentityNumber in nationalIdentityNumbers)
         {
-            Result<UserProfile, bool> result = await _userProfileService.GetUser(nationalIdentityNumber);
+            Result<UserProfile, bool> result = await _userProfileService.GetUser(nationalIdentityNumber, cancellationToken);
 
             result.Match(
                 profile =>
@@ -85,8 +85,8 @@ public class UserContactPointService : IUserContactPointsService
 
             var contactPoint = parsedUrn switch
             {
-                IDPortenEmail idportenEmail => await ProcessIdPortenEmail(idportenEmail, urnIdentifier),
-                Username username => await ProcessUsername(username, urnIdentifier),
+                IDPortenEmail idportenEmail => await ProcessIdPortenEmail(idportenEmail, urnIdentifier, cancellationToken),
+                Username username => await ProcessUsername(username, urnIdentifier, cancellationToken),
                 _ => null
             };
 
@@ -99,14 +99,14 @@ public class UserContactPointService : IUserContactPointsService
         return contactPointsList;
     }
 
-    private async Task<SiUserContactPoints?> ProcessIdPortenEmail(IDPortenEmail idportenEmail, string urnIdentifier)
+    private async Task<SiUserContactPoints?> ProcessIdPortenEmail(IDPortenEmail idportenEmail, string urnIdentifier, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(idportenEmail.Value.Value))
         {
             return null;
         }
 
-        var result = await _userProfileService.GetUserByUsername("epost:" + idportenEmail.Value.Value);
+        var result = await _userProfileService.GetUserByUsername("epost:" + idportenEmail.Value.Value, cancellationToken);
 
         return result.Match(
             profile => new SiUserContactPoints()
@@ -123,9 +123,9 @@ public class UserContactPointService : IUserContactPointsService
             });
     }
 
-    private async Task<SiUserContactPoints?> ProcessUsername(Username username, string urnIdentifier)
+    private async Task<SiUserContactPoints?> ProcessUsername(Username username, string urnIdentifier, CancellationToken cancellationToken)
     {
-        var result = await _userProfileService.GetUserByUsername(username.Value.Value);
+        var result = await _userProfileService.GetUserByUsername(username.Value.Value, cancellationToken);
 
         return result.Match(
             profile =>

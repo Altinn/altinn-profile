@@ -24,8 +24,11 @@ namespace Altinn.Profile.Core.Integrations
         Task<ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchModel profileSettings, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Gets the local profile settings for a given user ID.
+        /// Retrieves the profile settings for a given user ID.
         /// </summary>
-        Task<ProfileSettings?> GetProfileSettings(int userId);
+        /// <param name="userId">The id of the user</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        Task<ProfileSettings?> GetProfileSettings(int userId, CancellationToken cancellationToken);
     }
 }

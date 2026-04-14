@@ -71,14 +71,6 @@ namespace Altinn.Profile.Core.Integrations
         Task<Register.Contracts.Party?> GetUserPartyBySsn(string ssn, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Get party information for multiple users based on their UUIDs.
-        /// </summary>
-        /// <param name="userUuids">The list of user UUIDs to look up.</param>
-        /// <param name="cancellationToken">Cancel the current request</param>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation, carrying a list of <see cref="Register.Contracts.Party"/> matching the given user UUIDs, or empty list if no match was found.</returns>
-        Task<IReadOnlyList<Register.Contracts.Party>> GetUserParties(List<Guid> userUuids, CancellationToken cancellationToken);
-
-        /// <summary>
         /// Get user UUID for a user based on their user ID.
         /// </summary>
         /// <param name="userId">The user ID to look up.</param>

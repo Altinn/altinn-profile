@@ -69,7 +69,7 @@ public class ProfileSettingsRepositoryTests
         // Act
         await repository.UpdateProfileSettings(profileSettings, TestContext.Current.CancellationToken);
 
-        var updated = await repository.GetProfileSettings(profileSettings.UserId);
+        var updated = await repository.GetProfileSettings(profileSettings.UserId, TestContext.Current.CancellationToken);
         Assert.NotNull(updated);
         Assert.Equal(profileSettings.UserId, updated.UserId);
         Assert.Equal(profileSettings.DoNotPromptForParty, updated.DoNotPromptForParty);
@@ -126,7 +126,7 @@ public class ProfileSettingsRepositoryTests
         // Act
         await repository.UpdateProfileSettings(updated, TestContext.Current.CancellationToken);
 
-        var stored = await repository.GetProfileSettings(existing.UserId);
+        var stored = await repository.GetProfileSettings(existing.UserId, TestContext.Current.CancellationToken);
         Assert.NotNull(stored);
         Assert.Equal(updated.UserId, stored.UserId);
         Assert.Equal(updated.DoNotPromptForParty, stored.DoNotPromptForParty);
@@ -149,7 +149,7 @@ public class ProfileSettingsRepositoryTests
     {
         var userId = 4;
 
-        var result = await _repository.GetProfileSettings(userId);
+        var result = await _repository.GetProfileSettings(userId, TestContext.Current.CancellationToken);
 
         Assert.Null(result);
     }

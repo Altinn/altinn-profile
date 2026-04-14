@@ -33,7 +33,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             }
 
             var (emailVerificationStatus, smsVerificationStatus) = await _addressVerificationService.GetVerificationStatusAsync(notificationSettings.UserId, notificationSettings.EmailAddress, notificationSettings.PhoneNumber, cancellationToken);
-            var ignoreUnitProfileDateTime = await _userProfileService.GetIgnoreUnitProfileDateTime(userId);
+            var ignoreUnitProfileDateTime = await _userProfileService.GetIgnoreUnitProfileDateTime(userId, cancellationToken);
 
             var needsConfirmation = NeedsConfirmation(notificationSettings, ignoreUnitProfileDateTime);
             var extendedInfo = new ExtendedUserPartyContactInfo(
@@ -48,7 +48,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <inheritdoc/>
         public async Task<IReadOnlyList<ExtendedUserPartyContactInfo>> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken)
         {
-            var ignoreUnitProfileDateTime = await _userProfileService.GetIgnoreUnitProfileDateTime(userId);
+            var ignoreUnitProfileDateTime = await _userProfileService.GetIgnoreUnitProfileDateTime(userId, cancellationToken);
 
             var notificationSettings = await _professionalNotificationsRepository.GetAllNotificationAddressesForUserAsync(userId, cancellationToken);
 
@@ -84,6 +84,49 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             }
 
             return isAdded;
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> AddOrUpdateNotificationAddressAsync(PatchUserPartyContactInfo contactInfo, CancellationToken cancellationToken)
+        {
+            var existingContactInfo = await _professionalNotificationsRepository.GetNotificationAddressAsync(contactInfo.UserId, contactInfo.PartyUuid, cancellationToken);
+
+            var updatedContactInfo = new UserPartyContactInfo
+            {
+                UserId = contactInfo.UserId,
+                PartyUuid = contactInfo.PartyUuid,
+                EmailAddress = contactInfo.EmailAddress.HasValue ? contactInfo.EmailAddress.Value : existingContactInfo?.EmailAddress,
+                PhoneNumber = contactInfo.PhoneNumber.HasValue ? contactInfo.PhoneNumber.Value : existingContactInfo?.PhoneNumber,
+                UserPartyContactInfoResources = contactInfo.UserPartyContactInfoResources.HasValue ? contactInfo.UserPartyContactInfoResources.Value : existingContactInfo?.UserPartyContactInfoResources
+            };
+
+            var isAdded = await _professionalNotificationsRepository.AddOrUpdateNotificationAddressAsync(updatedContactInfo, cancellationToken);
+
+            return isAdded;
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> IsContactInfoVerifiedOrNullAsync(PatchUserPartyContactInfo contactInfo, CancellationToken cancellationToken)
+        {
+            if (contactInfo.EmailAddress.HasValue && !string.IsNullOrEmpty(contactInfo.EmailAddress.Value))
+            {
+                var emailVerificationStatus = await _addressVerificationService.GetVerificationStatusAsync(contactInfo.UserId, AddressType.Email, contactInfo.EmailAddress.Value, cancellationToken);
+                if (emailVerificationStatus.HasValue && emailVerificationStatus != VerificationType.Verified)
+                {
+                    return false;
+                }
+            }
+
+            if (contactInfo.PhoneNumber.HasValue && !string.IsNullOrEmpty(contactInfo.PhoneNumber.Value))
+            {
+                var smsVerificationStatus = await _addressVerificationService.GetVerificationStatusAsync(contactInfo.UserId, AddressType.Sms, contactInfo.PhoneNumber.Value, cancellationToken);
+                if (smsVerificationStatus.HasValue && smsVerificationStatus != VerificationType.Verified)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -148,7 +191,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             foreach (var contactInfo in contactInfos)
             {
                 // Note: IUserProfileService.GetUser does not support cancellation token at this time
-                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId);
+                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId, cancellationToken);
 
                 userProfileResult.Match(
                     profile =>
@@ -218,7 +261,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                 var orgNumber = await _registerClient.GetOrganizationNumberByPartyUuid(contactInfo.PartyUuid, cancellationToken);
 
                 // Note: IUserProfileService.GetUser does not support cancellation token at this time
-                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId);
+                var userProfileResult = await _userProfileService.GetUser(contactInfo.UserId, cancellationToken);
 
                 userProfileResult.Match(
                     profile =>

@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+
+using Altinn.Profile.Validators;
+
 using PhoneNumbers;
 
 namespace Altinn.Profile.Models
@@ -48,20 +51,8 @@ namespace Altinn.Profile.Models
         /// This is extra validation for phone numbers that cannot be validated with regex.
         /// </summary>
         private bool IsValidPhoneNumber()
-        {
-            var phoneNumberUtil = PhoneNumberUtil.GetInstance();
-           
-            bool isValidNumber;
-
-            try
-            {
-                PhoneNumber phoneNumber = phoneNumberUtil.Parse(CountryCode + Phone, "NO");
-                isValidNumber = phoneNumberUtil.IsValidNumber(phoneNumber);
-            }
-            catch (NumberParseException)
-            {
-                isValidNumber = false;
-            }
+        {           
+            var isValidNumber = PhoneNumberValidator.IsValidPhoneNumber(CountryCode + Phone);
 
             if (CountryCode == "+47")
             {

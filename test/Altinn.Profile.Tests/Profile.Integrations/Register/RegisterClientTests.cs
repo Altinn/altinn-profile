@@ -839,57 +839,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
         }
 
         [Fact]
-        public async Task GetUserParties_ByUserUuids_WhenClientRespondsSuccessfully_ReturnsParties()
-        {
-            // Arrange
-            var userUuid1 = Guid.NewGuid();
-            var userUuid2 = Guid.NewGuid();
-            var userUuids = new List<Guid> { userUuid1, userUuid2 };
-
-            var expectedParty1 = Person.Minimal("17902349936", userUuid1) with { Uuid = userUuid1 };
-            var expectedParty2 = Person.Minimal("17902349936", userUuid2) with { Uuid = userUuid2 };
-            var (client, _, _) = CreateClientWithCapture(CreateQueryUserPartiesResponse(expectedParty1, expectedParty2));
-
-            // Act
-            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(2, result.Count);
-            Assert.Equal(expectedParty1.PartyId, result[0].PartyId);
-            Assert.Equal(expectedParty2.PartyId, result[1].PartyId);
-        }
-
-        [Fact]
-        public async Task GetUserParties_ByUserUuids_SetUpRequestCorrectly()
-        {
-            // Arrange
-            var userUuid1 = Guid.NewGuid();
-            var userUuid2 = Guid.NewGuid();
-            var userUuids = new List<Guid> { userUuid1, userUuid2 };
-
-            var expectedParty1 = Person.Minimal("17902349936", userUuid1) with { Uuid = userUuid1 };
-            var expectedParty2 = Person.Minimal("17902349936", userUuid2) with { Uuid = userUuid2 };
-            var (client, _, getCapturedRequest) = CreateClientWithCapture(CreateQueryUserPartiesResponse(expectedParty1, expectedParty2));
-
-            // Act
-            await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
-            var sentRequest = getCapturedRequest();
-
-            // Assert
-            Assert.Equal(HttpMethod.Post, sentRequest.Method);
-            Assert.Contains("v2/internal/parties/query?fields=person,party,user,si", sentRequest.RequestUri.ToString());
-            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
-
-            var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-            var sentPayload = JsonNode.Parse(requestContent);
-            var sentData = sentPayload["data"].AsArray();
-            Assert.Equal(2, sentData.Count);
-            Assert.Equal($"urn:altinn:party:uuid:{userUuid1}", (string)sentData[0]);
-            Assert.Equal($"urn:altinn:party:uuid:{userUuid2}", (string)sentData[1]);
-        }
-
-        [Fact]
         public async Task GetUserParty_ByUserUuid_WhenResponseContainsOnlyOrganization_ReturnsNull()
         {
             // Arrange
@@ -901,43 +850,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
 
             // Assert
             Assert.Null(result);
-        }
-
-        [Fact]
-        public async Task GetUserParties_ByUserUuids_WhenResponseContainsMixedPartyTypes_ReturnsOnlyUserParties()
-        {
-            // Arrange
-            var userUuid1 = Guid.NewGuid();
-            var userUuid3 = Guid.NewGuid();
-            var userUuids = new List<Guid> { userUuid1, Guid.NewGuid(), userUuid3 };
-
-            var expectedParty1 = Person.Minimal("17902349936", userUuid1);
-            var expectedParty2 = SelfIdentifiedUser.MinimalLegacy("testuser") with { Uuid = userUuid3 };
-            var (client, _, _) = CreateClientWithCapture(CreateQueryUserPartiesResponse(expectedParty1, Organization.Minimal("314249879"), expectedParty2));
-
-            // Act
-            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(2, result.Count);
-            Assert.Equal(expectedParty1.PartyId, result[0].PartyId);
-            Assert.Equal(expectedParty2.PartyId, result[1].PartyId);
-        }
-
-        [Fact]
-        public async Task GetUserParties_ByUserUuids_WhenResponseContainsOnlyOrganizations_ReturnsEmptyList()
-        {
-            // Arrange
-            var userUuids = new List<Guid> { Guid.NewGuid() };
-            var (client, _, _) = CreateClientWithCapture(CreateQueryUserPartiesResponse(Organization.Minimal("314249879"), Organization.Minimal("311443755")));
-
-            // Act
-            var result = await client.GetUserParties(userUuids, TestContext.Current.CancellationToken);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Empty(result);
         }
 
         [Fact]

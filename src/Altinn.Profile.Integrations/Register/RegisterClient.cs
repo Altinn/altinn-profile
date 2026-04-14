@@ -183,19 +183,6 @@ public class RegisterClient : IRegisterClient
         return parties.FirstOrDefault();
     }
 
-    /// <inheritdoc/>
-    public async Task<IReadOnlyList<Altinn.Register.Contracts.Party>> GetUserParties(List<Guid> userUuids, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(userUuids);
-        if (userUuids.Count == 0)
-        {
-            throw new ArgumentException("The list of user UUIDs cannot be empty.", nameof(userUuids));
-        }
-
-        var identifiers = userUuids.Select(UrnPrefixes.ToPartyUuidUrn).ToArray();
-        return [.. await GetUserParties(identifiers, cancellationToken)];
-    }
-
     private async Task<IEnumerable<Altinn.Register.Contracts.Party>> GetUserParties(string[] urns, CancellationToken cancellationToken)
     {
         var request = new QueryPartiesRequest(urns);
