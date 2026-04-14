@@ -70,7 +70,7 @@ public class SiUserContactInfoHandlerTests
         Assert.Equal(changeEvent.UserId, capturedRequest.UserId);
         Assert.Equal(ChangeType.Update, capturedRequest.ChangeType);
         Assert.Equal(changeEvent.EventTimestamp, capturedRequest.ChangeDateTime);
-        Assert.Equal(changeEvent.EmailAddress, capturedRequest.EmailAddress);
+        Assert.Null(capturedRequest.EmailAddress);
         Assert.Equal(changeEvent.PhoneNumber, capturedRequest.PhoneNumber);
     }
 

@@ -37,8 +37,8 @@ public class SiUserContactInfoUpdatedHandler(IPrivateConsentProfileClient privat
             UserId = changeEvent.UserId,
             ChangeType = ChangeType.Update,
             ChangeDateTime = changeEvent.EventTimestamp,
-            EmailAddress = changeEvent.EmailAddress,
-            PhoneNumber = changeEvent.PhoneNumber,
+            EmailAddress = null,
+            PhoneNumber = changeEvent.PhoneNumber ?? string.Empty, // A2 interprets null as no change, and empty string as removal of phone number.
         };
 
         // Using SBLBridge to update private consent profile in A2
