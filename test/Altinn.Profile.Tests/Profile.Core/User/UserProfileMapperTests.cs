@@ -181,7 +181,7 @@ namespace Altinn.Profile.Tests.Profile.Core.User
             Assert.Equal(expected.UserName, result.UserName);
             Assert.Equal(expected.PartyId, result.PartyId);
 
-            //// Assert.Equal(expected.ExternalIdentity, result.ExternalIdentity); // SI-specific
+            //// Assert.Equal(expected.ExternalIdentity, result.ExternalIdentity); // We don't have this value
             Assert.Equal(expected.UserType, result.UserType);
 
             // Party fields
@@ -211,7 +211,7 @@ namespace Altinn.Profile.Tests.Profile.Core.User
             Assert.Equal(expected.UserUuid, result.UserUuid);
             Assert.Equal(expected.UserName, result.UserName);
             Assert.Equal(expected.PartyId, result.PartyId);
-            ////Assert.Equal(expected.ExternalIdentity, result.ExternalIdentity); // SI-specific
+            Assert.Equal(expected.ExternalIdentity, result.ExternalIdentity); // SI-specific
             Assert.Equal(expected.UserType, result.UserType);
 
             // Party fields
