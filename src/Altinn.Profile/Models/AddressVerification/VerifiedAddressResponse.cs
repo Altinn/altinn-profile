@@ -20,7 +20,6 @@ namespace Altinn.Profile.Models.AddressVerification
         /// <summary>
         /// The type of the verified address. This indicates whether the address is an email address or a phone number.
         /// </summary>
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public AddressType Type { get; init; }
     }
 }

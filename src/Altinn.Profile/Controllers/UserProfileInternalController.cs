@@ -81,36 +81,4 @@ public class UserProfileInternalController : Controller
               userProfile => Ok(userProfile),
               _ => NotFound());
     }
-
-    /// <summary>
-    /// Gets a list of user profiles for a list of of users identified by userUuid.
-    /// </summary>
-    /// <param name="userUuidList">List of uuid identifying the users profiles to return</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    /// <returns>List of user profiles</returns>
-    [HttpPost]
-    [Route("listbyuuid")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [Consumes("application/json")]
-    [Produces("application/json")]
-    public async Task<ActionResult<List<UserProfile>>> GetList([FromBody][Required] List<Guid> userUuidList, CancellationToken cancellationToken)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        if (userUuidList.Count == 0)
-        {
-            return BadRequest();
-        }
-
-        Result<List<UserProfile>, bool> result = await _userProfileService.GetUserListByUuid(userUuidList, cancellationToken);
-        List<UserProfile> userProfiles = result.Match(
-             userProfileList => userProfileList,
-             _ => []);
-
-        return Ok(userProfiles);
-    }
 }

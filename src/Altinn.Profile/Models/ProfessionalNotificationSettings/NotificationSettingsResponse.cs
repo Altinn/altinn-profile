@@ -30,13 +30,11 @@ namespace Altinn.Profile.Models.ProfessionalNotificationSettings
         /// <summary>
         /// The verification status of the email address. Null if no email address is set.
         /// </summary>
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public VerificationType? EmailVerificationStatus { get; set; }
 
         /// <summary>
         /// The verification status of the phone number. Null if no phone number is set.
         /// </summary>
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public VerificationType? SmsVerificationStatus { get; set; }
     }
 }

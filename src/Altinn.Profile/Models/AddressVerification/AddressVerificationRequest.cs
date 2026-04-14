@@ -24,7 +24,6 @@ namespace Altinn.Profile.Models.AddressVerification
         /// </summary>
         [Required]
         [JsonRequired]
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public required AddressType? Type { get; init; }
 
         /// <summary>

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.RegularExpressions;
+
 using Altinn.Profile.Validators;
 
 namespace Altinn.Profile.Models.ProfessionalNotificationSettings
@@ -12,19 +13,21 @@ namespace Altinn.Profile.Models.ProfessionalNotificationSettings
     /// <summary>
     /// Data model for the professional notification address for an organization, also called personal notification address.
     /// </summary>
-    public abstract partial class ProfessionalNotificationSettings :IValidatableObject
+    public abstract partial class ProfessionalNotificationSettings : IValidatableObject
     {
         private const string _resourceIdRegex = "^urn:altinn:resource:[a-z0-9_-]{4,}$";
 
         /// <summary>
         /// The email address. May be null if no email address is set.
         /// </summary>
+        /// <example>user@example.com</example>
         [CustomRegexForNotificationAddresses(ValidationRule.EmailAddress)]
         public string? EmailAddress { get; set; }
 
         /// <summary>
         /// The phone number. May be null if no phone number is set. 
         /// </summary>
+        /// <example>+4798765432</example>
         [CustomRegexForNotificationAddresses(ValidationRule.PhoneNumber)]
         public string? PhoneNumber { get; set; }
 
