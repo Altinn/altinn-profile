@@ -142,7 +142,7 @@ Examples:
   - A workflow has jobs A (needs `contents: read`) and B (needs `contents: read` and `contents: write`). Acceptable solutions are: 
     - (a) Setting `contents: read` in the workflow permissions; setting a permissions block with `contents: read` and `contents: write` on job B
     - (b) Setting `{}` in the workflow permissions; setting a permissions block with `contents: read` on job A; setting a permissions block with `contents: read` and `contents: write` on job B
- - A workflow has jobs A (needs no permissions) and B (needs `contents: read`). The workflow should have `permissions: {}` at the top level, and job B should have its own `permissions` with `contents: read` and `contents: write`
+ - A workflow has jobs A (needs no permissions) and B (needs `contents: read`). The workflow should have `permissions: {}` at the top level, and job B should have its own `permissions` with `contents: read`.
 
 ## Branching and Commit Conventions
 
