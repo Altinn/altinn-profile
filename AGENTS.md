@@ -144,6 +144,28 @@ Examples:
     - (b) Setting `{}` in the workflow permissions; setting a permissions block with `contents: read` on job A; setting a permissions block with `contents: read` and `contents: write` on job B
  - A workflow has jobs A (needs no permissions) and B (needs `contents: read`). The workflow should have `permissions: {}` at the top level, and job B should have its own `permissions` with `contents: read` and `contents: write`
 
+## Branching and Commit Conventions
+
+- Use **feature branches** for all work: `feature/<short-description>` or `feature/<issue-id>-<short-description>`
+- Merges to `main` use **squash commits** — write the squash message as a single, descriptive sentence summarizing the change
+- Branch names and commit messages should be in English
+- Do not commit directly to `main`
+
+## What NOT to Do
+
+- **Do not modify `ServiceDefaults.Jobs` or `ServiceDefaults.Leases` projects directly** — these are shared infrastructure; changes require separate consideration
+- **Do not suppress StyleCop warnings with `#pragma warning disable`** — fix the underlying issue instead
+- **Do not add EF Core migrations without also copying the generated SQL** to a new version folder under `Altinn.Profile.Integrations/Migration/` for Yuniql deployment (see Database Migrations section)
+- **Do not reference internal implementation details across layer boundaries** — respect the API → Core → Integrations dependency flow; Core must not reference Integrations
+
+## Test Expectations
+
+- All new features and bug fixes must include tests; PRs without tests will not be accepted
+- Aim for **at least 80% test coverage** on new code
+- Follow the existing test structure (unit tests for services/utilities, integration tests for API endpoints and repositories)
+- Use Moq for mocking dependencies; use `ProfileWebApplicationFactory` for full API integration tests
+- Tests must pass locally before submitting a PR (`dotnet test`)
+
 ## Development Workflow
 
 ### Local Database Setup
