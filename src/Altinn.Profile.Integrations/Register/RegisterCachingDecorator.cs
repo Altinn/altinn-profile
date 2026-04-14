@@ -206,9 +206,7 @@ public class RegisterCachingDecorator : IRegisterClient
 
         return party;
     }
-
     
-
     /// <inheritdoc/>
     public async Task<Guid?> GetUserUuid(int userId, CancellationToken cancellationToken)
     {
