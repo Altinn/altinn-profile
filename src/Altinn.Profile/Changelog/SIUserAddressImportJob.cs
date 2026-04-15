@@ -83,26 +83,10 @@ namespace Altinn.Profile.Changelog
 
                 foreach (var change in page.ProfileChangeLogList)
                 {
-                    SiUserContactSettings contactSettings = Deserialize(change);
-                    var contactSettingsIsNull = contactSettings == null || (string.IsNullOrEmpty(contactSettings.PhoneNumber) && string.IsNullOrEmpty(contactSettings.EmailAddress));
-                    if (contactSettingsIsNull)
+                    var shouldBreak = await ProcessChange(change, lastChange, cancellationToken);
+                    if (shouldBreak)
                     {
-                        continue;
-                    }
-
-                    var userUuid = await _registerClient.GetUserUuid(contactSettings.UserId, cancellationToken);
-                    if (userUuid == null)
-                    {
-                        await _changelogSyncMetadataRepository.UpdateLatestChangeTimestampAsync(lastChange, DataType.PrivateConsentProfile);
-                        _logger.LogWarning("Could not find user with id {UserId} in Register, breaking the import. Change log item id: {ChangeId}", contactSettings.UserId, change.ProfileChangeLogId);
                         return;
-                    }
-
-                    contactSettings.UserUuid = (Guid)userUuid;
-
-                    if (change.OperationType is OperationType.Insert or OperationType.Update)
-                    {
-                        await _siUserContactInfoSyncRepository.InsertOrUpdate(contactSettings, change.ChangeDatetime, cancellationToken);
                     }
 
                     lastChange = change.ChangeDatetime.ToUniversalTime();
@@ -110,6 +94,33 @@ namespace Altinn.Profile.Changelog
 
                 await _changelogSyncMetadataRepository.UpdateLatestChangeTimestampAsync(lastChange, DataType.PrivateConsentProfile);
             }
+        }
+
+        private async Task<bool> ProcessChange(ChangeLogItem change, DateTime lastChange, CancellationToken cancellationToken)
+        {
+            SiUserContactSettings contactSettings = Deserialize(change);
+            var contactSettingsIsNull = contactSettings == null || (string.IsNullOrEmpty(contactSettings.PhoneNumber) && string.IsNullOrEmpty(contactSettings.EmailAddress));
+            if (contactSettingsIsNull)
+            {
+                return false;
+            }
+
+            var userUuid = await _registerClient.GetUserUuid(contactSettings.UserId, cancellationToken);
+            if (userUuid == null)
+            {
+                await _changelogSyncMetadataRepository.UpdateLatestChangeTimestampAsync(lastChange, DataType.PrivateConsentProfile);
+                _logger.LogWarning("Could not find user with id {UserId} in Register, breaking the import. Change log item id: {ChangeId}", contactSettings.UserId, change.ProfileChangeLogId);
+                return true;
+            }
+
+            contactSettings.UserUuid = (Guid)userUuid;
+
+            if (change.OperationType is OperationType.Insert or OperationType.Update)
+            {
+                await _siUserContactInfoSyncRepository.InsertOrUpdate(contactSettings, change.ChangeDatetime, cancellationToken);
+            }
+
+            return false;
         }
 
         private async IAsyncEnumerable<ChangeLog> GetChangeLogPage(DateTime from, [EnumeratorCancellation] CancellationToken cancellationToken)
