@@ -52,27 +52,38 @@ namespace Altinn.Profile.Integrations.SblBridge.User.PrivateConsent
         /// Formats a mobile number by standardizing its international prefix format.
         /// </summary>
         /// <param name="mobileNumber">The mobile number to format.</param>
-        /// <returns>The formatted mobile number with standardized prefix, or the original number if it's already in the correct format or is a local 8-digit number.</returns>
-        public static string FormatMobileNumber(string mobileNumber)
+        /// <param name="formattedNumber">The formatted mobile number with standardized prefix.</param>
+        /// <returns>True if the mobile number was successfully formatted; otherwise, false.</returns>
+        public static bool TryFormatMobileNumber(string mobileNumber, out string? formattedNumber)
         {
+            formattedNumber = mobileNumber;
+
             if (string.IsNullOrWhiteSpace(mobileNumber))
             {
-                return mobileNumber;
+                return true;
             }
-
+            
             // If the number starts with '00', replace it with '+'
             if (mobileNumber.StartsWith("00"))
             {
                 mobileNumber = string.Concat("+", mobileNumber.AsSpan(2));
             }
 
+            if (mobileNumber.StartsWith('+'))
+            {
+                formattedNumber = mobileNumber;
+                return true;
+            }
+
             // Assume 8 digit numbers without international prefix are local and should be formatted with norwegian country code
             if (!mobileNumber.StartsWith('+') && !mobileNumber.StartsWith("00") && mobileNumber.Length == 8)
             {
-                return string.Concat("+47", mobileNumber);
+                formattedNumber = string.Concat("+47", mobileNumber);
+                return true;
             }
 
-            return mobileNumber;
+            formattedNumber = null;
+            return false;
         }
     }
 }

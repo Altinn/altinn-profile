@@ -6,18 +6,19 @@ namespace Altinn.Profile.Tests.Profile.Integrations.SblBridge.User.PrivateConsen
 
 public class SiUserContactSettingsTests
 {
-    public class FormatMobileNumberTests
+    public class TryFormatMobileNumberTests
     {
         [Fact]
-        public void FormatMobileNumber_WhenNull_ReturnsNull()
+        public void TryFormatMobileNumber_WhenNull_ReturnsTrueAndNull()
         {
             // Arrange
             string mobileNumber = null;
 
             // Act
-            var result = SiUserContactSettings.FormatMobileNumber(mobileNumber);
+            var success = SiUserContactSettings.TryFormatMobileNumber(mobileNumber, out var result);
 
             // Assert
+            Assert.True(success);
             Assert.Null(result);
         }
 
@@ -27,12 +28,13 @@ public class SiUserContactSettingsTests
         [InlineData("   ")]
         [InlineData("\t")]
         [InlineData("\n")]
-        public void FormatMobileNumber_WhenWhitespace_ReturnsOriginal(string mobileNumber)
+        public void TryFormatMobileNumber_WhenWhitespace_ReturnsTrueAndOriginal(string mobileNumber)
         {
             // Act
-            var result = SiUserContactSettings.FormatMobileNumber(mobileNumber);
+            var success = SiUserContactSettings.TryFormatMobileNumber(mobileNumber, out var result);
 
             // Assert
+            Assert.True(success);
             Assert.Equal(mobileNumber, result);
         }
 
@@ -41,12 +43,13 @@ public class SiUserContactSettingsTests
         [InlineData("004712345678", "+4712345678")]
         [InlineData("0031612345678", "+31612345678")]
         [InlineData("001234567890", "+1234567890")]
-        public void FormatMobileNumber_WhenStartsWith00_ReplacesWithPlus(string input, string expected)
+        public void TryFormatMobileNumber_WhenStartsWith00_ReturnsTrueAndReplacesWithPlus(string input, string expected)
         {
             // Act
-            var result = SiUserContactSettings.FormatMobileNumber(input);
+            var success = SiUserContactSettings.TryFormatMobileNumber(input, out var result);
 
             // Assert
+            Assert.True(success);
             Assert.Equal(expected, result);
         }
 
@@ -55,12 +58,13 @@ public class SiUserContactSettingsTests
         [InlineData("98765432", "+4798765432")]
         [InlineData("40000000", "+4740000000")]
         [InlineData("99999999", "+4799999999")]
-        public void FormatMobileNumber_When8DigitsWithoutPrefix_AddsNorwegianCountryCode(string input, string expected)
+        public void TryFormatMobileNumber_When8DigitsWithoutPrefix_ReturnsTrueAndAddsNorwegianCountryCode(string input, string expected)
         {
             // Act
-            var result = SiUserContactSettings.FormatMobileNumber(input);
+            var success = SiUserContactSettings.TryFormatMobileNumber(input, out var result);
 
             // Assert
+            Assert.True(success);
             Assert.Equal(expected, result);
         }
 
@@ -70,39 +74,42 @@ public class SiUserContactSettingsTests
         [InlineData("+46701234567")]
         [InlineData("+1234567890")]
         [InlineData("+441234567890")]
-        public void FormatMobileNumber_WhenAlreadyHasPlusPrefix_ReturnsUnchanged(string mobileNumber)
+        public void TryFormatMobileNumber_WhenAlreadyHasPlusPrefix_ReturnsTrueAndUnchanged(string mobileNumber)
         {
             // Act
-            var result = SiUserContactSettings.FormatMobileNumber(mobileNumber);
+            var success = SiUserContactSettings.TryFormatMobileNumber(mobileNumber, out var result);
 
             // Assert
+            Assert.True(success);
             Assert.Equal(mobileNumber, result);
         }
 
         [Theory]
-        [InlineData("1234567", "1234567")] // 7 digits
-        [InlineData("123456789", "123456789")] // 9 digits
-        [InlineData("12345", "12345")] // 5 digits
-        [InlineData("123", "123")] // 3 digits
-        public void FormatMobileNumber_WhenNotExactly8Digits_ReturnsUnchanged(string input, string expected)
+        [InlineData("1234567")] // 7 digits
+        [InlineData("123456789")] // 9 digits
+        [InlineData("12345")] // 5 digits
+        [InlineData("123")] // 3 digits
+        public void TryFormatMobileNumber_WhenNotExactly8Digits_ReturnsFalseAndNull(string input)
         {
             // Act
-            var result = SiUserContactSettings.FormatMobileNumber(input);
+            var success = SiUserContactSettings.TryFormatMobileNumber(input, out var result);
 
             // Assert
-            Assert.Equal(expected, result);
+            Assert.False(success);
+            Assert.Null(result);
         }
 
         [Theory]
-        [InlineData("4712345678", "4712345678")] // 10 digits starting with 47
-        [InlineData("474712345678", "474712345678")] // 12 digits starting with 47
-        public void FormatMobileNumber_WhenStartsWith47ButNot8Digits_ReturnsUnchanged(string input, string expected)
+        [InlineData("4712345678")] // 10 digits starting with 47
+        [InlineData("474712345678")] // 12 digits starting with 47
+        public void TryFormatMobileNumber_WhenStartsWith47ButNot8Digits_ReturnsFalseAndNull(string input)
         {
             // Act
-            var result = SiUserContactSettings.FormatMobileNumber(input);
+            var success = SiUserContactSettings.TryFormatMobileNumber(input, out var result);
 
             // Assert
-            Assert.Equal(expected, result);
+            Assert.False(success);
+            Assert.Null(result);
         }
     }
 }

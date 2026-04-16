@@ -14,6 +14,8 @@ using Altinn.Profile.Integrations.SblBridge.User.PrivateConsent;
 
 using Microsoft.Extensions.Logging;
 
+using PhoneNumbers;
+
 namespace Altinn.Profile.Changelog
 {
     /// <summary>
@@ -99,11 +101,23 @@ namespace Altinn.Profile.Changelog
         private async Task<bool> ProcessChange(ChangeLogItem change, DateTime lastChange, CancellationToken cancellationToken)
         {
             SiUserContactSettings contactSettings = Deserialize(change);
+
             var contactSettingsIsNull = contactSettings == null || (string.IsNullOrEmpty(contactSettings.PhoneNumber) && string.IsNullOrEmpty(contactSettings.EmailAddress));
             if (contactSettingsIsNull)
             {
                 return false;
             }
+
+            if (!SiUserContactSettings.TryFormatMobileNumber(contactSettings.PhoneNumber, out var formattedNumber))
+            {
+                string visible = contactSettings.PhoneNumber.Substring(0, 4);
+                string masked = new string('*', contactSettings.PhoneNumber.Length - 4);
+                var maskedPhone = visible + masked;
+                _logger.LogWarning("Could not format mobile number for user with id {UserId}. Change log item id: {ChangeId}, with mobileNumber: {MobileNumber}", contactSettings.UserId, change.ProfileChangeLogId, maskedPhone);
+                contactSettings.PhoneNumber = null;
+            }
+
+            contactSettings.PhoneNumber = formattedNumber;
 
             var userUuid = await _registerClient.GetUserUuid(contactSettings.UserId, cancellationToken);
             if (userUuid == null)
@@ -147,7 +161,6 @@ namespace Altinn.Profile.Changelog
             try
             {
                 contactSettings = SiUserContactSettings.Deserialize(change.DataObject);
-                contactSettings.PhoneNumber = SiUserContactSettings.FormatMobileNumber(contactSettings.PhoneNumber);
             }
             catch (Exception ex)
             {
