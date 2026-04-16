@@ -858,9 +858,9 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             // Arrange
             var userId = 12345;
             var expectedUserUuid = Guid.NewGuid();
-            var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
             {
-                Data = [new() { OrganizationIdentifier = string.Empty, PartyUuid = expectedUserUuid }]
+                Data = [SelfIdentifiedUser.MinimalLegacy("username", expectedUserUuid)]
             });
 
             var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -895,9 +895,9 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             // Arrange
             var userId = 12345;
             var expectedUserUuid = Guid.NewGuid();
-            var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
+            var responseContent = JsonSerializer.Serialize(new QueryUserPartiesResponse
             {
-                Data = [new() { OrganizationIdentifier = string.Empty, PartyUuid = expectedUserUuid }]
+                Data = [SelfIdentifiedUser.MinimalLegacy("username", expectedUserUuid)]
             });
 
             var response = new HttpResponseMessage(HttpStatusCode.OK)

@@ -74,13 +74,13 @@ public class RegisterClient : IRegisterClient
             return null;
         }
 
-        var responseObject = await response.Content.ReadFromJsonAsync<QueryPartiesResponse>(cancellationToken);
+        var responseObject = await response.Content.ReadFromJsonAsync<QueryUserPartiesResponse>(cancellationToken);
         if (!(responseObject?.Data?.Count > 0))
         {
             return null;
         }
 
-        return responseObject.Data[0].PartyUuid;
+        return responseObject.Data[0].Uuid;
     }
 
     /// <inheritdoc/>
