@@ -852,6 +852,108 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             Assert.Null(result);
         }
 
+        [Fact]
+        public async Task GetUserUuid_WhenValidAccessToken_SetsUpHttpClientCorrectly()
+        {
+            // Arrange
+            var userId = 12345;
+            var expectedUserUuid = Guid.NewGuid();
+            var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
+            {
+                Data = [new() { OrganizationIdentifier = string.Empty, PartyUuid = expectedUserUuid }]
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            HttpRequestMessage sentRequest = null;
+            var handler = CreateHandler(response, req => sentRequest = req);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserUuid(userId, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(HttpMethod.Post, sentRequest.Method);
+            Assert.Equal(new Uri(_testBaseUrl + "v2/internal/parties/query?fields=id,uuid"), sentRequest.RequestUri);
+            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
+
+            var requestContent = await sentRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            JsonNode sentPayload = JsonNode.Parse(requestContent);
+            var sentData = sentPayload["data"].AsArray();
+            Assert.Single(sentData);
+            Assert.Equal($"urn:altinn:user:id:{userId}", (string)sentData[0]);
+        }
+
+        [Fact]
+        public async Task GetUserUuid_WhenClientRespondsSuccessfully_ReturnsUserUuid()
+        {
+            // Arrange
+            var userId = 12345;
+            var expectedUserUuid = Guid.NewGuid();
+            var responseContent = JsonSerializer.Serialize(new QueryPartiesResponse
+            {
+                Data = [new() { OrganizationIdentifier = string.Empty, PartyUuid = expectedUserUuid }]
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserUuid(userId, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedUserUuid, result);
+        }
+
+        [Fact]
+        public async Task GetUserUuid_WhenRegisterReturns500_ReturnsNull()
+        {
+            // Arrange
+            var userId = 12345;
+            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserUuid(userId, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetUserUuid_WhenNotAbleToGenerateToken_ReturnsNull()
+        {
+            // Arrange
+            var userId = 12345;
+            var response = new HttpResponseMessage(HttpStatusCode.OK);
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            _tokenGenMock.Setup(t => t.GenerateAccessToken(It.IsAny<string>(), It.IsAny<string>()))
+                         .Returns((string)null);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetUserUuid(userId, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+            handler.Protected().Verify("SendAsync", Times.Never(), ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>());
+        }
+
         private static Mock<HttpMessageHandler> CreateHandler(
             HttpResponseMessage response,
             Action<HttpRequestMessage> requestCallback = null,

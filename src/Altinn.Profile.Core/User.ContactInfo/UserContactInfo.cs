@@ -28,7 +28,7 @@ namespace Altinn.Profile.Core.User.ContactInfo
         /// <summary>
         /// The email address
         /// </summary>
-        public required string EmailAddress { get; init; }
+        public string? EmailAddress { get; set; }
 
         /// <summary>
         /// The phone number

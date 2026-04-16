@@ -20,5 +20,10 @@
         /// Lease name for <see cref="ProfileSettingImportJob"/>.
         /// </summary>
         internal const string A2ProfileSettingImport = "a2-profile-settings-import";
+
+        /// <summary>
+        /// Lease name for <see cref="SIUserAddressImportJob"/>.
+        /// </summary>
+        internal const string SIUserAddressImport = "a2-si-user-address-import";
     }
 }

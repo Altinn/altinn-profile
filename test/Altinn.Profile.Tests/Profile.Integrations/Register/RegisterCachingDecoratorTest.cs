@@ -511,6 +511,62 @@ public class RegisterCachingDecoratorTest
         Assert.False(memoryCache.TryGetValue("Party_UserId_SSN_" + ssn, out int _));
     }
 
+    [Fact]
+    public async Task GetUserUuid_UserUuidInCache_DecoratedServiceNotCalled()
+    {
+        const int userId = 12345;
+        Guid expectedUuid = Guid.NewGuid();
+        MemoryCache memoryCache = CreateMemoryCache();
+        memoryCache.Set($"UserUuid_{userId}", expectedUuid);
+
+        RegisterCachingDecorator target = CreateTarget(memoryCache);
+
+        Guid? result = await target.GetUserUuid(userId, CancellationToken.None);
+
+        Assert.Equal(expectedUuid, result);
+        _decoratedServiceMock.Verify(service => service.GetUserUuid(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never());
+    }
+
+    [Fact]
+    public async Task GetUserUuid_UserUuidNotInCache_DecoratedServiceCalledAndCachePopulated()
+    {
+        const int userId = 12345;
+        Guid expectedUuid = Guid.NewGuid();
+        MemoryCache memoryCache = CreateMemoryCache();
+
+        _decoratedServiceMock
+            .Setup(service => service.GetUserUuid(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedUuid);
+
+        RegisterCachingDecorator target = CreateTarget(memoryCache);
+
+        Guid? result = await target.GetUserUuid(userId, CancellationToken.None);
+
+        Assert.Equal(expectedUuid, result);
+        _decoratedServiceMock.Verify(service => service.GetUserUuid(userId, It.IsAny<CancellationToken>()), Times.Once());
+        Assert.True(memoryCache.TryGetValue($"UserUuid_{userId}", out Guid cachedUuid));
+        Assert.Equal(expectedUuid, cachedUuid);
+    }
+
+    [Fact]
+    public async Task GetUserUuid_NullFromDecoratedService_CacheNotPopulated()
+    {
+        const int userId = 12345;
+        MemoryCache memoryCache = CreateMemoryCache();
+
+        _decoratedServiceMock
+            .Setup(service => service.GetUserUuid(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)null);
+
+        RegisterCachingDecorator target = CreateTarget(memoryCache);
+
+        Guid? result = await target.GetUserUuid(userId, CancellationToken.None);
+
+        Assert.Null(result);
+        _decoratedServiceMock.Verify(service => service.GetUserUuid(userId, It.IsAny<CancellationToken>()), Times.Once());
+        Assert.False(memoryCache.TryGetValue($"UserUuid_{userId}", out Guid _));
+    }
+
     private RegisterCachingDecorator CreateTarget(IMemoryCache memoryCache)
         => new(_decoratedServiceMock.Object, memoryCache, _coreSettingsOptions.Object);
 

@@ -206,6 +206,24 @@ public class RegisterCachingDecorator : IRegisterClient
 
         return party;
     }
+    
+    /// <inheritdoc/>
+    public async Task<Guid?> GetUserUuid(int userId, CancellationToken cancellationToken)
+    {
+        var cacheKey = $"UserUuid_{userId}";
+        if (_memoryCache.TryGetValue(cacheKey, out Guid? userUuid))
+        {
+            return userUuid;
+        }
+
+        userUuid = await _decoratedService.GetUserUuid(userId, cancellationToken);
+        if (userUuid.HasValue)
+        {
+            _memoryCache.Set(cacheKey, userUuid.Value, _cacheOptions);
+        }
+
+        return userUuid;
+    }
 
     // Private methods
     private void AddUserToCache(string uniqueCacheKey, Party userProfile)

@@ -63,6 +63,27 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
+    public async Task<Guid?> GetUserUuid(int userId, CancellationToken cancellationToken)
+    {
+        string[] identifiers = [UrnPrefixes.ToUserIdUrn(userId)];
+        var request = new QueryPartiesRequest(identifiers);
+
+        var response = await QueryParties(request, "fields=id,uuid", cancellationToken: cancellationToken);
+        if (response == null)
+        {
+            return null;
+        }
+
+        var responseObject = await response.Content.ReadFromJsonAsync<QueryPartiesResponse>(cancellationToken);
+        if (!(responseObject?.Data?.Count > 0))
+        {
+            return null;
+        }
+
+        return responseObject.Data[0].PartyUuid;
+    }
+
+    /// <inheritdoc/>
     public async Task<string?> GetMainUnit(string orgNumber, CancellationToken cancellationToken)
     {
         var request = new LookupMainUnitRequest(orgNumber);
