@@ -28,14 +28,14 @@ public class SiUserContactSettingsTests
         [InlineData("   ")]
         [InlineData("\t")]
         [InlineData("\n")]
-        public void TryFormatMobileNumber_WhenWhitespace_ReturnsTrueAndOriginal(string mobileNumber)
+        public void TryFormatMobileNumber_WhenWhitespace_ReturnsTrueAndNull(string mobileNumber)
         {
             // Act
             var success = SiUserContactSettings.TryFormatMobileNumber(mobileNumber, out var result);
 
             // Assert
             Assert.True(success);
-            Assert.Equal(mobileNumber, result);
+            Assert.Null(result);
         }
 
         [Theory]

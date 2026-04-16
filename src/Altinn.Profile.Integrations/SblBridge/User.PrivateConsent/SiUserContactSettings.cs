@@ -60,6 +60,7 @@ namespace Altinn.Profile.Integrations.SblBridge.User.PrivateConsent
 
             if (string.IsNullOrWhiteSpace(mobileNumber))
             {
+                formattedNumber = null;
                 return true;
             }
             
