@@ -97,10 +97,12 @@ namespace Altinn.Profile.Core.User
             var user = si.User.Value;
             var selfIdentifiedUserType = si.SelfIdentifiedUserType.Value;
             var displayName = si.DisplayName.Value;
+            var externalIdentity = string.Empty;
 
             if (selfIdentifiedUserType == SelfIdentifiedUserType.IdPortenEmail)
             {
                 displayName = "epost:" + displayName;
+                externalIdentity = si.ExternalUrn.Value?.ToString() ?? string.Empty;
             }
 
             return new UserProfile
@@ -109,7 +111,7 @@ namespace Altinn.Profile.Core.User
                 UserUuid = si.Uuid,
                 UserName = user?.Username.Value,
                 PartyId = (int)si.PartyId.Value,
-                ExternalIdentity = si.ExternalUrn.Value?.ToString(),
+                ExternalIdentity = externalIdentity,
                 PhoneNumber = string.Empty,
                 Party = new Register.Contracts.V1.Party
                 {
