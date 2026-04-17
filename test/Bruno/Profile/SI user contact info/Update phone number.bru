@@ -1,0 +1,21 @@
+meta {
+  name: Update phone number
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{ProfileBaseAddress}}/api/v1/users/current/notificationsettings/private/phonenumber
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "value": null
+  }
+}
+
+docs {
+  Sets all properties of the notification settings for a party for the user
+}
