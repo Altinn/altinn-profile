@@ -31,6 +31,7 @@ public class UserProfileService : IUserProfileService
     /// <param name="profileSettingsRepository">The profile settings repository available through DI</param>
     /// <param name="personRepository">The person repository available through DI</param>
     /// <param name="registerClient">The register client available through DI</param>
+    /// <param name="userContactInfoRepository">The user contact info repository available through DI</param>
     /// <param name="settings">The core settings available through DI</param>
     public UserProfileService(IUserProfileClient userProfileClient, IUserProfileComparer userProfileComparer, IProfileSettingsRepository profileSettingsRepository, IPersonService personRepository, IRegisterClient registerClient, IUserContactInfoRepository userContactInfoRepository, IOptionsMonitor<CoreSettings> settings)
     {
