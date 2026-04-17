@@ -477,6 +477,116 @@ public class UserContactInfoRepositoryTests
         _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<SiUserContactInfoUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Never);
     }
 
+    [Fact]
+    public async Task Get_WhenUserDoesNotExist_ReturnsNull()
+    {
+        // Arrange
+        var options = CreateOptions(nameof(Get_WhenUserDoesNotExist_ReturnsNull));
+        var factory = new TestDbContextFactory(options);
+        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+
+        // Act
+        var result = await repository.Get(12, CancellationToken.None);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task Get_WhenUserExists_ReturnsContactInfo()
+    {
+        // Arrange
+        var options = CreateOptions(nameof(Get_WhenUserExists_ReturnsContactInfo));
+        var factory = new TestDbContextFactory(options);
+        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+
+        int testUserId = 13;
+        var expectedUserUuid = Guid.NewGuid();
+        var expectedCreatedAt = DateTime.UtcNow.AddMinutes(-2);
+        var expectedPhoneNumberLastChanged = DateTime.UtcNow.AddMinutes(-1);
+
+        await using var seedContext = new ProfileDbContext(options);
+        seedContext.SelfIdentifiedUsers.Add(new UserContactInfo()
+        {
+            UserId = testUserId,
+            UserUuid = expectedUserUuid,
+            Username = "foobar",
+            CreatedAt = expectedCreatedAt,
+            EmailAddress = "some@mail.no",
+            PhoneNumber = "+4798765430",
+            PhoneNumberLastChanged = expectedPhoneNumberLastChanged
+        });
+        await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await repository.Get(testUserId, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(testUserId, result.UserId);
+        Assert.Equal(expectedUserUuid, result.UserUuid);
+        Assert.Equal("foobar", result.Username);
+        Assert.Equal(expectedCreatedAt, result.CreatedAt);
+        Assert.Equal("some@mail.no", result.EmailAddress);
+        Assert.Equal("+4798765430", result.PhoneNumber);
+        Assert.Equal(expectedPhoneNumberLastChanged, result.PhoneNumberLastChanged);
+    }
+
+    [Fact]
+    public async Task GetByUsername_WhenUserDoesNotExist_ReturnsNull()
+    {
+        // Arrange
+        var options = CreateOptions(nameof(GetByUsername_WhenUserDoesNotExist_ReturnsNull));
+        var factory = new TestDbContextFactory(options);
+        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+
+        // Act
+        var result = await repository.GetByUsername("missing-user", CancellationToken.None);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetByUsername_WhenUserExists_ReturnsContactInfo()
+    {
+        // Arrange
+        var options = CreateOptions(nameof(GetByUsername_WhenUserExists_ReturnsContactInfo));
+        var factory = new TestDbContextFactory(options);
+        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+
+        const string Username = "foobar";
+        var expectedUserUuid = Guid.NewGuid();
+        var expectedCreatedAt = DateTime.UtcNow.AddMinutes(-2);
+        var expectedPhoneNumberLastChanged = DateTime.UtcNow.AddMinutes(-1);
+
+        await using var seedContext = new ProfileDbContext(options);
+        seedContext.SelfIdentifiedUsers.Add(new UserContactInfo()
+        {
+            UserId = 14,
+            UserUuid = expectedUserUuid,
+            Username = Username,
+            CreatedAt = expectedCreatedAt,
+            EmailAddress = "some@mail.no",
+            PhoneNumber = "+4798765430",
+            PhoneNumberLastChanged = expectedPhoneNumberLastChanged
+        });
+        await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await repository.GetByUsername(Username, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(14, result.UserId);
+        Assert.Equal(expectedUserUuid, result.UserUuid);
+        Assert.Equal(Username, result.Username);
+        Assert.Equal(expectedCreatedAt, result.CreatedAt);
+        Assert.Equal("some@mail.no", result.EmailAddress);
+        Assert.Equal("+4798765430", result.PhoneNumber);
+        Assert.Equal(expectedPhoneNumberLastChanged, result.PhoneNumberLastChanged);
+    }
+
     private void MockDbContextOutbox<TEvent>(Action<TEvent, DeliveryOptions> callback)
     {
         DbContext context = null;
