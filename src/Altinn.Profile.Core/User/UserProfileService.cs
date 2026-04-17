@@ -1,6 +1,7 @@
 ﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
+using Altinn.Profile.Models.Enums;
 using Altinn.Register.Contracts;
 
 using Microsoft.Extensions.Options;
@@ -19,6 +20,7 @@ public class UserProfileService : IUserProfileService
     private readonly IProfileSettingsRepository _profileSettingsRepository;
     private readonly IPersonService _personRepository;
     private readonly IRegisterClient _registerClient;
+    private readonly IUserContactInfoRepository _userContactInfoRepository;
     private readonly CoreSettings _settings;
 
     /// <summary>
@@ -30,7 +32,7 @@ public class UserProfileService : IUserProfileService
     /// <param name="personRepository">The person repository available through DI</param>
     /// <param name="registerClient">The register client available through DI</param>
     /// <param name="settings">The core settings available through DI</param>
-    public UserProfileService(IUserProfileClient userProfileClient, IUserProfileComparer userProfileComparer, IProfileSettingsRepository profileSettingsRepository, IPersonService personRepository, IRegisterClient registerClient, IOptionsMonitor<CoreSettings> settings)
+    public UserProfileService(IUserProfileClient userProfileClient, IUserProfileComparer userProfileComparer, IProfileSettingsRepository profileSettingsRepository, IPersonService personRepository, IRegisterClient registerClient, IUserContactInfoRepository userContactInfoRepository, IOptionsMonitor<CoreSettings> settings)
     {
         _userProfileClient = userProfileClient;
         _userProfileComparer = userProfileComparer;
@@ -38,6 +40,7 @@ public class UserProfileService : IUserProfileService
         _personRepository = personRepository;
         _registerClient = registerClient;
         _settings = settings.CurrentValue;
+        _userContactInfoRepository = userContactInfoRepository;
     }
 
     /// <inheritdoc/>
@@ -167,6 +170,7 @@ public class UserProfileService : IUserProfileService
         UserProfile legacyProfile = legacyResult.Match(userProfile => userProfile, _ => default!);
         legacyProfile = await EnrichWithProfileSettings(legacyProfile, default);
         legacyProfile = await EnrichWithKrrData(legacyProfile);
+        legacyProfile = await EnrichWithSiUserContactSettings(legacyProfile);
 
         return legacyProfile;
     }
@@ -202,6 +206,7 @@ public class UserProfileService : IUserProfileService
 
         userProfile = await EnrichWithProfileSettings(userProfile, cancellationToken);
         userProfile = await EnrichWithKrrData(userProfile, cancellationToken);
+        userProfile = await EnrichWithSiUserContactSettings(userProfile, cancellationToken);
 
         return userProfile;
     }
@@ -276,6 +281,25 @@ public class UserProfileService : IUserProfileService
             userProfile.PhoneNumber = contactPreferences[0].MobileNumber;
             userProfile.Email = contactPreferences[0].Email;
             userProfile.IsReserved = contactPreferences[0].IsReserved;
+        }
+
+        return userProfile;
+    }
+
+    private async Task<UserProfile> EnrichWithSiUserContactSettings(UserProfile userProfile, CancellationToken cancellationToken = default)
+    {
+        if (userProfile.UserType is not UserType.SelfIdentified)
+        {
+            // If the user profile is not a self-identified user, we should not attempt to enrich it with SI contact info, as SI contact info is only relevant for self-identified users.
+            return userProfile;
+        }
+
+        var contactInfo = await _userContactInfoRepository.Get(userProfile.UserId, cancellationToken);
+        if (contactInfo != null)
+        {
+            userProfile.PhoneNumber = contactInfo.PhoneNumber;
+            userProfile.Email = contactInfo.EmailAddress;
+            userProfile.IsReserved = false; // SI users cannot be reserved, so we set this to false regardless of the value in the database.
         }
 
         return userProfile;

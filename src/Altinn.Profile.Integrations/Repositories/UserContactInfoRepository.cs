@@ -87,4 +87,12 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
 
         return userContactInfo;
     }
+
+    /// <inheritdoc/>
+    public async Task<UserContactInfo?> Get(int userId, CancellationToken cancellationToken)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        var userContactInfo = await databaseContext.SelfIdentifiedUsers.FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken);
+        return userContactInfo;
+    }
 }
