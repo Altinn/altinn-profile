@@ -64,7 +64,7 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
     private static bool IsUserIdConflict(DbUpdateException ex) => ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: "pk_self_identified_users" };
 
     /// <inheritdoc/>
-    public async Task<UserContactInfo?> UpdatePhoneNumber(int userId, string phoneNumber, CancellationToken cancellationToken)
+    public async Task<UserContactInfo?> UpdatePhoneNumber(int userId, string? phoneNumber, CancellationToken cancellationToken)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
         var userContactInfo = await databaseContext.SelfIdentifiedUsers.FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken);

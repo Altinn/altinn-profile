@@ -14,12 +14,17 @@ public static class PrincipalUtil
 {
     public static string GetToken(int userId, int authenticationLevel = 2)
     {
+        return GetToken(userId, "Mock", authenticationLevel);
+    }
+
+    public static string GetToken(int userId, string authenticateMethod, int authenticationLevel = 2)
+    {
         List<Claim> claims = [];
         string issuer = "www.altinn.no";
         claims.Add(new Claim(AltinnCoreClaimTypes.UserId, userId.ToString(), ClaimValueTypes.String, issuer));
         claims.Add(new Claim(AltinnCoreClaimTypes.UserName, "UserOne", ClaimValueTypes.String, issuer));
         claims.Add(new Claim(AltinnCoreClaimTypes.PartyID, userId.ToString(), ClaimValueTypes.Integer32, issuer));
-        claims.Add(new Claim(AltinnCoreClaimTypes.AuthenticateMethod, "Mock", ClaimValueTypes.String, issuer));
+        claims.Add(new Claim(AltinnCoreClaimTypes.AuthenticateMethod, authenticateMethod, ClaimValueTypes.String, issuer));
         claims.Add(new Claim(AltinnCoreClaimTypes.AuthenticationLevel, authenticationLevel.ToString(), ClaimValueTypes.Integer32, issuer));
 
         ClaimsIdentity identity = new("mock");

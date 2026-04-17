@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-using Altinn.Profile.Models;
+using Altinn.Profile.Models.OrganizationNotificationAddresses;
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Validators

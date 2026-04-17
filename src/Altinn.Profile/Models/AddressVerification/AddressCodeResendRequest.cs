@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 using Altinn.Profile.Core.AddressVerifications.Models;
 
-namespace Altinn.Profile.Models
+namespace Altinn.Profile.Models.AddressVerification
 {
     /// <summary>
     /// Represents a request to resend a verification code for a given address (email or phone number)

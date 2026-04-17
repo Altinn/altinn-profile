@@ -8,12 +8,12 @@ using System.Text.RegularExpressions;
 
 using Altinn.Profile.Validators;
 
-namespace Altinn.Profile.Models
+namespace Altinn.Profile.Models.ProfessionalNotificationSettings
 {
     /// <summary>
     /// Data model for the professional notification address for an organization, also called personal notification address.
     /// </summary>
-    public abstract partial class ProfessionalNotificationAddress : IValidatableObject
+    public abstract partial class ProfessionalNotificationSettings : IValidatableObject
     {
         private const string _resourceIdRegex = "^urn:altinn:resource:[a-z0-9_-]{4,}$";
 

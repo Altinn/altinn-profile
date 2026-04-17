@@ -9,6 +9,7 @@ using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Utils;
 using Altinn.Profile.Models;
+using Altinn.Profile.Models.ProfessionalNotificationSettings;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -20,18 +21,18 @@ namespace Altinn.Profile.Controllers
     /// Controller for organizing the notification addresses a user has registered for parties
     /// </summary>
     [Authorize]
-    [Route("profile/api/v1/users/current/notificationsettings")]
+    [Route("profile/api/v1/users/current/notificationsettings/parties")]
     [Consumes("application/json")]
     [Produces("application/json")]
-    public class NotificationsSettingsController : ControllerBase
+    public class ProfessionalNotiticationSettingsController : ControllerBase
     {
         private readonly IProfessionalNotificationsService _professionalNotificationsService;
         private const string _partyUuidEmptyErrorMessage = "Party UUID cannot be empty.";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NotificationsSettingsController"/> class.
+        /// Initializes a new instance of the <see cref="ProfessionalNotiticationSettingsController"/> class.
         /// </summary>
-        public NotificationsSettingsController(IProfessionalNotificationsService professionalNotificationsService)
+        public ProfessionalNotiticationSettingsController(IProfessionalNotificationsService professionalNotificationsService)
         {
             _professionalNotificationsService = professionalNotificationsService;
         }
@@ -42,7 +43,7 @@ namespace Altinn.Profile.Controllers
         /// <param name="partyUuid">The UUID of the party for which the notification address is being set</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
         [Authorize(Policy = AuthConstants.UserPartyAccess)]
-        [HttpGet("parties/{partyUuid:guid}")]
+        [HttpGet("{partyUuid:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -81,7 +82,7 @@ namespace Altinn.Profile.Controllers
         /// Get the notification addresses the current user has registered for all parties
         /// </summary>
         /// <param name="cancellationToken">Cancellation token for the operation</param>
-        [HttpGet("parties")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -108,7 +109,7 @@ namespace Altinn.Profile.Controllers
         /// <param name="request"> The request containing the notification address details</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
         [Authorize(Policy = AuthConstants.UserPartyAccess)]
-        [HttpPut("parties/{partyUuid:guid}")]
+        [HttpPut("{partyUuid:guid}")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -164,7 +165,7 @@ namespace Altinn.Profile.Controllers
         /// <param name="request"> The request containing the notification address details</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
         [Authorize(Policy = AuthConstants.UserPartyAccess)]
-        [HttpPatch("parties/{partyUuid:guid}")]
+        [HttpPatch("{partyUuid:guid}")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -235,7 +236,7 @@ namespace Altinn.Profile.Controllers
         /// <param name="partyUuid">The UUID of the party for which the notification address is being deleted</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
         [Authorize(Policy = AuthConstants.UserPartyAccess)]
-        [HttpDelete("parties/{partyUuid:guid}")]
+        [HttpDelete("{partyUuid:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -12,7 +12,7 @@ using Altinn.Authorization.ABAC.Xacml.JsonProfile;
 using Altinn.Common.PEP.Interfaces;
 
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
-using Altinn.Profile.Models;
+using Altinn.Profile.Models.OrganizationNotificationAddresses;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
 using Microsoft.AspNetCore.Http;

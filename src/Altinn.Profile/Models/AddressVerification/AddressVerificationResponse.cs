@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Models
+﻿namespace Altinn.Profile.Models.AddressVerification
 {
     /// <summary>
     /// Response model for address verification requests.

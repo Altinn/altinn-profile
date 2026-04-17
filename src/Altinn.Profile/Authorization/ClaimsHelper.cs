@@ -50,5 +50,20 @@ namespace Altinn.Profile.Authorization
 
             return null; // Success case
         }
+
+        /// <summary>
+        /// Retrieves the authentication method from the claims in the specified HTTP context as a string.
+        /// </summary>
+        /// <remarks>This method searches for a claim of type 'AuthenticateMethod' in the user's claims collection. If
+        /// multiple claims of this type exist, the value of the first one is returned. Returns null if no such claim is
+        /// found.</remarks>
+        /// <param name="context">The HTTP context containing the user claims from which to extract the authentication method. Cannot be null.</param>
+        /// <returns>A string representing the authentication method if present in the claims; otherwise, null.</returns>
+        public static string GetAuthenticateMethodAsString(HttpContext context)
+        {
+            return context.User.Claims
+                .Where(c => c.Type == AltinnCoreClaimTypes.AuthenticateMethod)
+                .Select(c => c.Value).FirstOrDefault();
+        }
     }
 }
