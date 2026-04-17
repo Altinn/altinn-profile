@@ -44,6 +44,13 @@ namespace Altinn.Profile.Core.AddressVerifications
         }
 
         /// <inheritdoc/>
+        public async Task<bool> IsAddressVerifiedOrNull(int userId, AddressType addressType, string? address, CancellationToken cancellationToken)
+        {
+            var verificationStatus = await GetVerificationStatusAsync(userId, addressType, address, cancellationToken);
+            return verificationStatus == null || verificationStatus == VerificationType.Verified;
+        }
+
+        /// <inheritdoc/>
         /// This method might be deleted at a later time when all callers have migrated to using SendVerificationCodeAsync, which includes cooldown logic and resend functionality.
         public async Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, CancellationToken cancellationToken)
         {

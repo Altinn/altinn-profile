@@ -4,6 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Authorization;
+using Altinn.Profile.Core.AddressVerifications;
+using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Models;
@@ -15,7 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Altinn.Profile.Controllers
 {
     /// <summary>
-    /// Controller for organizing the notification addresses a user has registered for parties
+    /// Controller for organizing the notification addresses for self-identified users.
     /// </summary>
     [Authorize]
     [Route("profile/api/v1/users/current/notificationsettings/private")]
@@ -24,17 +26,19 @@ namespace Altinn.Profile.Controllers
     public class PrivateNotificationsSettingsController : ControllerBase
     {
         private readonly IUserContactInfoService _userContactInfoService;
+        private readonly IAddressVerificationService _addressVerificationService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NotificationsSettingsController"/> class.
+        /// Initializes a new instance of the <see cref="PrivateNotificationsSettingsController"/> class.
         /// </summary>
-        public PrivateNotificationsSettingsController(IUserContactInfoService userContactInfoService)
+        public PrivateNotificationsSettingsController(IUserContactInfoService userContactInfoService, IAddressVerificationService addressVerificationService)
         {
             _userContactInfoService = userContactInfoService;
+            _addressVerificationService = addressVerificationService;
         }
 
         /// <summary>
-        /// Add or update the users telephone number. This is only available for Self-Identified users, and the phone number must be verified before it can be added as a notification address. 
+        /// Add or update the telephone number for a self-identified user. The phone number must be verified before it can be added as a notification address. 
         /// If the user already has a phone number registered, it will be replaced with the new one.
         /// </summary>
         /// <param name="request"> The request containing the notification address details</param>
@@ -44,7 +48,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<ActionResult> Put([FromBody][Required] PrivateNotificationSettingsRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<PrivateNotificationSettingsResponse>> Put([FromBody][Required] PrivateNotificationSettingsRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -57,16 +61,15 @@ namespace Altinn.Profile.Controllers
                 return validationResult;
             }
 
-            var authenticationMethod = ClaimsHelper.GetAuthenticateMethodAsString(Request.HttpContext);
-            if (authenticationMethod != "SelfIdentified" && authenticationMethod != "IdportenEpost")
+            if (!IsSelfIdentifiedUser(Request.HttpContext))
             {
                 return Forbid();
             }
 
-            var isVerifiedOrNull = await _userContactInfoService.IsAddressVerifiedOrNull(userId, request.Value, cancellationToken);
+            var isVerifiedOrNull = await _addressVerificationService.IsAddressVerifiedOrNull(userId, AddressType.Sms, request.Value, cancellationToken);
             if (!isVerifiedOrNull)
             {
-                return UnprocessableEntity("Provided email address or phone number is not verified.");
+                return UnprocessableEntity("Provided phone number is not verified.");
             }
 
             var response = await _userContactInfoService.UpdatePhoneNumber(userId, request.Value, cancellationToken);
@@ -76,7 +79,13 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
-            return Ok(new PrivateNotificationSettingsRequest { Value = response.PhoneNumber });
+            return Ok(new PrivateNotificationSettingsResponse { Value = response.PhoneNumber });
+        }
+
+        private bool IsSelfIdentifiedUser(HttpContext httpContext)
+        {
+            var authenticationMethod = ClaimsHelper.GetAuthenticateMethodAsString(httpContext);
+            return authenticationMethod == "SelfIdentified" || authenticationMethod == "IdportenEpost";
         }
     }
 }

@@ -3,8 +3,6 @@ using System.ComponentModel.DataAnnotations;
 
 using Altinn.Profile.Validators;
 
-using JasperFx.CodeGeneration;
-
 namespace Altinn.Profile.Models
 {
     /// <summary>
@@ -15,6 +13,7 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// The phone number. May be null if no phone number is set. 
         /// </summary>
+        /// <example>+4798765432</example>
         [CustomRegexForNotificationAddresses(ValidationRule.InternationalPhoneNumber)]
         public string Value { get; set; }
 

@@ -1,7 +1,5 @@
 ﻿#nullable enable
 
-using Altinn;
-
 namespace Altinn.Profile.Models.ProfessionalNotificationSettings
 {
     /// <summary>

@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
@@ -82,7 +83,7 @@ public class PrivateNotificationsSettingsControllerTests : IClassFixture<Profile
         const int UserId = 2516356;
 
         _factory.AddressVerificationRepositoryMock
-            .Setup(x => x.GetVerificationStatusAsync(UserId, Core.AddressVerifications.Models.AddressType.Sms, null, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetVerificationStatusAsync(UserId, AddressType.Sms, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Core.AddressVerifications.Models.VerificationType.Unverified);
 
         HttpClient client = _factory.CreateClient();
@@ -99,8 +100,8 @@ public class PrivateNotificationsSettingsControllerTests : IClassFixture<Profile
         const int UserId = 2516356;
 
         _factory.AddressVerificationRepositoryMock
-            .Setup(x => x.GetVerificationStatusAsync(UserId, Core.AddressVerifications.Models.AddressType.Sms, null, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Core.AddressVerifications.Models.VerificationType.Verified);
+            .Setup(x => x.GetVerificationStatusAsync(UserId, AddressType.Sms, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(VerificationType.Verified);
 
         _factory.UserContactInfoRepositoryMock
             .Setup(x => x.UpdatePhoneNumber(UserId, null, It.IsAny<CancellationToken>()))
@@ -121,8 +122,8 @@ public class PrivateNotificationsSettingsControllerTests : IClassFixture<Profile
         const string phoneNumber = "+4798765432";
 
         _factory.AddressVerificationRepositoryMock
-            .Setup(x => x.GetVerificationStatusAsync(UserId, Core.AddressVerifications.Models.AddressType.Sms, phoneNumber, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Core.AddressVerifications.Models.VerificationType.Verified);
+            .Setup(x => x.GetVerificationStatusAsync(UserId, AddressType.Sms, phoneNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(VerificationType.Verified);
 
         _factory.UserContactInfoRepositoryMock
             .Setup(x => x.UpdatePhoneNumber(UserId, phoneNumber, It.IsAny<CancellationToken>()))
