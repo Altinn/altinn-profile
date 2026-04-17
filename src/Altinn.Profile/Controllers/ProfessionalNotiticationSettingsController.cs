@@ -24,15 +24,15 @@ namespace Altinn.Profile.Controllers
     [Route("profile/api/v1/users/current/notificationsettings/parties")]
     [Consumes("application/json")]
     [Produces("application/json")]
-    public class NotificationsSettingsController : ControllerBase
+    public class ProfessionalNotiticationSettingsController : ControllerBase
     {
         private readonly IProfessionalNotificationsService _professionalNotificationsService;
         private const string _partyUuidEmptyErrorMessage = "Party UUID cannot be empty.";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NotificationsSettingsController"/> class.
+        /// Initializes a new instance of the <see cref="ProfessionalNotiticationSettingsController"/> class.
         /// </summary>
-        public NotificationsSettingsController(IProfessionalNotificationsService professionalNotificationsService)
+        public ProfessionalNotiticationSettingsController(IProfessionalNotificationsService professionalNotificationsService)
         {
             _professionalNotificationsService = professionalNotificationsService;
         }

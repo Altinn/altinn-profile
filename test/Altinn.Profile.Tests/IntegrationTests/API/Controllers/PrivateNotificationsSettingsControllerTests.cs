@@ -144,7 +144,7 @@ public class PrivateNotificationsSettingsControllerTests : IClassFixture<Profile
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         string content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        var actual = JsonSerializer.Deserialize<PrivateNotificationSettingsUpdateRequest>(content, _serializerOptionsCamelCase);
+        var actual = JsonSerializer.Deserialize<PrivateNotificationSettingsUpdateResponse>(content, _serializerOptionsCamelCase);
 
         Assert.NotNull(actual);
         Assert.Equal(phoneNumber, actual.Value);
@@ -178,7 +178,7 @@ public class PrivateNotificationsSettingsControllerTests : IClassFixture<Profile
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         string content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        var actual = JsonSerializer.Deserialize<PrivateNotificationSettingsUpdateRequest>(content, _serializerOptionsCamelCase);
+        var actual = JsonSerializer.Deserialize<PrivateNotificationSettingsUpdateResponse>(content, _serializerOptionsCamelCase);
 
         Assert.NotNull(actual);
         Assert.Null(actual.Value);
