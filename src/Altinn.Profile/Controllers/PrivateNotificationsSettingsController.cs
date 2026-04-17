@@ -47,8 +47,9 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<ActionResult<PrivateNotificationSettingsResponse>> Put([FromBody][Required] PrivateNotificationSettingsRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<PrivateNotificationSettingsUpdateResponse>> Put([FromBody][Required] PrivateNotificationSettingsUpdateRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -79,7 +80,7 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
-            return Ok(new PrivateNotificationSettingsResponse { Value = response.PhoneNumber });
+            return Ok(new PrivateNotificationSettingsUpdateResponse { Value = response.PhoneNumber });
         }
 
         private static bool IsSelfIdentifiedUser(HttpContext httpContext)

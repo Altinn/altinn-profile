@@ -6,9 +6,9 @@ using Altinn.Profile.Validators;
 namespace Altinn.Profile.Models
 {
     /// <summary>
-    /// Data model for the professional notification address for an organization, also called personal notification address.
+    /// Data model for the private notification address for a self-identified user, used when updating the notification address.
     /// </summary>
-    public class PrivateNotificationSettingsRequest : IValidatableObject
+    public class PrivateNotificationSettingsUpdateRequest : IValidatableObject
     {
         /// <summary>
         /// The phone number. May be null if no phone number is set. 

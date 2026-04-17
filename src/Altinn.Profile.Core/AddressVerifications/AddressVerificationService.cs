@@ -46,8 +46,13 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <inheritdoc/>
         public async Task<bool> IsAddressVerifiedOrNull(int userId, AddressType addressType, string? address, CancellationToken cancellationToken)
         {
-            var verificationStatus = await GetVerificationStatusAsync(userId, addressType, address, cancellationToken);
-            return verificationStatus == null || verificationStatus == VerificationType.Verified;
+            if (address == null)
+            {
+                return true;
+            }
+
+            var verificationStatus = await _addressVerificationRepository.GetVerificationStatusAsync(userId, addressType, address, cancellationToken);
+            return verificationStatus == VerificationType.Verified;
         }
 
         /// <inheritdoc/>
