@@ -143,7 +143,7 @@ public class UserContactPointServiceTest
             "urn:altinn:person:idporten-email:user2@test.no",
             "urn:altinn:person:idporten-email:admin@altinn.no"
         };
-        _userProfileServiceMock.Setup(service => service.GetUserByUsername(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
+        _userContactInfoRepositoryMock.Setup(service => service.GetByUsername(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((UserContactInfo)null);
 
         var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _userContactInfoRepositoryMock.Object);
 

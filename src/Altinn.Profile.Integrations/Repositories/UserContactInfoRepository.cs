@@ -92,7 +92,9 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
     public async Task<UserContactInfo?> Get(int userId, CancellationToken cancellationToken)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
-        var userContactInfo = await databaseContext.SelfIdentifiedUsers.FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken);
+        var userContactInfo = await databaseContext.SelfIdentifiedUsers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken);
         return userContactInfo;
     }
 
@@ -100,7 +102,9 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
     public async Task<UserContactInfo?> GetByUsername(string username, CancellationToken cancellationToken)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
-        var userContactInfo = await databaseContext.SelfIdentifiedUsers.FirstOrDefaultAsync(u => u.Username == username, cancellationToken);
+        var userContactInfo = await databaseContext.SelfIdentifiedUsers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Username == username, cancellationToken);
         return userContactInfo;
     }
 }

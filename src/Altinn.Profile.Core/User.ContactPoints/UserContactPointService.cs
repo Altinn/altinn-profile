@@ -2,7 +2,6 @@
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Models;
 
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using static Altinn.Profile.Core.Unit.ContactPoints.CustomContactPointUrn;
 
 namespace Altinn.Profile.Core.User.ContactPoints;
