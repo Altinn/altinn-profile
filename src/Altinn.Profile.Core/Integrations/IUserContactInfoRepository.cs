@@ -32,4 +32,12 @@ public interface IUserContactInfoRepository
     /// <param name="cancellationToken">Cancel the current request</param>
     /// <returns>A Task containing the <see cref="UserContactInfo"/> if found, or null if no contact information is found for the user.</returns>
     Task<UserContactInfo?> Get(int userId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get the contact information for a given user by username. Returns null if no contact information is found for the user.
+    /// </summary>
+    /// <param name="username">The username of the user to retrieve contact information for.</param>
+    /// <param name="cancellationToken">Cancel the current request</param>
+    /// <returns>A Task containing the <see cref="UserContactInfo"/> if found, or null if no contact information is found for the user.</returns>
+    Task<UserContactInfo?> GetByUsername(string username, CancellationToken cancellationToken);
 }

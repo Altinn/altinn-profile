@@ -2,6 +2,7 @@
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Models;
 
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using static Altinn.Profile.Core.Unit.ContactPoints.CustomContactPointUrn;
 
 namespace Altinn.Profile.Core.User.ContactPoints;
@@ -13,14 +14,16 @@ public class UserContactPointService : IUserContactPointsService
 {
     private readonly IUserProfileService _userProfileService;
     private readonly IPersonService _personService;
+    private readonly IUserContactInfoRepository _userContactInfoRepository;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserContactPointService"/> class.
     /// </summary>
-    public UserContactPointService(IUserProfileService userProfileService, IPersonService personService)
+    public UserContactPointService(IUserProfileService userProfileService, IPersonService personService, IUserContactInfoRepository userContactInfoRepository)
     {
         _userProfileService = userProfileService;
         _personService = personService;
+        _userContactInfoRepository = userContactInfoRepository;
     }
 
     /// <inheritdoc/>
@@ -106,42 +109,45 @@ public class UserContactPointService : IUserContactPointsService
             return null;
         }
 
-        var result = await _userProfileService.GetUserByUsername("epost:" + idportenEmail.Value.Value, cancellationToken);
-
-        return result.Match(
-            profile => new SiUserContactPoints()
+        var contactInfo = await _userContactInfoRepository.GetByUsername("epost:" + idportenEmail.Value.Value, cancellationToken);
+        if (contactInfo != null)
+        {
+            return new SiUserContactPoints()
             {
-                Email = !string.IsNullOrWhiteSpace(profile.Email) ? profile.Email : idportenEmail.Value.Value,
-                MobileNumber = profile.PhoneNumber,
+                Email = !string.IsNullOrWhiteSpace(contactInfo.EmailAddress) ? contactInfo.EmailAddress : idportenEmail.Value.Value,
+                MobileNumber = contactInfo.PhoneNumber,
                 ExternalIdentity = urnIdentifier
-            },
-            _ => new SiUserContactPoints()
+            };
+        }
+        else
+        {
+            return new SiUserContactPoints()
             {
                 Email = idportenEmail.Value.Value,
                 ExternalIdentity = urnIdentifier,
                 MobileNumber = null
-            });
+            };
+        }
     }
 
     private async Task<SiUserContactPoints?> ProcessUsername(Username username, string urnIdentifier, CancellationToken cancellationToken)
     {
-        var result = await _userProfileService.GetUserByUsername(username.Value.Value, cancellationToken);
-
-        return result.Match(
-            profile =>
+        var contactInfo = await _userContactInfoRepository.GetByUsername(username.Value.Value, cancellationToken);
+        if (contactInfo != null)
+        {
+            if (string.IsNullOrWhiteSpace(contactInfo.EmailAddress) && string.IsNullOrWhiteSpace(contactInfo.PhoneNumber))
             {
-                if (string.IsNullOrWhiteSpace(profile.Email) && string.IsNullOrWhiteSpace(profile.PhoneNumber))
-                {
-                    return null;
-                }
+                return null;
+            }
 
-                return new SiUserContactPoints()
-                {
-                    Email = profile.Email,
-                    ExternalIdentity = urnIdentifier,
-                    MobileNumber = profile.PhoneNumber,
-                };
-            },
-            _ => (SiUserContactPoints?)null);
+            return new SiUserContactPoints()
+            {
+                Email = contactInfo.EmailAddress,
+                ExternalIdentity = urnIdentifier,
+                MobileNumber = contactInfo.PhoneNumber,
+            };
+        }
+        
+        return null;
     }
 }
