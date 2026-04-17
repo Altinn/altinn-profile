@@ -82,7 +82,7 @@ namespace Altinn.Profile.Controllers
             return Ok(new PrivateNotificationSettingsResponse { Value = response.PhoneNumber });
         }
 
-        private bool IsSelfIdentifiedUser(HttpContext httpContext)
+        private static bool IsSelfIdentifiedUser(HttpContext httpContext)
         {
             var authenticationMethod = ClaimsHelper.GetAuthenticateMethodAsString(httpContext);
             return authenticationMethod == "SelfIdentified" || authenticationMethod == "IdportenEpost";
