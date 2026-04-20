@@ -374,5 +374,38 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             Assert.NotNull(updatedCode);
             Assert.Equal(1, updatedCode.FailedAttempts);
         }
+
+        [Fact]
+        public async Task AddVerifiedAddressAsync_AddsEntityToDatabase()
+        {
+            var options = CreateOptions(nameof(AddVerifiedAddressAsync_AddsEntityToDatabase));
+            var factory = new TestDbContextFactory(options);
+            var repository = new AddressVerificationRepository(factory);
+
+            await repository.AddVerifiedAddressAsync(12, AddressType.Email, " Verified@Example.com ", CancellationToken.None);
+
+            await using var assertContext = new ProfileDbContext(options);
+            var stored = await assertContext.VerifiedAddresses.FirstOrDefaultAsync(
+                va => va.UserId == 12 && va.AddressType == AddressType.Email,
+                cancellationToken: TestContext.Current.CancellationToken);
+
+            Assert.NotNull(stored);
+            Assert.Equal("verified@example.com", stored.Address);
+            Assert.Equal(VerificationType.Verified, stored.VerificationType);
+        }
+
+        [Fact]
+        public async Task AddVerifiedAddressAsync_WhenAdded_GetVerificationStatusReturnsVerified()
+        {
+            var options = CreateOptions(nameof(AddVerifiedAddressAsync_WhenAdded_GetVerificationStatusReturnsVerified));
+            var factory = new TestDbContextFactory(options);
+            var repository = new AddressVerificationRepository(factory);
+
+            await repository.AddVerifiedAddressAsync(13, AddressType.Sms, " +4799999999 ", CancellationToken.None);
+
+            var result = await repository.GetVerificationStatusAsync(13, AddressType.Sms, "+4799999999", CancellationToken.None);
+
+            Assert.Equal(VerificationType.Verified, result);
+        }
     }
 }
