@@ -151,7 +151,8 @@ public class UserProfileService : IUserProfileService
         }
         catch (Exception)
         {
-            // in shadow mode, exceptions from the register client should not affect the user experience.
+            // fallback to sbl bridge if register lookup fails for any reason, as we do not want a failure in the register to cause a complete failure in user profile retrieval.
+            // This is especially important if the register is used in shadow mode, where we want to ensure that we can still retrieve user profiles even if the register is down or experiencing issues.
             return null;
         }
 
