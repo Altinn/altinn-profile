@@ -119,4 +119,20 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
 
         return verifiedAddresses;
     }
+
+    /// <inheritdoc/>
+    public async Task AddVerifiedAddressAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        var verifiedAddress = new VerifiedAddress
+        {
+            UserId = userId,
+            AddressType = addressType,
+            Address = address,
+        };
+
+        databaseContext.VerifiedAddresses.Add(verifiedAddress);
+
+        await databaseContext.SaveChangesAsync(cancellationToken);
+    }
 }

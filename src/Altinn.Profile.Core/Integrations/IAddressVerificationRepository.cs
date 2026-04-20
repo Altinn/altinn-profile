@@ -58,5 +58,16 @@ namespace Altinn.Profile.Core.Integrations
         /// <param name="userId">The id of the user</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         Task CompleteAddressVerificationAsync(int verificationCodeId, AddressType addressType, string address, int userId);
+
+        /// <summary>
+        /// Adds a verified address to the database manually.
+        /// </summary> 
+        /// <param name="userId">The id of the user</param>
+        /// <param name="addressType">If the address is for sms or email</param>
+        /// <param name="address">The address to verify</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <remarks>This method can be used to manually add a verified address without going through the verification code process from an import job.</remarks>
+        Task AddVerifiedAddressAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken);
     }
 }

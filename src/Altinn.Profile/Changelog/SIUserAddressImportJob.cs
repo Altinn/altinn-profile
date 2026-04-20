@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Authorization.ServiceDefaults.Jobs;
+using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.Repositories.A2Sync;
@@ -31,6 +32,7 @@ namespace Altinn.Profile.Changelog
         private readonly Telemetry _telemetry;
         private readonly ISIUserContactInfoSyncRepository _siUserContactInfoSyncRepository;
         private readonly IRegisterClient _registerClient;
+        private readonly IAddressVerificationRepository _addressVerificationRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SIUserAddressImportJob"/> class.
@@ -42,6 +44,7 @@ namespace Altinn.Profile.Changelog
             IChangelogSyncMetadataRepository changelogSyncMetadataRepository,
             ISIUserContactInfoSyncRepository userContactInfoSyncRepository,
             IRegisterClient registerClient,
+            IAddressVerificationRepository addressVerificationRepository,
             Telemetry telemetry = null)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -49,6 +52,7 @@ namespace Altinn.Profile.Changelog
             _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
             _changelogSyncMetadataRepository = changelogSyncMetadataRepository ?? throw new ArgumentNullException(nameof(changelogSyncMetadataRepository));
             _siUserContactInfoSyncRepository = userContactInfoSyncRepository ?? throw new ArgumentNullException(nameof(userContactInfoSyncRepository));
+            _addressVerificationRepository = addressVerificationRepository ?? throw new ArgumentNullException(nameof(addressVerificationRepository));
             _registerClient = registerClient ?? throw new ArgumentNullException(nameof(registerClient));
             _telemetry = telemetry;
         }
@@ -132,6 +136,12 @@ namespace Altinn.Profile.Changelog
             if (change.OperationType is OperationType.Insert or OperationType.Update)
             {
                 await _siUserContactInfoSyncRepository.InsertOrUpdate(contactSettings, change.ChangeDatetime, cancellationToken);
+
+                // If the username starts with "epost:", we can be reasonably sure that the email address is verified at ID-porten.
+                if (contactSettings.UserName.StartsWith("epost:") && !string.IsNullOrEmpty(contactSettings.EmailAddress))
+                {
+                    await _addressVerificationRepository.AddVerifiedAddressAsync(contactSettings.UserId, AddressType.Email, contactSettings.EmailAddress, cancellationToken);
+                }
             }
 
             return false;

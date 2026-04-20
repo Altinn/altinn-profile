@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Changelog;
+using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Core.User.ContactInfo;
@@ -28,6 +29,7 @@ namespace Altinn.Profile.Tests.Changelog
             var changelogSyncMetadataRepository = new Mock<IChangelogSyncMetadataRepository>();
             var contactInfoSyncRepository = new Mock<ISIUserContactInfoSyncRepository>();
             var registerClient = new Mock<IRegisterClient>();
+            var addressVerificationRepository = new Mock<IAddressVerificationRepository>();
 
             var testChangeDate = DateTime.UtcNow.AddDays(-1);
 
@@ -86,6 +88,7 @@ namespace Altinn.Profile.Tests.Changelog
                 changelogSyncMetadataRepository.Object,
                 contactInfoSyncRepository.Object,
                 registerClient.Object,
+                addressVerificationRepository.Object,
                 null);
 
             // Act
@@ -111,6 +114,109 @@ namespace Altinn.Profile.Tests.Changelog
         }
 
         [Fact]
+        public async Task RunAsync_WhenEmailIdentifiedUser_ProcessesChangeLogFromClient()
+        {
+            // Arrange
+            var logger = Mock.Of<ILogger<SIUserAddressImportJob>>();
+            var timeProvider = TimeProvider.System;
+
+            var changeLogClient = new Mock<IChangeLogClient>();
+            var changelogSyncMetadataRepository = new Mock<IChangelogSyncMetadataRepository>();
+            var contactInfoSyncRepository = new Mock<ISIUserContactInfoSyncRepository>();
+            var registerClient = new Mock<IRegisterClient>();
+            var addressVerificationRepository = new Mock<IAddressVerificationRepository>();
+
+            var testChangeDate = DateTime.UtcNow.AddDays(-1);
+
+            changelogSyncMetadataRepository
+                .Setup(r => r.GetLatestSyncTimestampAsync(DataType.PrivateConsentProfile, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(testChangeDate);
+
+            var expectedUserId = 123;
+            var expectedUserUuid = Guid.NewGuid();
+            var contactSettingsJson = $@"{{
+                ""userId"": {expectedUserId},
+                ""userName"": ""epost:test@example.com"",
+                ""emailAddress"": ""test@example.com"",
+                ""phoneNumber"": ""12345678""
+            }}";
+
+            var changeLogItem = new ChangeLogItem
+            {
+                ProfileChangeLogId = 1,
+                ChangeDatetime = DateTime.UtcNow,
+                OperationType = OperationType.Insert,
+                DataObject = contactSettingsJson,
+                DataType = DataType.PrivateConsentProfile
+            };
+
+            var changeLog = new ChangeLog
+            {
+                ProfileChangeLogList = new List<ChangeLogItem> { changeLogItem }
+            };
+
+            changeLogClient
+                .SetupSequence(c => c.GetChangeLog(It.IsAny<DateTime>(), DataType.PrivateConsentProfile, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(changeLog)
+                .ReturnsAsync(new ChangeLog { ProfileChangeLogList = new List<ChangeLogItem>() });
+
+            registerClient
+                .Setup(r => r.GetUserUuid(expectedUserId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedUserUuid);
+
+            contactInfoSyncRepository
+                .Setup(r => r.InsertOrUpdate(It.IsAny<SiUserContactSettings>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new UserContactInfo
+                {
+                    UserId = expectedUserId,
+                    UserUuid = expectedUserUuid,
+                    Username = "testuser",
+                    CreatedAt = DateTime.UtcNow,
+                    EmailAddress = "test@example.com",
+                    PhoneNumber = "+4712345678",
+                });
+
+            addressVerificationRepository
+                .Setup(r => r.AddVerifiedAddressAsync(expectedUserId, AddressType.Email, "test@example.com", It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            var job = new TestableSIUserAddressImportJob(
+                logger,
+                changeLogClient.Object,
+                timeProvider,
+                changelogSyncMetadataRepository.Object,
+                contactInfoSyncRepository.Object,
+                registerClient.Object,
+                addressVerificationRepository.Object,
+                null);
+
+            // Act
+            await job.InvokeRunAsync(TestContext.Current.CancellationToken);
+
+            // Assert
+            contactInfoSyncRepository.Verify(
+                r => r.InsertOrUpdate(
+                    It.Is<SiUserContactSettings>(s => s.UserId == expectedUserId && s.UserUuid == expectedUserUuid),
+                    It.IsAny<DateTime>(),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+
+            changelogSyncMetadataRepository.Verify(
+                r => r.UpdateLatestChangeTimestampAsync(
+                    It.IsAny<DateTime>(),
+                    DataType.PrivateConsentProfile),
+                Times.AtLeastOnce);
+
+            changeLogClient.Verify(
+                c => c.GetChangeLog(It.IsAny<DateTime>(), DataType.PrivateConsentProfile, It.IsAny<CancellationToken>()),
+                Times.AtLeastOnce);
+
+            addressVerificationRepository.Verify(
+                r => r.AddVerifiedAddressAsync(expectedUserId, AddressType.Email, "test@example.com", It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Fact]
         public async Task RunAsync_LogsWarningOnDeserializationFailure()
         {
             // Arrange
@@ -121,6 +227,7 @@ namespace Altinn.Profile.Tests.Changelog
             var changelogSyncMetadataRepository = new Mock<IChangelogSyncMetadataRepository>();
             var contactInfoSyncRepository = new Mock<ISIUserContactInfoSyncRepository>();
             var registerClient = new Mock<IRegisterClient>();
+            var addressVerificationRepository = new Mock<IAddressVerificationRepository>();
 
             changelogSyncMetadataRepository
                 .Setup(r => r.GetLatestSyncTimestampAsync(DataType.PrivateConsentProfile, It.IsAny<CancellationToken>()))
@@ -156,6 +263,7 @@ namespace Altinn.Profile.Tests.Changelog
                 changelogSyncMetadataRepository.Object,
                 contactInfoSyncRepository.Object,
                 registerClient.Object,
+                addressVerificationRepository.Object,
                 null);
 
             // Act
@@ -191,6 +299,7 @@ namespace Altinn.Profile.Tests.Changelog
             var changelogSyncMetadataRepository = new Mock<IChangelogSyncMetadataRepository>();
             var contactInfoSyncRepository = new Mock<ISIUserContactInfoSyncRepository>();
             var registerClient = new Mock<IRegisterClient>();
+            var addressVerificationRepository = new Mock<IAddressVerificationRepository>();
 
             changelogSyncMetadataRepository
                 .Setup(r => r.GetLatestSyncTimestampAsync(DataType.PrivateConsentProfile, It.IsAny<CancellationToken>()))
@@ -238,6 +347,7 @@ namespace Altinn.Profile.Tests.Changelog
                 changelogSyncMetadataRepository.Object,
                 contactInfoSyncRepository.Object,
                 registerClient.Object,
+                addressVerificationRepository.Object,
                 null);
 
             // Act
@@ -267,8 +377,9 @@ namespace Altinn.Profile.Tests.Changelog
                 IChangelogSyncMetadataRepository changelogSyncMetadataRepository,
                 ISIUserContactInfoSyncRepository userContactInfoSyncRepository,
                 IRegisterClient registerClient,
+                IAddressVerificationRepository addressVerificationRepository,
                 Telemetry telemetry = null)
-                : base(logger, changeLogClient, timeProvider, changelogSyncMetadataRepository, userContactInfoSyncRepository, registerClient, telemetry)
+                : base(logger, changeLogClient, timeProvider, changelogSyncMetadataRepository, userContactInfoSyncRepository, registerClient, addressVerificationRepository, telemetry)
             {
             }
 
