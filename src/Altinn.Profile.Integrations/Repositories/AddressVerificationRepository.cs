@@ -123,12 +123,19 @@ public class AddressVerificationRepository(IDbContextFactory<ProfileDbContext> c
     /// <inheritdoc/>
     public async Task AddVerifiedAddressAsync(int userId, AddressType addressType, string address, CancellationToken cancellationToken)
     {
+        var formattedAddress = VerificationCode.FormatAddress(address);
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        if (databaseContext.VerifiedAddresses.Any(va => va.UserId.Equals(userId) && va.AddressType == addressType && va.Address == formattedAddress))
+        {
+            return;
+        }
+
         var verifiedAddress = new VerifiedAddress
         {
             UserId = userId,
             AddressType = addressType,
-            Address = address,
+            Address = formattedAddress,
         };
 
         databaseContext.VerifiedAddresses.Add(verifiedAddress);

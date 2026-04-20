@@ -138,7 +138,7 @@ namespace Altinn.Profile.Changelog
                 await _siUserContactInfoSyncRepository.InsertOrUpdate(contactSettings, change.ChangeDatetime, cancellationToken);
 
                 // If the username starts with "epost:", we can be reasonably sure that the email address is verified at ID-porten.
-                if (contactSettings.UserName.StartsWith("epost:") && !string.IsNullOrEmpty(contactSettings.EmailAddress))
+                if (!string.IsNullOrEmpty(contactSettings.UserName) && contactSettings.UserName.StartsWith("epost:") && !string.IsNullOrEmpty(contactSettings.EmailAddress))
                 {
                     await _addressVerificationRepository.AddVerifiedAddressAsync(contactSettings.UserId, AddressType.Email, contactSettings.EmailAddress, cancellationToken);
                 }

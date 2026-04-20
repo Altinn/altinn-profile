@@ -392,6 +392,27 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories
             Assert.NotNull(stored);
             Assert.Equal("verified@example.com", stored.Address);
             Assert.Equal(VerificationType.Verified, stored.VerificationType);
+            Assert.Equal(1, await assertContext.VerifiedAddresses.CountAsync(va => va.UserId == 12, TestContext.Current.CancellationToken));
+        }
+
+        [Fact]
+        public async Task AddVerifiedAddressAsync_WhenAddressAlreadyExists_DoesNotAddDuplicate()
+        {
+            var options = CreateOptions(nameof(AddVerifiedAddressAsync_WhenAddressAlreadyExists_DoesNotAddDuplicate));
+            var factory = new TestDbContextFactory(options);
+            var repository = new AddressVerificationRepository(factory);
+
+            await repository.AddVerifiedAddressAsync(14, AddressType.Email, "verified@example.com", CancellationToken.None);
+            await repository.AddVerifiedAddressAsync(14, AddressType.Email, " Verified@Example.com ", CancellationToken.None);
+
+            await using var assertContext = new ProfileDbContext(options);
+            var stored = await assertContext.VerifiedAddresses
+                .Where(va => va.UserId == 14 && va.AddressType == AddressType.Email)
+                .ToListAsync(TestContext.Current.CancellationToken);
+
+            Assert.Single(stored);
+            Assert.Equal("verified@example.com", stored[0].Address);
+            Assert.Equal(VerificationType.Verified, stored[0].VerificationType);
         }
 
         [Fact]
