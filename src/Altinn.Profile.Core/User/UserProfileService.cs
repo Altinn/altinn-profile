@@ -83,7 +83,7 @@ public class UserProfileService : IUserProfileService
     {
         if (_settings.RegisterAsPrimaryUserProfileSource)
         {
-            UserProfile? registerProfile = await TryGetRegisterProfile(getRegisterParty(), cancellationToken);
+            UserProfile? registerProfile = await GetUserFromRegister(getRegisterParty(), cancellationToken);
             if (registerProfile is not null)
             {
                 return registerProfile;
@@ -120,27 +120,6 @@ public class UserProfileService : IUserProfileService
         }
 
         return userProfile;
-    }
-
-    private async Task<UserProfile?> TryGetRegisterProfile(Task<Party?> registerPartyTask, CancellationToken cancellationToken)
-    {
-        Party? registerParty;
-
-        try
-        {
-            registerParty = await registerPartyTask;
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception)
-        {
-            // fallback to legacy
-            return null;
-        }
-
-        return await CreateAndEnrichProfileFromParty(registerParty, cancellationToken);
     }
 
     private async Task<UserProfile?> GetEnrichedLegacyUserProfile(Task<Result<UserProfile, bool>> legacyTask)
