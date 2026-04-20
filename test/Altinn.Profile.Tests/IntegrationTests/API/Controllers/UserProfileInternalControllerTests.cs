@@ -605,41 +605,6 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         Assert.EndsWith($"sblbridge/profile/api/users/?username={username}", sblRequest.RequestUri.ToString());
     }
 
-    [Fact]
-    public async Task GetUserBySsn_RegisterAsPrimaryEnabled_RegisterReturnsSelfIdentified_FallsBackToSbl()
-    {
-        // Arrange
-        const string ssn = "01017512345";
-
-        HttpRequestMessage sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-        {
-            sblRequest = request;
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>("2516356");
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
-
-        SelfIdentifiedUser selfIdentifiedFromRegister = await TestDataLoader.Load<SelfIdentifiedUser>("siuser-input");
-
-        _factory.RegisterClientMock
-            .Setup(m => m.GetUserPartyBySsn(ssn, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(selfIdentifiedFromRegister);
-
-        using WebApplicationFactory<Program> registerPrimaryFactory = CreateFactoryWithRegisterAsPrimaryEnabled();
-        HttpClient client = registerPrimaryFactory.CreateClient();
-
-        HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/internal/user/", new UserProfileLookup { Ssn = ssn });
-
-        // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Post, sblRequest.Method);
-        Assert.EndsWith("sblbridge/profile/api/users", sblRequest.RequestUri.ToString());
-    }
-
     private WebApplicationFactory<Program> CreateFactoryWithRegisterAsPrimaryEnabled()
     {
         return _factory.WithWebHostBuilder(builder =>

@@ -83,7 +83,7 @@ public class UserProfileService : IUserProfileService
     {
         if (_settings.RegisterAsPrimaryUserProfileSource)
         {
-            UserProfile? registerProfile = await TryGetEligibleRegisterProfile(getRegisterParty(), cancellationToken);
+            UserProfile? registerProfile = await TryGetRegisterProfile(getRegisterParty(), cancellationToken);
             if (registerProfile is not null)
             {
                 return registerProfile;
@@ -122,15 +122,7 @@ public class UserProfileService : IUserProfileService
         return userProfile;
     }
 
-    private static bool IsEligibleRegisterProfile(Party? party)
-    {
-        // To ensure that we only use register profiles that can be enriched with KRR data, we require that the profile has a non-empty SSN.
-        // This is because KRR data is linked to the user's SSN, and without it, we cannot enrich the profile with contact information from KRR.
-        // All ssn users are returned as Person type from the register.
-        return party is Register.Contracts.Person;
-    }
-
-    private async Task<UserProfile?> TryGetEligibleRegisterProfile(Task<Party?> registerPartyTask, CancellationToken cancellationToken)
+    private async Task<UserProfile?> TryGetRegisterProfile(Task<Party?> registerPartyTask, CancellationToken cancellationToken)
     {
         Party? registerParty;
 
@@ -148,12 +140,7 @@ public class UserProfileService : IUserProfileService
             return null;
         }
 
-        if (IsEligibleRegisterProfile(registerParty))
-        {
-            return await CreateAndEnrichProfileFromParty(registerParty, cancellationToken);
-        }
-
-        return null;
+        return await CreateAndEnrichProfileFromParty(registerParty, cancellationToken);
     }
 
     private async Task<UserProfile?> GetEnrichedLegacyUserProfile(Task<Result<UserProfile, bool>> legacyTask)

@@ -994,7 +994,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersById_AsUser_RegisterAsPrimaryEnabled_RegisterReturnsSelfIdentified_FallsBackToSbl()
+    public async Task GetUsersById_AsUser_RegisterAsPrimaryEnabled_RegisterReturnsSelfIdentified()
     {
         // Arrange
         const int userId = 2516356;
@@ -1032,8 +1032,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.NotNull(sblRequest); // no SSN => should fallback
-        Assert.EndsWith($"users/{userId}", sblRequest!.RequestUri?.ToString());
+        Assert.Null(sblRequest); 
     }
 
     private static HttpRequestMessage CreateGetRequest(int userId, string requestUri)
