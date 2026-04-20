@@ -24,7 +24,7 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
-    public class ProfessionalNotiticationSettingsControllerTests : IClassFixture<ProfileWebApplicationFactory<Program>>
+    public class ProfessionalNotificationSettingsControllerTests : IClassFixture<ProfileWebApplicationFactory<Program>>
     {
         private readonly ProfileWebApplicationFactory<Program> _factory;
 
@@ -40,7 +40,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
         };
 
-        public ProfessionalNotiticationSettingsControllerTests(ProfileWebApplicationFactory<Program> factory)
+        public ProfessionalNotificationSettingsControllerTests(ProfileWebApplicationFactory<Program> factory)
         {
             _factory = factory;
             _factory.ProfessionalNotificationsRepositoryMock.Reset();
