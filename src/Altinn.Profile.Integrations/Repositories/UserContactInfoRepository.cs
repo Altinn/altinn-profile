@@ -102,9 +102,19 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
     public async Task<UserContactInfo?> GetByUsername(string username, CancellationToken cancellationToken)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
-        var userContactInfo = await databaseContext.SelfIdentifiedUsers
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Username == username, cancellationToken);
-        return userContactInfo;
+        try
+        {
+            var userContactInfo = await databaseContext.SelfIdentifiedUsers
+                .AsNoTracking()
+                .SingleOrDefaultAsync(u => u.Username == username, cancellationToken);
+
+            return userContactInfo;
+        }
+        catch (InvalidOperationException)
+        {
+            // If multiple records exist with the same username, SingleOrDefaultAsync will throw an InvalidOperationException. 
+            // This should not happen as username is expected to be unique, but if it does, we return null to indicate that a valid user contact info could not be retrieved.
+            return null;
+        }
     }
 }
