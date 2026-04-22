@@ -2,6 +2,7 @@
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Models;
+using Microsoft.Extensions.Logging;
 
 using static Altinn.Profile.Core.Unit.ContactPoints.CustomContactPointUrn;
 
@@ -15,15 +16,17 @@ public class UserContactPointService : IUserContactPointsService
     private readonly IUserProfileService _userProfileService;
     private readonly IPersonService _personService;
     private readonly IUserContactInfoRepository _userContactInfoRepository;
+    private readonly ILogger<UserContactPointService> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserContactPointService"/> class.
     /// </summary>
-    public UserContactPointService(IUserProfileService userProfileService, IPersonService personService, IUserContactInfoRepository userContactInfoRepository)
+    public UserContactPointService(IUserProfileService userProfileService, IPersonService personService, IUserContactInfoRepository userContactInfoRepository, ILogger<UserContactPointService> logger)
     {
         _userProfileService = userProfileService;
         _personService = personService;
         _userContactInfoRepository = userContactInfoRepository;
+        _logger = logger;
     }
 
     /// <inheritdoc/>
@@ -114,10 +117,11 @@ public class UserContactPointService : IUserContactPointsService
         {
              contactInfo = await _userContactInfoRepository.GetByUsername("epost:" + idportenEmail.Value.Value, cancellationToken);
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException ex)
         {
             // If multiple records exist with the same username, SingleOrDefaultAsync will throw an InvalidOperationException. 
             // This should not happen as username is expected to be unique, but if it does, we return null to indicate that a valid user contact info could not be retrieved.
+            _logger.LogError(ex, "Multiple records found for IDPorten email {Email}. Unable to determine contact points.", idportenEmail.Value.Value);
             return null;
         }
 
@@ -148,10 +152,11 @@ public class UserContactPointService : IUserContactPointsService
         {
             contactInfo = await _userContactInfoRepository.GetByUsername(username.Value.Value, cancellationToken);
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException ex)
         {
             // If multiple records exist with the same username, SingleOrDefaultAsync will throw an InvalidOperationException. 
             // This should not happen as username is expected to be unique, but if it does, we return null to indicate that a valid user contact info could not be retrieved.
+            _logger.LogError(ex, "Multiple records found for username {Username}. Unable to determine contact points.", username.Value.Value);
             return null;
         }
 
