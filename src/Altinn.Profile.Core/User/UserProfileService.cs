@@ -254,7 +254,7 @@ public class UserProfileService : IUserProfileService
         if (userProfile.ProfileSettingPreference.PreselectedPartyUuid != null)
         {
             // If a preselected party UUID is provided, we need to fetch the corresponding party ID from the register to ensure data consistency.
-            int? partyId = await _registerClient.GetPartyId(userProfile.ProfileSettingPreference.PreselectedPartyUuid.Value, default);
+            int? partyId = await _registerClient.GetPartyId(userProfile.ProfileSettingPreference.PreselectedPartyUuid.Value, cancellationToken);
             userProfile.ProfileSettingPreference.PreSelectedPartyId = partyId ?? 0;
         }
 
