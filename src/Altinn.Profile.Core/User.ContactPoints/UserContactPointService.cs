@@ -109,11 +109,12 @@ public class UserContactPointService : IUserContactPointsService
         }
 
         var contactInfo = await _userContactInfoRepository.GetByUsername("epost:" + idportenEmail.Value.Value, cancellationToken);
+
         if (contactInfo != null)
         {
             return new SiUserContactPoints()
             {
-                Email = !string.IsNullOrWhiteSpace(contactInfo.EmailAddress) ? contactInfo.EmailAddress : idportenEmail.Value.Value,
+                Email = contactInfo.EmailAddress ?? idportenEmail.Value.Value,
                 MobileNumber = contactInfo.PhoneNumber,
                 ExternalIdentity = urnIdentifier
             };
@@ -123,8 +124,8 @@ public class UserContactPointService : IUserContactPointsService
             return new SiUserContactPoints()
             {
                 Email = idportenEmail.Value.Value,
-                ExternalIdentity = urnIdentifier,
-                MobileNumber = null
+                MobileNumber = null,
+                ExternalIdentity = urnIdentifier
             };
         }
     }
@@ -132,13 +133,8 @@ public class UserContactPointService : IUserContactPointsService
     private async Task<SiUserContactPoints?> ProcessUsername(Username username, string urnIdentifier, CancellationToken cancellationToken)
     {
         var contactInfo = await _userContactInfoRepository.GetByUsername(username.Value.Value, cancellationToken);
-        if (contactInfo != null)
+        if (contactInfo != null && (!string.IsNullOrWhiteSpace(contactInfo.EmailAddress) && !string.IsNullOrWhiteSpace(contactInfo.PhoneNumber)))
         {
-            if (string.IsNullOrWhiteSpace(contactInfo.EmailAddress) && string.IsNullOrWhiteSpace(contactInfo.PhoneNumber))
-            {
-                return null;
-            }
-
             return new SiUserContactPoints()
             {
                 Email = contactInfo.EmailAddress,
