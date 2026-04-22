@@ -19,7 +19,7 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
-public class PrivateNotificationsSettingsControllerTests : IClassFixture<ProfileWebApplicationFactory<Program>>
+public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileWebApplicationFactory<Program>>
 {
     private readonly ProfileWebApplicationFactory<Program> _factory;
 
@@ -28,7 +28,7 @@ public class PrivateNotificationsSettingsControllerTests : IClassFixture<Profile
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public PrivateNotificationsSettingsControllerTests(ProfileWebApplicationFactory<Program> factory)
+    public PrivateNotificationSettingsControllerTests(ProfileWebApplicationFactory<Program> factory)
     {
         _factory = factory;
         _factory.UserContactInfoRepositoryMock.Reset();
