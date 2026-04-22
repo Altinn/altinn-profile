@@ -107,6 +107,5 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
             .SingleOrDefaultAsync(u => u.Username == username, cancellationToken);
 
         return userContactInfo;
-
     }
 }
