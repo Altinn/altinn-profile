@@ -104,7 +104,7 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
         var userContactInfo = await databaseContext.SelfIdentifiedUsers
             .AsNoTracking()
-            .SingleOrDefaultAsync(u => u.Username == username, cancellationToken);
+            .SingleOrDefaultAsync(u => u.Username.ToLower() == username.ToLower(), cancellationToken);
 
         return userContactInfo;
     }
