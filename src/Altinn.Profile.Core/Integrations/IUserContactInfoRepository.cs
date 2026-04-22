@@ -39,5 +39,6 @@ public interface IUserContactInfoRepository
     /// <param name="username">The username of the user to retrieve contact information for.</param>
     /// <param name="cancellationToken">Cancel the current request</param>
     /// <returns>A Task containing the <see cref="UserContactInfo"/> if found, or null if no contact information is found for the user.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when multiple records exist with the same username.</exception>
     public Task<UserContactInfo?> GetByUsername(string username, CancellationToken cancellationToken);
 }

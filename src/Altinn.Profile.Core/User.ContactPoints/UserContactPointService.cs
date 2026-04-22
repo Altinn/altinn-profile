@@ -1,5 +1,6 @@
 ﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Unit.ContactPoints;
+using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Models;
 
 using static Altinn.Profile.Core.Unit.ContactPoints.CustomContactPointUrn;
@@ -108,7 +109,17 @@ public class UserContactPointService : IUserContactPointsService
             return null;
         }
 
-        var contactInfo = await _userContactInfoRepository.GetByUsername("epost:" + idportenEmail.Value.Value, cancellationToken);
+        UserContactInfo? contactInfo;
+        try
+        {
+             contactInfo = await _userContactInfoRepository.GetByUsername("epost:" + idportenEmail.Value.Value, cancellationToken);
+        }
+        catch (InvalidOperationException)
+        {
+            // If multiple records exist with the same username, SingleOrDefaultAsync will throw an InvalidOperationException. 
+            // This should not happen as username is expected to be unique, but if it does, we return null to indicate that a valid user contact info could not be retrieved.
+            return null;
+        }
 
         if (contactInfo != null)
         {
@@ -132,7 +143,18 @@ public class UserContactPointService : IUserContactPointsService
 
     private async Task<SiUserContactPoints?> ProcessUsername(Username username, string urnIdentifier, CancellationToken cancellationToken)
     {
-        var contactInfo = await _userContactInfoRepository.GetByUsername(username.Value.Value, cancellationToken);
+        UserContactInfo? contactInfo;
+        try
+        {
+            contactInfo = await _userContactInfoRepository.GetByUsername(username.Value.Value, cancellationToken);
+        }
+        catch (InvalidOperationException)
+        {
+            // If multiple records exist with the same username, SingleOrDefaultAsync will throw an InvalidOperationException. 
+            // This should not happen as username is expected to be unique, but if it does, we return null to indicate that a valid user contact info could not be retrieved.
+            return null;
+        }
+
         if (contactInfo != null && (!string.IsNullOrWhiteSpace(contactInfo.EmailAddress) && !string.IsNullOrWhiteSpace(contactInfo.PhoneNumber)))
         {
             return new SiUserContactPoints()
