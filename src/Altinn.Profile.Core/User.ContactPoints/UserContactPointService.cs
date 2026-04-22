@@ -155,7 +155,7 @@ public class UserContactPointService : IUserContactPointsService
             return null;
         }
 
-        if (contactInfo != null && (!string.IsNullOrWhiteSpace(contactInfo.EmailAddress) && !string.IsNullOrWhiteSpace(contactInfo.PhoneNumber)))
+        if (contactInfo != null && (!string.IsNullOrWhiteSpace(contactInfo.EmailAddress) || !string.IsNullOrWhiteSpace(contactInfo.PhoneNumber)))
         {
             return new SiUserContactPoints()
             {
