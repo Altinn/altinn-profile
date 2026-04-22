@@ -235,7 +235,6 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         /// <param name="partyUuid">The UUID of the party for which the notification address is being deleted</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
-        [Authorize(Policy = AuthConstants.UserPartyAccess)]
         [HttpDelete("{partyUuid:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
