@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.Person.ContactPreferences;
+using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
@@ -45,6 +46,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         _factory.MemoryCache.Clear();
         _factory.PersonServiceMock.Reset();
         _factory.RegisterClientMock.Reset();
+        _factory.UserContactInfoRepositoryMock.Reset();
     }
 
     [Fact]
@@ -1034,6 +1036,64 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(sblRequest); // no SSN => should fallback
         Assert.EndsWith($"users/{userId}", sblRequest!.RequestUri?.ToString());
+    }
+
+    [Fact]
+    public async Task GetUsersCurrent_SblBridgeFindsSelfIdentifiedProfile_ResponseOk_ReturnsLocallyEnrichedContactInfo()
+    {
+        // Arrange
+        const int UserId = 21226106;
+
+        HttpRequestMessage? sblRequest = null;
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        {
+            sblRequest = request;
+
+            UserProfile userProfile = await TestDataLoader.Load<UserProfile>("siuser-expected");
+            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
+        });
+
+        _factory.ProfileSettingsRepositoryMock
+            .Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProfileSettings?)null);
+
+        _factory.UserContactInfoRepositoryMock
+            .Setup(m => m.Get(UserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UserContactInfo
+            {
+                UserId = UserId,
+                UserUuid = new Guid("b07236de-b091-4c94-b522-43016d770d41"),
+                Username = "uidp_p9zpzf9ti9fff1RiIF",
+                CreatedAt = DateTime.UtcNow,
+                EmailAddress = "siuser@example.com",
+                PhoneNumber = "+4799999999",
+            });
+
+        HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "/profile/api/v1/users/current");
+
+        HttpClient client = _factory.CreateClient();
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(sblRequest);
+        Assert.Equal(HttpMethod.Get, sblRequest.Method);
+        Assert.EndsWith($"users/{UserId}", sblRequest?.RequestUri?.ToString());
+
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(responseContent, _serializerOptionsCamelCase);
+
+        Assert.NotNull(actualUser);
+        Assert.Equal(UserId, actualUser.UserId);
+        Assert.Equal(Models.Enums.UserType.SelfIdentified, actualUser.UserType);
+        Assert.Equal("siuser@example.com", actualUser.Email);
+        Assert.Equal("+4799999999", actualUser.PhoneNumber);
+        Assert.False(actualUser.IsReserved);
+
+        _factory.UserContactInfoRepositoryMock.Verify(m => m.Get(UserId, It.IsAny<CancellationToken>()), Times.Once);
+        _factory.PersonServiceMock.Verify(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     private static HttpRequestMessage CreateGetRequest(int userId, string requestUri)

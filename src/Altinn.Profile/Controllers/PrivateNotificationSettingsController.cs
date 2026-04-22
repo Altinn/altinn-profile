@@ -23,15 +23,15 @@ namespace Altinn.Profile.Controllers
     [Route("profile/api/v1/users/current/notificationsettings/private")]
     [Consumes("application/json")]
     [Produces("application/json")]
-    public class PrivateNotificationsSettingsController : ControllerBase
+    public class PrivateNotificationSettingsController : ControllerBase
     {
         private readonly IUserContactInfoService _userContactInfoService;
         private readonly IAddressVerificationService _addressVerificationService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PrivateNotificationsSettingsController"/> class.
+        /// Initializes a new instance of the <see cref="PrivateNotificationSettingsController"/> class.
         /// </summary>
-        public PrivateNotificationsSettingsController(IUserContactInfoService userContactInfoService, IAddressVerificationService addressVerificationService)
+        public PrivateNotificationSettingsController(IUserContactInfoService userContactInfoService, IAddressVerificationService addressVerificationService)
         {
             _userContactInfoService = userContactInfoService;
             _addressVerificationService = addressVerificationService;
