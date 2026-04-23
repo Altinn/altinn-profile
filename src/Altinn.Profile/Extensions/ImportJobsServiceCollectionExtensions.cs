@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 using Altinn.Authorization.ServiceDefaults.Leases;
 using Altinn.Profile.Changelog;
@@ -15,6 +16,7 @@ namespace Altinn.Profile.Extensions;
 /// <summary>
 /// Extension methods for configuring import job services in an <see cref="IServiceCollection"/>.
 /// </summary>
+[ExcludeFromCodeCoverage]
 internal static class ImportJobsServiceCollectionExtensions
 {
     /// <summary>
