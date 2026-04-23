@@ -22,7 +22,7 @@ namespace Altinn.Profile.Integrations.Notifications
         /// <inheritdoc/>
         public async Task<bool> SendVerificationCodeAsync(int userId, string address, AddressType addressType, string verificationCode, CancellationToken cancellationToken)
         {
-            var language = await _userProfileService.GetPreferredLanguage(userId);
+            var language = await _userProfileService.GetPreferredLanguage(userId, cancellationToken);
             var sendersReference = $"profile-{userId}-{addressType}-{DateTime.UtcNow.Ticks}";
 
             if (addressType == AddressType.Sms)
