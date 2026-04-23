@@ -3,6 +3,9 @@ on:
   pull_request:
     branches: [ main ]
     types: [opened, synchronize, reopened, ready_for_review]
+
+permissions: {}
+
 jobs:
   test:
     if: github.actor == 'dependabot[bot]' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true)
@@ -10,6 +13,20 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    services:
+      postgres:
+        image: postgres:17.9@sha256:7ad98329d513dd497293b951c195ca354274a77f12ddbbbbf85e68a811823d72
+        env:
+          POSTGRES_USER: platform_profile_admin
+          POSTGRES_PASSWORD: Password
+          POSTGRES_DB: profiledb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       - name: Setup .NET
         uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
@@ -19,6 +36,13 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Setup PostgreSQL
+        run: |
+          chmod +x dbsetup.sh
+          ./dbsetup.sh
+      - name: Restart database to enable config changes
+        run: |
+          docker restart $(docker ps -q)
 
       - name: dotnet build
         run: dotnet build Altinn.Profile.sln -v m
