@@ -996,7 +996,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersById_AsUser_RegisterAsPrimaryEnabled_RegisterReturnsSelfIdentified_FallsBackToSbl()
+    public async Task GetUsersById_AsUser_RegisterAsPrimaryEnabled_RegisterReturnsSelfIdentified()
     {
         // Arrange
         const int userId = 2516356;
@@ -1034,8 +1034,12 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.NotNull(sblRequest); // no SSN => should fallback
-        Assert.EndsWith($"users/{userId}", sblRequest!.RequestUri?.ToString());
+        Assert.Null(sblRequest); // register path should not call legacy
+
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(responseContent, _serializerOptionsCamelCase);
+        Assert.NotNull(actualUser);
+        Assert.NotNull(actualUser.Party);
     }
 
     [Fact]

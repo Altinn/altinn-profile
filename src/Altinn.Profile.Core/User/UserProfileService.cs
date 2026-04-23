@@ -87,7 +87,7 @@ public class UserProfileService : IUserProfileService
     {
         if (_settings.RegisterAsPrimaryUserProfileSource)
         {
-            UserProfile? registerProfile = await TryGetEligibleRegisterProfile(getRegisterParty(), cancellationToken);
+            UserProfile? registerProfile = await GetUserFromRegister(getRegisterParty(), cancellationToken);
             if (registerProfile is not null)
             {
                 return registerProfile;
@@ -126,40 +126,6 @@ public class UserProfileService : IUserProfileService
         return userProfile;
     }
 
-    private static bool IsEligibleRegisterProfile(Party? party)
-    {
-        // To ensure that we only use register profiles that can be enriched with KRR data, we require that the profile has a non-empty SSN.
-        // This is because KRR data is linked to the user's SSN, and without it, we cannot enrich the profile with contact information from KRR.
-        // All ssn users are returned as Person type from the register.
-        return party is Register.Contracts.Person;
-    }
-
-    private async Task<UserProfile?> TryGetEligibleRegisterProfile(Task<Party?> registerPartyTask, CancellationToken cancellationToken)
-    {
-        Party? registerParty;
-
-        try
-        {
-            registerParty = await registerPartyTask;
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception)
-        {
-            // fallback to legacy
-            return null;
-        }
-
-        if (IsEligibleRegisterProfile(registerParty))
-        {
-            return await CreateAndEnrichProfileFromParty(registerParty, cancellationToken);
-        }
-
-        return null;
-    }
-
     private async Task<UserProfile?> GetEnrichedLegacyUserProfile(Task<Result<UserProfile, bool>> legacyTask)
     {
         Result<UserProfile, bool> legacyResult = await legacyTask;
@@ -190,7 +156,8 @@ public class UserProfileService : IUserProfileService
         }
         catch (Exception)
         {
-            // in shadow mode, exceptions from the register client should not affect the user experience.
+            // fallback to sbl bridge if register lookup fails for any reason, as we do not want a failure in the register to cause a complete failure in user profile retrieval.
+            // This is especially important if the register is used in shadow mode, where we want to ensure that we can still retrieve user profiles even if the register is down or experiencing issues.
             return null;
         }
 
