@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 
-using Altinn.Authorization.ServiceDefaults.Leases;
 using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.Common.AccessToken.Services;
@@ -13,19 +12,16 @@ using Altinn.Common.PEP.Configuration;
 using Altinn.Common.PEP.Implementation;
 using Altinn.Common.PEP.Interfaces;
 using Altinn.Profile.Authorization;
-using Altinn.Profile.Changelog;
 using Altinn.Profile.Configuration;
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.Extensions;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Core.Utils;
+using Altinn.Profile.Extensions;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Handlers;
-using Altinn.Profile.Integrations.Leases;
-using Altinn.Profile.Integrations.Repositories;
-using Altinn.Profile.Integrations.Repositories.A2Sync;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.Changelog;
 using Altinn.Profile.Middleware;
@@ -219,7 +215,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
     services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
 
-    SetupImportJobs(services, config);
+    services.AddImportJobs(config);
 }
 
 static void AddAzureMonitorTelemetryExporters(IServiceCollection services, IConfiguration config)
@@ -317,53 +313,6 @@ void ConfigureWolverine(WebApplicationBuilder builder)
             .OnException<InternalServerErrorException>()
             .RetryWithCooldown(50.Milliseconds(), 100.Milliseconds(), 250.Milliseconds());
     });
-}
-
-void SetupImportJobs(IServiceCollection services, IConfiguration config)
-{
-    services.AddHttpClient<IChangeLogClient, ChangeLogClient>();
-    services.AddScoped<IChangelogSyncMetadataRepository, ChangelogSyncMetadataRepository>();
-    services.AddSingleton<ILeaseProvider, PostgresqlLeaseProvider>();
-    services.AddSingleton<ILeaseRepository, LeaseRepository>();
-    services.AddLeaseManager();
-
-    if (config.GetValue<bool>("ImportJobSettings:FavoritesImportEnabled"))
-    {
-        services.AddScoped<IFavoriteSyncRepository, FavoriteSyncRepository>();
-
-        services.AddRecurringJob<FavoriteImportJob>(settings =>
-        {
-            settings.LeaseName = LeaseNames.A2FavoriteImport;
-            settings.Interval = TimeSpan.FromMinutes(1);
-        });
-    }
-
-    if (config.GetValue<bool>("ImportJobSettings:NotificationSettingsImportEnabled"))
-    {
-        services.AddRecurringJob<NotificationSettingImportJob>(settings =>
-        {
-            settings.LeaseName = LeaseNames.A2NotificationSettingImport;
-            settings.Interval = TimeSpan.FromMinutes(1);
-        });
-    }
-
-    if (config.GetValue<bool>("ImportJobSettings:ProfileSettingsImportEnabled"))
-    {
-        services.AddRecurringJob<ProfileSettingImportJob>(settings =>
-        {
-            settings.LeaseName = LeaseNames.A2ProfileSettingImport;
-            settings.Interval = TimeSpan.FromMinutes(1);
-        });
-    }
-
-    if (config.GetValue<bool>("ImportJobSettings:SIUserAddressImportEnabled"))
-    {
-        services.AddRecurringJob<SIUserAddressImportJob>(settings =>
-        {
-            settings.LeaseName = LeaseNames.SIUserAddressImport;
-            settings.Interval = TimeSpan.FromMinutes(1);
-        });
-    }
 }
 
 /// <summary>
