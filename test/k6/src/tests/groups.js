@@ -169,9 +169,9 @@ export default function runTests(data) {
         stopIterationOnFail("No test data available: neither partyUuid environment variable nor CSV data", false);
         return;
     }
-    
+
     // Generate token for this iteration: environment variables take priority, CSV data used as fallback
-    const token = generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
+    const token = await generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
 
     const timestamp = new Date().toISOString();
     const baseName = `k6-test-group`;
@@ -181,7 +181,7 @@ export default function runTests(data) {
     const groupId = createGroup(token, groupName);
 
     if (groupId) {
-            // 2. Rename group
+        // 2. Rename group
 
         renameGroup(token, groupId, `${groupName}-renamed`);
 

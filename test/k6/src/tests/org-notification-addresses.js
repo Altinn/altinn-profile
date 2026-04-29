@@ -43,8 +43,8 @@ const csvData = createCSVSharedArray('orgNotificationAddressesTestData');
  */
 export function setup() {
     const orgNo = __ENV.orgNo;
-    
-   
+
+
     const envSuffix = __ENV.altinn_env.slice(-1);
     const numericSuffix = Number.parseInt(envSuffix);
     const suffix = Number.isInteger(numericSuffix) ? envSuffix : 0;
@@ -191,9 +191,9 @@ export default function runTests(data) {
         stopIterationOnFail("No test data available: neither orgNo environment variable nor CSV data", false);
         return;
     }
-    
+
     // Generate token for this iteration: environment variables take priority, CSV data used as fallback
-    const token = generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
+    const token = await generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
 
     let addressId = addOrgNotificationAddresses(token, orgNo, data.address);
     getOrgNotificationAddresses(token, orgNo);

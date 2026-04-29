@@ -178,10 +178,10 @@ export default function runTests(data) {
         stopIterationOnFail("No test data available: neither partyUuid environment variable nor CSV data", false);
         return;
     }
-    
+
     // Generate token for this iteration: environment variables take priority, CSV data used as fallback
-    const token = generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
-    
+    const token = await generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
+
     addPersonalNotificationAddresses(token, partyUuid, data.notificationSettings);
     getPersonalNotificationAddresses(token, partyUuid);
     getVerifiedAddresses(token);
