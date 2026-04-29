@@ -161,7 +161,7 @@ function removePersonalNotificationAddresses(token, partyUuid) {
  * Priority: Environment variables take precedence over CSV data.
  * @param {Object} data - The data object containing partyUuid (if using env vars), and notificationSettings.
  */
-export default function runTests(data) {
+export default async function runTests(data) {
     let partyUuid;
     let testRow = null;
     let useTestData = false;

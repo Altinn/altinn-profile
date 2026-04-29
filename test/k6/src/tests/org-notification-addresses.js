@@ -174,7 +174,7 @@ function removeOrgNotificationAddresses(token, orgNo, addressId) {
  * Priority: Environment variables take precedence over CSV data.
  * @param {Object} data - The data object containing csvData array (if using CSV) or orgNo (if using env vars), token, address, and updateAddress.
  */
-export default function runTests(data) {
+export default async function runTests(data) {
     let orgNo;
     let testRow = null;
     let useTestData = false;

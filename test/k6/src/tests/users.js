@@ -62,7 +62,7 @@ function getUser(token) {
  * Priority: Environment variables take precedence over CSV data.
  * @param {Object} data - The data object containing csvData array (if using CSV) or userId (if using env vars), and token.
  */
-export default function runTests(data) {
+export default async function runTests(data) {
     let testRow = null;
     let useTestData = false;
 

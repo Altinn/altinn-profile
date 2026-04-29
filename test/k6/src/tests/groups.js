@@ -152,7 +152,7 @@ function deleteGroup(token, id) {
  * Priority: Environment variables take precedence over CSV data.
  * @param {Object} data - The data object containing csvData array (if using CSV) or partyUuid (if using env vars), and token.
  */
-export default function runTests(data) {
+export default async function runTests(data) {
     let partyUuid;
     let testRow = null;
     let useTestData = false;
