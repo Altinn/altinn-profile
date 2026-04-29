@@ -24,7 +24,7 @@ The following environment variables are required to run the tests:
 
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
-| `altinn_env` | Environment to run tests against (prod/tt02/yt01/at22/at23) | Yes | - |
+| `altinn_env` | Environment to run tests against (prod/tt02/yt01/at22/at23/at24) | Yes | - |
 | `tokenGeneratorUserName` | Username for token generator | Yes | - |
 | `tokenGeneratorUserPwd` | Password for token generator | Yes | - |
 | `partyUuid` | Party UUID for testing (for favorites and notification-settings tests) | No* | - |

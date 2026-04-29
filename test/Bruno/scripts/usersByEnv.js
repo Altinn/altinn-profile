@@ -28,6 +28,19 @@ const usersByEnv = {
     // Add more users for AT23 as needed.
   },
 
+  at24: {
+    user1: {
+      AuthN_UserId: "20245418",
+      AuthN_PartyId: "51074789",
+      AuthN_Pid: "17902349936",
+      AuthN_PartyUuid: "3155a6c7-0967-4c31-9cb3-0afe525d5899",
+      Party_OrgNo: "313605590",
+      Party_PartyId: "51605705",
+      Party_PartyUuid: "e0347436-a499-49aa-b651-8c67c3c8d17e"
+    }
+    // Add more users for AT24 as needed.
+  },
+
   tt02: {
     user1: {
       AuthN_UserId: "1597896",
