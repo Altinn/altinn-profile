@@ -35,6 +35,7 @@ jobs:
           TOKEN_GENERATOR_USERNAME: ${{ secrets.TOKENGENERATOR_USERNAME }}
           TOKEN_GENERATOR_USERPASSWORD: ${{ secrets.TOKENGENERATOR_USERPASSWORD }}
         run: |
+          umask 077
           SECRETS_FILE="${{ runner.temp }}/k6.secrets"
           printf 'tokenGeneratorUserName=%s\n' "$TOKEN_GENERATOR_USERNAME" > "$SECRETS_FILE"
           printf 'tokenGeneratorUserPwd=%s\n' "$TOKEN_GENERATOR_USERPASSWORD" >> "$SECRETS_FILE"
