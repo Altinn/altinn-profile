@@ -227,14 +227,14 @@ public class UserProfileService : IUserProfileService
         if (userProfile.ProfileSettingPreference.PreselectedPartyUuid != null && _settings.LookupPreselectedPartyIdAtRegister)
         {
             // If a preselected party UUID is provided, we need to fetch the corresponding party ID from the register to ensure data consistency.
-            int? partyId = await _registerClient.GetPartyId(userProfile.ProfileSettingPreference.PreselectedPartyUuid.Value, default);
+            int? partyId = await _registerClient.GetPartyId(userProfile.ProfileSettingPreference.PreselectedPartyUuid.Value, cancellationToken);
             userProfile.ProfileSettingPreference.PreSelectedPartyId = partyId ?? 0;
         }
 
         return userProfile;
     }
 
-    private async Task<UserProfile> EnrichWithKrrData(UserProfile userProfile, CancellationToken cancellationToken = default)
+    private async Task<UserProfile> EnrichWithKrrData(UserProfile userProfile, CancellationToken cancellationToken)
     {
         if (userProfile.Party == null || string.IsNullOrEmpty(userProfile.Party.SSN))
         {
@@ -254,7 +254,7 @@ public class UserProfileService : IUserProfileService
         return userProfile;
     }
 
-    private async Task<UserProfile> EnrichWithSiUserContactSettings(UserProfile userProfile, CancellationToken cancellationToken = default)
+    private async Task<UserProfile> EnrichWithSiUserContactSettings(UserProfile userProfile, CancellationToken cancellationToken)
     {
         if (userProfile.UserType is not UserType.SelfIdentified)
         {
