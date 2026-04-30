@@ -25,12 +25,13 @@ jobs:
         uses: grafana/setup-k6-action@ffe7d7290dfa715e48c2ccc924d068444c94bde2 # v1.1.0
       - name: Create k6 secrets file
         id: k6-secrets
+        env:
+          TOKEN_GENERATOR_USERNAME: ${{ secrets.TOKENGENERATOR_USERNAME }}
+          TOKEN_GENERATOR_USERPASSWORD: ${{ secrets.TOKENGENERATOR_USERPASSWORD }}
         run: |
           SECRETS_FILE="${{ runner.temp }}/k6.secrets"
-          cat <<EOF > "$SECRETS_FILE"
-          tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }}
-          tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }}
-          EOF
+          printf 'tokenGeneratorUserName=%s\n' "$TOKEN_GENERATOR_USERNAME" > "$SECRETS_FILE"
+          printf 'tokenGeneratorUserPwd=%s\n' "$TOKEN_GENERATOR_USERPASSWORD" >> "$SECRETS_FILE"
           echo "file=$SECRETS_FILE" >> "$GITHUB_OUTPUT"
       - name: Run favorites use case tests
         uses: grafana/run-k6-action@a15e2072ede004e8d46141e33d7f7dad8ad08d9d # v1.3.1
