@@ -186,7 +186,7 @@ $> podman compose run k6 run /src/tests/favorites.js \
 Common issues and solutions:
 
 1. **Authentication Failures**
-   - Verify that tokenGeneratorUserName and tokenGeneratorUserPwd are correct
+   - Verify the entries for `tokenGeneratorUserName` and `tokenGeneratorUserPwd` in the file `.secrets`, and confirm the file is mounted and passed via `--secret-source=file=/.secrets`
    - Check that the token generator service is accessible
    - Verify that the user has necessary permissions in the target environment
 
