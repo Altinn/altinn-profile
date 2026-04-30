@@ -93,7 +93,7 @@ public class UserProfileService : IUserProfileService
                 return registerProfile;
             }
 
-            UserProfile? fallbackLegacy = await GetEnrichedLegacyUserProfile(getLegacy());
+            UserProfile? fallbackLegacy = await GetEnrichedLegacyUserProfile(getLegacy(), cancellationToken);
             return CreateUserProfileResult(fallbackLegacy);
         }
 
@@ -105,14 +105,14 @@ public class UserProfileService : IUserProfileService
             await Task.WhenAll(legacyTask, registerTask);
 
             UserProfile? registerProfile = await registerTask;
-            UserProfile? legacyProfile = await GetEnrichedLegacyUserProfile(legacyTask);
+            UserProfile? legacyProfile = await GetEnrichedLegacyUserProfile(legacyTask, cancellationToken);
 
             _userProfileComparer.CompareAndLog(legacyProfile, registerProfile);
 
             return CreateUserProfileResult(legacyProfile);
         }
 
-        UserProfile? legacyOnly = await GetEnrichedLegacyUserProfile(getLegacy());
+        UserProfile? legacyOnly = await GetEnrichedLegacyUserProfile(getLegacy(), cancellationToken);
         return CreateUserProfileResult(legacyOnly);
     }
 
@@ -126,7 +126,7 @@ public class UserProfileService : IUserProfileService
         return userProfile;
     }
 
-    private async Task<UserProfile?> GetEnrichedLegacyUserProfile(Task<Result<UserProfile, bool>> legacyTask)
+    private async Task<UserProfile?> GetEnrichedLegacyUserProfile(Task<Result<UserProfile, bool>> legacyTask, CancellationToken cancellationToken)
     {
         Result<UserProfile, bool> legacyResult = await legacyTask;
         if (!legacyResult.IsSuccess)
@@ -135,9 +135,9 @@ public class UserProfileService : IUserProfileService
         }
 
         UserProfile legacyProfile = legacyResult.Match(userProfile => userProfile, _ => default!);
-        legacyProfile = await EnrichWithProfileSettings(legacyProfile, default);
-        legacyProfile = await EnrichWithKrrData(legacyProfile);
-        legacyProfile = await EnrichWithSiUserContactSettings(legacyProfile);
+        legacyProfile = await EnrichWithProfileSettings(legacyProfile, cancellationToken);
+        legacyProfile = await EnrichWithKrrData(legacyProfile, cancellationToken);
+        legacyProfile = await EnrichWithSiUserContactSettings(legacyProfile, cancellationToken);
 
         return legacyProfile;
     }
@@ -227,14 +227,14 @@ public class UserProfileService : IUserProfileService
         if (userProfile.ProfileSettingPreference.PreselectedPartyUuid != null && _settings.LookupPreselectedPartyIdAtRegister)
         {
             // If a preselected party UUID is provided, we need to fetch the corresponding party ID from the register to ensure data consistency.
-            int? partyId = await _registerClient.GetPartyId(userProfile.ProfileSettingPreference.PreselectedPartyUuid.Value, default);
+            int? partyId = await _registerClient.GetPartyId(userProfile.ProfileSettingPreference.PreselectedPartyUuid.Value, cancellationToken);
             userProfile.ProfileSettingPreference.PreSelectedPartyId = partyId ?? 0;
         }
 
         return userProfile;
     }
 
-    private async Task<UserProfile> EnrichWithKrrData(UserProfile userProfile, CancellationToken cancellationToken = default)
+    private async Task<UserProfile> EnrichWithKrrData(UserProfile userProfile, CancellationToken cancellationToken)
     {
         if (userProfile.Party == null || string.IsNullOrEmpty(userProfile.Party.SSN))
         {
@@ -254,7 +254,7 @@ public class UserProfileService : IUserProfileService
         return userProfile;
     }
 
-    private async Task<UserProfile> EnrichWithSiUserContactSettings(UserProfile userProfile, CancellationToken cancellationToken = default)
+    private async Task<UserProfile> EnrichWithSiUserContactSettings(UserProfile userProfile, CancellationToken cancellationToken)
     {
         if (userProfile.UserType is not UserType.SelfIdentified)
         {
