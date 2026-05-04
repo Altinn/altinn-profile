@@ -19,7 +19,7 @@ const environment = __ENV.altinn_env.toLowerCase();
  * @param {boolean} useTestData - Flag indicating whether to use test data from CSV.
  * @param {Object} testData - Optional test data object from CSV row. Should contain userId, ssn, and userPartyId.
  *                            Only used if environment variables (userID, pid, partyId) are not provided.
- * @returns {string} The generated token.
+ * @returns {Promise<string>} The generated token.
  */
 export async function generateToken(endpoint, useTestdata, testData = null) {
 
