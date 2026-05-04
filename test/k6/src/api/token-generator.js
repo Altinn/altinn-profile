@@ -1,10 +1,10 @@
 import http from "k6/http";
 import encoding from "k6/encoding";
+import secrets from "k6/secrets";
 import * as apiHelpers from "../apiHelpers.js";
 import { stopIterationOnFail } from "../errorhandler.js";
 
-const tokenGeneratorUserPwd = __ENV.tokenGeneratorUserPwd;
-const tokenGeneratorUserName = __ENV.tokenGeneratorUserName;
+
 const userID = __ENV.userID;
 const pid = __ENV.pid;
 const partyId = __ENV.partyId;
@@ -19,16 +19,15 @@ const environment = __ENV.altinn_env.toLowerCase();
  * @param {boolean} useTestData - Flag indicating whether to use test data from CSV.
  * @param {Object} testData - Optional test data object from CSV row. Should contain userId, ssn, and userPartyId.
  *                            Only used if environment variables (userID, pid, partyId) are not provided.
- * @returns {string} The generated token.
+ * @returns {Promise<string>} The generated token.
  */
-export function generateToken(endpoint, useTestdata, testData = null) {
-    if (!tokenGeneratorUserName) {
-        stopIterationOnFail(`Invalid value for environment variable 'tokenGeneratorUserName': '${tokenGeneratorUserName}'.`, false);
-    }
+export async function generateToken(endpoint, useTestdata, testData = null) {
 
-    if (!tokenGeneratorUserPwd) {
-        stopIterationOnFail(`Invalid value for environment variable 'tokenGeneratorUserPwd': '${tokenGeneratorUserPwd}'.`, false);
-    }
+    const failIterationWithMsg = (errorMsg) => stopIterationOnFail(errorMsg, false);
+
+    const tokenGeneratorUserName = await getFromSecretSource('tokenGeneratorUserName', failIterationWithMsg);
+    const tokenGeneratorUserPwd = await getFromSecretSource('tokenGeneratorUserPwd', failIterationWithMsg);
+
 
     const queryParams = {
         env: environment,
@@ -37,7 +36,7 @@ export function generateToken(endpoint, useTestdata, testData = null) {
         partyId: partyId,
     };
 
-    if (useTestdata){
+    if (useTestdata) {
         queryParams.userID = testData.userId;
         queryParams.pid = testData.ssn;
         queryParams.partyId = testData.userPartyId;
@@ -55,10 +54,31 @@ export function generateToken(endpoint, useTestdata, testData = null) {
     const response = http.get(endpointWithParams, params);
 
     if (response.status != 200) {
-        stopIterationOnFail("Token generation failed", false);
+        failIterationWithMsg("Token generation failed");
     }
 
     const token = response.body;
 
     return token;
+}
+
+async function getFromSecretSource(secretName, raiseError) {
+    let secretValue;
+    try {
+        secretValue = await secrets.get(secretName);
+    }
+    catch (error) {
+        if (error == "no secret sources are configured") {
+            raiseError("The secret sources is not configured", false);
+        }
+        else if (error == "no value") {
+            raiseError(`Secret ${secretName} does not exist in the secret source`);
+        }
+        console.log(error);
+        raiseError("Unknown error occurred in the attempt to get secret from source");
+    }
+    if (!secretValue) {
+        raiseError(`Secret ${secretName} is not properly assigned in the secret source`);
+    }
+    return secretValue;
 }

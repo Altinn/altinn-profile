@@ -9,8 +9,7 @@ import { createCSVSharedArray, getRandomRow } from '../data/csv-loader.js';
 // With environment variable (takes priority):
 // podman compose run k6 run /src/tests/org-notification-addresses.js \
 //   -e altinn_env=*** \
-//   -e tokenGeneratorUserName=*** \
-//   -e tokenGeneratorUserPwd=*** \
+//   --secret-source=file=/.secrets \
 //   -e userID=*** \
 //   -e partyId=*** \
 //   -e pid=*** \
@@ -19,8 +18,7 @@ import { createCSVSharedArray, getRandomRow } from '../data/csv-loader.js';
 // Without environment variable (uses CSV file with random row selection):
 // podman compose run k6 run /src/tests/org-notification-addresses.js \
 //   -e altinn_env=*** \
-//   -e tokenGeneratorUserName=*** \
-//   -e tokenGeneratorUserPwd=***
+//   --secret-source=file=/.secrets
 
 export const options = {
     vus: 1,
@@ -43,8 +41,8 @@ const csvData = createCSVSharedArray('orgNotificationAddressesTestData');
  */
 export function setup() {
     const orgNo = __ENV.orgNo;
-    
-   
+
+
     const envSuffix = __ENV.altinn_env.slice(-1);
     const numericSuffix = Number.parseInt(envSuffix);
     const suffix = Number.isInteger(numericSuffix) ? envSuffix : 0;
@@ -174,7 +172,7 @@ function removeOrgNotificationAddresses(token, orgNo, addressId) {
  * Priority: Environment variables take precedence over CSV data.
  * @param {Object} data - The data object containing csvData array (if using CSV) or orgNo (if using env vars), token, address, and updateAddress.
  */
-export default function runTests(data) {
+export default async function runTests(data) {
     let orgNo;
     let testRow = null;
     let useTestData = false;
@@ -191,9 +189,9 @@ export default function runTests(data) {
         stopIterationOnFail("No test data available: neither orgNo environment variable nor CSV data", false);
         return;
     }
-    
+
     // Generate token for this iteration: environment variables take priority, CSV data used as fallback
-    const token = generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
+    const token = await generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
 
     let addressId = addOrgNotificationAddresses(token, orgNo, data.address);
     getOrgNotificationAddresses(token, orgNo);

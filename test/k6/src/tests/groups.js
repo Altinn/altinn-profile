@@ -9,8 +9,7 @@ import { createCSVSharedArray, getRandomRow } from '../data/csv-loader.js';
 // With environment variable (takes priority):
 // podman compose run k6 run /src/tests/groups.js \
 //   -e altinn_env=*** \
-//   -e tokenGeneratorUserName=*** \
-//   -e tokenGeneratorUserPwd=*** \
+//   --secret-source=file=/.secrets \
 //   -e userID=*** \
 //   -e partyId=*** \
 //   -e pid=*** \
@@ -19,8 +18,7 @@ import { createCSVSharedArray, getRandomRow } from '../data/csv-loader.js';
 // Without environment variable (uses CSV file with random row selection):
 // podman compose run k6 run /src/tests/groups.js \
 //   -e altinn_env=*** \
-//   -e tokenGeneratorUserName=*** \
-//   -e tokenGeneratorUserPwd=***
+//   --secret-source=file=/.secrets
 
 export const options = {
     vus: 1,
@@ -152,7 +150,7 @@ function deleteGroup(token, id) {
  * Priority: Environment variables take precedence over CSV data.
  * @param {Object} data - The data object containing csvData array (if using CSV) or partyUuid (if using env vars), and token.
  */
-export default function runTests(data) {
+export default async function runTests(data) {
     let partyUuid;
     let testRow = null;
     let useTestData = false;
@@ -169,9 +167,9 @@ export default function runTests(data) {
         stopIterationOnFail("No test data available: neither partyUuid environment variable nor CSV data", false);
         return;
     }
-    
+
     // Generate token for this iteration: environment variables take priority, CSV data used as fallback
-    const token = generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
+    const token = await generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
 
     const timestamp = new Date().toISOString();
     const baseName = `k6-test-group`;
@@ -181,7 +179,7 @@ export default function runTests(data) {
     const groupId = createGroup(token, groupName);
 
     if (groupId) {
-            // 2. Rename group
+        // 2. Rename group
 
         renameGroup(token, groupId, `${groupName}-renamed`);
 

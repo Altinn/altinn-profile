@@ -18,6 +18,20 @@ Alternatively, it is possible to run the tests directly on your machine as well.
 
 ---
 
+## Configuring the secret source
+
+**Never put secrets on the command line** - sensitive values should be passed to the k6 script via a secret source, as this provides full k6 redaction. In other words, secrets loaded via k6/secrets are automatically redacted from all k6 log output as `***SECRET_REDACTED***`, effectively preventing the values to leak into logs.
+
+1. Create a `.secrets` file in the k6 folder
+2. Copy contents from `.secrets.sample`
+3. Assign valid values to the variables
+
+
+| Variable | Description | Required |
+| `tokenGeneratorUserName` | Username for token generator | Yes |
+| `tokenGeneratorUserPwd` | Password for token generator | Yes |
+
+
 ## Environment Variables
 
 The following environment variables are required to run the tests:
@@ -25,8 +39,6 @@ The following environment variables are required to run the tests:
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
 | `altinn_env` | Environment to run tests against (prod/tt02/yt01/at22/at23) | Yes | - |
-| `tokenGeneratorUserName` | Username for token generator | Yes | - |
-| `tokenGeneratorUserPwd` | Password for token generator | Yes | - |
 | `partyUuid` | Party UUID for testing (for favorites and notification-settings tests) | No* | - |
 | `orgNo` | Organization number for testing (for org-notification-addresses test) | No* | - |
 
@@ -90,9 +102,8 @@ $> cd /altinn-profile/test/k6
 
 ```bash
 $> podman compose run k6 run /src/tests/favorites.js \
+    --secret-source=file=/.secrets \
     -e altinn_env=yt01 \
-    -e tokenGeneratorUserName=*** \
-    -e tokenGeneratorUserPwd=*** \
     -e partyUuid=***
     -e userID=*** \
     -e pid=*** \
@@ -105,9 +116,8 @@ This uses the provided `partyUuid` directly for all iterations.
 
 ```bash
 $> podman compose run k6 run /src/tests/favorites.js \
+    --secret-source=file=/.secrets \
     -e altinn_env=yt01 \
-    -e tokenGeneratorUserName=*** \
-    -e tokenGeneratorUserPwd=***
 ```
 
 Each test iteration will randomly select a row from the static CSV file (`/src/data/orgs-in-yt01-with-party-uuid.csv`), ensuring diverse test data across iterations. This happens automatically when environment variables are not provided.
@@ -118,9 +128,8 @@ Run with custom timeout and retry settings (using static CSV file):
 
 ```bash
 $> podman compose run k6 run /src/tests/favorites.js \
+    --secret-source=file=/.secrets \
     -e altinn_env=tt02 \
-    -e tokenGeneratorUserName=*** \
-    -e tokenGeneratorUserPwd=*** \
     -e REQUEST_TIMEOUT=60s \
     -e RETRY_COUNT=5 \
     -e RETRY_INTERVAL=2000
@@ -130,9 +139,8 @@ Or with environment variables (overrides CSV):
 
 ```bash
 $> podman compose run k6 run /src/tests/favorites.js \
+    --secret-source=file=/.secrets \
     -e altinn_env=tt02 \
-    -e tokenGeneratorUserName=*** \
-    -e tokenGeneratorUserPwd=*** \
     -e partyUuid=*** \
     -e REQUEST_TIMEOUT=60s \
     -e RETRY_COUNT=5 \
@@ -153,9 +161,8 @@ Run load tests with additional parameters like `--vus` (virtual users) and `--du
 
 ```bash
 $> podman compose run k6 run /src/tests/favorites.js \
+    --secret-source=file=/.secrets \
     -e altinn_env=yt01 \
-    -e tokenGeneratorUserName=*** \
-    -e tokenGeneratorUserPwd=*** \
     --vus=10 \
     --duration=5m
 ```
@@ -164,9 +171,8 @@ $> podman compose run k6 run /src/tests/favorites.js \
 
 ```bash
 $> podman compose run k6 run /src/tests/favorites.js \
+    --secret-source=file=/.secrets \
     -e altinn_env=yt01 \
-    -e tokenGeneratorUserName=*** \
-    -e tokenGeneratorUserPwd=*** \
     --vus=5 \
     --iterations=50
 ```
@@ -180,7 +186,7 @@ $> podman compose run k6 run /src/tests/favorites.js \
 Common issues and solutions:
 
 1. **Authentication Failures**
-   - Verify that tokenGeneratorUserName and tokenGeneratorUserPwd are correct
+   - Verify the entries for `tokenGeneratorUserName` and `tokenGeneratorUserPwd` in the file `.secrets`, and confirm the file is mounted and passed via `--secret-source=file=/.secrets`
    - Check that the token generator service is accessible
    - Verify that the user has necessary permissions in the target environment
 
