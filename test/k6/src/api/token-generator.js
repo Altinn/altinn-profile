@@ -65,7 +65,7 @@ export async function generateToken(endpoint, useTestdata, testData = null) {
 async function getFromSecretSource(secretName, raiseError) {
     let secretValue;
     try {
-        secretValue = await secrets.get(secretName);
+        secretValue = await Promise.resolve(secrets.get(secretName));
     }
     catch (error) {
         if (error == "no secret sources are configured") {
