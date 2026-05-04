@@ -296,6 +296,10 @@ void ConfigureWolverine(WebApplicationBuilder builder)
     {
         var connStr = builder.Configuration.GetDatabaseConnectionString();
 
+        var csb = new Npgsql.NpgsqlConnectionStringBuilder(connStr);
+        logger.LogInformation(
+            "DB settings: Host={Host}, Port={Port}, SslMode={SslMode}, GssEncMode={GssEncMode}", csb.Host, csb.Port, csb.SslMode, csb.GssEncryptionMode);
+
         // You'll need to independently tell Wolverine where and how to 
         // store messages as part of the transactional inbox/outbox
         opts.PersistMessagesWithPostgresql(connStr);
