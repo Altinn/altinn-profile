@@ -9,8 +9,7 @@ import { createCSVSharedArray, getRandomRow } from '../data/csv-loader.js';
 // With environment variable (takes priority):
 // podman compose run k6 run /src/tests/users.js \
 //   -e altinn_env=*** \
-//   -e tokenGeneratorUserName=*** \
-//   -e tokenGeneratorUserPwd=*** \
+//   --secret-source=file=/.secrets \
 //   -e userID=*** \
 //   -e partyId=*** \
 //   -e pid=*** \
@@ -18,8 +17,7 @@ import { createCSVSharedArray, getRandomRow } from '../data/csv-loader.js';
 // Without environment variable (uses CSV file with random row selection):
 // podman compose run k6 run /src/tests/users.js \
 //   -e altinn_env=*** \
-//   -e tokenGeneratorUserName=*** \
-//   -e tokenGeneratorUserPwd=***
+//   --secret-source=file=/.secrets
 
 export const options = {
     vus: 1,
