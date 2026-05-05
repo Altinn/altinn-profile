@@ -94,20 +94,6 @@ public sealed class UserProfileComparer : IUserProfileComparer
 
         CompareField("Party.Person.SSN", source!.SSN, target!.SSN, mismatches);
         CompareField("Party.Person.Name", source.Name, target.Name, mismatches);
-        CompareField("Party.Person.FirstName", source.FirstName, target.FirstName, mismatches);
-        CompareField("Party.Person.MiddleName", source.MiddleName, target.MiddleName, mismatches);
-        CompareField("Party.Person.LastName", source.LastName, target.LastName, mismatches);
-        CompareField("Party.Person.TelephoneNumber", source.TelephoneNumber, target.TelephoneNumber, mismatches);
-        CompareField("Party.Person.MailingAddress", source.MailingAddress, target.MailingAddress, mismatches);
-        CompareField("Party.Person.MailingPostalCode", source.MailingPostalCode, target.MailingPostalCode, mismatches);
-        CompareField("Party.Person.MailingPostalCity", source.MailingPostalCity, target.MailingPostalCity, mismatches);
-        CompareField("Party.Person.AddressMunicipalNumber", source.AddressMunicipalNumber, target.AddressMunicipalNumber, mismatches);
-        CompareField("Party.Person.AddressMunicipalName", source.AddressMunicipalName, target.AddressMunicipalName, mismatches);
-        CompareField("Party.Person.AddressStreetName", source.AddressStreetName, target.AddressStreetName, mismatches);
-        CompareField("Party.Person.AddressHouseNumber", source.AddressHouseNumber, target.AddressHouseNumber, mismatches);
-        CompareField("Party.Person.AddressHouseLetter", source.AddressHouseLetter, target.AddressHouseLetter, mismatches);
-        CompareField("Party.Person.AddressPostalCode", source.AddressPostalCode, target.AddressPostalCode, mismatches);
-        CompareField("Party.Person.AddressCity", source.AddressCity, target.AddressCity, mismatches);
         CompareField("Party.Person.DateOfDeath", source.DateOfDeath, target.DateOfDeath, mismatches);
     }
 
@@ -140,10 +126,8 @@ public sealed class UserProfileComparer : IUserProfileComparer
             return;
         }
 
-        if ((source is null && target is string rightString && rightString.Length == 0)
-            || (target is null && source is string leftString && leftString.Length == 0))
+        if (TryReportNullVsEmptyStringMismatch(fieldPath, source, target, mismatches))
         {
-            mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.NullVsEmptyString));
             return;
         }
 
@@ -155,18 +139,7 @@ public sealed class UserProfileComparer : IUserProfileComparer
 
         if (source is string left && target is string right)
         {
-            if (!string.Equals(left, right, StringComparison.Ordinal))
-            {
-                // this means the strings are different, but we want to check if they are only different due to extra whitespace before logging a WrongValue mismatch, since extra whitespace is a known data issue that we want to identify separately.
-                if (string.Equals(NormalizeWhitespace(left), NormalizeWhitespace(right), StringComparison.Ordinal))
-                {
-                    mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.ExtraSpaces));
-                    return;
-                }
-
-                mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.WrongValue));
-            }
-
+            CompareStringFields(fieldPath, left, right, mismatches);
             return;
         }
 
@@ -174,6 +147,39 @@ public sealed class UserProfileComparer : IUserProfileComparer
         {
             mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.WrongValue));
         }
+    }
+
+    private static bool TryReportNullVsEmptyStringMismatch(string fieldPath, object? source, object? target, ICollection<UserProfileMismatch> mismatches)
+    {
+        if (source is null && target is string rightString && rightString.Length == 0)
+        {
+            mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.NullVsEmptyString));
+            return true;
+        }
+
+        if (target is null && source is string leftString && leftString.Length == 0)
+        {
+            mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.NullVsEmptyString));
+            return true;
+        }
+
+        return false;
+    }
+
+    private static void CompareStringFields(string fieldPath, string left, string right, ICollection<UserProfileMismatch> mismatches)
+    {
+        if (string.Equals(left, right, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (string.Equals(NormalizeWhitespace(left), NormalizeWhitespace(right), StringComparison.Ordinal))
+        {
+            mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.ExtraSpaces));
+            return;
+        }
+
+        mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.WrongValue));
     }
 
     /// <summary>Collapses runs of any whitespace to single spaces.</summary>
