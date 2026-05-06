@@ -262,25 +262,25 @@ void Configure()
 {
     logger.LogInformation("Program // Configure {AppName}", app.Environment.ApplicationName);
 
-    if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
+    if (app.Environment.IsDevelopment())
     {
-        logger.LogInformation("IsDevelopment || IsStaging");
+        logger.LogInformation("IsDevelopment");
 
         // Enable higher level of detail in exceptions related to JWT validation
         IdentityModelEventSource.ShowPII = true;
 
-        app.UseExceptionHandler("/profile/api/v1/error");
-    }
-    else
-    {
-        app.UseExceptionHandler("/profile/api/v1/error");
-    }
-
-    if (app.Environment.IsDevelopment())
-    {
         app.UseSwagger();
         app.UseSwaggerUI();
     }
+    else if (app.Environment.IsStaging())
+    {
+        logger.LogInformation("IsStaging");
+
+        // Enable higher level of detail in exceptions related to JWT validation
+        IdentityModelEventSource.ShowPII = true;
+    }
+
+    app.UseExceptionHandler("/profile/api/v1/error");
 
     app.UseRouting();
     app.UseAuthentication();
