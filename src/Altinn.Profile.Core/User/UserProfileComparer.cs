@@ -173,6 +173,7 @@ public sealed class UserProfileComparer : IUserProfileComparer
             return;
         }
 
+        // this means the strings are different, but we want to check if they are only different due to extra whitespace before logging a WrongValue mismatch, since extra whitespace is a known data issue that we want to identify separately.
         if (string.Equals(NormalizeWhitespace(left), NormalizeWhitespace(right), StringComparison.Ordinal))
         {
             mismatches.Add(new UserProfileMismatch(fieldPath, UserProfileMismatchType.ExtraSpaces));
