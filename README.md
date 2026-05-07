@@ -110,26 +110,25 @@ dotnet user-secrets set "ContactAndReservationSettings:MaskinportenSettings:Enco
    ```
 
 ### Adding migrations with EF core
-1. Code the desired classes and add them to the DB context
-2. Ensure you have the EF core tools installed. If not, run the following command:
+0. Ensure you have the EF core tools installed. If not, run the following command:
    ```cmd
    dotnet tool install --global dotnet-ef
    ```
+1. Code the desired classes and add them to the DB context
+
 2. Run the following command in a terminal from src/Altinn.Profile.Integrations to add a migration. The name should be more descriptive than AddNewMigration:
    ```cmd
    dotnet ef migrations Add AddNewMigration --startup-project ../Altinn.Profile
    ```
-3. To generate SQL scripts, run `dotnet ef migrations script --startup-project ../Altinn.Profile`
+   If you want to check the raw SQL scripts, run `dotnet ef migrations script --startup-project ../Altinn.Profile`
 
    If you want to remove the migration run `dotnet ef migrations remove --startup-project ../Altinn.Profile`
    Read more about [applying migrations with EF Core](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli).
 
-4. Notice that there is a sql script that correlates with the changes that you intended to do between script changes injecting a new version to yuniql version history.
-   Copy the new script lines and add it to the new version folder as described in step 5.
-
-5. Create a new folder under Altinn.Profile.Integrations/Migration with a new version number
-   Copy the generated SQL script from step 3 to a new file in the new version folder created in step 5.
-   To apply the changes locally, you can start the application. 
+3. To apply the migration to the database, run the following command:
+   ```cmd
+   dotnet ef database update --startup-project ../Altinn.Profile
+   ```
 
 ### Running Bruno requests
 In order to run the requests with active access tokens, you need to add the secrets for the token generator tool. This should be added in a `.env` file. An example is added to the folder. 

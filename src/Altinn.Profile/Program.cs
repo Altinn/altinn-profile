@@ -1,7 +1,10 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
@@ -22,6 +25,7 @@ using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Handlers;
+using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Middleware;
 
@@ -36,6 +40,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -71,8 +76,15 @@ ConfigureServices(builder.Services, builder.Configuration);
 ConfigureWolverine(builder);
 
 WebApplication app = builder.Build();
+using var scope = app.Services.CreateScope();
 
-app.SetUpPostgreSql(builder.Configuration);
+if (args.Contains("--run-db-migrations"))
+{
+    // Migration mode: runs with admin database access
+    // For Kubernetes pre-upgrade hooks
+    await Migrate();
+    return;
+}
 
 Configure();
 
@@ -312,6 +324,19 @@ void ConfigureWolverine(WebApplicationBuilder builder)
             .OnException<InternalServerErrorException>()
             .RetryWithCooldown(50.Milliseconds(), 100.Milliseconds(), 250.Milliseconds());
     });
+}
+
+async Task Migrate()
+{
+    try
+    {
+        await app.RunDatabaseMigrationsAsync(builder.Configuration);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Database migration failed");
+        Environment.Exit(1);
+    }
 }
 
 /// <summary>

@@ -12,6 +12,8 @@ public static class ConfigurationExtensions
 {
     private const string ConnectionStringKey = "PostgreSqlSettings:ConnectionString";
     private const string ProfileDbPasswordKey = "PostgreSqlSettings:ProfileDbPwd";
+    private const string AdminConnectionStringKey = "PostgreSqlSettings:AdminConnectionString";
+    private const string AdminPasswordKey = "PostgreSqlSettings:ProfileDbAdminPwd";
 
     /// <summary>
     /// Retrieves the database connection string from the configuration.
@@ -40,5 +42,32 @@ public static class ConfigurationExtensions
         }
 
         return string.Format(connectionString, userPassword);
+    }
+
+    /// <summary>
+    /// Retrieves the admin database connection string from the configuration for database migrations.
+    /// </summary>
+    /// <param name="config">The configuration instance containing the connection settings.</param>
+    /// <returns>The formatted admin database connection string if all required settings are present; otherwise, an empty string.</returns>
+    /// <remarks>
+    /// This method is used for database migrations and operations requiring admin privileges.
+    /// It expects IConfiguration to contain the following keys:
+    /// <list type="bullet">
+    /// <item><description><c>PostgreSqlSettings:AdminConnectionString</c></description></item>
+    /// <item><description><c>PostgreSqlSettings:ProfileDbAdminPwd</c></description></item>
+    /// </list>
+    /// </remarks>
+    public static string GetAdminDatabaseConnectionString(this IConfiguration config)
+    {
+        var connectionString = config[AdminConnectionStringKey];
+        var adminPassword = config[AdminPasswordKey];
+
+        if (string.IsNullOrWhiteSpace(adminPassword) ||
+            string.IsNullOrWhiteSpace(connectionString))
+        {
+            return string.Empty;
+        }
+
+        return string.Format(connectionString, adminPassword);
     }
 }
