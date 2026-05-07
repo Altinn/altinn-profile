@@ -28,8 +28,8 @@ public static class WebApplicationExtensions
     {
         var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseMigration");
         
-        var settings = config.GetSection("PostgreSQLSettings").Get<PostgreSqlSettings>()
-            ?? throw new ArgumentNullException(nameof(config), "Required PostgreSQLSettings is missing from application configuration");
+        var settings = config.GetSection("PostgreSqlSettings").Get<PostgreSqlSettings>()
+            ?? throw new ArgumentNullException(nameof(config), "Required PostgreSqlSettings is missing from application configuration");
 
         if (!settings.EnableDBConnection)
         {
@@ -41,7 +41,7 @@ public static class WebApplicationExtensions
         {
             logger.LogInformation("Database migration started");
 
-            var adminConnectionString = string.Format(settings.AdminConnectionString, settings.ProfileDbAdminPwd);
+            var adminConnectionString = config.GetAdminDatabaseConnectionString();
             var options = new DbContextOptionsBuilder<ProfileDbContext>()
                 .UseNpgsql(adminConnectionString)
                 .UseSnakeCaseNamingConvention()
