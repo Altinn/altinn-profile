@@ -28,6 +28,7 @@ Alternatively, it is possible to run the tests directly on your machine as well.
 
 
 | Variable | Description | Required |
+|----------|-------------|----------|
 | `tokenGeneratorUserName` | Username for token generator | Yes |
 | `tokenGeneratorUserPwd` | Password for token generator | Yes |
 
