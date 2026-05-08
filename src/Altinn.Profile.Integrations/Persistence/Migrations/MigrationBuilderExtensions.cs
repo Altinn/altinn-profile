@@ -36,7 +36,7 @@ public static class MigrationBuilderExtensions
         string tableName,
         string permissions = "SELECT, INSERT, UPDATE, DELETE")
     {
-        var grantSql = $"GRANT {permissions} ON TABLE {schema}.{tableName} TO platform_profile;";
+        var grantSql = $"GRANT {permissions} ON TABLE {QuoteIdentifier(schema)}.{QuoteIdentifier(tableName)} TO platform_profile;";
         migrationBuilder.Sql(grantSql);
     }
 
@@ -56,4 +56,7 @@ public static class MigrationBuilderExtensions
         var revokeSql = $"REVOKE {permissions} ON TABLE {schema}.{tableName} FROM platform_profile;";
         migrationBuilder.Sql(revokeSql, suppressTransaction: true);
     }
+
+    private static string QuoteIdentifier(string identifier) =>
+    $"\"{identifier.Replace("\"", "\"\"")}\"";
 }

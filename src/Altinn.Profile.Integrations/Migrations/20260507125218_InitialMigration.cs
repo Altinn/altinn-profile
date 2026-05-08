@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 
+using Altinn.Profile.Integrations.Persistence.Migrations;
+
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -47,6 +49,8 @@ namespace Altinn.Profile.Integrations.Migrations
                     table.PrimaryKey("changelog_sync_metadata_pkey", x => x.last_changed_id);
                 });
 
+            migrationBuilder.GrantTablePermissions("lease", "changelog_sync_metadata");
+
             migrationBuilder.CreateTable(
                 name: "groups",
                 schema: "user_preferences",
@@ -62,6 +66,8 @@ namespace Altinn.Profile.Integrations.Migrations
                 {
                     table.PrimaryKey("group_id_pkey", x => x.group_id);
                 });
+
+            migrationBuilder.GrantTablePermissions("user_preferences", "groups");
 
             migrationBuilder.CreateTable(
                 name: "lease",
@@ -79,6 +85,8 @@ namespace Altinn.Profile.Integrations.Migrations
                     table.PrimaryKey("lease_id_pkey", x => x.id);
                 });
 
+            migrationBuilder.GrantTablePermissions("lease", "lease");
+
             migrationBuilder.CreateTable(
                 name: "mailbox_supplier",
                 schema: "contact_and_reservation",
@@ -93,6 +101,8 @@ namespace Altinn.Profile.Integrations.Migrations
                     table.PrimaryKey("mailbox_supplier_pkey", x => x.mailbox_supplier_id);
                 });
 
+            migrationBuilder.GrantTablePermissions("contact_and_reservation", "mailbox_supplier");
+
             migrationBuilder.CreateTable(
                 name: "metadata",
                 schema: "contact_and_reservation",
@@ -105,6 +115,8 @@ namespace Altinn.Profile.Integrations.Migrations
                 {
                     table.PrimaryKey("metadata_pkey", x => x.latest_change_number);
                 });
+
+            migrationBuilder.GrantTablePermissions("contact_and_reservation", "metadata");
 
             migrationBuilder.CreateTable(
                 name: "organizations",
@@ -119,6 +131,8 @@ namespace Altinn.Profile.Integrations.Migrations
                 {
                     table.PrimaryKey("organization_id_pkey", x => x.registry_organization_id);
                 });
+
+            migrationBuilder.GrantTablePermissions("organization_notification_address", "organizations");
 
             migrationBuilder.CreateTable(
                 name: "profile_settings",
@@ -139,6 +153,8 @@ namespace Altinn.Profile.Integrations.Migrations
                     table.PrimaryKey("user_id_pkey", x => x.user_id);
                 });
 
+            migrationBuilder.GrantTablePermissions("user_preferences", "profile_settings");
+
             migrationBuilder.CreateTable(
                 name: "registry_sync_metadata",
                 schema: "organization_notification_address",
@@ -151,6 +167,8 @@ namespace Altinn.Profile.Integrations.Migrations
                 {
                     table.PrimaryKey("registry_sync_metadata_pkey", x => x.last_changed_id);
                 });
+
+            migrationBuilder.GrantTablePermissions("organization_notification_address", "registry_sync_metadata");
 
             migrationBuilder.CreateTable(
                 name: "self_identified_users",
@@ -170,6 +188,8 @@ namespace Altinn.Profile.Integrations.Migrations
                     table.PrimaryKey("pk_self_identified_users", x => x.user_id);
                 });
 
+            migrationBuilder.GrantTablePermissions("user_preferences", "self_identified_users");
+
             migrationBuilder.CreateTable(
                 name: "user_party_contact_info",
                 schema: "professional_notification_settings",
@@ -187,6 +207,8 @@ namespace Altinn.Profile.Integrations.Migrations
                 {
                     table.PrimaryKey("user_party_contact_info_pkey", x => x.user_party_contact_info_id);
                 });
+
+            migrationBuilder.GrantTablePermissions("professional_notification_settings", "user_party_contact_info");
 
             migrationBuilder.CreateTable(
                 name: "verification_codes",
@@ -208,6 +230,8 @@ namespace Altinn.Profile.Integrations.Migrations
                     table.PrimaryKey("verification_code_id_pkey", x => x.verification_code_id);
                 });
 
+            migrationBuilder.GrantTablePermissions("address_verifications", "verification_codes");
+
             migrationBuilder.CreateTable(
                 name: "verified_addresses",
                 schema: "address_verifications",
@@ -224,6 +248,8 @@ namespace Altinn.Profile.Integrations.Migrations
                 {
                     table.PrimaryKey("pk_verified_addresses", x => x.verified_address_id);
                 });
+
+            migrationBuilder.GrantTablePermissions("address_verifications", "verified_addresses");
 
             migrationBuilder.CreateTable(
                 name: "party_group_association",
@@ -247,6 +273,8 @@ namespace Altinn.Profile.Integrations.Migrations
                         principalColumn: "group_id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.GrantTablePermissions("user_preferences", "party_group_association");
 
             migrationBuilder.CreateTable(
                 name: "person",
@@ -280,6 +308,8 @@ namespace Altinn.Profile.Integrations.Migrations
                         principalColumn: "mailbox_supplier_id");
                 });
 
+            migrationBuilder.GrantTablePermissions("contact_and_reservation", "person");
+
             migrationBuilder.CreateTable(
                 name: "notifications_address",
                 schema: "organization_notification_address",
@@ -312,6 +342,8 @@ namespace Altinn.Profile.Integrations.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.GrantTablePermissions("organization_notification_address", "notifications_address");
+
             migrationBuilder.CreateTable(
                 name: "user_party_contact_info_resources",
                 schema: "professional_notification_settings",
@@ -333,6 +365,8 @@ namespace Altinn.Profile.Integrations.Migrations
                         principalColumn: "user_party_contact_info_id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.GrantTablePermissions("professional_notification_settings", "user_party_contact_info_resources");
 
             migrationBuilder.CreateIndex(
                 name: "ix_groups_user_id",
