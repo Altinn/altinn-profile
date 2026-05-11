@@ -66,7 +66,7 @@ async function getFromSecretSource(secretName, raiseError) {
     }
     catch (error) {
         if (error == "no secret sources are configured") {
-            raiseError("The secret sources is not configured", false);
+            raiseError("No secret source is configured for the k6 command - specify the file path with the --secret-source flag");
         }
         else if (error == "no value") {
             raiseError(`Secret ${secretName} does not exist in the secret source`);
