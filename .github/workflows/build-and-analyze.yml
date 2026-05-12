@@ -62,7 +62,7 @@ jobs:
 
           dotnet build Altinn.Profile.sln -v q
 
-          dotnet run Altinn.Profile.sln --run-db-migrations
+          dotnet run --project src/Altinn.Profile/Altinn.Profile.csproj --configuration Release -- --run-db-migrations
 
           dotnet test Altinn.Profile.sln \
           -v q \
