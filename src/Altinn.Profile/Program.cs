@@ -312,6 +312,8 @@ void ConfigureWolverine(WebApplicationBuilder builder)
         // store messages as part of the transactional inbox/outbox
         opts.PersistMessagesWithPostgresql(connStr);
 
+        opts.UseEntityFrameworkCoreWolverineManagedMigrations();
+
         // Adding EF Core transactional middleware, saga support,
         // and EF Core support for Wolverine storage operations
         opts.UseEntityFrameworkCoreTransactions();
