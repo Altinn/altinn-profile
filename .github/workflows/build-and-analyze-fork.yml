@@ -47,6 +47,9 @@ jobs:
       - name: dotnet build
         run: dotnet build Altinn.Profile.sln -v m
 
+      - name: dotnet migrate
+        run: dotnet run Altinn.Profile.sln --run-db-migrations
+
       - name: dotnet test
         run: dotnet test Altinn.Profile.sln --results-directory TestResults/ --collect:"XPlat Code Coverage" -v m
 

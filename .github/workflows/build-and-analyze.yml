@@ -62,6 +62,8 @@ jobs:
 
           dotnet build Altinn.Profile.sln -v q
 
+          dotnet run Altinn.Profile.sln --run-db-migrations
+
           dotnet test Altinn.Profile.sln \
           -v q \
           --collect:"XPlat Code Coverage" \

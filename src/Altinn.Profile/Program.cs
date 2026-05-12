@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,7 +24,6 @@ using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
 using Altinn.Profile.Integrations.Handlers;
-using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Middleware;
 
@@ -35,12 +33,12 @@ using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.Exporter;
 
 using JasperFx.Core;
+using JasperFx.Resources;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -312,8 +310,6 @@ void ConfigureWolverine(WebApplicationBuilder builder)
         // store messages as part of the transactional inbox/outbox
         opts.PersistMessagesWithPostgresql(connStr);
 
-        opts.UseEntityFrameworkCoreWolverineManagedMigrations();
-
         // Adding EF Core transactional middleware, saga support,
         // and EF Core support for Wolverine storage operations
         opts.UseEntityFrameworkCoreTransactions();
@@ -333,6 +329,7 @@ async Task Migrate()
     try
     {
         await app.RunDatabaseMigrationsAsync(builder.Configuration);
+        await app.SetupResources(CancellationToken.None);
     }
     catch (Exception ex)
     {
