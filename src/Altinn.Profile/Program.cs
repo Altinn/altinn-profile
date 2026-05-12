@@ -74,7 +74,6 @@ ConfigureServices(builder.Services, builder.Configuration);
 ConfigureWolverine(builder);
 
 WebApplication app = builder.Build();
-using var scope = app.Services.CreateScope();
 
 if (args.Contains("--run-db-migrations"))
 {
@@ -304,9 +303,12 @@ void ConfigureWolverine(WebApplicationBuilder builder)
 {
     builder.UseWolverine(opts =>
     {
-        var connStr = builder.Configuration.GetDatabaseConnectionString();
+        var isMigrationMode = args.Contains("--run-db-migrations");
+        var connStr = isMigrationMode
+            ? builder.Configuration.GetAdminDatabaseConnectionString()
+            : builder.Configuration.GetDatabaseConnectionString();
 
-        // You'll need to independently tell Wolverine where and how to 
+        // You'll need to independently tell Wolverine where and how to
         // store messages as part of the transactional inbox/outbox
         opts.PersistMessagesWithPostgresql(connStr);
 
