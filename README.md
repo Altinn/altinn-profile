@@ -120,14 +120,16 @@ dotnet user-secrets set "ContactAndReservationSettings:MaskinportenSettings:Enco
    ```cmd
    dotnet ef migrations Add AddNewMigration --startup-project ../Altinn.Profile
    ```
+   Read more about granting permissions in the migration builder in the [README](src/Altinn.Profile.Integrations/Persistence/Migrations/README.md).
+
    If you want to check the raw SQL scripts, run `dotnet ef migrations script --startup-project ../Altinn.Profile`
 
    If you want to remove the migration run `dotnet ef migrations remove --startup-project ../Altinn.Profile`
    Read more about [applying migrations with EF Core](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli).
 
-3. To apply the migration to the database, run the following command:
+3. To apply the migration to the database, navigate to the src/Altinn.Profile folder and run the following command:
    ```cmd
-   dotnet ef database update --startup-project ../Altinn.Profile
+   dotnet run --run-db-migrations
    ```
 
 ### Running Bruno requests
