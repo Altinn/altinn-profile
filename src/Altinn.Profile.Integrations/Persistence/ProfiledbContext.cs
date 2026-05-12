@@ -122,6 +122,8 @@ public partial class ProfileDbContext : DbContext
 
             entity.Property(e => e.MailboxSupplierId).UseIdentityAlwaysColumn();
             entity.Property(e => e.OrgNumberAk).IsFixedLength();
+
+            entity.HasIndex(e => e.OrgNumberAk, "ix_mailbox_supplier_org_number_ak").IsUnique();
         });
 
         modelBuilder.Entity<Metadata>(entity =>
@@ -142,12 +144,15 @@ public partial class ProfileDbContext : DbContext
             entity.HasOne(d => d.MailboxSupplierIdFkNavigation)
                   .WithMany(p => p.People)
                   .HasConstraintName("fk_mailbox_supplier");
+
+            entity.HasIndex(e => e.FnumberAk, "ix_person_fnumber_ak");
+
         });
 
         modelBuilder.Entity<NotificationAddressDE>(entity =>
         {
             entity.HasKey(e => e.NotificationAddressID).HasName("contact_info_pkey");
-            entity.HasIndex(e => e.FullAddress, "ix_full_address");
+            entity.HasIndex(e => e.FullAddress, "ix_notifications_address_full_address");
             entity.Property(e => e.CreatedDateTime).HasDefaultValueSql("now()").ValueGeneratedOnAdd();
         });
 
