@@ -201,13 +201,13 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         .AddPolicy(AuthConstants.OrgNotificationAddress_Read, policy => policy.Requirements.Add(new ResourceAccessRequirement("read", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
         .AddPolicy(AuthConstants.OrgNotificationAddress_Write, policy => policy.Requirements.Add(new ResourceAccessRequirement("write", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
         .AddPolicy(AuthConstants.UserPartyAccess, policy => policy.Requirements.Add(new PartyAccessRequirement()))
-        .AddPolicy(AuthConstants.PortalEndUserAccess, policy => policy.Requirements.Add(new FeatureToggledScopeAccesRequirement("altinn:portal/enduser")));
+        .AddPolicy(AuthConstants.PortalEndUserAccess, policy => policy.Requirements.Add(new FeatureToggledScopeAccessRequirement("altinn:portal/enduser")));
 
     services.AddScoped<IAuthorizationHandler, OrgResourceAccessHandler>();
     services.AddScoped<IAuthorizationHandler, PartyAccessHandler>();
     services.AddScoped<ScopeAccessHandler>();
     services.AddScoped<IAuthorizationHandler>(sp => sp.GetRequiredService<ScopeAccessHandler>());
-    services.AddScoped<IAuthorizationHandler, FeatureToggledScopeAccesHandler>();
+    services.AddScoped<IAuthorizationHandler, FeatureToggledScopeAccessHandler>();
 
     services.AddCoreServices(config);
     services.AddRegisterService(config);

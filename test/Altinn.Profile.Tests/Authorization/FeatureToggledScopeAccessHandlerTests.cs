@@ -13,13 +13,13 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.Authorization
 {
-    public class FeatureToggledScopeAccesHandlerTests
+    public class FeatureToggledScopeAccessHandlerTests
     {
         [Fact]
         public async Task HandleAsync_WhenEnforceAccessCheckIsFalse_AndRequiredScopeIsPresent_SucceedsWithoutDelegating()
         {
             // Arrange
-            var requirement = new FeatureToggledScopeAccesRequirement("altinn:portal/enduser");
+            var requirement = new FeatureToggledScopeAccessRequirement("altinn:portal/enduser");
             ClaimsPrincipal user = CreatePrincipalWithFederationScope("altinn:portal/enduser other-scope");
             var context = new AuthorizationHandlerContext([requirement], user, null);
             var scopeAccessHandler = new TestScopeAccessHandler(shouldSucceed: false);
@@ -38,7 +38,7 @@ namespace Altinn.Profile.Tests.Authorization
         public async Task HandleAsync_WhenEnforceAccessCheckIsFalse_AndRequiredScopeIsMissing_SucceedsWithoutDelegating()
         {
             // Arrange
-            var requirement = new FeatureToggledScopeAccesRequirement("altinn:portal/enduser");
+            var requirement = new FeatureToggledScopeAccessRequirement("altinn:portal/enduser");
             ClaimsPrincipal user = CreatePrincipalWithFederationScope("some:other.scope");
             var context = new AuthorizationHandlerContext([requirement], user, null);
             var scopeAccessHandler = new TestScopeAccessHandler(shouldSucceed: false);
@@ -57,7 +57,7 @@ namespace Altinn.Profile.Tests.Authorization
         public async Task HandleAsync_WhenEnforceAccessCheckIsTrue_AndDelegatedHandlerSucceeds_SucceedsAndDelegates()
         {
             // Arrange
-            var requirement = new FeatureToggledScopeAccesRequirement("altinn:portal/enduser");
+            var requirement = new FeatureToggledScopeAccessRequirement("altinn:portal/enduser");
             ClaimsPrincipal user = CreatePrincipalWithFederationScope("altinn:portal/enduser other-scope");
             var context = new AuthorizationHandlerContext([requirement], user, null);
             var scopeAccessHandler = new TestScopeAccessHandler(shouldSucceed: true);
@@ -76,7 +76,7 @@ namespace Altinn.Profile.Tests.Authorization
         public async Task HandleAsync_WhenEnforceAccessCheckIsTrue_AndDelegatedHandlerFails_FailsAndDelegates()
         {
             // Arrange
-            var requirement = new FeatureToggledScopeAccesRequirement("altinn:portal/enduser");
+            var requirement = new FeatureToggledScopeAccessRequirement("altinn:portal/enduser");
             ClaimsPrincipal user = CreatePrincipalWithFederationScope("some:other.scope");
             var context = new AuthorizationHandlerContext([requirement], user, null);
             var scopeAccessHandler = new TestScopeAccessHandler(shouldSucceed: false);
@@ -91,14 +91,14 @@ namespace Altinn.Profile.Tests.Authorization
             Assert.True(scopeAccessHandler.WasInvoked);
         }
 
-        private static FeatureToggledScopeAccesHandler CreateHandler(bool enforceAccessCheck, ScopeAccessHandler scopeAccessHandler)
+        private static FeatureToggledScopeAccessHandler CreateHandler(bool enforceAccessCheck, ScopeAccessHandler scopeAccessHandler)
         {
             IOptions<AccessSettings> options = Options.Create(new AccessSettings
             {
                 EnforceAccessCheck = enforceAccessCheck
             });
 
-            return new FeatureToggledScopeAccesHandler(options, scopeAccessHandler, NullLogger<FeatureToggledScopeAccesHandler>.Instance);
+            return new FeatureToggledScopeAccessHandler(options, scopeAccessHandler, NullLogger<FeatureToggledScopeAccessHandler>.Instance);
         }
 
         private static ClaimsPrincipal CreatePrincipalWithFederationScope(string scope)

@@ -18,18 +18,18 @@ namespace Altinn.Profile.Authorization
     /// in asp.net core.
     /// </summary>
     /// <remarks>
-    /// Initializes a new instance of the <see cref="FeatureToggledScopeAccesHandler"/> class.
+    /// Initializes a new instance of the <see cref="FeatureToggledScopeAccessHandler"/> class.
     /// </remarks>
-    public class FeatureToggledScopeAccesHandler(
+    public class FeatureToggledScopeAccessHandler(
         IOptions<AccessSettings> portalAccessSettings,
         ScopeAccessHandler scopeAccessHandler,
-        ILogger<FeatureToggledScopeAccesHandler> logger) : AuthorizationHandler<FeatureToggledScopeAccesRequirement>
+        ILogger<FeatureToggledScopeAccessHandler> logger) : AuthorizationHandler<FeatureToggledScopeAccessRequirement>
     {
         private readonly AccessSettings _portalAccessSettings = portalAccessSettings.Value;
 
         private readonly ScopeAccessHandler _scopeAccessHandler = scopeAccessHandler;
 
-        private readonly ILogger<FeatureToggledScopeAccesHandler> _logger = logger;
+        private readonly ILogger<FeatureToggledScopeAccessHandler> _logger = logger;
 
         /// <summary>
         /// This method authorizes access based on context and requirement.
@@ -38,7 +38,7 @@ namespace Altinn.Profile.Authorization
         /// <param name="context">The context</param>
         /// <param name="requirement">The requirement</param>
         /// <returns>A Task</returns>
-        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, FeatureToggledScopeAccesRequirement requirement)
+        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, FeatureToggledScopeAccessRequirement requirement)
         {
             if (_portalAccessSettings.EnforceAccessCheck)
             {
@@ -48,7 +48,7 @@ namespace Altinn.Profile.Authorization
 
             string contextScope = context.User?.Identities
                 ?.FirstOrDefault(i => i.AuthenticationType != null && i.AuthenticationType.Equals("AuthenticationTypes.Federation"))?.Claims
-                .Where(c => c.Type.Equals("urn:altinn:scope"))?
+                .Where(c => c.Type.Equals("urn:altinn:scope"))
                 .Select(c => c.Value).FirstOrDefault();
 
             contextScope ??= context.User?.Claims.Where(c => c.Type.Equals("scope")).Select(c => c.Value).FirstOrDefault();
@@ -60,14 +60,7 @@ namespace Altinn.Profile.Authorization
                 string[] requiredScopes = requirement.Scope;
                 List<string> clientScopes = contextScope.Split(' ').ToList();
 
-                foreach (string requiredScope in requiredScopes)
-                {
-                    if (clientScopes.Contains(requiredScope))
-                    {
-                        validScope = true;
-                        break;
-                    }
-                }
+                validScope = requiredScopes.Where(clientScopes.Contains).Any();
             }
 
             if (!validScope)
@@ -76,7 +69,6 @@ namespace Altinn.Profile.Authorization
             }
 
             context.Succeed(requirement);
-            await Task.CompletedTask;
         }
     }
 }
