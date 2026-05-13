@@ -21,11 +21,11 @@ namespace Altinn.Profile.Authorization
     /// Initializes a new instance of the <see cref="FeatureToggledScopeAccessHandler"/> class.
     /// </remarks>
     public class FeatureToggledScopeAccessHandler(
-        IOptions<AccessSettings> portalAccessSettings,
+        IOptions<PortalAccessSettings> portalAccessSettings,
         ScopeAccessHandler scopeAccessHandler,
         ILogger<FeatureToggledScopeAccessHandler> logger) : AuthorizationHandler<FeatureToggledScopeAccessRequirement>
     {
-        private readonly AccessSettings _portalAccessSettings = portalAccessSettings.Value;
+        private readonly PortalAccessSettings _portalAccessSettings = portalAccessSettings.Value;
 
         private readonly ScopeAccessHandler _scopeAccessHandler = scopeAccessHandler;
 

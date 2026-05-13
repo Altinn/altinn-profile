@@ -93,7 +93,7 @@ namespace Altinn.Profile.Tests.Authorization
 
         private static FeatureToggledScopeAccessHandler CreateHandler(bool enforceAccessCheck, ScopeAccessHandler scopeAccessHandler)
         {
-            IOptions<AccessSettings> options = Options.Create(new AccessSettings
+            IOptions<PortalAccessSettings> options = Options.Create(new PortalAccessSettings
             {
                 EnforceAccessCheck = enforceAccessCheck
             });

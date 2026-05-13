@@ -3,7 +3,7 @@
     /// <summary>
     /// Settings for portal access control.
     /// </summary>
-    public class AccessSettings
+    public class PortalAccessSettings
     {
         /// <summary>
         /// Gets or sets a value indicating whether access checks should be enforced.
