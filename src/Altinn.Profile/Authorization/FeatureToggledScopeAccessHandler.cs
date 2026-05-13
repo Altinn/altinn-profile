@@ -65,7 +65,7 @@ namespace Altinn.Profile.Authorization
 
             if (!validScope)
             {
-                _logger.LogWarning("Access should be denied. Required scope {RequiredScope} not found in user claims.", requirement.Scope);
+                _logger.LogWarning("Access should be denied. Required scope {RequiredScope} not found in user claims. Found scopes {FoundScopes}", requirement.Scope, contextScope);
             }
 
             context.Succeed(requirement);
