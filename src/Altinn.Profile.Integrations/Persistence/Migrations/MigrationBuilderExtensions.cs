@@ -11,6 +11,21 @@ namespace Altinn.Profile.Integrations.Persistence.Migrations;
 public static class MigrationBuilderExtensions
 {
     /// <summary>
+    /// Adds a grant statement for schema permissions for the runtime database user to the migration.
+    /// </summary>
+    /// <param name="migrationBuilder">The migration builder.</param>
+    /// <param name="schema">The schema name.</param>
+    /// <param name="permissions">The schema permissions to grant (default: USAGE).</param>
+    public static void GrantSchemaPermissions(
+        this MigrationBuilder migrationBuilder,
+        string schema,
+        string permissions = "USAGE")
+    {
+        var grantSql = $"GRANT {permissions} ON SCHEMA {QuoteIdentifier(schema)} TO platform_profile;";
+        migrationBuilder.Sql(grantSql);
+    }
+
+    /// <summary>
     /// Adds a grant statement for the runtime database user to the migration.
     /// </summary>
     /// <param name="migrationBuilder">The migration builder.</param>
