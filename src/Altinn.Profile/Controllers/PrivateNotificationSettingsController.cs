@@ -44,6 +44,7 @@ namespace Altinn.Profile.Controllers
         /// <param name="request"> The request containing the notification address details</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
         [HttpPut("phonenumber")]
+        [Authorize(Policy = AuthConstants.PortalEndUserAccess)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]

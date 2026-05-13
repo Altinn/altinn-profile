@@ -21,6 +21,7 @@ namespace Altinn.Profile.Controllers
     /// Controller for logic concerning verification of notification addresses
     /// </summary>
     [Authorize]
+    [Authorize(Policy = AuthConstants.PortalEndUserAccess)]
     [Route("profile/api/v1/users/current/verification/")]
     [Consumes("application/json")]
     [Produces("application/json")]
