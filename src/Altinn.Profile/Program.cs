@@ -332,6 +332,7 @@ async Task Migrate()
     {
         await app.RunDatabaseMigrationsAsync(builder.Configuration);
         await app.SetupResources(CancellationToken.None);
+        await app.GrantWolverinePermissionsAsync(builder.Configuration);
     }
     catch (Exception ex)
     {
