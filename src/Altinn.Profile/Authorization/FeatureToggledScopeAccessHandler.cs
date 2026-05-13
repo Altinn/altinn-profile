@@ -60,7 +60,7 @@ namespace Altinn.Profile.Authorization
                 string[] requiredScopes = requirement.Scope;
                 List<string> clientScopes = contextScope.Split(' ').ToList();
 
-                validScope = requiredScopes.Where(clientScopes.Contains).Any();
+                validScope = requiredScopes.Any(clientScopes.Contains);
             }
 
             if (!validScope)
