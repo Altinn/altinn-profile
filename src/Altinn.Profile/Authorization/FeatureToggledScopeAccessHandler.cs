@@ -22,12 +22,9 @@ namespace Altinn.Profile.Authorization
     /// </remarks>
     public class FeatureToggledScopeAccessHandler(
         IOptions<PortalAccessSettings> portalAccessSettings,
-        ScopeAccessHandler scopeAccessHandler,
         ILogger<FeatureToggledScopeAccessHandler> logger) : AuthorizationHandler<FeatureToggledScopeAccessRequirement>
     {
         private readonly PortalAccessSettings _portalAccessSettings = portalAccessSettings.Value;
-
-        private readonly ScopeAccessHandler _scopeAccessHandler = scopeAccessHandler;
 
         private readonly ILogger<FeatureToggledScopeAccessHandler> _logger = logger;
 
@@ -40,24 +37,6 @@ namespace Altinn.Profile.Authorization
         /// <returns>A Task</returns>
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, FeatureToggledScopeAccessRequirement requirement)
         {
-            if (_portalAccessSettings.EnforceAccessCheck)
-            {
-                var scopeRequirement = requirement.GetScopeAccessRequirement;
-                var requirementsToCheck = new[] { scopeRequirement };
-                var scopeContext = new AuthorizationHandlerContext(requirementsToCheck, context.User, context.Resource);
-                await _scopeAccessHandler.HandleAsync(scopeContext);
-                if (scopeContext.HasSucceeded)
-                {
-                    context.Succeed(requirement);
-                }
-                else if (scopeContext.HasFailed)
-                {
-                    context.Fail();
-                }
-
-                return;
-            }
-
             string contextScope = context.User?.Identities
                 ?.FirstOrDefault(i => i.AuthenticationType != null && i.AuthenticationType.Equals("AuthenticationTypes.Federation"))?.Claims
                 .Where(c => c.Type.Equals("urn:altinn:scope"))
@@ -69,15 +48,26 @@ namespace Altinn.Profile.Authorization
 
             if (!string.IsNullOrWhiteSpace(contextScope))
             {
-                string[] requiredScopes = requirement.GetScopeAccessRequirement.Scope;
+                string[] requiredScopes = requirement.Scope;
                 List<string> clientScopes = contextScope.Split(' ').ToList();
 
                 validScope = requiredScopes.Any(clientScopes.Contains);
             }
 
+            if (_portalAccessSettings.EnforceAccessCheck)
+            {
+                if (validScope)
+                {
+                    context.Succeed(requirement);
+                }
+
+                await Task.CompletedTask;
+                return;
+            }
+
             if (!validScope)
             {
-                _logger.LogWarning("Access should be denied. Required scope {RequiredScope} not found in user claims. Found scopes {FoundScopes}", requirement.GetScopeAccessRequirement.Scope, contextScope);
+                _logger.LogWarning("Access should be denied. Required scope {RequiredScope} not found in user claims. Found scopes {FoundScopes}", requirement.Scope, contextScope);
             }
 
             context.Succeed(requirement);

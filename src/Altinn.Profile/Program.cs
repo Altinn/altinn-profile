@@ -205,8 +205,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
     services.AddScoped<IAuthorizationHandler, OrgResourceAccessHandler>();
     services.AddScoped<IAuthorizationHandler, PartyAccessHandler>();
-    services.AddScoped<ScopeAccessHandler>();
-    services.AddScoped<IAuthorizationHandler>(sp => sp.GetRequiredService<ScopeAccessHandler>());
+    services.AddScoped<IAuthorizationHandler, ScopeAccessHandler>();
     services.AddScoped<IAuthorizationHandler, FeatureToggledScopeAccessHandler>();
 
     services.AddCoreServices(config);

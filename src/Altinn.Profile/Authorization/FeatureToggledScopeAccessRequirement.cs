@@ -10,13 +10,16 @@ namespace Altinn.Profile.Authorization
     /// <see href="https://docs.asp.net/en/latest/security/authorization/policies.html"/> for details about authorization
     /// in asp.net core.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="FeatureToggledScopeAccessRequirement"/> class and 
+    /// pupulates the Scope property with the given scope.
+    /// </remarks>
+    /// <param name="scope">The scope for this requirement</param>
     public class FeatureToggledScopeAccessRequirement(string scope) : IAuthorizationRequirement
     {
-        private readonly ScopeAccessRequirement _scope = new(scope);
-
         /// <summary>
-        /// Gets the scope required for access.
+        /// Gets or sets the scope defined for the policy using this requirement
         /// </summary>
-        public IScopeAccessRequirement GetScopeAccessRequirement => _scope;
+        public string[] Scope { get; set; } = [scope];
     }
 }
