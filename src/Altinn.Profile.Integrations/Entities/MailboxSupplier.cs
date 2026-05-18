@@ -12,7 +12,6 @@ namespace Altinn.Profile.Integrations.Entities;
 /// Represents a mailbox supplier in the contact and reservation schema.
 /// </summary>
 [Table("mailbox_supplier", Schema = "contact_and_reservation")]
-[Index("OrgNumberAk", Name = "unique_org_number_ak", IsUnique = true)]
 public partial class MailboxSupplier
 {
     /// <summary>
