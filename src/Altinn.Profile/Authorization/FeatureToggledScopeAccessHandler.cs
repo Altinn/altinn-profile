@@ -42,7 +42,19 @@ namespace Altinn.Profile.Authorization
         {
             if (_portalAccessSettings.EnforceAccessCheck)
             {
-                await _scopeAccessHandler.HandleAsync(context);
+                var scopeRequirement = requirement.GetScopeAccessRequirement;
+                var requirementsToCheck = new[] { scopeRequirement };
+                var scopeContext = new AuthorizationHandlerContext(requirementsToCheck, context.User, context.Resource);
+                await _scopeAccessHandler.HandleAsync(scopeContext);
+                if (scopeContext.HasSucceeded)
+                {
+                    context.Succeed(requirement);
+                }
+                else if (scopeContext.HasFailed)
+                {
+                    context.Fail();
+                }
+
                 return;
             }
 
@@ -57,7 +69,7 @@ namespace Altinn.Profile.Authorization
 
             if (!string.IsNullOrWhiteSpace(contextScope))
             {
-                string[] requiredScopes = requirement.Scope;
+                string[] requiredScopes = requirement.GetScopeAccessRequirement.Scope;
                 List<string> clientScopes = contextScope.Split(' ').ToList();
 
                 validScope = requiredScopes.Any(clientScopes.Contains);
@@ -65,7 +77,7 @@ namespace Altinn.Profile.Authorization
 
             if (!validScope)
             {
-                _logger.LogWarning("Access should be denied. Required scope {RequiredScope} not found in user claims. Found scopes {FoundScopes}", requirement.Scope, contextScope);
+                _logger.LogWarning("Access should be denied. Required scope {RequiredScope} not found in user claims. Found scopes {FoundScopes}", requirement.GetScopeAccessRequirement.Scope, contextScope);
             }
 
             context.Succeed(requirement);
