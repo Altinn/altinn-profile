@@ -163,6 +163,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
     services.Configure<PlatformSettings>(config.GetSection("PlatformSettings"));
     services.Configure<AddressMaintenanceSettings>(config.GetSection("AddressMaintenanceSettings"));
+    services.Configure<PortalAccessSettings>(config.GetSection("PortalAccessSettings"));
 
     services.AddSingleton(config);
 

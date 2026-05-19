@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.AddressVerifications;
 using Altinn.Profile.Core.AddressVerifications.Models;
-using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Models;
 
@@ -20,6 +19,7 @@ namespace Altinn.Profile.Controllers
     /// Controller for organizing the notification addresses for self-identified users.
     /// </summary>
     [Authorize]
+    [Authorize(Policy = AuthConstants.PortalEndUserAccess)]
     [Route("profile/api/v1/users/current/notificationsettings/private")]
     [Consumes("application/json")]
     [Produces("application/json")]
@@ -44,7 +44,6 @@ namespace Altinn.Profile.Controllers
         /// <param name="request"> The request containing the notification address details</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
         [HttpPut("phonenumber")]
-        [Authorize(Policy = AuthConstants.PortalEndUserAccess)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
