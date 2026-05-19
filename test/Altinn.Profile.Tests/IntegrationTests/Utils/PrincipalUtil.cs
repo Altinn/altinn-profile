@@ -29,7 +29,7 @@ public static class PrincipalUtil
 
         if (scope != null)
         {
-            claims.Add(new Claim("urn:altinn:scope", scope, ClaimValueTypes.String, "maskinporten"));
+            claims.Add(new Claim("scope", scope, ClaimValueTypes.String, "maskinporten"));
         }
 
         ClaimsIdentity identity = new("mock");
