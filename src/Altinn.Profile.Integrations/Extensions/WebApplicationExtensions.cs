@@ -72,44 +72,9 @@ public static class WebApplicationExtensions
     }
 
     /// <summary>
-    /// Prepares the Wolverine schema with proper permissions for the runtime user.
-    /// This should be called before SetupResources to ensure Wolverine tables are created with proper ownership.
-    /// </summary>
-    /// <param name="app">The web application instance.</param>
-    /// <param name="config">The configuration collection.</param>
-    /// <returns>A task that completes when schema is prepared.</returns>
-    public static async Task PrepareWolverineSchemaAsync(this WebApplication app, IConfiguration config)
-    {
-        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseMigration");
-        var adminConnectionString = config.GetAdminDatabaseConnectionString();
-
-        if (string.IsNullOrWhiteSpace(adminConnectionString))
-        {
-            throw new InvalidOperationException("Admin database connection string is not properly configured.");
-        }
-
-        var options = new DbContextOptionsBuilder<ProfileDbContext>()
-            .UseNpgsql(adminConnectionString)
-            .UseSnakeCaseNamingConvention()
-            .Options;
-
-        using var context = new ProfileDbContext(options);
-
-        logger.LogInformation("Preparing Wolverine schema for runtime user");
-
-        // Create schema if it doesn't exist
-        await context.Database.ExecuteSqlRawAsync($"CREATE SCHEMA IF NOT EXISTS {WolverineSchema};");
-
-        // Set default privileges for future tables in the schema
-        await context.Database.ExecuteSqlRawAsync($"ALTER DEFAULT PRIVILEGES IN SCHEMA {WolverineSchema} GRANT ALL PRIVILEGES ON TABLES TO {RuntimeDbUser};");
-        await context.Database.ExecuteSqlRawAsync($"ALTER DEFAULT PRIVILEGES IN SCHEMA {WolverineSchema} GRANT ALL PRIVILEGES ON SEQUENCES TO {RuntimeDbUser};");
-
-        logger.LogInformation("Wolverine schema prepared successfully");
-    }
-
-    /// <summary>
     /// Grants runtime database user permissions required for Wolverine schema objects.
-    /// Call this after SetupResources to grant permissions on existing tables created by Wolverine.
+    /// This transfers ownership of any Wolverine objects created by the admin user to the runtime user,
+    /// then sets default privileges for future objects. This should be called after SetupResources.
     /// </summary>
     /// <param name="app">The web application instance.</param>
     /// <param name="config">The configuration collection.</param>
@@ -133,9 +98,17 @@ public static class WebApplicationExtensions
 
         logger.LogInformation("Granting Wolverine schema permissions to runtime user");
 
-        await context.Database.ExecuteSqlRawAsync($"GRANT USAGE ON SCHEMA {WolverineSchema} TO {RuntimeDbUser};");
+        // Grant schema privileges to runtime user
+        await context.Database.ExecuteSqlRawAsync($"CREATE SCHEMA IF NOT EXISTS {WolverineSchema};");
+        await context.Database.ExecuteSqlRawAsync($"GRANT USAGE, CREATE ON SCHEMA {WolverineSchema} TO {RuntimeDbUser};");
+
+        // Grant privileges on all existing tables and sequences to runtime user
         await context.Database.ExecuteSqlRawAsync($"GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA {WolverineSchema} TO {RuntimeDbUser};");
         await context.Database.ExecuteSqlRawAsync($"GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA {WolverineSchema} TO {RuntimeDbUser};");
+
+        // Set default privileges for future objects created in the schema
+        await context.Database.ExecuteSqlRawAsync($"ALTER DEFAULT PRIVILEGES IN SCHEMA {WolverineSchema} GRANT ALL PRIVILEGES ON TABLES TO {RuntimeDbUser};");
+        await context.Database.ExecuteSqlRawAsync($"ALTER DEFAULT PRIVILEGES IN SCHEMA {WolverineSchema} GRANT ALL PRIVILEGES ON SEQUENCES TO {RuntimeDbUser};");
 
         logger.LogInformation("Wolverine schema permissions granted successfully");
     }

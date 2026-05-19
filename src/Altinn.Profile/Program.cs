@@ -303,10 +303,7 @@ void ConfigureWolverine(WebApplicationBuilder builder)
 {
     builder.UseWolverine(opts =>
     {
-        var isMigrationMode = args.Contains("--run-db-migrations");
-        var connStr = isMigrationMode
-            ? builder.Configuration.GetAdminDatabaseConnectionString()
-            : builder.Configuration.GetDatabaseConnectionString();
+        var connStr = builder.Configuration.GetDatabaseConnectionString();
 
         // You'll need to independently tell Wolverine where and how to
         // store messages as part of the transactional inbox/outbox
@@ -331,9 +328,9 @@ async Task Migrate()
     try
     {
         await app.RunDatabaseMigrationsAsync(builder.Configuration);
-        await app.PrepareWolverineSchemaAsync(builder.Configuration);
-        await app.SetupResources(CancellationToken.None);
         await app.GrantWolverinePermissionsAsync(builder.Configuration);
+
+        await app.SetupResources(CancellationToken.None);
     }
     catch (Exception ex)
     {
