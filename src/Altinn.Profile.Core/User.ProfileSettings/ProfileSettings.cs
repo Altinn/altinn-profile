@@ -88,6 +88,7 @@ namespace Altinn.Profile.Core.User.ProfileSettings
         /// <summary>
         /// Create a new instance of ProfileSettings with default values.
         /// </summary>
+        /// <returns>A new <see cref="ProfileSettings"/> instance initialized with default values.</returns>
         public static ProfileSettings GetDefaultValues()
         {
             return new ProfileSettings
