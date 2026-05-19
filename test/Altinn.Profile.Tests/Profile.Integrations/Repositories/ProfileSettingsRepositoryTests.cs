@@ -298,7 +298,7 @@ public class ProfileSettingsRepositoryTests
     }
 
     [Fact]
-    public async Task PatchProfileSettings_ReturnsUpdatedDefaultValuesIfNotExists()
+    public async Task PatchProfileSettings_WhenNotExists_ReturnsUpdatedDefaultValues()
     {
         // Arrange
         var userId = 9999;
@@ -314,6 +314,7 @@ public class ProfileSettingsRepositoryTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal("en", result.LanguageType);
+        Assert.Equal(userId, result.UserId);
     }
 
     private void MockDbContextOutbox<TEvent>(Action<TEvent, DeliveryOptions> callback)

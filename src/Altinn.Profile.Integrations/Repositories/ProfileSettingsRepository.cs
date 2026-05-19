@@ -58,6 +58,7 @@ namespace Altinn.Profile.Integrations.Repositories
                 // If there are no profile settings for the user, we initialize it with default values to ensure that the user profile always has valid profile settings.
                 existing = ProfileSettings.GetDefaultValues();
                 existing.UpdateFrom(profileSettings);
+                existing.UserId = profileSettings.UserId;
 
                 databaseContext.ProfileSettings.Add(existing);
             }
