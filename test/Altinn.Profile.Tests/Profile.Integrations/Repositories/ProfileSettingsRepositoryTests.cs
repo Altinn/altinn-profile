@@ -298,21 +298,22 @@ public class ProfileSettingsRepositoryTests
     }
 
     [Fact]
-    public async Task PatchProfileSettings_ReturnsNullIfNotExists()
+    public async Task PatchProfileSettings_ReturnsUpdatedDefaultValuesIfNotExists()
     {
         // Arrange
         var userId = 9999;
         var patch = new ProfileSettingsPatchModel
         {
             UserId = userId,
-            Language = "nb"
+            Language = "en"
         };
 
         // Act
         var result = await _repository.PatchProfileSettings(patch, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Null(result);
+        Assert.NotNull(result);
+        Assert.Equal("en", result.LanguageType);
     }
 
     private void MockDbContextOutbox<TEvent>(Action<TEvent, DeliveryOptions> callback)

@@ -208,21 +208,17 @@ public class UserProfileService : IUserProfileService
     private async Task<UserProfile> EnrichWithProfileSettings(UserProfile userProfile, CancellationToken cancellationToken)
     {
         ProfileSettings.ProfileSettings? profileSettings = await _profileSettingsRepository.GetProfileSettings(userProfile.UserId, cancellationToken);
-        if (profileSettings != null)
-        {
-            userProfile.ProfileSettingPreference ??= new ProfileSettingPreference();
-            userProfile.ProfileSettingPreference.DoNotPromptForParty = profileSettings.DoNotPromptForParty;
-            userProfile.ProfileSettingPreference.Language = profileSettings.LanguageType;
-            userProfile.ProfileSettingPreference.PreselectedPartyUuid = profileSettings.PreselectedPartyUuid;
-            userProfile.ProfileSettingPreference.ShowClientUnits = profileSettings.ShowClientUnits;
-            userProfile.ProfileSettingPreference.ShouldShowSubEntities = profileSettings.ShouldShowSubEntities;
-            userProfile.ProfileSettingPreference.ShouldShowDeletedEntities = profileSettings.ShouldShowDeletedEntities;
-        }
-        else
-        {
-            // If there are no profile settings for the user, we initialize it with default values to ensure that the user profile always has valid profile settings.
-            userProfile.ProfileSettingPreference ??= ProfileSettingPreference.GetDefaultValues();
-        }
+
+        // If there are no profile settings for the user, we initialize it with default values to ensure that the user profile always has valid profile settings.
+        profileSettings ??= ProfileSettings.ProfileSettings.GetDefaultValues();
+
+        userProfile.ProfileSettingPreference ??= new ProfileSettingPreference();
+        userProfile.ProfileSettingPreference.DoNotPromptForParty = profileSettings.DoNotPromptForParty;
+        userProfile.ProfileSettingPreference.Language = profileSettings.LanguageType;
+        userProfile.ProfileSettingPreference.PreselectedPartyUuid = profileSettings.PreselectedPartyUuid;
+        userProfile.ProfileSettingPreference.ShowClientUnits = profileSettings.ShowClientUnits;
+        userProfile.ProfileSettingPreference.ShouldShowSubEntities = profileSettings.ShouldShowSubEntities;
+        userProfile.ProfileSettingPreference.ShouldShowDeletedEntities = profileSettings.ShouldShowDeletedEntities;
 
         if (userProfile.ProfileSettingPreference.PreselectedPartyUuid != null)
         {

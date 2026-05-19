@@ -2,6 +2,7 @@
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
+using Altinn.Profile.Models;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -54,10 +55,16 @@ namespace Altinn.Profile.Integrations.Repositories
 
             if (existing == null)
             {
-                return null;
-            }
+                // If there are no profile settings for the user, we initialize it with default values to ensure that the user profile always has valid profile settings.
+                existing = ProfileSettings.GetDefaultValues();
+                existing.UpdateFrom(profileSettings);
 
-            existing.UpdateFrom(profileSettings);
+                databaseContext.ProfileSettings.Add(existing);
+            }
+            else
+            {
+                existing.UpdateFrom(profileSettings);
+            }
 
             ProfileSettingsUpdatedEvent NotifyProfileSettingsUpdated() => new(profileSettings.UserId, DateTime.UtcNow, existing.LanguageType, existing.DoNotPromptForParty, existing.PreselectedPartyUuid, existing.ShowClientUnits, existing.ShouldShowSubEntities, existing.ShouldShowDeletedEntities, existing.IgnoreUnitProfileDateTime);
             await NotifyAndSave(databaseContext, NotifyProfileSettingsUpdated, CancellationToken.None);
