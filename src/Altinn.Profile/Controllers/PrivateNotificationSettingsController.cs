@@ -18,7 +18,6 @@ namespace Altinn.Profile.Controllers
     /// <summary>
     /// Controller for organizing the notification addresses for self-identified users.
     /// </summary>
-    [Authorize]
     [Authorize(Policy = AuthConstants.PortalEndUserAccess)]
     [Route("profile/api/v1/users/current/notificationsettings/private")]
     [Consumes("application/json")]

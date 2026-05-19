@@ -17,7 +17,6 @@ namespace Altinn.Profile.Controllers
     /// <remarks>
     /// Initializes a new instance of the <see cref="FavoritesController"/> class.
     /// </remarks>
-    [Authorize]
     [Authorize(Policy = AuthConstants.PortalEndUserAccess)]
     [Route("profile/api/v1/users/current/party-groups/favorites")]
     [Consumes("application/json")]

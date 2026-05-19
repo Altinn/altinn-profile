@@ -86,7 +86,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
     }
 
     [Fact]
-    public async Task PutCurrentProfileSettings_MissingUserId_ReturnsBadRequest_RepositoryNotCalled()
+    public async Task PutCurrentProfileSettings_MissingUserId_ReturnsForbidden()
     {
         // Arrange
         var request = new ProfileSettingPreference
@@ -111,7 +111,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         _factory.ProfileSettingsRepositoryMock.Verify(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -271,7 +271,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
     }
 
     [Fact]
-    public async Task PatchUsersCurrent_AsOrg_MissingUserIdClaim_ReturnsBadRequest()
+    public async Task PatchUsersCurrent_AsOrg_ReturnsForbidden()
     {
         // Arrange
         HttpClient client = _factory.CreateClient();
@@ -297,7 +297,6 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
 
         // Assert
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Contains("UserId must be provided in claims", responseContent);
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 }
