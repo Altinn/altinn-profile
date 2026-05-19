@@ -95,8 +95,8 @@ namespace Altinn.Profile.Tests.Authorization
 
         private static ClaimsPrincipal CreatePrincipalWithFederationScope(string scope)
         {
-            List<Claim> claims = [new("urn:altinn:scope", scope)];
-            ClaimsIdentity identity = new(claims, "AuthenticationTypes.Federation");
+            List<Claim> claims = [new("scope", scope)];
+            ClaimsIdentity identity = new(claims);
             return new ClaimsPrincipal(identity);
         }
     }
