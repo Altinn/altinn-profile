@@ -331,6 +331,7 @@ async Task Migrate()
     try
     {
         await app.RunDatabaseMigrationsAsync(builder.Configuration);
+        await app.PrepareWolverineSchemaAsync(builder.Configuration);
         await app.SetupResources(CancellationToken.None);
         await app.GrantWolverinePermissionsAsync(builder.Configuration);
     }
