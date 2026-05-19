@@ -97,10 +97,12 @@ public static class WebApplicationExtensions
         logger.LogInformation("Granting Wolverine schema permissions to runtime user");
 
         await context.Database.ExecuteSqlRawAsync($"GRANT USAGE ON SCHEMA {WolverineSchema} TO {RuntimeDbUser};");
-        await context.Database.ExecuteSqlRawAsync($"GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA {WolverineSchema} TO {RuntimeDbUser};");
-        await context.Database.ExecuteSqlRawAsync($"GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA {WolverineSchema} TO {RuntimeDbUser};");
-        await context.Database.ExecuteSqlRawAsync($"ALTER DEFAULT PRIVILEGES IN SCHEMA {WolverineSchema} GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO {RuntimeDbUser};");
-        await context.Database.ExecuteSqlRawAsync($"ALTER DEFAULT PRIVILEGES IN SCHEMA {WolverineSchema} GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO {RuntimeDbUser};");
+        await context.Database.ExecuteSqlRawAsync($"GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA {WolverineSchema} TO {RuntimeDbUser};");
+        await context.Database.ExecuteSqlRawAsync($"GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA {WolverineSchema} TO {RuntimeDbUser};");
+
+        await context.Database.ExecuteSqlRawAsync($"ALTER DEFAULT PRIVILEGES IN SCHEMA {WolverineSchema} GRANT ALL PRIVILEGES ON TABLES TO {RuntimeDbUser};");
+
+        await context.Database.ExecuteSqlRawAsync($"ALTER DEFAULT PRIVILEGES IN SCHEMA {WolverineSchema} ALL PRIVILEGES ON SEQUENCES TO {RuntimeDbUser};");
 
         logger.LogInformation("Wolverine schema permissions granted successfully");
     }
