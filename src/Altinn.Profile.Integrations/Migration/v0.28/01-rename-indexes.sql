@@ -1,0 +1,3 @@
+ALTER INDEX IF EXISTS contact_and_reservation.unique_org_number_ak RENAME TO ix_mailbox_supplier_org_number_ak;
+ALTER INDEX IF EXISTS contact_and_reservation.person_fnumber_ak_key RENAME TO ix_person_fnumber_ak;
+ALTER INDEX IF EXISTS organization_notification_address.ix_full_address RENAME TO ix_notifications_address_full_address;

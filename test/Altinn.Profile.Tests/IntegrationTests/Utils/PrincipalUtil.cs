@@ -17,7 +17,7 @@ public static class PrincipalUtil
         return GetToken(userId, "Mock", authenticationLevel);
     }
 
-    public static string GetToken(int userId, string authenticateMethod, int authenticationLevel = 2)
+    public static string GetToken(int userId, string authenticateMethod, int authenticationLevel = 2, string scope = "altinn:portal/enduser")
     {
         List<Claim> claims = [];
         string issuer = "www.altinn.no";
@@ -26,6 +26,11 @@ public static class PrincipalUtil
         claims.Add(new Claim(AltinnCoreClaimTypes.PartyID, userId.ToString(), ClaimValueTypes.Integer32, issuer));
         claims.Add(new Claim(AltinnCoreClaimTypes.AuthenticateMethod, authenticateMethod, ClaimValueTypes.String, issuer));
         claims.Add(new Claim(AltinnCoreClaimTypes.AuthenticationLevel, authenticationLevel.ToString(), ClaimValueTypes.Integer32, issuer));
+
+        if (scope != null)
+        {
+            claims.Add(new Claim("scope", scope, ClaimValueTypes.String, "maskinporten"));
+        }
 
         ClaimsIdentity identity = new("mock");
         identity.AddClaims(claims);

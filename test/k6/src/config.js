@@ -1,4 +1,4 @@
-import { stopIterationOnFail } from "./errorhandler.js";
+import { throwConfigurationError } from "./errorhandler.js";
 
 // Base URLs for the Altinn platform across different environments.
 const baseUrls = {
@@ -11,12 +11,12 @@ const baseUrls = {
 
 const environment = __ENV.altinn_env ? __ENV.altinn_env.toLowerCase() : null;
 if (!environment) {
-    stopIterationOnFail("Environment variable 'altinn_env' is not set", false);
+    throwConfigurationError("Environment variable 'altinn_env' is not set");
 }
 
 const baseUrl = baseUrls[environment];
 if (!baseUrl) {
-    stopIterationOnFail(`Invalid value for environment variable 'altinn_env': '${environment}'.`, false);
+    throwConfigurationError(`Invalid value for environment variable 'altinn_env': '${environment}'.`);
 }
 
 // Altinn TestTools token generator URL.

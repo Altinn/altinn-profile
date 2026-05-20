@@ -2,7 +2,7 @@ import http from "k6/http";
 import encoding from "k6/encoding";
 import secrets from "k6/secrets";
 import * as apiHelpers from "../apiHelpers.js";
-import { stopIterationOnFail } from "../errorhandler.js";
+import { stopIterationOnFail, throwConfigurationError } from "../errorhandler.js";
 
 
 const userID = __ENV.userID;
@@ -22,15 +22,13 @@ const environment = __ENV.altinn_env.toLowerCase();
  * @returns {Promise<string>} The generated token.
  */
 export async function generateToken(endpoint, useTestdata, testData = null) {
-
-    const failIterationWithMsg = (errorMsg) => stopIterationOnFail(errorMsg, false);
-
-    const tokenGeneratorUserName = await getFromSecretSource('tokenGeneratorUserName', failIterationWithMsg);
-    const tokenGeneratorUserPwd = await getFromSecretSource('tokenGeneratorUserPwd', failIterationWithMsg);
+    const tokenGeneratorUserName = await getFromSecretSource('tokenGeneratorUserName', throwConfigurationError);
+    const tokenGeneratorUserPwd = await getFromSecretSource('tokenGeneratorUserPwd', throwConfigurationError);
 
 
     const queryParams = {
         env: environment,
+        scopes: "altinn:portal/enduser",
         userID: userID,
         pid: pid,
         partyId: partyId,
@@ -54,7 +52,7 @@ export async function generateToken(endpoint, useTestdata, testData = null) {
     const response = http.get(endpointWithParams, params);
 
     if (response.status != 200) {
-        failIterationWithMsg("Token generation failed");
+        stopIterationOnFail("Token generation failed", false);
     }
 
     const token = response.body;
@@ -69,12 +67,11 @@ async function getFromSecretSource(secretName, raiseError) {
     }
     catch (error) {
         if (error == "no secret sources are configured") {
-            raiseError("The secret sources is not configured", false);
+            raiseError("No secret source is configured for the k6 command - specify the file path with the --secret-source flag");
         }
         else if (error == "no value") {
             raiseError(`Secret ${secretName} does not exist in the secret source`);
         }
-        console.log(error);
         raiseError("Unknown error occurred in the attempt to get secret from source");
     }
     if (!secretValue) {

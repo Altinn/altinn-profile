@@ -98,6 +98,7 @@ public class UsersController : Controller
     [HttpGet("current")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Policy = AuthConstants.PortalEndUserAccess)]
     public async Task<ActionResult<UserProfile>> Get(CancellationToken cancellationToken)
     {
         string userIdString = Request.HttpContext.User.Claims
@@ -146,6 +147,7 @@ public class UsersController : Controller
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Policy = AuthConstants.PortalEndUserAccess)]
     public async Task<ActionResult<ProfileSettingPreference>> UpdateProfileSettings([FromBody][Required] ProfileSettingPutRequest request, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
@@ -197,6 +199,7 @@ public class UsersController : Controller
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Policy = AuthConstants.PortalEndUserAccess)]
     public async Task<ActionResult<ProfileSettingPreference>> PatchProfileSettings([FromBody][Required] ProfileSettingsPatchRequest request, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)

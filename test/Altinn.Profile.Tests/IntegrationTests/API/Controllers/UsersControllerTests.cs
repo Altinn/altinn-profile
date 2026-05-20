@@ -166,7 +166,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersCurrent_AsOrg_ResponseBadRequest()
+    public async Task GetUsersCurrent_AsOrg_ResponseForbidden()
     {
         // Arrange
         const int UserId = 2516356;
@@ -185,12 +185,11 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         // Assert
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Contains("UserId must be provided in claims", responseContent);
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]
-    public async Task GetUsersCurrent_AsSystemUser_ResponseBadRequest()
+    public async Task GetUsersCurrent_AsSystemUser_ResponseForbidden()
     {
         // Arrange
         const int UserId = 2516356;
@@ -209,8 +208,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         // Assert
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Contains("UserId must be provided in claims", responseContent);
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]

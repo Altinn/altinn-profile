@@ -125,7 +125,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetVerifiedAddresses_ReturnsBadRequest_WhenSystemUserToken()
+        public async Task GetVerifiedAddresses_ReturnsForbidden_WhenSystemUserToken()
         {
             // Arrange
             var client = _factory.CreateClient();
@@ -138,7 +138,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Assert
             Assert.NotNull(response);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
         [Fact]
@@ -169,7 +169,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task VerifyAddress_WhenSystemUserToken_ReturnsBadRequest()
+        public async Task VerifyAddress_WhenSystemUserToken_ReturnsForbidden()
         {
             // Arrange
             var request = new AddressVerificationRequest
@@ -192,7 +192,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Assert
             Assert.NotNull(response);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
             _factory.AddressVerificationRepositoryMock.VerifyNoOtherCalls();
         }
 
@@ -495,7 +495,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task SendCode_WhenSystemUserToken_ReturnsBadRequest()
+        public async Task SendCode_WhenSystemUserToken_ReturnsForbidden()
         {
             // Arrange
             var request = new AddressCodeResendRequest
@@ -517,7 +517,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Assert
             Assert.NotNull(response);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
         [Theory]
@@ -749,7 +749,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task ResendCode_WhenSystemUserToken_ReturnsBadRequest()
+        public async Task ResendCode_WhenSystemUserToken_ReturnsForbidden()
         {
             // Arrange
             var request = new AddressCodeResendRequest
@@ -771,7 +771,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Assert
             Assert.NotNull(response);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
         [Theory]
