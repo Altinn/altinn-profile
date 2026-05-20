@@ -79,7 +79,8 @@ if (args.Contains("--run-db-migrations"))
 {
     // Migration mode: runs with admin database access
     // For Kubernetes pre-upgrade hooks
-    await Migrate();
+    var setupWolverine = args.Contains("--setup-wolverine");
+    await Migrate(setupWolverine);
     return;
 }
 
@@ -323,14 +324,17 @@ void ConfigureWolverine(WebApplicationBuilder builder)
     });
 }
 
-async Task Migrate()
+async Task Migrate(bool setupWolverine)
 {
     try
     {
         await app.RunDatabaseMigrationsAsync(builder.Configuration);
-        await app.GrantWolverinePermissionsAsync(builder.Configuration);
+        if (setupWolverine)
+        {
+            await app.GrantWolverinePermissionsAsync(builder.Configuration);
+            await app.SetupResources(CancellationToken.None);
+        }
 
-        await app.SetupResources(CancellationToken.None);
     }
     catch (Exception ex)
     {
