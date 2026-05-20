@@ -18,6 +18,7 @@ namespace Altinn.Profile.Integrations.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             /* Comment out after initial migration has been applied, to prevent accidental data loss in case of re-application of the migration. */
+            /*
             migrationBuilder.EnsureSchema(
                 name: "lease");
             migrationBuilder.GrantSchemaPermissions("lease");
@@ -491,6 +492,7 @@ namespace Altinn.Profile.Integrations.Migrations
                 table: "verified_addresses",
                 columns: new[] { "user_id", "address", "address_type" },
                 unique: true);
+            */
         }
 
         /// <inheritdoc />
