@@ -11,11 +11,6 @@ public class CoreSettings
     public int ProfileCacheLifetimeSeconds { get; set; } = 600;
 
     /// <summary>
-    /// A flag indicating whether to perform a lookup for users from the register and compare this.
-    /// </summary>
-    public bool RegisterLookupInShadowMode { get; set; }
-
-    /// <summary>
     /// A flag indicating whether register should be primary source for user profiles, with fallback to legacy source.
     /// </summary>
     public bool RegisterAsPrimaryUserProfileSource { get; set; }
