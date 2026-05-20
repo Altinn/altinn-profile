@@ -24,6 +24,7 @@ namespace Altinn.Profile.Controllers
     [Route("profile/api/v1/organizations/{organizationNumber}/notificationaddresses")]
     [Consumes("application/json")]
     [Produces("application/json")]
+    [Authorize(Policy = AuthConstants.PortalEndUserAccess)]
     public class OrganizationsController(IOrganizationNotificationAddressesService notificationAddressService) : ControllerBase
     {
         private readonly IOrganizationNotificationAddressesService _notificationAddressService = notificationAddressService;

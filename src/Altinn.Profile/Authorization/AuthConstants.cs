@@ -29,5 +29,10 @@
         /// Policy name for checking that a user has access to a given party
         /// </summary>
         public const string UserPartyAccess = "UserId_Party_Access";
+
+        /// <summary>
+        /// Policy name for end user access to the Altinn portal
+        /// </summary>
+        public const string PortalEndUserAccess = "PortalEndUserAccess";
     }
 }
