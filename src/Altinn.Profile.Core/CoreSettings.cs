@@ -19,4 +19,9 @@ public class CoreSettings
     /// A flag indicating whether register should be primary source for user profiles, with fallback to legacy source.
     /// </summary>
     public bool RegisterAsPrimaryUserProfileSource { get; set; }
+
+    /// <summary>
+    /// A flag indicating whether to perform a lookup for users from the SBL bridge as a fallback if not found in Register.
+    /// </summary>
+    public bool SblBridgeFallbackEnabled { get; set; } = true;
 }

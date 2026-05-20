@@ -88,13 +88,13 @@ public class UserProfileService : IUserProfileService
         if (_settings.RegisterAsPrimaryUserProfileSource)
         {
             UserProfile? registerProfile = await GetUserFromRegister(getRegisterParty(), cancellationToken);
-            if (registerProfile is not null)
+            if (registerProfile is null && _settings.SblBridgeFallbackEnabled)
             {
-                return registerProfile;
+                UserProfile? fallbackLegacy = await GetEnrichedLegacyUserProfile(getLegacy(), cancellationToken);
+                return CreateUserProfileResult(fallbackLegacy);
             }
 
-            UserProfile? fallbackLegacy = await GetEnrichedLegacyUserProfile(getLegacy(), cancellationToken);
-            return CreateUserProfileResult(fallbackLegacy);
+            return CreateUserProfileResult(registerProfile);
         }
 
         if (_settings.RegisterLookupInShadowMode)
