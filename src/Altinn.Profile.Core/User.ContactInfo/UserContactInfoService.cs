@@ -57,7 +57,7 @@ namespace Altinn.Profile.Core.User.ContactInfo
             {
                 UserId = userId,
                 UserUuid = siuser.Uuid,
-                Username = user?.Username.Value,
+                Username = user.Username.Value ?? string.Empty,
                 EmailAddress = siuser.Email.HasValue && siuser.Email.Value is not null
        ? siuser.Email.Value : string.Empty,
                 PhoneNumber = phoneNumber,
@@ -71,12 +71,12 @@ namespace Altinn.Profile.Core.User.ContactInfo
             var result = await _userProfileClient.GetUser(userId);
             var user = result.Match(
                 user => user,
-                _ => { return null; });
+                _ => null!);
 
             var newUserContactInfo = new UserContactInfoCreateModel
             {
                 UserId = userId,
-                UserUuid = (Guid)user.UserUuid,
+                UserUuid = user.UserUuid ?? Guid.Empty,
                 Username = user.UserName,
                 EmailAddress = user.Email ?? string.Empty,
                 PhoneNumber = phoneNumber,
