@@ -6,6 +6,7 @@ using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Core.User.PartyGroups;
 using Altinn.Profile.Core.User.ProfileSettings;
+using Altinn.Profile.Core.User.ReceiptSettings;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Leases;
 
@@ -93,6 +94,11 @@ public partial class ProfileDbContext : DbContext
     /// The <see cref="DbSet{ProfileSettings}"/> representing the profile settings for users.
     /// </summary>
     public virtual DbSet<ProfileSettings> ProfileSettings { get; set; }
+
+    /// <summary>
+    /// The <see cref="DbSet{ReceiptSettings}"/> representing the user setting for requesting receipts on form submission.
+    /// </summary>
+    public virtual DbSet<ReceiptSettings> ReceiptSettings { get; set; }
 
     /// <summary>
     /// The <see cref="DbSet{VerificationCode}"/> representing the verification codes for address verification.
@@ -268,6 +274,11 @@ public partial class ProfileDbContext : DbContext
             entity.Property<bool>(e => e.ShouldShowSubEntities).IsRequired();
             entity.Property<bool>(e => e.ShouldShowDeletedEntities).IsRequired();
             entity.Property<DateTime?>(e => e.IgnoreUnitProfileDateTime);
+        });
+
+        modelBuilder.Entity<ReceiptSettings>(entity =>
+        {
+
         });
 
         modelBuilder.Entity<VerificationCode>(entity =>
