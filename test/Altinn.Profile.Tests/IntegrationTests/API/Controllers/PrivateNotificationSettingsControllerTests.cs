@@ -124,7 +124,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
                 UserId = UserId,
                 UserUuid = party.Uuid,
                 Username = "epost:test@example.com",
-                CreatedAt = System.DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
                 EmailAddress = "test@example.com",
                 PhoneNumber = null
             });
@@ -152,9 +152,9 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
             .ReturnsAsync(new UserContactInfo
             {
                 UserId = UserId,
-                UserUuid = System.Guid.NewGuid(),
+                UserUuid = Guid.NewGuid(),
                 Username = "test-user",
-                CreatedAt = System.DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
                 EmailAddress = "test@example.com",
                 PhoneNumber = null
             });
@@ -164,9 +164,9 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
             .ReturnsAsync(new UserContactInfo
             {
                 UserId = UserId,
-                UserUuid = System.Guid.NewGuid(),
+                UserUuid = Guid.NewGuid(),
                 Username = "test-user",
-                CreatedAt = System.DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
                 EmailAddress = "test@example.com",
                 PhoneNumber = phoneNumber
             });

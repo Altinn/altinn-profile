@@ -55,7 +55,7 @@ namespace Altinn.Profile.Core.User.ContactInfo
                 UserUuid = siuser.Uuid,
                 Username = user.Username.Value ?? string.Empty,
                 EmailAddress = siuser.Email.HasValue && siuser.Email.Value is not null
-       ? siuser.Email.Value : string.Empty,
+                    ? siuser.Email.Value : string.Empty,
                 PhoneNumber = phoneNumber,
             };
 
@@ -71,7 +71,6 @@ namespace Altinn.Profile.Core.User.ContactInfo
 
             if (user == null)
             {
-
                 return null;
             }
 
