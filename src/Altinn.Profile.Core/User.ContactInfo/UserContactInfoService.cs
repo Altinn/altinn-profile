@@ -1,8 +1,4 @@
-﻿using System.Runtime;
-
-using Altinn.Profile.Core.AddressVerifications;
-using Altinn.Profile.Core.AddressVerifications.Models;
-using Altinn.Profile.Core.Integrations;
+﻿using Altinn.Profile.Core.Integrations;
 
 using Microsoft.Extensions.Options;
 
@@ -72,6 +68,12 @@ namespace Altinn.Profile.Core.User.ContactInfo
             var user = result.Match(
                 user => user,
                 _ => null!);
+
+            if (user == null)
+            {
+
+                return null;
+            }
 
             var newUserContactInfo = new UserContactInfoCreateModel
             {

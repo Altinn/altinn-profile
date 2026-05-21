@@ -160,18 +160,6 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
             });
 
         _factory.UserContactInfoRepositoryMock
-            .Setup(x => x.Get(UserId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new UserContactInfo
-            {
-                UserId = UserId,
-                UserUuid = System.Guid.NewGuid(),
-                Username = "test-user",
-                CreatedAt = System.DateTime.UtcNow,
-                EmailAddress = "test@example.com",
-                PhoneNumber = null
-            });
-
-        _factory.UserContactInfoRepositoryMock
             .Setup(x => x.UpdatePhoneNumber(UserId, phoneNumber, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new UserContactInfo
             {
