@@ -23,6 +23,6 @@ public class ReceiptSettings
     /// <summary>
     /// Whether the user har requested receipts for form submissions
     /// </summary>
-    public bool RequestReceipt { get; set; }
+    public bool? RequestReceipt { get; set; }
 
 }
