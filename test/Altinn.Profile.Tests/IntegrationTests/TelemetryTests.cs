@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Altinn.Authorization.ServiceDefaults.Jobs;
+using Altinn.Profile.Jobs;
+
+using Microsoft.Extensions.DependencyInjection;
+
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 
@@ -27,17 +32,10 @@ public class TelemetryTests
                 .AddInMemoryExporter(metricItems)
                 .Build();
 
-            var client = _factory.CreateClient();
+            using var scope = _factory.Services.CreateScope();
+            var job = scope.ServiceProvider.GetRequiredService<KrrSyncJob>();
 
-            // We need to call any endpoint that includes some telemetry.
-            using var response = await client.GetAsync(
-                new Uri("/profile/api/v1/trigger/syncpersonchanges", UriKind.Relative), 
-                TestContext.Current.CancellationToken);
-
-            // We need to let End callback execute as it is executed AFTER response was returned.
-            // In unit tests environment there may be a lot of parallel unit tests executed, so
-            // giving some breezing room for the End callback to complete
-            await Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
+            await ((IJob)job).RunAsync(TestContext.Current.CancellationToken);
 
             meterProvider.ForceFlush();
 
@@ -69,17 +67,10 @@ public class TelemetryTests
                 .AddInMemoryExporter(metricItems)
                 .Build();
 
-            var client = _factory.CreateClient();
+            using var scope = _factory.Services.CreateScope();
+            var job = scope.ServiceProvider.GetRequiredService<OrgSyncJob>();
 
-            // We need to call any endpoint that includes some telemetry.
-            using var response = await client.GetAsync(
-                new Uri("/profile/api/v1/trigger/syncorgchanges", UriKind.Relative), 
-                TestContext.Current.CancellationToken);
-
-            // We need to let End callback execute as it is executed AFTER response was returned.
-            // In unit tests environment there may be a lot of parallel unit tests executed, so
-            // giving some breezing room for the End callback to complete
-            await Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
+            await ((IJob)job).RunAsync(TestContext.Current.CancellationToken);
 
             meterProvider.ForceFlush();
 

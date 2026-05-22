@@ -43,6 +43,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     public UsersControllerTests(ProfileWebApplicationFactory<Program> factory)
     {
         _factory = factory;
+        _factory.InMemoryConfigurationCollection.Clear();
         _factory.MemoryCache.Clear();
         _factory.PersonServiceMock.Reset();
         _factory.RegisterClientMock.Reset();
@@ -929,8 +930,8 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             .Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        using WebApplicationFactory<Program> registerPrimaryFactory = CreateFactoryWithRegisterAsPrimaryEnabled();
-        HttpClient client = registerPrimaryFactory.CreateClient();
+        EnableRegisterAsPrimary();
+        HttpClient client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userId}");
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
@@ -978,8 +979,8 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             .Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        using WebApplicationFactory<Program> registerPrimaryFactory = CreateFactoryWithRegisterAsPrimaryEnabled();
-        HttpClient client = registerPrimaryFactory.CreateClient();
+        EnableRegisterAsPrimary();
+        HttpClient client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userId}");
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
@@ -1021,8 +1022,8 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             .Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        using WebApplicationFactory<Program> registerPrimaryFactory = CreateFactoryWithRegisterAsPrimaryEnabled();
-        HttpClient client = registerPrimaryFactory.CreateClient();
+        EnableRegisterAsPrimary();
+        HttpClient client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userId}");
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
@@ -1115,18 +1116,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         return httpRequestMessage;
     }
 
-    private WebApplicationFactory<Program> CreateFactoryWithRegisterAsPrimaryEnabled()
+    private void EnableRegisterAsPrimary()
     {
-        return _factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureAppConfiguration((_, config) =>
-            {
-                config.AddInMemoryCollection(new Dictionary<string, string?>
-                {
-                    ["CoreSettings:RegisterAsPrimaryUserProfileSource"] = "true",
-                    ["CoreSettings:RegisterLookupInShadowMode"] = "false",
-                });
-            });
-        });
+        _factory.InMemoryConfigurationCollection["CoreSettings:RegisterAsPrimaryUserProfileSource"] = "true";
+        _factory.InMemoryConfigurationCollection["CoreSettings:RegisterLookupInShadowMode"] = "false";
     }
 }
