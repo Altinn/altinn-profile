@@ -20,7 +20,6 @@ namespace Altinn.Profile.Tests.Profile.Core.User;
 public class UserProfileServiceTests
 {
     private readonly Mock<IUserProfileClient> _userProfileClientMock = new();
-    private readonly Mock<IUserProfileComparer> _userProfileComparerMock = new();
     private readonly Mock<IProfileSettingsRepository> _profileSettingsRepositoryMock = new();
     private readonly Mock<IPersonService> _personServiceMock = new();
     private readonly Mock<IRegisterClient> _registerClientMock = new();
@@ -32,7 +31,6 @@ public class UserProfileServiceTests
         _settingsMock.Setup(s => s.CurrentValue).Returns(new CoreSettings
         {
             RegisterAsPrimaryUserProfileSource = false,
-            RegisterLookupInShadowMode = false,
         });
 
         _personServiceMock
@@ -42,7 +40,6 @@ public class UserProfileServiceTests
 
     private UserProfileService CreateSut() => new(
         _userProfileClientMock.Object,
-        _userProfileComparerMock.Object,
         _profileSettingsRepositoryMock.Object,
         _personServiceMock.Object,
         _registerClientMock.Object,
@@ -129,34 +126,6 @@ public class UserProfileServiceTests
 
         // Act
         await sut.GetUserByUuid(userUuid, expectedToken);
-
-        // Assert
-        _profileSettingsRepositoryMock.Verify(
-            r => r.GetProfileSettings(UserId, expectedToken),
-            Times.Once);
-    }
-
-    [Fact]
-    public async Task GetUser_ById_ShadowMode_PropagatesCancellationTokenToProfileSettingsRepositoryOnLegacyEnrichment()
-    {
-        // Arrange
-        const int UserId = 2001607;
-        using var cts = new CancellationTokenSource();
-        var expectedToken = cts.Token;
-
-        _settingsMock.Setup(s => s.CurrentValue).Returns(new CoreSettings
-        {
-            RegisterAsPrimaryUserProfileSource = false,
-            RegisterLookupInShadowMode = true,
-        });
-
-        _userProfileClientMock.Setup(c => c.GetUser(UserId)).ReturnsAsync(new UserProfile { UserId = UserId });
-        _registerClientMock.Setup(c => c.GetUserParty(UserId, It.IsAny<CancellationToken>())).ReturnsAsync(default(Altinn.Register.Contracts.Party));
-
-        var sut = CreateSut();
-
-        // Act
-        await sut.GetUser(UserId, expectedToken);
 
         // Assert
         _profileSettingsRepositoryMock.Verify(

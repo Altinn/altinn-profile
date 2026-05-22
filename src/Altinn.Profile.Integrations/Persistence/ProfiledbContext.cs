@@ -151,7 +151,7 @@ public partial class ProfileDbContext : DbContext
                   .WithMany(p => p.People)
                   .HasConstraintName("fk_mailbox_supplier");
 
-            entity.HasIndex(e => e.FnumberAk, "ix_person_fnumber_ak");
+            entity.HasIndex(e => e.FnumberAk, "ix_person_fnumber_ak").IsUnique();
 
         });
 
