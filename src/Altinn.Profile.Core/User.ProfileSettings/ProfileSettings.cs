@@ -1,4 +1,6 @@
-﻿namespace Altinn.Profile.Core.User.ProfileSettings
+﻿using Altinn.Profile.Models;
+
+namespace Altinn.Profile.Core.User.ProfileSettings
 {
     /// <summary>
     /// Represents user-specific portal settings and preferences.
@@ -81,6 +83,23 @@
             {
                 PreselectedPartyUuid = other.PreselectedPartyUuid.Value;
             }
+        }
+
+        /// <summary>
+        /// Create a new instance of ProfileSettings with default values.
+        /// </summary>
+        /// <returns>A new <see cref="ProfileSettings"/> instance initialized with default values.</returns>
+        public static ProfileSettings GetDefaultValues()
+        {
+            return new ProfileSettings
+            {
+                LanguageType = "nb",
+                DoNotPromptForParty = false,
+                PreselectedPartyUuid = null,
+                ShowClientUnits = false,
+                ShouldShowSubEntities = true,
+                ShouldShowDeletedEntities = false
+            };
         }
     }
 }

@@ -163,6 +163,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
     services.Configure<PlatformSettings>(config.GetSection("PlatformSettings"));
     services.Configure<AddressMaintenanceSettings>(config.GetSection("AddressMaintenanceSettings"));
+    services.Configure<PortalAccessSettings>(config.GetSection("PortalAccessSettings"));
 
     services.AddSingleton(config);
 
@@ -200,11 +201,13 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         .AddPolicy(AuthConstants.SupportDashboardAccess, policy => policy.Requirements.Add(new ScopeAccessRequirement("altinn:profile.support.admin")))
         .AddPolicy(AuthConstants.OrgNotificationAddress_Read, policy => policy.Requirements.Add(new ResourceAccessRequirement("read", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
         .AddPolicy(AuthConstants.OrgNotificationAddress_Write, policy => policy.Requirements.Add(new ResourceAccessRequirement("write", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
-        .AddPolicy(AuthConstants.UserPartyAccess, policy => policy.Requirements.Add(new PartyAccessRequirement()));
+        .AddPolicy(AuthConstants.UserPartyAccess, policy => policy.Requirements.Add(new PartyAccessRequirement()))
+        .AddPolicy(AuthConstants.PortalEndUserAccess, policy => policy.Requirements.Add(new FeatureToggledScopeAccessRequirement("altinn:portal/enduser")));
 
     services.AddScoped<IAuthorizationHandler, OrgResourceAccessHandler>();
     services.AddScoped<IAuthorizationHandler, PartyAccessHandler>();
     services.AddScoped<IAuthorizationHandler, ScopeAccessHandler>();
+    services.AddScoped<IAuthorizationHandler, FeatureToggledScopeAccessHandler>();
 
     services.AddCoreServices(config);
     services.AddRegisterService(config);

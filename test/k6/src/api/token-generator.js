@@ -28,6 +28,7 @@ export async function generateToken(endpoint, useTestdata, testData = null) {
 
     const queryParams = {
         env: environment,
+        scopes: "altinn:portal/enduser",
         userID: userID,
         pid: pid,
         partyId: partyId,

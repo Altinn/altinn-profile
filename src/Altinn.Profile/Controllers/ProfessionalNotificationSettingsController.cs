@@ -42,8 +42,9 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         /// <param name="partyUuid">The UUID of the party for which the notification address is being set</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
-        [Authorize(Policy = AuthConstants.UserPartyAccess)]
         [HttpGet("{partyUuid:guid}")]
+        [Authorize(Policy = AuthConstants.UserPartyAccess)]
+        [Authorize(Policy = AuthConstants.PortalEndUserAccess)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -87,6 +88,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [Authorize(Policy = AuthConstants.PortalEndUserAccess)]
         public async Task<ActionResult<IReadOnlyList<NotificationSettingsResponse>>> GetAll(CancellationToken cancellationToken)
         {
             var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
@@ -108,8 +110,9 @@ namespace Altinn.Profile.Controllers
         /// <param name="partyUuid">The UUID of the party for which the notification address is being set</param>
         /// <param name="request"> The request containing the notification address details</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
-        [Authorize(Policy = AuthConstants.UserPartyAccess)]
         [HttpPut("{partyUuid:guid}")]
+        [Authorize(Policy = AuthConstants.UserPartyAccess)]
+        [Authorize(Policy = AuthConstants.PortalEndUserAccess)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -164,8 +167,9 @@ namespace Altinn.Profile.Controllers
         /// <param name="partyUuid">The UUID of the party for which the notification address is being set</param>
         /// <param name="request"> The request containing the notification address details</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
-        [Authorize(Policy = AuthConstants.UserPartyAccess)]
         [HttpPatch("{partyUuid:guid}")]
+        [Authorize(Policy = AuthConstants.UserPartyAccess)]
+        [Authorize(Policy = AuthConstants.PortalEndUserAccess)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -236,6 +240,7 @@ namespace Altinn.Profile.Controllers
         /// <param name="partyUuid">The UUID of the party for which the notification address is being deleted</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
         [HttpDelete("{partyUuid:guid}")]
+        [Authorize(Policy = AuthConstants.PortalEndUserAccess)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -50,7 +50,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
     }
 
     [Fact]
-    public async Task PutPhoneNumber_WhenSystemUser_ReturnsBadRequest()
+    public async Task PutPhoneNumber_WhenSystemUser_ReturnsForbidden()
     {
         HttpClient client = _factory.CreateClient();
         HttpRequestMessage request = new(HttpMethod.Put, "profile/api/v1/users/current/notificationsettings/private/phonenumber")
@@ -61,7 +61,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
 
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]
