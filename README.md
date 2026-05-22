@@ -56,6 +56,10 @@ In pgAdmin
   - platform_profile_admin (superuser, canlogin)
   - platform_profile (canlogin)
 
+To apply the migration to the database, navigate to the src/Altinn.Profile folder and run the following command:
+
+`dotnet run --run-db-migrations`
+
 A more detailed description of the database setup is available in [our developer handbook](https://docs.altinn.studio/community/contributing/handbook/postgres/)
 
 
