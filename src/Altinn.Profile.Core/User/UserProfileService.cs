@@ -16,7 +16,6 @@ namespace Altinn.Profile.Core.User;
 public class UserProfileService : IUserProfileService
 {
     private readonly IUserProfileClient _userProfileClient;
-    private readonly IUserProfileComparer _userProfileComparer;
     private readonly IProfileSettingsRepository _profileSettingsRepository;
     private readonly IPersonService _personRepository;
     private readonly IRegisterClient _registerClient;
@@ -27,16 +26,14 @@ public class UserProfileService : IUserProfileService
     /// Initializes a new instance of the <see cref="UserProfileService"/> class.
     /// </summary>
     /// <param name="userProfileClient">The user profile client available through DI</param>
-    /// <param name="userProfileComparer">The user profile comparer available through DI</param>
     /// <param name="profileSettingsRepository">The profile settings repository available through DI</param>
     /// <param name="personRepository">The person repository available through DI</param>
     /// <param name="registerClient">The register client available through DI</param>
     /// <param name="userContactInfoRepository">The user contact info repository available through DI</param>
     /// <param name="settings">The core settings available through DI</param>
-    public UserProfileService(IUserProfileClient userProfileClient, IUserProfileComparer userProfileComparer, IProfileSettingsRepository profileSettingsRepository, IPersonService personRepository, IRegisterClient registerClient, IUserContactInfoRepository userContactInfoRepository, IOptionsMonitor<CoreSettings> settings)
+    public UserProfileService(IUserProfileClient userProfileClient, IProfileSettingsRepository profileSettingsRepository, IPersonService personRepository, IRegisterClient registerClient, IUserContactInfoRepository userContactInfoRepository, IOptionsMonitor<CoreSettings> settings)
     {
         _userProfileClient = userProfileClient;
-        _userProfileComparer = userProfileComparer;
         _profileSettingsRepository = profileSettingsRepository;
         _personRepository = personRepository;
         _registerClient = registerClient;
@@ -95,21 +92,6 @@ public class UserProfileService : IUserProfileService
             }
 
             return CreateUserProfileResult(registerProfile);
-        }
-
-        if (_settings.RegisterLookupInShadowMode)
-        {
-            Task<Result<UserProfile, bool>> legacyTask = getLegacy();
-            Task<UserProfile?> registerTask = GetUserFromRegister(getRegisterParty(), cancellationToken);
-
-            await Task.WhenAll(legacyTask, registerTask);
-
-            UserProfile? registerProfile = await registerTask;
-            UserProfile? legacyProfile = await GetEnrichedLegacyUserProfile(legacyTask, cancellationToken);
-
-            _userProfileComparer.CompareAndLog(legacyProfile, registerProfile);
-
-            return CreateUserProfileResult(legacyProfile);
         }
 
         UserProfile? legacyOnly = await GetEnrichedLegacyUserProfile(getLegacy(), cancellationToken);
