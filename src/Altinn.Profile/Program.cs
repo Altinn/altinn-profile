@@ -337,7 +337,6 @@ async Task Migrate(bool setupWolverine)
             await app.GrantWolverinePermissionsAsync(builder.Configuration);
             await app.SetupResources(CancellationToken.None);
         }
-
     }
     catch (Exception ex)
     {
