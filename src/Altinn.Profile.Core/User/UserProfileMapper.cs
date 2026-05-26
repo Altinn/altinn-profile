@@ -125,6 +125,7 @@ namespace Altinn.Profile.Core.User
                     LastChangedInAltinn = si.ModifiedAt.Value,
                 },
                 UserType = Models.Enums.UserType.SelfIdentified,
+                Email = si.Email.Value ?? string.Empty,
             };
         }
     }

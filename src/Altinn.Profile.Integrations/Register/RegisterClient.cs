@@ -186,7 +186,7 @@ public class RegisterClient : IRegisterClient
     private async Task<IEnumerable<Altinn.Register.Contracts.Party>> GetUserParties(string[] urns, CancellationToken cancellationToken)
     {
         var request = new QueryPartiesRequest(urns);
-        var response = await QueryParties(request, "fields=person,party,user,si", cancellationToken: cancellationToken);
+        var response = await QueryParties(request, "fields=person,party,user,si,si.email", cancellationToken: cancellationToken);
 
         if (response == null)
         {
