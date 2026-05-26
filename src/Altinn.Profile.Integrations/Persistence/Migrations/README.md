@@ -13,7 +13,7 @@ public partial class CreateMyNewTable : Migration
     {
         migrationBuilder.CreateTable(
             name: "my_table",
-            schema: "public",
+            schema: "my_schema",
             columns: table => new
             {
                 id = table.Column<int>(type: "integer", nullable: false),
@@ -26,17 +26,17 @@ public partial class CreateMyNewTable : Migration
             });
 
         // Grant permissions to runtime user
-        migrationBuilder.GrantTablePermissions("public", "my_table");
+        migrationBuilder.GrantTablePermissions("my_schema", "my_table");
     }
 
     protected override void Down(MigrationBuilder migrationBuilder)
     {
         // Optionally revoke permissions on rollback
-        migrationBuilder.RevokeTablePermissions("public", "my_table");
+        migrationBuilder.RevokeTablePermissions("my_schema", "my_table");
 
         migrationBuilder.DropTable(
             name: "my_table",
-            schema: "public");
+            schema: "my_schema");
     }
 }
 ```
