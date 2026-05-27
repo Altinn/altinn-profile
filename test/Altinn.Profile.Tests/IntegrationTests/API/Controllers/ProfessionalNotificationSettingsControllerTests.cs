@@ -22,6 +22,8 @@ using Moq;
 
 using Xunit;
 
+using RegisterParty = Altinn.Profile.Core.Unit.ContactPoints.Party;
+
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
     public class ProfessionalNotificationSettingsControllerTests : IClassFixture<ProfileWebApplicationFactory<Program>>
@@ -123,7 +125,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.GetNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((UserPartyContactInfo)null);
-            
+
             SetupAuthHandler(partyGuid, UserId);
 
             HttpClient client = _factory.CreateClient();
@@ -139,6 +141,178 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             Assert.Contains("Notification addresses not found", responseContent);
+        }
+
+        [Fact]
+        public async Task GetNotificationAddressByOrgNumber_WhenRepositoryReturnsValues_IsOk()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            const int OrgNumber = 910459880;
+            var partyGuid = Guid.NewGuid();
+
+            var userPartyContactInfo = new UserPartyContactInfo
+            {
+                UserId = UserId,
+                PartyUuid = partyGuid,
+                EmailAddress = "test@example.com",
+                PhoneNumber = "12345678",
+                UserPartyContactInfoResources = new List<UserPartyContactInfoResource>
+                {
+                    new() { ResourceId = "app_example" }
+                }
+            };
+
+            var parties = new List<RegisterParty>
+            {
+                new() { PartyId = 12345, PartyUuid = partyGuid, OrganizationIdentifier = OrgNumber.ToString() }
+            };
+
+            _factory.RegisterClientMock
+                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == OrgNumber.ToString()), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(parties);
+
+            _factory
+                .ProfessionalNotificationsRepositoryMock
+                .Setup(x => x.GetNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new UserPartyContactInfo
+                {
+                    UserId = UserId,
+                    PartyUuid = partyGuid,
+                    EmailAddress = "test@example.com",
+                    PhoneNumber = "+4792345678",
+                    UserPartyContactInfoResources = new List<UserPartyContactInfoResource>
+                    {
+                        new() { ResourceId = "app_example" }
+                    }
+                });
+            _factory.ProfileSettingsRepositoryMock
+                .Setup(x => x.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = null, LanguageType = "no" });
+            _factory.AddressVerificationRepositoryMock
+                .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "test@example.com"), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(VerificationType.Verified);
+            _factory.AddressVerificationRepositoryMock
+                .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Sms, It.Is<string>(e => e == "+4792345678"), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(VerificationType.Unverified);
+
+            SetupAuthHandler(partyGuid, UserId, orgNo: OrgNumber);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = CreateRequestWithUserIdAndScope(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{OrgNumber}");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.True(response.IsSuccessStatusCode);
+
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+            NotificationSettingsResponse notificationAddresses = JsonSerializer.Deserialize<NotificationSettingsResponse>(
+                responseContent, _serializerOptionsCamelCase);
+
+            Assert.Equal(UserId, notificationAddresses.UserId);
+            Assert.Equal(partyGuid, notificationAddresses.PartyUuid);
+            Assert.Equal("test@example.com", notificationAddresses.EmailAddress);
+            Assert.Equal("+4792345678", notificationAddresses.PhoneNumber);
+            Assert.NotNull(notificationAddresses.ResourceIncludeList);
+            Assert.Single(notificationAddresses.ResourceIncludeList);
+            Assert.Equal("urn:altinn:resource:app_example", notificationAddresses.ResourceIncludeList[0]);
+            Assert.True(notificationAddresses.NeedsConfirmation);
+            Assert.Equal(VerificationType.Verified, notificationAddresses.EmailVerificationStatus);
+            Assert.Equal(VerificationType.Unverified, notificationAddresses.SmsVerificationStatus);
+        }
+
+            [Fact]
+        public async Task GetNotificationAddressByOrgNumber_WhenRepositoryReturnsNull_ReturnsNotFound()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            const int OrgNumber = 910459880;
+            Guid partyUuid = Guid.NewGuid();
+
+            var parties = new List<RegisterParty>
+            {
+                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = OrgNumber.ToString() }
+            };
+
+            _factory.RegisterClientMock
+                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == OrgNumber.ToString()), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(parties);
+
+            _factory
+                .ProfessionalNotificationsRepositoryMock
+                .Setup(x => x.GetNotificationAddressAsync(UserId, partyUuid, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((UserPartyContactInfo)null);
+
+            SetupAuthHandler(partyUuid, UserId, orgNo: OrgNumber);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = CreateRequestWithUserIdAndScope(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{OrgNumber}");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            Assert.Contains("Notification addresses not found", responseContent);
+        }
+
+        [Fact]
+        public async Task GetNotificationAddressByOrgNumber_WhenOrgNumberIsZero_ReturnsBadRequest()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            const int OrgNumber = 0;
+            var partyGuid = Guid.NewGuid();
+
+            SetupAuthHandler(partyGuid, UserId, orgNo: OrgNumber);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = CreateRequestWithUserIdAndScope(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{OrgNumber}");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            Assert.Contains("Organization number cannot be empty", responseContent);
+        }
+
+        [Fact]
+        public async Task GetNotificationAddressByOrgNumber_WhenOrgNumberIsNegative_ReturnsBadRequest()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            const int OrgNumber = -1;
+            var partyGuid = Guid.NewGuid();
+
+            SetupAuthHandler(partyGuid, UserId, orgNo: OrgNumber);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{OrgNumber}");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            Assert.Contains("Organization number cannot be empty", responseContent);
         }
 
         [Theory]
@@ -1036,6 +1210,15 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             return httpRequestMessage;
         }
 
+        private static HttpRequestMessage CreateRequestWithUserIdAndScope(HttpMethod method, int userId, string requestUri)
+        {
+            HttpRequestMessage httpRequestMessage = new(method, requestUri);
+            string token = PrincipalUtil.GetToken(userId, scope: "altinn:profile/enduser:notificationsettings.read");
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            return httpRequestMessage;
+        }
+
         // Creates a request with a system user token (no userId claim)
         private static HttpRequestMessage CreateRequestWithSystemUser(HttpMethod method, string requestUri)
         {
@@ -1052,10 +1235,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             return httpRequestMessage;
         }
 
-        private void SetupAuthHandler(Guid partyGuid, int UserId, bool access = true)
+        private void SetupAuthHandler(Guid partyGuid, int UserId, bool access = true, int orgNo = 0)
         {
             _factory.RegisterClientMock
                 .Setup(x => x.GetPartyId(partyGuid, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((int)partyGuid.GetHashCode()); // Simulate party ID retrieval
+            _factory.RegisterClientMock
+                .Setup(x => x.GetPartyId(orgNo.ToString(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((int)partyGuid.GetHashCode()); // Simulate party ID retrieval
             _factory.AuthorizationClientMock
                 .Setup(x => x.ValidateSelectedParty(UserId, It.IsAny<int>(), It.IsAny<CancellationToken>()))

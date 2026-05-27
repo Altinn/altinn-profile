@@ -80,6 +80,48 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
+        /// Get the notification addresses the current user has registered for a party
+        /// </summary>
+        /// <param name="orgNumber">The organization number for which the notification address is being set</param>
+        /// <param name="cancellationToken"> Cancellation token for the operation</param>
+        [HttpGet("{orgNumber:int}")]
+        [Authorize(Policy = AuthConstants.UserPartyAccess)]
+        [Authorize(Policy = AuthConstants.ScopeEnduserOrNotificationSettingsRead)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<NotificationSettingsResponse>> GetByOrgNumber([FromRoute][Required] int orgNumber, CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            if (orgNumber <= 0)
+            {
+                return BadRequest("Organization number cannot be empty.");
+            }
+
+            var notificationSettings = await _professionalNotificationsService.GetNotificationAddressByOrgNumberAsync(userId, orgNumber.ToString(), cancellationToken);
+
+            if (notificationSettings == null)
+            {
+                return NotFound("Notification addresses not found for the specified user and organization.");
+            }
+
+            var response = MapResponse(notificationSettings);
+
+            return Ok(response);
+        }
+
+        /// <summary>
         /// Get the notification addresses the current user has registered for all parties
         /// </summary>
         /// <param name="cancellationToken">Cancellation token for the operation</param>

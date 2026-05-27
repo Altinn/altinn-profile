@@ -212,7 +212,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         .AddPolicy(AuthConstants.OrgNotificationAddress_Read, policy => policy.Requirements.Add(new ResourceAccessRequirement("read", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
         .AddPolicy(AuthConstants.OrgNotificationAddress_Write, policy => policy.Requirements.Add(new ResourceAccessRequirement("write", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
         .AddPolicy(AuthConstants.UserPartyAccess, policy => policy.Requirements.Add(new PartyAccessRequirement()))
-        .AddPolicy(AuthConstants.PortalEndUserAccess, policy => policy.Requirements.Add(new FeatureToggledScopeAccessRequirement("altinn:portal/enduser")));
+        .AddPolicy(AuthConstants.PortalEndUserAccess, policy => policy.Requirements.Add(new FeatureToggledScopeAccessRequirement("altinn:portal/enduser")))
+        .AddPolicy(AuthConstants.ScopeEnduserOrNotificationSettingsRead, policy => policy.Requirements.Add(new ScopeAccessRequirement(["altinn:portal/enduser", "altinn:profile/enduser:notificationsettings.read"])));
 
     services.AddScoped<IAuthorizationHandler, OrgResourceAccessHandler>();
     services.AddScoped<IAuthorizationHandler, PartyAccessHandler>();
@@ -337,7 +338,6 @@ async Task Migrate(bool setupWolverine)
             await app.GrantWolverinePermissionsAsync(builder.Configuration);
             await app.SetupResources(CancellationToken.None);
         }
-
     }
     catch (Exception ex)
     {

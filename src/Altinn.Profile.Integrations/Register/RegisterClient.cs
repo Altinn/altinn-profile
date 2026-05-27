@@ -130,6 +130,24 @@ public class RegisterClient : IRegisterClient
     }
 
     /// <inheritdoc/>
+    public async Task<int?> GetPartyId(string orgNo, CancellationToken cancellationToken)
+    {
+        var responseData = await GetPartyIdentifiersByOrgNo(orgNo, cancellationToken);
+
+        if (responseData is null or { Count: 0 })
+        {
+            return null;
+        }
+
+        if (responseData.Count > 1)
+        {
+            _logger.LogError("Get party identifiers returned multiple results. Using the first one.");
+        }
+
+        return responseData[0].PartyId;
+    }
+
+    /// <inheritdoc/>
     public async Task<string?> GetOrganizationNumberByPartyUuid(Guid partyUuid, CancellationToken cancellationToken)
     {
         var responseData = await GetPartyIdentifiers(partyUuid, cancellationToken);
@@ -265,7 +283,17 @@ public class RegisterClient : IRegisterClient
 
     private async Task<List<PartyIdentifiersResponse>?> GetPartyIdentifiers(Guid partyUuid, CancellationToken cancellationToken)
     {
-        var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"v1/parties/identifiers?uuids={partyUuid}");
+        return await GetPartyIdentifiers($"uuids={partyUuid}", cancellationToken);
+    }
+
+    private async Task<List<PartyIdentifiersResponse>?> GetPartyIdentifiersByOrgNo(string orgNo, CancellationToken cancellationToken)
+    {
+        return await GetPartyIdentifiers($"orgNo={orgNo}", cancellationToken);
+    }
+
+    private async Task<List<PartyIdentifiersResponse>?> GetPartyIdentifiers(string queryparam, CancellationToken cancellationToken)
+    {
+        var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"v1/parties/identifiers?{queryparam}");
 
         var success = TryAddPlatformAccessTokenHeader(requestMessage);
         if (!success)
@@ -281,8 +309,8 @@ public class RegisterClient : IRegisterClient
             return null;
         }
 
-        var responseData = await response.Content.ReadFromJsonAsync<List<PartyIdentifiersResponse>>(cancellationToken);        
+        var responseData = await response.Content.ReadFromJsonAsync<List<PartyIdentifiersResponse>>(cancellationToken);
 
-        return responseData;        
+        return responseData;
     }
 }

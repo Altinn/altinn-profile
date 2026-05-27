@@ -23,6 +23,13 @@ namespace Altinn.Profile.Core.Integrations
         Task<int?> GetPartyId(Guid partyUuid, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Get partyId for a party based on its organization number.
+        /// </summary>
+        /// <param name="orgNo" >The organization number of the party to look up.</param>
+        /// <param name="cancellationToken">Cancel the current request</param>
+        Task<int?> GetPartyId(string orgNo, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Get party UUIDs for a list of organization numbers.
         /// </summary>
         /// <param name="orgNumbers">The organization numbers to look up</param>

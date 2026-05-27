@@ -75,6 +75,24 @@ public class RegisterCachingDecorator : IRegisterClient
     }
 
     /// <inheritdoc/>
+    public async Task<int?> GetPartyId(string orgNo, CancellationToken cancellationToken)
+    {
+        var cacheKey = $"PartyId_{orgNo}";
+        if (_memoryCache.TryGetValue(cacheKey, out int? partyId))
+        {
+            return partyId;
+        }
+
+        partyId = await _decoratedService.GetPartyId(orgNo, cancellationToken);
+        if (partyId.HasValue)
+        {
+            _memoryCache.Set(cacheKey, partyId.Value, _cacheOptions);
+        }
+
+        return partyId;
+    }
+
+    /// <inheritdoc/>
     public async Task<IReadOnlyList<ContactPointParty>?> GetPartyUuids(string[] orgNumbers, CancellationToken cancellationToken)
     {
         List<string> orgNumbersNotInCache = [];

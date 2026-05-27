@@ -1,6 +1,4 @@
-﻿using Altinn.Common.PEP.Authorization;
-
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 
 namespace Altinn.Profile.Authorization
 {
