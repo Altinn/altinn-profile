@@ -2,6 +2,8 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
@@ -31,6 +33,7 @@ using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.Exporter;
 
 using JasperFx.Core;
+using JasperFx.Resources;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -72,7 +75,14 @@ ConfigureWolverine(builder);
 
 WebApplication app = builder.Build();
 
-app.SetUpPostgreSql(builder.Configuration);
+if (args.Contains("--run-db-migrations"))
+{
+    // Migration mode: runs with admin database access
+    // For Kubernetes pre-upgrade hooks
+    var setupWolverine = args.Contains("--setup-wolverine");
+    await Migrate(setupWolverine);
+    return;
+}
 
 Configure();
 
@@ -301,7 +311,7 @@ void ConfigureWolverine(WebApplicationBuilder builder)
     {
         var connStr = builder.Configuration.GetDatabaseConnectionString();
 
-        // You'll need to independently tell Wolverine where and how to 
+        // You'll need to independently tell Wolverine where and how to
         // store messages as part of the transactional inbox/outbox
         opts.PersistMessagesWithPostgresql(connStr);
 
@@ -317,6 +327,25 @@ void ConfigureWolverine(WebApplicationBuilder builder)
             .OnException<InternalServerErrorException>()
             .RetryWithCooldown(50.Milliseconds(), 100.Milliseconds(), 250.Milliseconds());
     });
+}
+
+async Task Migrate(bool setupWolverine)
+{
+    try
+    {
+        await app.RunDatabaseMigrationsAsync(builder.Configuration);
+        if (setupWolverine)
+        {
+            await app.GrantWolverinePermissionsAsync(builder.Configuration);
+            await app.SetupResources(CancellationToken.None);
+        }
+
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Database migration failed");
+        Environment.Exit(1);
+    }
 }
 
 /// <summary>

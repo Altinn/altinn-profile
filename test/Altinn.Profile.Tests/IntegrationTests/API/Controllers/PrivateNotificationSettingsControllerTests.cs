@@ -1,17 +1,24 @@
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Altinn.Authorization.ModelUtils;
 using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
+using Altinn.Register.Contracts;
+using Altinn.Register.Contracts.Testing;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 using Moq;
 
@@ -95,7 +102,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
     }
 
     [Fact]
-    public async Task PutPhoneNumber_WhenUserContactInfoIsNotFound_ReturnsNotFound()
+    public async Task PutPhoneNumber_WhenUserContactInfoIsNotFound_LooksUpUserAtRegisterAndCreates()
     {
         const int UserId = 2516356;
 
@@ -104,15 +111,30 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
             .ReturnsAsync(VerificationType.Verified);
 
         _factory.UserContactInfoRepositoryMock
-            .Setup(x => x.UpdatePhoneNumber(UserId, null, It.IsAny<CancellationToken>()))
+            .Setup(x => x.Get(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserContactInfo)null);
+        var party = SelfIdentifiedUser.MinimalEmail("test@example.com", System.Guid.NewGuid()) with { User = new PartyUser(1, "epost:test@example.com", ImmutableValueArray<uint>.Empty.Add(1u)) };
+        _factory.RegisterClientMock.Setup(x => x.GetUserParty(UserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(party);
+
+        _factory.UserContactInfoRepositoryMock
+            .Setup(x => x.CreateUserContactInfo(It.Is<UserContactInfoCreateModel>(m => m.EmailAddress == "test@example.com"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UserContactInfo
+            {
+                UserId = UserId,
+                UserUuid = party.Uuid,
+                Username = "epost:test@example.com",
+                CreatedAt = DateTime.UtcNow,
+                EmailAddress = "test@example.com",
+                PhoneNumber = null
+            });
 
         HttpClient client = _factory.CreateClient();
         HttpRequestMessage request = CreateRequestWithUserIdAndAuthMethod(HttpMethod.Put, UserId, "IdportenEpost", "profile/api/v1/users/current/notificationsettings/private/phonenumber", new PrivateNotificationSettingsUpdateRequest { Value = null });
 
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
@@ -126,13 +148,25 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
             .ReturnsAsync(VerificationType.Verified);
 
         _factory.UserContactInfoRepositoryMock
+            .Setup(x => x.Get(UserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UserContactInfo
+            {
+                UserId = UserId,
+                UserUuid = Guid.NewGuid(),
+                Username = "test-user",
+                CreatedAt = DateTime.UtcNow,
+                EmailAddress = "test@example.com",
+                PhoneNumber = null
+            });
+
+        _factory.UserContactInfoRepositoryMock
             .Setup(x => x.UpdatePhoneNumber(UserId, phoneNumber, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new UserContactInfo
             {
                 UserId = UserId,
-                UserUuid = System.Guid.NewGuid(),
+                UserUuid = Guid.NewGuid(),
                 Username = "test-user",
-                CreatedAt = System.DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
                 EmailAddress = "test@example.com",
                 PhoneNumber = phoneNumber
             });
@@ -157,6 +191,18 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
     public async Task PutPhoneNumber_WhenRequestIsValidAndContainsNull_ReturnsOkAndUpdatedValue()
     {
         const int UserId = 2516356;
+
+        _factory.UserContactInfoRepositoryMock
+            .Setup(x => x.Get(UserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UserContactInfo
+            {
+                UserId = UserId,
+                UserUuid = System.Guid.NewGuid(),
+                Username = "test-user",
+                CreatedAt = System.DateTime.UtcNow,
+                EmailAddress = "test@example.com",
+                PhoneNumber = null
+            });
 
         _factory.UserContactInfoRepositoryMock
             .Setup(x => x.UpdatePhoneNumber(UserId, null, It.IsAny<CancellationToken>()))
@@ -184,6 +230,230 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
         Assert.Null(actual.Value);
 
         _factory.UserContactInfoRepositoryMock.Verify(x => x.UpdatePhoneNumber(UserId, null, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task PutPhoneNumber_WhenServiceReturnsNull_ReturnsNotFound()
+    {
+        const int UserId = 2516356;
+
+        _factory.AddressVerificationRepositoryMock
+            .Setup(x => x.GetVerificationStatusAsync(UserId, AddressType.Sms, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(VerificationType.Verified);
+
+        _factory.UserContactInfoRepositoryMock
+            .Setup(x => x.Get(UserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserContactInfo)null);
+
+        // Register returns a non-self-identified party so the service returns null
+        _factory.RegisterClientMock
+            .Setup(x => x.GetUserParty(UserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Register.Contracts.Party)null);
+
+        HttpClient client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    ["CoreSettings:SblBridgeFallbackEnabled"] = "false"
+                });
+            });
+        }).CreateClient();
+
+        HttpRequestMessage request = CreateRequestWithUserIdAndAuthMethod(HttpMethod.Put, UserId, "SelfIdentified", "profile/api/v1/users/current/notificationsettings/private/phonenumber", new PrivateNotificationSettingsUpdateRequest { Value = null });
+
+        HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PutPhoneNumber_WhenUserContactInfoNotFound_AndNotSelfIdentifiedInRegister_AndFallbackEnabled_CreatesViaProfileClient()
+    {
+        const int UserId = 2516356;
+        const string phoneNumber = "+4798765432";
+        var userUuid = Guid.NewGuid();
+
+        _factory.AddressVerificationRepositoryMock
+            .Setup(x => x.GetVerificationStatusAsync(UserId, AddressType.Sms, phoneNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(VerificationType.Verified);
+
+        _factory.UserContactInfoRepositoryMock
+            .Setup(x => x.Get(UserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserContactInfo)null);
+
+        // Register returns null (not a self-identified party)
+        _factory.RegisterClientMock
+            .Setup(x => x.GetUserParty(UserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Register.Contracts.Party)null);
+
+        // UserProfileClient (SblBridge) returns a valid profile
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        {
+            var profile = new UserProfile
+            {
+                UserId = UserId,
+                UserUuid = userUuid,
+                UserName = "fallback-user",
+                Email = "fallback@example.com"
+            };
+            return new HttpResponseMessage
+            {
+                Content = JsonContent.Create(profile)
+            };
+        });
+
+        _factory.UserContactInfoRepositoryMock
+            .Setup(x => x.CreateUserContactInfo(
+                It.Is<UserContactInfoCreateModel>(m =>
+                    m.UserId == UserId &&
+                    m.UserUuid == userUuid &&
+                    m.Username == "fallback-user" &&
+                    m.EmailAddress == "fallback@example.com" &&
+                    m.PhoneNumber == phoneNumber),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UserContactInfo
+            {
+                UserId = UserId,
+                UserUuid = userUuid,
+                Username = "fallback-user",
+                CreatedAt = DateTime.UtcNow,
+                EmailAddress = "fallback@example.com",
+                PhoneNumber = phoneNumber
+            });
+
+        HttpClient client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    ["CoreSettings:SblBridgeFallbackEnabled"] = "true"
+                });
+            });
+        }).CreateClient();
+
+        HttpRequestMessage request = CreateRequestWithUserIdAndAuthMethod(HttpMethod.Put, UserId, "SelfIdentified", "profile/api/v1/users/current/notificationsettings/private/phonenumber", new PrivateNotificationSettingsUpdateRequest { Value = phoneNumber });
+
+        HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        string content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var actual = JsonSerializer.Deserialize<PrivateNotificationSettingsUpdateResponse>(content, _serializerOptionsCamelCase);
+
+        Assert.NotNull(actual);
+        Assert.Equal(phoneNumber, actual.Value);
+        _factory.UserContactInfoRepositoryMock.Verify(x => x.CreateUserContactInfo(It.IsAny<UserContactInfoCreateModel>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task PutPhoneNumber_WhenUserContactInfoNotFound_AndSelfIdentifiedUserHasNoUserValue_AndFallbackDisabled_ReturnsNotFound()
+    {
+        const int UserId = 2516356;
+
+        _factory.AddressVerificationRepositoryMock
+            .Setup(x => x.GetVerificationStatusAsync(UserId, AddressType.Sms, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(VerificationType.Verified);
+
+        _factory.UserContactInfoRepositoryMock
+            .Setup(x => x.Get(UserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserContactInfo)null);
+
+        // SelfIdentifiedUser without a User value set
+        var party = SelfIdentifiedUser.MinimalEmail("nouser@example.com", Guid.NewGuid());
+        _factory.RegisterClientMock
+            .Setup(x => x.GetUserParty(UserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(party);
+
+        HttpClient client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    ["CoreSettings:SblBridgeFallbackEnabled"] = "false"
+                });
+            });
+        }).CreateClient();
+
+        HttpRequestMessage request = CreateRequestWithUserIdAndAuthMethod(HttpMethod.Put, UserId, "SelfIdentified", "profile/api/v1/users/current/notificationsettings/private/phonenumber", new PrivateNotificationSettingsUpdateRequest { Value = null });
+
+        HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        _factory.UserContactInfoRepositoryMock.Verify(x => x.CreateUserContactInfo(It.IsAny<UserContactInfoCreateModel>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task PutPhoneNumber_WhenUserContactInfoNotFound_AndSelfIdentifiedUserHasNoUserValue_AndFallbackEnabled_CreatesViaProfileClient()
+    {
+        const int UserId = 2516356;
+        var userUuid = Guid.NewGuid();
+
+        _factory.AddressVerificationRepositoryMock
+            .Setup(x => x.GetVerificationStatusAsync(UserId, AddressType.Sms, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(VerificationType.Verified);
+
+        _factory.UserContactInfoRepositoryMock
+            .Setup(x => x.Get(UserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserContactInfo)null);
+
+        // SelfIdentifiedUser without a User value set
+        var party = SelfIdentifiedUser.MinimalEmail("nouser@example.com", Guid.NewGuid());
+        _factory.RegisterClientMock
+            .Setup(x => x.GetUserParty(UserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(party);
+
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        {
+            var profile = new UserProfile
+            {
+                UserId = UserId,
+                UserUuid = userUuid,
+                UserName = "fallback-si-user",
+                Email = "nouser@example.com"
+            };
+            return new HttpResponseMessage
+            {
+                Content = JsonContent.Create(profile)
+            };
+        });
+
+        _factory.UserContactInfoRepositoryMock
+            .Setup(x => x.CreateUserContactInfo(
+                It.Is<UserContactInfoCreateModel>(m =>
+                    m.UserId == UserId &&
+                    m.EmailAddress == "nouser@example.com"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UserContactInfo
+            {
+                UserId = UserId,
+                UserUuid = userUuid,
+                Username = "fallback-si-user",
+                CreatedAt = DateTime.UtcNow,
+                EmailAddress = "nouser@example.com",
+                PhoneNumber = null
+            });
+
+        HttpClient client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    ["CoreSettings:SblBridgeFallbackEnabled"] = "true"
+                });
+            });
+        }).CreateClient();
+
+        HttpRequestMessage request = CreateRequestWithUserIdAndAuthMethod(HttpMethod.Put, UserId, "SelfIdentified", "profile/api/v1/users/current/notificationsettings/private/phonenumber", new PrivateNotificationSettingsUpdateRequest { Value = null });
+
+        HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        _factory.UserContactInfoRepositoryMock.Verify(x => x.CreateUserContactInfo(It.IsAny<UserContactInfoCreateModel>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static HttpRequestMessage CreateRequestWithUserIdAndAuthMethod(HttpMethod method, int userId, string authMethod, string requestUri, PrivateNotificationSettingsUpdateRequest body)

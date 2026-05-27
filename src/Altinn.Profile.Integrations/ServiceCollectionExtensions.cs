@@ -113,7 +113,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserNotifier, UserNotifier>();
 
         services.AddDbContextFactory<ProfileDbContext>(options => options.UseNpgsql(connectionString)
-        .UseSnakeCaseNamingConvention());
+            .UseSnakeCaseNamingConvention());
     }
 
     /// <summary>
