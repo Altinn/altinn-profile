@@ -11,6 +11,8 @@ namespace Altinn.Profile.Jobs
     /// <summary>
     /// A job that synchronizes the changes in the contact details for persons.
     /// </summary>
+    /// <param name="contactRegisterUpdateJob">Service that performs contact register synchronization.</param>
+    /// <param name="logger">Logger used for job execution and failure reporting.</param>
     public partial class KrrSyncJob(IContactRegisterUpdateJob contactRegisterUpdateJob, ILogger<KrrSyncJob> logger) : Job
     {
         private readonly IContactRegisterUpdateJob _contactRegisterUpdateJob = contactRegisterUpdateJob;

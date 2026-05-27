@@ -21,9 +21,6 @@ using Altinn.Profile.Tests.Testdata;
 using Altinn.Register.Contracts;
 using Altinn.Register.Contracts.Testing;
 
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
-
 using Moq;
 
 using Xunit;
@@ -930,7 +927,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             .Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        EnableRegisterAsPrimary();
+        // EnableRegisterAsPrimary();
         HttpClient client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userId}");
@@ -1022,7 +1019,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             .Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        EnableRegisterAsPrimary();
+        // EnableRegisterAsPrimary();
         HttpClient client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userId}");
@@ -1119,6 +1116,5 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     private void EnableRegisterAsPrimary()
     {
         _factory.InMemoryConfigurationCollection["CoreSettings:RegisterAsPrimaryUserProfileSource"] = "true";
-        _factory.InMemoryConfigurationCollection["CoreSettings:RegisterLookupInShadowMode"] = "false";
     }
 }

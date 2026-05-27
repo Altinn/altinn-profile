@@ -87,7 +87,7 @@ internal static class JobsServiceCollectionExtensions
     /// <param name="config">The configuration containing import job settings.</param>
     internal static void AddSyncJobs(this IServiceCollection services, IConfiguration config)
     {
-        JobSettings settings = config.GetSection("JobSettings").Get<JobSettings>();
+        JobSettings settings = config.GetSection("JobSettings").Get<JobSettings>() ?? new JobSettings();
 
         if (settings.KrrSyncEnabled)
         {
