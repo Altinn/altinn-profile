@@ -18,6 +18,7 @@ namespace Altinn.Profile.Integrations.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            /* Comment out after initial migration has been applied, to prevent accidental data loss in case of re-application of the migration. */
             migrationBuilder.EnsureSchema(
                 name: "lease");
             migrationBuilder.GrantSchemaPermissions("lease");
