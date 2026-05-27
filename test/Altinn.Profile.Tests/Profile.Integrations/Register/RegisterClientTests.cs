@@ -296,6 +296,167 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
         }
 
         [Fact]
+        public async Task GetPartyIdByOrgNo_WhenValidAccessToken_SetsUpHttpClientCorrectly()
+        {
+            // Arrange
+            var orgNo = "910459880";
+            var expectedPartyId = 50001234;
+            var responseContent = JsonSerializer.Serialize(new List<PartyIdentifiersResponse>
+            {
+                new() { PartyId = expectedPartyId, OrgNumber = orgNo }
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            HttpRequestMessage sentRequest = null;
+            var handler = CreateHandler(response, req => sentRequest = req);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetPartyId(orgNo, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(HttpMethod.Get, sentRequest.Method);
+            Assert.Contains("v1/parties/identifiers?orgNo=" + orgNo, sentRequest.RequestUri.ToString());
+            Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
+        }
+
+        [Fact]
+        public async Task GetPartyIdByOrgNo_WhenClientRespondsSuccessfully_ReturnsPartyId()
+        {
+            // Arrange
+            var orgNo = "910459880";
+            var expectedPartyId = 50001234;
+            var responseContent = JsonSerializer.Serialize(new List<PartyIdentifiersResponse>
+            {
+                new() { PartyId = expectedPartyId, OrgNumber = orgNo }
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetPartyId(orgNo, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedPartyId, result);
+        }
+
+        [Fact]
+        public async Task GetPartyIdByOrgNo_WhenRegisterResponseHasMultipleElements_ReturnsFirst()
+        {
+            // Arrange
+            var orgNo = "910459880";
+            var expectedPartyId = 50001234;
+            var responseContent = JsonSerializer.Serialize(new List<PartyIdentifiersResponse>
+            {
+                new() { PartyId = expectedPartyId, OrgNumber = orgNo },
+                new() { PartyId = 50005678, OrgNumber = orgNo }
+            });
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetPartyId(orgNo, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(expectedPartyId, result);
+        }
+
+        [Fact]
+        public async Task GetPartyIdByOrgNo_WhenNotAbleToGenerateToken_ReturnsNull()
+        {
+            // Arrange
+            var orgNo = "910459880";
+            var response = new HttpResponseMessage(HttpStatusCode.OK);
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            _tokenGenMock.Setup(t => t.GenerateAccessToken(It.IsAny<string>(), It.IsAny<string>()))
+                         .Returns((string)null);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetPartyId(orgNo, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+            handler.Protected().Verify("SendAsync", Times.Never(), ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task GetPartyIdByOrgNo_WhenRegisterReturns500_ReturnsNull()
+        {
+            // Arrange
+            var orgNo = "910459880";
+            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetPartyId(orgNo, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetPartyIdByOrgNo_WhenResponseIsEmpty_ReturnsNull()
+        {
+            // Arrange
+            var orgNo = "910459880";
+            var responseContent = JsonSerializer.Serialize(new List<PartyIdentifiersResponse>());
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseContent, System.Text.Encoding.UTF8, "application/json")
+            };
+            var handler = CreateHandler(response);
+            _httpClient = new HttpClient(handler.Object);
+            var client = new RegisterClient(_httpClient, _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act
+            var result = await client.GetPartyId(orgNo, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetPartyIdByOrgNo_WhenCancellationRequested_ThrowsTaskCanceledException()
+        {
+            // Arrange
+            var orgNo = "910459880";
+            var cts = new CancellationTokenSource();
+            cts.Cancel();
+
+            var client = new RegisterClient(new HttpClient(CreateHandler(new HttpResponseMessage(HttpStatusCode.OK)).Object), _settingsMock.Object, _tokenGenMock.Object, _loggerMock.Object);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<TaskCanceledException>(
+                () => client.GetPartyId(orgNo, cts.Token));
+        }
+
+        [Fact]
         public async Task GetPartyUuids_WhenValidOrgNumbers_ReturnsPartyList()
         {
             // Arrange
