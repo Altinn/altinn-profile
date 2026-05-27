@@ -591,7 +591,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
             .Setup(m => m.GetUserPartyByUsername(username, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("Register unavailable"));
         
-        // EnableRegisterAsPrimary();
+        EnableRegisterAsPrimary();
         HttpClient client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/internal/user/", new UserProfileLookup { Username = username });
