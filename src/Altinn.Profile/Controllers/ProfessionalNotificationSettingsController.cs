@@ -117,6 +117,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<ActionResult> Put([FromRoute] Guid partyUuid, [FromBody][Required] NotificationSettingsRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)

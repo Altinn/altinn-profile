@@ -541,6 +541,47 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
+
+        public async Task PutNotificationAddress_WhenNotVerified_ReturnsUnprocessableEntity()
+        {
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+
+            var userPartyContactInfo = new NotificationSettingsRequest
+            {
+                EmailAddress = "test@example.com",
+                PhoneNumber = "12345678",
+            };
+
+            _factory.AddressVerificationRepositoryMock
+               .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+               .ReturnsAsync(VerificationType.Unverified);
+
+            SetupAuthHandler(partyGuid, UserId);
+
+            HttpClient client = _factory.CreateClient();
+
+            // Omit resourceIncludeList from JSON entirely so HasValue = false; sending null would
+            // produce HasValue = true with a null list, which crashes .Count in the controller.
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent("{\"emailAddress\":\"test@example.com\",\"phoneNumber\":\"12345678\"}", System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+
+            _factory.ProfessionalNotificationsRepositoryMock.Verify(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()), Times.Never);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.GetVerificationStatusAsync(It.IsAny<int>(), It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(1));
+        }
+
+        [Fact]
         public async Task PutNotificationAddress_WhenRepoReturnsFalse_ReturnsCreated()
         {
             // Arrange
