@@ -460,6 +460,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceIncludeList = [resourceUrn],
             };
 
+            _factory.AddressVerificationRepositoryMock
+               .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+               .ReturnsAsync(VerificationType.Verified);
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
@@ -490,9 +493,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                         info.UserPartyContactInfoResources.Count == 1 && info.UserPartyContactInfoResources[0].ResourceId == sanitizedResourceId),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
-            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Exactly(2));
-            _factory.NotificationsClientMock.Verify(x => x.OrderEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
-            _factory.NotificationsClientMock.Verify(x => x.OrderSmsAsync("+4798765432", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.GetVerificationStatusAsync(It.IsAny<int>(), It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
         }
 
         [Fact]
@@ -513,9 +514,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
             _factory.AddressVerificationRepositoryMock
-                .Setup(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
-                .ReturnsAsync(true);
-            
+               .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+               .ReturnsAsync(VerificationType.Verified);
+
             SetupAuthHandler(partyGuid, UserId);
 
             HttpClient client = _factory.CreateClient();
@@ -536,9 +537,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
             _factory.ProfessionalNotificationsRepositoryMock.Verify(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()), Times.Once);
-            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Exactly(2));
-            _factory.NotificationsClientMock.Verify(x => x.OrderEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
-            _factory.NotificationsClientMock.Verify(x => x.OrderSmsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.GetVerificationStatusAsync(It.IsAny<int>(), It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
         }
 
         [Fact]
@@ -553,6 +552,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 EmailAddress = "test@example.com",
                 PhoneNumber = "12345678",
             };
+
+            _factory.AddressVerificationRepositoryMock
+               .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+               .ReturnsAsync(VerificationType.Verified);
 
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()))
@@ -584,9 +587,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                     It.IsAny<UserPartyContactInfo>(),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
-            _factory.AddressVerificationRepositoryMock.Verify(x => x.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()), Times.Exactly(2));
-            _factory.NotificationsClientMock.Verify(x => x.OrderEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-            _factory.NotificationsClientMock.Verify(x => x.OrderSmsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.GetVerificationStatusAsync(It.IsAny<int>(), It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
         }
 
         [Fact]
@@ -603,6 +604,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ResourceIncludeList = ["urn:altinn:resource:example"]
             };
             SetupAuthHandler(partyGuid, UserId);
+
+            _factory.AddressVerificationRepositoryMock
+               .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+               .ReturnsAsync(VerificationType.Verified);
 
             _factory
                 .ProfessionalNotificationsRepositoryMock

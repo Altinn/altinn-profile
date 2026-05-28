@@ -71,17 +71,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         /// <inheritdoc/>
         public async Task<bool> AddOrUpdateNotificationAddressAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken)
         {
-            var existingContactInfo = await _professionalNotificationsRepository.GetNotificationAddressAsync(contactInfo.UserId, contactInfo.PartyUuid, cancellationToken);
-
-            var mobileNumberChanged = !string.IsNullOrWhiteSpace(contactInfo.PhoneNumber) && existingContactInfo?.PhoneNumber != contactInfo.PhoneNumber;
-            var emailChanged = !string.IsNullOrWhiteSpace(contactInfo.EmailAddress) && existingContactInfo?.EmailAddress != contactInfo.EmailAddress;
-
             var isAdded = await _professionalNotificationsRepository.AddOrUpdateNotificationAddressAsync(contactInfo, cancellationToken);
-
-            if (mobileNumberChanged || emailChanged)
-            {
-                await HandleNotificationAddressChangedAsync(contactInfo, mobileNumberChanged, emailChanged);
-            }
 
             return isAdded;
         }
@@ -129,29 +119,28 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
             return true;
         }
 
-        /// <summary>
-        /// Handles sending notifications when the mobile number or email address has changed.
-        /// Verification code generation is delegated to <see cref="IAddressVerificationService"/>;
-        /// address-change notifications are sent directly via <see cref="IUserNotifier"/>.
-        /// </summary>
-        /// <param name="contactInfo">The updated contact info.</param>
-        /// <param name="mobileNumberChanged">Indicates if the mobile number has changed.</param>
-        /// <param name="emailChanged">Indicates if the email address has changed.</param>
-        private async Task HandleNotificationAddressChangedAsync(UserPartyContactInfo contactInfo, bool mobileNumberChanged, bool emailChanged)
+        /// <inheritdoc/>
+        public async Task<bool> IsContactInfoVerifiedOrNullAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken)
         {
-            // The request processing will reach this point in the flow only if cancellation has not yet occurred.
-            // Should the client cancel after this point, we still want the remaining operations proceed
-            var emptyCancellationToken = CancellationToken.None;
-
-            if (mobileNumberChanged)
+            if (contactInfo.EmailAddress != null && !string.IsNullOrEmpty(contactInfo.EmailAddress))
             {
-                await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.PhoneNumber!, AddressType.Sms, emptyCancellationToken);
+                var emailVerificationStatus = await _addressVerificationService.GetVerificationStatusAsync(contactInfo.UserId, AddressType.Email, contactInfo.EmailAddress, cancellationToken);
+                if (emailVerificationStatus.HasValue && emailVerificationStatus != VerificationType.Verified)
+                {
+                    return false;
+                }
             }
 
-            if (emailChanged)
+            if (contactInfo.PhoneNumber != null && !string.IsNullOrEmpty(contactInfo.PhoneNumber))
             {
-                await _addressVerificationService.GenerateAndSendVerificationCodeAsync(contactInfo.UserId, contactInfo.EmailAddress!, AddressType.Email, emptyCancellationToken);
+                var smsVerificationStatus = await _addressVerificationService.GetVerificationStatusAsync(contactInfo.UserId, AddressType.Sms, contactInfo.PhoneNumber, cancellationToken);
+                if (smsVerificationStatus.HasValue && smsVerificationStatus != VerificationType.Verified)
+                {
+                    return false;
+                }
             }
+
+            return true;
         }
 
         /// <inheritdoc/>

@@ -11,11 +11,6 @@ namespace Altinn.Profile.Core.AddressVerifications.Models
         Success,
 
         /// <summary>
-        /// No verification code was found for the specified user and address.
-        /// </summary>
-        CodeNotFound,
-
-        /// <summary>
         /// An existing verification code was in the state of cooldown/timeout
         /// </summary>
         CodeCooldown,
