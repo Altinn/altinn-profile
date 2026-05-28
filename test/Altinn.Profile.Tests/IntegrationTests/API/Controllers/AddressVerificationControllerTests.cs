@@ -473,7 +473,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task SendCode_WhenRequestLacksBearerToken_ReturnsUnauthorized()
         {
             // Arrange
-            var request = new AddressCodeResendRequest
+            var request = new AddressCodeSendRequest
             {
                 Value = "some@email.com",
                 Type = AddressType.Email
@@ -498,7 +498,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task SendCode_WhenSystemUserToken_ReturnsForbidden()
         {
             // Arrange
-            var request = new AddressCodeResendRequest
+            var request = new AddressCodeSendRequest
             {
                 Value = "some@email.com",
                 Type = AddressType.Email
@@ -529,7 +529,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             const int userId = 2516360;
-            var request = new AddressCodeResendRequest
+            var request = new AddressCodeSendRequest
             {
                 Value = address,
                 Type = addressType
@@ -644,7 +644,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             const int userId = 2516363;
-            var request = new AddressCodeResendRequest
+            var request = new AddressCodeSendRequest
             {
                 Value = "send-success@altinn.xyz",
                 Type = AddressType.Email
@@ -686,7 +686,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             const int userId = 2516364;
-            var request = new AddressCodeResendRequest
+            var request = new AddressCodeSendRequest
             {
                 Value = "send-fail@altinn.xyz",
                 Type = AddressType.Email
