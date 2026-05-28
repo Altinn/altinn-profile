@@ -226,7 +226,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(VerificationType.Unverified, notificationAddresses.SmsVerificationStatus);
         }
 
-            [Fact]
+        [Fact]
         public async Task GetNotificationAddressByOrgNumber_WhenRepositoryReturnsNull_ReturnsNotFound()
         {
             // Arrange
@@ -287,7 +287,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
             string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-            Assert.Contains("Organization number cannot be empty", responseContent);
+            Assert.Contains("Invalid organization number", responseContent);
         }
 
         [Fact]
@@ -312,7 +312,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
             string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-            Assert.Contains("Organization number cannot be empty", responseContent);
+            Assert.Contains("Invalid organization number", responseContent);
         }
 
         [Theory]

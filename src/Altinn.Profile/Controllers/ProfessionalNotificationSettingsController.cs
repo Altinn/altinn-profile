@@ -106,7 +106,7 @@ namespace Altinn.Profile.Controllers
 
             if (orgNumber <= 0)
             {
-                return BadRequest("Organization number cannot be empty.");
+                return BadRequest("Invalid organization number.");
             }
 
             var notificationSettings = await _professionalNotificationsService.GetNotificationAddressByOrgNumberAsync(userId, orgNumber.ToString(), cancellationToken);
