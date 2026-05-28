@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using Altinn.Profile.Integrations.Persistence.Migrations;
 
 using Microsoft.EntityFrameworkCore.Migrations;
+
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
