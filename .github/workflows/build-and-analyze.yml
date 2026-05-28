@@ -20,7 +20,7 @@ jobs:
       checks: write
     services:
       postgres:
-        image: postgres:17.9@sha256:2a0d0fe14825b0939f78a8cad5cd4e6aa68bf94d0e5dd96e24b6d23af4315545
+        image: postgres:17.10@sha256:0027bef26712baaee437a4ea48fdf3d2d2e2bc5f0d81615374408ca320f3c7e3
         env:
           POSTGRES_USER: platform_profile_admin
           POSTGRES_PASSWORD: Password
@@ -58,7 +58,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          dotnet-sonarscanner begin /k:"Altinn_altinn-profile" /o:"altinn" /d:sonar.login="$SONAR_TOKEN" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vstest.reportsPaths="**/*.trx" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/ServiceDefaults.**" /d:sonar.coverage.exclusions="test/k6/**/*"
+          dotnet-sonarscanner begin /k:"Altinn_altinn-profile" /o:"altinn" /d:sonar.login="$SONAR_TOKEN" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vstest.reportsPaths="**/*.trx" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/ServiceDefaults.**, src/Altinn.Profile.Integrations/Migrations/*" /d:sonar.coverage.exclusions="test/k6/**/*"
 
           dotnet build Altinn.Profile.sln -v q
 
