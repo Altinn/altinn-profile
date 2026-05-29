@@ -67,7 +67,9 @@ namespace Altinn.Profile.Authorization
 
             if (!validScope)
             {
-                _logger.LogWarning("Access should be denied. Required scope {RequiredScope} not found in user claims. Found scopes {FoundScopes}", requirement.Scope, contextScope);
+                var iss = context.User?.Claims.Where(c => c.Type.Equals("iss")).Select(c => c.Value).FirstOrDefault();
+                var originalIss = context.User?.Claims.Where(c => c.Type.Equals("originaliss")).Select(c => c.Value).FirstOrDefault();
+                _logger.LogWarning("Access should be denied. Required scope {RequiredScope} not found in user claims. Found scopes {FoundScopes}, iss {Iss}, originaliss {OriginalIss}", requirement.Scope, contextScope, iss, originalIss);
             }
 
             context.Succeed(requirement);
