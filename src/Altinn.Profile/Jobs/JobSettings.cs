@@ -11,7 +11,7 @@
         public bool KrrSyncEnabled { get; set; } = false;
 
         /// <summary>
-        /// A value indicating the wait time in minutes between each synchronization for KRR.
+        /// The wait time in minutes between each synchronization for KRR.
         /// </summary>
         public uint KrrSyncWaitTimeInMinutes { get; set; } = 10;
 
@@ -21,7 +21,7 @@
         public bool OrgSyncEnabled { get; set; } = false;
 
         /// <summary>
-        /// A value indicating the wait time in minutes between each synchronization for the organization notification settings.
+        /// The wait time in minutes between each synchronization for the organization notification addresses.
         /// </summary>
         public uint OrgSyncWaitTimeInMinutes { get; set; } = 10;
     }
