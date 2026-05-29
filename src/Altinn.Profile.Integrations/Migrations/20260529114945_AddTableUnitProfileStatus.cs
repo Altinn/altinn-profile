@@ -1,4 +1,7 @@
 ﻿using System;
+
+using Altinn.Profile.Integrations.Persistence.Migrations;
+
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -29,6 +32,9 @@ namespace Altinn.Profile.Integrations.Migrations
                 {
                     table.PrimaryKey("pk_unit_profiles", x => x.party_id);
                 });
+
+            // Grant permissions to runtime user
+            migrationBuilder.GrantTablePermissions("organization_notification_address", "unit_profile_status");
         }
 
         /// <inheritdoc />
