@@ -36,6 +36,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         _factory = factory;
         _factory.MemoryCache.Clear();
         _factory.RegisterClientMock.Reset();
+        _factory.InMemoryConfigurationCollection.Clear();
     }
 
     [Fact]
@@ -550,8 +551,8 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
             .Setup(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(registerPerson);
 
-        using WebApplicationFactory<Program> registerPrimaryFactory = CreateFactoryWithRegisterAsPrimaryEnabled();
-        HttpClient client = registerPrimaryFactory.CreateClient();
+        EnableRegisterAsPrimary();
+        HttpClient client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/internal/user/", new UserProfileLookup { UserId = userId });
 
@@ -589,9 +590,9 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         _factory.RegisterClientMock
             .Setup(m => m.GetUserPartyByUsername(username, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("Register unavailable"));
-
-        using WebApplicationFactory<Program> registerPrimaryFactory = CreateFactoryWithRegisterAsPrimaryEnabled();
-        HttpClient client = registerPrimaryFactory.CreateClient();
+        
+        EnableRegisterAsPrimary();
+        HttpClient client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/internal/user/", new UserProfileLookup { Username = username });
 
@@ -605,19 +606,9 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         Assert.EndsWith($"sblbridge/profile/api/users/?username={username}", sblRequest.RequestUri.ToString());
     }
 
-    private WebApplicationFactory<Program> CreateFactoryWithRegisterAsPrimaryEnabled()
+    private void EnableRegisterAsPrimary()
     {
-        return _factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureAppConfiguration((_, config) =>
-            {
-                config.AddInMemoryCollection(new Dictionary<string, string>
-                {
-                    ["CoreSettings:RegisterAsPrimaryUserProfileSource"] = "true",
-                    ["CoreSettings:RegisterLookupInShadowMode"] = "false",
-                });
-            });
-        });
+        _factory.InMemoryConfigurationCollection["CoreSettings:RegisterAsPrimaryUserProfileSource"] = "true";
     }
 
     private static HttpRequestMessage CreatePostRequest(string requestUri, UserProfileLookup lookupRequest)

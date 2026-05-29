@@ -227,7 +227,9 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
     services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
 
+    services.SetupLeasing();
     services.AddImportJobs(config);
+    services.AddSyncJobs(config);
 }
 
 static void AddAzureMonitorTelemetryExporters(IServiceCollection services, IConfiguration config)

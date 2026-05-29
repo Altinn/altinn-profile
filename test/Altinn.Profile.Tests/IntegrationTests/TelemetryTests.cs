@@ -1,108 +1,98 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Diagnostics.Metrics;
 
-using OpenTelemetry;
-using OpenTelemetry.Metrics;
+using Altinn.Profile.Core.Telemetry;
 
 using Xunit;
 
 namespace Altinn.Profile.Tests.IntegrationTests;
 
-public class TelemetryTests
+public class TelemetryTests : IDisposable
 {
-    public class RegistryMetrics(ProfileWebApplicationFactory<Program> factory)
-        : IClassFixture<ProfileWebApplicationFactory<Program>>
+    private readonly Telemetry _telemetry = new();
+    private readonly MeterListener _meterListener;
+    private readonly List<(string InstrumentName, long Value)> _recordedCounters = [];
+
+    public TelemetryTests()
     {
-        private readonly ProfileWebApplicationFactory<Program> _factory = factory;
-
-        [Fact]
-        public async Task SyncPersonChanges_WhenCalled_CreatesContactRegistryMetrics()
+        _meterListener = new MeterListener
         {
-            var metricItems = new List<Metric>();
+            InstrumentPublished = (instrument, listener) =>
+            {
+                if (instrument.Meter.Name == Telemetry.AppName)
+                {
+                    listener.EnableMeasurementEvents(instrument);
+                }
+            }
+        };
 
-            using var meterProvider = Sdk.CreateMeterProviderBuilder()
-                .AddMeter("platform-profile")
-                .AddInMemoryExporter(metricItems)
-                .Build();
+        _meterListener.SetMeasurementEventCallback<long>((instrument, measurement, tags, state) =>
+        {
+            _recordedCounters.Add((instrument.Name, measurement));
+        });
 
-            var client = _factory.CreateClient();
-
-            // We need to call any endpoint that includes some telemetry.
-            using var response = await client.GetAsync(
-                new Uri("/profile/api/v1/trigger/syncpersonchanges", UriKind.Relative), 
-                TestContext.Current.CancellationToken);
-
-            // We need to let End callback execute as it is executed AFTER response was returned.
-            // In unit tests environment there may be a lot of parallel unit tests executed, so
-            // giving some breezing room for the End callback to complete
-            await Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
-
-            meterProvider.ForceFlush();
-
-            var addedMetrics = metricItems
-                .Where(item => item.Name == "profile.contactregistry.person.added")
-                .ToArray();
-
-            var updatedMetrics = metricItems
-                .Where(item => item.Name == "profile.contactregistry.person.updated")
-                .ToArray();
-
-            Assert.Single(addedMetrics);
-            Assert.Single(updatedMetrics);
-        }
+        _meterListener.Start();
     }
 
-    public class NotificationAddressMetrics(ProfileWebApplicationFactory<Program> factory)
-        : IClassFixture<ProfileWebApplicationFactory<Program>>
+    [Fact]
+    public void PersonAdded_WhenCalled_EmitsContactRegistryPersonAddedMetric()
     {
-        private readonly ProfileWebApplicationFactory<Program> _factory = factory;
+        _telemetry.PersonAdded();
 
-        [Fact]
-        public async Task SyncOrgChanges_WhenCalled_CreatesOrganizationNotificationAddressMetrics()
-        {
-            var metricItems = new List<Metric>();
+        var counter = Assert.Single(_recordedCounters, item => item.InstrumentName == Telemetry.Metrics.CreateName("contactregistry.person.added"));
+        Assert.Equal(1, counter.Value);
+    }
 
-            using var meterProvider = Sdk.CreateMeterProviderBuilder()
-                .AddMeter("platform-profile")
-                .AddInMemoryExporter(metricItems)
-                .Build();
+    [Fact]
+    public void PersonUpdated_WhenCalled_EmitsContactRegistryPersonUpdatedMetric()
+    {
+        _telemetry.PersonUpdated();
 
-            var client = _factory.CreateClient();
+        var counter = Assert.Single(_recordedCounters, item => item.InstrumentName == Telemetry.Metrics.CreateName("contactregistry.person.updated"));
+        Assert.Equal(1, counter.Value);
+    }
 
-            // We need to call any endpoint that includes some telemetry.
-            using var response = await client.GetAsync(
-                new Uri("/profile/api/v1/trigger/syncorgchanges", UriKind.Relative), 
-                TestContext.Current.CancellationToken);
+    [Fact]
+    public void OrganizationAdded_WhenCalled_EmitsOrganizationNotificationAddressOrganizationAddedMetric()
+    {
+        _telemetry.OrganizationAdded();
 
-            // We need to let End callback execute as it is executed AFTER response was returned.
-            // In unit tests environment there may be a lot of parallel unit tests executed, so
-            // giving some breezing room for the End callback to complete
-            await Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
+        var counter = Assert.Single(_recordedCounters, item => item.InstrumentName == Telemetry.Metrics.CreateName("organizationnotificationaddress.organization.added"));
+        Assert.Equal(1, counter.Value);
+    }
 
-            meterProvider.ForceFlush();
+    [Fact]
+    public void AddressAdded_WhenCalled_EmitsOrganizationNotificationAddressAddedMetric()
+    {
+        _telemetry.AddressAdded();
 
-            var addedOrgMetrics = metricItems
-                .Where(item => item.Name == "profile.organizationnotificationaddress.organization.added")
-                .ToArray();
+        var counter = Assert.Single(_recordedCounters, item => item.InstrumentName == Telemetry.Metrics.CreateName("organizationnotificationaddress.address.added"));
+        Assert.Equal(1, counter.Value);
+    }
 
-            var addedMetrics = metricItems
-                .Where(item => item.Name == "profile.organizationnotificationaddress.address.added")
-                .ToArray();
+    [Fact]
+    public void AddressUpdated_WhenCalled_EmitsOrganizationNotificationAddressUpdatedMetric()
+    {
+        _telemetry.AddressUpdated();
 
-            var updatedMetrics = metricItems
-                .Where(item => item.Name == "profile.organizationnotificationaddress.address.updated")
-                .ToArray();
+        var counter = Assert.Single(_recordedCounters, item => item.InstrumentName == Telemetry.Metrics.CreateName("organizationnotificationaddress.address.updated"));
+        Assert.Equal(1, counter.Value);
+    }
 
-            var deletedMetrics = metricItems
-                .Where(item => item.Name == "profile.organizationnotificationaddress.address.deleted")
-                .ToArray();
+    [Fact]
+    public void AddressDeleted_WhenCalled_EmitsOrganizationNotificationAddressDeletedMetric()
+    {
+        _telemetry.AddressDeleted();
 
-            Assert.Single(addedOrgMetrics);
-            Assert.Single(addedMetrics);
-            Assert.Single(updatedMetrics);
-            Assert.Single(deletedMetrics);
-        }
+        var counter = Assert.Single(_recordedCounters, item => item.InstrumentName == Telemetry.Metrics.CreateName("organizationnotificationaddress.address.deleted"));
+        Assert.Equal(1, counter.Value);
+    }
+
+    public void Dispose()
+    {
+        _meterListener.Dispose();
+        _telemetry.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
