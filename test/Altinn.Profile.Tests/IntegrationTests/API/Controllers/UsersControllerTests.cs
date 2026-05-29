@@ -929,8 +929,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             .Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        CreateClientWithRegisterAsPrimary(true);
-        HttpClient client = _factory.CreateClient();
+        var client = CreateClientWithRegisterAsPrimary(true);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userId}");
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
