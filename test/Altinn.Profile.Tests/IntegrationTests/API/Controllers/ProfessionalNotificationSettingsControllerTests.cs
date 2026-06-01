@@ -273,7 +273,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int OrgNumber = 0;
             var partyGuid = Guid.NewGuid();
 
-            SetupAuthHandler(partyGuid, UserId, orgNo: OrgNumber);
+            SetupAuthHandler(partyGuid, UserId, access: false, orgNo: OrgNumber);
 
             HttpClient client = _factory.CreateClient();
 
@@ -284,10 +284,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Assert
             Assert.NotNull(response);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-
-            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-            Assert.Contains("Invalid organization number", responseContent);
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
         [Fact]
@@ -298,7 +295,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int OrgNumber = -1;
             var partyGuid = Guid.NewGuid();
 
-            SetupAuthHandler(partyGuid, UserId, orgNo: OrgNumber);
+            SetupAuthHandler(partyGuid, UserId, access: false, orgNo: OrgNumber);
 
             HttpClient client = _factory.CreateClient();
 
@@ -309,10 +306,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Assert
             Assert.NotNull(response);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-
-            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-            Assert.Contains("Invalid organization number", responseContent);
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
         [Theory]

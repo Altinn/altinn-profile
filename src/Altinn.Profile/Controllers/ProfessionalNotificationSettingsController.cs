@@ -104,11 +104,6 @@ namespace Altinn.Profile.Controllers
                 return validationResult;
             }
 
-            if (orgNumber <= 0)
-            {
-                return BadRequest("Invalid organization number.");
-            }
-
             var notificationSettings = await _professionalNotificationsService.GetNotificationAddressByOrgNumberAsync(userId, orgNumber.ToString(), cancellationToken);
 
             if (notificationSettings == null)
