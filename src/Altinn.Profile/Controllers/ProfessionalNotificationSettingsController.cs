@@ -84,7 +84,7 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         /// <param name="orgNumber">The organization number of the party to get notification addresses for</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
-        [HttpGet("{orgNumber:string}")]
+        [HttpGet("{orgNumber}")]
         [Authorize(Policy = AuthConstants.UserPartyAccess)]
         [Authorize(Policy = AuthConstants.ScopeEnduserOrNotificationSettingsRead)]
         [ProducesResponseType(StatusCodes.Status200OK)]
