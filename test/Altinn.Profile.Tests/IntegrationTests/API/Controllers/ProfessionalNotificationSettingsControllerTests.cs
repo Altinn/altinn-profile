@@ -266,7 +266,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetNotificationAddressByOrgNumber_WhenOrgNumberIsZero_ReturnsBadRequest()
+        public async Task GetNotificationAddressByOrgNumber_WhenOrgNumberIsZero_ReturnsForbidden()
         {
             // Arrange
             const int UserId = 2516356;
@@ -288,7 +288,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetNotificationAddressByOrgNumber_WhenOrgNumberIsNegative_ReturnsBadRequest()
+        public async Task GetNotificationAddressByOrgNumber_WhenOrgNumberIsNegative_ReturnsForbidden()
         {
             // Arrange
             const int UserId = 2516356;

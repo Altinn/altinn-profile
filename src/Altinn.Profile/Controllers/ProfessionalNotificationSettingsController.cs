@@ -104,7 +104,7 @@ namespace Altinn.Profile.Controllers
                 return validationResult;
             }
 
-            var notificationSettings = await _professionalNotificationsService.GetNotificationAddressByOrgNumberAsync(userId, orgNumber.ToString(), cancellationToken);
+            var notificationSettings = await _professionalNotificationsService.GetNotificationAddressByOrgNumberAsync(userId, orgNumber, cancellationToken);
 
             if (notificationSettings == null)
             {
