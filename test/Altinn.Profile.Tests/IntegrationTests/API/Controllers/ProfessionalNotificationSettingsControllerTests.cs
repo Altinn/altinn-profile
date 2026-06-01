@@ -200,7 +200,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            HttpRequestMessage httpRequestMessage = CreateRequestWithUserIdAndScope(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{OrgNumber}");
+            HttpRequestMessage httpRequestMessage = CreateRequestWithUserIdAndScope(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/byorgnumber/{OrgNumber}");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
@@ -252,7 +252,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            HttpRequestMessage httpRequestMessage = CreateRequestWithUserIdAndScope(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{OrgNumber}");
+            HttpRequestMessage httpRequestMessage = CreateRequestWithUserIdAndScope(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/byorgnumber/{OrgNumber}");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
@@ -277,7 +277,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            HttpRequestMessage httpRequestMessage = CreateRequestWithUserIdAndScope(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{OrgNumber}");
+            HttpRequestMessage httpRequestMessage = CreateRequestWithUserIdAndScope(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/byorgnumber/{OrgNumber}");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
@@ -299,7 +299,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/{OrgNumber}");
+            HttpRequestMessage httpRequestMessage = CreateRequestWithUserId(HttpMethod.Get, UserId, $"profile/api/v1/users/current/notificationsettings/parties/byorgnumber/{OrgNumber}");
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
