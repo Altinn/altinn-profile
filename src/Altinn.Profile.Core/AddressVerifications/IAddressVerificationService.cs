@@ -56,7 +56,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <param name="addressType">The addresstype, sms or email</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task GenerateAndSendVerificationCodeAsync(int userid, string? address, AddressType addressType, CancellationToken cancellationToken);
+        Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets the verified addresses for a given user.
