@@ -45,7 +45,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <param name="phoneNumber">The phone number to check</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        Task<bool> IsContactInfoVerifiedOrNullAsync(int userId, string emailAddress, string phoneNumber, CancellationToken cancellationToken);
+        Task<bool> IsContactInfoVerifiedOrNullAsync(int userId, string? emailAddress, string? phoneNumber, CancellationToken cancellationToken);
 
         /// <summary>
         /// Generates a verification code, saves it to the database and sends it to the user via email or sms depending on the address type. The code is valid for 15 minutes.
@@ -56,7 +56,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <param name="addressType">The addresstype, sms or email</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, CancellationToken cancellationToken);
+        Task GenerateAndSendVerificationCodeAsync(int userid, string? address, AddressType addressType, CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets the verified addresses for a given user.
@@ -75,7 +75,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <param name="submittedCode">The verification code provided by the user</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation. The task result is <c>true</c> if the submitted code is valid and the address has been successfully verified; otherwise, <c>false</c>.</returns>
-        Task<bool> SubmitVerificationCodeAsync(int userid, string address, AddressType addressType, string submittedCode, CancellationToken cancellationToken);
+        Task<bool> SubmitVerificationCodeAsync(int userid, string? address, AddressType addressType, string? submittedCode, CancellationToken cancellationToken);
 
         /// <summary>
         /// Starts the verification process and sends a verification code for/to the given user and address.
@@ -89,6 +89,6 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// A task that represents the asynchronous operation. The task result contains the send outcome,
         /// the calculated cooldown value, and whether the notification provider accepted the send request.
         /// </returns>
-        Task<SendVerificationCodeResult> SendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken);
+        Task<SendVerificationCodeResult> SendVerificationCodeAsync(int userId, string? address, AddressType addressType, CancellationToken cancellationToken);
     }
 }

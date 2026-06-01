@@ -57,7 +57,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         }
 
         /// <inheritdoc/>
-        public async Task<bool> IsContactInfoVerifiedOrNullAsync(int userId, string emailAddress, string phoneNumber, CancellationToken cancellationToken)
+        public async Task<bool> IsContactInfoVerifiedOrNullAsync(int userId, string? emailAddress, string? phoneNumber, CancellationToken cancellationToken)
         {
             var emailVerifiedOrNull = await IsAddressVerifiedOrNull(userId, AddressType.Email, emailAddress, cancellationToken);
             if (!emailVerifiedOrNull)
