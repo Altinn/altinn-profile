@@ -80,9 +80,9 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
-        /// Get the notification addresses the current user has registered for a party
+        /// Get the notification addresses that the current user has registered for a party, using the party's organization number
         /// </summary>
-        /// <param name="orgNumber">The organization number for which the notification address is being set</param>
+        /// <param name="orgNumber">The organization number of the party to get notification addresses for</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
         [HttpGet("{orgNumber:int}")]
         [Authorize(Policy = AuthConstants.UserPartyAccess)]

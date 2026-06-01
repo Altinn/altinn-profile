@@ -47,28 +47,24 @@ namespace Altinn.Profile.Authorization
             HttpContext httpContext = _httpContextAccessor.HttpContext;
             var routeData = httpContext.GetRouteData();
 
-            if (routeData?.Values[_orgNumber] is string orgNumberString && int.TryParse(orgNumberString, out int orgNumber))
-            {
-                await HandleOrgNumberAsync(context, requirement, orgNumber);
-                return;
-            }
-
-            if (routeData?.Values[_partyUuid] is not string partyUuidString || !Guid.TryParse(partyUuidString, out Guid partyUuid))
-            {
-                 context.Fail();
-                 return;
-            }
-
-            var partyId = await _registerClient.GetPartyId(partyUuid, CancellationToken.None);
-
-            if (partyId == null)
+            var error = ClaimsHelper.TryGetUserIdFromClaims(httpContext, out int userId);
+            if (error != null)
             {
                 context.Fail();
                 return;
             }
 
-            var error = ClaimsHelper.TryGetUserIdFromClaims(httpContext, out int userId);
-            if (error != null)
+            int? partyId = null;
+            if (routeData?.Values[_orgNumber] is string orgNumberString && int.TryParse(orgNumberString, out int orgNumber))
+            {
+                partyId = await GetPartyIdFromOrgNumberAsync(orgNumber);
+            }
+            else if (routeData?.Values[_partyUuid] is string partyUuidString && Guid.TryParse(partyUuidString, out Guid partyUuid))
+            {
+                partyId = await GetPartyIdFromPartyUuidAsync(partyUuid);
+            }
+
+            if (partyId == null)
             {
                 context.Fail();
                 return;
@@ -84,33 +80,18 @@ namespace Altinn.Profile.Authorization
             await Task.CompletedTask;
         }
 
-        private async Task HandleOrgNumberAsync(AuthorizationHandlerContext context, PartyAccessRequirement requirement, int orgNumber)
+        private async Task<int?> GetPartyIdFromOrgNumberAsync(int orgNumber)
         {
-            HttpContext httpContext = _httpContextAccessor.HttpContext;
-
             var partyId = await _registerClient.GetPartyId(orgNumber.ToString(), CancellationToken.None);
 
-            if (partyId == null)
-            {
-                context.Fail();
-                return;
-            }
+            return partyId;
+        }
 
-            var error = ClaimsHelper.TryGetUserIdFromClaims(httpContext, out int userId);
-            if (error != null)
-            {
-                context.Fail();
-                return;
-            }
+        private async Task<int?> GetPartyIdFromPartyUuidAsync(Guid partyUuid)
+        {
+            var partyId = await _registerClient.GetPartyId(partyUuid, CancellationToken.None);
 
-            bool valid = await _authorizationClient.ValidateSelectedParty(userId, (int)partyId, CancellationToken.None);
-
-            if (valid)
-            {
-                context.Succeed(requirement);
-            }
-
-            await Task.CompletedTask;
+            return partyId;
         }
     }
 }
