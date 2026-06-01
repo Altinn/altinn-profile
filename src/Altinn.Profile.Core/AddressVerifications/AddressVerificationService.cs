@@ -1,5 +1,6 @@
 ﻿using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 
 using Microsoft.Extensions.Options;
 
@@ -53,6 +54,24 @@ namespace Altinn.Profile.Core.AddressVerifications
 
             var verificationStatus = await _addressVerificationRepository.GetVerificationStatusAsync(userId, addressType, address, cancellationToken);
             return verificationStatus == VerificationType.Verified;
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> IsContactInfoVerifiedOrNullAsync(int userId, string emailAddress, string phoneNumber, CancellationToken cancellationToken)
+        {
+            var emailVerifiedOrNull = await IsAddressVerifiedOrNull(userId, AddressType.Email, emailAddress, cancellationToken);
+            if (!emailVerifiedOrNull)
+            {
+                return false;
+            }
+
+            var smsVerifiedOrNull = await IsAddressVerifiedOrNull(userId, AddressType.Sms, phoneNumber, cancellationToken);
+            if (!smsVerifiedOrNull)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /// <inheritdoc/>

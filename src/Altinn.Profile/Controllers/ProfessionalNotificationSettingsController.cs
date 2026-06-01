@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Authorization;
+using Altinn.Profile.Core.AddressVerifications;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Utils;
 using Altinn.Profile.Models;
@@ -27,14 +28,16 @@ namespace Altinn.Profile.Controllers
     public class ProfessionalNotificationSettingsController : ControllerBase
     {
         private readonly IProfessionalNotificationsService _professionalNotificationsService;
+        private readonly IAddressVerificationService _addressVerificationService;
         private const string _partyUuidEmptyErrorMessage = "Party UUID cannot be empty.";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfessionalNotificationSettingsController"/> class.
         /// </summary>
-        public ProfessionalNotificationSettingsController(IProfessionalNotificationsService professionalNotificationsService)
+        public ProfessionalNotificationSettingsController(IProfessionalNotificationsService professionalNotificationsService, IAddressVerificationService addressVerificationService)
         {
             _professionalNotificationsService = professionalNotificationsService;
+            _addressVerificationService = addressVerificationService;
         }
 
         /// <summary>
@@ -149,7 +152,7 @@ namespace Altinn.Profile.Controllers
                     .ToList()
             };
 
-            var isVerifiedOrNull = await _professionalNotificationsService.IsContactInfoVerifiedOrNullAsync(userPartyContactInfo, cancellationToken);
+            var isVerifiedOrNull = await _addressVerificationService.IsContactInfoVerifiedOrNullAsync(userPartyContactInfo.UserId, userPartyContactInfo.EmailAddress, userPartyContactInfo.PhoneNumber, cancellationToken);
             if (!isVerifiedOrNull)
             {
                 return UnprocessableEntity("Provided email address or phone number is not verified.");
