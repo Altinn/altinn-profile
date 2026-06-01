@@ -84,14 +84,14 @@ namespace Altinn.Profile.Controllers
         /// </summary>
         /// <param name="orgNumber">The organization number of the party to get notification addresses for</param>
         /// <param name="cancellationToken"> Cancellation token for the operation</param>
-        [HttpGet("{orgNumber:int}")]
+        [HttpGet("{orgNumber:string}")]
         [Authorize(Policy = AuthConstants.UserPartyAccess)]
         [Authorize(Policy = AuthConstants.ScopeEnduserOrNotificationSettingsRead)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<NotificationSettingsResponse>> GetByOrgNumber([FromRoute][Required] int orgNumber, CancellationToken cancellationToken)
+        public async Task<ActionResult<NotificationSettingsResponse>> GetByOrgNumber([FromRoute][Required] string orgNumber, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {

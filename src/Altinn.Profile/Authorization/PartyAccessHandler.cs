@@ -55,13 +55,13 @@ namespace Altinn.Profile.Authorization
             }
 
             int? partyId = null;
-            if (routeData?.Values[_orgNumber] is string orgNumberString && int.TryParse(orgNumberString, out int orgNumber))
-            {
-                partyId = await GetPartyIdFromOrgNumberAsync(orgNumber);
-            }
-            else if (routeData?.Values[_partyUuid] is string partyUuidString && Guid.TryParse(partyUuidString, out Guid partyUuid))
+            if (routeData?.Values[_partyUuid] is string partyUuidString && Guid.TryParse(partyUuidString, out Guid partyUuid))
             {
                 partyId = await GetPartyIdFromPartyUuidAsync(partyUuid);
+            }
+            else if (routeData?.Values[_orgNumber] is string orgNumberString)
+            {
+                partyId = await GetPartyIdFromOrgNumberAsync(orgNumberString);
             }
 
             if (partyId == null)
@@ -80,9 +80,9 @@ namespace Altinn.Profile.Authorization
             await Task.CompletedTask;
         }
 
-        private async Task<int?> GetPartyIdFromOrgNumberAsync(int orgNumber)
+        private async Task<int?> GetPartyIdFromOrgNumberAsync(string orgNumber)
         {
-            var partyId = await _registerClient.GetPartyId(orgNumber.ToString(), CancellationToken.None);
+            var partyId = await _registerClient.GetPartyId(orgNumber, CancellationToken.None);
 
             return partyId;
         }
