@@ -283,7 +283,7 @@ public class RegisterClient : IRegisterClient
 
     private async Task<List<PartyIdentifiersResponse>?> GetPartyIdentifiersByOrgNo(string orgNo, CancellationToken cancellationToken)
     {
-        return await GetPartyIdentifiers($"orgNo={orgNo}", cancellationToken);
+        return await GetPartyIdentifiers($"orgs={orgNo}", cancellationToken);
     }
 
     private async Task<List<PartyIdentifiersResponse>?> GetPartyIdentifiers(Guid partyUuid, CancellationToken cancellationToken)
