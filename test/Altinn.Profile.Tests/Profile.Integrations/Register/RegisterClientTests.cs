@@ -322,7 +322,7 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Register
             // Assert
             Assert.NotNull(result);
             Assert.Equal(HttpMethod.Get, sentRequest.Method);
-            Assert.Contains("v1/parties/identifiers?orgNo=" + orgNo, sentRequest.RequestUri.ToString());
+            Assert.Contains("v1/parties/identifiers?orgs=" + orgNo, sentRequest.RequestUri.ToString());
             Assert.True(sentRequest.Headers.Contains("PlatformAccessToken"));
         }
 
