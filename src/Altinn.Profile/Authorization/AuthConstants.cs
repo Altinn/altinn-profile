@@ -34,5 +34,10 @@
         /// Policy name for end user access to the Altinn portal
         /// </summary>
         public const string PortalEndUserAccess = "PortalEndUserAccess";
+
+        /// <summary>
+        /// Policy name for either end user access to the Altinn portal or read access to notification settings
+        /// </summary>
+        public const string ScopeEnduserOrNotificationSettingsRead = "ScopeEnduserOrNotificationSettingsRead";
     }
 }

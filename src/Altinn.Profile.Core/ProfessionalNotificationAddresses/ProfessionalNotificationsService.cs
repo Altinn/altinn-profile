@@ -46,6 +46,26 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         }
 
         /// <inheritdoc/>
+        public async Task<ExtendedUserPartyContactInfo?> GetNotificationAddressByOrgNumberAsync(int userId, string orgNumber, CancellationToken cancellationToken)
+        {
+            var parties = await _registerClient.GetPartyUuids([orgNumber], cancellationToken);
+
+            if (parties == null || parties.Count == 0)
+            {
+                return null;
+            }
+
+            if (parties.Count > 1)
+            {
+                throw new InvalidOperationException("Indecisive organization result");
+            }
+
+            var partyUuid = parties[0].PartyUuid;
+
+            return await GetNotificationAddressAsync(userId, partyUuid, cancellationToken);
+        }
+
+        /// <inheritdoc/>
         public async Task<IReadOnlyList<ExtendedUserPartyContactInfo>> GetAllNotificationAddressesAsync(int userId, CancellationToken cancellationToken)
         {
             var ignoreUnitProfileDateTime = await _userProfileService.GetIgnoreUnitProfileDateTime(userId, cancellationToken);

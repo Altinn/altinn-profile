@@ -80,6 +80,43 @@ namespace Altinn.Profile.Controllers
         }
 
         /// <summary>
+        /// Get the notification addresses that the current user has registered for a party, using the party's organization number
+        /// </summary>
+        /// <param name="orgNumber">The organization number of the party to get notification addresses for</param>
+        /// <param name="cancellationToken"> Cancellation token for the operation</param>
+        [HttpGet("byorgnumber/{orgNumber}")]
+        [Authorize(Policy = AuthConstants.UserPartyAccess)]
+        [Authorize(Policy = AuthConstants.ScopeEnduserOrNotificationSettingsRead)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<NotificationSettingsResponse>> GetByOrgNumber([FromRoute][Required] string orgNumber, CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            var notificationSettings = await _professionalNotificationsService.GetNotificationAddressByOrgNumberAsync(userId, orgNumber, cancellationToken);
+
+            if (notificationSettings == null)
+            {
+                return NotFound("Notification addresses not found for the specified user and organization.");
+            }
+
+            var response = MapResponse(notificationSettings);
+
+            return Ok(response);
+        }
+
+        /// <summary>
         /// Get the notification addresses the current user has registered for all parties
         /// </summary>
         /// <param name="cancellationToken">Cancellation token for the operation</param>

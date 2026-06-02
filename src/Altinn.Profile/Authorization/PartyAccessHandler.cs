@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Integrations.Authorization;
+
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -29,6 +33,7 @@ namespace Altinn.Profile.Authorization
         private readonly IAuthorizationClient _authorizationClient = authClient;
         private readonly IRegisterClient _registerClient = registerClient;
         private const string _partyUuid = "partyUuid";
+        private const string _orgNumber = "orgNumber";
 
         /// <summary>
         /// This method authorize access bases on context and requirement
@@ -42,22 +47,24 @@ namespace Altinn.Profile.Authorization
             HttpContext httpContext = _httpContextAccessor.HttpContext;
             var routeData = httpContext.GetRouteData();
 
-            if (routeData?.Values[_partyUuid] is not string partyUuidString || !Guid.TryParse(partyUuidString, out Guid partyUuid))
-            {
-                 context.Fail();
-                 return;
-            }
-
-            var partyId = await _registerClient.GetPartyId(partyUuid, CancellationToken.None);
-
-            if (partyId == null)
+            var error = ClaimsHelper.TryGetUserIdFromClaims(httpContext, out int userId);
+            if (error != null)
             {
                 context.Fail();
                 return;
             }
 
-            var error = ClaimsHelper.TryGetUserIdFromClaims(httpContext, out int userId);
-            if (error != null)
+            int? partyId = null;
+            if (routeData?.Values[_partyUuid] is string partyUuidString && Guid.TryParse(partyUuidString, out Guid partyUuid))
+            {
+                partyId = await GetPartyIdFromPartyUuidAsync(partyUuid);
+            }
+            else if (routeData?.Values[_orgNumber] is string orgNumberString)
+            {
+                partyId = await GetPartyIdFromOrgNumberAsync(orgNumberString);
+            }
+
+            if (partyId == null)
             {
                 context.Fail();
                 return;
@@ -71,6 +78,20 @@ namespace Altinn.Profile.Authorization
             }
 
             await Task.CompletedTask;
+        }
+
+        private async Task<int?> GetPartyIdFromOrgNumberAsync(string orgNumber)
+        {
+            var partyId = await _registerClient.GetPartyId(orgNumber, CancellationToken.None);
+
+            return partyId;
+        }
+
+        private async Task<int?> GetPartyIdFromPartyUuidAsync(Guid partyUuid)
+        {
+            var partyId = await _registerClient.GetPartyId(partyUuid, CancellationToken.None);
+
+            return partyId;
         }
     }
 }

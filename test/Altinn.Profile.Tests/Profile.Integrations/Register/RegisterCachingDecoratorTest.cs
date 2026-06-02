@@ -146,6 +146,62 @@ public class RegisterCachingDecoratorTest
     }
 
     [Fact]
+    public async Task GetPartyIdByOrgNo_PartyIdInCache_DecoratedServiceNotCalled()
+    {
+        const string orgNo = "910459880";
+        const int partyId = 50001234;
+        MemoryCache memoryCache = CreateMemoryCache();
+        memoryCache.Set($"PartyId_{orgNo}", partyId);
+
+        RegisterCachingDecorator target = CreateTarget(memoryCache);
+
+        int? result = await target.GetPartyId(orgNo, CancellationToken.None);
+
+        Assert.Equal(partyId, result);
+        _decoratedServiceMock.Verify(service => service.GetPartyId(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never());
+    }
+
+    [Fact]
+    public async Task GetPartyIdByOrgNo_PartyIdNotInCache_DecoratedServiceCalledAndCachePopulated()
+    {
+        const string orgNo = "910459880";
+        const int partyId = 50001234;
+        MemoryCache memoryCache = CreateMemoryCache();
+
+        _decoratedServiceMock
+            .Setup(service => service.GetPartyId(orgNo, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(partyId);
+
+        RegisterCachingDecorator target = CreateTarget(memoryCache);
+
+        int? result = await target.GetPartyId(orgNo, CancellationToken.None);
+
+        Assert.Equal(partyId, result);
+        _decoratedServiceMock.Verify(service => service.GetPartyId(orgNo, It.IsAny<CancellationToken>()), Times.Once());
+        Assert.True(memoryCache.TryGetValue($"PartyId_{orgNo}", out int cachedPartyId));
+        Assert.Equal(partyId, cachedPartyId);
+    }
+
+    [Fact]
+    public async Task GetPartyIdByOrgNo_NullFromDecoratedService_CacheNotPopulated()
+    {
+        const string orgNo = "910459880";
+        MemoryCache memoryCache = CreateMemoryCache();
+
+        _decoratedServiceMock
+            .Setup(service => service.GetPartyId(orgNo, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((int?)null);
+
+        RegisterCachingDecorator target = CreateTarget(memoryCache);
+
+        int? result = await target.GetPartyId(orgNo, CancellationToken.None);
+
+        Assert.Null(result);
+        _decoratedServiceMock.Verify(service => service.GetPartyId(orgNo, It.IsAny<CancellationToken>()), Times.Once());
+        Assert.False(memoryCache.TryGetValue($"PartyId_{orgNo}", out int _));
+    }
+
+    [Fact]
     public async Task GetPartyUuids_OrganizationsInCache_DecoratedServiceNotCalled()
     {
         ContactPointParty firstParty = CreateContactPointParty("310494145", 1);

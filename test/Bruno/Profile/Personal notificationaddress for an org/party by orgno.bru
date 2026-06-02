@@ -1,0 +1,15 @@
+meta {
+  name: party by orgno
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{ProfileBaseAddress}}/api/v1/users/current/notificationsettings/parties/byorgnumber/{{Party_OrgNo}}
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  await bru.runRequest("TokenGenerator/portal user")
+}

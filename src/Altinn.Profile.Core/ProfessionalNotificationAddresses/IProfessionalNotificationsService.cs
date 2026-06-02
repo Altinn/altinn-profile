@@ -15,6 +15,15 @@
         Task<ExtendedUserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Retrieves the notification addresses that the given user has associated with the given party, by organization number.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <param name="orgNumber">The organization number of the party.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task with the return value containing the identified notification addresses or null if there are none.</returns>
+        Task<ExtendedUserPartyContactInfo?> GetNotificationAddressByOrgNumberAsync(int userId, string orgNumber, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Retrieves all notification addresses for all parties for the specified user.
         /// </summary>
         /// <param name="userId">The ID of the user.</param>

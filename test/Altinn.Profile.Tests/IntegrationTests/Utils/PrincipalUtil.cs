@@ -12,9 +12,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.Utils;
 
 public static class PrincipalUtil
 {
-    public static string GetToken(int userId, int authenticationLevel = 2)
+    public static string GetToken(int userId, int authenticationLevel = 2, string scope = "altinn:portal/enduser")
     {
-        return GetToken(userId, "Mock", authenticationLevel);
+        return GetToken(userId, "Mock", authenticationLevel, scope);
     }
 
     public static string GetToken(int userId, string authenticateMethod, int authenticationLevel = 2, string scope = "altinn:portal/enduser")
