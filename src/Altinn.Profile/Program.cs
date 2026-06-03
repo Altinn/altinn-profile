@@ -23,7 +23,6 @@ using Altinn.Profile.Extensions;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
-using Altinn.Profile.Integrations.Handlers;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Middleware;
 
@@ -321,8 +320,6 @@ void ConfigureWolverine(WebApplicationBuilder builder)
         opts.UseEntityFrameworkCoreTransactions();
 
         opts.Policies.UseDurableLocalQueues();
-
-        opts.Discovery.IncludeAssembly(typeof(FavoriteAddedEventHandler).Assembly);
 
         opts
             .OnException<InternalServerErrorException>()
