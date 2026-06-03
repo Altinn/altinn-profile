@@ -35,13 +35,12 @@ namespace Altinn.Profile.Authorization
         /// <param name="context">The context</param>
         /// <param name="requirement">The requirement</param>
         /// <returns>A Task</returns>
-        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, FeatureToggledScopeAccessRequirement requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, FeatureToggledScopeAccessRequirement requirement)
         {
             if (context.User?.Identity == null || !context.User.Identity.IsAuthenticated)
             {
                 context.Fail();
-                await Task.CompletedTask;
-                return;
+                return Task.CompletedTask;
             }
 
             string contextScope = context.User?.Identities
@@ -68,8 +67,7 @@ namespace Altinn.Profile.Authorization
                     context.Succeed(requirement);
                 }
 
-                await Task.CompletedTask;
-                return;
+                return Task.CompletedTask;
             }
 
             if (!validScope)
@@ -78,6 +76,7 @@ namespace Altinn.Profile.Authorization
             }
 
             context.Succeed(requirement);
+            return Task.CompletedTask;
         }
     }
 }
