@@ -238,19 +238,12 @@ namespace Altinn.Profile.Controllers
 
             if (request.ResourceIncludeList.HasValue)
             {
-                var resources = request.ResourceIncludeList.Value;
-                if (resources == null || resources.Count == 0)
-                {
-                    userPartyContactInfo.UserPartyContactInfoResources = new Optional<List<UserPartyContactInfoResource>>([]);
-                }
-                else
-                {
-                    userPartyContactInfo.UserPartyContactInfoResources = new Optional<List<UserPartyContactInfoResource>>(resources
+                var mappedResources = request.ResourceIncludeList.Value?
                     .Select(resource => ResourceIdFormatter.GetSanitizedResourceId(resource))
                     .Where(s => !string.IsNullOrWhiteSpace(s))
                     .Select(s => new UserPartyContactInfoResource { ResourceId = s })
-                    .ToList());
-                }
+                    .ToList() ?? [];
+                userPartyContactInfo.UserPartyContactInfoResources = new Optional<List<UserPartyContactInfoResource>>(mappedResources);
             }
 
             var added = await _professionalNotificationsService.AddOrUpdateNotificationAddressAsync(userPartyContactInfo, cancellationToken);

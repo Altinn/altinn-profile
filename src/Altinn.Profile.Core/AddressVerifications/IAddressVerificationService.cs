@@ -28,13 +28,13 @@ namespace Altinn.Profile.Core.AddressVerifications
         Task<VerificationType?> GetVerificationStatusAsync(int userId, AddressType addressType, string? address, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Checks if the address has been verified, or if the address is null. If the address is null, this method returns true, as there is no address to verify.
+        /// Checks if the address has been verified.
         /// </summary>
         /// <param name="userId">The id of the user</param>
         /// <param name="addressType">If the address is for sms or email</param>
         /// <param name="address">The address to check</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns></returns>
+        /// <returns>A task that represents the asynchronous operation. The task result is <c>true</c> if the address has been verified; otherwise, <c>false</c>.</returns>
         Task<bool> IsAddressVerified(int userId, AddressType addressType, string address, CancellationToken cancellationToken);
 
         /// <summary>
