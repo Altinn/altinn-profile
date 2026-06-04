@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+﻿using System.Text.Json;
 
 namespace Altinn.Profile.Integrations.SblBridge.User.PrivateConsent
 {
@@ -8,6 +7,8 @@ namespace Altinn.Profile.Integrations.SblBridge.User.PrivateConsent
     /// </summary>
     public class SiUserContactSettings
     {
+        private static readonly JsonSerializerOptions _serializerOptions = new(JsonSerializerDefaults.Web);
+
         /// <summary>
         /// Gets the user ID.
         /// </summary>
@@ -40,12 +41,7 @@ namespace Altinn.Profile.Integrations.SblBridge.User.PrivateConsent
         /// <returns>A <see cref="SiUserContactSettings"/> object.</returns>
         public static SiUserContactSettings? Deserialize(string data)
         {
-            JsonSerializerSettings settings = new()
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
-
-            return JsonConvert.DeserializeObject<SiUserContactSettings>(data, settings);
+            return JsonSerializer.Deserialize<SiUserContactSettings>(data, _serializerOptions);
         }
 
         /// <summary>

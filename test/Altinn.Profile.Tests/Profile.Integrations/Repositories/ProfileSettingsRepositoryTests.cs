@@ -11,9 +11,6 @@ using Microsoft.EntityFrameworkCore;
 
 using Moq;
 
-using Wolverine;
-using Wolverine.EntityFrameworkCore;
-
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.Repositories;

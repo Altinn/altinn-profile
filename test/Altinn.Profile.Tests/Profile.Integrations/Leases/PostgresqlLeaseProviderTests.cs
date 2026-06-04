@@ -6,8 +6,6 @@ using Altinn.Authorization.ServiceDefaults.Leases;
 using Altinn.Profile.Integrations.Leases;
 using Altinn.Profile.Integrations.Repositories.A2Sync;
 
-using Humanizer.Localisation;
-
 using Microsoft.Extensions.Logging;
 
 using Moq;
