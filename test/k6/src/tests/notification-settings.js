@@ -46,7 +46,6 @@ export function setup() {
     const notificationSettings = {
         emailAddress: "noreply-1@altinn.no",
         phoneNumber: "+4799999997",
-        generateVerificationCode: true,
         resourceIncludeList: ["urn:altinn:resource:example"]
     }
 
