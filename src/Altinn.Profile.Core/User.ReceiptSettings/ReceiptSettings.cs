@@ -6,6 +6,11 @@ namespace Altinn.Profile.Core.User.ReceiptSettings;
 public class ReceiptSettings
 {
     /// <summary>
+    /// The id of the receipt settings.
+    /// </summary>
+    public int Id { get; set; }
+
+    /// <summary>
     /// The id of the user.
     /// </summary>
     public int UserId { get; set; }
@@ -18,7 +23,7 @@ public class ReceiptSettings
     /// <summary>
     /// The profile type for the user.
     /// </summary>
-    public ProfileType ProfileType { get; set; }
+    public bool IsPrivate { get; set; }
 
     /// <summary>
     /// Whether the user har requested receipts for form submissions

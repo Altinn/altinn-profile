@@ -279,10 +279,11 @@ public partial class ProfileDbContext : DbContext
         modelBuilder.Entity<ReceiptSettings>(entity =>
         {
             entity.ToTable("receipt_settings", "user_preferences");
-            entity.HasKey(e => new { e.UserId, e.ProfileType }).HasName("userid_profiletype_pk");
+            entity.HasKey(e => e.Id).HasName("id_pkey");
+            entity.Property(e => e.Id).UseIdentityAlwaysColumn();
             entity.Property(e => e.UserId).IsRequired().ValueGeneratedNever();
             entity.Property(e => e.UserUuid).IsRequired().ValueGeneratedNever();
-            entity.Property(e => e.ProfileType).IsRequired().HasConversion(new EnumToStringConverter<ProfileType>()).HasMaxLength(30);
+            entity.Property(e => e.IsPrivate).IsRequired();
             entity.Property(e => e.RequestReceipt);
 
         });
