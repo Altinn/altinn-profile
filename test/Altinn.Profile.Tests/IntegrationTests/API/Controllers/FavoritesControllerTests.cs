@@ -93,6 +93,23 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
+        public async Task GetFavorites_WhenNoAuthorization_ReturnsUnauthorized()
+        {
+            // Arrange
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, "profile/api/v1/users/current/party-groups/favorites");
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.False(response.IsSuccessStatusCode);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
         public async Task GetFavorites_WhenRepositoryReturnsNull_IsOk()
         {
             // Arrange
