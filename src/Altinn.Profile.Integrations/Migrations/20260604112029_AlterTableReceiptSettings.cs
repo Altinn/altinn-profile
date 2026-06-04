@@ -30,16 +30,16 @@ namespace Altinn.Profile.Integrations.Migrations
                 type: "boolean",
                 nullable: true);
 
+            migrationBuilder.DropPrimaryKey(
+                name: "userid_profiletype_pk",
+                schema: "user_preferences",
+                table: "receipt_settings");
+            
             migrationBuilder.AddPrimaryKey(
                 name: "id_pkey",
                 schema: "user_preferences",
                 table: "receipt_settings",
                 column: "id");
-
-            migrationBuilder.DropPrimaryKey(
-                name: "userid_profiletype_pk",
-                schema: "user_preferences",
-                table: "receipt_settings");
 
             migrationBuilder.Sql("""
                 UPDATE user_preferences.receipt_settings
@@ -48,15 +48,16 @@ namespace Altinn.Profile.Integrations.Migrations
                     ELSE FALSE
                 END;
                 """);
+
             migrationBuilder.AlterColumn<bool>(
-            name: "is_private",
-            schema: "user_preferences",
-            table: "receipt_settings",
-            type: "boolean",
-            nullable: false,
-            oldClrType: typeof(bool),
-            oldType: "boolean",
-            oldNullable: true);
+                name: "is_private",
+                schema: "user_preferences",
+                table: "receipt_settings",
+                type: "boolean",
+                nullable: false,
+                oldClrType: typeof(bool),
+                oldType: "boolean",
+                oldNullable: true);
 
             migrationBuilder.DropColumn(
                 name: "profile_type",
