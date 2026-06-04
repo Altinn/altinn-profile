@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System.Xml.Linq;
+
+using Microsoft.EntityFrameworkCore.Migrations;
+
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -11,16 +14,6 @@ namespace Altinn.Profile.Integrations.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropPrimaryKey(
-                name: "userid_profiletype_pk",
-                schema: "user_preferences",
-                table: "receipt_settings");
-
-            migrationBuilder.DropColumn(
-                name: "profile_type",
-                schema: "user_preferences",
-                table: "receipt_settings");
-
             migrationBuilder.AddColumn<int>(
                 name: "id",
                 schema: "user_preferences",
@@ -35,14 +28,40 @@ namespace Altinn.Profile.Integrations.Migrations
                 schema: "user_preferences",
                 table: "receipt_settings",
                 type: "boolean",
-                nullable: false,
-                defaultValue: false);
+                nullable: true);
 
             migrationBuilder.AddPrimaryKey(
                 name: "id_pkey",
                 schema: "user_preferences",
                 table: "receipt_settings",
                 column: "id");
+
+            migrationBuilder.DropPrimaryKey(
+                name: "userid_profiletype_pk",
+                schema: "user_preferences",
+                table: "receipt_settings");
+
+            migrationBuilder.Sql("""
+                UPDATE user_preferences.receipt_settings
+                SET is_private = CASE profile_type
+                    WHEN 'Private' THEN TRUE
+                    ELSE FALSE
+                END;
+                """);
+            migrationBuilder.AlterColumn<bool>(
+            name: "is_private",
+            schema: "user_preferences",
+            table: "receipt_settings",
+            type: "boolean",
+            nullable: false,
+            oldClrType: typeof(bool),
+            oldType: "boolean",
+            oldNullable: true);
+
+            migrationBuilder.DropColumn(
+                name: "profile_type",
+                schema: "user_preferences",
+                table: "receipt_settings");
         }
 
         /// <inheritdoc />
