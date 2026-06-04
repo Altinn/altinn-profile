@@ -83,23 +83,6 @@ namespace Altinn.Profile.Tests.Authorization
             Assert.False(context.HasFailed);
         }
 
-        [Fact]
-        public async Task HandleAsync_WhenUserHasNoIdentity_Fails()
-        {
-            // Arrange
-            var requirement = new FeatureToggledScopeAccessRequirement("altinn:portal/enduser");
-            ClaimsPrincipal user = new();
-            var context = new AuthorizationHandlerContext([requirement], user, null);
-            var handler = CreateHandler(enforceAccessCheck: true);
-
-            // Act
-            await handler.HandleAsync(context);
-
-            // Assert
-            Assert.False(context.HasSucceeded);
-            Assert.True(context.HasFailed);
-        }
-
         private static FeatureToggledScopeAccessHandler CreateHandler(bool enforceAccessCheck)
         {
             IOptions<PortalAccessSettings> options = Options.Create(new PortalAccessSettings

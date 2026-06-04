@@ -37,12 +37,6 @@ namespace Altinn.Profile.Authorization
         /// <returns>A Task</returns>
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, FeatureToggledScopeAccessRequirement requirement)
         {
-            if (context.User?.Identity == null || !context.User.Identity.IsAuthenticated)
-            {
-                context.Fail();
-                return Task.CompletedTask;
-            }
-
             string contextScope = context.User?.Identities
                 ?.FirstOrDefault(i => i.AuthenticationType != null && i.AuthenticationType.Equals("AuthenticationTypes.Federation"))?.Claims
                 .Where(c => c.Type.Equals("urn:altinn:scope"))
