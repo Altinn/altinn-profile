@@ -21,12 +21,12 @@ public class ReceiptSettings
     public Guid UserUuid { get; set; }
 
     /// <summary>
-    /// The profile type for the user.
+    /// Indicates whether the receipt settings are Private or Professional.
     /// </summary>
     public bool IsPrivate { get; set; }
 
     /// <summary>
-    /// Whether the user har requested receipts for form submissions
+    /// Whether the user has requested receipts for form submissions
     /// </summary>
     public bool? RequestReceipt { get; set; }
 }
