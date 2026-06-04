@@ -35,17 +35,7 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// <param name="address">The address to check</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns></returns>
-        Task<bool> IsAddressVerifiedOrNull(int userId, AddressType addressType, string? address, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Checks if the provided contact information is either verified or null for the specified user.
-        /// </summary>
-        /// <param name="userId">The id of the user</param>
-        /// <param name="emailAddress">The email address to check</param>
-        /// <param name="phoneNumber">The phone number to check</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests</param>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        Task<bool> IsContactInfoVerifiedOrNullAsync(int userId, string? emailAddress, string? phoneNumber, CancellationToken cancellationToken);
+        Task<bool> IsAddressVerified(int userId, AddressType addressType, string address, CancellationToken cancellationToken);
 
         /// <summary>
         /// Generates a verification code, saves it to the database and sends it to the user via email or sms depending on the address type. The code is valid for 15 minutes.

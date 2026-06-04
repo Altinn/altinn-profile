@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.AddressVerifications;
+using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Utils;
 using Altinn.Profile.Models;
@@ -15,6 +16,7 @@ using Altinn.Profile.Models.ProfessionalNotificationSettings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 
 namespace Altinn.Profile.Controllers
 {
@@ -139,6 +141,16 @@ namespace Altinn.Profile.Controllers
                 return BadRequest(_partyUuidEmptyErrorMessage);
             }
 
+            if (request.EmailAddress is not null && !(await _addressVerificationService.IsAddressVerified(userId, AddressType.Email, request.EmailAddress, cancellationToken)))
+            {
+                return UnprocessableEntity("Provided email address is not verified.");
+            }
+
+            if (request.PhoneNumber is not null && !(await _addressVerificationService.IsAddressVerified(userId, AddressType.Sms, request.PhoneNumber, cancellationToken)))
+            {
+                return UnprocessableEntity("Provided phone number is not verified.");
+            }
+
             var userPartyContactInfo = new UserPartyContactInfo
             {
                 UserId = userId,
@@ -151,12 +163,6 @@ namespace Altinn.Profile.Controllers
                     .Select(s => new UserPartyContactInfoResource { ResourceId = s })
                     .ToList()
             };
-
-            var isVerifiedOrNull = await _addressVerificationService.IsContactInfoVerifiedOrNullAsync(userPartyContactInfo.UserId, userPartyContactInfo.EmailAddress, userPartyContactInfo.PhoneNumber, cancellationToken);
-            if (!isVerifiedOrNull)
-            {
-                return UnprocessableEntity("Provided email address or phone number is not verified.");
-            }
 
             var added = await _professionalNotificationsService.AddOrUpdateNotificationAddressAsync(userPartyContactInfo, cancellationToken);
 
@@ -204,6 +210,24 @@ namespace Altinn.Profile.Controllers
                 return BadRequest(_partyUuidEmptyErrorMessage);
             }
 
+            if (request.EmailAddress.HasValue && !string.IsNullOrEmpty(request.EmailAddress.Value))
+            {
+                var emailVerificationStatus = await _addressVerificationService.GetVerificationStatusAsync(userId, AddressType.Email, request.EmailAddress.Value, cancellationToken);
+                if (emailVerificationStatus.HasValue && emailVerificationStatus != VerificationType.Verified)
+                {
+                    return UnprocessableEntity("Provided email address is not verified.");
+                }
+            }
+
+            if (request.PhoneNumber.HasValue && !string.IsNullOrEmpty(request.PhoneNumber.Value))
+            {
+                var smsVerificationStatus = await _addressVerificationService.GetVerificationStatusAsync(userId, AddressType.Sms, request.PhoneNumber.Value, cancellationToken);
+                if (smsVerificationStatus.HasValue && smsVerificationStatus != VerificationType.Verified)
+                {
+                    return UnprocessableEntity("Provided phone number is not verified.");
+                }
+            }
+
             var userPartyContactInfo = new PatchUserPartyContactInfo
             {
                 UserId = userId,
@@ -227,12 +251,6 @@ namespace Altinn.Profile.Controllers
                     .Select(s => new UserPartyContactInfoResource { ResourceId = s })
                     .ToList());
                 }
-            }
-
-            var isVerifiedOrNull = await _professionalNotificationsService.IsContactInfoVerifiedOrNullAsync(userPartyContactInfo, cancellationToken);
-            if (!isVerifiedOrNull)
-            {
-                return UnprocessableEntity("Provided email address or phone number is not verified.");
             }
 
             var added = await _professionalNotificationsService.AddOrUpdateNotificationAddressAsync(userPartyContactInfo, cancellationToken);

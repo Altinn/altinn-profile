@@ -45,33 +45,10 @@ namespace Altinn.Profile.Core.AddressVerifications
         }
 
         /// <inheritdoc/>
-        public async Task<bool> IsAddressVerifiedOrNull(int userId, AddressType addressType, string? address, CancellationToken cancellationToken)
+        public async Task<bool> IsAddressVerified(int userId, AddressType addressType, string address, CancellationToken cancellationToken)
         {
-            if (address == null)
-            {
-                return true;
-            }
-
             var verificationStatus = await _addressVerificationRepository.GetVerificationStatusAsync(userId, addressType, address, cancellationToken);
             return verificationStatus == VerificationType.Verified;
-        }
-
-        /// <inheritdoc/>
-        public async Task<bool> IsContactInfoVerifiedOrNullAsync(int userId, string? emailAddress, string? phoneNumber, CancellationToken cancellationToken)
-        {
-            var emailVerifiedOrNull = await IsAddressVerifiedOrNull(userId, AddressType.Email, emailAddress, cancellationToken);
-            if (!emailVerifiedOrNull)
-            {
-                return false;
-            }
-
-            var smsVerifiedOrNull = await IsAddressVerifiedOrNull(userId, AddressType.Sms, phoneNumber, cancellationToken);
-            if (!smsVerifiedOrNull)
-            {
-                return false;
-            }
-
-            return true;
         }
 
         /// <inheritdoc/>

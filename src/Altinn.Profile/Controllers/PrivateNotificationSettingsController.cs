@@ -66,8 +66,7 @@ namespace Altinn.Profile.Controllers
                 return Forbid();
             }
 
-            var isVerifiedOrNull = await _addressVerificationService.IsAddressVerifiedOrNull(userId, AddressType.Sms, request.Value, cancellationToken);
-            if (!isVerifiedOrNull)
+            if (request.Value is not null && !(await _addressVerificationService.IsAddressVerified(userId, AddressType.Sms, request.Value, cancellationToken)))
             {
                 return UnprocessableEntity("Provided phone number is not verified.");
             }

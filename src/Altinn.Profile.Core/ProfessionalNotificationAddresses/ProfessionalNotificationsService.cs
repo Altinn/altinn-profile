@@ -96,30 +96,6 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
         }
 
         /// <inheritdoc/>
-        public async Task<bool> IsContactInfoVerifiedOrNullAsync(PatchUserPartyContactInfo contactInfo, CancellationToken cancellationToken)
-        {
-            if (contactInfo.EmailAddress.HasValue && !string.IsNullOrEmpty(contactInfo.EmailAddress.Value))
-            {
-                var emailVerificationStatus = await _addressVerificationService.GetVerificationStatusAsync(contactInfo.UserId, AddressType.Email, contactInfo.EmailAddress.Value, cancellationToken);
-                if (emailVerificationStatus.HasValue && emailVerificationStatus != VerificationType.Verified)
-                {
-                    return false;
-                }
-            }
-
-            if (contactInfo.PhoneNumber.HasValue && !string.IsNullOrEmpty(contactInfo.PhoneNumber.Value))
-            {
-                var smsVerificationStatus = await _addressVerificationService.GetVerificationStatusAsync(contactInfo.UserId, AddressType.Sms, contactInfo.PhoneNumber.Value, cancellationToken);
-                if (smsVerificationStatus.HasValue && smsVerificationStatus != VerificationType.Verified)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        /// <inheritdoc/>
         public Task<UserPartyContactInfo?> DeleteNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
         {
             return _professionalNotificationsRepository.DeleteNotificationAddressAsync(userId, partyUuid, cancellationToken);
