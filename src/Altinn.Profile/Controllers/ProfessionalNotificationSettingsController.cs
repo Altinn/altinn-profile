@@ -212,8 +212,8 @@ namespace Altinn.Profile.Controllers
 
             if (request.EmailAddress.HasValue && !string.IsNullOrEmpty(request.EmailAddress.Value))
             {
-                var emailVerificationStatus = await _addressVerificationService.GetVerificationStatusAsync(userId, AddressType.Email, request.EmailAddress.Value, cancellationToken);
-                if (emailVerificationStatus.HasValue && emailVerificationStatus != VerificationType.Verified)
+                var isEmailVerified = await _addressVerificationService.IsAddressVerified(userId, AddressType.Email, request.EmailAddress.Value, cancellationToken);
+                if (!isEmailVerified)
                 {
                     return UnprocessableEntity("Provided email address is not verified.");
                 }
@@ -221,8 +221,8 @@ namespace Altinn.Profile.Controllers
 
             if (request.PhoneNumber.HasValue && !string.IsNullOrEmpty(request.PhoneNumber.Value))
             {
-                var smsVerificationStatus = await _addressVerificationService.GetVerificationStatusAsync(userId, AddressType.Sms, request.PhoneNumber.Value, cancellationToken);
-                if (smsVerificationStatus.HasValue && smsVerificationStatus != VerificationType.Verified)
+                var isPhoneNumberVerified = await _addressVerificationService.IsAddressVerified(userId, AddressType.Sms, request.PhoneNumber.Value, cancellationToken);
+                if (!isPhoneNumberVerified)
                 {
                     return UnprocessableEntity("Provided phone number is not verified.");
                 }
