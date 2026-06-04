@@ -150,43 +150,6 @@ namespace Altinn.Profile.Controllers
             };
         }
 
-        /// <summary>
-        /// Resets the verification process for the current user and the given address, by regenerating a code with a renewed validity period and sending it to the address.
-        /// </summary>
-        /// <param name="request">The address type and value to resend code for</param>
-        /// <param name="cancellationToken"> Cancellation token for the operation</param>
-        [HttpPost("resend")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
-        public async Task<ActionResult> Resend([FromBody][Required] AddressCodeResendRequest request, CancellationToken cancellationToken)
-        {
-            if (!ModelState.IsValid)
-            {
-                return ValidationProblem(ModelState);
-            }
-
-            var validationResult = ClaimsHelper.TryGetUserIdFromClaims(Request.HttpContext, out int userId);
-            if (validationResult != null)
-            {
-                return validationResult;
-            }
-
-            var result = await _addressVerificationService.ResendVerificationCodeAsync(userId, request.Value, (AddressType)request.Type, cancellationToken);
-
-            return result switch
-            {
-                SendVerificationStatus.Success => NoContent(),
-                SendVerificationStatus.NotificationOrderFailed => InternalServerError(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = "The verification process was created, but notification delivery failed." }),
-                SendVerificationStatus.CodeNotFound => UnprocessableEntity(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = "The user has no active verification process for the given address." }),
-                SendVerificationStatus.AddressAlreadyVerified => UnprocessableEntity(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = "The address is already verified for this user." }),
-                SendVerificationStatus.CodeCooldown => TooManyRequests(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = $"Code resending attempts for an address are limited to 1 request per {_verificationCodeCooldownPeriodInSeconds} seconds. Please wait before requesting a new code." }),
-                _ => InternalServerError(new ProblemDetails { Title = _verificationCodeNotSentMessage, Detail = "An unexpected error occurred." })
-            };
-        }
-
         private ObjectResult TooManyRequests(ProblemDetails problemDetails, int? retryAfter = null)
         {
             if (retryAfter.HasValue)
