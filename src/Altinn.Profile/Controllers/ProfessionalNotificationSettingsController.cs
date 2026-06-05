@@ -178,12 +178,12 @@ namespace Altinn.Profile.Controllers
                 return BadRequest(_partyUuidEmptyErrorMessage);
             }
 
-            if (request.EmailAddress is not null && !(await _addressVerificationService.IsAddressVerified(userId, AddressType.Email, request.EmailAddress, cancellationToken)))
+            if (!string.IsNullOrEmpty(request.EmailAddress) && !await _addressVerificationService.IsAddressVerified(userId, AddressType.Email, request.EmailAddress, cancellationToken))
             {
                 return UnprocessableEntity("Provided email address is not verified.");
             }
 
-            if (request.PhoneNumber is not null && !(await _addressVerificationService.IsAddressVerified(userId, AddressType.Sms, request.PhoneNumber, cancellationToken)))
+            if (!string.IsNullOrEmpty(request.PhoneNumber) && !await _addressVerificationService.IsAddressVerified(userId, AddressType.Sms, request.PhoneNumber, cancellationToken))
             {
                 return UnprocessableEntity("Provided phone number is not verified.");
             }
