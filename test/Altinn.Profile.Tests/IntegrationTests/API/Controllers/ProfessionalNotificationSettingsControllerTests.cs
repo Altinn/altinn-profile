@@ -737,6 +737,94 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.AddressVerificationRepositoryMock.Verify(x => x.GetVerificationStatusAsync(It.IsAny<int>(), It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(1));
         }
 
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public async Task PutNotificationAddress_WhenEmailIsNullishAndPhoneIsUnverified_ReturnsUnprocessableEntityForPhone(string emailInput)
+        {
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+
+            var userPartyContactInfo = new NotificationSettingsRequest
+            {
+                EmailAddress = emailInput,
+                PhoneNumber = "12345678",
+            };
+
+            _factory.AddressVerificationRepositoryMock
+               .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+               .ReturnsAsync(VerificationType.Unverified);
+
+            SetupAuthHandler(partyGuid, UserId);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(userPartyContactInfo, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            Assert.Contains("Provided phone number is not verified", responseContent);
+
+            _factory.ProfessionalNotificationsRepositoryMock.Verify(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()), Times.Never);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Sms, It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(1));
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public async Task PutNotificationAddress_WhenEmailIsUnverifiedAndPhoneIsNullish_ReturnsUnprocessableEntityForEmail(string phoneInput)
+        {
+            // Arrange
+            const int UserId = 2516356;
+            var partyGuid = Guid.NewGuid();
+
+            var userPartyContactInfo = new NotificationSettingsRequest
+            {
+                EmailAddress = "foo@bar.com",
+                PhoneNumber = phoneInput,
+            };
+
+            _factory.AddressVerificationRepositoryMock
+               .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), It.IsAny<AddressType>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+               .ReturnsAsync(VerificationType.Unverified);
+
+            SetupAuthHandler(partyGuid, UserId);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(userPartyContactInfo, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            Assert.Contains("Provided email address is not verified", responseContent);
+
+            _factory.ProfessionalNotificationsRepositoryMock.Verify(x => x.AddOrUpdateNotificationAddressAsync(It.IsAny<UserPartyContactInfo>(), It.IsAny<CancellationToken>()), Times.Never);
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(1));
+            _factory.AddressVerificationRepositoryMock.Verify(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Sms, It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
         [Fact]
         public async Task PutNotificationAddress_WhenAddressUpsertReturnsTrue_ReturnsCreated()
         {
