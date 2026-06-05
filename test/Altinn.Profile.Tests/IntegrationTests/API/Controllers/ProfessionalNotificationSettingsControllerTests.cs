@@ -700,7 +700,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-
         public async Task PutNotificationAddress_WhenNotVerified_ReturnsUnprocessableEntity()
         {
             // Arrange
@@ -710,7 +709,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             var userPartyContactInfo = new NotificationSettingsRequest
             {
                 EmailAddress = "test@example.com",
-                PhoneNumber = "12345678",
+                PhoneNumber = "12345678"
             };
 
             _factory.AddressVerificationRepositoryMock
@@ -721,11 +720,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            // Omit resourceIncludeList from JSON entirely so HasValue = false; sending null would
-            // produce HasValue = true with a null list, which crashes .Count in the controller.
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"profile/api/v1/users/current/notificationsettings/parties/{partyGuid}")
             {
-                Content = new StringContent("{\"emailAddress\":\"test@example.com\",\"phoneNumber\":\"12345678\"}", System.Text.Encoding.UTF8, "application/json")
+                Content = new StringContent(JsonSerializer.Serialize(userPartyContactInfo, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
             };
             httpRequestMessage = AddAuthHeadersToRequest(httpRequestMessage, UserId);
 
