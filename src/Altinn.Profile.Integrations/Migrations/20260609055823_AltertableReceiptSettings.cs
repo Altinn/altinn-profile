@@ -87,7 +87,7 @@ namespace Altinn.Profile.Integrations.Migrations
                 type: "character varying(30)",
                 maxLength: 30,
                 nullable: false,
-                defaultValue: "");
+                defaultValue: string.Empty);
 
             migrationBuilder.AddPrimaryKey(
                 name: "userid_profiletype_pk",
