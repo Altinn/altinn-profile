@@ -31,14 +31,4 @@ public record PersonContactPreferences
     /// Gets the national identity number of the person.
     /// </summary>
     public required string NationalIdentityNumber { get; init; }
-
-    /// <summary>
-    /// The latest date and time when the mobile number was updated or verified by the user.
-    /// </summary>
-    public DateTime? MobileNumberLastTouched { get; init; }
-
-    /// <summary>
-    /// The latest date and time when the email address was updated or verified by the user.
-    /// </summary>
-    public DateTime? EmailLastTouched { get; init; }
 }

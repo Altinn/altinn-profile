@@ -30,8 +30,6 @@ public class UserContactPointServiceTest
 
     private static readonly string _userIdBStr = "2001607";
 
-    private static readonly string _userIdCStr = "2001608";
-
     private async Task<List<UserContactPoints>> MockTestUsers() // Take a look at IAsyncLifetime / InitializeAsync from XUnit, as something for next time
     {
         var userProfileA = await TestDataLoader.Load<UserProfile>(_userIdAStr);
@@ -40,9 +38,7 @@ public class UserContactPointServiceTest
             NationalIdentityNumber = userProfileA.Party.SSN,
             Email = userProfileA.Email,
             IsReserved = userProfileA.IsReserved,
-            MobileNumber = userProfileA.PhoneNumber,
-            MobileNumberLastTouched = DateTime.UtcNow.AddMonths(-6),
-            EmailLastTouched = DateTime.UtcNow.AddMonths(-6),
+            MobileNumber = userProfileA.PhoneNumber
         };
         var expectedUserContactPointA = new UserContactPoints()
         {
@@ -58,45 +54,24 @@ public class UserContactPointServiceTest
             NationalIdentityNumber = userProfileB.Party.SSN,
             Email = userProfileB.Email,
             IsReserved = userProfileB.IsReserved,
-            MobileNumber = userProfileB.PhoneNumber,
-            MobileNumberLastTouched = DateTime.UtcNow.AddMonths(-6),
-            EmailLastTouched = DateTime.UtcNow.AddMonths(-26),
+            MobileNumber = userProfileB.PhoneNumber
         };
         var expectedUserContactPointB = new UserContactPoints()
         {
-            Email = null,
+            Email = userProfileB.Email,
             NationalIdentityNumber = userProfileB.Party.SSN,
             IsReserved = userProfileB.IsReserved,
             MobileNumber = userProfileB.PhoneNumber,
         };
-
-        var userProfileC = await TestDataLoader.Load<UserProfile>(_userIdCStr);
-        var contactPreferencesC = new PersonContactPreferences()
-        {
-            NationalIdentityNumber = _userIdCStr,
-            Email = userProfileC.Email,
-            IsReserved = userProfileC.IsReserved,
-            MobileNumber = userProfileC.PhoneNumber,
-            MobileNumberLastTouched = DateTime.UtcNow.AddMonths(-26),
-            EmailLastTouched = DateTime.UtcNow.AddMonths(-26),
-        };
-        var expectedUserContactPointC = new UserContactPoints()
-        {
-            Email = null,
-            NationalIdentityNumber = _userIdCStr,
-            IsReserved = userProfileC.IsReserved,
-            MobileNumber = null,
-        };
-
         _userProfileServiceMock.Setup(m => m.GetUser(userProfileA.Party.SSN, It.IsAny<CancellationToken>())).ReturnsAsync(userProfileA);
         _userProfileServiceMock.Setup(m => m.GetUser(userProfileB.Party.SSN, It.IsAny<CancellationToken>())).ReturnsAsync(userProfileB);
-        _personServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>())).ReturnsAsync([contactPreferencesA, contactPreferencesB, contactPreferencesC]);
+        _personServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>())).ReturnsAsync([contactPreferencesA, contactPreferencesB]);
 
-        return [expectedUserContactPointA, expectedUserContactPointB, expectedUserContactPointC];
+        return [expectedUserContactPointA, expectedUserContactPointB];
     }
 
     [Fact]
-    public async Task GetContactPoints_WhenPersonServiceIsCalled_IsSuccessAndFiltersOutOldAddresses()
+    public async Task GetContactPoints_WhenPersonServiceIsCalled_IsSuccess()
     {
         // Arrange
         List<UserContactPoints> expectedUsers = await MockTestUsers();
@@ -106,8 +81,7 @@ public class UserContactPointServiceTest
         UserContactPointsList result = await target.GetContactPoints(
             [
                 expectedUsers[0].NationalIdentityNumber,
-                expectedUsers[1].NationalIdentityNumber,
-                expectedUsers[2].NationalIdentityNumber,
+                expectedUsers[1].NationalIdentityNumber
             ],
             TestContext.Current.CancellationToken);
 
