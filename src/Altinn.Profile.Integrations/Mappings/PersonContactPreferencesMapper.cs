@@ -22,18 +22,19 @@ public static class PersonContactPreferencesMapper
             LanguageCode = person.LanguageCode,
             MobileNumber = person.MobilePhoneNumber,
             NationalIdentityNumber = person.FnumberAk,
-            MobileNumberLastTouched = MergeDates(person.MobilePhoneNumberLastUpdated, person.MobilePhoneNumberLastVerified),
-            EmailLastTouched = MergeDates(person.EmailAddressLastUpdated, person.EmailAddressLastVerified),
+            MobileNumberLastTouched = GetVerificationDate(person.MobilePhoneNumberLastUpdated, person.MobilePhoneNumberLastVerified),
+            EmailLastTouched = GetVerificationDate(person.EmailAddressLastUpdated, person.EmailAddressLastVerified),
         };
     }
 
-    private static DateTime? MergeDates(DateTime? date1, DateTime? date2)
+    private static DateTime? GetVerificationDate(DateTime? updateDate, DateTime? verificationDate)
     {
-        if (date1.HasValue && date2.HasValue)
+        if (verificationDate.HasValue)
         {
-            return date1 > date2 ? date1 : date2;
+            return verificationDate;
         }
 
-        return date1 ?? date2;
+        // If there is no verification date, we use the update date as a fallback to determine if the contact point is old.
+        return updateDate;
     }
 }
