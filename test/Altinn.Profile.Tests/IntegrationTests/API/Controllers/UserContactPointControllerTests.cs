@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -67,7 +68,9 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
                     NationalIdentityNumber = u.Key,
                     Email = u.Value.Email, 
                     IsReserved = u.Value.IsReserved,
-                    LanguageCode = u.Value.ProfileSettingPreference.Language
+                    LanguageCode = u.Value.ProfileSettingPreference.Language,
+                    MobileNumberLastTouched = DateTime.UtcNow.AddMonths(-6),
+                    EmailLastTouched = DateTime.UtcNow.AddMonths(-6),
                 })]);
     }
 
