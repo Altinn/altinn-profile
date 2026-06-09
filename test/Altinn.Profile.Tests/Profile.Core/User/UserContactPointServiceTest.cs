@@ -30,8 +30,6 @@ public class UserContactPointServiceTest
 
     private static readonly string _userIdBStr = "2001607";
 
-    private static readonly string _userIdCStr = "2001608";
-
     private async Task<List<UserContactPoints>> MockTestUsers() // Take a look at IAsyncLifetime / InitializeAsync from XUnit, as something for next time
     {
         var userProfileA = await TestDataLoader.Load<UserProfile>(_userIdAStr);
@@ -50,6 +48,8 @@ public class UserContactPointServiceTest
             NationalIdentityNumber = userProfileA.Party.SSN,
             IsReserved = userProfileA.IsReserved,
             MobileNumber = userProfileA.PhoneNumber,
+            MobileNumberLastTouched = contactPreferencesA.MobileNumberLastTouched,
+            EmailLastTouched = contactPreferencesA.EmailLastTouched,
         };
 
         var userProfileB = await TestDataLoader.Load<UserProfile>(_userIdBStr);
@@ -64,39 +64,23 @@ public class UserContactPointServiceTest
         };
         var expectedUserContactPointB = new UserContactPoints()
         {
-            Email = null,
+            Email = userProfileB.Email,
             NationalIdentityNumber = userProfileB.Party.SSN,
             IsReserved = userProfileB.IsReserved,
             MobileNumber = userProfileB.PhoneNumber,
-        };
-
-        var userProfileC = await TestDataLoader.Load<UserProfile>(_userIdCStr);
-        var contactPreferencesC = new PersonContactPreferences()
-        {
-            NationalIdentityNumber = _userIdCStr,
-            Email = userProfileC.Email,
-            IsReserved = userProfileC.IsReserved,
-            MobileNumber = userProfileC.PhoneNumber,
-            MobileNumberLastTouched = DateTime.UtcNow.AddMonths(-26),
-            EmailLastTouched = DateTime.UtcNow.AddMonths(-26),
-        };
-        var expectedUserContactPointC = new UserContactPoints()
-        {
-            Email = null,
-            NationalIdentityNumber = _userIdCStr,
-            IsReserved = userProfileC.IsReserved,
-            MobileNumber = null,
+            MobileNumberLastTouched = contactPreferencesB.MobileNumberLastTouched,
+            EmailLastTouched = contactPreferencesB.EmailLastTouched,
         };
 
         _userProfileServiceMock.Setup(m => m.GetUser(userProfileA.Party.SSN, It.IsAny<CancellationToken>())).ReturnsAsync(userProfileA);
         _userProfileServiceMock.Setup(m => m.GetUser(userProfileB.Party.SSN, It.IsAny<CancellationToken>())).ReturnsAsync(userProfileB);
-        _personServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>())).ReturnsAsync([contactPreferencesA, contactPreferencesB, contactPreferencesC]);
+        _personServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>())).ReturnsAsync([contactPreferencesA, contactPreferencesB]);
 
-        return [expectedUserContactPointA, expectedUserContactPointB, expectedUserContactPointC];
+        return [expectedUserContactPointA, expectedUserContactPointB];
     }
 
     [Fact]
-    public async Task GetContactPoints_WhenPersonServiceIsCalled_IsSuccessAndFiltersOutOldAddresses()
+    public async Task GetContactPoints_WhenPersonServiceIsCalled_IsSuccess()
     {
         // Arrange
         List<UserContactPoints> expectedUsers = await MockTestUsers();
@@ -107,7 +91,6 @@ public class UserContactPointServiceTest
             [
                 expectedUsers[0].NationalIdentityNumber,
                 expectedUsers[1].NationalIdentityNumber,
-                expectedUsers[2].NationalIdentityNumber,
             ],
             TestContext.Current.CancellationToken);
 
@@ -143,7 +126,9 @@ public class UserContactPointServiceTest
         return a.NationalIdentityNumber == b.NationalIdentityNumber &&
             a.Email == b.Email &&
             a.IsReserved == b.IsReserved &&
-            a.MobileNumber == b.MobileNumber;
+            a.MobileNumber == b.MobileNumber &&
+            a.MobileNumberLastTouched == b.MobileNumberLastTouched &&
+            a.EmailLastTouched == b.EmailLastTouched;
     }
 
     [Fact]
