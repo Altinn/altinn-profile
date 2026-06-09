@@ -48,6 +48,8 @@ public class UserContactPointServiceTest
             NationalIdentityNumber = userProfileA.Party.SSN,
             IsReserved = userProfileA.IsReserved,
             MobileNumber = userProfileA.PhoneNumber,
+            MobileNumberLastTouched = contactPreferencesA.MobileNumberLastTouched,
+            EmailLastTouched = contactPreferencesA.EmailLastTouched,
         };
 
         var userProfileB = await TestDataLoader.Load<UserProfile>(_userIdBStr);
@@ -66,6 +68,8 @@ public class UserContactPointServiceTest
             NationalIdentityNumber = userProfileB.Party.SSN,
             IsReserved = userProfileB.IsReserved,
             MobileNumber = userProfileB.PhoneNumber,
+            MobileNumberLastTouched = contactPreferencesB.MobileNumberLastTouched,
+            EmailLastTouched = contactPreferencesB.EmailLastTouched,
         };
 
         _userProfileServiceMock.Setup(m => m.GetUser(userProfileA.Party.SSN, It.IsAny<CancellationToken>())).ReturnsAsync(userProfileA);
@@ -122,7 +126,9 @@ public class UserContactPointServiceTest
         return a.NationalIdentityNumber == b.NationalIdentityNumber &&
             a.Email == b.Email &&
             a.IsReserved == b.IsReserved &&
-            a.MobileNumber == b.MobileNumber;
+            a.MobileNumber == b.MobileNumber &&
+            a.MobileNumberLastTouched == b.MobileNumberLastTouched &&
+            a.EmailLastTouched == b.EmailLastTouched;
     }
 
     [Fact]
