@@ -29,6 +29,11 @@ public static class PersonContactPreferencesMapper
 
     private static DateTime? GetVerificationDate(DateTime? updateDate, DateTime? verificationDate)
     {
+        if (updateDate > verificationDate)
+        {
+            return updateDate;
+        }
+
         if (verificationDate.HasValue)
         {
             return verificationDate;
