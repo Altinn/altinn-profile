@@ -30,8 +30,6 @@ public class UserContactPointServiceTest
 
     private static readonly string _userIdBStr = "2001607";
 
-    private static readonly string _userIdCStr = "2001608";
-
     private async Task<List<UserContactPoints>> MockTestUsers() // Take a look at IAsyncLifetime / InitializeAsync from XUnit, as something for next time
     {
         var userProfileA = await TestDataLoader.Load<UserProfile>(_userIdAStr);
