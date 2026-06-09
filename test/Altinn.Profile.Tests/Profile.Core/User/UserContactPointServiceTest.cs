@@ -70,12 +70,13 @@ public class UserContactPointServiceTest
             MobileNumber = userProfileB.PhoneNumber,
         };
 
+        var userProfileC = await TestDataLoader.Load<UserProfile>(_userIdCStr);
         var contactPreferencesC = new PersonContactPreferences()
         {
             NationalIdentityNumber = _userIdCStr,
-            Email = userProfileB.Email,
-            IsReserved = userProfileB.IsReserved,
-            MobileNumber = userProfileB.PhoneNumber,
+            Email = userProfileC.Email,
+            IsReserved = userProfileC.IsReserved,
+            MobileNumber = userProfileC.PhoneNumber,
             MobileNumberLastTouched = DateTime.UtcNow.AddMonths(-26),
             EmailLastTouched = DateTime.UtcNow.AddMonths(-26),
         };
@@ -83,7 +84,7 @@ public class UserContactPointServiceTest
         {
             Email = null,
             NationalIdentityNumber = _userIdCStr,
-            IsReserved = userProfileB.IsReserved,
+            IsReserved = userProfileC.IsReserved,
             MobileNumber = null,
         };
 
