@@ -21,7 +21,25 @@ public static class PersonContactPreferencesMapper
             IsReserved = person.Reservation ?? false,
             LanguageCode = person.LanguageCode,
             MobileNumber = person.MobilePhoneNumber,
-            NationalIdentityNumber = person.FnumberAk
+            NationalIdentityNumber = person.FnumberAk,
+            MobileNumberLastTouched = GetVerificationDate(person.MobilePhoneNumberLastUpdated, person.MobilePhoneNumberLastVerified),
+            EmailLastTouched = GetVerificationDate(person.EmailAddressLastUpdated, person.EmailAddressLastVerified),
         };
+    }
+
+    private static DateTime? GetVerificationDate(DateTime? updateDate, DateTime? verificationDate)
+    {
+        if (updateDate > verificationDate)
+        {
+            return updateDate;
+        }
+
+        if (verificationDate.HasValue)
+        {
+            return verificationDate;
+        }
+
+        // If there is no verification date, we use the update date as a fallback to determine if the contact point is old.
+        return updateDate;
     }
 }

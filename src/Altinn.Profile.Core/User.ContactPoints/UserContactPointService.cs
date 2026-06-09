@@ -13,6 +13,8 @@ namespace Altinn.Profile.Core.User.ContactPoints;
 /// </summary>
 public class UserContactPointService : IUserContactPointsService
 {
+    private const int ActiveContactPointMonths = 18;
+
     private readonly IUserProfileService _userProfileService;
     private readonly IPersonService _personService;
     private readonly IUserContactInfoRepository _userContactInfoRepository;
@@ -59,20 +61,28 @@ public class UserContactPointService : IUserContactPointsService
     public async Task<UserContactPointsList> GetContactPoints(List<string> nationalIdentityNumbers, CancellationToken cancellationToken)
     {
         UserContactPointsList resultList = new();
+        var cutoffDate = DateTime.UtcNow.AddMonths(-ActiveContactPointMonths);
 
-        var preferencesForContacts = await _personService.GetContactPreferencesAsync(nationalIdentityNumbers, cancellationToken);
+        var contactPreferences = await _personService.GetContactPreferencesAsync(nationalIdentityNumbers, cancellationToken);
 
-        preferencesForContacts.ForEach(contactPreference =>
+        foreach (var contactPreference in contactPreferences)
         {
+            var emailTooOld = IsContactPointTooOld(contactPreference.EmailLastTouched, cutoffDate);
+            var mobileTooOld = IsContactPointTooOld(contactPreference.MobileNumberLastTouched, cutoffDate);
+            if (mobileTooOld && emailTooOld)
+            {
+                continue;
+            }
+
             resultList.ContactPointsList.Add(
                 new UserContactPoints()
                 {
                     NationalIdentityNumber = contactPreference.NationalIdentityNumber,
-                    Email = contactPreference.Email,
-                    MobileNumber = contactPreference.MobileNumber,
+                    Email = emailTooOld ? null : contactPreference.Email,
+                    MobileNumber = mobileTooOld ? null : contactPreference.MobileNumber,
                     IsReserved = contactPreference.IsReserved,
                 });
-        });
+        }
 
         return resultList;
     }
@@ -169,7 +179,12 @@ public class UserContactPointService : IUserContactPointsService
                 MobileNumber = contactInfo.PhoneNumber,
             };
         }
-        
+
         return null;
+    }
+
+    private static bool IsContactPointTooOld(DateTime? lastTouched, DateTime cutoffDate)
+    {
+        return !lastTouched.HasValue || lastTouched.Value < cutoffDate;
     }
 }
