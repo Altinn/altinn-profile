@@ -98,7 +98,7 @@ public class UserContactPointServiceTest
     }
 
     [Fact]
-    public async Task GetContactPoints_WhenSkipAgeCheckIsFalse_IsSuccessAndFiltersOutOldAddresses()
+    public async Task GetContactPoints_WhenUseStaleContactInfoIsFalse_IsSuccessAndFiltersOutOldAddresses()
     {
         // Arrange
         List<UserContactPoints> expectedUsers = await MockTestUsers();
@@ -123,7 +123,7 @@ public class UserContactPointServiceTest
     }
 
     [Fact]
-    public async Task GetContactPoints_WhenSkipAgeCheckIsTrue_IsSuccessAndKeepsOldAddresses()
+    public async Task GetContactPoints_WhenUseStaleContactInfoIsTrue_IsSuccessAndKeepsOldAddresses()
     {
         // Arrange
         List<UserContactPoints> expectedUsers = await MockTestUsers();

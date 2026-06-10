@@ -16,5 +16,5 @@ public class UserContactDetailsLookupCriteria
     /// Indicates whether the lookup should skip the age check for contact points. If set to true, 
     /// contact points will be returned regardless of their age.
     /// </summary>
-    public bool SkipAgeCheck { get; set; } = false;
+    public bool UseStaleContactInfo { get; set; } = false;
 }

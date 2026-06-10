@@ -61,7 +61,7 @@ public class UserContactPointController : ControllerBase
         }
 
         UserContactPointsList userContactPointsList = await _contactPointService.GetContactPoints(
-            userContactPointLookup.NationalIdentityNumbers, userContactPointLookup.SkipAgeCheck, cancellationToken);
+            userContactPointLookup.NationalIdentityNumbers, userContactPointLookup.UseStaleContactInfo, cancellationToken);
 
         return Ok(userContactPointsList);
     }

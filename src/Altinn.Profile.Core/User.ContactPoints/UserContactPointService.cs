@@ -59,7 +59,7 @@ public class UserContactPointService : IUserContactPointsService
 
     /// <inheritdoc/>
     public async Task<UserContactPointsList> GetContactPoints(
-        List<string> nationalIdentityNumbers, bool skipAgeCheck, CancellationToken cancellationToken)
+        List<string> nationalIdentityNumbers, bool useStaleContactInfo, CancellationToken cancellationToken)
     {
         UserContactPointsList resultList = new();
         DateTime cutoffDate = DateTime.UtcNow.AddMonths(-ActiveContactPointMonths);
@@ -68,8 +68,8 @@ public class UserContactPointService : IUserContactPointsService
 
         foreach (var contactPreference in contactPreferences)
         {
-            var emailTooOld = IsContactPointTooOld(contactPreference.EmailLastTouched, cutoffDate, skipAgeCheck);
-            var mobileTooOld = IsContactPointTooOld(contactPreference.MobileNumberLastTouched, cutoffDate, skipAgeCheck);
+            var emailTooOld = IsContactPointTooOld(contactPreference.EmailLastTouched, cutoffDate, useStaleContactInfo);
+            var mobileTooOld = IsContactPointTooOld(contactPreference.MobileNumberLastTouched, cutoffDate, useStaleContactInfo);
             
             if (mobileTooOld && emailTooOld)
             {
@@ -117,9 +117,9 @@ public class UserContactPointService : IUserContactPointsService
         return contactPointsList;
     }
 
-    private static bool IsContactPointTooOld(DateTime? lastTouched, DateTime cutoffDate, bool skipAgeCheck)
+    private static bool IsContactPointTooOld(DateTime? lastTouched, DateTime cutoffDate, bool useStaleContactInfo)
     {
-        return !skipAgeCheck && (!lastTouched.HasValue || lastTouched.Value < cutoffDate);
+        return !useStaleContactInfo && (!lastTouched.HasValue || lastTouched.Value < cutoffDate);
     }
 
     private async Task<SiUserContactPoints?> ProcessIdPortenEmail(IDPortenEmail idportenEmail, string urnIdentifier, CancellationToken cancellationToken)
