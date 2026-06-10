@@ -388,9 +388,11 @@ namespace Altinn.Profile.Integrations.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("IsPrivate")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_private");
+                    b.Property<string>("ProfileType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("profile_type");
 
                     b.Property<bool?>("RequestReceipt")
                         .HasColumnType("boolean")

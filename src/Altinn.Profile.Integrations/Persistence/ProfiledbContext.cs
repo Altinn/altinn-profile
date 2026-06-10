@@ -302,7 +302,7 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.Id).UseIdentityAlwaysColumn();
             entity.Property(e => e.UserId).IsRequired().ValueGeneratedNever();
             entity.Property(e => e.UserUuid).IsRequired().ValueGeneratedNever();
-            entity.Property(e => e.IsPrivate).IsRequired();
+            entity.Property(e => e.ProfileType).IsRequired().HasConversion(new EnumToStringConverter<ProfileType>()).HasMaxLength(30);
             entity.Property(e => e.RequestReceipt);
 
         });

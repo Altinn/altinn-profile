@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Altinn.Profile.Integrations.Migrations
 {
     [DbContext(typeof(ProfileDbContext))]
-    [Migration("20260609055823_AltertableReceiptSettings")]
-    partial class AltertableReceiptSettings
+    [Migration("20260610093054_AlterTableReceiptSettings")]
+    partial class AlterTableReceiptSettings
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -391,9 +391,11 @@ namespace Altinn.Profile.Integrations.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("IsPrivate")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_private");
+                    b.Property<string>("ProfileType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("profile_type");
 
                     b.Property<bool?>("RequestReceipt")
                         .HasColumnType("boolean")
