@@ -13,6 +13,8 @@ namespace Altinn.Profile.Core.User.ContactPoints;
 /// </summary>
 public class UserContactPointService : IUserContactPointsService
 {
+    private const int ActiveContactPointMonths = 18;
+
     private readonly IUserProfileService _userProfileService;
     private readonly IPersonService _personService;
     private readonly IUserContactInfoRepository _userContactInfoRepository;
@@ -56,23 +58,31 @@ public class UserContactPointService : IUserContactPointsService
     }
 
     /// <inheritdoc/>
-    public async Task<UserContactPointsList> GetContactPoints(List<string> nationalIdentityNumbers, CancellationToken cancellationToken)
+    public async Task<UserContactPointsList> GetContactPoints(
+        List<string> nationalIdentityNumbers, bool useStaleContactInfo, CancellationToken cancellationToken)
     {
         UserContactPointsList resultList = new();
+        DateTime cutoffDate = DateTime.UtcNow.AddMonths(-ActiveContactPointMonths);
 
         var contactPreferences = await _personService.GetContactPreferencesAsync(nationalIdentityNumbers, cancellationToken);
 
         foreach (var contactPreference in contactPreferences)
         {
+            var emailTooOld = IsContactPointTooOld(contactPreference.EmailLastTouched, cutoffDate, useStaleContactInfo);
+            var mobileTooOld = IsContactPointTooOld(contactPreference.MobileNumberLastTouched, cutoffDate, useStaleContactInfo);
+            
+            if (mobileTooOld && emailTooOld)
+            {
+                continue;
+            }
+
             resultList.ContactPointsList.Add(
                 new UserContactPoints()
                 {
                     NationalIdentityNumber = contactPreference.NationalIdentityNumber,
-                    Email = contactPreference.Email,
-                    MobileNumber = contactPreference.MobileNumber,
-                    IsReserved = contactPreference.IsReserved,
-                    MobileNumberLastTouched = contactPreference.MobileNumberLastTouched,
-                    EmailLastTouched = contactPreference.EmailLastTouched
+                    Email = emailTooOld ? null : contactPreference.Email,
+                    MobileNumber = mobileTooOld ? null : contactPreference.MobileNumber,
+                    IsReserved = contactPreference.IsReserved
                 });
         }
 
@@ -105,6 +115,11 @@ public class UserContactPointService : IUserContactPointsService
         }
 
         return contactPointsList;
+    }
+
+    private static bool IsContactPointTooOld(DateTime? lastTouched, DateTime cutoffDate, bool useStaleContactInfo)
+    {
+        return !useStaleContactInfo && (!lastTouched.HasValue || lastTouched.Value < cutoffDate);
     }
 
     private async Task<SiUserContactPoints?> ProcessIdPortenEmail(IDPortenEmail idportenEmail, string urnIdentifier, CancellationToken cancellationToken)

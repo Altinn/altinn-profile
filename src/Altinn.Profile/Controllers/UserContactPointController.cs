@@ -60,7 +60,9 @@ public class UserContactPointController : ControllerBase
             return Ok(new UserContactPointsList());
         }
 
-        UserContactPointsList userContactPointsList = await _contactPointService.GetContactPoints(userContactPointLookup.NationalIdentityNumbers, cancellationToken);
+        UserContactPointsList userContactPointsList = await _contactPointService.GetContactPoints(
+            userContactPointLookup.NationalIdentityNumbers, userContactPointLookup.UseStaleContactInfo, cancellationToken);
+
         return Ok(userContactPointsList);
     }
 
