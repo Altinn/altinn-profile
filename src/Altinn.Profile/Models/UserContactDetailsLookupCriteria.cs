@@ -13,9 +13,8 @@ public class UserContactDetailsLookupCriteria
     public List<string> NationalIdentityNumbers { get; set; } = [];
 
     /// <summary>
-    /// Indicates whether the lookup should ignore the notification status of the contact points. If set to true, 
-    /// contact points will be returned regardless of their notification status.
-    /// Notification status is determined by the age of the contact point or time since last verification.
+    /// Indicates whether the lookup should skip the age check for contact points. If set to true, 
+    /// contact points will be returned regardless of their age.
     /// </summary>
-    public bool IgnoreNotificationStatus { get; set; } = false;
+    public bool SkipAgeCheck { get; set; } = false;
 }

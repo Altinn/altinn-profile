@@ -59,7 +59,7 @@ public class UserContactPointService : IUserContactPointsService
 
     /// <inheritdoc/>
     public async Task<UserContactPointsList> GetContactPoints(
-        List<string> nationalIdentityNumbers, bool ignoreNotificationStatus, CancellationToken cancellationToken)
+        List<string> nationalIdentityNumbers, bool skipAgeCheck, CancellationToken cancellationToken)
     {
         UserContactPointsList resultList = new();
         DateTime cutoffDate = DateTime.UtcNow.AddMonths(-ActiveContactPointMonths);
@@ -68,10 +68,10 @@ public class UserContactPointService : IUserContactPointsService
 
         foreach (var contactPreference in contactPreferences)
         {
-            var emailTooOld = IsContactPointTooOld(contactPreference.EmailLastTouched, cutoffDate);
-            var mobileTooOld = IsContactPointTooOld(contactPreference.MobileNumberLastTouched, cutoffDate);
+            var emailTooOld = IsContactPointTooOld(contactPreference.EmailLastTouched, cutoffDate, skipAgeCheck);
+            var mobileTooOld = IsContactPointTooOld(contactPreference.MobileNumberLastTouched, cutoffDate, skipAgeCheck);
             
-            if (!ignoreNotificationStatus && mobileTooOld && emailTooOld)
+            if (mobileTooOld && emailTooOld)
             {
                 continue;
             }
@@ -80,8 +80,8 @@ public class UserContactPointService : IUserContactPointsService
                 new UserContactPoints()
                 {
                     NationalIdentityNumber = contactPreference.NationalIdentityNumber,
-                    Email = emailTooOld && !ignoreNotificationStatus ? null : contactPreference.Email,
-                    MobileNumber = mobileTooOld && !ignoreNotificationStatus ? null : contactPreference.MobileNumber,
+                    Email = emailTooOld ? null : contactPreference.Email,
+                    MobileNumber = mobileTooOld ? null : contactPreference.MobileNumber,
                     IsReserved = contactPreference.IsReserved
                 });
         }
@@ -117,9 +117,9 @@ public class UserContactPointService : IUserContactPointsService
         return contactPointsList;
     }
 
-    private static bool IsContactPointTooOld(DateTime? lastTouched, DateTime cutoffDate)
+    private static bool IsContactPointTooOld(DateTime? lastTouched, DateTime cutoffDate, bool skipAgeCheck)
     {
-        return !lastTouched.HasValue || lastTouched.Value < cutoffDate;
+        return !skipAgeCheck && (!lastTouched.HasValue || lastTouched.Value < cutoffDate);
     }
 
     private async Task<SiUserContactPoints?> ProcessIdPortenEmail(IDPortenEmail idportenEmail, string urnIdentifier, CancellationToken cancellationToken)

@@ -142,7 +142,11 @@ public class UserContactPointServiceTest
         // Assert
         Assert.Equal(3, result.ContactPointsList.Count);
         Assert.Contains(result.ContactPointsList, ob => AreEqualUserContactPoints(ob, expectedUsers[0]));
-        /* The second user has an old email address, but a valid mobile number, so should be included in the results with the email address filtered out, but the mobile number intact */
+        Assert.Contains(result.ContactPointsList, ob =>
+            ob.NationalIdentityNumber == expectedUsers[1].NationalIdentityNumber &&
+            ob.Email == "tuva@business.com" &&
+            ob.MobileNumber == expectedUsers[1].MobileNumber &&
+            ob.IsReserved == expectedUsers[1].IsReserved);
         Assert.Contains(result.ContactPointsList, ob => AreEqualUserContactPoints(ob, expectedUsers[2]));
 
         _personServiceMock.Verify(service => service.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()), Times.Exactly(1));
