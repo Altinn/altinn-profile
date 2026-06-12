@@ -68,10 +68,11 @@ public class UserContactPointService : IUserContactPointsService
 
         foreach (var contactPreference in contactPreferences)
         {
-            var emailTooOld = IsContactPointTooOld(contactPreference.EmailLastTouched, cutoffDate);
-            var mobileTooOld = IsContactPointTooOld(contactPreference.MobileNumberLastTouched, cutoffDate);
-            
-            if (!includeOutdatedContactInfo && mobileTooOld && emailTooOld)
+            bool emailIsOutdated = IsContactPointTooOld(contactPreference.EmailLastTouched, cutoffDate);
+            bool mobileIsOutdated = IsContactPointTooOld(contactPreference.MobileNumberLastTouched, cutoffDate);
+
+            bool bothContactPointsOutdated = emailIsOutdated && mobileIsOutdated;
+            if (!includeOutdatedContactInfo && bothContactPointsOutdated)
             {
                 continue;
             }
@@ -79,12 +80,13 @@ public class UserContactPointService : IUserContactPointsService
             UserContactPoints contactPoint = new()
             {
                 NationalIdentityNumber = contactPreference.NationalIdentityNumber,
-                Email = includeOutdatedContactInfo || !emailTooOld ? contactPreference.Email : null,
-                EmailIsOutdated = emailTooOld,
-                MobileNumber = includeOutdatedContactInfo || !mobileTooOld ? contactPreference.MobileNumber : null,
-                MobileNumberIsOutdated = mobileTooOld,
+                Email = emailIsOutdated && !includeOutdatedContactInfo ? null : contactPreference.Email,
+                EmailIsOutdated = emailIsOutdated,
+                MobileNumber = mobileIsOutdated && !includeOutdatedContactInfo ? null : contactPreference.MobileNumber,
+                MobileNumberIsOutdated = mobileIsOutdated,
                 IsReserved = contactPreference.IsReserved
             };
+
             resultList.ContactPointsList.Add(contactPoint);
         }
 
