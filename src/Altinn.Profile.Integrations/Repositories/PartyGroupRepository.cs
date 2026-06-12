@@ -1,11 +1,8 @@
 ﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.User.PartyGroups;
-using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;
-
-using Wolverine.EntityFrameworkCore;
 
 namespace Altinn.Profile.Integrations.Repositories
 {
@@ -13,8 +10,7 @@ namespace Altinn.Profile.Integrations.Repositories
     /// Defines a repository for operations related to a users groups of parties.
     /// </summary>
     public class PartyGroupRepository(
-        IDbContextFactory<ProfileDbContext> contextFactory, IDbContextOutbox databaseContextOutbox) 
-        : EFCoreTransactionalOutbox(databaseContextOutbox), IPartyGroupRepository
+        IDbContextFactory<ProfileDbContext> contextFactory) : IPartyGroupRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
@@ -195,9 +191,7 @@ namespace Altinn.Profile.Integrations.Repositories
 
             databaseContext.PartyGroupAssociations.Add(partyGroupAssociation);
 
-            FavoriteAddedEvent NotifyFavoriteAdded() => new(userId, partyUuid, RegistrationTimestamp: DateTime.UtcNow);
-
-            await NotifyAndSave(databaseContext, NotifyFavoriteAdded, cancellationToken);
+            await databaseContext.SaveChangesAsync(cancellationToken);
 
             return true;
         }
@@ -220,9 +214,7 @@ namespace Altinn.Profile.Integrations.Repositories
             using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
             databaseContext.Groups.Add(favoriteGroup);
 
-            FavoriteAddedEvent NotifyFavoriteAdded() => new(userId, partyUuid, RegistrationTimestamp: DateTime.UtcNow);
-
-            await NotifyAndSave(databaseContext, eventRaiser: NotifyFavoriteAdded, cancellationToken);
+            await databaseContext.SaveChangesAsync(cancellationToken);
 
             return true;
         }
@@ -247,8 +239,7 @@ namespace Altinn.Profile.Integrations.Repositories
 
             databaseContext.PartyGroupAssociations.Remove(partyGroupAssociation);
 
-            FavoriteRemovedEvent NotifyFavoriteDeleted() => new(userId, partyUuid, partyGroupAssociation.Created, DateTime.UtcNow);
-            await NotifyAndSave(databaseContext, eventRaiser: NotifyFavoriteDeleted, cancellationToken);
+            await databaseContext.SaveChangesAsync(cancellationToken);
 
             return true;
         }

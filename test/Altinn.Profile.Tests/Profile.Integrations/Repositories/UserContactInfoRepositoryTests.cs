@@ -3,16 +3,10 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.User.ContactInfo;
-using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
 
 using Microsoft.EntityFrameworkCore;
-
-using Moq;
-
-using Wolverine;
-using Wolverine.EntityFrameworkCore;
 
 using Xunit;
 
@@ -20,8 +14,6 @@ namespace Altinn.Profile.Tests.Profile.Integrations.Repositories;
 
 public class UserContactInfoRepositoryTests
 {
-    private readonly Mock<IDbContextOutbox> _dbContextOutboxMock = new();
-
     private class TestDbContextFactory(DbContextOptions<ProfileDbContext> options) : IDbContextFactory<ProfileDbContext>
     {
         private readonly DbContextOptions<ProfileDbContext> _options = options;
@@ -42,13 +34,10 @@ public class UserContactInfoRepositoryTests
     public async Task CreateUserContactInfo_WhenUserWithSameIdAlreadyExists_Throws()
     {
         // Arrange
-        SiUserContactInfoAddedEvent actualEventRaised = null;
-        void EventRaisingCallback(SiUserContactInfoAddedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
-        MockDbContextOutbox((Action<SiUserContactInfoAddedEvent, DeliveryOptions>)EventRaisingCallback);
 
         var options = CreateOptions(nameof(CreateUserContactInfo_WhenUserWithSameIdAlreadyExists_Throws));
         var factory = new TestDbContextFactory(options);
-        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+        var repository = new UserContactInfoRepository(factory);
 
         await using var seedContext = new ProfileDbContext(options);
         var existingUserContactInfo = new UserContactInfo()
@@ -75,21 +64,15 @@ public class UserContactInfoRepositoryTests
         // Act & Assert
         await Assert.ThrowsAsync<UserContactInfoAlreadyExistsException>(() =>
             repository.CreateUserContactInfo(userContactInfoToCreate, TestContext.Current.CancellationToken));
-
-        _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<SiUserContactInfoAddedEvent>(), It.IsAny<DeliveryOptions>()), Times.Never);
     }
 
     [Fact]
     public async Task CreateUserContactInfo_WhenPhoneNumberIsIncluded_SetsCorrectPropertiesInDbRecord()
     {
         // Arrange
-        SiUserContactInfoAddedEvent actualEventRaised = null;
-        void EventRaisingCallback(SiUserContactInfoAddedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
-        MockDbContextOutbox((Action<SiUserContactInfoAddedEvent, DeliveryOptions>)EventRaisingCallback);
-
         var options = CreateOptions(nameof(CreateUserContactInfo_WhenPhoneNumberIsIncluded_SetsCorrectPropertiesInDbRecord));
         var factory = new TestDbContextFactory(options);
-        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+        var repository = new UserContactInfoRepository(factory);
 
         var userContactInfoToCreate = new UserContactInfoCreateModel()
         {
@@ -119,22 +102,15 @@ public class UserContactInfoRepositoryTests
         Assert.Equal(userContactInfoToCreate.PhoneNumber, updatedUserContactInfo.PhoneNumber);
         Assert.NotNull(updatedUserContactInfo.PhoneNumberLastChanged);
         Assert.InRange(updatedUserContactInfo.PhoneNumberLastChanged.Value, before, after);
-
-        _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<SiUserContactInfoAddedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
-        Assert.NotNull(actualEventRaised);
     }
 
     [Fact]
     public async Task CreateUserContactInfo_WhenPhoneNumberIsIncluded_ReturnsModelWithCorrectProperties()
     {
         // Arrange
-        SiUserContactInfoAddedEvent actualEventRaised = null;
-        void EventRaisingCallback(SiUserContactInfoAddedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
-        MockDbContextOutbox((Action<SiUserContactInfoAddedEvent, DeliveryOptions>)EventRaisingCallback);
-
         var options = CreateOptions(nameof(CreateUserContactInfo_WhenPhoneNumberIsIncluded_ReturnsModelWithCorrectProperties));
         var factory = new TestDbContextFactory(options);
-        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+        var repository = new UserContactInfoRepository(factory);
         var userContactInfoToCreate = new UserContactInfoCreateModel()
         {
             UserId = 3,
@@ -158,21 +134,15 @@ public class UserContactInfoRepositoryTests
         Assert.Equal(userContactInfoToCreate.PhoneNumber, result.PhoneNumber);
         Assert.NotNull(result.PhoneNumberLastChanged);
         Assert.InRange(result.PhoneNumberLastChanged.Value, before, after);
-
-        _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<SiUserContactInfoAddedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
     }
 
     [Fact]
     public async Task CreateUserContactInfo_WhenPhoneNumberIsExcluded_SetsCorrectPropertiesInDbRecord()
     {
         // Arrange
-        SiUserContactInfoAddedEvent actualEventRaised = null;
-        void EventRaisingCallback(SiUserContactInfoAddedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
-        MockDbContextOutbox((Action<SiUserContactInfoAddedEvent, DeliveryOptions>)EventRaisingCallback);
-
         var options = CreateOptions(nameof(CreateUserContactInfo_WhenPhoneNumberIsExcluded_SetsCorrectPropertiesInDbRecord));
         var factory = new TestDbContextFactory(options);
-        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+        var repository = new UserContactInfoRepository(factory);
         var userContactInfoToCreate = new UserContactInfoCreateModel()
         {
             UserId = 4,
@@ -199,21 +169,15 @@ public class UserContactInfoRepositoryTests
         Assert.Equal(userContactInfoToCreate.EmailAddress, updatedUserContactInfo.EmailAddress);
         Assert.Null(updatedUserContactInfo.PhoneNumber);
         Assert.Null(updatedUserContactInfo.PhoneNumberLastChanged);
-
-        _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<SiUserContactInfoAddedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
     }
 
     [Fact]
     public async Task CreateUserContactInfo_WhenPhoneNumberIsExcluded_ReturnsModelWithCorrectProperties()
     {
         // Arrange
-        SiUserContactInfoAddedEvent actualEventRaised = null;
-        void EventRaisingCallback(SiUserContactInfoAddedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
-        MockDbContextOutbox((Action<SiUserContactInfoAddedEvent, DeliveryOptions>)EventRaisingCallback);
-
         var options = CreateOptions(nameof(CreateUserContactInfo_WhenPhoneNumberIsExcluded_ReturnsModelWithCorrectProperties));
         var factory = new TestDbContextFactory(options);
-        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+        var repository = new UserContactInfoRepository(factory);
         var userContactInfoToCreate = new UserContactInfoCreateModel()
         {
             UserId = 5,
@@ -235,42 +199,31 @@ public class UserContactInfoRepositoryTests
         Assert.Equal(userContactInfoToCreate.EmailAddress, result.EmailAddress);
         Assert.Null(result.PhoneNumber);
         Assert.Null(result.PhoneNumberLastChanged);
-
-        _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<SiUserContactInfoAddedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
     }
 
     [Fact]
     public async Task UpdatePhoneNumber_WhenUserDoesNotExist_ReturnsNull()
     {
         // Arrange
-        SiUserContactInfoUpdatedEvent actualEventRaised = null;
-        void EventRaisingCallback(SiUserContactInfoUpdatedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
-        MockDbContextOutbox((Action<SiUserContactInfoUpdatedEvent, DeliveryOptions>)EventRaisingCallback);
-
         var options = CreateOptions(nameof(UpdatePhoneNumber_WhenUserDoesNotExist_ReturnsNull));
         var factory = new TestDbContextFactory(options);
-        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+        var repository = new UserContactInfoRepository(factory);
 
         // Act
         var result = await repository.UpdatePhoneNumber(6, "+4798765431", CancellationToken.None);
 
         // Assert
         Assert.Null(result);
-
-        _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<SiUserContactInfoUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Never);
     }
 
     [Fact]
     public async Task UpdatePhoneNumber_WhenUserExists_UpdatesPhoneNumber()
     {
         // Arrange
-        SiUserContactInfoUpdatedEvent actualEventRaised = null;
-        void EventRaisingCallback(SiUserContactInfoUpdatedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
-        MockDbContextOutbox((Action<SiUserContactInfoUpdatedEvent, DeliveryOptions>)EventRaisingCallback);
-
+      
         var options = CreateOptions(nameof(UpdatePhoneNumber_WhenUserExists_UpdatesPhoneNumber));
         var factory = new TestDbContextFactory(options);
-        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+        var repository = new UserContactInfoRepository(factory);
 
         int testUserId = 7;
         string existingNumber = "+4798765431";
@@ -302,21 +255,15 @@ public class UserContactInfoRepositoryTests
             cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(updatedUserContactInfo);
         Assert.Equal(newNumber, updatedUserContactInfo.PhoneNumber);
-
-        _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<SiUserContactInfoUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
     }
 
     [Fact]
     public async Task UpdatePhoneNumber_WhenUserExists_UpdatesPhoneNumberRegisteredToNow()
     {
         // Arrange
-        SiUserContactInfoUpdatedEvent actualEventRaised = null;
-        void EventRaisingCallback(SiUserContactInfoUpdatedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
-        MockDbContextOutbox((Action<SiUserContactInfoUpdatedEvent, DeliveryOptions>)EventRaisingCallback);
-
         var options = CreateOptions(nameof(UpdatePhoneNumber_WhenUserExists_UpdatesPhoneNumberRegisteredToNow));
         var factory = new TestDbContextFactory(options);
-        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+        var repository = new UserContactInfoRepository(factory);
 
         int testUserId = 8;
 
@@ -349,21 +296,15 @@ public class UserContactInfoRepositoryTests
         Assert.NotNull(updatedUserContactInfo);
         Assert.NotNull(updatedUserContactInfo.PhoneNumberLastChanged);
         Assert.InRange(updatedUserContactInfo.PhoneNumberLastChanged.Value, before, after);
-
-        _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<SiUserContactInfoUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
     }
 
     [Fact]
     public async Task UpdatePhoneNumber_WhenUserExists_ReturnsUpdatedContactInfo()
     {
         // Arrange
-        SiUserContactInfoUpdatedEvent actualEventRaised = null;
-        void EventRaisingCallback(SiUserContactInfoUpdatedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
-        MockDbContextOutbox((Action<SiUserContactInfoUpdatedEvent, DeliveryOptions>)EventRaisingCallback);
-
         var options = CreateOptions(nameof(UpdatePhoneNumber_WhenUserExists_ReturnsUpdatedContactInfo));
         var factory = new TestDbContextFactory(options);
-        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+        var repository = new UserContactInfoRepository(factory);
 
         int testUserId = 9;
 
@@ -391,21 +332,15 @@ public class UserContactInfoRepositoryTests
         Assert.Equal("+4798765433", result.PhoneNumber);
         Assert.NotNull(result.PhoneNumberLastChanged);
         Assert.InRange(result.PhoneNumberLastChanged.Value, before, after);
-
-        _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<SiUserContactInfoUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
     }
 
     [Fact]
     public async Task UpdatePhoneNumber_WhenNumberIsRemoved_ReturnsUpdatedContactInfo()
     {
         // Arrange
-        SiUserContactInfoUpdatedEvent actualEventRaised = null;
-        void EventRaisingCallback(SiUserContactInfoUpdatedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
-        MockDbContextOutbox((Action<SiUserContactInfoUpdatedEvent, DeliveryOptions>)EventRaisingCallback);
-
         var options = CreateOptions(nameof(UpdatePhoneNumber_WhenNumberIsRemoved_ReturnsUpdatedContactInfo));
         var factory = new TestDbContextFactory(options);
-        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+        var repository = new UserContactInfoRepository(factory);
 
         int testUserId = 11;
 
@@ -433,23 +368,15 @@ public class UserContactInfoRepositoryTests
         Assert.Null(result.PhoneNumber);
         Assert.NotNull(result.PhoneNumberLastChanged);
         Assert.InRange(result.PhoneNumberLastChanged.Value, before, after);
-
-        _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<SiUserContactInfoUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Once);
-        Assert.NotNull(actualEventRaised.PhoneNumber);
-        Assert.Equal(string.Empty, actualEventRaised.PhoneNumber);
     }
 
     [Fact]
     public async Task UpdatePhoneNumber_WhenUserAndNumberAlreadyExists_DoesNotUpdateLastChanged()
     {
         // Arrange
-        SiUserContactInfoUpdatedEvent actualEventRaised = null;
-        void EventRaisingCallback(SiUserContactInfoUpdatedEvent ev, DeliveryOptions opts) => actualEventRaised = ev;
-        MockDbContextOutbox((Action<SiUserContactInfoUpdatedEvent, DeliveryOptions>)EventRaisingCallback);
-
         var options = CreateOptions(nameof(UpdatePhoneNumber_WhenUserAndNumberAlreadyExists_DoesNotUpdateLastChanged));
         var factory = new TestDbContextFactory(options);
-        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+        var repository = new UserContactInfoRepository(factory);
 
         int testUserId = 10;
         var existingNumberLastChanged = DateTime.Now.AddMinutes(-1);
@@ -473,8 +400,6 @@ public class UserContactInfoRepositoryTests
 
         // Assert
         Assert.Equal(existingNumberLastChanged.Ticks, result.PhoneNumberLastChanged.Value.Ticks);
-
-        _dbContextOutboxMock.Verify(mock => mock.PublishAsync(It.IsAny<SiUserContactInfoUpdatedEvent>(), It.IsAny<DeliveryOptions>()), Times.Never);
     }
 
     [Fact]
@@ -483,7 +408,7 @@ public class UserContactInfoRepositoryTests
         // Arrange
         var options = CreateOptions(nameof(Get_WhenUserDoesNotExist_ReturnsNull));
         var factory = new TestDbContextFactory(options);
-        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+        var repository = new UserContactInfoRepository(factory);
 
         // Act
         var result = await repository.Get(12, CancellationToken.None);
@@ -498,7 +423,7 @@ public class UserContactInfoRepositoryTests
         // Arrange
         var options = CreateOptions(nameof(Get_WhenUserExists_ReturnsContactInfo));
         var factory = new TestDbContextFactory(options);
-        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+        var repository = new UserContactInfoRepository(factory);
 
         int testUserId = 13;
         var expectedUserUuid = Guid.NewGuid();
@@ -538,7 +463,7 @@ public class UserContactInfoRepositoryTests
         // Arrange
         var options = CreateOptions(nameof(GetByUsername_WhenUserDoesNotExist_ReturnsNull));
         var factory = new TestDbContextFactory(options);
-        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+        var repository = new UserContactInfoRepository(factory);
 
         // Act
         var result = await repository.GetByUsername("missing-user", CancellationToken.None);
@@ -553,7 +478,7 @@ public class UserContactInfoRepositoryTests
         // Arrange
         var options = CreateOptions(nameof(GetByUsername_WhenUserExists_ReturnsContactInfo));
         var factory = new TestDbContextFactory(options);
-        var repository = new UserContactInfoRepository(factory, _dbContextOutboxMock.Object);
+        var repository = new UserContactInfoRepository(factory);
 
         const string Username = "foobar";
         var expectedUserUuid = Guid.NewGuid();
@@ -587,26 +512,4 @@ public class UserContactInfoRepositoryTests
         Assert.Equal(expectedPhoneNumberLastChanged, result.PhoneNumberLastChanged);
     }
 
-    private void MockDbContextOutbox<TEvent>(Action<TEvent, DeliveryOptions> callback)
-    {
-        DbContext context = null;
-
-        _dbContextOutboxMock
-            .Setup(mock => mock.Enroll(It.IsAny<DbContext>()))
-            .Callback<DbContext>(ctx =>
-            {
-                context = ctx;
-            });
-
-        _dbContextOutboxMock
-            .Setup(mock => mock.SaveChangesAndFlushMessagesAsync(It.IsAny<CancellationToken>()))
-            .Returns(async (CancellationToken ct) =>
-            {
-                await context.SaveChangesAsync(ct);
-            });
-
-        _dbContextOutboxMock
-            .Setup(mock => mock.PublishAsync(It.IsAny<TEvent>(), It.IsAny<DeliveryOptions>()))
-            .Callback(callback);
-    }
 }

@@ -1,7 +1,7 @@
-﻿using Altinn.Profile.Integrations.SblBridge.Changelog.Converters;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using Altinn.Profile.Integrations.SblBridge.Changelog.Converters;
 
 namespace Altinn.Profile.Integrations.SblBridge.Changelog;
 
@@ -10,6 +10,8 @@ namespace Altinn.Profile.Integrations.SblBridge.Changelog;
 /// </summary>
 public class ChangeLogItem
 {
+    private static readonly JsonSerializerOptions _serializerOptions = new(JsonSerializerDefaults.Web);
+
     /// <summary>
     /// Gets or sets the unique index id created by the database when the entry was initially stored.
     /// </summary>
@@ -75,12 +77,7 @@ public class ChangeLogItem
         /// <returns>JSON deserialized version of the current object.</returns>
         public static Favorite? Deserialize(string data)
         {
-            JsonSerializerSettings settings = new()
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
-
-            return JsonConvert.DeserializeObject<Favorite>(data, settings);
+            return JsonSerializer.Deserialize<Favorite>(data, _serializerOptions);
         }
     }
 
@@ -120,12 +117,7 @@ public class ChangeLogItem
         /// <returns>The object deserialized from JSON.</returns>
         public static ProfessionalNotificationSettings? Deserialize(string data)
         {
-            JsonSerializerSettings settings = new()
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
-
-            return JsonConvert.DeserializeObject<ProfessionalNotificationSettings>(data, settings);
+            return JsonSerializer.Deserialize<ProfessionalNotificationSettings>(data, _serializerOptions);
         }
     }
 
@@ -183,12 +175,7 @@ public class ChangeLogItem
         /// <returns>The object deserialized from JSON.</returns>
         public static PortalSettings? Deserialize(string data)
         {
-            JsonSerializerSettings settings = new()
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
-
-            return JsonConvert.DeserializeObject<PortalSettings>(data, settings);
+            return JsonSerializer.Deserialize<PortalSettings>(data, _serializerOptions);
         }
     }
 }
