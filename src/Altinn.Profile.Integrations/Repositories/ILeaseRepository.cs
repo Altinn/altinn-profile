@@ -4,12 +4,11 @@ using Altinn.Authorization.ServiceDefaults.Leases;
 
 using Lease = Altinn.Profile.Integrations.Leases.Lease;
 
-namespace Altinn.Profile.Integrations.Repositories.A2Sync
+namespace Altinn.Profile.Integrations.Repositories
 {
     /// <summary>
     /// Defines a repository for Lease operations.
     /// </summary>
-    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     public interface ILeaseRepository
     {
         /// <summary>

@@ -1,7 +1,7 @@
 ﻿#nullable enable
 
 using Altinn.Authorization.ServiceDefaults.Leases;
-using Altinn.Profile.Integrations.Repositories.A2Sync;
+using Altinn.Profile.Integrations.Repositories;
 
 using Microsoft.Extensions.Logging;
 
