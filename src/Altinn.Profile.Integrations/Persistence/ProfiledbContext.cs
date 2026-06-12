@@ -86,11 +86,6 @@ public partial class ProfileDbContext : DbContext
     public virtual DbSet<Lease> Lease { get; set; }
 
     /// <summary>
-    /// The <see cref="DbSet{ChangelogSyncMetadata}"/> timestamp for last changelog sync from date for a data-type.
-    /// </summary>
-    public virtual DbSet<ChangelogSyncMetadata> ChangelogSyncMetadata { get; set; }
-
-    /// <summary>
     /// The <see cref="DbSet{ProfileSettings}"/> representing the profile settings for users.
     /// </summary>
     public virtual DbSet<ProfileSettings> ProfileSettings { get; set; }
@@ -254,11 +249,6 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.Acquired).IsRequired(false);
             entity.Property(e => e.Released).IsRequired(false);
             entity.HasIndex(e => e.Id, "ix_lease_id").IsUnique();
-        });
-
-        modelBuilder.Entity<ChangelogSyncMetadata>(entity =>
-        {
-            entity.HasKey(e => e.LastChangedId).HasName("changelog_sync_metadata_pkey");
         });
 
         modelBuilder.Entity<ProfileSettings>(entity =>
