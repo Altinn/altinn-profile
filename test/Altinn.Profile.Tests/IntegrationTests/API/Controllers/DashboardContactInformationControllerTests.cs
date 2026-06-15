@@ -1221,7 +1221,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
             {
-                if (request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) == true)
+                if (request.Method == HttpMethod.Post && request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) == true)
                 {
                     string[] requestedOrgNumbers = [];
                     if (request.Content != null)
@@ -1256,7 +1256,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                     };
                 }
 
-                if (request.RequestUri?.AbsolutePath.EndsWith("v1/parties/identifiers", StringComparison.Ordinal) == true)
+                if (request.Method == HttpMethod.Get && request.RequestUri?.AbsolutePath.EndsWith("v1/parties/identifiers", StringComparison.Ordinal) == true)
                 {
                     string uuidQuery = request.RequestUri.Query.TrimStart('?')
                         .Split('&', StringSplitOptions.RemoveEmptyEntries)

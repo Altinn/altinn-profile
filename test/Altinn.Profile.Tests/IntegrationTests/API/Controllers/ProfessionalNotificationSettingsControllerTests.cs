@@ -1327,7 +1327,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             _factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, cancellationToken) =>
             {
-                if (request.RequestUri?.AbsolutePath.EndsWith("v1/parties/identifiers", StringComparison.Ordinal) == true)
+                if (request.Method == HttpMethod.Get && request.RequestUri?.AbsolutePath.EndsWith("v1/parties/identifiers", StringComparison.Ordinal) == true)
                 {
                     return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                     {
@@ -1343,7 +1343,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                     });
                 }
 
-                if (request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) == true)
+                if (request.Method == HttpMethod.Post && request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) == true)
                 {
                     return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                     {
