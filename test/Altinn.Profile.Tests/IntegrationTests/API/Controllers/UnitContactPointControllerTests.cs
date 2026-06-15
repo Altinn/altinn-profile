@@ -180,7 +180,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
         Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
     }
 
-    private void SetupRegisterPartyUuidsLookup(Func<string[], List<Party>?> responseFactory)
+    private void SetupRegisterPartyUuidsLookup(Func<string[], List<Party>> responseFactory)
     {
         _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {

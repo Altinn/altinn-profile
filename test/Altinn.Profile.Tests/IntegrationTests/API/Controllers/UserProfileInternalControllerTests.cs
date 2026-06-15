@@ -570,7 +570,6 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         Assert.NotNull(actualUser);
         Assert.Equal("Register Person", actualUser.Party.Name);
         Assert.Equal("14836498780", actualUser.Party.SSN);
-
     }
 
     [Fact]
@@ -603,7 +602,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         Assert.EndsWith($"sblbridge/profile/api/users/?username={username}", sblRequest.RequestUri.ToString());
     }
 
-    private void SetupRegisterUserPartyByUserIdLookup(int userId, Party? userParty, HttpStatusCode statusCode = HttpStatusCode.OK)
+    private void SetupRegisterUserPartyByUserIdLookup(int userId, Party userParty, HttpStatusCode statusCode = HttpStatusCode.OK)
     {
         _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
@@ -655,7 +654,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         });
     }
 
-    private void SetupRegisterUserPartyByUsernameLookup(string username, Party? userParty, HttpStatusCode statusCode = HttpStatusCode.OK)
+    private void SetupRegisterUserPartyByUsernameLookup(string username, Party userParty, HttpStatusCode statusCode = HttpStatusCode.OK)
     {
         _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
@@ -713,7 +712,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         {
             builder.ConfigureAppConfiguration((_, config) =>
             {
-                config.AddInMemoryCollection(new Dictionary<string, string?>
+                config.AddInMemoryCollection(new Dictionary<string, string>
                 {
                     ["CoreSettings:RegisterAsPrimaryUserProfileSource"] = enabled ? "true" : "false"
                 });
@@ -725,13 +724,6 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
     {
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri);
         httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(lookupRequest), Encoding.UTF8, "application/json");
-        return httpRequestMessage;
-    }
-
-    private static HttpRequestMessage CreatePostRequest(string requestUri, List<Guid> listRequest)
-    {
-        HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri);
-        httpRequestMessage.Content = new StringContent(JsonSerializer.Serialize(listRequest), Encoding.UTF8, "application/json");
         return httpRequestMessage;
     }
 }

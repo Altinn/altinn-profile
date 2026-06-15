@@ -1289,7 +1289,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             });
         }
 
-        private void SetupRegisterOrganizationNumberLookup(IReadOnlyDictionary<Guid, string> organizationNumbersByPartyUuid)
+        private void SetupRegisterOrganizationNumberLookup(Dictionary<Guid, string> organizationNumbersByPartyUuid)
         {
             _factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
             {

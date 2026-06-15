@@ -946,7 +946,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.NotNull(actualUser);
         Assert.Equal("Register Person", actualUser.Party.Name);
         Assert.Equal("14836498780", actualUser.Party.SSN);
-
     }
 
     [Fact]
@@ -1021,7 +1020,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(sblRequest); // fallback path must call legacy
         Assert.EndsWith($"users/{userId}", sblRequest!.RequestUri?.ToString());
-
     }
 
     [Fact]
