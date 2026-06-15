@@ -207,7 +207,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
                         .ToArray();
                 }
 
-                List<Party>? parties = responseFactory(orgNumbers);
+                List<Party> parties = responseFactory(orgNumbers);
                 if (parties == null)
                 {
                     return new HttpResponseMessage(HttpStatusCode.InternalServerError);

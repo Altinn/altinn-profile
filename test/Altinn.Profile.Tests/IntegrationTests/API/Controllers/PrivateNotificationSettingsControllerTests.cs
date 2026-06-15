@@ -18,7 +18,6 @@ using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Altinn.Register.Contracts;
 using Altinn.Register.Contracts.Testing;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 
 using Moq;
@@ -448,7 +447,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
         _factory.UserContactInfoRepositoryMock.Verify(x => x.CreateUserContactInfo(It.IsAny<UserContactInfoCreateModel>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    private void SetupRegisterUserPartyLookup(int userId, Party? userParty)
+    private void SetupRegisterUserPartyLookup(int userId, Party userParty)
     {
         _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {

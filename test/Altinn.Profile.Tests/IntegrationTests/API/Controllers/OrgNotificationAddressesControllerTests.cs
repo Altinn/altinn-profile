@@ -341,16 +341,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 {
                     return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                     {
-                        Content = JsonContent.Create(new
-                        {
-                            data = new[]
-                            {
-                                new
-                                {
-                                    organizationIdentifier = parentOrgNumber
-                                }
-                            }
-                        })
+                        Content = JsonContent.Create(new { data = new[] { new { organizationIdentifier = parentOrgNumber } } })
                     });
                 }
 
