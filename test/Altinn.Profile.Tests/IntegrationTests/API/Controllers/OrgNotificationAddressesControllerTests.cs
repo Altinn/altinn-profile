@@ -112,6 +112,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
             };
+            SetupRegisterMainUnitLookup(null);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
@@ -252,6 +253,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
             };
+            SetupRegisterMainUnitLookup(null);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
