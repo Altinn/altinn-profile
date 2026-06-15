@@ -18,8 +18,6 @@ using Moq;
 
 using Xunit;
 
-using RegisterParty = Altinn.Profile.Core.Unit.ContactPoints.Party;
-
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
     public class DashboardContactInformationControllerTests : IClassFixture<ProfileWebApplicationFactory<Program>>
@@ -70,14 +68,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string orgNumber = "123456789";
             Guid partyUuid = Guid.NewGuid();
 
-            // Mock Register Client - translate org number to party UUID
-            var parties = new List<RegisterParty>
-            {
-                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
-            };
-            _factory.RegisterClientMock
-                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(parties);
+            SetupRegisterPartyUuidsLookup(orgNumber, partyUuid);
 
             // Mock ProfessionalNotificationsRepository - return contact info for multiple users
             var contactInfos = new List<UserPartyContactInfo>
@@ -140,13 +131,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string orgNumber = "987654321";
             Guid partyUuid = Guid.NewGuid();
 
-            var parties = new List<RegisterParty>
-            {
-                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
-            };
-            _factory.RegisterClientMock
-                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(parties);
+            SetupRegisterPartyUuidsLookup(orgNumber, partyUuid);
 
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(r => r.GetAllNotificationAddressesForPartyAsync(partyUuid, It.IsAny<CancellationToken>()))
@@ -174,9 +159,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             string orgNumber = "888888888";
 
-            _factory.RegisterClientMock
-                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
-                .ReturnsAsync([]);
+            SetupRegisterPartyUuidsLookup(orgNumber);
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/contactinformation");
@@ -238,13 +221,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string orgNumber = "111222333";
             Guid partyUuid = Guid.NewGuid();
 
-            var parties = new List<RegisterParty>
-            {
-                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
-            };
-            _factory.RegisterClientMock
-                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(parties);
+            SetupRegisterPartyUuidsLookup(orgNumber, partyUuid);
 
             var contactInfos = new List<UserPartyContactInfo>
             {
@@ -300,14 +277,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Guid partyUuid1 = Guid.NewGuid();
             Guid partyUuid2 = Guid.NewGuid();
 
-            var parties = new List<RegisterParty>
-            {
-                new() { PartyId = 12345, PartyUuid = partyUuid1, OrganizationIdentifier = orgNumber },
-                new() { PartyId = 67890, PartyUuid = partyUuid2, OrganizationIdentifier = orgNumber }
-            };
-            _factory.RegisterClientMock
-                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(parties);
+            SetupRegisterPartyUuidsLookup(orgNumber, partyUuid1, partyUuid2);
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/contactinformation");
@@ -341,13 +311,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string orgNumber = "555666777";
             Guid partyUuid = Guid.NewGuid();
 
-            var parties = new List<RegisterParty>
-            {
-                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
-            };
-            _factory.RegisterClientMock
-                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(parties);
+            SetupRegisterPartyUuidsLookup(orgNumber, partyUuid);
 
             var contactInfos = new List<UserPartyContactInfo>
             {
@@ -404,13 +368,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string orgNumber = "444555666";
             Guid partyUuid = Guid.NewGuid();
 
-            var parties = new List<RegisterParty>
-            {
-                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
-            };
-            _factory.RegisterClientMock
-                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(parties);
+            SetupRegisterPartyUuidsLookup(orgNumber, partyUuid);
 
             var contactInfos = new List<UserPartyContactInfo>
             {
@@ -465,13 +423,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string orgNumber = "333444555";
             Guid partyUuid = Guid.NewGuid();
 
-            var parties = new List<RegisterParty>
-            {
-                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
-            };
-            _factory.RegisterClientMock
-                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(parties);
+            SetupRegisterPartyUuidsLookup(orgNumber, partyUuid);
 
             var contactInfos = new List<UserPartyContactInfo>
             {
@@ -531,13 +483,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string orgNumber = "222333444";
             Guid partyUuid = Guid.NewGuid();
 
-            var parties = new List<RegisterParty>
-            {
-                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = orgNumber }
-            };
-            _factory.RegisterClientMock
-                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == orgNumber), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(parties);
+            SetupRegisterPartyUuidsLookup(orgNumber, partyUuid);
 
             var contactInfos = new List<UserPartyContactInfo>
             {
@@ -630,12 +576,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(contactInfosFromRepo);
 
             // Mock register client used by service/controller to map partyUuid -> org number
-            _factory.RegisterClientMock
-                .Setup(r => r.GetOrganizationNumberByPartyUuid(partyUuid1, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(orgNumber1);
-            _factory.RegisterClientMock
-                .Setup(r => r.GetOrganizationNumberByPartyUuid(partyUuid2, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(orgNumber2);
+            SetupRegisterOrganizationNumberLookup(new Dictionary<Guid, string>
+            {
+                [partyUuid1] = orgNumber1,
+                [partyUuid2] = orgNumber2
+            });
 
             HttpClient client = _factory.CreateClient();
             string encodedEmail = Uri.EscapeDataString(email);
@@ -768,12 +713,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.GetAllContactInfoByEmailAddressAsync(email, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(contactInfosFromRepo);
 
-            _factory.RegisterClientMock
-                .Setup(r => r.GetOrganizationNumberByPartyUuid(partyUuid1, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(orgNumber);
-            _factory.RegisterClientMock
-                .Setup(r => r.GetOrganizationNumberByPartyUuid(partyUuid2, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(orgNumber);
+            SetupRegisterOrganizationNumberLookup(new Dictionary<Guid, string>
+            {
+                [partyUuid1] = orgNumber,
+                [partyUuid2] = orgNumber
+            });
 
             HttpClient client = _factory.CreateClient();
             string encodedEmail = Uri.EscapeDataString(email);
@@ -864,12 +808,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(contactInfosFromRepo);
 
             // Mock register client used by service/controller to map partyUuid -> org number
-            _factory.RegisterClientMock
-                .Setup(r => r.GetOrganizationNumberByPartyUuid(partyUuid1, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(orgNumber1);
-            _factory.RegisterClientMock
-                .Setup(r => r.GetOrganizationNumberByPartyUuid(partyUuid2, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(orgNumber2);
+            SetupRegisterOrganizationNumberLookup(new Dictionary<Guid, string>
+            {
+                [partyUuid1] = orgNumber1,
+                [partyUuid2] = orgNumber2
+            });
 
             HttpClient client = _factory.CreateClient();
             string encodedPhoneNumber = Uri.EscapeDataString(phoneNumber);
@@ -1009,12 +952,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.GetAllContactInfoByPhoneNumberAsync(fullPhoneNumber, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(contactInfosFromRepo);
 
-            _factory.RegisterClientMock
-                .Setup(r => r.GetOrganizationNumberByPartyUuid(partyUuid1, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(orgNumber);
-            _factory.RegisterClientMock
-                .Setup(r => r.GetOrganizationNumberByPartyUuid(partyUuid2, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(orgNumber);
+            SetupRegisterOrganizationNumberLookup(new Dictionary<Guid, string>
+            {
+                [partyUuid1] = orgNumber,
+                [partyUuid2] = orgNumber
+            });
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}?countrycode={encodedCountryCode}");
@@ -1098,12 +1040,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.GetAllContactInfoByPhoneNumberAsync(phoneNumber, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(contactInfosFromRepo);
 
-            _factory.RegisterClientMock
-                .Setup(r => r.GetOrganizationNumberByPartyUuid(partyUuid1, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(orgNumber1);
-            _factory.RegisterClientMock
-                .Setup(r => r.GetOrganizationNumberByPartyUuid(partyUuid2, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(orgNumber2);
+            SetupRegisterOrganizationNumberLookup(new Dictionary<Guid, string>
+            {
+                [partyUuid1] = orgNumber1,
+                [partyUuid2] = orgNumber2
+            });
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}");
@@ -1216,9 +1157,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.GetAllContactInfoByPhoneNumberAsync(searchPhoneNumber, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(contactInfosFromRepo);
 
-            _factory.RegisterClientMock
-                .Setup(r => r.GetOrganizationNumberByPartyUuid(partyUuid, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(orgNumber);
+            SetupRegisterOrganizationNumberLookup(new Dictionary<Guid, string>
+            {
+                [partyUuid] = orgNumber
+            });
 
             HttpClient client = _factory.CreateClient();
 
@@ -1271,6 +1213,117 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        private void SetupRegisterPartyUuidsLookup(string orgNumber, params Guid[] partyUuids)
+        {
+            var lookup = partyUuids.ToDictionary(partyUuid => partyUuid, _ => orgNumber);
+
+            _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+            {
+                if (request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) == true)
+                {
+                    string[] requestedOrgNumbers = [];
+                    if (request.Content != null)
+                    {
+                        await using var stream = await request.Content.ReadAsStreamAsync(token);
+                        using JsonDocument jsonDocument = await JsonDocument.ParseAsync(stream, cancellationToken: token);
+                        if (jsonDocument.RootElement.TryGetProperty("data", out JsonElement dataElement) && dataElement.ValueKind == JsonValueKind.Array)
+                        {
+                            requestedOrgNumbers = dataElement
+                                .EnumerateArray()
+                                .Where(element => element.ValueKind == JsonValueKind.String)
+                                .Select(element => element.GetString())
+                                .Where(value => !string.IsNullOrEmpty(value))
+                                .Select(value => value[(value.LastIndexOf(':') + 1)..])
+                                .ToArray();
+                        }
+                    }
+
+                    var responseData = lookup
+                        .Where(entry => requestedOrgNumbers.Length == 0 || requestedOrgNumbers.Contains(entry.Value, StringComparer.Ordinal))
+                        .Select((entry, index) => new
+                        {
+                            partyId = index + 1,
+                            partyUuid = entry.Key,
+                            organizationIdentifier = entry.Value
+                        })
+                        .ToArray();
+
+                    return new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = JsonContent.Create(new { data = responseData })
+                    };
+                }
+
+                if (request.RequestUri?.AbsolutePath.EndsWith("v1/parties/identifiers", StringComparison.Ordinal) == true)
+                {
+                    string uuidQuery = request.RequestUri.Query.TrimStart('?')
+                        .Split('&', StringSplitOptions.RemoveEmptyEntries)
+                        .FirstOrDefault(part => part.StartsWith("uuids=", StringComparison.OrdinalIgnoreCase))?
+                        ["uuids=".Length..] ?? string.Empty;
+
+                    var uuids = Uri.UnescapeDataString(uuidQuery)
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(value => Guid.TryParse(value, out Guid parsed) ? parsed : Guid.Empty)
+                        .Where(value => value != Guid.Empty)
+                        .ToArray();
+
+                    var responseData = uuids
+                        .Where(partyUuid => lookup.ContainsKey(partyUuid))
+                        .Select((partyUuid, index) => new
+                        {
+                            partyId = index + 1,
+                            partyUuid,
+                            orgNumber = lookup[partyUuid]
+                        })
+                        .ToArray();
+
+                    return new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = JsonContent.Create(responseData)
+                    };
+                }
+
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            });
+        }
+
+        private void SetupRegisterOrganizationNumberLookup(IReadOnlyDictionary<Guid, string> organizationNumbersByPartyUuid)
+        {
+            _factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
+            {
+                if (request.RequestUri?.AbsolutePath.EndsWith("v1/parties/identifiers", StringComparison.Ordinal) == true)
+                {
+                    string uuidQuery = request.RequestUri.Query.TrimStart('?')
+                        .Split('&', StringSplitOptions.RemoveEmptyEntries)
+                        .FirstOrDefault(part => part.StartsWith("uuids=", StringComparison.OrdinalIgnoreCase))?
+                        ["uuids=".Length..] ?? string.Empty;
+
+                    var uuids = Uri.UnescapeDataString(uuidQuery)
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(value => Guid.TryParse(value, out Guid parsed) ? parsed : Guid.Empty)
+                        .Where(value => value != Guid.Empty)
+                        .ToArray();
+
+                    var responseData = uuids
+                        .Where(partyUuid => organizationNumbersByPartyUuid.ContainsKey(partyUuid))
+                        .Select((partyUuid, index) => new
+                        {
+                            partyId = index + 1,
+                            partyUuid,
+                            orgNumber = organizationNumbersByPartyUuid[partyUuid]
+                        })
+                        .ToArray();
+
+                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = JsonContent.Create(responseData)
+                    });
+                }
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+            });
         }
 
         private static HttpRequestMessage CreateAuthorizedRequestWithoutScope(HttpRequestMessage httpRequestMessage, string org = "ttd")

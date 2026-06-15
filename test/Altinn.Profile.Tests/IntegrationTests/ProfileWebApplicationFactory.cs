@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Common.AccessToken.Services;
+using Altinn.Common.AccessTokenClient.Services;
 using Altinn.Common.PEP.Interfaces;
 using Altinn.Profile.Core;
 using Altinn.Profile.Core.Integrations;
@@ -16,6 +17,7 @@ using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Integrations.Authorization;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
+using Altinn.Profile.Integrations.Register;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Integrations.SblBridge.User.Profile;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
@@ -63,14 +65,20 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
 
     public Mock<IProfessionalNotificationsRepository> ProfessionalNotificationsRepositoryMock { get; set; } = new();
 
-    public Mock<IRegisterClient> RegisterClientMock { get; set; } = new();
+    public Mock<IAccessTokenGenerator> AccessTokenGeneratorMock { get; set; } = new();
 
     public Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> MessageHandlerFunc { get; set; } =
         (request, cancellationToken) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
 
+    public DelegatingHandlerStub RegisterHttpMessageHandler { get; set; } = new();
+
     public DelegatingHandlerStub SblBridgeHttpMessageHandler { get; set; } = new();
 
+    public Mock<IOptions<RegisterSettings>> RegisterSettingsOptions { get; set; } = new();
+
     public Mock<IOptions<SblBridgeSettings>> SblBridgeSettingsOptions { get; set; } = new();
+
+    public Mock<ILogger<RegisterClient>> RegisterClientLogger { get; set; } = new();
 
     public Mock<ILogger<UserProfileClient>> UserProfileClientLogger { get; set; } = new();
 
@@ -88,11 +96,20 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
 
     public ProfileWebApplicationFactory()
     {
+        RegisterSettingsOptions.Setup(rso => rso.Value).Returns(
+            new RegisterSettings
+            {
+                ApiRegisterEndpoint = "https://at22.altinn.cloud/register/"
+            });
+
         SblBridgeSettingsOptions.Setup(gso => gso.Value).Returns(
             new SblBridgeSettings
             {
                 ApiProfileEndpoint = "https://at22.altinn.cloud/sblbridge/profile/api/"
             });
+
+        AccessTokenGeneratorMock.Setup(atg => atg.GenerateAccessToken("platform", "profile"))
+            .Returns("test-token");
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -150,7 +167,6 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
             services.AddSingleton(OrganizationNotificationAddressUpdateClientMock.Object);
             services.AddSingleton(PartyGroupRepositoryMock.Object);
             services.AddSingleton(ProfessionalNotificationsRepositoryMock.Object);
-            services.AddSingleton(RegisterClientMock.Object);
             services.AddSingleton(ProfileSettingsRepositoryMock.Object);
             services.AddSingleton(AddressVerificationRepositoryMock.Object);
             services.AddSingleton(NotificationsClientMock.Object);
@@ -168,7 +184,14 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
             });
 
             // Using the real/actual implementations, but with a mocked message handler.
-            // Haven't found any other ways of injecting a mocked message handler to simulate SBL Bridge.
+            // Haven't found any other ways of injecting a mocked message handler to simulate external services.
+            services.AddSingleton<IRegisterClient>(
+                new RegisterClient(
+                    new HttpClient(RegisterHttpMessageHandler),
+                    RegisterSettingsOptions.Object,
+                    AccessTokenGeneratorMock.Object,
+                    RegisterClientLogger.Object));
+
             services.AddSingleton<IUserProfileClient>(
                 new UserProfileClient(
                     new HttpClient(SblBridgeHttpMessageHandler),

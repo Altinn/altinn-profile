@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -120,7 +121,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.PdpMock
               .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
               .ReturnsAsync(new XacmlJsonResponse { Response = [new XacmlJsonResult { Decision = "Permit" }] });
-            _factory.RegisterClientMock.Reset();
             _factory.OrganizationNotificationAddressRepositoryMock.Reset();
         }
 
@@ -202,9 +202,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.GetOrganizationsAsync(It.Is<List<string>>(a => a.Contains(requestedOrg)), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Enumerable.Empty<Organization>());
 
-            _factory.RegisterClientMock
-                .Setup(r => r.GetMainUnit(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(parentOrg);
+            SetupRegisterMainUnitLookup(parentOrg);
 
             _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationAsync(parentOrg, It.IsAny<CancellationToken>()))
@@ -241,6 +239,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             string orgNumber = "error-org";
+            SetupRegisterMainUnitLookup(null);
 
             _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
@@ -465,6 +464,32 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(phoneItem);
             Assert.Equal(phoneNumber, phoneItem.Phone);
             Assert.Equal(countryCode, phoneItem.CountryCode);
+        }
+
+        private void SetupRegisterMainUnitLookup(string parentOrgNumber)
+        {
+            _factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
+            {
+                if (request.Method == HttpMethod.Post
+                    && request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/main-units", StringComparison.Ordinal) == true)
+                {
+                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = JsonContent.Create(new
+                        {
+                            data = new[]
+                            {
+                                new
+                                {
+                                    organizationIdentifier = parentOrgNumber
+                                }
+                            }
+                        })
+                    });
+                }
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+            });
         }
 
         private static HttpRequestMessage GenerateTokenWithoutScope(string orgNumber, HttpRequestMessage httpRequestMessage)

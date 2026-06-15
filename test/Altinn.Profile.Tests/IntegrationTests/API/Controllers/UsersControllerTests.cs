@@ -45,7 +45,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         _factory.InMemoryConfigurationCollection.Clear();
         _factory.MemoryCache.Clear();
         _factory.PersonServiceMock.Reset();
-        _factory.RegisterClientMock.Reset();
+        _factory.ProfileSettingsRepositoryMock.Reset();
         _factory.UserContactInfoRepositoryMock.Reset();
     }
 
@@ -75,8 +75,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
                 PreselectedPartyUuid = preselectedPartyUuid,
             });
 
-        _factory.RegisterClientMock.Setup(m => m.GetPartyId(preselectedPartyUuid, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(123456);
+        SetupRegisterPartyIdLookup(preselectedPartyUuid, 123456);
 
         HttpClient client = _factory.CreateClient();
 
@@ -240,8 +239,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         _factory.PersonServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new PersonContactPreferences { Email = "test@mail.com", NationalIdentityNumber = "1", MobileNumber = "+4798765432", IsReserved = true }]);
 
-        _factory.RegisterClientMock.Setup(m => m.GetPartyId(preselectedPartyUuid, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(123456);
+        SetupRegisterPartyIdLookup(preselectedPartyUuid, 123456);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
 
@@ -432,6 +430,9 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         // Arrange
         const int UserId = 2516356;
+
+        _factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
+            Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)));
 
         HttpRequestMessage? sblRequest = null;
         _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
@@ -917,9 +918,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             IsDeleted = false,
         };
 
-        _factory.RegisterClientMock
-            .Setup(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(registerPerson);
+        SetupRegisterUserPartyByUserIdLookup(userId, registerPerson);
 
         _factory.ProfileSettingsRepositoryMock
             .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -948,7 +947,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal("Register Person", actualUser.Party.Name);
         Assert.Equal("14836498780", actualUser.Party.SSN);
 
-        _factory.RegisterClientMock.Verify(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -965,9 +963,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
 
-        _factory.RegisterClientMock
-            .Setup(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new HttpRequestException("Register unavailable"));
+        SetupRegisterUserPartyByUserIdLookup(userId, null, HttpStatusCode.InternalServerError);
 
         _factory.ProfileSettingsRepositoryMock
             .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -1026,7 +1022,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.NotNull(sblRequest); // fallback path must call legacy
         Assert.EndsWith($"users/{userId}", sblRequest!.RequestUri?.ToString());
 
-        _factory.RegisterClientMock.Verify(m => m.GetUserParty(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -1045,9 +1040,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         SelfIdentifiedUser selfIdentifiedFromRegister = await TestDataLoader.Load<SelfIdentifiedUser>("siuser-input");
 
-        _factory.RegisterClientMock
-            .Setup(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(selfIdentifiedFromRegister);
+        SetupRegisterUserPartyByUserIdLookup(userId, selfIdentifiedFromRegister);
 
         _factory.ProfileSettingsRepositoryMock
             .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -1131,6 +1124,84 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         _factory.UserContactInfoRepositoryMock.Verify(m => m.Get(UserId, It.IsAny<CancellationToken>()), Times.Once);
         _factory.PersonServiceMock.Verify(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private void SetupRegisterPartyIdLookup(Guid partyUuid, int partyId)
+    {
+        _factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
+        {
+            if (request.Method == HttpMethod.Get
+                && request.RequestUri?.AbsolutePath.EndsWith("v1/parties/identifiers", StringComparison.Ordinal) == true
+                && request.RequestUri.Query.Contains(partyUuid.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = JsonContent.Create(new[]
+                    {
+                        new
+                        {
+                            partyId,
+                            partyUuid,
+                            orgNumber = string.Empty
+                        }
+                    })
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+        });
+    }
+
+    private void SetupRegisterUserPartyByUserIdLookup(int userId, Party? userParty, HttpStatusCode statusCode = HttpStatusCode.OK)
+    {
+        _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        {
+            if (request.Method != HttpMethod.Post
+                || request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) != true)
+            {
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            }
+
+            if (statusCode != HttpStatusCode.OK)
+            {
+                return new HttpResponseMessage(statusCode);
+            }
+
+            if (request.Content == null)
+            {
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+
+            await using var stream = await request.Content.ReadAsStreamAsync(token);
+            using JsonDocument jsonDocument = await JsonDocument.ParseAsync(stream, cancellationToken: token);
+
+            string expectedIdentifier = $"urn:altinn:user:id:{userId}";
+            bool hasMatch = false;
+            if (jsonDocument.RootElement.TryGetProperty("data", out JsonElement dataElement) && dataElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement element in dataElement.EnumerateArray())
+                {
+                    if (element.ValueKind == JsonValueKind.String && string.Equals(element.GetString(), expectedIdentifier, StringComparison.Ordinal))
+                    {
+                        hasMatch = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!hasMatch)
+            {
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = JsonContent.Create(new
+                {
+                    data = userParty is null ? [] : new[] { userParty }
+                })
+            };
+        });
     }
 
     private static HttpRequestMessage CreateGetRequest(int userId, string requestUri)

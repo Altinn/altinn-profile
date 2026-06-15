@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -89,7 +91,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             ];
 
             _factory = factory;
-            _factory.RegisterClientMock.Reset();
             _factory.OrganizationNotificationAddressRepositoryMock.Reset();
         }
 
@@ -135,9 +136,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 OrganizationNumbers = ["333333333"],
             };
 
-            _factory.RegisterClientMock
-                .Setup(r => r.GetMainUnit(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync("123456789");
+            SetupRegisterMainUnitLookup("123456789");
 
             var childUnit = _testdata.Where(o => input.OrganizationNumbers.Contains(o.OrganizationNumber));
             var parentUnit = _testdata.First(o => o.OrganizationNumber == "123456789");
@@ -331,6 +330,32 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        private void SetupRegisterMainUnitLookup(string parentOrgNumber)
+        {
+            _factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
+            {
+                if (request.Method == HttpMethod.Post
+                    && request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/main-units", StringComparison.Ordinal) == true)
+                {
+                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = JsonContent.Create(new
+                        {
+                            data = new[]
+                            {
+                                new
+                                {
+                                    organizationIdentifier = parentOrgNumber
+                                }
+                            }
+                        })
+                    });
+                }
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+            });
         }
     }
 }

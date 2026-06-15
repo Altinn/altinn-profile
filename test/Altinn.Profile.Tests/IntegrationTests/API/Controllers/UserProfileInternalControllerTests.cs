@@ -13,7 +13,6 @@ using Altinn.Profile.Models;
 using Altinn.Profile.Tests.Testdata;
 using Altinn.Register.Contracts;
 using Altinn.Register.Contracts.Testing;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
@@ -35,8 +34,13 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
     {
         _factory = factory;
         _factory.MemoryCache.Clear();
-        _factory.RegisterClientMock.Reset();
         _factory.InMemoryConfigurationCollection.Clear();
+        _factory.ProfileSettingsRepositoryMock.Reset();
+
+        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction((request, token) =>
+            Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)));
+        _factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
+            Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)));
     }
 
     [Fact]
@@ -547,12 +551,9 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
             IsDeleted = false,
         };
 
-        _factory.RegisterClientMock
-            .Setup(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(registerPerson);
+        SetupRegisterUserPartyByUserIdLookup(userId, registerPerson);
 
-        EnableRegisterAsPrimary();
-        HttpClient client = _factory.CreateClient();
+        HttpClient client = CreateClientWithRegisterAsPrimary(true);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/internal/user/", new UserProfileLookup { UserId = userId });
 
@@ -570,7 +571,6 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         Assert.Equal("Register Person", actualUser.Party.Name);
         Assert.Equal("14836498780", actualUser.Party.SSN);
 
-        _factory.RegisterClientMock.Verify(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -587,12 +587,9 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
 
-        _factory.RegisterClientMock
-            .Setup(m => m.GetUserPartyByUsername(username, It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new HttpRequestException("Register unavailable"));
-        
-        EnableRegisterAsPrimary();
-        HttpClient client = _factory.CreateClient();
+        SetupRegisterUserPartyByUsernameLookup(username, null, HttpStatusCode.InternalServerError);
+
+        HttpClient client = CreateClientWithRegisterAsPrimary(true);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest("/profile/api/v1/internal/user/", new UserProfileLookup { Username = username });
 
@@ -606,9 +603,122 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         Assert.EndsWith($"sblbridge/profile/api/users/?username={username}", sblRequest.RequestUri.ToString());
     }
 
-    private void EnableRegisterAsPrimary()
+    private void SetupRegisterUserPartyByUserIdLookup(int userId, Party? userParty, HttpStatusCode statusCode = HttpStatusCode.OK)
     {
-        _factory.InMemoryConfigurationCollection["CoreSettings:RegisterAsPrimaryUserProfileSource"] = "true";
+        _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        {
+            if (request.Method != HttpMethod.Post
+                || request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) != true)
+            {
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            }
+
+            if (statusCode != HttpStatusCode.OK)
+            {
+                return new HttpResponseMessage(statusCode);
+            }
+
+            if (request.Content == null)
+            {
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+
+            await using var stream = await request.Content.ReadAsStreamAsync(token);
+            using JsonDocument jsonDocument = await JsonDocument.ParseAsync(stream, cancellationToken: token);
+
+            string expectedIdentifier = $"urn:altinn:user:id:{userId}";
+            bool hasMatch = false;
+            if (jsonDocument.RootElement.TryGetProperty("data", out JsonElement dataElement) && dataElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement element in dataElement.EnumerateArray())
+                {
+                    if (element.ValueKind == JsonValueKind.String && string.Equals(element.GetString(), expectedIdentifier, StringComparison.Ordinal))
+                    {
+                        hasMatch = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!hasMatch)
+            {
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = JsonContent.Create(new
+                {
+                    data = userParty is null ? [] : new[] { userParty }
+                })
+            };
+        });
+    }
+
+    private void SetupRegisterUserPartyByUsernameLookup(string username, Party? userParty, HttpStatusCode statusCode = HttpStatusCode.OK)
+    {
+        _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        {
+            if (request.Method != HttpMethod.Post
+                || request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) != true)
+            {
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            }
+
+            if (statusCode != HttpStatusCode.OK)
+            {
+                return new HttpResponseMessage(statusCode);
+            }
+
+            if (request.Content == null)
+            {
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+
+            await using var stream = await request.Content.ReadAsStreamAsync(token);
+            using JsonDocument jsonDocument = await JsonDocument.ParseAsync(stream, cancellationToken: token);
+
+            string expectedIdentifier = $"urn:altinn:party:username:{username}";
+            bool hasMatch = false;
+            if (jsonDocument.RootElement.TryGetProperty("data", out JsonElement dataElement) && dataElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement element in dataElement.EnumerateArray())
+                {
+                    if (element.ValueKind == JsonValueKind.String && string.Equals(element.GetString(), expectedIdentifier, StringComparison.Ordinal))
+                    {
+                        hasMatch = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!hasMatch)
+            {
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = JsonContent.Create(new
+                {
+                    data = userParty is null ? [] : new[] { userParty }
+                })
+            };
+        });
+    }
+
+    private HttpClient CreateClientWithRegisterAsPrimary(bool enabled)
+    {
+        return _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["CoreSettings:RegisterAsPrimaryUserProfileSource"] = enabled ? "true" : "false"
+                });
+            });
+        }).CreateClient();
     }
 
     private static HttpRequestMessage CreatePostRequest(string requestUri, UserProfileLookup lookupRequest)

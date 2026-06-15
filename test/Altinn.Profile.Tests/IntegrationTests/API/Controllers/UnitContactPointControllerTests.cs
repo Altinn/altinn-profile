@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,9 +31,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
     {
         _factory = factory;
 
-        _factory.RegisterClientMock.Reset();
-        _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((string[] orgNumbers, CancellationToken _) => GetRegisterResponse(orgNumbers));
+        SetupRegisterPartyUuidsLookup(orgNumbers => GetRegisterResponse(orgNumbers));
 
         _factory.ProfessionalNotificationsRepositoryMock.Setup(s => s.GetAllNotificationAddressesForPartyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Guid partyUuid, CancellationToken _) => GetRepositoryResponse(partyUuid.ToString()));
@@ -167,8 +167,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
             ResourceId = "app_ttd_apps-test"
         };
 
-        _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((string[] orgNumbers, CancellationToken _) => null);
+        SetupRegisterPartyUuidsLookup(_ => null);
 
         var client = _factory.CreateClient();
 
@@ -179,6 +178,49 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
 
         // Assert
         Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+    }
+
+    private void SetupRegisterPartyUuidsLookup(Func<string[], List<Party>?> responseFactory)
+    {
+        _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        {
+            if (request.Method == HttpMethod.Post
+                && request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) == true)
+            {
+                if (request.Content == null)
+                {
+                    return new HttpResponseMessage(HttpStatusCode.BadRequest);
+                }
+
+                await using var stream = await request.Content.ReadAsStreamAsync(token);
+                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(stream, cancellationToken: token);
+
+                string[] orgNumbers = [];
+                if (jsonDocument.RootElement.TryGetProperty("data", out JsonElement dataElement) && dataElement.ValueKind == JsonValueKind.Array)
+                {
+                    orgNumbers = dataElement
+                        .EnumerateArray()
+                        .Where(element => element.ValueKind == JsonValueKind.String)
+                        .Select(element => element.GetString())
+                        .Where(value => !string.IsNullOrWhiteSpace(value))
+                        .Select(value => value[(value.LastIndexOf(':') + 1)..])
+                        .ToArray();
+                }
+
+                List<Party>? parties = responseFactory(orgNumbers);
+                if (parties == null)
+                {
+                    return new HttpResponseMessage(HttpStatusCode.InternalServerError);
+                }
+
+                return new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = JsonContent.Create(new { data = parties })
+                };
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
+        });
     }
 
     private HttpRequestMessage CreateHttpRequestMessage(UnitContactPointLookup input)
