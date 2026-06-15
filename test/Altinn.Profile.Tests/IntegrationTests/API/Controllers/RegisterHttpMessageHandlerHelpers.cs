@@ -17,29 +17,29 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
 internal static class RegisterHttpMessageHandlerHelpers
 {
+    private const string IdentifiersPath = "v1/parties/identifiers";
+    private const string PartyQueryPath = "v2/internal/parties/query";
+    private const string MainUnitsPath = "v2/internal/parties/main-units";
+
     internal static void SetupRegisterPartyIdLookup(ProfileWebApplicationFactory<Program> factory, Guid partyUuid, int partyId)
     {
         factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
         {
-            if (request.Method == HttpMethod.Get
-                && request.RequestUri?.AbsolutePath.EndsWith("v1/parties/identifiers", StringComparison.Ordinal) == true
+            if (IsIdentifiersRequest(request)
                 && request.RequestUri.Query.Contains(partyUuid.ToString(), StringComparison.OrdinalIgnoreCase))
             {
-                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                return Task.FromResult(OkJson(new[]
                 {
-                    Content = JsonContent.Create(new[]
+                    new
                     {
-                        new
-                        {
-                            partyId,
-                            partyUuid,
-                            orgNumber = string.Empty,
-                        }
-                    })
-                });
+                        partyId,
+                        partyUuid,
+                        orgNumber = string.Empty,
+                    }
+                }));
             }
 
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+            return Task.FromResult(NotFound());
         });
     }
 
@@ -47,44 +47,36 @@ internal static class RegisterHttpMessageHandlerHelpers
     {
         factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
         {
-            if (request.Method == HttpMethod.Get
-                && request.RequestUri?.AbsolutePath.EndsWith("v1/parties/identifiers", StringComparison.Ordinal) == true)
+            if (IsIdentifiersRequest(request))
             {
-                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                return Task.FromResult(OkJson(new[]
                 {
-                    Content = JsonContent.Create(new[]
+                    new
+                    {
+                        partyId = identifiersPartyId,
+                        partyUuid,
+                        orgNumber = organizationNumber,
+                    }
+                }));
+            }
+
+            if (IsPartyQueryRequest(request))
+            {
+                return Task.FromResult(OkJson(new
+                {
+                    data = new[]
                     {
                         new
                         {
-                            partyId = identifiersPartyId,
+                            partyId = partyQueryPartyId,
                             partyUuid,
-                            orgNumber = organizationNumber,
+                            organizationIdentifier = organizationNumber,
                         }
-                    })
-                });
+                    }
+                }));
             }
 
-            if (request.Method == HttpMethod.Post
-                && request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) == true)
-            {
-                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = JsonContent.Create(new
-                    {
-                        data = new[]
-                        {
-                            new
-                            {
-                                partyId = partyQueryPartyId,
-                                partyUuid,
-                                organizationIdentifier = organizationNumber,
-                            }
-                        }
-                    })
-                });
-            }
-
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+            return Task.FromResult(NotFound());
         });
     }
 
@@ -92,16 +84,12 @@ internal static class RegisterHttpMessageHandlerHelpers
     {
         factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
         {
-            if (request.Method == HttpMethod.Post
-                && request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/main-units", StringComparison.Ordinal) == true)
+            if (IsMainUnitsRequest(request))
             {
-                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = JsonContent.Create(new { data = new[] { new { organizationIdentifier = parentOrgNumber } } })
-                });
+                return Task.FromResult(OkJson(new { data = new[] { new { organizationIdentifier = parentOrgNumber } } }));
             }
 
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+            return Task.FromResult(NotFound());
         });
     }
 
@@ -121,8 +109,8 @@ internal static class RegisterHttpMessageHandlerHelpers
     {
         factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
-            HttpResponseMessage partyQueryResponse = await TryCreatePartyQueryResponseAsync(request, token, organizationNumbersByPartyUuid, HttpStatusCode.OK);
-            return partyQueryResponse ?? new HttpResponseMessage(HttpStatusCode.NotFound);
+            HttpResponseMessage partyQueryResponse = await TryCreatePartyQueryResponseAsync(request, organizationNumbersByPartyUuid, HttpStatusCode.OK, token);
+            return partyQueryResponse ?? NotFound();
         });
     }
 
@@ -131,7 +119,7 @@ internal static class RegisterHttpMessageHandlerHelpers
         factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
         {
             HttpResponseMessage identifiersResponse = TryCreateIdentifiersResponse(request, organizationNumbersByPartyUuid);
-            return Task.FromResult(identifiersResponse ?? new HttpResponseMessage(HttpStatusCode.NotFound));
+            return Task.FromResult(identifiersResponse ?? NotFound());
         });
     }
 
@@ -144,7 +132,7 @@ internal static class RegisterHttpMessageHandlerHelpers
     {
         return async (request, token) =>
         {
-            HttpResponseMessage partyQueryResponse = await TryCreatePartyQueryResponseAsync(request, token, organizationNumbersByPartyUuid, partyQueryStatusCode);
+            HttpResponseMessage partyQueryResponse = await TryCreatePartyQueryResponseAsync(request, organizationNumbersByPartyUuid, partyQueryStatusCode, token);
             if (partyQueryResponse is not null)
             {
                 return partyQueryResponse;
@@ -156,7 +144,7 @@ internal static class RegisterHttpMessageHandlerHelpers
                 return identifiersResponse;
             }
 
-            return new HttpResponseMessage(HttpStatusCode.NotFound);
+            return NotFound();
         };
     }
 
@@ -194,10 +182,9 @@ internal static class RegisterHttpMessageHandlerHelpers
     {
         factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
-            if (request.Method != HttpMethod.Post
-                || request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) != true)
+            if (!IsPartyQueryRequest(request))
             {
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
+                return NotFound();
             }
 
             if (statusCode != HttpStatusCode.OK)
@@ -228,16 +215,13 @@ internal static class RegisterHttpMessageHandlerHelpers
 
             if (!hasMatch)
             {
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
+                return NotFound();
             }
 
-            return new HttpResponseMessage(HttpStatusCode.OK)
+            return OkJson(new
             {
-                Content = JsonContent.Create(new
-                {
-                    data = userParty is null ? [] : new[] { userParty }
-                })
-            };
+                data = userParty is null ? [] : new[] { userParty }
+            });
         });
     }
 
@@ -245,10 +229,9 @@ internal static class RegisterHttpMessageHandlerHelpers
     {
         factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
-            if (request.Method != HttpMethod.Post
-                || request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) != true)
+            if (!IsPartyQueryRequest(request))
             {
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
+                return NotFound();
             }
 
             if (request.Content == null)
@@ -263,17 +246,13 @@ internal static class RegisterHttpMessageHandlerHelpers
                 return new HttpResponseMessage(HttpStatusCode.InternalServerError);
             }
 
-            return new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = JsonContent.Create(new { data = parties })
-            };
+            return OkJson(new { data = parties });
         });
     }
 
-    private static async Task<HttpResponseMessage> TryCreatePartyQueryResponseAsync(HttpRequestMessage request, CancellationToken token, IReadOnlyDictionary<Guid, string> organizationNumbersByPartyUuid, HttpStatusCode partyQueryStatusCode)
+    private static async Task<HttpResponseMessage> TryCreatePartyQueryResponseAsync(HttpRequestMessage request, IReadOnlyDictionary<Guid, string> organizationNumbersByPartyUuid, HttpStatusCode partyQueryStatusCode, CancellationToken token)
     {
-        if (request.Method != HttpMethod.Post
-            || request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) != true)
+        if (!IsPartyQueryRequest(request))
         {
             return null;
         }
@@ -294,16 +273,12 @@ internal static class RegisterHttpMessageHandlerHelpers
             })
             .ToArray();
 
-        return new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = JsonContent.Create(new { data = responseData })
-        };
+        return OkJson(new { data = responseData });
     }
 
     private static HttpResponseMessage TryCreateIdentifiersResponse(HttpRequestMessage request, IReadOnlyDictionary<Guid, string> organizationNumbersByPartyUuid)
     {
-        if (request.Method != HttpMethod.Get
-            || request.RequestUri?.AbsolutePath.EndsWith("v1/parties/identifiers", StringComparison.Ordinal) != true)
+        if (!IsIdentifiersRequest(request))
         {
             return null;
         }
@@ -319,10 +294,7 @@ internal static class RegisterHttpMessageHandlerHelpers
             })
             .ToArray();
 
-        return new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = JsonContent.Create(responseData)
-        };
+        return OkJson(responseData);
     }
 
     private static async Task<string[]> GetRequestedOrganizationNumbersFromQueryAsync(HttpRequestMessage request, CancellationToken token)
@@ -346,6 +318,37 @@ internal static class RegisterHttpMessageHandlerHelpers
             .Where(value => !string.IsNullOrEmpty(value))
             .Select(value => ExtractOrganizationNumberFromUrn(value!))
             .ToArray();
+    }
+
+    private static bool IsIdentifiersRequest(HttpRequestMessage request)
+    {
+        return request.Method == HttpMethod.Get
+            && request.RequestUri?.AbsolutePath.EndsWith(IdentifiersPath, StringComparison.Ordinal) == true;
+    }
+
+    private static bool IsPartyQueryRequest(HttpRequestMessage request)
+    {
+        return request.Method == HttpMethod.Post
+            && request.RequestUri?.AbsolutePath.EndsWith(PartyQueryPath, StringComparison.Ordinal) == true;
+    }
+
+    private static bool IsMainUnitsRequest(HttpRequestMessage request)
+    {
+        return request.Method == HttpMethod.Post
+            && request.RequestUri?.AbsolutePath.EndsWith(MainUnitsPath, StringComparison.Ordinal) == true;
+    }
+
+    private static HttpResponseMessage OkJson<T>(T payload)
+    {
+        return new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = JsonContent.Create(payload)
+        };
+    }
+
+    private static HttpResponseMessage NotFound()
+    {
+        return new HttpResponseMessage(HttpStatusCode.NotFound);
     }
 
     private static string ExtractOrganizationNumberFromUrn(string urn)
