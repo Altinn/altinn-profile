@@ -1325,45 +1325,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         private void SetupAuthHandler(Guid partyGuid, int UserId, bool access = true, int orgNo = 0)
         {
-            _factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, cancellationToken) =>
-            {
-                if (request.Method == HttpMethod.Get && request.RequestUri?.AbsolutePath.EndsWith("v1/parties/identifiers", StringComparison.Ordinal) == true)
-                {
-                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = JsonContent.Create(new[]
-                        {
-                            new
-                            {
-                                partyId = partyGuid.GetHashCode(),
-                                partyUuid = partyGuid,
-                                orgNumber = orgNo.ToString()
-                            }
-                        })
-                    });
-                }
-
-                if (request.Method == HttpMethod.Post && request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) == true)
-                {
-                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = JsonContent.Create(new
-                        {
-                            data = new[]
-                            {
-                                new
-                                {
-                                    partyId = 12345,
-                                    partyUuid = partyGuid,
-                                    organizationIdentifier = orgNo.ToString()
-                                }
-                            }
-                        })
-                    });
-                }
-
-                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
-            });
+            RegisterHttpMessageHandlerHelpers.SetupRegisterPartyLookupForAuthorization(
+                _factory,
+                partyGuid,
+                partyGuid.GetHashCode(),
+                orgNo.ToString());
 
             _factory.AuthorizationClientMock
                 .Setup(x => x.ValidateSelectedParty(UserId, It.IsAny<int>(), It.IsAny<CancellationToken>()))

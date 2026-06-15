@@ -290,38 +290,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         private static void SetupAuthHandler(ProfileWebApplicationFactory<Program> factory, Guid partyGuid, int UserId, bool access = true)
         {
-            SetupRegisterPartyIdLookup(factory, partyGuid, partyGuid.GetHashCode());
+            RegisterHttpMessageHandlerHelpers.SetupRegisterPartyIdLookup(factory, partyGuid, partyGuid.GetHashCode());
 
             factory.AuthorizationClientMock.Reset();
             factory.AuthorizationClientMock
                 .Setup(x => x.ValidateSelectedParty(UserId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(access);
-        }
-
-        private static void SetupRegisterPartyIdLookup(ProfileWebApplicationFactory<Program> factory, Guid partyGuid, int partyId)
-        {
-            factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
-            {
-                if (request.Method == HttpMethod.Get
-                    && request.RequestUri?.AbsolutePath.EndsWith("v1/parties/identifiers", StringComparison.Ordinal) == true
-                    && request.RequestUri.Query.Contains(partyGuid.ToString(), StringComparison.OrdinalIgnoreCase))
-                {
-                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = JsonContent.Create(new[]
-                        {
-                            new
-                            {
-                                partyId,
-                                partyUuid = partyGuid,
-                                orgNumber = string.Empty
-                            }
-                        })
-                    });
-                }
-
-                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
-            });
         }
     }
 }

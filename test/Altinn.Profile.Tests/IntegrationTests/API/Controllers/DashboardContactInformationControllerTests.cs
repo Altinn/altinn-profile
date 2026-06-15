@@ -1218,112 +1218,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         private void SetupRegisterPartyUuidsLookup(string orgNumber, params Guid[] partyUuids)
         {
             var lookup = partyUuids.ToDictionary(partyUuid => partyUuid, _ => orgNumber);
-
-            _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-            {
-                if (request.Method == HttpMethod.Post && request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) == true)
-                {
-                    string[] requestedOrgNumbers = [];
-                    if (request.Content != null)
-                    {
-                        await using var stream = await request.Content.ReadAsStreamAsync(token);
-                        using JsonDocument jsonDocument = await JsonDocument.ParseAsync(stream, cancellationToken: token);
-                        if (jsonDocument.RootElement.TryGetProperty("data", out JsonElement dataElement) && dataElement.ValueKind == JsonValueKind.Array)
-                        {
-                            requestedOrgNumbers = dataElement
-                                .EnumerateArray()
-                                .Where(element => element.ValueKind == JsonValueKind.String)
-                                .Select(element => element.GetString())
-                                .Where(value => !string.IsNullOrEmpty(value))
-                                .Select(value => value[(value.LastIndexOf(':') + 1)..])
-                                .ToArray();
-                        }
-                    }
-
-                    var responseData = lookup
-                        .Where(entry => requestedOrgNumbers.Length == 0 || requestedOrgNumbers.Contains(entry.Value, StringComparer.Ordinal))
-                        .Select((entry, index) => new
-                        {
-                            partyId = index + 1,
-                            partyUuid = entry.Key,
-                            organizationIdentifier = entry.Value
-                        })
-                        .ToArray();
-
-                    return new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = JsonContent.Create(new { data = responseData })
-                    };
-                }
-
-                if (request.Method == HttpMethod.Get && request.RequestUri?.AbsolutePath.EndsWith("v1/parties/identifiers", StringComparison.Ordinal) == true)
-                {
-                    string uuidQuery = request.RequestUri.Query.TrimStart('?')
-                        .Split('&', StringSplitOptions.RemoveEmptyEntries)
-                        .FirstOrDefault(part => part.StartsWith("uuids=", StringComparison.OrdinalIgnoreCase))?
-                        ["uuids=".Length..] ?? string.Empty;
-
-                    var uuids = Uri.UnescapeDataString(uuidQuery)
-                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(value => Guid.TryParse(value, out Guid parsed) ? parsed : Guid.Empty)
-                        .Where(value => value != Guid.Empty)
-                        .ToArray();
-
-                    var responseData = uuids
-                        .Where(partyUuid => lookup.ContainsKey(partyUuid))
-                        .Select((partyUuid, index) => new
-                        {
-                            partyId = index + 1,
-                            partyUuid,
-                            orgNumber = lookup[partyUuid]
-                        })
-                        .ToArray();
-
-                    return new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = JsonContent.Create(responseData)
-                    };
-                }
-
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            });
+            _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(
+                RegisterHttpMessageHandlerHelpers.CreateCombinedRegisterPartyQueryAndIdentifiersHandler(lookup));
         }
 
         private void SetupRegisterOrganizationNumberLookup(Dictionary<Guid, string> organizationNumbersByPartyUuid)
         {
-            _factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
-            {
-                if (request.RequestUri?.AbsolutePath.EndsWith("v1/parties/identifiers", StringComparison.Ordinal) == true)
-                {
-                    string uuidQuery = request.RequestUri.Query.TrimStart('?')
-                        .Split('&', StringSplitOptions.RemoveEmptyEntries)
-                        .FirstOrDefault(part => part.StartsWith("uuids=", StringComparison.OrdinalIgnoreCase))?
-                        ["uuids=".Length..] ?? string.Empty;
-
-                    var uuids = Uri.UnescapeDataString(uuidQuery)
-                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(value => Guid.TryParse(value, out Guid parsed) ? parsed : Guid.Empty)
-                        .Where(value => value != Guid.Empty)
-                        .ToArray();
-
-                    var responseData = uuids
-                        .Where(partyUuid => organizationNumbersByPartyUuid.ContainsKey(partyUuid))
-                        .Select((partyUuid, index) => new
-                        {
-                            partyId = index + 1,
-                            partyUuid,
-                            orgNumber = organizationNumbersByPartyUuid[partyUuid]
-                        })
-                        .ToArray();
-
-                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = JsonContent.Create(responseData)
-                    });
-                }
-
-                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
-            });
+            RegisterHttpMessageHandlerHelpers.SetupRegisterOrganizationNumberLookup(_factory, organizationNumbersByPartyUuid);
         }
 
         private static HttpRequestMessage CreateAuthorizedRequestWithoutScope(HttpRequestMessage httpRequestMessage, string org = "ttd")

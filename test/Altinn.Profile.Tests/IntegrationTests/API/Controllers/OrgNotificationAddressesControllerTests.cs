@@ -112,7 +112,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
             };
-            SetupRegisterMainUnitLookup(null);
+            RegisterHttpMessageHandlerHelpers.SetupRegisterMainUnitLookup(_factory, null);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
@@ -137,7 +137,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 OrganizationNumbers = ["333333333"],
             };
 
-            SetupRegisterMainUnitLookup("123456789");
+            RegisterHttpMessageHandlerHelpers.SetupRegisterMainUnitLookup(_factory, "123456789");
 
             var childUnit = _testdata.Where(o => input.OrganizationNumbers.Contains(o.OrganizationNumber));
             var parentUnit = _testdata.First(o => o.OrganizationNumber == "123456789");
@@ -253,7 +253,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
             };
-            SetupRegisterMainUnitLookup(null);
+            RegisterHttpMessageHandlerHelpers.SetupRegisterMainUnitLookup(_factory, null);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
@@ -332,23 +332,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        }
-
-        private void SetupRegisterMainUnitLookup(string parentOrgNumber)
-        {
-            _factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
-            {
-                if (request.Method == HttpMethod.Post
-                    && request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/main-units", StringComparison.Ordinal) == true)
-                {
-                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = JsonContent.Create(new { data = new[] { new { organizationIdentifier = parentOrgNumber } } })
-                    });
-                }
-
-                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
-            });
         }
     }
 }

@@ -551,7 +551,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
             IsDeleted = false,
         };
 
-        SetupRegisterUserPartyByUserIdLookup(userId, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, userId, registerPerson);
 
         HttpClient client = CreateClientWithRegisterAsPrimary(true);
 
@@ -586,7 +586,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
 
-        SetupRegisterUserPartyByUsernameLookup(username, null, HttpStatusCode.InternalServerError);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUsernameLookup(_factory, username, null, HttpStatusCode.InternalServerError);
 
         HttpClient client = CreateClientWithRegisterAsPrimary(true);
 
@@ -600,110 +600,6 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         Assert.NotNull(sblRequest);
         Assert.Equal(HttpMethod.Get, sblRequest.Method);
         Assert.EndsWith($"sblbridge/profile/api/users/?username={username}", sblRequest.RequestUri.ToString());
-    }
-
-    private void SetupRegisterUserPartyByUserIdLookup(int userId, Party userParty, HttpStatusCode statusCode = HttpStatusCode.OK)
-    {
-        _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-        {
-            if (request.Method != HttpMethod.Post
-                || request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) != true)
-            {
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            }
-
-            if (statusCode != HttpStatusCode.OK)
-            {
-                return new HttpResponseMessage(statusCode);
-            }
-
-            if (request.Content == null)
-            {
-                return new HttpResponseMessage(HttpStatusCode.BadRequest);
-            }
-
-            await using var stream = await request.Content.ReadAsStreamAsync(token);
-            using JsonDocument jsonDocument = await JsonDocument.ParseAsync(stream, cancellationToken: token);
-
-            string expectedIdentifier = $"urn:altinn:user:id:{userId}";
-            bool hasMatch = false;
-            if (jsonDocument.RootElement.TryGetProperty("data", out JsonElement dataElement) && dataElement.ValueKind == JsonValueKind.Array)
-            {
-                foreach (JsonElement element in dataElement.EnumerateArray())
-                {
-                    if (element.ValueKind == JsonValueKind.String && string.Equals(element.GetString(), expectedIdentifier, StringComparison.Ordinal))
-                    {
-                        hasMatch = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!hasMatch)
-            {
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            }
-
-            return new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = JsonContent.Create(new
-                {
-                    data = userParty is null ? [] : new[] { userParty }
-                })
-            };
-        });
-    }
-
-    private void SetupRegisterUserPartyByUsernameLookup(string username, Party userParty, HttpStatusCode statusCode = HttpStatusCode.OK)
-    {
-        _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-        {
-            if (request.Method != HttpMethod.Post
-                || request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) != true)
-            {
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            }
-
-            if (statusCode != HttpStatusCode.OK)
-            {
-                return new HttpResponseMessage(statusCode);
-            }
-
-            if (request.Content == null)
-            {
-                return new HttpResponseMessage(HttpStatusCode.BadRequest);
-            }
-
-            await using var stream = await request.Content.ReadAsStreamAsync(token);
-            using JsonDocument jsonDocument = await JsonDocument.ParseAsync(stream, cancellationToken: token);
-
-            string expectedIdentifier = $"urn:altinn:party:username:{username}";
-            bool hasMatch = false;
-            if (jsonDocument.RootElement.TryGetProperty("data", out JsonElement dataElement) && dataElement.ValueKind == JsonValueKind.Array)
-            {
-                foreach (JsonElement element in dataElement.EnumerateArray())
-                {
-                    if (element.ValueKind == JsonValueKind.String && string.Equals(element.GetString(), expectedIdentifier, StringComparison.Ordinal))
-                    {
-                        hasMatch = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!hasMatch)
-            {
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            }
-
-            return new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = JsonContent.Create(new
-                {
-                    data = userParty is null ? [] : new[] { userParty }
-                })
-            };
-        });
     }
 
     private HttpClient CreateClientWithRegisterAsPrimary(bool enabled)

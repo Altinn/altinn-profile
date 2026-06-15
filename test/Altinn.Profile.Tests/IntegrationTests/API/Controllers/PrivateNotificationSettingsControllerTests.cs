@@ -114,7 +114,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
             .Setup(x => x.Get(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserContactInfo)null);
         var party = SelfIdentifiedUser.MinimalEmail("test@example.com", System.Guid.NewGuid()) with { User = new PartyUser(1, "epost:test@example.com", ImmutableValueArray<uint>.Empty.Add(1u)) };
-        SetupRegisterUserPartyLookup(UserId, party);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, party);
 
         _factory.UserContactInfoRepositoryMock
             .Setup(x => x.CreateUserContactInfo(It.Is<UserContactInfoCreateModel>(m => m.EmailAddress == "test@example.com"), It.IsAny<CancellationToken>()))
@@ -245,7 +245,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
             .ReturnsAsync((UserContactInfo)null);
 
         // Register returns a non-self-identified party so the service returns null
-        SetupRegisterUserPartyLookup(UserId, null);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, null);
 
         HttpClient client = _factory.WithWebHostBuilder(builder =>
         {
@@ -281,7 +281,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
             .ReturnsAsync((UserContactInfo)null);
 
         // Register returns null (not a self-identified party)
-        SetupRegisterUserPartyLookup(UserId, null);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, null);
 
         // UserProfileClient (SblBridge) returns a valid profile
         _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
@@ -358,7 +358,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
 
         // SelfIdentifiedUser without a User value set
         var party = SelfIdentifiedUser.MinimalEmail("nouser@example.com", Guid.NewGuid());
-        SetupRegisterUserPartyLookup(UserId, party);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, party);
 
         HttpClient client = _factory.WithWebHostBuilder(builder =>
         {
@@ -395,7 +395,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
 
         // SelfIdentifiedUser without a User value set
         var party = SelfIdentifiedUser.MinimalEmail("nouser@example.com", Guid.NewGuid());
-        SetupRegisterUserPartyLookup(UserId, party);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, party);
 
         _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {
@@ -445,43 +445,6 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         _factory.UserContactInfoRepositoryMock.Verify(x => x.CreateUserContactInfo(It.IsAny<UserContactInfoCreateModel>(), It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    private void SetupRegisterUserPartyLookup(int userId, Party userParty)
-    {
-        _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-        {
-            if (request.Method == HttpMethod.Post
-                && request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) == true)
-            {
-                if (request.Content == null)
-                {
-                    return new HttpResponseMessage(HttpStatusCode.BadRequest);
-                }
-
-                await using var stream = await request.Content.ReadAsStreamAsync(token);
-                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(stream, cancellationToken: token);
-
-                bool containsRequestedUserId = jsonDocument.RootElement.TryGetProperty("data", out JsonElement dataElement)
-                    && dataElement.ValueKind == JsonValueKind.Array
-                    && dataElement.EnumerateArray().Any(element =>
-                        element.ValueKind == JsonValueKind.String
-                        && string.Equals(element.GetString(), $"urn:altinn:user:id:{userId}", StringComparison.Ordinal));
-
-                if (containsRequestedUserId)
-                {
-                    return new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = JsonContent.Create(new
-                        {
-                            data = userParty is null ? [] : new[] { userParty }
-                        })
-                    };
-                }
-            }
-
-            return new HttpResponseMessage(HttpStatusCode.NotFound);
-        });
     }
 
     private static HttpRequestMessage CreateRequestWithUserIdAndAuthMethod(HttpMethod method, int userId, string authMethod, string requestUri, PrivateNotificationSettingsUpdateRequest body)

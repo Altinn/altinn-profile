@@ -75,7 +75,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
                 PreselectedPartyUuid = preselectedPartyUuid,
             });
 
-        SetupRegisterPartyIdLookup(preselectedPartyUuid, 123456);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterPartyIdLookup(_factory, preselectedPartyUuid, 123456);
 
         HttpClient client = _factory.CreateClient();
 
@@ -239,7 +239,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         _factory.PersonServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new PersonContactPreferences { Email = "test@mail.com", NationalIdentityNumber = "1", MobileNumber = "+4798765432", IsReserved = true }]);
 
-        SetupRegisterPartyIdLookup(preselectedPartyUuid, 123456);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterPartyIdLookup(_factory, preselectedPartyUuid, 123456);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
 
@@ -918,7 +918,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             IsDeleted = false,
         };
 
-        SetupRegisterUserPartyByUserIdLookup(userId, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, userId, registerPerson);
 
         _factory.ProfileSettingsRepositoryMock
             .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -962,7 +962,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
         });
 
-        SetupRegisterUserPartyByUserIdLookup(userId, null, HttpStatusCode.InternalServerError);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, userId, null, HttpStatusCode.InternalServerError);
 
         _factory.ProfileSettingsRepositoryMock
             .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -1038,7 +1038,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         SelfIdentifiedUser selfIdentifiedFromRegister = await TestDataLoader.Load<SelfIdentifiedUser>("siuser-input");
 
-        SetupRegisterUserPartyByUserIdLookup(userId, selfIdentifiedFromRegister);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, userId, selfIdentifiedFromRegister);
 
         _factory.ProfileSettingsRepositoryMock
             .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -1122,84 +1122,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         _factory.UserContactInfoRepositoryMock.Verify(m => m.Get(UserId, It.IsAny<CancellationToken>()), Times.Once);
         _factory.PersonServiceMock.Verify(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    private void SetupRegisterPartyIdLookup(Guid partyUuid, int partyId)
-    {
-        _factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
-        {
-            if (request.Method == HttpMethod.Get
-                && request.RequestUri?.AbsolutePath.EndsWith("v1/parties/identifiers", StringComparison.Ordinal) == true
-                && request.RequestUri.Query.Contains(partyUuid.ToString(), StringComparison.OrdinalIgnoreCase))
-            {
-                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = JsonContent.Create(new[]
-                    {
-                        new
-                        {
-                            partyId,
-                            partyUuid,
-                            orgNumber = string.Empty
-                        }
-                    })
-                });
-            }
-
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
-        });
-    }
-
-    private void SetupRegisterUserPartyByUserIdLookup(int userId, Party? userParty, HttpStatusCode statusCode = HttpStatusCode.OK)
-    {
-        _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-        {
-            if (request.Method != HttpMethod.Post
-                || request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/query", StringComparison.Ordinal) != true)
-            {
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            }
-
-            if (statusCode != HttpStatusCode.OK)
-            {
-                return new HttpResponseMessage(statusCode);
-            }
-
-            if (request.Content == null)
-            {
-                return new HttpResponseMessage(HttpStatusCode.BadRequest);
-            }
-
-            await using var stream = await request.Content.ReadAsStreamAsync(token);
-            using JsonDocument jsonDocument = await JsonDocument.ParseAsync(stream, cancellationToken: token);
-
-            string expectedIdentifier = $"urn:altinn:user:id:{userId}";
-            bool hasMatch = false;
-            if (jsonDocument.RootElement.TryGetProperty("data", out JsonElement dataElement) && dataElement.ValueKind == JsonValueKind.Array)
-            {
-                foreach (JsonElement element in dataElement.EnumerateArray())
-                {
-                    if (element.ValueKind == JsonValueKind.String && string.Equals(element.GetString(), expectedIdentifier, StringComparison.Ordinal))
-                    {
-                        hasMatch = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!hasMatch)
-            {
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            }
-
-            return new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = JsonContent.Create(new
-                {
-                    data = userParty is null ? [] : new[] { userParty }
-                })
-            };
-        });
     }
 
     private static HttpRequestMessage CreateGetRequest(int userId, string requestUri)

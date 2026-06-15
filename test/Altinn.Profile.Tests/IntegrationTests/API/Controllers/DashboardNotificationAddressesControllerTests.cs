@@ -202,7 +202,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.GetOrganizationsAsync(It.Is<List<string>>(a => a.Contains(requestedOrg)), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Enumerable.Empty<Organization>());
 
-            SetupRegisterMainUnitLookup(parentOrg);
+            RegisterHttpMessageHandlerHelpers.SetupRegisterMainUnitLookup(_factory, parentOrg);
 
             _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationAsync(parentOrg, It.IsAny<CancellationToken>()))
@@ -239,7 +239,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             string orgNumber = "error-org";
-            SetupRegisterMainUnitLookup(null);
+            RegisterHttpMessageHandlerHelpers.SetupRegisterMainUnitLookup(_factory, null);
 
             _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))
@@ -464,23 +464,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(phoneItem);
             Assert.Equal(phoneNumber, phoneItem.Phone);
             Assert.Equal(countryCode, phoneItem.CountryCode);
-        }
-
-        private void SetupRegisterMainUnitLookup(string parentOrgNumber)
-        {
-            _factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
-            {
-                if (request.Method == HttpMethod.Post
-                    && request.RequestUri?.AbsolutePath.EndsWith("v2/internal/parties/main-units", StringComparison.Ordinal) == true)
-                {
-                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = JsonContent.Create(new { data = new[] { new { organizationIdentifier = parentOrgNumber } } })
-                    });
-                }
-
-                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
-            });
         }
 
         private static HttpRequestMessage GenerateTokenWithoutScope(string orgNumber, HttpRequestMessage httpRequestMessage)
