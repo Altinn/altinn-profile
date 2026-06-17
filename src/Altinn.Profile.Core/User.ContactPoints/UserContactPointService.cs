@@ -2,8 +2,10 @@
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Models;
+
 using Microsoft.Extensions.Logging;
 
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using static Altinn.Profile.Core.Unit.ContactPoints.CustomContactPointUrn;
 
 namespace Altinn.Profile.Core.User.ContactPoints;
@@ -35,23 +37,17 @@ public class UserContactPointService : IUserContactPointsService
     public async Task<UserContactPointAvailabilityList> GetContactPointAvailability(List<string> nationalIdentityNumbers, CancellationToken cancellationToken)
     {
         UserContactPointAvailabilityList availabilityResult = new();
+        var contactPreferences = await _personService.GetContactPreferencesAsync(nationalIdentityNumbers, cancellationToken);
 
-        foreach (var nationalIdentityNumber in nationalIdentityNumbers)
+        foreach (var contactPreference in contactPreferences)
         {
-            Result<UserProfile, bool> result = await _userProfileService.GetUser(nationalIdentityNumber, cancellationToken);
-
-            result.Match(
-                profile =>
-                {
-                    availabilityResult.AvailabilityList.Add(new UserContactPointAvailability()
-                    {
-                        NationalIdentityNumber = profile.Party?.SSN ?? string.Empty,
-                        EmailRegistered = !string.IsNullOrEmpty(profile.Email),
-                        MobileNumberRegistered = !string.IsNullOrEmpty(profile.PhoneNumber),
-                        IsReserved = profile.IsReserved
-                    });
-                },
-                _ => { });
+            availabilityResult.AvailabilityList.Add(new UserContactPointAvailability()
+            {
+                NationalIdentityNumber = contactPreference.NationalIdentityNumber,
+                EmailRegistered = !string.IsNullOrEmpty(contactPreference.Email),
+                MobileNumberRegistered = !string.IsNullOrEmpty(contactPreference.MobileNumber),
+                IsReserved = contactPreference.IsReserved
+            });
         }
 
         return availabilityResult;

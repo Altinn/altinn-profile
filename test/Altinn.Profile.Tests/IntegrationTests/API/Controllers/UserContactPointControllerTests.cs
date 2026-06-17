@@ -102,6 +102,8 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
             NationalIdentityNumbers = new List<string>() { "01025101037" }
         };
 
+        await SeedTestData(input.NationalIdentityNumbers.ToArray());
+
         HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/availability");
 
@@ -126,6 +128,7 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
         {
             NationalIdentityNumbers = new List<string>() { "01025101037", "99999999999" }
         };
+        await SeedTestData(new[] { "01025101037" });
 
         HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/availability");

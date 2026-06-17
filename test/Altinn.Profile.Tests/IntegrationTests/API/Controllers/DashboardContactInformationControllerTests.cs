@@ -9,14 +9,19 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Altinn.Authorization.ModelUtils;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Altinn.Profile.Tests.Testdata;
+using Altinn.Register.Contracts;
+using Altinn.Register.Contracts.Testing;
 
 using Moq;
 
 using Xunit;
+
+using static Altinn.Register.Contracts.PartyUrn;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {
@@ -42,33 +47,19 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task GetContactInformationByOrgNumber_WhenMultipleUsersExist_ReturnsOkWithAllUsers()
         {
             // Arrange
-            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-            {
-                string uri = request.RequestUri?.ToString() ?? string.Empty;
-                if (uri.Contains("/users/1001"))
-                {
-                    var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
-                    userProfile.UserId = 1001;
-                    userProfile.Party.SSN = "01010112345";
-                    userProfile.Party.Name = "John Doe";
-                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
-                }
-                else if (uri.Contains("/users/1002"))
-                {
-                    var userProfile = await TestDataLoader.Load<UserProfile>("2001607");
-                    userProfile.UserId = 1002;
-                    userProfile.Party.SSN = "01010198765";
-                    userProfile.Party.Name = "Jane Smith";
-                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
-                }
-
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            });
-
             string orgNumber = "123456789";
             Guid partyUuid = Guid.NewGuid();
 
-            SetupRegisterPartyUuidsLookup(orgNumber, partyUuid);
+            SetupRegisterUserPartyAndOrganizationLookups(
+                new Dictionary<int, Party>
+                {
+                    [1001] = CreateRegisterPerson(1001, "01010112345", "John Doe"),
+                    [1002] = CreateRegisterPerson(1002, "01010198765", "Jane Smith")
+                },
+                new Dictionary<Guid, string>
+                {
+                    [partyUuid] = orgNumber
+                });
 
             // Mock ProfessionalNotificationsRepository - return contact info for multiple users
             var contactInfos = new List<UserPartyContactInfo>
@@ -198,30 +189,19 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task GetContactInformationByOrgNumber_WhenUserProfileNotFound_SkipsUser()
         {
             // Arrange
-            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-            {
-                string uri = request.RequestUri?.ToString() ?? string.Empty;
-                if (uri.Contains("/users/1001"))
-                {
-                    var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
-                    userProfile.UserId = 1001;
-                    userProfile.Party.SSN = "01010112345";
-                    userProfile.Party.Name = "John Doe";
-                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
-                }
-                else if (uri.Contains("/users/1002"))
-                {
-                    // User 1002 returns 404 (not found)
-                    return new HttpResponseMessage(HttpStatusCode.NotFound);
-                }
-
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            });
-
             string orgNumber = "111222333";
             Guid partyUuid = Guid.NewGuid();
 
-            SetupRegisterPartyUuidsLookup(orgNumber, partyUuid);
+            SetupRegisterUserPartyAndOrganizationLookups(
+                new Dictionary<int, Party>
+                {
+                    [1001] = CreateRegisterPerson(1001, "01010112345", "John Doe"),
+                    [1002] = null
+                },
+                new Dictionary<Guid, string>
+                {
+                    [partyUuid] = orgNumber
+                });
 
             var contactInfos = new List<UserPartyContactInfo>
             {
@@ -294,24 +274,18 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task GetContactInformationByOrgNumber_WhenUserPartyIsNull_SkipsUser()
         {
             // Arrange
-            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-            {
-                string uri = request.RequestUri?.ToString() ?? string.Empty;
-                if (uri.Contains("/users/1001"))
-                {
-                    var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
-                    userProfile.UserId = 1001;
-                    userProfile.Party = null; // Party is null - should skip this user
-                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
-                }
-
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            });
-
             string orgNumber = "555666777";
             Guid partyUuid = Guid.NewGuid();
 
-            SetupRegisterPartyUuidsLookup(orgNumber, partyUuid);
+            SetupRegisterUserPartyAndOrganizationLookups(
+                new Dictionary<int, Party>
+                {
+                    [1001] = null
+                },
+                new Dictionary<Guid, string>
+                {
+                    [partyUuid] = orgNumber
+                });
 
             var contactInfos = new List<UserPartyContactInfo>
             {
@@ -350,25 +324,18 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task GetContactInformationByOrgNumber_WhenPartySsnAndNameAreNull_SkipsUser()
         {
             // Arrange
-            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-            {
-                string uri = request.RequestUri?.ToString() ?? string.Empty;
-                if (uri.Contains("/users/1001"))
-                {
-                    var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
-                    userProfile.UserId = 1001;
-                    userProfile.Party.SSN = null; // SSN is null
-                    userProfile.Party.Name = null; // Name is also null
-                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
-                }
-
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            });
-
             string orgNumber = "444555666";
             Guid partyUuid = Guid.NewGuid();
 
-            SetupRegisterPartyUuidsLookup(orgNumber, partyUuid);
+            SetupRegisterUserPartyAndOrganizationLookups(
+                new Dictionary<int, Party>
+                {
+                    [1001] = CreateRegisterSelfIdentifiedUser(1001, string.Empty)
+                },
+                new Dictionary<Guid, string>
+                {
+                    [partyUuid] = orgNumber
+                });
 
             var contactInfos = new List<UserPartyContactInfo>
             {
@@ -405,25 +372,18 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task GetContactInformationByOrgNumber_WhenOnlySsnIsNull_ReturnsWithEmptySSN()
         {
             // Arrange
-            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-            {
-                string uri = request.RequestUri?.ToString() ?? string.Empty;
-                if (uri.Contains("/users/1001"))
-                {
-                    var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
-                    userProfile.UserId = 1001;
-                    userProfile.Party.SSN = null; // SSN is null
-                    userProfile.Party.Name = "Valid Name"; // Name is populated
-                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
-                }
-
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            });
-
             string orgNumber = "333444555";
             Guid partyUuid = Guid.NewGuid();
 
-            SetupRegisterPartyUuidsLookup(orgNumber, partyUuid);
+            SetupRegisterUserPartyAndOrganizationLookups(
+                new Dictionary<int, Party>
+                {
+                    [1001] = CreateRegisterSelfIdentifiedUser(1001, "Valid Name")
+                },
+                new Dictionary<Guid, string>
+                {
+                    [partyUuid] = orgNumber
+                });
 
             var contactInfos = new List<UserPartyContactInfo>
             {
@@ -465,25 +425,18 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         public async Task GetContactInformationByOrgNumber_WhenOnlyNameIsNull_SkipsUser()
         {
             // Arrange
-            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-            {
-                string uri = request.RequestUri?.ToString() ?? string.Empty;
-                if (uri.Contains("/users/1001"))
-                {
-                    var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
-                    userProfile.UserId = 1001;
-                    userProfile.Party.SSN = "01010112345"; // SSN is populated
-                    userProfile.Party.Name = null; // Name is null
-                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
-                }
-
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            });
-
             string orgNumber = "222333444";
             Guid partyUuid = Guid.NewGuid();
 
-            SetupRegisterPartyUuidsLookup(orgNumber, partyUuid);
+            SetupRegisterUserPartyAndOrganizationLookups(
+                new Dictionary<int, Party>
+                {
+                    [1001] = CreateRegisterPerson(1001, "01010112345", string.Empty)
+                },
+                new Dictionary<Guid, string>
+                {
+                    [partyUuid] = orgNumber
+                });
 
             var contactInfos = new List<UserPartyContactInfo>
             {
@@ -519,36 +472,25 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [Fact]
         public async Task GetContactInformationByEmailAddress_WhenMultipleUsersExist_ReturnsOkWithAllUsers()
         {
-            // Arrange - SBL Bridge returns user profile for identity enrichment
-            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-            {
-                string uri = request.RequestUri?.ToString() ?? string.Empty;
-                if (uri.Contains("/users/1001"))
-                {
-                    var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
-                    userProfile.UserId = 1001;
-                    userProfile.Party.SSN = "01010112345";
-                    userProfile.Party.Name = "John Doe";
-                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
-                }
-                else if (uri.Contains("/users/1002"))
-                {
-                    var userProfile = await TestDataLoader.Load<UserProfile>("2001607");
-                    userProfile.UserId = 1002;
-                    userProfile.Party.SSN = "01010198765";
-                    userProfile.Party.Name = "Jane Smith";
-                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
-                }
-
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            });
-
+            // Arrange
             string email = "search@example.com";
             string orgNumber1 = "341341341";
             Guid partyUuid1 = Guid.NewGuid();
 
             string orgNumber2 = "352352352";
             Guid partyUuid2 = Guid.NewGuid();
+
+            SetupRegisterUserPartyAndOrganizationLookups(
+                new Dictionary<int, Party>
+                {
+                    [1001] = CreateRegisterPerson(1001, "01010112345", "John Doe"),
+                    [1002] = CreateRegisterPerson(1002, "01010198765", "Jane Smith")
+                },
+                new Dictionary<Guid, string>
+                {
+                    [partyUuid1] = orgNumber1,
+                    [partyUuid2] = orgNumber2
+                });
 
             // Mock repository to return raw contact info (no identity)
             var contactInfosFromRepo = new List<UserPartyContactInfo>
@@ -574,13 +516,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(r => r.GetAllContactInfoByEmailAddressAsync(email, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(contactInfosFromRepo);
-
-            // Mock register client used by service/controller to map partyUuid -> org number
-            SetupRegisterOrganizationNumberLookup(new Dictionary<Guid, string>
-            {
-                [partyUuid1] = orgNumber1,
-                [partyUuid2] = orgNumber2
-            });
 
             HttpClient client = _factory.CreateClient();
             string encodedEmail = Uri.EscapeDataString(email);
@@ -663,31 +598,23 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [Fact]
         public async Task GetContactInformationByEmailAddress_WhenUserProfileNotFound_SkipsUser()
         {
-            // Arrange - SBL Bridge returns user profile for identity enrichment
-            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-            {
-                string uri = request.RequestUri?.ToString() ?? string.Empty;
-                if (uri.Contains("/users/1001"))
-                {
-                    var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
-                    userProfile.UserId = 1001;
-                    userProfile.Party.SSN = "01010112345";
-                    userProfile.Party.Name = "John Doe";
-                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
-                }
-                else if (uri.Contains("/users/1002"))
-                {
-                    // User 1002 returns 404 (not found)
-                    return new HttpResponseMessage(HttpStatusCode.NotFound);
-                }
-
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            });
-
+            // Arrange
             string email = "search@example.com";
             string orgNumber = "123456789";
             Guid partyUuid1 = Guid.NewGuid();
             Guid partyUuid2 = Guid.NewGuid();
+
+            SetupRegisterUserPartyAndOrganizationLookups(
+                new Dictionary<int, Party>
+                {
+                    [1001] = CreateRegisterPerson(1001, "01010112345", "John Doe"),
+                    [1002] = null
+                },
+                new Dictionary<Guid, string>
+                {
+                    [partyUuid1] = orgNumber,
+                    [partyUuid2] = orgNumber
+                });
 
             var contactInfosFromRepo = new List<UserPartyContactInfo>
             {
@@ -712,12 +639,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(r => r.GetAllContactInfoByEmailAddressAsync(email, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(contactInfosFromRepo);
-
-            SetupRegisterOrganizationNumberLookup(new Dictionary<Guid, string>
-            {
-                [partyUuid1] = orgNumber,
-                [partyUuid2] = orgNumber
-            });
 
             HttpClient client = _factory.CreateClient();
             string encodedEmail = Uri.EscapeDataString(email);
@@ -747,30 +668,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [Fact]
         public async Task GetContactInformationByPhoneNumber_WhenMultipleUsersExist_ReturnsOkWithAllUsers()
         {
-            // Arrange - SBL Bridge returns user profile for identity enrichment
-            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-            {
-                string uri = request.RequestUri?.ToString() ?? string.Empty;
-                if (uri.Contains("/users/1001"))
-                {
-                    var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
-                    userProfile.UserId = 1001;
-                    userProfile.Party.SSN = "01010112345";
-                    userProfile.Party.Name = "John Doe";
-                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
-                }
-                else if (uri.Contains("/users/1002"))
-                {
-                    var userProfile = await TestDataLoader.Load<UserProfile>("2001607");
-                    userProfile.UserId = 1002;
-                    userProfile.Party.SSN = "01010198765";
-                    userProfile.Party.Name = "Jane Smith";
-                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
-                }
-
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            });
-            
+            // Arrange
             string phoneNumber = "98765432";
             string countryCode = "+47";
             string encodedCountryCode = Uri.EscapeDataString(countryCode);
@@ -781,6 +679,18 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             string orgNumber2 = "352352352";
             Guid partyUuid2 = Guid.NewGuid();
+
+            SetupRegisterUserPartyAndOrganizationLookups(
+                new Dictionary<int, Party>
+                {
+                    [1001] = CreateRegisterPerson(1001, "01010112345", "John Doe"),
+                    [1002] = CreateRegisterPerson(1002, "01010198765", "Jane Smith")
+                },
+                new Dictionary<Guid, string>
+                {
+                    [partyUuid1] = orgNumber1,
+                    [partyUuid2] = orgNumber2
+                });
 
             // Mock repository to return raw contact info (no identity)
             var contactInfosFromRepo = new List<UserPartyContactInfo>
@@ -806,13 +716,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(r => r.GetAllContactInfoByPhoneNumberAsync(fullPhoneNumber, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(contactInfosFromRepo);
-
-            // Mock register client used by service/controller to map partyUuid -> org number
-            SetupRegisterOrganizationNumberLookup(new Dictionary<Guid, string>
-            {
-                [partyUuid1] = orgNumber1,
-                [partyUuid2] = orgNumber2
-            });
 
             HttpClient client = _factory.CreateClient();
             string encodedPhoneNumber = Uri.EscapeDataString(phoneNumber);
@@ -898,27 +801,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [Fact]
         public async Task GetContactInformationByPhoneNumber_WhenUserProfileNotFound_SkipsUser()
         {
-            // Arrange - SBL Bridge returns user profile for identity enrichment
-            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-            {
-                string uri = request.RequestUri?.ToString() ?? string.Empty;
-                if (uri.Contains("/users/1001"))
-                {
-                    var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
-                    userProfile.UserId = 1001;
-                    userProfile.Party.SSN = "01010112345";
-                    userProfile.Party.Name = "John Doe";
-                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
-                }
-                else if (uri.Contains("/users/1002"))
-                {
-                    // User 1002 returns 404 (not found)
-                    return new HttpResponseMessage(HttpStatusCode.NotFound);
-                }
-
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            });
-
+            // Arrange
             string orgNumber = "123456789";
 
             string phoneNumber = "98765432";
@@ -928,6 +811,18 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             Guid partyUuid1 = Guid.NewGuid();
             Guid partyUuid2 = Guid.NewGuid();
+
+            SetupRegisterUserPartyAndOrganizationLookups(
+                new Dictionary<int, Party>
+                {
+                    [1001] = CreateRegisterPerson(1001, "01010112345", "John Doe"),
+                    [1002] = null
+                },
+                new Dictionary<Guid, string>
+                {
+                    [partyUuid1] = orgNumber,
+                    [partyUuid2] = orgNumber
+                });
 
             var contactInfosFromRepo = new List<UserPartyContactInfo>
             {
@@ -951,12 +846,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(r => r.GetAllContactInfoByPhoneNumberAsync(fullPhoneNumber, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(contactInfosFromRepo);
-
-            SetupRegisterOrganizationNumberLookup(new Dictionary<Guid, string>
-            {
-                [partyUuid1] = orgNumber,
-                [partyUuid2] = orgNumber
-            });
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}?countrycode={encodedCountryCode}");
@@ -985,36 +874,25 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [Fact]
         public async Task GetContactInformationByPhoneNumber_NoCountryCodeProvided_ReturnsOkWithNumbersWithoutCountryCode()
         {
-            // Arrange - identity enrichment
-            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-            {
-                string uri = request.RequestUri?.ToString() ?? string.Empty;
-                if (uri.Contains("/users/1001"))
-                {
-                    var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
-                    userProfile.UserId = 1001;
-                    userProfile.Party.SSN = "01010112345";
-                    userProfile.Party.Name = "John Doe";
-                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
-                }
-                else if (uri.Contains("/users/1002"))
-                {
-                    var userProfile = await TestDataLoader.Load<UserProfile>("2001607");
-                    userProfile.UserId = 1002;
-                    userProfile.Party.SSN = "01010198765";
-                    userProfile.Party.Name = "Jane Smith";
-                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
-                }
-
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            });
-
+            // Arrange
             // Phone provided without country code in request and repository stores phone without country code
             string phoneNumber = "92929292";
             string orgNumber1 = "341341341";
             Guid partyUuid1 = Guid.NewGuid();
             string orgNumber2 = "352352352";
             Guid partyUuid2 = Guid.NewGuid();
+
+            SetupRegisterUserPartyAndOrganizationLookups(
+                new Dictionary<int, Party>
+                {
+                    [1001] = CreateRegisterPerson(1001, "01010112345", "John Doe"),
+                    [1002] = CreateRegisterPerson(1002, "01010198765", "Jane Smith")
+                },
+                new Dictionary<Guid, string>
+                {
+                    [partyUuid1] = orgNumber1,
+                    [partyUuid2] = orgNumber2
+                });
 
             var contactInfosFromRepo = new List<UserPartyContactInfo>
             {
@@ -1039,12 +917,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(r => r.GetAllContactInfoByPhoneNumberAsync(phoneNumber, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(contactInfosFromRepo);
-
-            SetupRegisterOrganizationNumberLookup(new Dictionary<Guid, string>
-            {
-                [partyUuid1] = orgNumber1,
-                [partyUuid2] = orgNumber2
-            });
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}");
@@ -1118,21 +990,20 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData("8798765432", null)]        
         public async Task GetContactInformationByPhoneNumber_WithVariousPhoneNumberFormats_ReturnsOkWithUsers(string phoneNumber, string countryCode)
         {
-            // Arrange - SBL Bridge returns user profile for identity enrichment
-            _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+            // Arrange
+            var userId = 1001;
+            Person registerPerson = Person.Minimal("14836498780") with
             {
-                string uri = request.RequestUri?.ToString() ?? string.Empty;
-                if (uri.Contains("/users/1001"))
-                {
-                    var userProfile = await TestDataLoader.Load<UserProfile>("2001606");
-                    userProfile.UserId = 1001;
-                    userProfile.Party.SSN = "01010112345";
-                    userProfile.Party.Name = "John Doe";
-                    return new HttpResponseMessage { Content = JsonContent.Create(userProfile) };
-                }
+                PartyId = 987654,
+                Uuid = Guid.NewGuid(),
+                ShortName = "John Doe",
+                FirstName = "John",
+                LastName = "Doe",
+                ModifiedAt = DateTimeOffset.UtcNow,
+                IsDeleted = false,
+            };
 
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            });
+            RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, userId, registerPerson);
 
             string orgNumber = "341341341";
             Guid partyUuid = Guid.NewGuid();
@@ -1157,7 +1028,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.GetAllContactInfoByPhoneNumberAsync(searchPhoneNumber, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(contactInfosFromRepo);
 
-            SetupRegisterOrganizationNumberLookup(new Dictionary<Guid, string>
+            SetupRegisterUserPartyAndOrganizationLookups(
+            new Dictionary<int, Party>
+            {
+                [1001] = registerPerson
+            }, 
+            new Dictionary<Guid, string>
             {
                 [partyUuid] = orgNumber
             });
@@ -1181,7 +1057,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             Assert.NotNull(result);
             Assert.Single(result);
-            Assert.Equal("01010112345", result[0].NationalIdentityNumber);
+            Assert.Equal("14836498780", result[0].NationalIdentityNumber);
             Assert.Equal("John Doe", result[0].Name);
             Assert.Equal("user@example.com", result[0].Email);
             Assert.Equal(searchPhoneNumber, result[0].Phone);
@@ -1222,9 +1098,47 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 RegisterHttpMessageHandlerHelpers.CreateCombinedRegisterPartyQueryAndIdentifiersHandler(lookup));
         }
 
-        private void SetupRegisterOrganizationNumberLookup(Dictionary<Guid, string> organizationNumbersByPartyUuid)
+        private void SetupRegisterUserPartyLookups(Dictionary<int, Party> userPartiesByUserId)
         {
-            RegisterHttpMessageHandlerHelpers.SetupRegisterOrganizationNumberLookup(_factory, organizationNumbersByPartyUuid);
+            SetupRegisterUserPartyAndOrganizationLookups(userPartiesByUserId, new Dictionary<Guid, string>());
+        }
+
+        private void SetupRegisterUserPartyAndOrganizationLookups(Dictionary<int, Party> userPartiesByUserId, Dictionary<Guid, string> organizationNumbersByPartyUuid)
+        {
+            RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdWithPartyQueryAndIdentifiersLookup(
+                _factory,
+                userPartiesByUserId,
+                organizationNumbersByPartyUuid);
+        }
+
+        private static Person CreateRegisterPerson(int userId, string ssn, string name)
+        {
+            string[] splitName = name.Split(' ', 2, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            string firstName = splitName.Length > 0 ? splitName[0] : string.Empty;
+            string lastName = splitName.Length > 1 ? splitName[1] : string.Empty;
+
+            return Person.Minimal(ssn) with
+            {
+                PartyId = (uint)userId,
+                Uuid = Guid.NewGuid(),
+                ShortName = name,
+                FirstName = firstName,
+                LastName = lastName,
+                ModifiedAt = DateTimeOffset.UtcNow,
+                IsDeleted = false,
+            };
+        }
+
+        private static SelfIdentifiedUser CreateRegisterSelfIdentifiedUser(int userId, string displayName)
+        {
+            return SelfIdentifiedUser.MinimalLegacy(displayName) with
+            {
+                PartyId = (uint)userId,
+                Uuid = Guid.NewGuid(),
+                User = new PartyUser((uint)userId, null, ImmutableValueArray<uint>.Empty.Add((uint)userId)),
+                ModifiedAt = DateTimeOffset.UtcNow,
+                IsDeleted = false,
+            };
         }
 
         private static HttpRequestMessage CreateAuthorizedRequestWithoutScope(HttpRequestMessage httpRequestMessage, string org = "ttd")

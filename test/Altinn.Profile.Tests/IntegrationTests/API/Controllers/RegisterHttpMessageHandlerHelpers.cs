@@ -43,6 +43,69 @@ internal static class RegisterHttpMessageHandlerHelpers
         });
     }
 
+    internal static void SetupRegisterUserPartyByUserIdAndPartyIdLookup(ProfileWebApplicationFactory<Program> factory, int userId, Party userParty, Guid partyUuid, int partyId, HttpStatusCode statusCode = HttpStatusCode.OK)
+    {
+        string expectedIdentifier = $"urn:altinn:user:id:{userId}";
+
+        factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        {
+            if (IsPartyQueryRequest(request))
+            {
+                if (statusCode != HttpStatusCode.OK)
+                {
+                    return new HttpResponseMessage(statusCode);
+                }
+
+                if (request.Content == null)
+                {
+                    return new HttpResponseMessage(HttpStatusCode.BadRequest);
+                }
+
+                await using var stream = await request.Content.ReadAsStreamAsync(token);
+                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(stream, cancellationToken: token);
+
+                bool hasMatch = false;
+                if (jsonDocument.RootElement.TryGetProperty("data", out JsonElement dataElement) && dataElement.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (JsonElement element in dataElement.EnumerateArray())
+                    {
+                        if (element.ValueKind == JsonValueKind.String && string.Equals(element.GetString(), expectedIdentifier, StringComparison.Ordinal))
+                        {
+                            hasMatch = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!hasMatch)
+                {
+                    return NotFound();
+                }
+
+                return OkJson(new
+                {
+                    data = userParty is null ? [] : new[] { userParty }
+                });
+            }
+
+            if (IsIdentifiersRequest(request)
+                && request.RequestUri.Query.Contains(partyUuid.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return OkJson(new[]
+                {
+                    new
+                    {
+                        partyId,
+                        partyUuid,
+                        orgNumber = string.Empty,
+                    }
+                });
+            }
+
+            return NotFound();
+        });
+    }
+
     internal static void SetupRegisterPartyLookupForAuthorization(ProfileWebApplicationFactory<Program> factory, Guid partyUuid, int identifiersPartyId, string organizationNumber, int partyQueryPartyId = 12345)
     {
         factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
@@ -99,9 +162,68 @@ internal static class RegisterHttpMessageHandlerHelpers
         SetupRegisterUserPartyLookup(factory, expectedIdentifier, userParty, statusCode);
     }
 
+    internal static void SetupRegisterUserPartyByUserIdWithPartyQueryAndIdentifiersLookup(ProfileWebApplicationFactory<Program> factory, IReadOnlyDictionary<int, Party> userPartiesByUserId, IReadOnlyDictionary<Guid, string> organizationNumbersByPartyUuid, HttpStatusCode statusCode = HttpStatusCode.OK)
+    {
+        factory.RegisterHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        {
+            if (IsPartyQueryRequest(request))
+            {
+                if (statusCode != HttpStatusCode.OK)
+                {
+                    return new HttpResponseMessage(statusCode);
+                }
+
+                string[] requestedIdentifiers = await GetRequestedIdentifiersFromQueryAsync(request, token);
+                string[] requestedUserIdIdentifiers = requestedIdentifiers
+                    .Where(identifier => identifier.StartsWith("urn:altinn:user:id:", StringComparison.OrdinalIgnoreCase))
+                    .ToArray();
+
+                if (requestedUserIdIdentifiers.Length > 0)
+                {
+                    var userParties = requestedUserIdIdentifiers
+                        .Select(identifier => identifier.Split(':').Last())
+                        .Where(value => int.TryParse(value, out _))
+                        .Select(int.Parse)
+                        .Where(userPartiesByUserId.ContainsKey)
+                        .Select(userId => userPartiesByUserId[userId])
+                        .Where(party => party is not null)
+                        .ToArray();
+
+                    return OkJson(new { data = userParties });
+                }
+
+                HttpResponseMessage partyQueryResponse = await TryCreatePartyQueryResponseAsync(request, organizationNumbersByPartyUuid, HttpStatusCode.OK, token);
+                if (partyQueryResponse is not null)
+                {
+                    return partyQueryResponse;
+                }
+            }
+
+            HttpResponseMessage identifiersResponse = TryCreateIdentifiersResponse(request, organizationNumbersByPartyUuid);
+            if (identifiersResponse is not null)
+            {
+                return identifiersResponse;
+            }
+
+            return NotFound();
+        });
+    }
+
+    internal static void SetupRegisterUserPartyByUserUuidLookup(ProfileWebApplicationFactory<Program> factory, Guid userUuid, Party userParty, HttpStatusCode statusCode = HttpStatusCode.OK)
+    {
+        string expectedIdentifier = $"urn:altinn:party:uuid:{userUuid}";
+        SetupRegisterUserPartyLookup(factory, expectedIdentifier, userParty, statusCode);
+    }
+
     internal static void SetupRegisterUserPartyByUsernameLookup(ProfileWebApplicationFactory<Program> factory, string username, Party userParty, HttpStatusCode statusCode = HttpStatusCode.OK)
     {
         string expectedIdentifier = $"urn:altinn:party:username:{username}";
+        SetupRegisterUserPartyLookup(factory, expectedIdentifier, userParty, statusCode);
+    }
+
+    internal static void SetupRegisterUserPartyByUserSsnLookup(ProfileWebApplicationFactory<Program> factory, string ssn, Party userParty, HttpStatusCode statusCode = HttpStatusCode.OK)
+    {
+        string expectedIdentifier = $"urn:altinn:person:identifier-no:{ssn}";
         SetupRegisterUserPartyLookup(factory, expectedIdentifier, userParty, statusCode);
     }
 
@@ -299,6 +421,15 @@ internal static class RegisterHttpMessageHandlerHelpers
 
     private static async Task<string[]> GetRequestedOrganizationNumbersFromQueryAsync(HttpRequestMessage request, CancellationToken token)
     {
+        string[] requestedIdentifiers = await GetRequestedIdentifiersFromQueryAsync(request, token);
+
+        return requestedIdentifiers
+            .Select(ExtractOrganizationNumberFromUrn)
+            .ToArray();
+    }
+
+    private static async Task<string[]> GetRequestedIdentifiersFromQueryAsync(HttpRequestMessage request, CancellationToken token)
+    {
         if (request.Content == null)
         {
             return [];
@@ -316,7 +447,7 @@ internal static class RegisterHttpMessageHandlerHelpers
             .Where(element => element.ValueKind == JsonValueKind.String)
             .Select(element => element.GetString())
             .Where(value => !string.IsNullOrEmpty(value))
-            .Select(value => ExtractOrganizationNumberFromUrn(value!))
+            .Select(value => value!)
             .ToArray();
     }
 
