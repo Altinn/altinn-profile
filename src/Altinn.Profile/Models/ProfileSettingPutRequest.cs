@@ -15,6 +15,7 @@ namespace Altinn.Profile.Models
         /// </summary>
         [Required]
         [JsonRequired]
+        [AllowedValues("nb", "nn", "en")]
         public new string Language { get; set; }
 
         /// <summary>

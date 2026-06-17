@@ -2,6 +2,7 @@
 using System;
 
 using Altinn.Profile.Core.Utils;
+using Altinn.Profile.Validators;
 
 namespace Altinn.Profile.Models
 {
@@ -13,6 +14,7 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// The language the user has selected in Altinn portal.
         /// </summary>
+        [AllowedValues("nb", "nn", "en")]
         public string? Language { get; set; }
 
         /// <summary>
