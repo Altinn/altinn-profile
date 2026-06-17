@@ -135,7 +135,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             User = new PartyUser(UserId, "sophie", ImmutableValueArray<uint>.Empty.Add(UserId))
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
@@ -302,7 +302,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             User = new PartyUser(UserId, "sophie", ImmutableValueArray<uint>.Empty.Add(UserId))
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
@@ -355,7 +355,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             User = new PartyUser(UserId, "franky", ImmutableValueArray<uint>.Empty.Add(UserId))
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/{UserId}");
         string token = PrincipalUtil.GetOrgToken("ttd");
@@ -401,7 +401,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             User = new PartyUser(UserId, "franky", ImmutableValueArray<uint>.Empty.Add(UserId))
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/{UserId}");
         string token = PrincipalUtil.GetSystemUserToken(Guid.NewGuid());
@@ -452,7 +452,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             User = new PartyUser(UserId, "sophie", ImmutableValueArray<uint>.Empty.Add(UserId))
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/{UserId}");
         string token = PrincipalUtil.GetInvalidSystemUserToken(Guid.NewGuid());
@@ -487,7 +487,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             User = new PartyUser(userId, "leo", ImmutableValueArray<uint>.Empty.Add(userId))
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserUuidLookup(_factory, userUuid, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProfileSettings
             {
@@ -551,7 +551,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             User = new PartyUser(UserId, "sophie", ImmutableValueArray<uint>.Empty.Add(UserId))
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserUuidLookup(_factory, userUuid, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
@@ -611,7 +611,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         const int userId = 20000009;
         Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserUuidLookup(_factory, userUuid, null, HttpStatusCode.PartialContent);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.PartialContent);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/byuuid/{userUuid}");
 
@@ -651,7 +651,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         // Arrange
         const int UserId = 2222222;
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, null, HttpStatusCode.PartialContent);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.PartialContent);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
 
@@ -672,7 +672,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         // Arrange
         const int UserId = 2222222;
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, null, HttpStatusCode.ServiceUnavailable);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.ServiceUnavailable);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
 
@@ -706,7 +706,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             User = new PartyUser(UserId, "sophie", ImmutableValueArray<uint>.Empty.Add(UserId))
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserSsnLookup(_factory, ssn, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProfileSettings
@@ -769,7 +769,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             User = new PartyUser(UserId, "sophie", ImmutableValueArray<uint>.Empty.Add(UserId))
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserSsnLookup(_factory, ssn, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
 
@@ -809,7 +809,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     {
         // Arrange
         var ssn = "01017512345";
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserSsnLookup(_factory, ssn, null, HttpStatusCode.PartialContent);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.PartialContent);
 
         StringContent content = new($"\"{ssn}\"", Encoding.UTF8, "application/json");
         HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
@@ -830,7 +830,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     {
         // Arrange
         var ssn = "01017512345";
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserSsnLookup(_factory, ssn, null, HttpStatusCode.ServiceUnavailable);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.ServiceUnavailable);
 
         StringContent content = new($"\"{ssn}\"", Encoding.UTF8, "application/json");
         HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
@@ -870,7 +870,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             IsDeleted = false,
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, userId, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         _factory.ProfileSettingsRepositoryMock
             .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -952,7 +952,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         SelfIdentifiedUser selfIdentifiedFromRegister = await TestDataLoader.Load<SelfIdentifiedUser>("siuser-input");
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, userId, selfIdentifiedFromRegister);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, selfIdentifiedFromRegister);
 
         _factory.ProfileSettingsRepositoryMock
             .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -993,7 +993,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             IsDeleted = false,
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         _factory.ProfileSettingsRepositoryMock
             .Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))

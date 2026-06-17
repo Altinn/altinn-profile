@@ -114,7 +114,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
             .Setup(x => x.Get(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserContactInfo)null);
         var party = SelfIdentifiedUser.MinimalEmail("test@example.com", System.Guid.NewGuid()) with { User = new PartyUser(1, "epost:test@example.com", ImmutableValueArray<uint>.Empty.Add(1u)) };
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, party);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, party);
 
         _factory.UserContactInfoRepositoryMock
             .Setup(x => x.CreateUserContactInfo(It.Is<UserContactInfoCreateModel>(m => m.EmailAddress == "test@example.com"), It.IsAny<CancellationToken>()))
@@ -245,7 +245,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
             .ReturnsAsync((UserContactInfo)null);
 
         // Register returns a non-self-identified party so the service returns null
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, null);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null);
 
         HttpClient client = _factory.WithWebHostBuilder(builder =>
         {
@@ -281,7 +281,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
             .ReturnsAsync((UserContactInfo)null);
 
         // Register returns null (not a self-identified party)
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, null);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null);
 
         // UserProfileClient (SblBridge) returns a valid profile
         _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
@@ -358,7 +358,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
 
         // SelfIdentifiedUser without a User value set
         var party = SelfIdentifiedUser.MinimalEmail("nouser@example.com", Guid.NewGuid());
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, party);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, party);
 
         HttpClient client = _factory.WithWebHostBuilder(builder =>
         {
@@ -395,7 +395,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
 
         // SelfIdentifiedUser without a User value set
         var party = SelfIdentifiedUser.MinimalEmail("nouser@example.com", Guid.NewGuid());
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, party);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, party);
 
         _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {

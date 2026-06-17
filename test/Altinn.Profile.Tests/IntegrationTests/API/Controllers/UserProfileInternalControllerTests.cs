@@ -68,7 +68,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
             User = new PartyUser(UserId, "register.person", ImmutableValueArray<uint>.Empty.Add(UserId))
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { UserId = UserId });
 
@@ -107,7 +107,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
             IsDeleted = false,
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserUuidLookup(_factory, userUuid, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { UserUuid = userUuid });
 
@@ -135,7 +135,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         // Arrange
         const int UserId = 2222222;
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, null, HttpStatusCode.PartialContent);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.PartialContent);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { UserId = UserId });
 
@@ -154,7 +154,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         // Arrange
         Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserUuidLookup(_factory, userUuid, null, HttpStatusCode.PartialContent);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.PartialContent);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { UserUuid = userUuid });
 
@@ -173,7 +173,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         // Arrange
         const int UserId = 2222222;
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, UserId, null, HttpStatusCode.ServiceUnavailable);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory,  null, HttpStatusCode.ServiceUnavailable);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { UserId = UserId });
 
@@ -192,7 +192,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         // Arrange
         Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserUuidLookup(_factory, userUuid, null, HttpStatusCode.ServiceUnavailable);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.ServiceUnavailable);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { UserUuid = userUuid });
 
@@ -222,7 +222,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
             User = new PartyUser(987654, "register.person", ImmutableValueArray<uint>.Empty.Add(987654))
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserSsnLookup(_factory, Ssn, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Ssn = Ssn });
 
@@ -250,7 +250,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
     {
         // Arrange
         const string Ssn = "01017512345";
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserSsnLookup(_factory, Ssn, null, HttpStatusCode.PartialContent);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.PartialContent);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Ssn = Ssn });
 
@@ -268,7 +268,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
     {
         // Arrange
         const string Ssn = "01017512345";
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserSsnLookup(_factory, Ssn, null, HttpStatusCode.ServiceUnavailable);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.ServiceUnavailable);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Ssn = Ssn });
 
@@ -299,7 +299,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
             User = new PartyUser(987654, Username, ImmutableValueArray<uint>.Empty.Add(987654))
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUsernameLookup(_factory, Username, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Username = Username });
 
@@ -340,7 +340,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
             User = new PartyUser(UserId, username, ImmutableValueArray<uint>.Empty.Add(UserId))
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUsernameLookup(_factory, username, registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings)null);
 
@@ -378,7 +378,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         // Arrange
         const string Username = "NonExistingUsername";
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUsernameLookup(_factory, Username, null, HttpStatusCode.PartialContent);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.PartialContent);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Username = Username });
 
@@ -397,7 +397,7 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         // Arrange
         const string Username = "OrstaECUser";
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUsernameLookup(_factory, Username, null, HttpStatusCode.PartialContent);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.PartialContent);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Username = Username });
 

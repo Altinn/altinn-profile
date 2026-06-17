@@ -1003,7 +1003,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 IsDeleted = false,
             };
 
-            RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdLookup(_factory, userId, registerPerson);
+            RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
             string orgNumber = "341341341";
             Guid partyUuid = Guid.NewGuid();
