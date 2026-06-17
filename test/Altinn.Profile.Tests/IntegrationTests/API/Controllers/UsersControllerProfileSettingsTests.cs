@@ -214,7 +214,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
     [InlineData("nn")]
     [InlineData("en")]
     [InlineData(null)]
-    public async Task PatchUsersCurrent_AsUser_PatchSucceeds_ReturnsUpdatedPreferences(string? language)
+    public async Task PatchUsersCurrent_AsUser_PatchSucceeds_ReturnsUpdatedPreferences(string language)
     {
         // Arrange
         const int userId = 400000;

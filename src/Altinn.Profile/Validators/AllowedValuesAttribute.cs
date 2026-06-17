@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace Altinn.Profile.Validators
@@ -7,6 +8,7 @@ namespace Altinn.Profile.Validators
     /// Validation attribute that restricts a property to a set of allowed string values.
     /// </summary>
     /// <param name="allowedValues">The array of allowed string values.</param>
+    [AttributeUsage(AttributeTargets.Property)]
     public class AllowedValuesAttribute(params string[] allowedValues) : ValidationAttribute
     {
         private readonly string[] _allowedValues = allowedValues;
