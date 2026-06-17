@@ -15,7 +15,7 @@ namespace Altinn.Profile.Core.User.ProfileSettings
         /// <summary>
         /// The language the user has selected in Altinn portal.
         /// </summary>
-        public string? Language { get; set; }
+        public Language? Language { get; set; }
 
         /// <summary>
         /// Indicates whether the user should not be prompted for party selection.

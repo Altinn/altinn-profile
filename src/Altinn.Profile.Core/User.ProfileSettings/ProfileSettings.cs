@@ -72,7 +72,7 @@ namespace Altinn.Profile.Core.User.ProfileSettings
         /// </summary>
         public void UpdateFrom(ProfileSettingsPatchModel other)
         {
-            LanguageType = other.Language ?? LanguageType;
+            LanguageType = other.Language?.ToString().ToLowerInvariant() ?? LanguageType;
             DoNotPromptForParty = other.DoNotPromptForParty ?? DoNotPromptForParty;
             ShowClientUnits = other.ShowClientUnits ?? ShowClientUnits;
             ShouldShowSubEntities = other.ShouldShowSubEntities ?? ShouldShowSubEntities;
@@ -93,7 +93,7 @@ namespace Altinn.Profile.Core.User.ProfileSettings
         {
             return new ProfileSettings
             {
-                LanguageType = "nb",
+                LanguageType = Language.Nb.ToString().ToLowerInvariant(),
                 DoNotPromptForParty = false,
                 PreselectedPartyUuid = null,
                 ShowClientUnits = false,

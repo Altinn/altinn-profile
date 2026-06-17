@@ -2,6 +2,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
+using Altinn.Profile.Core.User.ProfileSettings;
+
 namespace Altinn.Profile.Models
 {
     /// <summary>
@@ -15,8 +17,7 @@ namespace Altinn.Profile.Models
         /// </summary>
         [Required]
         [JsonRequired]
-        [AllowedValues("nb", "nn", "en")]
-        public new string Language { get; set; }
+        public new Language Language { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the users want

@@ -123,7 +123,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
 
         var request = new ProfileSettingPutRequest
         {
-            Language = "nb",
+            Language = Language.Nb,
             PreselectedPartyUuid = null
         };
 
@@ -151,10 +151,14 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         // Arrange
         const int userId = 2516356;
 
-        var request = new ProfileSettingPutRequest
+        var request = new ProfileSettingPreference
         {
             Language = "no",
-            PreselectedPartyUuid = null
+            DoNotPromptForParty = true,
+            PreselectedPartyUuid = Guid.NewGuid(),
+            ShowClientUnits = true,
+            ShouldShowSubEntities = true,
+            ShouldShowDeletedEntities = false
         };
 
         HttpClient client = _factory.CreateClient();
