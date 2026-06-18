@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -167,7 +165,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
             ResourceId = "app_ttd_apps-test"
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterPartyQueryLookup(_factory, _ => (List<Party>)null);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterPartyQuery(_factory, null, HttpStatusCode.NotFound);
 
         var client = _factory.CreateClient();
 

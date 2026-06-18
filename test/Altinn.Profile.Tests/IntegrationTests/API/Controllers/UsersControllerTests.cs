@@ -72,7 +72,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             User = new PartyUser(UserId, "sophie", ImmutableValueArray<uint>.Empty.Add(UserId))
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdAndPartyIdLookup(_factory, UserId, registerPerson, preselectedPartyUuid, 123456);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyAndPartyIdLookup(_factory, registerPerson, preselectedPartyUuid, 123456);
 
         _factory.PersonServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new PersonContactPreferences { Email = "test@mail.com", NationalIdentityNumber = "1", MobileNumber = "+4798765432", IsReserved = true }]);
@@ -234,7 +234,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             User = new PartyUser(UserId, "sophie", ImmutableValueArray<uint>.Empty.Add(UserId))
         };
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdAndPartyIdLookup(_factory, UserId, registerPerson, preselectedPartyUuid, 123456);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyAndPartyIdLookup(_factory, registerPerson, preselectedPartyUuid, 123456);
 
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProfileSettings

@@ -57,24 +57,21 @@ internal static class RegisterHttpMessageHandlerHelpers
             .Apply(factory);
     }
 
-    internal static void SetupRegisterUserPartyByUserIdAndPartyIdLookup(
+    internal static void SetupRegisterUserPartyAndPartyIdLookup(
         ProfileWebApplicationFactory<Program> factory,
-        int userId,
         Party userParty,
         Guid partyUuid,
         int partyId,
         HttpStatusCode statusCode = HttpStatusCode.OK)
     {
-        string expectedIdentifier = $"urn:altinn:user:id:{userId}";
-
         new RegisterHandlerBuilder()
             .On(
                 IsPartyQueryRequest,
                 (request, cancellationToken) => HandlePartyQueryForSingleUserAsync(request, userParty, statusCode, cancellationToken))
-            .On(
+            .OnJson(
                 request => IsIdentifiersRequest(request)
                         && request.RequestUri.Query.Contains(partyUuid.ToString(), StringComparison.OrdinalIgnoreCase),
-                RegisterHandlerBuilder.OkJson(new[] { new { partyId, partyUuid, orgNumber = string.Empty } }))
+                new[] { new { partyId, partyUuid, orgNumber = string.Empty } })
             .Apply(factory);
     }
 
@@ -96,20 +93,59 @@ internal static class RegisterHttpMessageHandlerHelpers
         new RegisterHandlerBuilder()
             .On(
                 IsPartyQueryRequest,
-                (request, token) => HandlePartyQueryForMultipleUsersAsync(request, token, userPartiesByUserId, organizationNumbersByPartyUuid, statusCode))
+                (request, token) => HandlePartyQueryForMultipleUsersAsync(request, token, userPartiesByUserId, statusCode))
             .On(
                 IsIdentifiersRequest,
-                (request, _) => Task.FromResult(CreateIdentifiersResponse(request, organizationNumbersByPartyUuid) ?? RegisterHandlerBuilder.NotFound()))
+                (request, _) => Task.FromResult(CreateIdentifiersResponse(request, organizationNumbersByPartyUuid)))
             .Apply(factory);
     }
 
-    internal static void SetupRegisterPartyQueryLookup(ProfileWebApplicationFactory<Program> factory, IReadOnlyDictionary<Guid, string> organizationNumbersByPartyUuid)
+    internal static void SetupRegisterUserPartyWithPartyQuery(
+        ProfileWebApplicationFactory<Program> factory,
+        IReadOnlyDictionary<int, Party> userPartiesByUserId,
+        IReadOnlyDictionary<Guid, string> organizationNumbersByPartyUuid,
+        HttpStatusCode statusCode = HttpStatusCode.OK)
+    {
+        new RegisterHandlerBuilder()
+            .On(
+                request => IsPartyQueryRequest(request) && request.RequestUri.Query.Contains("user", StringComparison.OrdinalIgnoreCase),
+                (request, token) => HandlePartyQueryForMultipleUsersAsync(request, token, userPartiesByUserId, statusCode))
+            .On(
+                request => IsPartyQueryRequest(request) && request.RequestUri.Query.Contains("org-id", StringComparison.OrdinalIgnoreCase),
+                (request, token) => CreateOrgPartyQueryResponseAsync(request, organizationNumbersByPartyUuid, HttpStatusCode.OK, token))
+            .Apply(factory);
+    }
+
+    internal static void SetupRegisterPartyQuery(
+        ProfileWebApplicationFactory<Program> factory,
+        IReadOnlyDictionary<Guid, string> organizationNumbersByPartyUuid,
+        HttpStatusCode statusCode = HttpStatusCode.OK)
     {
         new RegisterHandlerBuilder()
             .On(
                 IsPartyQueryRequest,
-                (request, token) => CreateOrgPartyQueryResponseAsync(request, organizationNumbersByPartyUuid, HttpStatusCode.OK, token)
-                                    ?? Task.FromResult(RegisterHandlerBuilder.NotFound()))
+                (request, token) => CreateOrgPartyQueryResponseAsync(request, organizationNumbersByPartyUuid, HttpStatusCode.OK, token))
+            .Apply(factory);
+    }
+
+    internal static void SetupRegisterPartyQueryLookup(ProfileWebApplicationFactory<Program> factory, Func<string[], List<Core.Unit.ContactPoints.Party>> responseFactory)
+    {
+        new RegisterHandlerBuilder()
+            .On(
+                IsPartyQueryRequest,
+                async (request, token) =>
+                {
+                    if (request.Content == null)
+                    {
+                        return new HttpResponseMessage(HttpStatusCode.BadRequest);
+                    }
+
+                    string[] orgNumbers = await GetRequestedOrganizationNumbersFromQueryAsync(request, token);
+                    List<Core.Unit.ContactPoints.Party> parties = responseFactory(orgNumbers);
+                    return parties == null
+                        ? new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                        : RegisterHandlerBuilder.OkJson(new { data = parties });
+                })
             .Apply(factory);
     }
 
@@ -122,58 +158,7 @@ internal static class RegisterHttpMessageHandlerHelpers
             .Apply(factory);
     }
 
-    internal static void SetupRegisterOrganizationNumberLookup(ProfileWebApplicationFactory<Program> factory, IReadOnlyDictionary<Guid, string> organizationNumbersByPartyUuid)
-    {
-        SetupRegisterIdentifiersLookup(factory, organizationNumbersByPartyUuid);
-    }
-
-    internal static void SetupRegisterPartyQueryLookup(ProfileWebApplicationFactory<Program> factory, Func<string[], List<Party>> responseFactory)
-    {
-        SetupRegisterPartyQueryLookupCore(factory, responseFactory);
-    }
-
-    internal static void SetupRegisterPartyQueryLookup(ProfileWebApplicationFactory<Program> factory, Func<string[], List<Core.Unit.ContactPoints.Party>> responseFactory)
-    {
-        SetupRegisterPartyQueryLookupCore(factory, responseFactory);
-    }
-
-    // -------------------------------------------------------------------------
-    // Builder factory — useful for callers that compose their own handlers
-    // -------------------------------------------------------------------------
-
-    /// <summary>
-    /// Returns a pre-seeded builder with both PartyQuery and Identifiers cases,
-    /// equivalent to the old CreateCombinedRegisterPartyQueryAndIdentifiersHandler.
-    /// Call .Apply(factory) or chain more cases before applying.
-    /// </summary>
-    internal static RegisterHandlerBuilder CreateCombinedBuilder(
-        IReadOnlyDictionary<Guid, string> organizationNumbersByPartyUuid,
-        HttpStatusCode partyQueryStatusCode = HttpStatusCode.OK)
-    {
-        return new RegisterHandlerBuilder()
-            .On(
-                IsPartyQueryRequest,
-                (request, token) => CreateOrgPartyQueryResponseAsync(request, organizationNumbersByPartyUuid, partyQueryStatusCode, token)
-                                    ?? Task.FromResult(RegisterHandlerBuilder.NotFound()))
-            .On(
-                IsIdentifiersRequest,
-                (request, _) => Task.FromResult(CreateIdentifiersResponse(request, organizationNumbersByPartyUuid) ?? RegisterHandlerBuilder.NotFound()));
-    }
-
-    // Keep for backwards compatibility if callers still use the old Func-returning API.
-    internal static Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> CreateCombinedRegisterPartyQueryAndIdentifiersHandler(
-        IReadOnlyDictionary<Guid, string> organizationNumbersByPartyUuid)
-        => CreateCombinedBuilder(organizationNumbersByPartyUuid).Build();
-
-    internal static Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> CreateCombinedRegisterPartyQueryAndIdentifiersHandler(
-        IReadOnlyDictionary<Guid, string> organizationNumbersByPartyUuid,
-        HttpStatusCode partyQueryStatusCode)
-        => CreateCombinedBuilder(organizationNumbersByPartyUuid, partyQueryStatusCode).Build();
-
-    // -------------------------------------------------------------------------
     // Predicate helpers
-    // -------------------------------------------------------------------------
-
     private static bool IsIdentifiersRequest(HttpRequestMessage request)
         => request.Method == HttpMethod.Get
         && request.RequestUri?.AbsolutePath.EndsWith(IdentifiersPath, StringComparison.Ordinal) == true;
@@ -187,27 +172,6 @@ internal static class RegisterHttpMessageHandlerHelpers
         && request.RequestUri?.AbsolutePath.EndsWith(MainUnitsPath, StringComparison.Ordinal) == true;
 
     // Shared response-building logic 
-    private static void SetupRegisterPartyQueryLookupCore<TParty>(ProfileWebApplicationFactory<Program> factory, Func<string[], List<TParty>> responseFactory)
-    {
-        new RegisterHandlerBuilder()
-            .On(
-                IsPartyQueryRequest,
-                async (request, token) =>
-                {
-                    if (request.Content == null)
-                    {
-                        return new HttpResponseMessage(HttpStatusCode.BadRequest);
-                    }
-
-                    string[] orgNumbers = await GetRequestedOrganizationNumbersFromQueryAsync(request, token);
-                    List<TParty> parties = responseFactory(orgNumbers);
-                    return parties == null
-                        ? new HttpResponseMessage(HttpStatusCode.InternalServerError)
-                        : RegisterHandlerBuilder.OkJson(new { data = parties });
-                })
-            .Apply(factory);
-    }
-
     private static async Task<HttpResponseMessage> HandlePartyQueryForSingleUserAsync(
         HttpRequestMessage request,
         Party userParty,
@@ -231,7 +195,6 @@ internal static class RegisterHttpMessageHandlerHelpers
         HttpRequestMessage request,
         CancellationToken token,
         IReadOnlyDictionary<int, Party> userPartiesByUserId,
-        IReadOnlyDictionary<Guid, string> organizationNumbersByPartyUuid,
         HttpStatusCode statusCode)
     {
         if (statusCode != HttpStatusCode.OK)
@@ -259,8 +222,7 @@ internal static class RegisterHttpMessageHandlerHelpers
             return RegisterHandlerBuilder.OkJson(new { data = userParties });
         }
 
-        return await CreateOrgPartyQueryResponseAsync(request, organizationNumbersByPartyUuid, HttpStatusCode.OK, token)
-            ?? RegisterHandlerBuilder.NotFound();
+        return RegisterHandlerBuilder.NotFound();
     }
 
     private static async Task<HttpResponseMessage> CreateOrgPartyQueryResponseAsync(

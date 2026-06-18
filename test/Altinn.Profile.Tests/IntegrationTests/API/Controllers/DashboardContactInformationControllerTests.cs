@@ -21,6 +21,7 @@ using Moq;
 
 using Xunit;
 
+using static Altinn.Register.Contracts.OrganizationUrn;
 using static Altinn.Register.Contracts.PartyUrn;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
@@ -53,8 +54,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             SetupRegisterUserPartyAndOrganizationLookups(
                 new Dictionary<int, Party>
                 {
-                    [1001] = CreateRegisterPerson(1001, "01010112345", "John Doe"),
-                    [1002] = CreateRegisterPerson(1002, "01010198765", "Jane Smith")
+                    [1001] = CreateRegisterPerson(1001, "09861797993", "John Doe"),
+                    [1002] = CreateRegisterPerson(1002, "09814499976", "Jane Smith")
                 },
                 new Dictionary<Guid, string>
                 {
@@ -100,14 +101,14 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(result);
             Assert.Equal(2, result.Count);
 
-            var user1 = result.FirstOrDefault(u => u.NationalIdentityNumber == "01010112345");
+            var user1 = result.FirstOrDefault(u => u.NationalIdentityNumber == "09861797993");
             Assert.NotNull(user1);
             Assert.Equal("John Doe", user1.Name);
             Assert.Equal("user1@example.com", user1.Email);
             Assert.Equal("+4798765432", user1.Phone);
             Assert.Equal(_testTime, user1.LastChanged);
 
-            var user2 = result.FirstOrDefault(u => u.NationalIdentityNumber == "01010198765");
+            var user2 = result.FirstOrDefault(u => u.NationalIdentityNumber == "09814499976");
             Assert.NotNull(user2);
             Assert.Equal("Jane Smith", user2.Name);
             Assert.Equal("user2@example.com", user2.Email);
@@ -121,8 +122,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             string orgNumber = "987654321";
             Guid partyUuid = Guid.NewGuid();
-
-            SetupRegisterPartyUuidsLookup(orgNumber, partyUuid);
+            SetupPartyQueryLookup(new Dictionary<Guid, string> { { partyUuid, orgNumber } });
 
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(r => r.GetAllNotificationAddressesForPartyAsync(partyUuid, It.IsAny<CancellationToken>()))
@@ -149,8 +149,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             string orgNumber = "888888888";
-
-            SetupRegisterPartyUuidsLookup(orgNumber);
+            
+            SetupPartyQueryLookup(new Dictionary<Guid, string> { { Guid.NewGuid(), orgNumber } }, HttpStatusCode.PartialContent);
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/contactinformation");
@@ -195,7 +195,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             SetupRegisterUserPartyAndOrganizationLookups(
                 new Dictionary<int, Party>
                 {
-                    [1001] = CreateRegisterPerson(1001, "01010112345", "John Doe"),
+                    [1001] = CreateRegisterPerson(1001, "09814499976", "John Doe"),
                     [1002] = null
                 },
                 new Dictionary<Guid, string>
@@ -242,7 +242,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Only user 1001 should be in the result (user 1002 was skipped)
             Assert.Single(result);
-            Assert.Equal("01010112345", result[0].NationalIdentityNumber);
+            Assert.Equal("09814499976", result[0].NationalIdentityNumber);
             Assert.Equal("John Doe", result[0].Name);
             Assert.Equal("user1@example.com", result[0].Email);
             Assert.Equal("+4798765432", result[0].Phone);
@@ -257,7 +257,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Guid partyUuid1 = Guid.NewGuid();
             Guid partyUuid2 = Guid.NewGuid();
 
-            SetupRegisterPartyUuidsLookup(orgNumber, partyUuid1, partyUuid2);
+            SetupPartyQueryLookup(
+                new Dictionary<Guid, string>
+                {
+                    { partyUuid1, orgNumber },
+                    { partyUuid2, orgNumber }
+                });
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/{orgNumber}/contactinformation");
@@ -330,7 +335,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             SetupRegisterUserPartyAndOrganizationLookups(
                 new Dictionary<int, Party>
                 {
-                    [1001] = CreateRegisterSelfIdentifiedUser(1001, string.Empty)
+                    [1001] = CreateRegisterSelfIdentifiedUser(1001, string.Empty, "username")
                 },
                 new Dictionary<Guid, string>
                 {
@@ -378,7 +383,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             SetupRegisterUserPartyAndOrganizationLookups(
                 new Dictionary<int, Party>
                 {
-                    [1001] = CreateRegisterSelfIdentifiedUser(1001, "Valid Name")
+                    [1001] = CreateRegisterSelfIdentifiedUser(1001, "Valid Name", "valid.username")
                 },
                 new Dictionary<Guid, string>
                 {
@@ -431,7 +436,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             SetupRegisterUserPartyAndOrganizationLookups(
                 new Dictionary<int, Party>
                 {
-                    [1001] = CreateRegisterPerson(1001, "01010112345", string.Empty)
+                    [1001] = CreateRegisterPerson(1001, "09861797993", string.Empty)
                 },
                 new Dictionary<Guid, string>
                 {
@@ -480,11 +485,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string orgNumber2 = "352352352";
             Guid partyUuid2 = Guid.NewGuid();
 
-            SetupRegisterUserPartyAndOrganizationLookups(
+            SetupRegisterUserPartyAndOrganizationIdentifierLookups(
                 new Dictionary<int, Party>
                 {
-                    [1001] = CreateRegisterPerson(1001, "01010112345", "John Doe"),
-                    [1002] = CreateRegisterPerson(1002, "01010198765", "Jane Smith")
+                    [1001] = CreateRegisterPerson(1001, "09861797993", "John Doe"),
+                    [1002] = CreateRegisterPerson(1002, "09814499976", "Jane Smith")
                 },
                 new Dictionary<Guid, string>
                 {
@@ -533,7 +538,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(result);
             Assert.Equal(2, result.Count);
 
-            var user1 = result.FirstOrDefault(u => u.NationalIdentityNumber == "01010112345");
+            var user1 = result.FirstOrDefault(u => u.NationalIdentityNumber == "09861797993");
             Assert.NotNull(user1);
             Assert.Equal("John Doe", user1.Name);
             Assert.Equal(email, user1.Email);
@@ -541,7 +546,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(orgNumber1, user1.OrganizationNumber);
             Assert.Equal(_testTime, user1.LastChanged);
 
-            var user2 = result.FirstOrDefault(u => u.NationalIdentityNumber == "01010198765");
+            var user2 = result.FirstOrDefault(u => u.NationalIdentityNumber == "09814499976");
             Assert.NotNull(user2);
             Assert.Equal("Jane Smith", user2.Name);
             Assert.Equal(email, user2.Email);
@@ -604,10 +609,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Guid partyUuid1 = Guid.NewGuid();
             Guid partyUuid2 = Guid.NewGuid();
 
-            SetupRegisterUserPartyAndOrganizationLookups(
+            SetupRegisterUserPartyAndOrganizationIdentifierLookups(
                 new Dictionary<int, Party>
                 {
-                    [1001] = CreateRegisterPerson(1001, "01010112345", "John Doe"),
+                    [1001] = CreateRegisterPerson(1001, "09861797993", "John Doe"),
                     [1002] = null
                 },
                 new Dictionary<Guid, string>
@@ -657,7 +662,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Only user 1001 should be present (1002 skipped)
             Assert.Single(result);
-            Assert.Equal("01010112345", result[0].NationalIdentityNumber);
+            Assert.Equal("09861797993", result[0].NationalIdentityNumber);
             Assert.Equal("John Doe", result[0].Name);
             Assert.Equal(email, result[0].Email);
             Assert.Equal("+4798765432", result[0].Phone);
@@ -680,11 +685,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string orgNumber2 = "352352352";
             Guid partyUuid2 = Guid.NewGuid();
 
-            SetupRegisterUserPartyAndOrganizationLookups(
+            SetupRegisterUserPartyAndOrganizationIdentifierLookups(
                 new Dictionary<int, Party>
                 {
-                    [1001] = CreateRegisterPerson(1001, "01010112345", "John Doe"),
-                    [1002] = CreateRegisterPerson(1002, "01010198765", "Jane Smith")
+                    [1001] = CreateRegisterPerson(1001, "09861797993", "John Doe"),
+                    [1002] = CreateRegisterPerson(1002, "09814499976", "Jane Smith")
                 },
                 new Dictionary<Guid, string>
                 {
@@ -733,14 +738,14 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(result);
             Assert.Equal(2, result.Count);
 
-            var user1 = result.FirstOrDefault(u => u.NationalIdentityNumber == "01010112345");
+            var user1 = result.FirstOrDefault(u => u.NationalIdentityNumber == "09861797993");
             Assert.NotNull(user1);
             Assert.Equal("John Doe", user1.Name);
             Assert.Equal(fullPhoneNumber, user1.Phone);
             Assert.Equal(orgNumber1, user1.OrganizationNumber);
             Assert.Equal(_testTime, user1.LastChanged);
 
-            var user2 = result.FirstOrDefault(u => u.NationalIdentityNumber == "01010198765");
+            var user2 = result.FirstOrDefault(u => u.NationalIdentityNumber == "09814499976");
             Assert.NotNull(user2);
             Assert.Equal("Jane Smith", user2.Name);
             Assert.Equal(fullPhoneNumber, user2.Phone);
@@ -812,10 +817,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Guid partyUuid1 = Guid.NewGuid();
             Guid partyUuid2 = Guid.NewGuid();
 
-            SetupRegisterUserPartyAndOrganizationLookups(
+            SetupRegisterUserPartyAndOrganizationIdentifierLookups(
                 new Dictionary<int, Party>
                 {
-                    [1001] = CreateRegisterPerson(1001, "01010112345", "John Doe"),
+                    [1001] = CreateRegisterPerson(1001, "09861797993", "John Doe"),
                     [1002] = null
                 },
                 new Dictionary<Guid, string>
@@ -863,7 +868,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Only user 1001 should be present (1002 skipped)
             Assert.Single(result);
-            Assert.Equal("01010112345", result[0].NationalIdentityNumber);
+            Assert.Equal("09861797993", result[0].NationalIdentityNumber);
             Assert.Equal("John Doe", result[0].Name);
             Assert.Equal("search@example.com", result[0].Email);
             Assert.Equal(fullPhoneNumber, result[0].Phone);
@@ -882,11 +887,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string orgNumber2 = "352352352";
             Guid partyUuid2 = Guid.NewGuid();
 
-            SetupRegisterUserPartyAndOrganizationLookups(
+            SetupRegisterUserPartyAndOrganizationIdentifierLookups(
                 new Dictionary<int, Party>
                 {
-                    [1001] = CreateRegisterPerson(1001, "01010112345", "John Doe"),
-                    [1002] = CreateRegisterPerson(1002, "01010198765", "Jane Smith")
+                    [1001] = CreateRegisterPerson(1001, "09814499976", "John Doe"),
+                    [1002] = CreateRegisterPerson(1002, "09861797993", "Jane Smith")
                 },
                 new Dictionary<Guid, string>
                 {
@@ -933,14 +938,14 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(result);
             Assert.Equal(2, result.Count);
 
-            var user1 = result.FirstOrDefault(u => u.NationalIdentityNumber == "01010112345");
+            var user1 = result.FirstOrDefault(u => u.NationalIdentityNumber == "09814499976");
             Assert.NotNull(user1);
             Assert.Equal("John Doe", user1.Name);
             Assert.Equal(phoneNumber, user1.Phone);
             Assert.Equal(orgNumber1, user1.OrganizationNumber);
             Assert.Equal(_testTime, user1.LastChanged);
 
-            var user2 = result.FirstOrDefault(u => u.NationalIdentityNumber == "01010198765");
+            var user2 = result.FirstOrDefault(u => u.NationalIdentityNumber == "09861797993");
             Assert.NotNull(user2);
             Assert.Equal("Jane Smith", user2.Name);
             Assert.Equal(phoneNumber, user2.Phone);
@@ -1028,7 +1033,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.GetAllContactInfoByPhoneNumberAsync(searchPhoneNumber, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(contactInfosFromRepo);
 
-            SetupRegisterUserPartyAndOrganizationLookups(
+            SetupRegisterUserPartyAndOrganizationIdentifierLookups(
             new Dictionary<int, Party>
             {
                 [1001] = registerPerson
@@ -1091,21 +1096,22 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
-        private void SetupRegisterPartyUuidsLookup(string orgNumber, params Guid[] partyUuids)
+        private void SetupPartyQueryLookup(Dictionary<Guid, string> organizationNumbersByPartyUuid, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
-            var lookup = partyUuids.ToDictionary(partyUuid => partyUuid, _ => orgNumber);
-            _factory.RegisterHttpMessageHandler.ChangeHandlerFunction(
-                RegisterHttpMessageHandlerHelpers.CreateCombinedRegisterPartyQueryAndIdentifiersHandler(lookup));
+            RegisterHttpMessageHandlerHelpers.SetupRegisterPartyQuery(_factory, organizationNumbersByPartyUuid, statusCode);
         }
 
-        private void SetupRegisterUserPartyLookups(Dictionary<int, Party> userPartiesByUserId)
+        private void SetupRegisterUserPartyAndOrganizationIdentifierLookups(Dictionary<int, Party> userPartiesByUserId, Dictionary<Guid, string> organizationNumbersByPartyUuid)
         {
-            SetupRegisterUserPartyAndOrganizationLookups(userPartiesByUserId, new Dictionary<Guid, string>());
+            RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdWithPartyQueryAndIdentifiersLookup(
+                _factory,
+                userPartiesByUserId,
+                organizationNumbersByPartyUuid);
         }
 
         private void SetupRegisterUserPartyAndOrganizationLookups(Dictionary<int, Party> userPartiesByUserId, Dictionary<Guid, string> organizationNumbersByPartyUuid)
         {
-            RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyByUserIdWithPartyQueryAndIdentifiersLookup(
+            RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyWithPartyQuery(
                 _factory,
                 userPartiesByUserId,
                 organizationNumbersByPartyUuid);
@@ -1129,14 +1135,15 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             };
         }
 
-        private static SelfIdentifiedUser CreateRegisterSelfIdentifiedUser(int userId, string displayName)
+        private static SelfIdentifiedUser CreateRegisterSelfIdentifiedUser(int userId, string displayName, string username)
         {
-            return SelfIdentifiedUser.MinimalLegacy(displayName) with
+            return SelfIdentifiedUser.MinimalLegacy(username) with
             {
                 PartyId = (uint)userId,
                 Uuid = Guid.NewGuid(),
-                User = new PartyUser((uint)userId, null, ImmutableValueArray<uint>.Empty.Add((uint)userId)),
+                User = new PartyUser((uint)userId, username, ImmutableValueArray<uint>.Empty.Add((uint)userId)),
                 ModifiedAt = DateTimeOffset.UtcNow,
+                DisplayName = displayName,
                 IsDeleted = false,
             };
         }
