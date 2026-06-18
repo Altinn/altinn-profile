@@ -43,8 +43,8 @@ public class UserContactPointService : IUserContactPointsService
             availabilityResult.AvailabilityList.Add(new UserContactPointAvailability()
             {
                 NationalIdentityNumber = contactPreference.NationalIdentityNumber,
-                EmailRegistered = !string.IsNullOrEmpty(contactPreference.Email),
-                MobileNumberRegistered = !string.IsNullOrEmpty(contactPreference.MobileNumber),
+                EmailRegistered = !string.IsNullOrWhiteSpace(contactPreference.Email),
+                MobileNumberRegistered = !string.IsNullOrWhiteSpace(contactPreference.MobileNumber),
                 IsReserved = contactPreference.IsReserved
             });
         }
