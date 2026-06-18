@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.ComponentModel.DataAnnotations;
 
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Core.Utils;
@@ -14,6 +15,7 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// The language the user has selected in Altinn portal.
         /// </summary>
+        [EnumDataType(typeof(Language), ErrorMessage = "Invalid language value provided - allowed values are 'nb', 'nn', and 'en'.")]
         public Language? Language { get; set; }
 
         /// <summary>

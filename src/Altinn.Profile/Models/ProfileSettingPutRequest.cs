@@ -17,6 +17,7 @@ namespace Altinn.Profile.Models
         /// </summary>
         [Required]
         [JsonRequired]
+        [EnumDataType(typeof(Language), ErrorMessage = "Invalid language value provided - allowed values are 'nb', 'nn', and 'en'.")]
         public new Language Language { get; set; }
 
         /// <summary>
