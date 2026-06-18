@@ -1021,7 +1021,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 new()
                 {
-                    UserId = 1001,
+                    UserId = userId,
                     PartyUuid = partyUuid,
                     EmailAddress = "user@example.com",
                     PhoneNumber = searchPhoneNumber,

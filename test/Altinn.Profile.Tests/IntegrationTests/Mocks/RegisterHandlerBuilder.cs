@@ -35,9 +35,9 @@ internal sealed class RegisterHandlerBuilder
     /// </summary>
     public RegisterHandlerBuilder On(
         Func<HttpRequestMessage, bool> predicate,
-        HttpResponseMessage response)
+        Func<HttpRequestMessage, HttpResponseMessage> response)
     {
-        return On(predicate, (_, _) => Task.FromResult(response));
+        return On(predicate, (request, _) => Task.FromResult(response(request)));
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ internal sealed class RegisterHandlerBuilder
         Func<HttpRequestMessage, bool> predicate,
         T payload)
     {
-        return On(predicate, OkJson(payload));
+        return On(predicate, _ => OkJson(payload));
     }
 
     /// <summary>

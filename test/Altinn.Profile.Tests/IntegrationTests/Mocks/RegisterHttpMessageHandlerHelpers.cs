@@ -96,7 +96,7 @@ internal static class RegisterHttpMessageHandlerHelpers
                 (request, token) => HandlePartyQueryForMultipleUsersAsync(request, token, userPartiesByUserId, statusCode))
             .On(
                 IsIdentifiersRequest,
-                (request, _) => Task.FromResult(CreateIdentifiersResponse(request, organizationNumbersByPartyUuid)))
+                request => CreateIdentifiersResponse(request, organizationNumbersByPartyUuid))
             .Apply(factory);
     }
 
