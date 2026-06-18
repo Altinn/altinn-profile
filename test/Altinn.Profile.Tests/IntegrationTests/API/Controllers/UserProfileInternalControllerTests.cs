@@ -392,12 +392,12 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
     }
 
     [Fact]
-    public async Task GetUserByUsername_RegisterReturnsUnavailable_ResponseNotFound()
+    public async Task GetUserByUsername_RegisterReturnsServiceUnavailable_ResponseNotFound()
     {
         // Arrange
         const string Username = "OrstaECUser";
 
-        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.PartialContent);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.ServiceUnavailable);
 
         HttpRequestMessage httpRequestMessage = CreatePostRequest($"/profile/api/v1/internal/user/", new UserProfileLookup { Username = Username });
 

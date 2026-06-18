@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Altinn.Profile.Integrations.Register;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Register.Contracts;
 
@@ -33,10 +35,15 @@ internal static class RegisterHttpMessageHandlerHelpers
 
     internal static void SetupRegisterMainUnitLookup(ProfileWebApplicationFactory<Program> factory, string parentOrgNumber)
     {
+        var data = (parentOrgNumber != null ? [parentOrgNumber] : Array.Empty<string>())
+            .Select(orgNum => new { organizationIdentifier = orgNum })
+            .ToArray();
+        var response = new { data };
+        
         new RegisterHandlerBuilder()
             .OnJson(
                 IsMainUnitsRequest,
-                new { data = new[] { new { organizationIdentifier = parentOrgNumber } } })
+                response)
             .Apply(factory);
     }
 
@@ -124,7 +131,7 @@ internal static class RegisterHttpMessageHandlerHelpers
         new RegisterHandlerBuilder()
             .On(
                 IsPartyQueryRequest,
-                (request, token) => CreateOrgPartyQueryResponseAsync(request, organizationNumbersByPartyUuid, HttpStatusCode.OK, token))
+                (request, token) => CreateOrgPartyQueryResponseAsync(request, organizationNumbersByPartyUuid, statusCode, token))
             .Apply(factory);
     }
 
@@ -231,6 +238,11 @@ internal static class RegisterHttpMessageHandlerHelpers
         HttpStatusCode partyQueryStatusCode,
         CancellationToken token)
     {
+        if (partyQueryStatusCode == HttpStatusCode.PartialContent)
+        {
+            return new HttpResponseMessage(partyQueryStatusCode) { Content = JsonContent.Create(new QueryPartiesResponse()) };
+        }
+
         if (partyQueryStatusCode != HttpStatusCode.OK)
         {
             return new HttpResponseMessage(partyQueryStatusCode);

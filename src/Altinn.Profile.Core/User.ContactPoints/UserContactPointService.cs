@@ -1,11 +1,9 @@
 ﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Core.User.ContactInfo;
-using Altinn.Profile.Models;
 
 using Microsoft.Extensions.Logging;
 
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using static Altinn.Profile.Core.Unit.ContactPoints.CustomContactPointUrn;
 
 namespace Altinn.Profile.Core.User.ContactPoints;
@@ -24,6 +22,9 @@ public class UserContactPointService : IUserContactPointsService
     /// <summary>
     /// Initializes a new instance of the <see cref="UserContactPointService"/> class.
     /// </summary>
+    /// <param name="personService">The person service used to retrieve contact preferences.</param>
+    /// <param name="userContactInfoRepository">The repository used to retrieve self-identified user contact information.</param>
+    /// <param name="logger">The logger instance.</param>
     public UserContactPointService(IPersonService personService, IUserContactInfoRepository userContactInfoRepository, ILogger<UserContactPointService> logger)
     {
         _personService = personService;
