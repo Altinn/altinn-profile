@@ -9,18 +9,18 @@
   <ItemGroup>
     <PackageReference Include="Altinn.Common.AccessTokenClient" Version="3.2.8" />
     <PackageReference Include="EFCore.NamingConventions" Version="10.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
 	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
 	<!-- Keep dependency on Npgsql 10.0.0 until the bug leading to ObjectDisposedException is fixed (hopefully in 10.0.3). Last attempted version was v10.0.2 - still buggy -->
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
-    <PackageReference Include="Npgsql.OpenTelemetry" Version="10.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
+    <PackageReference Include="Npgsql.OpenTelemetry" Version="10.0.3" />
     <PackageReference Include="Altinn.Common.PEP" Version="4.2.3" />
     <PackageReference Include="Altinn.Register.Contracts" Version="1.7.0" />
 	<!-- Keep Wolverine packages on v5.22.0 until there's a fix available for the bug leading to socket exception on shutdown. Last attempted version was v5.39.2 - still buggy -->
-    <PackageReference Include="WolverineFx" Version="5.22.0" />
-    <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="5.22.0" />
-    <PackageReference Include="WolverineFx.Postgresql" Version="5.22.0" />
+    <PackageReference Include="WolverineFx" Version="5.39.5" />
+    <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="5.39.5" />
+    <PackageReference Include="WolverineFx.Postgresql" Version="5.39.5" />
   </ItemGroup>
 
   <ItemGroup>
