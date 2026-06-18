@@ -215,8 +215,8 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
 
     [Theory]
     [InlineData("nb")]
-    [InlineData("nn")]
-    [InlineData("en")]
+    [InlineData("Nn")]
+    [InlineData("EN")]
     [InlineData(null)]
     public async Task PatchUsersCurrent_AsUser_PatchSucceeds_ReturnsUpdatedPreferences(string language)
     {
