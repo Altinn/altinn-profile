@@ -11,13 +11,12 @@ using static Altinn.Profile.Core.Unit.ContactPoints.CustomContactPointUrn;
 namespace Altinn.Profile.Core.User.ContactPoints;
 
 /// <summary>
-/// An implementation of <see cref="IUserContactPointsService"/> that uses the <see cref="IUserProfileService"/> to obtain contact point information.
+/// An implementation of <see cref="IUserContactPointsService"/> that uses the <see cref="IPersonService"/> to obtain contact point information.
 /// </summary>
 public class UserContactPointService : IUserContactPointsService
 {
     private const int ActiveContactPointMonths = 18;
 
-    private readonly IUserProfileService _userProfileService;
     private readonly IPersonService _personService;
     private readonly IUserContactInfoRepository _userContactInfoRepository;
     private readonly ILogger<UserContactPointService> _logger;
@@ -25,9 +24,8 @@ public class UserContactPointService : IUserContactPointsService
     /// <summary>
     /// Initializes a new instance of the <see cref="UserContactPointService"/> class.
     /// </summary>
-    public UserContactPointService(IUserProfileService userProfileService, IPersonService personService, IUserContactInfoRepository userContactInfoRepository, ILogger<UserContactPointService> logger)
+    public UserContactPointService(IPersonService personService, IUserContactInfoRepository userContactInfoRepository, ILogger<UserContactPointService> logger)
     {
-        _userProfileService = userProfileService;
         _personService = personService;
         _userContactInfoRepository = userContactInfoRepository;
         _logger = logger;

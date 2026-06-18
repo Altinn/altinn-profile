@@ -93,7 +93,7 @@ internal static class RegisterHttpMessageHandlerHelpers
         new RegisterHandlerBuilder()
             .On(
                 IsPartyQueryRequest,
-                (request, token) => HandlePartyQueryForMultipleUsersAsync(request, token, userPartiesByUserId, statusCode))
+                (request, token) => HandlePartyQueryForMultipleUsersAsync(request, userPartiesByUserId, statusCode, token))
             .On(
                 IsIdentifiersRequest,
                 request => CreateIdentifiersResponse(request, organizationNumbersByPartyUuid))
@@ -109,7 +109,7 @@ internal static class RegisterHttpMessageHandlerHelpers
         new RegisterHandlerBuilder()
             .On(
                 request => IsPartyQueryRequest(request) && request.RequestUri.Query.Contains("user", StringComparison.OrdinalIgnoreCase),
-                (request, token) => HandlePartyQueryForMultipleUsersAsync(request, token, userPartiesByUserId, statusCode))
+                (request, token) => HandlePartyQueryForMultipleUsersAsync(request, userPartiesByUserId, statusCode, token))
             .On(
                 request => IsPartyQueryRequest(request) && request.RequestUri.Query.Contains("org-id", StringComparison.OrdinalIgnoreCase),
                 (request, token) => CreateOrgPartyQueryResponseAsync(request, organizationNumbersByPartyUuid, HttpStatusCode.OK, token))
@@ -193,9 +193,9 @@ internal static class RegisterHttpMessageHandlerHelpers
 
     private static async Task<HttpResponseMessage> HandlePartyQueryForMultipleUsersAsync(
         HttpRequestMessage request,
-        CancellationToken token,
         IReadOnlyDictionary<int, Party> userPartiesByUserId,
-        HttpStatusCode statusCode)
+        HttpStatusCode statusCode,
+        CancellationToken token)
     {
         if (statusCode != HttpStatusCode.OK)
         {

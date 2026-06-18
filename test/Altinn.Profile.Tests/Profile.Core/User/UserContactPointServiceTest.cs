@@ -21,7 +21,6 @@ namespace Altinn.Profile.Tests.Profile.Core.User;
 
 public class UserContactPointServiceTest
 {
-    private readonly Mock<IUserProfileService> _userProfileServiceMock = new();
     private readonly Mock<IPersonService> _personServiceMock = new();
     private readonly Mock<IUserContactInfoRepository> _userContactInfoRepositoryMock = new();
     private readonly Mock<ILogger<UserContactPointService>> _loggerMock = new();
@@ -88,9 +87,6 @@ public class UserContactPointServiceTest
             MobileNumber = userProfileC.PhoneNumber,
         };
 
-        _userProfileServiceMock.Setup(m => m.GetUser(userProfileA.Party.SSN, It.IsAny<CancellationToken>())).ReturnsAsync(userProfileA);
-        _userProfileServiceMock.Setup(m => m.GetUser(userProfileB.Party.SSN, It.IsAny<CancellationToken>())).ReturnsAsync(userProfileB);
-        _userProfileServiceMock.Setup(m => m.GetUser(userProfileC.Party.SSN, It.IsAny<CancellationToken>())).ReturnsAsync(userProfileC);
         _personServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([contactPreferencesA, contactPreferencesB, contactPreferencesC]);
 
@@ -102,7 +98,7 @@ public class UserContactPointServiceTest
     {
         // Arrange
         List<UserContactPoints> expectedUsers = await MockTestUsers();
-        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
+        var target = new UserContactPointService(_personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
 
         // Act
         UserContactPointsList result = await target.GetContactPoints(
@@ -127,7 +123,7 @@ public class UserContactPointServiceTest
     {
         // Arrange
         List<UserContactPoints> expectedUsers = await MockTestUsers();
-        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
+        var target = new UserContactPointService(_personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
 
         // Act
         UserContactPointsList result = await target.GetContactPoints(
@@ -157,7 +153,7 @@ public class UserContactPointServiceTest
     {
         // Arrange
         List<UserContactPoints> expectedUsers = await MockTestUsers();
-        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
+        var target = new UserContactPointService(_personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
 
         // Act
         UserContactPointsList result = await target.GetContactPoints(
@@ -192,7 +188,7 @@ public class UserContactPointServiceTest
         };
         _userContactInfoRepositoryMock.Setup(service => service.GetByUsername(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((UserContactInfo)null);
 
-        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
+        var target = new UserContactPointService(_personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
 
         // Act
         SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, TestContext.Current.CancellationToken);
@@ -255,7 +251,7 @@ public class UserContactPointServiceTest
             CreatedAt = DateTime.UtcNow,
         });
 
-        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
+        var target = new UserContactPointService(_personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
 
         // Act
         SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, TestContext.Current.CancellationToken);
@@ -317,7 +313,7 @@ public class UserContactPointServiceTest
 
         _userContactInfoRepositoryMock.Setup(service => service.GetByUsername("epost:user2@altinn.no", It.IsAny<CancellationToken>())).ReturnsAsync((UserContactInfo)null);
 
-        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
+        var target = new UserContactPointService(_personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
 
         // Act
         SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, TestContext.Current.CancellationToken);
@@ -347,7 +343,7 @@ public class UserContactPointServiceTest
     {
         // Arrange
         var emailIdentifiers = new List<string>();
-        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
+        var target = new UserContactPointService(_personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
 
         // Act
         SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(emailIdentifiers, TestContext.Current.CancellationToken);
@@ -383,7 +379,7 @@ public class UserContactPointServiceTest
         };
         _userContactInfoRepositoryMock.Setup(service => service.GetByUsername(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((UserContactInfo)null);
 
-        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
+        var target = new UserContactPointService(_personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
 
         // Act
         SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, TestContext.Current.CancellationToken);
@@ -461,7 +457,7 @@ public class UserContactPointServiceTest
             UserId = 130,
             Username = "mythirdusername",
         });
-        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
+        var target = new UserContactPointService(_personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
 
         // Act
         SelfIdentifiedUserContactPointsList result = await target.GetSiContactPoints(identities, TestContext.Current.CancellationToken);
