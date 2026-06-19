@@ -18,6 +18,7 @@ on:
       - 'Dockerfile'
       - '.trivyignore.yaml'
       - '.github/workflows/container-scan.yml'
+permissions: {}
 jobs:
   scan:
     runs-on: ubuntu-latest
