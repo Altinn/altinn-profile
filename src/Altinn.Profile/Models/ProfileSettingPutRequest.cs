@@ -15,9 +15,9 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// Gets or sets the user's language preference in Altinn.
         /// </summary>
+        /// <example>nb</example>
         [Required]
         [JsonRequired]
-        [EnumDataType(typeof(Language), ErrorMessage = "Invalid language value provided - allowed values are 'nb', 'nn', and 'en'.")]
         public new Language Language { get; set; }
 
         /// <summary>

@@ -15,7 +15,7 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// The language the user has selected in Altinn portal.
         /// </summary>
-        [EnumDataType(typeof(Language), ErrorMessage = "Invalid language value provided - allowed values are 'nb', 'nn', and 'en'.")]
+        /// <example>nb</example>
         public Language? Language { get; set; }
 
         /// <summary>
