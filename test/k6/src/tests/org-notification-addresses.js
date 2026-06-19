@@ -1,9 +1,9 @@
-import { check } from 'k6';
-import * as config from '../config.js';
-import { generateToken } from '../api/token-generator.js';
-import * as orgNotificationAddressesApi from '../api/org-notification-addresses.js';
+import { check } from "k6";
+import * as config from "../config.js";
+import { generateToken } from "../api/token-generator.js";
+import * as orgNotificationAddressesApi from "../api/org-notification-addresses.js";
 import { stopIterationOnFail } from "../errorhandler.js";
-import { createCSVSharedArray, getRandomRow } from '../data/csv-loader.js';
+import { createCSVSharedArray, getRandomRow } from "../data/csv-loader.js";
 
 // Eksempel på bruk:
 // With environment variable (takes priority):
@@ -25,11 +25,11 @@ export const options = {
     iterations: 1,
     thresholds: {
         // Checks rate should be 100%. Raise error if any check has failed.
-        checks: ['rate>=1']
-    }
+        checks: ["rate>=1"],
+    },
 };
 
-const csvData = createCSVSharedArray('orgNotificationAddressesTestData');
+const csvData = createCSVSharedArray("orgNotificationAddressesTestData");
 
 /**
  * Initialize test data.
@@ -42,23 +42,22 @@ const csvData = createCSVSharedArray('orgNotificationAddressesTestData');
 export function setup() {
     const orgNo = __ENV.orgNo;
 
-
     const envSuffix = __ENV.altinn_env.slice(-1);
     const numericSuffix = Number.parseInt(envSuffix);
     const suffix = Number.isInteger(numericSuffix) ? envSuffix : 0;
 
     const address = {
         phone: "9999999" + suffix,
-        countryCode: "+47"
-    }
+        countryCode: "+47",
+    };
     const updateAddress = {
-        email: "noreply" + suffix + "@altinn.no"
-    }
+        email: "noreply" + suffix + "@altinn.no",
+    };
 
     return {
         orgNo,
         address,
-        updateAddress
+        updateAddress,
     };
 }
 
@@ -74,7 +73,7 @@ function getOrgNotificationAddresses(token, orgNo) {
     );
 
     let success = check(response, {
-        'GET org notification addresses: 200 OK': (r) => r.status === 200,
+        "GET org notification addresses: 200 OK": (r) => r.status === 200,
     });
 
     stopIterationOnFail("GET org notification addresses failed", success);
@@ -95,11 +94,14 @@ function addOrgNotificationAddresses(token, orgNo, address) {
     );
 
     let success = check(response, {
-        'POST org notification addresses: 201 Created or 200 Ok': (r) => r.status === 201 || r.status === 200,
+        "POST org notification addresses: 201 Created or 200 Ok": (r) =>
+            r.status === 201 || r.status === 200,
     });
 
     if (!success) {
-        console.error(`POST org notification addresses failed with status ${response.status}: ${response.body}`);
+        console.error(
+            `POST org notification addresses failed with status ${response.status}: ${response.body}`
+        );
     }
 
     stopIterationOnFail("POST org notification addresses failed", success);
@@ -116,7 +118,12 @@ function addOrgNotificationAddresses(token, orgNo, address) {
  * @param {string} addressId - The id of the address to update.
  * @returns {string} The id of the created address.
  */
-function updateOrgNotificationAddresses(token, orgNo, updateAddress, addressId) {
+function updateOrgNotificationAddresses(
+    token,
+    orgNo,
+    updateAddress,
+    addressId
+) {
     const response = orgNotificationAddressesApi.updateOrgNotificationAddresses(
         token,
         orgNo,
@@ -125,7 +132,8 @@ function updateOrgNotificationAddresses(token, orgNo, updateAddress, addressId) 
     );
 
     let success = check(response, {
-        'PUT org notification addresses: 200 Ok or 409 Conflict': (r) => r.status === 200 || r.status === 409,
+        "PUT org notification addresses: 200 Ok or 409 Conflict": (r) =>
+            r.status === 200 || r.status === 409,
     });
 
     if (response.status === 409) {
@@ -133,7 +141,9 @@ function updateOrgNotificationAddresses(token, orgNo, updateAddress, addressId) 
     }
 
     if (!success) {
-        console.error(`PUT org notification addresses failed with status ${response.status}: ${response.body}`);
+        console.error(
+            `PUT org notification addresses failed with status ${response.status}: ${response.body}`
+        );
     }
 
     stopIterationOnFail("PUT org notification addresses failed", success);
@@ -156,11 +166,14 @@ function removeOrgNotificationAddresses(token, orgNo, addressId) {
     );
 
     let success = check(response, {
-        'DELETE org notification addresses: 200 Ok or 409 Conflict': (r) => r.status === 200 || r.status === 409,
+        "DELETE org notification addresses: 200 Ok or 409 Conflict": (r) =>
+            r.status === 200 || r.status === 409,
     });
 
     if (!success) {
-        console.error(`DELETE org notification addresses failed with status ${response.status}: ${response.body}`);
+        console.error(
+            `DELETE org notification addresses failed with status ${response.status}: ${response.body}`
+        );
     }
 
     stopIterationOnFail("DELETE org notification addresses failed", success);
@@ -186,16 +199,28 @@ export default async function runTests(data) {
         orgNo = testRow.orgNo;
         useTestData = true;
     } else {
-        stopIterationOnFail("No test data available: neither orgNo environment variable nor CSV data", false);
+        stopIterationOnFail(
+            "No test data available: neither orgNo environment variable nor CSV data",
+            false
+        );
         return;
     }
 
     // Generate token for this iteration: environment variables take priority, CSV data used as fallback
-    const token = await generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
+    const token = await generateToken(
+        config.tokenGenerator.getPersonalToken,
+        useTestData,
+        testRow
+    );
 
     let addressId = addOrgNotificationAddresses(token, orgNo, data.address);
     getOrgNotificationAddresses(token, orgNo);
 
-    addressId = updateOrgNotificationAddresses(token, orgNo, data.updateAddress, addressId);
+    addressId = updateOrgNotificationAddresses(
+        token,
+        orgNo,
+        data.updateAddress,
+        addressId
+    );
     removeOrgNotificationAddresses(token, orgNo, addressId);
 }

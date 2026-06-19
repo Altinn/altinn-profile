@@ -1,9 +1,9 @@
-import { check } from 'k6';
-import * as config from '../config.js';
-import { generateToken } from '../api/token-generator.js';
-import * as favoritesApi from '../api/favorites.js';
+import { check } from "k6";
+import * as config from "../config.js";
+import { generateToken } from "../api/token-generator.js";
+import * as favoritesApi from "../api/favorites.js";
 import { stopIterationOnFail } from "../errorhandler.js";
-import { createCSVSharedArray, getRandomRow } from '../data/csv-loader.js';
+import { createCSVSharedArray, getRandomRow } from "../data/csv-loader.js";
 
 // Eksempel på bruk:
 // With environment variable (takes priority):
@@ -25,10 +25,10 @@ export const options = {
     iterations: 1,
     thresholds: {
         // Checks rate should be 100%. Raise error if any check has failed.
-        checks: ['rate>=1']
-    }
+        checks: ["rate>=1"],
+    },
 };
-const csvData = createCSVSharedArray('favoritesTestData');
+const csvData = createCSVSharedArray("favoritesTestData");
 
 /**
  * Initialize test data.
@@ -54,7 +54,7 @@ function getFavorites(token) {
     const response = favoritesApi.getFavorites(token);
 
     let success = check(response, {
-        'GET favorites: 200 OK': (r) => r.status === 200,
+        "GET favorites: 200 OK": (r) => r.status === 200,
     });
 
     stopIterationOnFail("GET favorites failed", success);
@@ -69,7 +69,8 @@ function addFavorites(token, partyUuid) {
     const response = favoritesApi.addFavorites(token, partyUuid);
 
     let success = check(response, {
-        'PUT favorites: 201 Created or 204 No Content': (r) => r.status === 201 || r.status === 204,
+        "PUT favorites: 201 Created or 204 No Content": (r) =>
+            r.status === 201 || r.status === 204,
     });
 
     stopIterationOnFail("PUT favorites failed", success);
@@ -84,7 +85,7 @@ function removeFavorites(token, partyUuid) {
     const response = favoritesApi.removeFavorites(token, partyUuid);
 
     let success = check(response, {
-        'DELETE favorites: 204 No Content': (r) => r.status === 204,
+        "DELETE favorites: 204 No Content": (r) => r.status === 204,
     });
 
     stopIterationOnFail("DELETE favorites failed", success);
@@ -110,12 +111,19 @@ export default async function runTests(data) {
         partyUuid = testRow.partyUuid;
         useTestData = true;
     } else {
-        stopIterationOnFail("No test data available: neither partyUuid environment variable nor CSV data", false);
+        stopIterationOnFail(
+            "No test data available: neither partyUuid environment variable nor CSV data",
+            false
+        );
         return;
     }
 
     // Generate token for this iteration: environment variables take priority, CSV data used as fallback
-    const token = await generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
+    const token = await generateToken(
+        config.tokenGenerator.getPersonalToken,
+        useTestData,
+        testRow
+    );
 
     addFavorites(token, partyUuid);
     getFavorites(token);

@@ -1,9 +1,9 @@
-import { check } from 'k6';
-import * as config from '../config.js';
-import { generateToken } from '../api/token-generator.js';
-import * as groupsApi from '../api/groups.js';
+import { check } from "k6";
+import * as config from "../config.js";
+import { generateToken } from "../api/token-generator.js";
+import * as groupsApi from "../api/groups.js";
 import { stopIterationOnFail } from "../errorhandler.js";
-import { createCSVSharedArray, getRandomRow } from '../data/csv-loader.js';
+import { createCSVSharedArray, getRandomRow } from "../data/csv-loader.js";
 
 // Eksempel på bruk:
 // With environment variable (takes priority):
@@ -25,10 +25,10 @@ export const options = {
     iterations: 1,
     thresholds: {
         // Checks rate should be 100%. Raise error if any check has failed.
-        checks: ['rate>=1']
-    }
+        checks: ["rate>=1"],
+    },
 };
-const csvData = createCSVSharedArray('groupsTestData');
+const csvData = createCSVSharedArray("groupsTestData");
 
 /**
  * Initialize test data.
@@ -63,7 +63,11 @@ function checkAndStop(response, checksObj, failMessage) {
 function getGroups(token) {
     const response = groupsApi.getGroups(token);
 
-    checkAndStop(response, { 'GET groups: 200 OK': (r) => r.status === 200 }, "GET groups failed");
+    checkAndStop(
+        response,
+        { "GET groups: 200 OK": (r) => r.status === 200 },
+        "GET groups failed"
+    );
 }
 
 /**
@@ -74,14 +78,18 @@ function getGroups(token) {
 function createGroup(token, name) {
     const response = groupsApi.addGroup(token, name);
 
-    checkAndStop(response, { 'POST group: 201 Created': (r) => r.status === 201 }, "POST group failed");
+    checkAndStop(
+        response,
+        { "POST group: 201 Created": (r) => r.status === 201 },
+        "POST group failed"
+    );
 
     // Try to parse and return created group's id if present
     try {
-        const body = JSON.parse(response.body || '{}');
+        const body = JSON.parse(response.body || "{}");
         return body.id || body.groupId || null;
     } catch (e) {
-        console.error('Failed to parse create group response body:', e);
+        console.error("Failed to parse create group response body:", e);
         return null;
     }
 }
@@ -95,7 +103,14 @@ function createGroup(token, name) {
 function renameGroup(token, id, newName) {
     const response = groupsApi.renameGroup(token, id, newName);
 
-    checkAndStop(response, { 'PATCH group: 200 OK or 204 No Content': (r) => r.status === 200 || r.status === 204 }, "PATCH group failed");
+    checkAndStop(
+        response,
+        {
+            "PATCH group: 200 OK or 204 No Content": (r) =>
+                r.status === 200 || r.status === 204,
+        },
+        "PATCH group failed"
+    );
 }
 
 /**
@@ -107,7 +122,11 @@ function renameGroup(token, id, newName) {
 function addToGroup(token, id, partyUuid) {
     const response = groupsApi.addToGroup(token, id, partyUuid);
 
-    checkAndStop(response, { 'PUT association: 200 OK': (r) => r.status === 200 }, "PUT association failed");
+    checkAndStop(
+        response,
+        { "PUT association: 200 OK": (r) => r.status === 200 },
+        "PUT association failed"
+    );
 }
 
 /**
@@ -118,7 +137,11 @@ function addToGroup(token, id, partyUuid) {
 function getGroup(token, id) {
     const response = groupsApi.getGroup(token, id);
 
-    checkAndStop(response, { 'GET group: 200 OK': (r) => r.status === 200 }, "GET group failed");
+    checkAndStop(
+        response,
+        { "GET group: 200 OK": (r) => r.status === 200 },
+        "GET group failed"
+    );
 }
 
 /**
@@ -130,7 +153,11 @@ function getGroup(token, id) {
 function removeFromGroup(token, id, partyUuid) {
     const response = groupsApi.removeFromGroup(token, id, partyUuid);
 
-    checkAndStop(response, { 'DELETE association: 200 OK': (r) => r.status === 200 }, "DELETE association failed");
+    checkAndStop(
+        response,
+        { "DELETE association: 200 OK": (r) => r.status === 200 },
+        "DELETE association failed"
+    );
 }
 
 /**
@@ -141,7 +168,11 @@ function removeFromGroup(token, id, partyUuid) {
 function deleteGroup(token, id) {
     const response = groupsApi.deleteGroup(token, id);
 
-    checkAndStop(response, { 'DELETE group: 204 No Content': (r) => r.status === 204 }, "DELETE group failed");
+    checkAndStop(
+        response,
+        { "DELETE group: 204 No Content": (r) => r.status === 204 },
+        "DELETE group failed"
+    );
 }
 
 /**
@@ -164,12 +195,19 @@ export default async function runTests(data) {
         partyUuid = testRow.partyUuid;
         useTestData = true;
     } else {
-        stopIterationOnFail("No test data available: neither partyUuid environment variable nor CSV data", false);
+        stopIterationOnFail(
+            "No test data available: neither partyUuid environment variable nor CSV data",
+            false
+        );
         return;
     }
 
     // Generate token for this iteration: environment variables take priority, CSV data used as fallback
-    const token = await generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
+    const token = await generateToken(
+        config.tokenGenerator.getPersonalToken,
+        useTestData,
+        testRow
+    );
 
     const timestamp = new Date().toISOString();
     const baseName = `k6-test-group`;
@@ -198,6 +236,9 @@ export default async function runTests(data) {
         // 7. Delete group
         deleteGroup(token, groupId);
     } else {
-        stopIterationOnFail('Could not determine group id for further operations', false);
+        stopIterationOnFail(
+            "Could not determine group id for further operations",
+            false
+        );
     }
 }
