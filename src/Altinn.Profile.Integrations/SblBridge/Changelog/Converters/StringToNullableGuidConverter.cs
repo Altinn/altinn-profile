@@ -1,42 +1,32 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Altinn.Profile.Integrations.SblBridge.Changelog.Converters
 {
     /// <summary>
     /// Converts a JSON string to a nullable Guid and vice versa.
     /// </summary>
-    public class StringToNullableGuidConverter : JsonConverter
+    public class StringToNullableGuidConverter : JsonConverter<Guid?>
     {
-        /// <summary>
-        /// Determines whether this converter can convert the specified object type.
-        /// </summary>
-        /// <param name="objectType">The type of the object to check.</param>
-        /// <returns><c>true</c> if the object type is nullable <see cref="Guid"/>; otherwise, <c>false</c>.</returns>
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(Guid?);
-        }
-
         /// <summary>
         /// Reads the JSON representation of a nullable Guid.
         /// </summary>
-        /// <param name="reader">The <see cref="JsonReader"/> to read from.</param>
-        /// <param name="objectType">Type of the object.</param>
-        /// <param name="existingValue">The existing value of object being read.</param>
-        /// <param name="serializer">The calling serializer.</param>
+        /// <param name="reader">The <see cref="Utf8JsonReader"/> to read from.</param>
+        /// <param name="typeToConvert">Type of the object.</param>
+        /// <param name="options">Serialization options.</param>
         /// <returns>
         /// A <see cref="Guid"/> value if the string is a valid Guid; otherwise, <c>null</c>.
         /// </returns>
-        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        public override Guid? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonToken.Null)
+            if (reader.TokenType == JsonTokenType.Null)
             {
                 return null;
             }
 
-            if (reader.TokenType == JsonToken.String)
+            if (reader.TokenType == JsonTokenType.String)
             {
-                var str = (string?)reader.Value;
+                var str = reader.GetString();
                 if (string.IsNullOrWhiteSpace(str))
                 {
                     return null;
@@ -47,7 +37,7 @@ namespace Altinn.Profile.Integrations.SblBridge.Changelog.Converters
                     return guid;
                 }
 
-                throw new JsonSerializationException($"Invalid Guid format: {str}");
+                throw new JsonException($"Invalid Guid format: {str}");
             }
 
             return null;
@@ -56,18 +46,18 @@ namespace Altinn.Profile.Integrations.SblBridge.Changelog.Converters
         /// <summary>
         /// Writes the JSON representation of a nullable Guid.
         /// </summary>
-        /// <param name="writer">The <see cref="JsonWriter"/> to write to.</param>
+        /// <param name="writer">The <see cref="Utf8JsonWriter"/> to write to.</param>
         /// <param name="value">The value to write. Can be <c>null</c>.</param>
-        /// <param name="serializer">The calling serializer.</param>
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        /// <param name="options">Serialization options.</param>
+        public override void Write(Utf8JsonWriter writer, Guid? value, JsonSerializerOptions options)
         {
             if (value == null)
             {
-                writer.WriteValue(string.Empty);
+                writer.WriteStringValue(string.Empty);
             }
             else
             {
-                writer.WriteValue(((Guid)value).ToString());
+                writer.WriteStringValue(value.Value.ToString());
             }
         }
     }
