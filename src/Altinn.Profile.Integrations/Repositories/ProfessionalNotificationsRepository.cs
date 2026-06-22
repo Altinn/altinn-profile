@@ -1,6 +1,5 @@
 ﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
-using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;
@@ -8,11 +7,10 @@ using Microsoft.EntityFrameworkCore;
 namespace Altinn.Profile.Integrations.Repositories
 {
     /// <inheritdoc/>
-    public class ProfessionalNotificationsRepository(IDbContextFactory<ProfileDbContext> contextFactory, Telemetry? telemetry) 
+    public class ProfessionalNotificationsRepository(IDbContextFactory<ProfileDbContext> contextFactory) 
         : IProfessionalNotificationsRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
-        private readonly Telemetry? _telemetry = telemetry;
 
         /// <inheritdoc/>
         public async Task<UserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
