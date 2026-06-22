@@ -9,10 +9,10 @@ public interface IUserContactPointsService
     /// Method for retriveing contact points for a user 
     /// </summary>
     /// <param name="nationalIdentityNumbers">A list of national identity numbers to lookup contact points for</param>
-    /// <param name="useStaleContactInfo">A boolean indicating whether to skip the age check for contact points.</param>
+    /// <param name="includeOutdatedContactInfo">A boolean indicating whether to include outdated contact information.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>The users' contact points and reservation status or a boolean if failure.</returns>
-    Task<UserContactPointsList> GetContactPoints(List<string> nationalIdentityNumbers, bool useStaleContactInfo, CancellationToken cancellationToken);
+    Task<UserContactPointsList> GetContactPoints(List<string> nationalIdentityNumbers, bool includeOutdatedContactInfo, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves the self-identified users' contact points associated with the specified external identities.

@@ -1,13 +1,10 @@
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.User.ContactInfo;
-using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;
 
 using Npgsql;
-
-using Wolverine.EntityFrameworkCore;
 
 namespace Altinn.Profile.Integrations.Repositories;
 
@@ -16,8 +13,7 @@ namespace Altinn.Profile.Integrations.Repositories;
 /// Initializes a new instance of the <see cref="UserContactInfoRepository"/> class.
 /// </summary>
 /// <param name="contextFactory">A factory for creating instances of <see cref="ProfileDbContext"/></param>
-/// <param name="databaseContextOutbox">The outbox for handling transactional operations</param>
-public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> contextFactory, IDbContextOutbox databaseContextOutbox) : EFCoreTransactionalOutbox(databaseContextOutbox), IUserContactInfoRepository
+public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> contextFactory) : IUserContactInfoRepository
 {
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
@@ -50,8 +46,7 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
         {
             databaseContext.SelfIdentifiedUsers.Add(userContactInfo);
 
-            SiUserContactInfoAddedEvent NotifySiUserContactInfoAdded() => new(userContactInfo.UserId, currentDateTime, userContactInfo.EmailAddress, userContactInfo.PhoneNumber);
-            await NotifyAndSave(databaseContext, NotifySiUserContactInfoAdded, cancellationToken);
+            await databaseContext.SaveChangesAsync(cancellationToken);
         }
         catch (DbUpdateException ex) when (IsUserIdConflict(ex))
         {
@@ -80,9 +75,7 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
             userContactInfo.PhoneNumber = phoneNumber;
             userContactInfo.PhoneNumberLastChanged = currentDateTime;
 
-            // Empty string is used to indicate removal of phone number
-            SiUserContactInfoUpdatedEvent NotifySiUserContactInfoUpdated() => new(userContactInfo.UserId, currentDateTime, userContactInfo.EmailAddress, userContactInfo.PhoneNumber ?? string.Empty);
-            await NotifyAndSave(databaseContext, NotifySiUserContactInfoUpdated, cancellationToken);
+            await databaseContext.SaveChangesAsync(cancellationToken);
         }
 
         return userContactInfo;

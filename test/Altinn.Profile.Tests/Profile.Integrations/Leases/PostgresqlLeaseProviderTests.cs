@@ -4,9 +4,7 @@ using System.Threading.Tasks;
 
 using Altinn.Authorization.ServiceDefaults.Leases;
 using Altinn.Profile.Integrations.Leases;
-using Altinn.Profile.Integrations.Repositories.A2Sync;
-
-using Humanizer.Localisation;
+using Altinn.Profile.Integrations.Repositories;
 
 using Microsoft.Extensions.Logging;
 

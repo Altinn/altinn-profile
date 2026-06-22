@@ -20,7 +20,7 @@ jobs:
       checks: write
     services:
       postgres:
-        image: postgres:17.10@sha256:0027bef26712baaee437a4ea48fdf3d2d2e2bc5f0d81615374408ca320f3c7e3
+        image: postgres:17.10@sha256:2203e6282d9e7de7c24d7da234e2a744fb325df366a3fd8ed940e8abbee39527
         env:
           POSTGRES_USER: platform_profile_admin
           POSTGRES_PASSWORD: Password
@@ -36,7 +36,7 @@ jobs:
           dotnet-version: |
             10.0.x
       - name: Set up Java
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287 # v5.3.0
         with:
           distribution: 'temurin'
           java-version: 17

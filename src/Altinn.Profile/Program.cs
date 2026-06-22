@@ -23,7 +23,6 @@ using Altinn.Profile.Extensions;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
-using Altinn.Profile.Integrations.Handlers;
 using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Middleware;
 
@@ -31,9 +30,6 @@ using AltinnCore.Authentication.JwtCookie;
 
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.Exporter;
-
-using JasperFx.Core;
-using JasperFx.Resources;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -54,11 +50,6 @@ using OpenTelemetry.Trace;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-using Wolverine;
-using Wolverine.EntityFrameworkCore;
-using Wolverine.ErrorHandling;
-using Wolverine.Postgresql;
-
 ILogger logger;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -71,16 +62,13 @@ ConfigureApplicationLogging(builder.Logging);
 
 ConfigureServices(builder.Services, builder.Configuration);
 
-ConfigureWolverine(builder);
-
 WebApplication app = builder.Build();
 
 if (args.Contains("--run-db-migrations"))
 {
     // Migration mode: runs with admin database access
     // For Kubernetes pre-upgrade hooks
-    var setupWolverine = args.Contains("--setup-wolverine");
-    await Migrate(setupWolverine);
+    await Migrate();
     return;
 }
 
@@ -229,7 +217,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
 
     services.SetupLeasing();
-    services.AddImportJobs(config);
     services.AddSyncJobs(config);
 }
 
@@ -306,40 +293,11 @@ void Configure()
     app.MapHealthChecks("/health");
 }
 
-void ConfigureWolverine(WebApplicationBuilder builder)
-{
-    builder.UseWolverine(opts =>
-    {
-        var connStr = builder.Configuration.GetDatabaseConnectionString();
-
-        // You'll need to independently tell Wolverine where and how to
-        // store messages as part of the transactional inbox/outbox
-        opts.PersistMessagesWithPostgresql(connStr);
-
-        // Adding EF Core transactional middleware, saga support,
-        // and EF Core support for Wolverine storage operations
-        opts.UseEntityFrameworkCoreTransactions();
-
-        opts.Policies.UseDurableLocalQueues();
-
-        opts.Discovery.IncludeAssembly(typeof(FavoriteAddedEventHandler).Assembly);
-
-        opts
-            .OnException<InternalServerErrorException>()
-            .RetryWithCooldown(50.Milliseconds(), 100.Milliseconds(), 250.Milliseconds());
-    });
-}
-
-async Task Migrate(bool setupWolverine)
+async Task Migrate()
 {
     try
     {
         await app.RunDatabaseMigrationsAsync(builder.Configuration);
-        if (setupWolverine)
-        {
-            await app.GrantWolverinePermissionsAsync(builder.Configuration);
-            await app.SetupResources(CancellationToken.None);
-        }
     }
     catch (Exception ex)
     {

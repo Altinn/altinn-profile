@@ -67,6 +67,7 @@ public class UserContactPointServiceTest
             NationalIdentityNumber = userProfileB.Party.SSN,
             IsReserved = userProfileB.IsReserved,
             MobileNumber = userProfileB.PhoneNumber,
+            EmailIsOutdated = true
         };
 
         var userProfileC = await TestDataLoader.Load<UserProfile>(_userIdCStr);
@@ -81,10 +82,12 @@ public class UserContactPointServiceTest
         };
         var expectedUserContactPointC = new UserContactPoints()
         {
-            Email = userProfileC.Email,
             NationalIdentityNumber = _userIdCStr,
             IsReserved = userProfileC.IsReserved,
+            Email = userProfileC.Email,
+            EmailIsOutdated = true,
             MobileNumber = userProfileC.PhoneNumber,
+            MobileNumberIsOutdated = true
         };
 
         _personServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
@@ -172,8 +175,10 @@ public class UserContactPointServiceTest
     {
         return a.NationalIdentityNumber == b.NationalIdentityNumber &&
             a.Email == b.Email &&
-            a.IsReserved == b.IsReserved &&
-            a.MobileNumber == b.MobileNumber;
+            a.EmailIsOutdated == b.EmailIsOutdated &&
+            a.MobileNumber == b.MobileNumber &&
+            a.MobileNumberIsOutdated == b.MobileNumberIsOutdated &&
+            a.IsReserved == b.IsReserved;
     }
 
     [Fact]

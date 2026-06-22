@@ -54,7 +54,7 @@ public class UserContactPointService : IUserContactPointsService
 
     /// <inheritdoc/>
     public async Task<UserContactPointsList> GetContactPoints(
-        List<string> nationalIdentityNumbers, bool useStaleContactInfo, CancellationToken cancellationToken)
+        List<string> nationalIdentityNumbers, bool includeOutdatedContactInfo, CancellationToken cancellationToken)
     {
         UserContactPointsList resultList = new();
         DateTime cutoffDate = DateTime.UtcNow.AddMonths(-ActiveContactPointMonths);
@@ -63,22 +63,26 @@ public class UserContactPointService : IUserContactPointsService
 
         foreach (var contactPreference in contactPreferences)
         {
-            var emailTooOld = IsContactPointTooOld(contactPreference.EmailLastTouched, cutoffDate, useStaleContactInfo);
-            var mobileTooOld = IsContactPointTooOld(contactPreference.MobileNumberLastTouched, cutoffDate, useStaleContactInfo);
-            
-            if (mobileTooOld && emailTooOld)
+            bool emailIsOutdated = IsContactPointTooOld(contactPreference.EmailLastTouched, cutoffDate);
+            bool mobileIsOutdated = IsContactPointTooOld(contactPreference.MobileNumberLastTouched, cutoffDate);
+
+            bool bothContactPointsOutdated = emailIsOutdated && mobileIsOutdated;
+            if (!includeOutdatedContactInfo && bothContactPointsOutdated)
             {
                 continue;
             }
 
-            resultList.ContactPointsList.Add(
-                new UserContactPoints()
-                {
-                    NationalIdentityNumber = contactPreference.NationalIdentityNumber,
-                    Email = emailTooOld ? null : contactPreference.Email,
-                    MobileNumber = mobileTooOld ? null : contactPreference.MobileNumber,
-                    IsReserved = contactPreference.IsReserved
-                });
+            UserContactPoints contactPoint = new()
+            {
+                NationalIdentityNumber = contactPreference.NationalIdentityNumber,
+                Email = emailIsOutdated && !includeOutdatedContactInfo ? null : contactPreference.Email,
+                EmailIsOutdated = emailIsOutdated,
+                MobileNumber = mobileIsOutdated && !includeOutdatedContactInfo ? null : contactPreference.MobileNumber,
+                MobileNumberIsOutdated = mobileIsOutdated,
+                IsReserved = contactPreference.IsReserved
+            };
+
+            resultList.ContactPointsList.Add(contactPoint);
         }
 
         return resultList;
@@ -112,9 +116,9 @@ public class UserContactPointService : IUserContactPointsService
         return contactPointsList;
     }
 
-    private static bool IsContactPointTooOld(DateTime? lastTouched, DateTime cutoffDate, bool useStaleContactInfo)
+    private static bool IsContactPointTooOld(DateTime? lastTouched, DateTime cutoffDate)
     {
-        return !useStaleContactInfo && (!lastTouched.HasValue || lastTouched.Value < cutoffDate);
+        return !lastTouched.HasValue || lastTouched.Value < cutoffDate;
     }
 
     private async Task<SiUserContactPoints?> ProcessIdPortenEmail(IDPortenEmail idportenEmail, string urnIdentifier, CancellationToken cancellationToken)

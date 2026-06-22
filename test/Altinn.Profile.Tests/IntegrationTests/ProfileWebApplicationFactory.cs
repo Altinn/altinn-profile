@@ -36,8 +36,6 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-using Wolverine;
-
 namespace Altinn.Profile.Tests.IntegrationTests;
 
 public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram>
@@ -129,15 +127,6 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
 
         builder.ConfigureServices(services =>
         {
-            // Override the Wolverine configuration in the application
-            // to run the application in "solo" mode for faster
-            // testing cold starts
-            services.RunWolverineInSoloMode();
-
-            // And just for completion, disable all Wolverine external 
-            // messaging transports
-            services.DisableAllExternalWolverineTransports();
-
             // Replace services with mocks or stubs
             services.AddSingleton<IPostConfigureOptions<JwtCookieOptions>, JwtCookiePostConfigureOptionsStub>();
             services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProviderMock>();
@@ -202,7 +191,6 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
 
     /*****
      * DisposeAsync is overridden to ensure that the application is stopped gracefully.
-     * Running the tests without this can lead to issues with Wolverine and disposal. 
      * Still not entierly clear why this is needed.
      * https://github.com/dotnet/aspnetcore/issues/40271#issuecomment-2481337081
      */

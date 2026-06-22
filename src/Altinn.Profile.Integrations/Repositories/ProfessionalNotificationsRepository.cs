@@ -1,22 +1,16 @@
 ﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
-using Altinn.Profile.Core.Telemetry;
-using Altinn.Profile.Integrations.Events;
 using Altinn.Profile.Integrations.Persistence;
-using Altinn.Profile.Integrations.Repositories.A2Sync;
 
 using Microsoft.EntityFrameworkCore;
-
-using Wolverine.EntityFrameworkCore;
 
 namespace Altinn.Profile.Integrations.Repositories
 {
     /// <inheritdoc/>
-    public class ProfessionalNotificationsRepository(IDbContextFactory<ProfileDbContext> contextFactory, IDbContextOutbox databaseContextOutbox, Telemetry? telemetry) 
-        : EFCoreTransactionalOutbox(databaseContextOutbox), IProfessionalNotificationsRepository, IProfessionalNotificationSyncRepository
+    public class ProfessionalNotificationsRepository(IDbContextFactory<ProfileDbContext> contextFactory) 
+        : IProfessionalNotificationsRepository
     {
         private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
-        private readonly Telemetry? _telemetry = telemetry;
 
         /// <inheritdoc/>
         public async Task<UserPartyContactInfo?> GetNotificationAddressAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
@@ -112,9 +106,6 @@ namespace Altinn.Profile.Integrations.Repositories
                 contactInfo.LastChanged = DateTime.UtcNow;
                 databaseContext.UserPartyContactInfo.Add(contactInfo);
                 wasAdded = true;
-
-                NotificationSettingsAddedEvent NotifyAddressAdded() => new(contactInfo.UserId, contactInfo.PartyUuid, DateTime.UtcNow, contactInfo.EmailAddress, contactInfo.PhoneNumber, contactInfo.UserPartyContactInfoResources?.Select(r => r.ResourceId.ToString()).ToArray());
-                await NotifyAndSave(databaseContext, NotifyAddressAdded, cancellationToken);
             }
             else
             {
@@ -127,9 +118,9 @@ namespace Altinn.Profile.Integrations.Repositories
 
                 databaseContext.UserPartyContactInfo.Update(existing);
                 wasAdded = false;
-                NotificationSettingsUpdatedEvent NotifyAddressUpdated() => new(contactInfo.UserId, contactInfo.PartyUuid, existing.LastChanged, DateTime.UtcNow, contactInfo.EmailAddress, contactInfo.PhoneNumber, contactInfo.UserPartyContactInfoResources?.Select(r => r.ResourceId.ToString()).ToArray());
-                await NotifyAndSave(databaseContext, NotifyAddressUpdated, cancellationToken);
             }
+
+            await databaseContext.SaveChangesAsync(cancellationToken);
 
             return wasAdded;
         }
@@ -150,47 +141,9 @@ namespace Altinn.Profile.Integrations.Repositories
 
             databaseContext.UserPartyContactInfo.Remove(userPartyContactInfo);
 
-            NotificationSettingsDeletedEvent NotifyAddressDeleted() => new(userId, partyUuid, userPartyContactInfo.LastChanged, DateTime.UtcNow);
-            await NotifyAndSave(databaseContext, NotifyAddressDeleted, cancellationToken);
+            await databaseContext.SaveChangesAsync(cancellationToken);
 
             return userPartyContactInfo;
-        }
-
-        /// <inheritdoc/>
-        /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
-        public async Task AddOrUpdateNotificationAddressFromSyncAsync(UserPartyContactInfo contactInfo, CancellationToken cancellationToken = default)
-        {
-            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
-
-            var existing = await databaseContext.UserPartyContactInfo
-                .Include(g => g.UserPartyContactInfoResources)
-                .FirstOrDefaultAsync(g => g.UserId == contactInfo.UserId && g.PartyUuid == contactInfo.PartyUuid, cancellationToken);
-
-            if (existing == null)
-            {
-                databaseContext.UserPartyContactInfo.Add(contactInfo);
-                _telemetry?.NotificationAddressAdded();
-            }
-            else
-            {
-                if (contactInfo.LastChanged <= existing.LastChanged)
-                {
-                    // No update needed as the existing record is more recent
-                    return;
-                }
-
-                existing.EmailAddress = contactInfo.EmailAddress;
-                existing.PhoneNumber = contactInfo.PhoneNumber;
-
-                existing.LastChanged = contactInfo.LastChanged;
-
-                HandleResourcesChange(contactInfo, existing);
-
-                databaseContext.UserPartyContactInfo.Update(existing);
-                _telemetry?.NotificationAddressUpdated();
-            }
-
-            await databaseContext.SaveChangesAsync(cancellationToken);
         }
 
         private static void HandleResourcesChange(UserPartyContactInfo contactInfo, UserPartyContactInfo existing)
@@ -228,28 +181,6 @@ namespace Altinn.Profile.Integrations.Repositories
                     });
                 }
             }
-        }
-
-        /// <inheritdoc/>
-        /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
-        public async Task<UserPartyContactInfo?> DeleteNotificationAddressFromSyncAsync(int userId, Guid partyUuid, CancellationToken cancellationToken)
-        {
-            using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
-
-            var userPartyContactInfo = await databaseContext.UserPartyContactInfo
-                .Include(g => g.UserPartyContactInfoResources)
-                .FirstOrDefaultAsync(g => g.UserId == userId && g.PartyUuid == partyUuid, cancellationToken);
-
-            if (userPartyContactInfo == null)
-            {
-                return null;
-            }
-
-            databaseContext.UserPartyContactInfo.Remove(userPartyContactInfo);
-            await databaseContext.SaveChangesAsync(cancellationToken);
-            _telemetry?.NotificationAddressDeleted();
-
-            return userPartyContactInfo;
         }
     }
 }
