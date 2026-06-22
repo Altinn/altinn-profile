@@ -18,6 +18,7 @@ namespace Altinn.Profile.Controllers
     /// <summary>
     /// Controller for organizing the notification addresses for self-identified users.
     /// </summary>
+    [Authorize]
     [Authorize(Policy = AuthConstants.PortalEndUserAccess)]
     [Route("profile/api/v1/users/current/notificationsettings/private")]
     [Consumes("application/json")]
@@ -66,8 +67,7 @@ namespace Altinn.Profile.Controllers
                 return Forbid();
             }
 
-            var isVerifiedOrNull = await _addressVerificationService.IsAddressVerifiedOrNull(userId, AddressType.Sms, request.Value, cancellationToken);
-            if (!isVerifiedOrNull)
+            if (request.Value is not null && !(await _addressVerificationService.IsAddressVerified(userId, AddressType.Sms, request.Value, cancellationToken)))
             {
                 return UnprocessableEntity("Provided phone number is not verified.");
             }

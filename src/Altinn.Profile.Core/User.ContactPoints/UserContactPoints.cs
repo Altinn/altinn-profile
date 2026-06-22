@@ -26,9 +26,19 @@ public class UserContactPoints
     public string? MobileNumber { get; set; }
 
     /// <summary>
+    /// Gets or sets a boolean indicating whether the mobile number is outdated
+    /// </summary>
+    public bool MobileNumberIsOutdated { get; set; }
+
+    /// <summary>
     /// Gets or sets the email address
     /// </summary>
     public string? Email { get; set; }
+    
+    /// <summary>
+    /// Gets or sets a boolean indicating whether the email address is outdated
+    /// </summary>
+    public bool EmailIsOutdated { get; set; }
 }
 
 /// <summary>

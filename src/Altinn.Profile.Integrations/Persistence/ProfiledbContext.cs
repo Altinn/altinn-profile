@@ -3,6 +3,7 @@
 
 using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Core.User.PartyGroups;
 using Altinn.Profile.Core.User.ProfileSettings;
@@ -115,6 +116,10 @@ public partial class ProfileDbContext : DbContext
     /// </summary>
     public virtual DbSet<UserContactInfo> SelfIdentifiedUsers { get; set; }
 
+    /// <summary>
+    /// The <see cref="DbSet{UnitProfile}"/> representing the unit profiles maintenance settings for organizations.
+    /// </summary>
+    public virtual DbSet<UnitProfileStatus> UnitProfiles { get; set; }
 
     /// <summary>
     /// Configures the schema needed for the context.
@@ -169,6 +174,20 @@ public partial class ProfileDbContext : DbContext
                     .WithOne(n => n.Organization)
                     .HasForeignKey(e => e.RegistryOrganizationId)
                     .HasConstraintName("fk_organization_id");
+        });
+
+        modelBuilder.Entity<UnitProfileStatus>(entity =>
+        {
+            entity.ToTable("unit_profile_status", "organization_notification_address");
+            entity.HasKey(e => e.PartyId).HasName("pk_unit_profiles");
+            entity.Property(e => e.PartyId).IsRequired().ValueGeneratedNever();
+            entity.Property(e => e.PartyUuid).IsRequired();
+            entity.Property(e => e.LastModifiedByUserId);
+            entity.Property(e => e.LastModifiedByUserUuid);
+            entity.Property(e => e.LastModifiedDate);
+            entity.Property(e => e.LastConfirmedByUserId);
+            entity.Property(e => e.LastConfirmedByUserUuid);
+            entity.Property(e => e.LastConfirmationDate);
         });
 
         modelBuilder.Entity<RegistrySyncMetadata>(entity =>
@@ -279,7 +298,8 @@ public partial class ProfileDbContext : DbContext
         modelBuilder.Entity<ReceiptSettings>(entity =>
         {
             entity.ToTable("receipt_settings", "user_preferences");
-            entity.HasKey(e => new { e.UserId, e.ProfileType }).HasName("userid_profiletype_pk");
+            entity.HasKey(e => e.Id).HasName("id_pkey");
+            entity.Property(e => e.Id).UseIdentityAlwaysColumn();
             entity.Property(e => e.UserId).IsRequired().ValueGeneratedNever();
             entity.Property(e => e.UserUuid).IsRequired().ValueGeneratedNever();
             entity.Property(e => e.ProfileType).IsRequired().HasConversion(new EnumToStringConverter<ProfileType>()).HasMaxLength(30);

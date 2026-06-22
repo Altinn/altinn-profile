@@ -28,14 +28,14 @@ namespace Altinn.Profile.Core.AddressVerifications
         Task<VerificationType?> GetVerificationStatusAsync(int userId, AddressType addressType, string? address, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Checks if the address has been verified, or if the address is null. If the address is null, this method returns true, as there is no address to verify.
+        /// Checks if the address has been verified.
         /// </summary>
         /// <param name="userId">The id of the user</param>
         /// <param name="addressType">If the address is for sms or email</param>
         /// <param name="address">The address to check</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns></returns>
-        Task<bool> IsAddressVerifiedOrNull(int userId, AddressType addressType, string? address, CancellationToken cancellationToken);
+        /// <returns>A task that represents the asynchronous operation. The task result is <c>true</c> if the address has been verified; otherwise, <c>false</c>.</returns>
+        Task<bool> IsAddressVerified(int userId, AddressType addressType, string address, CancellationToken cancellationToken);
 
         /// <summary>
         /// Generates a verification code, saves it to the database and sends it to the user via email or sms depending on the address type. The code is valid for 15 minutes.
@@ -80,15 +80,5 @@ namespace Altinn.Profile.Core.AddressVerifications
         /// the calculated cooldown value, and whether the notification provider accepted the send request.
         /// </returns>
         Task<SendVerificationCodeResult> SendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Regenerates and sends a verification code for/to the given user and address.
-        /// </summary>
-        /// <param name="userId">The id of the user</param>
-        /// <param name="address">The address to verify</param>
-        /// <param name="addressType">The addresstype, sms or email</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result indicates the outcome of the resend operation.</returns>
-        Task<SendVerificationStatus> ResendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken);
     }
 }
