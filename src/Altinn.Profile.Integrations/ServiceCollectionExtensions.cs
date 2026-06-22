@@ -15,8 +15,6 @@ using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Register;
 using Altinn.Profile.Integrations.Repositories;
-using Altinn.Profile.Integrations.SblBridge;
-using Altinn.Profile.Integrations.SblBridge.User.Profile;
 using Altinn.Profile.Integrations.Services;
 
 using Microsoft.EntityFrameworkCore;
@@ -31,22 +29,6 @@ namespace Altinn.Profile.Integrations;
 [ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions
 {
-    /// <summary>
-    /// Adds Altinn clients and configurations to DI container.
-    /// </summary>
-    /// <param name="services">service collection.</param>
-    /// <param name="config">the configuration collection</param>
-    public static void AddSblBridgeClients(this IServiceCollection services, IConfiguration config)
-    {
-        _ = config.GetSection(nameof(SblBridgeSettings))
-            .Get<SblBridgeSettings>()
-            ?? throw new ArgumentNullException(nameof(config), "Required SblBridgeSettings is missing from application configuration");
-
-        services.Configure<SblBridgeSettings>(config.GetSection(nameof(SblBridgeSettings)));
-        services.AddHttpClient<IUserProfileClient, UserProfileClient>();
-        services.Decorate<IUserProfileClient, UserProfileCachingDecorator>();
-    }
-
     /// <summary>
     /// Adds the register service and database context to the DI container.
     /// </summary>

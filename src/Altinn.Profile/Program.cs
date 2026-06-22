@@ -23,7 +23,6 @@ using Altinn.Profile.Extensions;
 using Altinn.Profile.Health;
 using Altinn.Profile.Integrations;
 using Altinn.Profile.Integrations.Extensions;
-using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Middleware;
 
 using AltinnCore.Authentication.JwtCookie;
@@ -210,7 +209,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
     services.AddCoreServices(config);
     services.AddRegisterService(config);
-    services.AddSblBridgeClients(config);
     services.AddMaskinportenClient(config);
     services.AddProblemDetails();
 
