@@ -3,6 +3,7 @@ using System;
 using Altinn.Profile.Integrations.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Altinn.Profile.Integrations.Migrations
 {
     [DbContext(typeof(ProfileDbContext))]
-    partial class ProfileDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260529114945_AddTableUnitProfileStatus")]
+    partial class AddTableUnitProfileStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -381,15 +384,11 @@ namespace Altinn.Profile.Integrations.Migrations
 
             modelBuilder.Entity("Altinn.Profile.Core.User.ReceiptSettings.ReceiptSettings", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("UserId")
                         .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
+                        .HasColumnName("user_id");
 
                     b.Property<string>("ProfileType")
-                        .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)")
                         .HasColumnName("profile_type");
@@ -398,16 +397,12 @@ namespace Altinn.Profile.Integrations.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("request_receipt");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer")
-                        .HasColumnName("user_id");
-
                     b.Property<Guid>("UserUuid")
                         .HasColumnType("uuid")
                         .HasColumnName("user_uuid");
 
-                    b.HasKey("Id")
-                        .HasName("id_pkey");
+                    b.HasKey("UserId", "ProfileType")
+                        .HasName("userid_profiletype_pk");
 
                     b.ToTable("receipt_settings", "user_preferences");
                 });

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-using Altinn.Common.PEP.Authorization;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
@@ -35,7 +32,7 @@ namespace Altinn.Profile.Authorization
         /// <param name="context">The context</param>
         /// <param name="requirement">The requirement</param>
         /// <returns>A Task</returns>
-        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, FeatureToggledScopeAccessRequirement requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, FeatureToggledScopeAccessRequirement requirement)
         {
             string contextScope = context.User?.Identities
                 ?.FirstOrDefault(i => i.AuthenticationType != null && i.AuthenticationType.Equals("AuthenticationTypes.Federation"))?.Claims
@@ -61,8 +58,7 @@ namespace Altinn.Profile.Authorization
                     context.Succeed(requirement);
                 }
 
-                await Task.CompletedTask;
-                return;
+                return Task.CompletedTask;
             }
 
             if (!validScope)
@@ -71,6 +67,7 @@ namespace Altinn.Profile.Authorization
             }
 
             context.Succeed(requirement);
+            return Task.CompletedTask;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 
 using Microsoft.Extensions.Options;
 
@@ -44,13 +45,8 @@ namespace Altinn.Profile.Core.AddressVerifications
         }
 
         /// <inheritdoc/>
-        public async Task<bool> IsAddressVerifiedOrNull(int userId, AddressType addressType, string? address, CancellationToken cancellationToken)
+        public async Task<bool> IsAddressVerified(int userId, AddressType addressType, string address, CancellationToken cancellationToken)
         {
-            if (address == null)
-            {
-                return true;
-            }
-
             var verificationStatus = await _addressVerificationRepository.GetVerificationStatusAsync(userId, addressType, address, cancellationToken);
             return verificationStatus == VerificationType.Verified;
         }
@@ -143,23 +139,6 @@ namespace Altinn.Profile.Core.AddressVerifications
             var notificationSent = await _userNotifier.SendVerificationCodeAsync(userId, verificationCodeModel.Address, addressType, code, cancellationToken);
 
             return notificationSent ? SendVerificationCodeResult.Success() : SendVerificationCodeResult.NotificationOrderFailed();
-        }
-
-        /// <inheritdoc/>
-        /// This method might be deleted at a later time when all callers have migrated to using SendVerificationCodeAsync, which includes cooldown logic and resend functionality.
-        public async Task<SendVerificationStatus> ResendVerificationCodeAsync(int userId, string address, AddressType addressType, CancellationToken cancellationToken)
-        {
-            var formattedAddress = VerificationCode.FormatAddress(address);
-
-            var existingCode = await _addressVerificationRepository.GetVerificationCodeAsync(userId, addressType, formattedAddress, cancellationToken);
-            if (existingCode is null)
-            {
-                _telemetry.RecordVerificationResendCodeNotFound(addressType);
-                return SendVerificationStatus.CodeNotFound;
-            }
-
-            var sendResult = await SendVerificationCodeAsync(userId, formattedAddress, addressType, cancellationToken);
-            return sendResult.Status;
         }
 
         private bool IsInCooldown(VerificationCode existingCode, out double secondsWaited)

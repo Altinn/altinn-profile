@@ -30,6 +30,8 @@ public class UserContactPointServiceTest
 
     private static readonly string _userIdBStr = "2001607";
 
+    private static readonly string _userIdCStr = "2001608";
+
     private async Task<List<UserContactPoints>> MockTestUsers() // Take a look at IAsyncLifetime / InitializeAsync from XUnit, as something for next time
     {
         var userProfileA = await TestDataLoader.Load<UserProfile>(_userIdAStr);
@@ -38,7 +40,9 @@ public class UserContactPointServiceTest
             NationalIdentityNumber = userProfileA.Party.SSN,
             Email = userProfileA.Email,
             IsReserved = userProfileA.IsReserved,
-            MobileNumber = userProfileA.PhoneNumber
+            MobileNumber = userProfileA.PhoneNumber,
+            MobileNumberLastTouched = DateTime.UtcNow.AddMonths(-6),
+            EmailLastTouched = DateTime.UtcNow.AddMonths(-6),
         };
         var expectedUserContactPointA = new UserContactPoints()
         {
@@ -54,24 +58,50 @@ public class UserContactPointServiceTest
             NationalIdentityNumber = userProfileB.Party.SSN,
             Email = userProfileB.Email,
             IsReserved = userProfileB.IsReserved,
-            MobileNumber = userProfileB.PhoneNumber
+            MobileNumber = userProfileB.PhoneNumber,
+            MobileNumberLastTouched = DateTime.UtcNow.AddMonths(-6),
+            EmailLastTouched = DateTime.UtcNow.AddMonths(-26),
         };
         var expectedUserContactPointB = new UserContactPoints()
         {
-            Email = userProfileB.Email,
+            Email = null,
             NationalIdentityNumber = userProfileB.Party.SSN,
             IsReserved = userProfileB.IsReserved,
             MobileNumber = userProfileB.PhoneNumber,
+            EmailIsOutdated = true
         };
+
+        var userProfileC = await TestDataLoader.Load<UserProfile>(_userIdCStr);
+        var contactPreferencesC = new PersonContactPreferences()
+        {
+            NationalIdentityNumber = _userIdCStr,
+            Email = userProfileC.Email,
+            IsReserved = userProfileC.IsReserved,
+            MobileNumber = userProfileC.PhoneNumber,
+            MobileNumberLastTouched = DateTime.UtcNow.AddMonths(-26),
+            EmailLastTouched = DateTime.UtcNow.AddMonths(-26),
+        };
+        var expectedUserContactPointC = new UserContactPoints()
+        {
+            NationalIdentityNumber = _userIdCStr,
+            IsReserved = userProfileC.IsReserved,
+            Email = userProfileC.Email,
+            EmailIsOutdated = true,
+            MobileNumber = userProfileC.PhoneNumber,
+            MobileNumberIsOutdated = true
+        };
+
         _userProfileServiceMock.Setup(m => m.GetUser(userProfileA.Party.SSN, It.IsAny<CancellationToken>())).ReturnsAsync(userProfileA);
         _userProfileServiceMock.Setup(m => m.GetUser(userProfileB.Party.SSN, It.IsAny<CancellationToken>())).ReturnsAsync(userProfileB);
-        _personServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>())).ReturnsAsync([contactPreferencesA, contactPreferencesB]);
+        _userProfileServiceMock.Setup(m => m.GetUser(userProfileC.Party.SSN, It.IsAny<CancellationToken>())).ReturnsAsync(userProfileC);
+        _personServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([contactPreferencesA, contactPreferencesB, contactPreferencesC]);
 
-        return [expectedUserContactPointA, expectedUserContactPointB];
+        return [expectedUserContactPointA, expectedUserContactPointB, expectedUserContactPointC];
     }
 
     [Fact]
-    public async Task GetContactPoints_WhenPersonServiceIsCalled_IsSuccess()
+    public async Task GetContactPoints_WhenUseStaleContactInfoIsFalse_IsSuccessAndFiltersOutOldAddresses()
     {
         // Arrange
         List<UserContactPoints> expectedUsers = await MockTestUsers();
@@ -81,14 +111,46 @@ public class UserContactPointServiceTest
         UserContactPointsList result = await target.GetContactPoints(
             [
                 expectedUsers[0].NationalIdentityNumber,
-                expectedUsers[1].NationalIdentityNumber
+                expectedUsers[1].NationalIdentityNumber,
+                expectedUsers[2].NationalIdentityNumber,
             ],
+            false,
             TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(2, result.ContactPointsList.Count);
         Assert.Contains(result.ContactPointsList, ob => AreEqualUserContactPoints(ob, expectedUsers[0]));
         Assert.Contains(result.ContactPointsList, ob => AreEqualUserContactPoints(ob, expectedUsers[1]));
+
+        _personServiceMock.Verify(service => service.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()), Times.Exactly(1));
+    }
+
+    [Fact]
+    public async Task GetContactPoints_WhenUseStaleContactInfoIsTrue_IsSuccessAndKeepsOldAddresses()
+    {
+        // Arrange
+        List<UserContactPoints> expectedUsers = await MockTestUsers();
+        var target = new UserContactPointService(_userProfileServiceMock.Object, _personServiceMock.Object, _userContactInfoRepositoryMock.Object, _loggerMock.Object);
+
+        // Act
+        UserContactPointsList result = await target.GetContactPoints(
+            [
+                expectedUsers[0].NationalIdentityNumber,
+                expectedUsers[1].NationalIdentityNumber,
+                expectedUsers[2].NationalIdentityNumber,
+            ],
+            true,
+            TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(3, result.ContactPointsList.Count);
+        Assert.Contains(result.ContactPointsList, ob => AreEqualUserContactPoints(ob, expectedUsers[0]));
+        Assert.Contains(result.ContactPointsList, ob =>
+            ob.NationalIdentityNumber == expectedUsers[1].NationalIdentityNumber &&
+            ob.Email == "tuva@business.com" &&
+            ob.MobileNumber == expectedUsers[1].MobileNumber &&
+            ob.IsReserved == expectedUsers[1].IsReserved);
+        Assert.Contains(result.ContactPointsList, ob => AreEqualUserContactPoints(ob, expectedUsers[2]));
 
         _personServiceMock.Verify(service => service.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()), Times.Exactly(1));
     }
@@ -106,6 +168,7 @@ public class UserContactPointServiceTest
                 expectedUsers[0].NationalIdentityNumber,
                 expectedUsers[1].NationalIdentityNumber
             ],
+            false,
             CancellationToken.None);
 
         // Assert
@@ -116,8 +179,10 @@ public class UserContactPointServiceTest
     {
         return a.NationalIdentityNumber == b.NationalIdentityNumber &&
             a.Email == b.Email &&
-            a.IsReserved == b.IsReserved &&
-            a.MobileNumber == b.MobileNumber;
+            a.EmailIsOutdated == b.EmailIsOutdated &&
+            a.MobileNumber == b.MobileNumber &&
+            a.MobileNumberIsOutdated == b.MobileNumberIsOutdated &&
+            a.IsReserved == b.IsReserved;
     }
 
     [Fact]

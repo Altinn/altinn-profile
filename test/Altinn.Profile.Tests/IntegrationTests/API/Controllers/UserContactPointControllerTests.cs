@@ -1,10 +1,9 @@
+using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Runtime.Intrinsics.X86;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -67,7 +66,9 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
                     NationalIdentityNumber = u.Key,
                     Email = u.Value.Email, 
                     IsReserved = u.Value.IsReserved,
-                    LanguageCode = u.Value.ProfileSettingPreference.Language
+                    LanguageCode = u.Value.ProfileSettingPreference.Language,
+                    MobileNumberLastTouched = DateTime.UtcNow.AddMonths(-6),
+                    EmailLastTouched = DateTime.UtcNow.AddMonths(-6),
                 })]);
     }
 
@@ -95,7 +96,7 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
     [Fact]
     public async Task PostAvailabilityLookup_SingleUser_DetailsReturned()
     {
-        // Arrange       
+        // Arrange
         UserContactDetailsLookupCriteria input = new()
         {
             NationalIdentityNumbers = new List<string>() { "01025101037" }
@@ -120,7 +121,7 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
     [Fact]
     public async Task PostAvailabilityLookup_SingleProfileNotFoundInBridge_RemainingUsersReturned()
     {
-        // Arrange       
+        // Arrange
         UserContactDetailsLookupCriteria input = new()
         {
             NationalIdentityNumbers = new List<string>() { "01025101037", "99999999999" }
@@ -145,7 +146,7 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
     [Fact]
     public async Task PostLookup_NoNationalIdentityNumbers_EmptyListReturned()
     {
-        // Arrange       
+        // Arrange
         UserContactDetailsLookupCriteria input = new()
         {
             NationalIdentityNumbers = new List<string>() { }
@@ -169,7 +170,7 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
     [Fact]
     public async Task PostLookup_SingleProfileNotFoundInBridge_RemainingUsersReturned()
     {
-        // Arrange       
+        // Arrange
         UserContactDetailsLookupCriteria input = new()
         {
             NationalIdentityNumbers = new List<string>() { "01025101037", "01025101038", "99999999999" }
@@ -195,7 +196,7 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
     [Fact]
     public async Task PostLookup_SingleUser_DetailsReturned()
     {
-        // Arrange       
+        // Arrange
         UserContactDetailsLookupCriteria input = new()
         {
             NationalIdentityNumbers = new List<string>() { "01025101037" }
