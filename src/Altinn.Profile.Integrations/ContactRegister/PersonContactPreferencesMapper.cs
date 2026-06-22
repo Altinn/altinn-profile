@@ -1,7 +1,7 @@
 ﻿using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 
-namespace Altinn.Profile.Integrations.Mappings;
+namespace Altinn.Profile.Integrations.ContactRegister;
 
 /// <summary>
 /// Provides mapping functionality from <see cref="Person"/> to <see cref="PersonContactPreferences"/>.

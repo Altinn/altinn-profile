@@ -1,4 +1,4 @@
-﻿namespace Altinn.Profile.Integrations.Entities
+﻿namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models
 {
     /// <summary>
     ///  UpdateOrigin is used to specify the the changes of the UnitNotificationEndPoint 

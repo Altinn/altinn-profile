@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
-using Altinn.Profile.Integrations.Entities;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 
 namespace Altinn.Profile.Tests.Testdata;
 

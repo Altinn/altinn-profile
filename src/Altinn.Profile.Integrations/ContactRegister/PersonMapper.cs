@@ -1,7 +1,6 @@
-﻿using Altinn.Profile.Integrations.ContactRegister;
-using Altinn.Profile.Integrations.Entities;
+﻿using Altinn.Profile.Integrations.Entities;
 
-namespace Altinn.Profile.Integrations.Mappings;
+namespace Altinn.Profile.Integrations.ContactRegister;
 
 /// <summary>
 /// Provides mapping functionality from <see cref="PersonContactPreferencesSnapshot"/> to <see cref="Person"/>.

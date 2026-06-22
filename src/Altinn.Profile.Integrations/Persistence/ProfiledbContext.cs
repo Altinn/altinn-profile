@@ -10,6 +10,7 @@ using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Core.User.ReceiptSettings;
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Leases;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
