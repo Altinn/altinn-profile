@@ -1351,6 +1351,5 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
 
             await _databaseContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
-
     }
 }

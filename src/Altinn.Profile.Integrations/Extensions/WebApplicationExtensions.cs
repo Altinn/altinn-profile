@@ -16,8 +16,6 @@ namespace Altinn.Profile.Integrations.Extensions;
 [ExcludeFromCodeCoverage]
 public static class WebApplicationExtensions
 {
-    private const string RuntimeDbUser = "platform_profile";
-
     /// <summary>
     /// Run database migrations using Entity Framework Core with admin connection string.
     /// This method creates a temporary DbContext using the admin connection string

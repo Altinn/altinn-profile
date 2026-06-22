@@ -34,7 +34,6 @@ public class UserContactInfoRepositoryTests
     public async Task CreateUserContactInfo_WhenUserWithSameIdAlreadyExists_Throws()
     {
         // Arrange
-
         var options = CreateOptions(nameof(CreateUserContactInfo_WhenUserWithSameIdAlreadyExists_Throws));
         var factory = new TestDbContextFactory(options);
         var repository = new UserContactInfoRepository(factory);
@@ -220,7 +219,6 @@ public class UserContactInfoRepositoryTests
     public async Task UpdatePhoneNumber_WhenUserExists_UpdatesPhoneNumber()
     {
         // Arrange
-      
         var options = CreateOptions(nameof(UpdatePhoneNumber_WhenUserExists_UpdatesPhoneNumber));
         var factory = new TestDbContextFactory(options);
         var repository = new UserContactInfoRepository(factory);
@@ -511,5 +509,4 @@ public class UserContactInfoRepositoryTests
         Assert.Equal("+4798765430", result.PhoneNumber);
         Assert.Equal(expectedPhoneNumberLastChanged, result.PhoneNumberLastChanged);
     }
-
 }
