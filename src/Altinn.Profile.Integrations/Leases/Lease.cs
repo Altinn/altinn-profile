@@ -3,7 +3,6 @@
     /// <summary>
     /// A record representing a lease in the system.
     /// </summary>
-    /// <remarks>Can be removed when Altinn2 is decommissioned</remarks>
     public record Lease
     {
         /// <summary>
