@@ -12,10 +12,12 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Altinn.Authorization.ModelUtils;
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Altinn.Profile.Tests.Testdata;
 using Altinn.Register.Contracts;
@@ -26,6 +28,8 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 
 using Xunit;
+
+using static Altinn.Register.Contracts.PartyUrn;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
@@ -45,25 +49,31 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         _factory.InMemoryConfigurationCollection.Clear();
         _factory.MemoryCache.Clear();
         _factory.PersonServiceMock.Reset();
-        _factory.RegisterClientMock.Reset();
+        _factory.ProfileSettingsRepositoryMock.Reset();
         _factory.UserContactInfoRepositoryMock.Reset();
     }
 
     [Fact]
-    public async Task GetUsersCurrent_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+    public async Task GetUsersCurrent_RegisterFindsProfile_ResponseOk_ReturnsUserProfile()
     {
         // Arrange
         const int UserId = 2516356;
         Guid preselectedPartyUuid = Guid.NewGuid();
 
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        Person registerPerson = Person.Minimal("14836498780") with
         {
-            sblRequest = request;
+            PartyId = 987654,
+            Uuid = Guid.NewGuid(),
+            ShortName = "Sophie Salt",
+            FirstName = "Sophie",
+            LastName = "Salt",
+            ModifiedAt = DateTimeOffset.UtcNow,
+            IsDeleted = false,
+            User = new PartyUser(UserId, "sophie", ImmutableValueArray<uint>.Empty.Add(UserId))
+        };
 
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyAndPartyIdLookup(_factory, registerPerson, preselectedPartyUuid, 123456);
+
         _factory.PersonServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new PersonContactPreferences { Email = "test@mail.com", NationalIdentityNumber = "1", MobileNumber = "+4798765432", IsReserved = true }]);
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
@@ -75,9 +85,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
                 PreselectedPartyUuid = preselectedPartyUuid,
             });
 
-        _factory.RegisterClientMock.Setup(m => m.GetPartyId(preselectedPartyUuid, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(123456);
-
         HttpClient client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, "/profile/api/v1/users/current");
@@ -86,10 +93,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Get, sblRequest.Method);
-        Assert.EndsWith($"users/{UserId}", sblRequest?.RequestUri?.ToString());
-
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile? actualUser = 
@@ -115,19 +118,25 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersCurrent_SblBridgeFindsProfileWithoutProfileSettings_ResponseOk_ReturnsWithDefaultValues()
+    public async Task GetUsersCurrent_RegisterFindsProfile_ResponseOk_ReturnsWithDefaultProfileSettings()
     {
         // Arrange
         const int UserId = 1002356;
 
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        Person registerPerson = Person.Minimal("14836498780") with
         {
-            sblRequest = request;
+            PartyId = 987654,
+            Uuid = Guid.NewGuid(),
+            ShortName = "Sophie Salt",
+            FirstName = "Sophie",
+            LastName = "Salt",
+            ModifiedAt = DateTimeOffset.UtcNow,
+            IsDeleted = false,
+            User = new PartyUser(UserId, "sophie", ImmutableValueArray<uint>.Empty.Add(UserId))
+        };
 
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
+
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
 
@@ -141,10 +150,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Get, sblRequest.Method);
-        Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri?.ToString());
-
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
@@ -212,20 +217,25 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersById_AsUser_SblBridgeFindsProfile_ResponseOk_ReturnsEnrichedUserProfile()
+    public async Task GetUsersById_AsUser_RegisterFindsProfile_ResponseOk_ReturnsEnrichedUserProfile()
     {
         // Arrange
         const int UserId = 2516356;
         var preselectedPartyUuid = Guid.NewGuid();
-
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        Person registerPerson = Person.Minimal("14836498780") with
         {
-            sblRequest = request;
+            PartyId = 987654,
+            Uuid = Guid.NewGuid(),
+            ShortName = "Sophie Salt",
+            FirstName = "Sophie",
+            LastName = "Salt",
+            ModifiedAt = DateTimeOffset.UtcNow,
+            IsDeleted = false,
+            User = new PartyUser(UserId, "sophie", ImmutableValueArray<uint>.Empty.Add(UserId))
+        };
 
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyAndPartyIdLookup(_factory, registerPerson, preselectedPartyUuid, 123456);
+
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProfileSettings
             {
@@ -240,9 +250,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         _factory.PersonServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new PersonContactPreferences { Email = "test@mail.com", NationalIdentityNumber = "1", MobileNumber = "+4798765432", IsReserved = true }]);
 
-        _factory.RegisterClientMock.Setup(m => m.GetPartyId(preselectedPartyUuid, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(123456);
-
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
@@ -253,10 +260,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Get, sblRequest.Method);
-        Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri?.ToString());
-
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
@@ -282,19 +285,25 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersById_AsUser_SblBridgeFindsProfileWithoutProfileSettings_ResponseOk_ReturnsWithDefaultValues()
+    public async Task GetUsersById_AsUser_RegisterFindsProfileWithoutProfileSettings_ResponseOk_ReturnsWithDefaultValues()
     {
         // Arrange
         const int UserId = 1002356;
 
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        Person registerPerson = Person.Minimal("14836498780") with
         {
-            sblRequest = request;
+            PartyId = 987654,
+            Uuid = Guid.NewGuid(),
+            ShortName = "Sophie Salt",
+            FirstName = "Sophie",
+            LastName = "Salt",
+            ModifiedAt = DateTimeOffset.UtcNow,
+            IsDeleted = false,
+            User = new PartyUser(UserId, "sophie", ImmutableValueArray<uint>.Empty.Add(UserId))
+        };
 
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
+
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
 
@@ -308,10 +317,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Get, sblRequest.Method);
-        Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri?.ToString());
-
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
@@ -333,19 +338,24 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersById_AsOrg_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+    public async Task GetUsersById_AsOrg_RegisterFindsProfile_ResponseOk_ReturnsUserProfile()
     {
         // Arrange
         const int UserId = 2516639;
 
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        Person registerPerson = Person.Minimal("14836498780") with
         {
-            sblRequest = request;
+            PartyId = 987654,
+            Uuid = Guid.NewGuid(),
+            ShortName = "Blå mandag",
+            FirstName = "Blå",
+            LastName = "mandag",
+            ModifiedAt = DateTimeOffset.UtcNow,
+            IsDeleted = false,
+            User = new PartyUser(UserId, "franky", ImmutableValueArray<uint>.Empty.Add(UserId))
+        };
 
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/{UserId}");
         string token = PrincipalUtil.GetOrgToken("ttd");
@@ -358,10 +368,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Get, sblRequest.Method);
-        Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri?.ToString());
-
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
@@ -378,19 +384,24 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersById_AsSystemUser_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+    public async Task GetUsersById_AsSystemUser_RegisterFindsProfile_ResponseOk_ReturnsUserProfile()
     {
         // Arrange
         const int UserId = 2516639;
 
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        Person registerPerson = Person.Minimal("14836498780") with
         {
-            sblRequest = request;
+            PartyId = 987654,
+            Uuid = Guid.NewGuid(),
+            ShortName = "Blå mandag",
+            FirstName = "Blå",
+            LastName = "mandag",
+            ModifiedAt = DateTimeOffset.UtcNow,
+            IsDeleted = false,
+            User = new PartyUser(UserId, "franky", ImmutableValueArray<uint>.Empty.Add(UserId))
+        };
 
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/{UserId}");
         string token = PrincipalUtil.GetSystemUserToken(Guid.NewGuid());
@@ -403,10 +414,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Get, sblRequest.Method);
-        Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri?.ToString());
-
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
@@ -423,7 +430,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersById_AsInvalidSystemUser_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+    public async Task GetUsersById_AsInvalidSystemUser_RegisterFindsProfile_ResponseOk_ReturnsUserProfile()
     {
         //// The content of the bearer token is invalid, but Profile doesn't check the content of the token. It's only
         //// checking that the token is valid by verifying the signature. The purpose of the test is to ensure we can
@@ -433,14 +440,19 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         // Arrange
         const int UserId = 2516356;
 
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        Person registerPerson = Person.Minimal("14836498780") with
         {
-            sblRequest = request;
+            PartyId = 987654,
+            Uuid = Guid.NewGuid(),
+            ShortName = "Sophie Salt",
+            FirstName = "Sophie",
+            LastName = "Salt",
+            ModifiedAt = DateTimeOffset.UtcNow,
+            IsDeleted = false,
+            User = new PartyUser(UserId, "sophie", ImmutableValueArray<uint>.Empty.Add(UserId))
+        };
 
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/users/{UserId}");
         string token = PrincipalUtil.GetInvalidSystemUserToken(Guid.NewGuid());
@@ -453,26 +465,29 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Get, sblRequest.Method);
-        Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri?.ToString());
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
-    public async Task GetUsersByUuid_AsUser_SblBridgeFindsProfile_ResponseOk_ReturnsUserProfile()
+    public async Task GetUsersByUuid_AsUser_RegisterFindsProfile_ResponseOk_ReturnsUserProfile()
     {
         // Arrange
         const int userId = 20000009;
         Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
 
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        Person registerPerson = Person.Minimal("14836498780") with
         {
-            sblRequest = request;
+            PartyId = 987654,
+            Uuid = userUuid,
+            ShortName = "LEO WILHELMSEN",
+            FirstName = "LEO",
+            LastName = "WILHELMSEN",
+            ModifiedAt = DateTimeOffset.UtcNow,
+            IsDeleted = false,
+            User = new PartyUser(userId, "leo", ImmutableValueArray<uint>.Empty.Add(userId))
+        };
 
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userUuid.ToString());
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProfileSettings
             {
@@ -494,9 +509,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Get, sblRequest.Method);
-        Assert.EndsWith($"users?useruuid={userUuid}", sblRequest.RequestUri?.ToString());
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
@@ -520,20 +533,26 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersByUuid_AsUser_SblBridgeFindsProfileWithoutProfileSettings_ResponseOk_ReturnsWithDefaultValues()
+    public async Task GetUsersByUuid_AsUser_RegisterFindsProfileWithoutProfileSettings_ResponseOk_ReturnsWithDefaultValues()
     {
         // Arrange
         const int UserId = 1002356;
         Guid userUuid = new("c0f1e38d-9339-4848-95d0-bef81ee32486");
 
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        Person registerPerson = Person.Minimal("14836498780") with
         {
-            sblRequest = request;
+            PartyId = 987654,
+            Uuid = userUuid,
+            ShortName = "Sophie Salt",
+            FirstName = "Sophie",
+            LastName = "Salt",
+            ModifiedAt = DateTimeOffset.UtcNow,
+            IsDeleted = false,
+            User = new PartyUser(UserId, "sophie", ImmutableValueArray<uint>.Empty.Add(UserId))
+        };
 
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
+
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
 
@@ -547,10 +566,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Get, sblRequest.Method);
-        Assert.EndsWith($"users?useruuid={userUuid}", sblRequest.RequestUri?.ToString());
-
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
@@ -590,19 +605,13 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersByUuid_AsUser_SblBridgeReturnsNotFound_ResponseNotFound()
+    public async Task GetUsersByUuid_AsUser_RegisterReturnsNotFound_ResponseNotFound()
     {
         // Arrange
         const int userId = 20000009;
         Guid userUuid = new("cc86d2c7-1695-44b0-8e82-e633243fdf31");
 
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-        {
-            sblRequest = request;
-
-            return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
-        });
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.PartialContent);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/byuuid/{userUuid}");
 
@@ -615,10 +624,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Get, sblRequest.Method);
-        Assert.EndsWith($"users?useruuid={userUuid}", sblRequest.RequestUri?.ToString());
     }
 
     [Fact]
@@ -641,18 +646,12 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersById_AsUser_SblBridgeReturnsNotFound_ResponseNotFound()
+    public async Task GetUsersById_AsUser_RegisterReturnsNotFound_ResponseNotFound()
     {
         // Arrange
         const int UserId = 2222222;
 
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-        {
-            sblRequest = request;
-
-            return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
-        });
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.PartialContent);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
 
@@ -665,25 +664,15 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Get, sblRequest.Method);
-        Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri?.ToString());
     }
 
     [Fact]
-    public async Task GetUsersById_AsUser_SblBridgeReturnsUnavailable_ResponseNotFound()
+    public async Task GetUsersById_AsUser_RegisterReturnsServiceUnavailable_ResponseNotFound()
     {
         // Arrange
         const int UserId = 2222222;
 
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-        {
-            sblRequest = request;
-
-            return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable });
-        });
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.ServiceUnavailable);
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(UserId, $"/profile/api/v1/users/{UserId}");
 
@@ -696,26 +685,28 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Get, sblRequest.Method);
-        Assert.EndsWith($"users/{UserId}", sblRequest.RequestUri?.ToString());
     }
 
     [Fact]
-    public async Task GetUsersBySsn_AsUser_SblBridgeFindsProfile_ReturnsUserProfile()
+    public async Task GetUsersBySsn_AsUser_RegisterFindsProfile_ReturnsUserProfile()
     {
         // Arrange
         const int UserId = 2516356;
+        string ssn = "14836498780";
 
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        Person registerPerson = Person.Minimal(ssn) with
         {
-            sblRequest = request;
+            PartyId = 987654,
+            Uuid = Guid.NewGuid(),
+            ShortName = "Sophie Salt",
+            FirstName = "Sophie",
+            LastName = "Salt",
+            ModifiedAt = DateTimeOffset.UtcNow,
+            IsDeleted = false,
+            User = new PartyUser(UserId, "sophie", ImmutableValueArray<uint>.Empty.Add(UserId))
+        };
 
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ProfileSettings
@@ -728,7 +719,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         _factory.PersonServiceMock.Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new PersonContactPreferences { Email = "test@mail.com", NationalIdentityNumber = "1", MobileNumber = "+4798765432", IsReserved = true }]);
 
-        StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
+        StringContent content = new($"\"{ssn}\"", Encoding.UTF8, "application/json");
         HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
@@ -739,16 +730,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Post, sblRequest.Method);
-        Assert.EndsWith($"users", sblRequest.RequestUri?.ToString());
-
-        Assert.NotNull(sblRequest.Content);
-
-        string? requestContent = await sblRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-
-        Assert.Equal("\"01017512345\"", requestContent);
-
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
@@ -770,23 +751,29 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersBySsn_AsUser_SblBridgeFindsProfileWithoutProfileSettings_ResponseOk_ReturnsWithDefaultValues()
+    public async Task GetUsersBySsn_AsUser_RegisterFindsProfileWithoutProfileSettings_ResponseOk_ReturnsWithDefaultValues()
     {
         // Arrange
         const int UserId = 1002356;
+        var ssn = "14836498780";
 
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        Person registerPerson = Person.Minimal(ssn) with
         {
-            sblRequest = request;
+            PartyId = 987654,
+            Uuid = Guid.NewGuid(),
+            ShortName = "Sophie Salt",
+            FirstName = "Sophie",
+            LastName = "Salt",
+            ModifiedAt = DateTimeOffset.UtcNow,
+            IsDeleted = false,
+            User = new PartyUser(UserId, "sophie", ImmutableValueArray<uint>.Empty.Add(UserId))
+        };
 
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(UserId.ToString());
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
         _factory.ProfileSettingsRepositoryMock.Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ProfileSettings?)null);
 
-        StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
+        StringContent content = new($"\"{ssn}\"", Encoding.UTF8, "application/json");
         HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
@@ -797,10 +784,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Post, sblRequest.Method);
-        Assert.EndsWith($"users", sblRequest.RequestUri?.ToString());
-
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(
@@ -822,18 +805,13 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersBySsn_AsUser_SblBridgeReturnsNotFound_RespondsNotFound()
+    public async Task GetUsersBySsn_AsUser_RegisterDoesNotFindUser_RespondsNotFound()
     {
         // Arrange
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-        {
-            sblRequest = request;
+        var ssn = "01017512345";
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.PartialContent);
 
-            return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.NotFound });
-        });
-
-        StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
+        StringContent content = new($"\"{ssn}\"", Encoding.UTF8, "application/json");
         HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
@@ -845,31 +823,16 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Post, sblRequest.Method);
-        Assert.EndsWith($"users", sblRequest.RequestUri?.ToString());
-
-        Assert.NotNull(sblRequest.Content);
-
-        string requestContent = await sblRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-
-        Assert.Equal("\"01017512345\"", requestContent);
     }
 
     [Fact]
-    public async Task GetUsersBySsn_AsUser_SblBridgeReturnsUnavailable_RespondsNotFound()
+    public async Task GetUsersBySsn_AsUser_RegisterReturnsServiceUnavailable_RespondsNotFound()
     {
         // Arrange
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-        {
-            sblRequest = request;
+        var ssn = "01017512345";
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null, HttpStatusCode.ServiceUnavailable);
 
-            return await Task.FromResult(new HttpResponseMessage() { StatusCode = HttpStatusCode.ServiceUnavailable });
-        });
-
-        StringContent content = new("\"01017512345\"", Encoding.UTF8, "application/json");
+        StringContent content = new($"\"{ssn}\"", Encoding.UTF8, "application/json");
         HttpRequestMessage httpRequestMessage = CreatePostRequest(2222222, $"/profile/api/v1/users/", content);
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
@@ -881,16 +844,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Post, sblRequest.Method);
-        Assert.EndsWith($"users", sblRequest.RequestUri?.ToString());
-
-        Assert.NotNull(sblRequest.Content);
-
-        string requestContent = await sblRequest.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-
-        Assert.Equal("\"01017512345\"", requestContent);
     }
 
     [Fact]
@@ -917,9 +870,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             IsDeleted = false,
         };
 
-        _factory.RegisterClientMock
-            .Setup(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(registerPerson);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         _factory.ProfileSettingsRepositoryMock
             .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -947,48 +898,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.NotNull(actualUser);
         Assert.Equal("Register Person", actualUser.Party.Name);
         Assert.Equal("14836498780", actualUser.Party.SSN);
-
-        _factory.RegisterClientMock.Verify(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task GetUsersById_AsUser_RegisterAsPrimaryEnabled_RegisterThrows_FallsBackToSbl()
-    {
-        // Arrange
-        const int userId = 2516356;
-
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-        {
-            sblRequest = request;
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userId.ToString());
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
-
-        _factory.RegisterClientMock
-            .Setup(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new HttpRequestException("Register unavailable"));
-
-        _factory.ProfileSettingsRepositoryMock
-            .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ProfileSettings?)null);
-
-        _factory.PersonServiceMock
-            .Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-
-        HttpClient client = CreateClientWithRegisterAsPrimary(true);
-
-        HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userId}");
-        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
-
-        // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.NotNull(sblRequest); // fallback path must call legacy
-        Assert.EndsWith($"users/{userId}", sblRequest!.RequestUri?.ToString());
     }
 
     [Fact]
@@ -1025,8 +934,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(sblRequest); // fallback path must call legacy
         Assert.EndsWith($"users/{userId}", sblRequest!.RequestUri?.ToString());
-
-        _factory.RegisterClientMock.Verify(m => m.GetUserParty(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -1045,9 +952,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         SelfIdentifiedUser selfIdentifiedFromRegister = await TestDataLoader.Load<SelfIdentifiedUser>("siuser-input");
 
-        _factory.RegisterClientMock
-            .Setup(m => m.GetUserParty(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(selfIdentifiedFromRegister);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, selfIdentifiedFromRegister);
 
         _factory.ProfileSettingsRepositoryMock
             .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -1076,19 +981,19 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersCurrent_SblBridgeFindsSelfIdentifiedProfile_ResponseOk_ReturnsLocallyEnrichedContactInfo()
+    public async Task GetUsersCurrent_RegisterFindsSelfIdentifiedProfile_ResponseOk_ReturnsLocallyEnrichedContactInfo()
     {
         // Arrange
         const int UserId = 21226106;
-
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
+        SelfIdentifiedUser registerPerson = SelfIdentifiedUser.MinimalLegacy("uidp_p9zpzf9ti9fff1RiIF") with { User = new PartyUser(UserId, null, ImmutableValueArray<uint>.Empty.Add((uint)UserId)) } with
         {
-            sblRequest = request;
+            PartyId = 987654,
+            Uuid = Guid.NewGuid(),
+            ModifiedAt = DateTimeOffset.UtcNow,
+            IsDeleted = false,
+        };
 
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>("siuser-expected");
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, registerPerson);
 
         _factory.ProfileSettingsRepositoryMock
             .Setup(m => m.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
@@ -1114,10 +1019,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.NotNull(sblRequest);
-        Assert.Equal(HttpMethod.Get, sblRequest.Method);
-        Assert.EndsWith($"users/{UserId}", sblRequest?.RequestUri?.ToString());
-
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(responseContent, _serializerOptionsCamelCase);

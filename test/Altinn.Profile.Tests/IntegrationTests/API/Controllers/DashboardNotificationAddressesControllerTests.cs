@@ -12,6 +12,7 @@ using Altinn.Authorization.ABAC.Xacml.JsonProfile;
 using Altinn.Common.PEP.Interfaces;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Models;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
 using Moq;
@@ -120,7 +121,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.PdpMock
               .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
               .ReturnsAsync(new XacmlJsonResponse { Response = [new XacmlJsonResult { Decision = "Permit" }] });
-            _factory.RegisterClientMock.Reset();
             _factory.OrganizationNotificationAddressRepositoryMock.Reset();
         }
 
@@ -202,9 +202,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .Setup(r => r.GetOrganizationsAsync(It.Is<List<string>>(a => a.Contains(requestedOrg)), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Enumerable.Empty<Organization>());
 
-            _factory.RegisterClientMock
-                .Setup(r => r.GetMainUnit(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(parentOrg);
+            RegisterHttpMessageHandlerHelpers.SetupRegisterMainUnitLookup(_factory, parentOrg);
 
             _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationAsync(parentOrg, It.IsAny<CancellationToken>()))
@@ -241,6 +239,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             string orgNumber = "error-org";
+            RegisterHttpMessageHandlerHelpers.SetupRegisterMainUnitLookup(_factory, null);
 
             _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationsAsync(It.IsAny<List<string>>(), It.IsAny<CancellationToken>()))

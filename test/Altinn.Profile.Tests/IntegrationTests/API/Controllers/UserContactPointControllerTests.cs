@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Core.User.ContactPoints;
-using Altinn.Profile.Integrations.SblBridge;
 using Altinn.Profile.Models;
 using Altinn.Profile.Tests.Testdata;
 
@@ -32,15 +31,6 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
     public UserContactPointControllerTests(ProfileWebApplicationFactory<Program> factory)
     {
         _factory = factory;
-
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-        {
-            string ssn = await request.Content.ReadAsStringAsync(token);
-            return await GetSBlResponseForSsn(ssn);
-        });
-
-        SblBridgeSettings sblBrideSettings = new() { ApiProfileEndpoint = "http://localhost/" };
-        _factory.SblBridgeSettingsOptions.Setup(s => s.Value).Returns(sblBrideSettings);
     }
 
     private async Task SeedTestData(string[] ssnList)
@@ -102,6 +92,8 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
             NationalIdentityNumbers = new List<string>() { "01025101037" }
         };
 
+        await SeedTestData(input.NationalIdentityNumbers.ToArray());
+
         HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/availability");
 
@@ -119,13 +111,14 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
     }
 
     [Fact]
-    public async Task PostAvailabilityLookup_SingleProfileNotFoundInBridge_RemainingUsersReturned()
+    public async Task PostAvailabilityLookup_SingleProfileNotFound_RemainingUsersReturned()
     {
         // Arrange
         UserContactDetailsLookupCriteria input = new()
         {
             NationalIdentityNumbers = new List<string>() { "01025101037", "99999999999" }
         };
+        await SeedTestData(["01025101037"]);
 
         HttpClient client = _factory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/users/contactpoint/availability");

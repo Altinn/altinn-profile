@@ -1,7 +1,7 @@
 ﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Core.User.ContactInfo;
-using Altinn.Profile.Models;
+
 using Microsoft.Extensions.Logging;
 
 using static Altinn.Profile.Core.Unit.ContactPoints.CustomContactPointUrn;
@@ -9,13 +9,12 @@ using static Altinn.Profile.Core.Unit.ContactPoints.CustomContactPointUrn;
 namespace Altinn.Profile.Core.User.ContactPoints;
 
 /// <summary>
-/// An implementation of <see cref="IUserContactPointsService"/> that uses the <see cref="IUserProfileService"/> to obtain contact point information.
+/// An implementation of <see cref="IUserContactPointsService"/> that uses the <see cref="IPersonService"/> to obtain contact point information.
 /// </summary>
 public class UserContactPointService : IUserContactPointsService
 {
     private const int ActiveContactPointMonths = 18;
 
-    private readonly IUserProfileService _userProfileService;
     private readonly IPersonService _personService;
     private readonly IUserContactInfoRepository _userContactInfoRepository;
     private readonly ILogger<UserContactPointService> _logger;
@@ -23,9 +22,11 @@ public class UserContactPointService : IUserContactPointsService
     /// <summary>
     /// Initializes a new instance of the <see cref="UserContactPointService"/> class.
     /// </summary>
-    public UserContactPointService(IUserProfileService userProfileService, IPersonService personService, IUserContactInfoRepository userContactInfoRepository, ILogger<UserContactPointService> logger)
+    /// <param name="personService">The person service used to retrieve contact preferences.</param>
+    /// <param name="userContactInfoRepository">The repository used to retrieve self-identified user contact information.</param>
+    /// <param name="logger">The logger instance.</param>
+    public UserContactPointService(IPersonService personService, IUserContactInfoRepository userContactInfoRepository, ILogger<UserContactPointService> logger)
     {
-        _userProfileService = userProfileService;
         _personService = personService;
         _userContactInfoRepository = userContactInfoRepository;
         _logger = logger;
@@ -35,23 +36,17 @@ public class UserContactPointService : IUserContactPointsService
     public async Task<UserContactPointAvailabilityList> GetContactPointAvailability(List<string> nationalIdentityNumbers, CancellationToken cancellationToken)
     {
         UserContactPointAvailabilityList availabilityResult = new();
+        var contactPreferences = await _personService.GetContactPreferencesAsync(nationalIdentityNumbers, cancellationToken);
 
-        foreach (var nationalIdentityNumber in nationalIdentityNumbers)
+        foreach (var contactPreference in contactPreferences)
         {
-            Result<UserProfile, bool> result = await _userProfileService.GetUser(nationalIdentityNumber, cancellationToken);
-
-            result.Match(
-                profile =>
-                {
-                    availabilityResult.AvailabilityList.Add(new UserContactPointAvailability()
-                    {
-                        NationalIdentityNumber = profile.Party?.SSN ?? string.Empty,
-                        EmailRegistered = !string.IsNullOrEmpty(profile.Email),
-                        MobileNumberRegistered = !string.IsNullOrEmpty(profile.PhoneNumber),
-                        IsReserved = profile.IsReserved
-                    });
-                },
-                _ => { });
+            availabilityResult.AvailabilityList.Add(new UserContactPointAvailability()
+            {
+                NationalIdentityNumber = contactPreference.NationalIdentityNumber,
+                EmailRegistered = !string.IsNullOrWhiteSpace(contactPreference.Email),
+                MobileNumberRegistered = !string.IsNullOrWhiteSpace(contactPreference.MobileNumber),
+                IsReserved = contactPreference.IsReserved
+            });
         }
 
         return availabilityResult;

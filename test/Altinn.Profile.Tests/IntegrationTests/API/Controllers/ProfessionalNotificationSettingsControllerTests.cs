@@ -14,6 +14,7 @@ using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Core.Utils;
 using Altinn.Profile.Models;
 using Altinn.Profile.Models.ProfessionalNotificationSettings;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
 using Microsoft.AspNetCore.Http;
@@ -46,7 +47,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             _factory = factory;
             _factory.ProfessionalNotificationsRepositoryMock.Reset();
-            _factory.RegisterClientMock.Reset();
             _factory.AuthorizationClientMock.Reset();
             _factory.AddressVerificationRepositoryMock.Reset();
             _factory.NotificationsClientMock.Reset();
@@ -163,15 +163,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 }
             };
 
-            var parties = new List<RegisterParty>
-            {
-                new() { PartyId = 12345, PartyUuid = partyGuid, OrganizationIdentifier = OrgNumber.ToString() }
-            };
-
-            _factory.RegisterClientMock
-                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == OrgNumber.ToString()), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(parties);
-
             _factory
                 .ProfessionalNotificationsRepositoryMock
                 .Setup(x => x.GetNotificationAddressAsync(UserId, partyGuid, It.IsAny<CancellationToken>()))
@@ -233,15 +224,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             const int UserId = 2516356;
             const int OrgNumber = 910459880;
             Guid partyUuid = Guid.NewGuid();
-
-            var parties = new List<RegisterParty>
-            {
-                new() { PartyId = 12345, PartyUuid = partyUuid, OrganizationIdentifier = OrgNumber.ToString() }
-            };
-
-            _factory.RegisterClientMock
-                .Setup(r => r.GetPartyUuids(It.Is<string[]>(arr => arr.Length == 1 && arr[0] == OrgNumber.ToString()), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(parties);
 
             _factory
                 .ProfessionalNotificationsRepositoryMock
@@ -1344,12 +1326,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         private void SetupAuthHandler(Guid partyGuid, int UserId, bool access = true, int orgNo = 0)
         {
-            _factory.RegisterClientMock
-                .Setup(x => x.GetPartyId(partyGuid, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((int)partyGuid.GetHashCode()); // Simulate party ID retrieval
-            _factory.RegisterClientMock
-                .Setup(x => x.GetPartyId(orgNo.ToString(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((int)partyGuid.GetHashCode()); // Simulate party ID retrieval
+            RegisterHttpMessageHandlerHelpers.SetupRegisterPartyLookupForAuthorization(
+                _factory,
+                partyGuid,
+                partyGuid.GetHashCode(),
+                orgNo.ToString());
+
             _factory.AuthorizationClientMock
                 .Setup(x => x.ValidateSelectedParty(UserId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(access);

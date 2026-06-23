@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Models;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 
 using Moq;
 
@@ -89,7 +91,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             ];
 
             _factory = factory;
-            _factory.RegisterClientMock.Reset();
             _factory.OrganizationNotificationAddressRepositoryMock.Reset();
         }
 
@@ -111,6 +112,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
             };
+            RegisterHttpMessageHandlerHelpers.SetupRegisterMainUnitLookup(_factory, null);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
@@ -135,9 +137,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 OrganizationNumbers = ["333333333"],
             };
 
-            _factory.RegisterClientMock
-                .Setup(r => r.GetMainUnit(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync("123456789");
+            RegisterHttpMessageHandlerHelpers.SetupRegisterMainUnitLookup(_factory, "123456789");
 
             var childUnit = _testdata.Where(o => input.OrganizationNumbers.Contains(o.OrganizationNumber));
             var parentUnit = _testdata.First(o => o.OrganizationNumber == "123456789");
@@ -253,6 +253,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
             };
+            RegisterHttpMessageHandlerHelpers.SetupRegisterMainUnitLookup(_factory, null);
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);

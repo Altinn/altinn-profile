@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Core.User.PartyGroups;
 using Altinn.Profile.Models;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
 using Moq;
@@ -289,10 +290,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         private static void SetupAuthHandler(ProfileWebApplicationFactory<Program> factory, Guid partyGuid, int UserId, bool access = true)
         {
-            factory.RegisterClientMock.Reset();
-            factory.RegisterClientMock
-                .Setup(x => x.GetPartyId(partyGuid, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((int)partyGuid.GetHashCode()); // Simulate party ID retrieval
+            RegisterHttpMessageHandlerHelpers.SetupRegisterPartyIdLookup(factory, partyGuid, partyGuid.GetHashCode());
 
             factory.AuthorizationClientMock.Reset();
             factory.AuthorizationClientMock

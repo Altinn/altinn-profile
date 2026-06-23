@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -13,11 +14,11 @@ using Altinn.Authorization.ModelUtils;
 using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Models;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Altinn.Register.Contracts;
 using Altinn.Register.Contracts.Testing;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 
 using Moq;
@@ -114,8 +115,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
             .Setup(x => x.Get(UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserContactInfo)null);
         var party = SelfIdentifiedUser.MinimalEmail("test@example.com", System.Guid.NewGuid()) with { User = new PartyUser(1, "epost:test@example.com", ImmutableValueArray<uint>.Empty.Add(1u)) };
-        _factory.RegisterClientMock.Setup(x => x.GetUserParty(UserId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(party);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, party);
 
         _factory.UserContactInfoRepositoryMock
             .Setup(x => x.CreateUserContactInfo(It.Is<UserContactInfoCreateModel>(m => m.EmailAddress == "test@example.com"), It.IsAny<CancellationToken>()))
@@ -246,9 +246,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
             .ReturnsAsync((UserContactInfo)null);
 
         // Register returns a non-self-identified party so the service returns null
-        _factory.RegisterClientMock
-            .Setup(x => x.GetUserParty(UserId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Register.Contracts.Party)null);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null);
 
         HttpClient client = _factory.WithWebHostBuilder(builder =>
         {
@@ -284,9 +282,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
             .ReturnsAsync((UserContactInfo)null);
 
         // Register returns null (not a self-identified party)
-        _factory.RegisterClientMock
-            .Setup(x => x.GetUserParty(UserId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Register.Contracts.Party)null);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, null);
 
         // UserProfileClient (SblBridge) returns a valid profile
         _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
@@ -363,9 +359,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
 
         // SelfIdentifiedUser without a User value set
         var party = SelfIdentifiedUser.MinimalEmail("nouser@example.com", Guid.NewGuid());
-        _factory.RegisterClientMock
-            .Setup(x => x.GetUserParty(UserId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(party);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, party);
 
         HttpClient client = _factory.WithWebHostBuilder(builder =>
         {
@@ -402,9 +396,7 @@ public class PrivateNotificationSettingsControllerTests : IClassFixture<ProfileW
 
         // SelfIdentifiedUser without a User value set
         var party = SelfIdentifiedUser.MinimalEmail("nouser@example.com", Guid.NewGuid());
-        _factory.RegisterClientMock
-            .Setup(x => x.GetUserParty(UserId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(party);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterUserPartyLookup(_factory, party);
 
         _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
         {

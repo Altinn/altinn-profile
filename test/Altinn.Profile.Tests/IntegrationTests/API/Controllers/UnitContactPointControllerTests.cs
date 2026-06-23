@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Unit.ContactPoints;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 
 using Moq;
 
@@ -29,9 +30,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
     {
         _factory = factory;
 
-        _factory.RegisterClientMock.Reset();
-        _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((string[] orgNumbers, CancellationToken _) => GetRegisterResponse(orgNumbers));
+        RegisterHttpMessageHandlerHelpers.SetupRegisterPartyQueryLookup(_factory, orgNumbers => GetRegisterResponse(orgNumbers));
 
         _factory.ProfessionalNotificationsRepositoryMock.Setup(s => s.GetAllNotificationAddressesForPartyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Guid partyUuid, CancellationToken _) => GetRepositoryResponse(partyUuid.ToString()));
@@ -167,8 +166,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
             ResourceId = "app_ttd_apps-test"
         };
 
-        _factory.RegisterClientMock.Setup(s => s.GetPartyUuids(It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((string[] orgNumbers, CancellationToken _) => null);
+        RegisterHttpMessageHandlerHelpers.SetupRegisterPartyQuery(_factory, null, HttpStatusCode.NotFound);
 
         var client = _factory.CreateClient();
 
