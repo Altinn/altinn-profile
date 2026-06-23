@@ -12,6 +12,7 @@ using Altinn.Authorization.ABAC.Xacml.JsonProfile;
 using Altinn.Common.PEP.Interfaces;
 
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Models.OrganizationNotificationAddresses;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
@@ -537,6 +538,77 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(actual.Errors["Phone"]);
             Assert.True(actual.Errors.TryGetValue("Phone", out var phoneMessage));
             Assert.Contains("The field Phone must match the regular expression", phoneMessage[0]);
+        }
+
+        [Fact]
+        public async Task CreateMandatory_WhenWrongFormatOfOrgNumber_ReturnsBadRequest()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+
+            _factory.PdpMock
+                .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
+                .ReturnsAsync(new XacmlJsonResponse { Response = [new XacmlJsonResult { Decision = "Permit" }] });
+            _factory.OrganizationNotificationAddressUpdateClientMock
+                .Setup(c => c.CreateNewNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ThrowsAsync(new InvalidOrgNumberException("VALIDATION_ERROR"));
+
+            HttpClient client = _factory.CreateClient();
+
+            var input = new NotificationAddressRequest { Email = "ok@test.com" };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(responseContent, _serializerOptions);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal(400, actual.Status);
+            Assert.Equal("Invalid Organization Number", actual.Title);
+        }
+
+        [Fact]
+        public async Task CreateMandatory_WhenValidationError_ReturnsInternalServerError()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+
+            _factory.PdpMock
+                .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
+                .ReturnsAsync(new XacmlJsonResponse { Response = [new XacmlJsonResult { Decision = "Permit" }] });
+            _factory.OrganizationNotificationAddressUpdateClientMock
+                .Setup(c => c.CreateNewNotificationAddress(It.IsAny<NotificationAddress>(), It.IsAny<string>()))
+                .ThrowsAsync(new OrganizationNotificationAddressChangesException("VALIDATION_ERROR"));
+
+            HttpClient client = _factory.CreateClient();
+
+            var input = new NotificationAddressRequest { Email = "ok@test.com" };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(responseContent, _serializerOptions);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal(500, actual.Status);
         }
 
         [Fact]
