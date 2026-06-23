@@ -100,6 +100,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<NotificationAddressResponse>> CreateNotificationAddress([FromRoute] string organizationNumber, [FromBody][Required] NotificationAddressRequest request, CancellationToken cancellationToken)
         {
