@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Unit.ContactPoints;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 
 using Moq;
 

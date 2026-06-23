@@ -14,6 +14,7 @@ using Altinn.Authorization.ModelUtils;
 using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Models;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 using Altinn.Register.Contracts;
 using Altinn.Register.Contracts.Testing;

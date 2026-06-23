@@ -12,17 +12,15 @@ using System.Threading.Tasks;
 using Altinn.Authorization.ModelUtils;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Models;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
-using Altinn.Profile.Tests.Testdata;
+
 using Altinn.Register.Contracts;
 using Altinn.Register.Contracts.Testing;
 
 using Moq;
 
 using Xunit;
-
-using static Altinn.Register.Contracts.OrganizationUrn;
-using static Altinn.Register.Contracts.PartyUrn;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 {

@@ -9,13 +9,13 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Integrations.Register;
-using Altinn.Profile.Tests.IntegrationTests.Mocks;
-using Altinn.Register.Contracts;
 
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
 
-namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
+using Party = Altinn.Register.Contracts.Party;
+
+namespace Altinn.Profile.Tests.IntegrationTests.Mocks;
 
 internal static class RegisterHttpMessageHandlerHelpers
 {
@@ -36,9 +36,9 @@ internal static class RegisterHttpMessageHandlerHelpers
     internal static void SetupRegisterMainUnitLookup(ProfileWebApplicationFactory<Program> factory, string parentOrgNumber)
     {
         var data = (parentOrgNumber != null ? [parentOrgNumber] : Array.Empty<string>())
-            .Select(orgNum => new { organizationIdentifier = orgNum })
-            .ToArray();
-        var response = new { data };
+            .Select(orgNum => new OrganizationRecord { OrganizationIdentifier = orgNum }).ToList();
+            
+        var response = new LookupMainUnitResponse { Data = data };
         
         new RegisterHandlerBuilder()
             .OnJson(
@@ -57,10 +57,10 @@ internal static class RegisterHttpMessageHandlerHelpers
         new RegisterHandlerBuilder()
             .OnJson(
                 IsIdentifiersRequest,
-                new[] { new { partyId = identifiersPartyId, partyUuid, orgNumber = organizationNumber } })
+                new[] { new PartyIdentifiersResponse { PartyId = identifiersPartyId, PartyUuid = partyUuid, OrgNumber = organizationNumber } })
             .OnJson(
                 IsPartyQueryRequest,
-                new { data = new[] { new { partyId = partyQueryPartyId, partyUuid, organizationIdentifier = organizationNumber } } })
+                new { data = new[] { new Core.Unit.ContactPoints.Party { PartyId = partyQueryPartyId, PartyUuid = partyUuid, OrganizationIdentifier = organizationNumber } } })
             .Apply(factory);
     }
 

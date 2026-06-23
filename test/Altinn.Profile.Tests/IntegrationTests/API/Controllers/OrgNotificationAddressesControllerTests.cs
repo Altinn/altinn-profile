@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Models;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 
 using Moq;
 

@@ -2,13 +2,13 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.User.PartyGroups;
 using Altinn.Profile.Models;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
 using Moq;

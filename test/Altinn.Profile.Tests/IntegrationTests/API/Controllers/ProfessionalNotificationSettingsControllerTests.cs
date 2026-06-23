@@ -14,6 +14,7 @@ using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Core.Utils;
 using Altinn.Profile.Models;
 using Altinn.Profile.Models.ProfessionalNotificationSettings;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
 using Microsoft.AspNetCore.Http;

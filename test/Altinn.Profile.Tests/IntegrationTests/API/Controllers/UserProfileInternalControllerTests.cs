@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Altinn.Authorization.ModelUtils;
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Models;
+using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.Testdata;
 using Altinn.Register.Contracts;
 using Altinn.Register.Contracts.Testing;
