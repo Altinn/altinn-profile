@@ -4,8 +4,6 @@ using Altinn.Profile.Models;
 using Altinn.Profile.Models.Enums;
 using Altinn.Register.Contracts;
 
-using Microsoft.Extensions.Options;
-
 namespace Altinn.Profile.Core.User;
 
 /// <summary>
@@ -17,7 +15,6 @@ public class UserProfileService : IUserProfileService
     private readonly IPersonService _personRepository;
     private readonly IRegisterClient _registerClient;
     private readonly IUserContactInfoRepository _userContactInfoRepository;
-    private readonly CoreSettings _settings;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserProfileService"/> class.
@@ -26,13 +23,11 @@ public class UserProfileService : IUserProfileService
     /// <param name="personRepository">The person repository available through DI</param>
     /// <param name="registerClient">The register client available through DI</param>
     /// <param name="userContactInfoRepository">The user contact info repository available through DI</param>
-    /// <param name="settings">The core settings available through DI</param>
-    public UserProfileService(IProfileSettingsRepository profileSettingsRepository, IPersonService personRepository, IRegisterClient registerClient, IUserContactInfoRepository userContactInfoRepository, IOptionsMonitor<CoreSettings> settings)
+    public UserProfileService(IProfileSettingsRepository profileSettingsRepository, IPersonService personRepository, IRegisterClient registerClient, IUserContactInfoRepository userContactInfoRepository)
     {
         _profileSettingsRepository = profileSettingsRepository;
         _personRepository = personRepository;
         _registerClient = registerClient;
-        _settings = settings.CurrentValue;
         _userContactInfoRepository = userContactInfoRepository;
     }
 
@@ -68,6 +63,32 @@ public class UserProfileService : IUserProfileService
             cancellationToken);
     }
 
+    /// <inheritdoc/>
+    public async Task<string> GetPreferredLanguage(int userId, CancellationToken cancellationToken = default)
+    {
+        var profileSettings = await _profileSettingsRepository.GetProfileSettings(userId, cancellationToken);
+        return profileSettings?.LanguageType ?? LanguageType.NB;
+    }
+
+    /// <inheritdoc/>
+    public async Task<DateTime?> GetIgnoreUnitProfileDateTime(int userId, CancellationToken cancellationToken = default)
+    {
+        var profileSettings = await _profileSettingsRepository.GetProfileSettings(userId, cancellationToken);
+        return profileSettings?.IgnoreUnitProfileDateTime;
+    }
+
+    /// <inheritdoc/>
+    public async Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings, CancellationToken cancellationToken)
+    {
+        return await _profileSettingsRepository.UpdateProfileSettings(profileSettings, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<ProfileSettings.ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchModel profileSettings, CancellationToken cancellationToken)
+    {
+        return await _profileSettingsRepository.PatchProfileSettings(profileSettings, cancellationToken);
+    }
+
     private async Task<Result<UserProfile, bool>> GetUserAndEnrich(
        Func<Task<Party?>> getRegisterParty,
        CancellationToken cancellationToken)
@@ -98,32 +119,6 @@ public class UserProfileService : IUserProfileService
         userProfile = await EnrichWithSiUserContactSettings(userProfile, cancellationToken);
 
         return userProfile;
-    }
-
-    /// <inheritdoc/>
-    public async Task<string> GetPreferredLanguage(int userId, CancellationToken cancellationToken = default)
-    {
-        var profileSettings = await _profileSettingsRepository.GetProfileSettings(userId, cancellationToken);
-        return profileSettings?.LanguageType ?? LanguageType.NB;
-    }
-
-    /// <inheritdoc/>
-    public async Task<DateTime?> GetIgnoreUnitProfileDateTime(int userId, CancellationToken cancellationToken = default)
-    {
-        var profileSettings = await _profileSettingsRepository.GetProfileSettings(userId, cancellationToken);
-        return profileSettings?.IgnoreUnitProfileDateTime;
-    }
-
-    /// <inheritdoc/>
-    public async Task<ProfileSettings.ProfileSettings> UpdateProfileSettings(ProfileSettings.ProfileSettings profileSettings, CancellationToken cancellationToken)
-    {
-        return await _profileSettingsRepository.UpdateProfileSettings(profileSettings, cancellationToken);
-    }
-
-    /// <inheritdoc/>
-    public async Task<ProfileSettings.ProfileSettings?> PatchProfileSettings(ProfileSettingsPatchModel profileSettings, CancellationToken cancellationToken)
-    {
-        return await _profileSettingsRepository.PatchProfileSettings(profileSettings, cancellationToken);
     }
 
     private async Task<UserProfile> EnrichWithProfileSettings(UserProfile userProfile, CancellationToken cancellationToken)
