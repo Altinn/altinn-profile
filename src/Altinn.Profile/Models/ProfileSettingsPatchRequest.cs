@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using System;
-using System.ComponentModel.DataAnnotations;
 
 using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Core.Utils;
