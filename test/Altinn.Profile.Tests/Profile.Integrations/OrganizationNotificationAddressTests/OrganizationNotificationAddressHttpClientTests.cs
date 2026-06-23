@@ -189,6 +189,50 @@ public class OrganizationNotificationAddressHttpClientTests
     }
 
     [Fact]
+    public async Task CreateAddress_WhenSomethingGoesWrong_ThrowsException()
+    {
+        // Arrange
+        var response = new RegistryResponse { BoolResult = false, Status = "ERROR" };
+        var mockResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = JsonContent.Create(response)
+        };
+
+        var client = CreateHttpClient(mockResponse);
+
+        var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com" };
+
+        // Act
+        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.CreateNewNotificationAddress(notificationAddress, "123456789"));
+
+        // Assert
+        _messageHandler.VerifyAll();
+    }
+
+    [Fact]
+    public async Task CreateAddress_WhenOrgNumberNotValid_ThrowsException()
+    {
+        // Arrange
+        var response = new RegistryResponse { BoolResult = false, Status = "VALIDATION_ERROR", Details = "JSON data error at /Kontaktinformasjon/kontaktinformasjonForEnhet/enhetsidentifikator: 012345678 is not a valid norwegian organization number" };
+        var mockResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = JsonContent.Create(response)
+        };
+
+        var client = CreateHttpClient(mockResponse);
+
+        var notificationAddress = new NotificationAddress() { AddressType = AddressType.Email, Address = "test", Domain = "test.com" };
+
+        // Act
+        await Assert.ThrowsAsync<InvalidOrgNumberException>(async () => await client.CreateNewNotificationAddress(notificationAddress, "012345678"));
+
+        // Assert
+        _messageHandler.VerifyAll();
+    }
+
+    [Fact]
     public async Task UpdateAddress_WhenSomethingGoesWrong_ThrowsException()
     {
         // Arrange
