@@ -4,15 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Authorization.ModelUtils;
-using Altinn.Profile.Core;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Core.User;
-using Altinn.Profile.Models;
 using Altinn.Register.Contracts;
 using Altinn.Register.Contracts.Testing;
-
-using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -26,7 +22,6 @@ public class UserProfileServiceTests
     private readonly Mock<IPersonService> _personServiceMock = new();
     private readonly Mock<IRegisterClient> _registerClientMock = new();
     private readonly Mock<IUserContactInfoRepository> _userContactInfoRepositoryMock = new();
-    private readonly Mock<IOptionsMonitor<CoreSettings>> _settingsMock = new();
 
     public UserProfileServiceTests()
     {
@@ -39,8 +34,7 @@ public class UserProfileServiceTests
         _profileSettingsRepositoryMock.Object,
         _personServiceMock.Object,
         _registerClientMock.Object,
-        _userContactInfoRepositoryMock.Object,
-        _settingsMock.Object);
+        _userContactInfoRepositoryMock.Object);
 
     [Fact]
     public async Task GetUser_ById_PropagatesCancellationTokenToProfileSettingsRepository()
