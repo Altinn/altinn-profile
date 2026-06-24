@@ -16,3 +16,7 @@ body:json {
       "countryCode": "+47"
   }
 }
+
+script:post-response {
+  await bru.runRequest("TokenGenerator/portal user")
+}
