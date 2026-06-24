@@ -11,19 +11,16 @@ namespace Altinn.Profile.Core.User.ProfileSettings
         /// <summary>
         /// Norwegian Bokmål language.
         /// </summary>
-        [JsonPropertyName("nb")]
         Nb,
 
         /// <summary>
         /// English language.
         /// </summary>
-        [JsonPropertyName("en")]
         En,
 
         /// <summary>
         /// Norwegian nynorsk language.
         /// </summary>
-        [JsonPropertyName("nn")]
         Nn,
     }
 }

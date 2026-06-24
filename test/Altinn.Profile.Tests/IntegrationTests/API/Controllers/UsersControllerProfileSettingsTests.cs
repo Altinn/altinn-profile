@@ -269,7 +269,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         var actual = JsonSerializer.Deserialize<ProfileSettingPreference>(responseContent, _serializerOptionsCamelCase);
 
         Assert.NotNull(actual);
-        Assert.Equal(language ?? "nb", actual.Language);
+        Assert.Equal(language.ToLowerInvariant() ?? "nb", actual.Language);
         Assert.True(actual.DoNotPromptForParty);
         Assert.Equal(returnedPreselected, actual.PreselectedPartyUuid);
         Assert.True(actual.ShowClientUnits);
