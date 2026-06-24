@@ -21,13 +21,13 @@ namespace Altinn.Profile.Integrations.Notifications
 
         // --- Email subject (shared across notification types) ---
 
-        /// <summary>English email subject for contact information change.</summary>
+        /// <summary>English email subject for verification code.</summary>
         public const string EmailSubjectEn = "Verify your email address in Altinn";
 
-        /// <summary>Norwegian Bokmål email subject for contact information change.</summary>
+        /// <summary>Norwegian Bokmål email subject for verification code.</summary>
         public const string EmailSubjectNo = "Verifiser e-postadressen din i Altinn";
 
-        /// <summary>Norwegian Nynorsk email subject for contact information change.</summary>
+        /// <summary>Norwegian Nynorsk email subject for verification code.</summary>
         public const string EmailSubjectNn = "Verifiser e-postadressa di i Altinn";
 
         // --- Email body templates: verification-code notifications ---
