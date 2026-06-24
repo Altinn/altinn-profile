@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 
+using Altinn.Profile.Core.User.ProfileSettings;
 using Altinn.Profile.Core.Utils;
 
 namespace Altinn.Profile.Models
@@ -13,7 +14,8 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// The language the user has selected in Altinn portal.
         /// </summary>
-        public string? Language { get; set; }
+        /// <example>nb</example>
+        public Language? Language { get; set; }
 
         /// <summary>
         /// Indicates whether the user should not be prompted for party selection.

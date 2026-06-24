@@ -76,7 +76,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(userPartyContactInfo);
             _factory.ProfileSettingsRepositoryMock
                 .Setup(x => x.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = null, LanguageType = "no" });
+                .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = null, LanguageType = "nb" });
             _factory.AddressVerificationRepositoryMock
                 .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "test@example.com"), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(VerificationType.Verified);
@@ -179,7 +179,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 });
             _factory.ProfileSettingsRepositoryMock
                 .Setup(x => x.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = null, LanguageType = "no" });
+                .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = null, LanguageType = "nb" });
             _factory.AddressVerificationRepositoryMock
                 .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "test@example.com"), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(VerificationType.Verified);
@@ -366,7 +366,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory.ProfileSettingsRepositoryMock
                 .Setup(x => x.GetProfileSettings(UserId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = DateTime.Today, LanguageType = "no" });
+                .ReturnsAsync(new ProfileSettings { UserId = UserId, IgnoreUnitProfileDateTime = DateTime.Today, LanguageType = "nb" });
             _factory.AddressVerificationRepositoryMock
                 .Setup(x => x.GetVerificationStatusAsync(It.IsAny<int>(), AddressType.Email, It.Is<string>(e => e == "a@b.com"), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(VerificationType.Unverified);

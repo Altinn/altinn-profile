@@ -7,6 +7,8 @@ namespace Altinn.Profile.Core.User.ProfileSettings
     /// </summary>
     public class ProfileSettings
     {
+        private string _languageType = string.Empty;
+
         /// <summary>
         /// The id of the user.
         /// </summary>
@@ -15,7 +17,11 @@ namespace Altinn.Profile.Core.User.ProfileSettings
         /// <summary>
         /// The language the user has selected in Altinn portal.
         /// </summary>
-        public required string LanguageType { get; set; }
+        public required string LanguageType
+        {
+            get => _languageType;
+            set => _languageType = value.ToLowerInvariant();
+        }
 
         /// <summary>
         /// Indicates whether the user should not be prompted for party selection.
@@ -72,7 +78,7 @@ namespace Altinn.Profile.Core.User.ProfileSettings
         /// </summary>
         public void UpdateFrom(ProfileSettingsPatchModel other)
         {
-            LanguageType = other.Language ?? LanguageType;
+            LanguageType = other.Language?.ToString() ?? LanguageType;
             DoNotPromptForParty = other.DoNotPromptForParty ?? DoNotPromptForParty;
             ShowClientUnits = other.ShowClientUnits ?? ShowClientUnits;
             ShouldShowSubEntities = other.ShouldShowSubEntities ?? ShouldShowSubEntities;
@@ -93,7 +99,7 @@ namespace Altinn.Profile.Core.User.ProfileSettings
         {
             return new ProfileSettings
             {
-                LanguageType = "nb",
+                LanguageType = Language.Nb.ToString(),
                 DoNotPromptForParty = false,
                 PreselectedPartyUuid = null,
                 ShowClientUnits = false,

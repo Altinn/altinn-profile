@@ -2,6 +2,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
+using Altinn.Profile.Core.User.ProfileSettings;
+
 namespace Altinn.Profile.Models
 {
     /// <summary>
@@ -13,9 +15,10 @@ namespace Altinn.Profile.Models
         /// <summary>
         /// Gets or sets the user's language preference in Altinn.
         /// </summary>
+        /// <example>nb</example>
         [Required]
         [JsonRequired]
-        public new string Language { get; set; }
+        public new Language Language { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the users want

@@ -169,7 +169,7 @@ public class UsersController : Controller
         var profileSettings = new ProfileSettings
         {
             UserId = userId,
-            LanguageType = request.Language,
+            LanguageType = request.Language.ToString(),
             DoNotPromptForParty = request.DoNotPromptForParty.Value,
             PreselectedPartyUuid = request.PreselectedPartyUuid,
             ShowClientUnits = request.ShowClientUnits.Value,

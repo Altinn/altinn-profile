@@ -123,8 +123,42 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
 
         var request = new ProfileSettingPutRequest
         {
-            Language = "nb",
+            Language = Language.Nb,
             PreselectedPartyUuid = null
+        };
+
+        HttpClient client = _factory.CreateClient();
+
+        HttpRequestMessage httpRequest = new(HttpMethod.Put, "/profile/api/v1/users/current/profilesettings");
+        httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetToken(userId));
+        httpRequest.Content = JsonContent.Create(request, options: _serializerOptionsCamelCase);
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.False(response.IsSuccessStatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var actual = JsonSerializer.Deserialize<ProblemDetails>(responseContent, _serializerOptionsCamelCase);
+
+        _factory.ProfileSettingsRepositoryMock.Verify(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task PutCurrentProfileSettings_WithWrongValue_ReturnsBadRequest()
+    {
+        // Arrange
+        const int userId = 2516356;
+
+        var request = new ProfileSettingPreference
+        {
+            Language = "no",
+            DoNotPromptForParty = true,
+            PreselectedPartyUuid = Guid.NewGuid(),
+            ShowClientUnits = true,
+            ShouldShowSubEntities = true,
+            ShouldShowDeletedEntities = false
         };
 
         HttpClient client = _factory.CreateClient();
@@ -179,8 +213,12 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         _factory.ProfileSettingsRepositoryMock.Verify(r => r.UpdateProfileSettings(It.IsAny<ProfileSettings>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
-    public async Task PatchUsersCurrent_AsUser_PatchSucceeds_ReturnsUpdatedPreferences()
+    [Theory]
+    [InlineData("nb")]
+    [InlineData("Nn")]
+    [InlineData("EN")]
+    [InlineData(null)]
+    public async Task PatchUsersCurrent_AsUser_PatchSucceeds_ReturnsUpdatedPreferences(string language)
     {
         // Arrange
         const int userId = 400000;
@@ -191,7 +229,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
             .ReturnsAsync(new ProfileSettings
             {
                 UserId = userId,
-                LanguageType = "nb",
+                LanguageType = language ?? "nb",
                 DoNotPromptForParty = true,
                 PreselectedPartyUuid = returnedPreselected,
                 ShowClientUnits = true,
@@ -205,7 +243,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         string payload = JsonSerializer.Serialize(
             new
             {
-                language = "nb",
+                language,
                 doNotPromptForParty = true,
                 preselectedPartyUuid = returnedPreselected,
                 showClientUnits = true,
@@ -231,7 +269,7 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
         var actual = JsonSerializer.Deserialize<ProfileSettingPreference>(responseContent, _serializerOptionsCamelCase);
 
         Assert.NotNull(actual);
-        Assert.Equal("nb", actual.Language);
+        Assert.Equal(language?.ToLowerInvariant() ?? "nb", actual.Language);
         Assert.True(actual.DoNotPromptForParty);
         Assert.Equal(returnedPreselected, actual.PreselectedPartyUuid);
         Assert.True(actual.ShowClientUnits);
@@ -268,6 +306,34 @@ public class UsersControllerProfileSettingsTests : IClassFixture<ProfileWebAppli
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PatchUsersCurrent_AsUser_WithWrongLanguageType_ReturnsBadRequest()
+    {
+        // Arrange
+        const int userId = 410000;
+
+        HttpClient client = _factory.CreateClient();
+
+        string payload = JsonSerializer.Serialize(
+            new
+            {
+                language = "xx"
+            },
+            _serializerOptionsCamelCase);
+
+        var request = new HttpRequestMessage(HttpMethod.Patch, "/profile/api/v1/users/current/profilesettings")
+        {
+            Content = new StringContent(payload, Encoding.UTF8, "application/json")
+        };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetToken(userId));
+
+        // Act
+        HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]

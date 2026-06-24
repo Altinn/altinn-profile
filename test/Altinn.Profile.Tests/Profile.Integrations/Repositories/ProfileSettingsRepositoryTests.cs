@@ -153,7 +153,7 @@ public class ProfileSettingsRepositoryTests
         var patch = new ProfileSettingsPatchModel
         {
             UserId = userId,
-            Language = "nb",
+            Language = Language.Nb,
             DoNotPromptForParty = true,
             PreselectedPartyUuid = new Optional<Guid?>(newPreselected),
             ShowClientUnits = true,
@@ -252,7 +252,7 @@ public class ProfileSettingsRepositoryTests
         var patch = new ProfileSettingsPatchModel
         {
             UserId = userId,
-            Language = "en"
+            Language = Language.En,
         };
 
         // Act
