@@ -1,9 +1,9 @@
-import { check } from 'k6';
-import * as config from '../config.js';
-import { generateToken } from '../api/token-generator.js';
-import * as userApi from '../api/user.js';
+import { check } from "k6";
+import * as config from "../config.js";
+import { generateToken } from "../api/token-generator.js";
+import * as userApi from "../api/user.js";
 import { stopIterationOnFail } from "../errorhandler.js";
-import { createCSVSharedArray, getRandomRow } from '../data/csv-loader.js';
+import { createCSVSharedArray, getRandomRow } from "../data/csv-loader.js";
 
 // Eksempel på bruk:
 // With environment variable (takes priority):
@@ -24,10 +24,10 @@ export const options = {
     iterations: 1,
     thresholds: {
         // Checks rate should be 100%. Raise error if any check has failed.
-        checks: ['rate>=1']
-    }
+        checks: ["rate>=1"],
+    },
 };
-const csvData = createCSVSharedArray('usersTestData');
+const csvData = createCSVSharedArray("usersTestData");
 
 /**
  * Initialize test data.
@@ -48,7 +48,7 @@ function getUser(token) {
     const response = userApi.getUser(token);
 
     let success = check(response, {
-        'GET user: 200 OK': (r) => r.status === 200,
+        "GET user: 200 OK": (r) => r.status === 200,
     });
 
     stopIterationOnFail("GET user failed", success);
@@ -70,12 +70,19 @@ export default async function runTests(data) {
         testRow = getRandomRow(csvData);
         useTestData = true;
     } else if (!data.userId) {
-        stopIterationOnFail("No test data available: neither userId environment variable nor CSV data", false);
+        stopIterationOnFail(
+            "No test data available: neither userId environment variable nor CSV data",
+            false
+        );
         return;
     }
 
     // Generate token for this iteration: environment variables take priority, CSV data used as fallback
-    const token = await generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
+    const token = await generateToken(
+        config.tokenGenerator.getPersonalToken,
+        useTestData,
+        testRow
+    );
 
     getUser(token);
 }

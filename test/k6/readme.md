@@ -182,6 +182,22 @@ $> podman compose run k6 run /src/tests/favorites.js \
 
 ---
 
+## Code formatting
+
+JavaScript files are formatted with [Prettier](https://prettier.io/). To format all k6 test files, run the following from the `k6` folder:
+
+```bash
+npx prettier --write "src/**/*.js"
+```
+
+To check formatting without making changes:
+
+```bash
+npx prettier --check "src/**/*.js"
+```
+
+---
+
 ## Troubleshooting
 
 Common issues and solutions:

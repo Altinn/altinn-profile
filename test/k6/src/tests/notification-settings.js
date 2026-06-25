@@ -1,10 +1,10 @@
-import { check } from 'k6';
-import * as config from '../config.js';
-import { generateToken } from '../api/token-generator.js';
-import * as notificationSettingsApi from '../api/notificationsettings.js';
-import * as verificationApi from '../api/verification.js';
+import { check } from "k6";
+import * as config from "../config.js";
+import { generateToken } from "../api/token-generator.js";
+import * as notificationSettingsApi from "../api/notificationsettings.js";
+import * as verificationApi from "../api/verification.js";
 import { stopIterationOnFail } from "../errorhandler.js";
-import { createCSVSharedArray, getRandomRow } from '../data/csv-loader.js';
+import { createCSVSharedArray, getRandomRow } from "../data/csv-loader.js";
 
 // Eksempel på bruk:
 // With environment variable (takes priority):
@@ -26,11 +26,11 @@ export const options = {
     iterations: 1,
     thresholds: {
         // Checks rate should be 100%. Raise error if any check has failed.
-        checks: ['rate>=1']
-    }
+        checks: ["rate>=1"],
+    },
 };
 
-const testData = createCSVSharedArray('notificationSettingsTestData');
+const testData = createCSVSharedArray("notificationSettingsTestData");
 
 /**
  * Initialize test data.
@@ -47,12 +47,12 @@ export function setup() {
         emailAddress: "noreply-1@altinn.no",
         phoneNumber: "+4799999997",
         generateVerificationCode: true,
-        resourceIncludeList: ["urn:altinn:resource:example"]
-    }
+        resourceIncludeList: ["urn:altinn:resource:example"],
+    };
 
     return {
         partyUuid,
-        notificationSettings
+        notificationSettings,
     };
 }
 
@@ -68,7 +68,7 @@ function getPersonalNotificationAddresses(token, partyUuid) {
     );
 
     let success = check(response, {
-        'GET notification settings: 200 OK': (r) => r.status === 200,
+        "GET notification settings: 200 OK": (r) => r.status === 200,
     });
 
     stopIterationOnFail("GET notification settings failed", success);
@@ -79,12 +79,10 @@ function getPersonalNotificationAddresses(token, partyUuid) {
  * @param {string} token - The authentication token.
  */
 function getVerifiedAddresses(token) {
-    const response = verificationApi.getVerifiedAddresses(
-        token
-    );
+    const response = verificationApi.getVerifiedAddresses(token);
 
     let success = check(response, {
-        'GET verified addresses: 200 OK': (r) => r.status === 200,
+        "GET verified addresses: 200 OK": (r) => r.status === 200,
     });
 
     stopIterationOnFail("GET verified addresses failed", success);
@@ -96,7 +94,11 @@ function getVerifiedAddresses(token) {
  * @param {string} partyUuid - The party UUID.
  * @param {Object} notificationSettings - The notification settings to add.
  */
-function addPersonalNotificationAddresses(token, partyUuid, notificationSettings) {
+function addPersonalNotificationAddresses(
+    token,
+    partyUuid,
+    notificationSettings
+) {
     const response = notificationSettingsApi.addPersonalNotificationAddresses(
         token,
         partyUuid,
@@ -104,7 +106,8 @@ function addPersonalNotificationAddresses(token, partyUuid, notificationSettings
     );
 
     let success = check(response, {
-        'PUT notification settings: 201 Created or 204 No Content': (r) => r.status === 201 || r.status === 204,
+        "PUT notification settings: 201 Created or 204 No Content": (r) =>
+            r.status === 201 || r.status === 204,
     });
 
     stopIterationOnFail("PUT notification settings failed", success);
@@ -120,20 +123,17 @@ function tryVerifyAddress(token, notificationSettings) {
         value: notificationSettings.phoneNumber,
         type: "Sms",
         verificationCode: "123456",
-    }
+    };
 
-    const response = verificationApi.verifyAddress(
-        token,
-        request
-    );
+    const response = verificationApi.verifyAddress(token, request);
 
     let success = check(response, {
-        'POST verification: 422 Unprocessable Entity or 429 Too Many Requests': (r) => r.status === 422 || r.status === 429,
+        "POST verification: 422 Unprocessable Entity or 429 Too Many Requests":
+            (r) => r.status === 422 || r.status === 429,
     });
 
     stopIterationOnFail("POST verification failed", success);
 }
-
 
 /**
  * Removes a notification setting.
@@ -141,13 +141,14 @@ function tryVerifyAddress(token, notificationSettings) {
  * @param {string} partyUuid - The party UUID.
  */
 function removePersonalNotificationAddresses(token, partyUuid) {
-    const response = notificationSettingsApi.removePersonalNotificationAddresses(
-        token,
-        partyUuid
-    );
+    const response =
+        notificationSettingsApi.removePersonalNotificationAddresses(
+            token,
+            partyUuid
+        );
 
     let success = check(response, {
-        'DELETE notification settings: 200 Ok': (r) => r.status === 200,
+        "DELETE notification settings: 200 Ok": (r) => r.status === 200,
     });
 
     stopIterationOnFail("DELETE notification settings failed", success);
@@ -173,14 +174,25 @@ export default async function runTests(data) {
         partyUuid = testRow.partyUuid;
         useTestData = true;
     } else {
-        stopIterationOnFail("No test data available: neither partyUuid environment variable nor CSV data", false);
+        stopIterationOnFail(
+            "No test data available: neither partyUuid environment variable nor CSV data",
+            false
+        );
         return;
     }
 
     // Generate token for this iteration: environment variables take priority, CSV data used as fallback
-    const token = await generateToken(config.tokenGenerator.getPersonalToken, useTestData, testRow);
+    const token = await generateToken(
+        config.tokenGenerator.getPersonalToken,
+        useTestData,
+        testRow
+    );
 
-    addPersonalNotificationAddresses(token, partyUuid, data.notificationSettings);
+    addPersonalNotificationAddresses(
+        token,
+        partyUuid,
+        data.notificationSettings
+    );
     getPersonalNotificationAddresses(token, partyUuid);
     getVerifiedAddresses(token);
     if (data.partyUuid) {

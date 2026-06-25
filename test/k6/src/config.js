@@ -16,7 +16,9 @@ if (!environment) {
 
 const baseUrl = baseUrls[environment];
 if (!baseUrl) {
-    throwConfigurationError(`Invalid value for environment variable 'altinn_env': '${environment}'.`);
+    throwConfigurationError(
+        `Invalid value for environment variable 'altinn_env': '${environment}'.`
+    );
 }
 
 // Altinn TestTools token generator URL.
@@ -24,7 +26,7 @@ export const tokenGenerator = {
     getEnterpriseToken:
         "https://altinn-testtools-token-generator.azurewebsites.net/api/GetEnterpriseToken",
     getPersonalToken:
-        "https://altinn-testtools-token-generator.azurewebsites.net/api/GetPersonalToken"
+        "https://altinn-testtools-token-generator.azurewebsites.net/api/GetPersonalToken",
 };
 
 export const profileUrl = {
@@ -32,7 +34,10 @@ export const profileUrl = {
     favorites: `https://platform.${baseUrl}/profile/api/v1/users/current/party-groups/favorites`,
     groups: `https://platform.${baseUrl}/profile/api/v1/users/current/party-groups`,
     verification: `https://platform.${baseUrl}/profile/api/v1/users/current/verification`,
-    modifyFavorites: (partyUuid) => `https://platform.${baseUrl}/profile/api/v1/users/current/party-groups/favorites/${partyUuid}`,
-    organization: (orgNo) => `https://platform.${baseUrl}/profile/api/v1/organizations/${orgNo}/notificationaddresses/mandatory`,
-    personalNotificationAddresses: (partyUuid) => `https://platform.${baseUrl}/profile/api/v1/users/current/notificationsettings/parties/${partyUuid}`,
-}
+    modifyFavorites: (partyUuid) =>
+        `https://platform.${baseUrl}/profile/api/v1/users/current/party-groups/favorites/${partyUuid}`,
+    organization: (orgNo) =>
+        `https://platform.${baseUrl}/profile/api/v1/organizations/${orgNo}/notificationaddresses/mandatory`,
+    personalNotificationAddresses: (partyUuid) =>
+        `https://platform.${baseUrl}/profile/api/v1/users/current/notificationsettings/parties/${partyUuid}`,
+};

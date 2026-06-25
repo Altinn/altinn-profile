@@ -2,8 +2,10 @@ import http from "k6/http";
 import encoding from "k6/encoding";
 import secrets from "k6/secrets";
 import * as apiHelpers from "../apiHelpers.js";
-import { stopIterationOnFail, throwConfigurationError } from "../errorhandler.js";
-
+import {
+    stopIterationOnFail,
+    throwConfigurationError,
+} from "../errorhandler.js";
 
 const userID = __ENV.userID;
 const pid = __ENV.pid;
@@ -22,9 +24,14 @@ const environment = __ENV.altinn_env.toLowerCase();
  * @returns {Promise<string>} The generated token.
  */
 export async function generateToken(endpoint, useTestdata, testData = null) {
-    const tokenGeneratorUserName = await getFromSecretSource('tokenGeneratorUserName', throwConfigurationError);
-    const tokenGeneratorUserPwd = await getFromSecretSource('tokenGeneratorUserPwd', throwConfigurationError);
-
+    const tokenGeneratorUserName = await getFromSecretSource(
+        "tokenGeneratorUserName",
+        throwConfigurationError
+    );
+    const tokenGeneratorUserPwd = await getFromSecretSource(
+        "tokenGeneratorUserPwd",
+        throwConfigurationError
+    );
 
     const queryParams = {
         env: environment,
@@ -40,8 +47,8 @@ export async function generateToken(endpoint, useTestdata, testData = null) {
         queryParams.partyId = testData.userPartyId;
     }
 
-
-    const endpointWithParams = endpoint + apiHelpers.buildQueryParametersForEndpoint(queryParams);
+    const endpointWithParams =
+        endpoint + apiHelpers.buildQueryParametersForEndpoint(queryParams);
 
     const credentials = `${tokenGeneratorUserName}:${tokenGeneratorUserPwd}`;
 
@@ -64,18 +71,24 @@ async function getFromSecretSource(secretName, raiseError) {
     let secretValue;
     try {
         secretValue = await secrets.get(secretName);
-    }
-    catch (error) {
+    } catch (error) {
         if (error == "no secret sources are configured") {
-            raiseError("No secret source is configured for the k6 command - specify the file path with the --secret-source flag");
+            raiseError(
+                "No secret source is configured for the k6 command - specify the file path with the --secret-source flag"
+            );
+        } else if (error == "no value") {
+            raiseError(
+                `Secret ${secretName} does not exist in the secret source`
+            );
         }
-        else if (error == "no value") {
-            raiseError(`Secret ${secretName} does not exist in the secret source`);
-        }
-        raiseError("Unknown error occurred in the attempt to get secret from source");
+        raiseError(
+            "Unknown error occurred in the attempt to get secret from source"
+        );
     }
     if (!secretValue) {
-        raiseError(`Secret ${secretName} is not properly assigned in the secret source`);
+        raiseError(
+            `Secret ${secretName} is not properly assigned in the secret source`
+        );
     }
     return secretValue;
 }
