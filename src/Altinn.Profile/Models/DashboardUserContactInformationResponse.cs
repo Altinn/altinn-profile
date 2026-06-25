@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 
 namespace Altinn.Profile.Models
 {
@@ -38,6 +39,13 @@ namespace Altinn.Profile.Models
         /// May be null if no organization number is set.
         /// </summary>
         public string? OrganizationNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the list of resources the user is subscribed to for notifications.
+        /// This is a list of resource IDs with the prefix "urn:altinn:resource:".
+        /// May be null if no resources are set.
+        /// </summary>
+        public List<string>? ResourceIncludeList { get; set; }
 
         /// <summary>
         /// Gets or sets the timestamp when this contact information was last changed.
