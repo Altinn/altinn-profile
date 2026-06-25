@@ -77,7 +77,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                     PartyUuid = partyUuid,
                     EmailAddress = "user2@example.com",
                     PhoneNumber = "+4798765433",
-                    LastChanged = _testTime.AddDays(-1)
+                    LastChanged = _testTime.AddDays(-1),
+                    UserPartyContactInfoResources =
+                    [
+                        new() { ResourceId = "app_example" }
+                    ]
                 }
             };
             _factory.ProfessionalNotificationsRepositoryMock
@@ -105,6 +109,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal("user1@example.com", user1.Email);
             Assert.Equal("+4798765432", user1.Phone);
             Assert.Equal(_testTime, user1.LastChanged);
+            Assert.Null(user1.ResourceIncludeList);
 
             var user2 = result.FirstOrDefault(u => u.NationalIdentityNumber == "09814499976");
             Assert.NotNull(user2);
@@ -112,6 +117,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal("user2@example.com", user2.Email);
             Assert.Equal("+4798765433", user2.Phone);
             Assert.Equal(_testTime.AddDays(-1), user2.LastChanged);
+            Assert.NotNull(user2.ResourceIncludeList);
+            Assert.Single(user2.ResourceIncludeList);
+            Assert.Equal("urn:altinn:resource:app_example", user2.ResourceIncludeList.First());
         }
 
         [Fact]
@@ -512,7 +520,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                     PartyUuid = partyUuid2,
                     EmailAddress = email,
                     PhoneNumber = "+4798765433",
-                    LastChanged = _testTime.AddDays(-1)
+                    LastChanged = _testTime.AddDays(-1),
+                    UserPartyContactInfoResources =
+                    [
+                        new() { ResourceId = "app_example" }
+                    ]
                 }
             };
 
@@ -543,6 +555,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal("+4798765432", user1.Phone);
             Assert.Equal(orgNumber1, user1.OrganizationNumber);
             Assert.Equal(_testTime, user1.LastChanged);
+            Assert.Null(user1.ResourceIncludeList);
 
             var user2 = result.FirstOrDefault(u => u.NationalIdentityNumber == "09814499976");
             Assert.NotNull(user2);
@@ -551,6 +564,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal("+4798765433", user2.Phone);
             Assert.Equal(orgNumber2, user2.OrganizationNumber);
             Assert.Equal(_testTime.AddDays(-1), user2.LastChanged);
+            Assert.NotNull(user2.ResourceIncludeList);
+            Assert.Single(user2.ResourceIncludeList);
+            Assert.Equal("urn:altinn:resource:app_example", user2.ResourceIncludeList.First());
         }
 
         [Fact]
@@ -712,7 +728,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                     PartyUuid = partyUuid2,
                     EmailAddress = "search@example2.com",
                     PhoneNumber = "+4798765432",
-                    LastChanged = _testTime.AddDays(-1)
+                    LastChanged = _testTime.AddDays(-1),
+                    UserPartyContactInfoResources =
+                    [
+                        new() { ResourceId = "app_example" }
+                    ]
                 }
             };
 
@@ -742,6 +762,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(fullPhoneNumber, user1.Phone);
             Assert.Equal(orgNumber1, user1.OrganizationNumber);
             Assert.Equal(_testTime, user1.LastChanged);
+            Assert.Null(user1.ResourceIncludeList);
 
             var user2 = result.FirstOrDefault(u => u.NationalIdentityNumber == "09814499976");
             Assert.NotNull(user2);
@@ -749,6 +770,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(fullPhoneNumber, user2.Phone);
             Assert.Equal(orgNumber2, user2.OrganizationNumber);
             Assert.Equal(_testTime.AddDays(-1), user2.LastChanged);
+            Assert.NotNull(user2.ResourceIncludeList);
+            Assert.Single(user2.ResourceIncludeList);
+            Assert.Equal("urn:altinn:resource:app_example", user2.ResourceIncludeList.First());
         }
 
         [Fact]

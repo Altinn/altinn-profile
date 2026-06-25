@@ -37,4 +37,9 @@ public class UserPartyContactInfoWithIdentity
     /// Date of last change (UTC)
     /// </summary>
     public DateTime LastChanged { get; set; }
+
+    /// <summary>
+    /// List of resources to get notifications for. This is a list of resource IDs with the prefix "urn:altinn:resource:".
+    /// </summary>
+    public List<string>? ResourceIncludeList { get; set; }
 }

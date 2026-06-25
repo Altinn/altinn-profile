@@ -296,7 +296,8 @@ namespace Altinn.Profile.Controllers
                 Email = c.EmailAddress,
                 Phone = c.PhoneNumber,
                 OrganizationNumber = c.OrganizationNumber,
-                LastChanged = c.LastChanged
+                LastChanged = c.LastChanged,
+                ResourceIncludeList = c.ResourceIncludeList,
             })];
         }
     }

@@ -170,7 +170,8 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                             EmailAddress = contactInfo.EmailAddress,
                             PhoneNumber = contactInfo.PhoneNumber,
                             OrganizationNumber = organizationNumber,
-                            LastChanged = contactInfo.LastChanged
+                            LastChanged = contactInfo.LastChanged,
+                            ResourceIncludeList = contactInfo.GetResourceIncludeList()
                         });
                     },
                     _ =>
@@ -240,7 +241,8 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                             EmailAddress = contactInfo.EmailAddress,
                             PhoneNumber = contactInfo.PhoneNumber,
                             OrganizationNumber = orgNumber,
-                            LastChanged = contactInfo.LastChanged
+                            LastChanged = contactInfo.LastChanged,
+                            ResourceIncludeList = contactInfo.GetResourceIncludeList()
                         });
                     },
                     _ =>
