@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Mappers;
 using Altinn.Profile.Models.OrganizationNotificationAddresses;
 
@@ -99,6 +100,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(NotificationAddressResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<NotificationAddressResponse>> CreateNotificationAddress([FromRoute] string organizationNumber, [FromBody][Required] NotificationAddressRequest request, CancellationToken cancellationToken)
         {
@@ -114,16 +116,28 @@ namespace Altinn.Profile.Controllers
 
             var notificationAddress = NotificationAddressRequestMapper.ToInternalModel(request);
 
-            var (newNotificationAddress, isNew) = await _notificationAddressService.CreateNotificationAddress(organizationNumber, notificationAddress, cancellationToken);
-
-            var response = OrganizationResponseMapper.ToNotificationAddressResponse(newNotificationAddress);
-
-            if (isNew)
+            try
             {
-                return CreatedAtAction(nameof(GetMandatoryNotificationAddress), new { organizationNumber, newNotificationAddress.NotificationAddressID }, response);
-            }
+                var (newNotificationAddress, isNew) = await _notificationAddressService.CreateNotificationAddress(organizationNumber, notificationAddress, cancellationToken);
 
-            return Ok(response);
+                var response = OrganizationResponseMapper.ToNotificationAddressResponse(newNotificationAddress);
+
+                if (isNew)
+                {
+                    return CreatedAtAction(nameof(GetMandatoryNotificationAddress), new { organizationNumber, newNotificationAddress.NotificationAddressID }, response);
+                }
+
+                return Ok(response);
+            }
+            catch (InvalidOrgNumberException)
+            {
+                return new BadRequestObjectResult(new ProblemDetails
+                {
+                    Title = "Invalid Organization Number",
+                    Detail = "The provided organization number is not valid in enhetsregisteret.",
+                    Status = StatusCodes.Status400BadRequest
+                });
+            }
         }
 
         /// <summary>

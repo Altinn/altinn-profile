@@ -24,6 +24,15 @@ const usersByEnv = {
       Party_OrgNo: "313605590",
       Party_PartyId: "51519644",
       Party_PartyUuid: "4a1cfef9-82e1-4be9-96b9-b99f116f8350"
+    },
+    user2: {
+      AuthN_UserId: "20909216",
+      AuthN_PartyId: "51778895",
+      AuthN_Pid: "29880297226",
+      AuthN_PartyUuid: "c6292a7e-0786-4bd2-b927-56cf3c77f314",
+      Party_OrgNo: "090090003",
+      Party_PartyId: "51782318",
+      Party_PartyUuid: "bb7b8680-2858-4b5a-ac07-cb7f18cea10c"
     }
     // Add more users for AT23 as needed.
   },

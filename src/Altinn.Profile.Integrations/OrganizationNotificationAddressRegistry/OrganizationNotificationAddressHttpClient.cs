@@ -151,6 +151,11 @@ public class OrganizationNotificationAddressHttpClient(
 
         if (responseObject.BoolResult != true || responseObject.AddressID == null)
         {
+            if (responseObject.Details?.Contains("is not a valid norwegian organization number", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                throw new InvalidOrgNumberException(responseObject.Status + ": " + responseObject.Details);
+            }
+
             throw new OrganizationNotificationAddressChangesException(responseObject.Status + ": " + responseObject.Details);
         }
 

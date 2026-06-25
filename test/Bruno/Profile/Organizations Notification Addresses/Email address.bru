@@ -15,3 +15,7 @@ body:json {
       "email": "wvjckqug@sharklasers.com"
   }
 }
+
+script:post-response {
+  await bru.runRequest("TokenGenerator/portal user")
+}
