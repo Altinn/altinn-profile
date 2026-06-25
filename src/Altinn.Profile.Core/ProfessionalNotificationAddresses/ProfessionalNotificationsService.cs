@@ -163,16 +163,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                             return;
                         }
 
-                        results.Add(new UserPartyContactInfoWithIdentity
-                        {
-                            NationalIdentityNumber = profile.Party.SSN,
-                            Name = profile.Party.Name,
-                            EmailAddress = contactInfo.EmailAddress,
-                            PhoneNumber = contactInfo.PhoneNumber,
-                            OrganizationNumber = organizationNumber,
-                            LastChanged = contactInfo.LastChanged,
-                            ResourceIncludeList = contactInfo.GetResourceIncludeList()
-                        });
+                        results.Add(new UserPartyContactInfoWithIdentity(contactInfo, profile.Party.Name, profile.Party.SSN, organizationNumber));
                     },
                     _ =>
                     {
@@ -234,16 +225,7 @@ namespace Altinn.Profile.Core.ProfessionalNotificationAddresses
                             return;
                         }
 
-                        results.Add(new UserPartyContactInfoWithIdentity
-                        {
-                            NationalIdentityNumber = profile.Party.SSN,
-                            Name = profile.Party.Name,
-                            EmailAddress = contactInfo.EmailAddress,
-                            PhoneNumber = contactInfo.PhoneNumber,
-                            OrganizationNumber = orgNumber,
-                            LastChanged = contactInfo.LastChanged,
-                            ResourceIncludeList = contactInfo.GetResourceIncludeList()
-                        });
+                        results.Add(new UserPartyContactInfoWithIdentity(contactInfo, profile.Party.Name, profile.Party.SSN, orgNumber));
                     },
                     _ =>
                     {
