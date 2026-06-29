@@ -37,34 +37,26 @@ public static class WebApplicationExtensions
             return;
         }
 
-        try
+        logger.LogInformation("Database migration started");
+
+        var adminConnectionString = config.GetAdminDatabaseConnectionString();
+        var options = new DbContextOptionsBuilder<ProfileDbContext>()
+            .UseNpgsql(adminConnectionString)
+            .UseSnakeCaseNamingConvention()
+            .Options;
+
+        using var context = new ProfileDbContext(options);
+        var pendingCount = (await context.Database.GetPendingMigrationsAsync()).Count();
+
+        if (pendingCount > 0)
         {
-            logger.LogInformation("Database migration started");
-
-            var adminConnectionString = config.GetAdminDatabaseConnectionString();
-            var options = new DbContextOptionsBuilder<ProfileDbContext>()
-                .UseNpgsql(adminConnectionString)
-                .UseSnakeCaseNamingConvention()
-                .Options;
-
-            using var context = new ProfileDbContext(options);
-            var pendingCount = (await context.Database.GetPendingMigrationsAsync()).Count();
-
-            if (pendingCount > 0)
-            {
-                logger.LogInformation("Applying {PendingMigrationCount} pending migrations", pendingCount);
-                await context.Database.MigrateAsync();
-                logger.LogInformation("Database migrations applied successfully");
-            }
-            else
-            {
-                logger.LogInformation("Database is up to date");
-            }
+            logger.LogInformation("Applying {PendingMigrationCount} pending migrations", pendingCount);
+            await context.Database.MigrateAsync();
+            logger.LogInformation("Database migrations applied successfully");
         }
-        catch (Exception ex)
+        else
         {
-            logger.LogError(ex, "Database migration failed");
-            throw;
+            logger.LogInformation("Database is up to date");
         }
     }
 }
