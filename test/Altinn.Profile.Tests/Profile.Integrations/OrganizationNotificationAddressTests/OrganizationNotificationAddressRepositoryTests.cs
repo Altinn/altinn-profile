@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
-using Altinn.Profile.Integrations.Entities;
-using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Tests.Testdata;
+
 using Microsoft.EntityFrameworkCore;
+
 using Moq;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddressTests;

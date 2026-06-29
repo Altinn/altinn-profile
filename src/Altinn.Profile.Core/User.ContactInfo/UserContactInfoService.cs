@@ -9,14 +9,10 @@ namespace Altinn.Profile.Core.User.ContactInfo
     /// </summary>
     /// <param name="userContactInfoRepository">Repository for user contact information data access.</param>
     /// <param name="registerClient">The register client for accessing user information.</param>
-    /// <param name="userProfileClient">The user profile client for accessing user profile information.</param>
-    /// <param name="settings">Core settings for the application.</param>
-    public class UserContactInfoService(IUserContactInfoRepository userContactInfoRepository, IRegisterClient registerClient, IUserProfileClient userProfileClient, IOptionsMonitor<CoreSettings> settings) : IUserContactInfoService
+    public class UserContactInfoService(IUserContactInfoRepository userContactInfoRepository, IRegisterClient registerClient) : IUserContactInfoService
     {
         private readonly IUserContactInfoRepository _userContactInfoRepository = userContactInfoRepository;
         private readonly IRegisterClient _registerClient = registerClient;
-        private readonly IUserProfileClient _userProfileClient = userProfileClient;
-        private readonly CoreSettings _settings = settings.CurrentValue;
 
         /// <inheritdoc/>
         public async Task<UserContactInfo?> UpdatePhoneNumber(int userId, string? phoneNumber, CancellationToken cancellationToken)
@@ -39,11 +35,6 @@ namespace Altinn.Profile.Core.User.ContactInfo
 
             if (siuser == null || !siuser.User.HasValue)
             {
-                if (_settings.SblBridgeFallbackEnabled)
-                {
-                    return await CreateFallbackUserContactInfo(userId, phoneNumber, cancellationToken);
-                }
-
                 return null;
             }
 
@@ -60,29 +51,6 @@ namespace Altinn.Profile.Core.User.ContactInfo
             };
 
             return await _userContactInfoRepository.CreateUserContactInfo(newUserContactInfo, cancellationToken);
-        }
-
-        private async Task<UserContactInfo?> CreateFallbackUserContactInfo(int userId, string? phoneNumber, CancellationToken cancellationToken)
-        {
-            var result = await _userProfileClient.GetUser(userId);
-            var user = result.Match(
-                user => user,
-                _ => null!);
-
-            if (user == null)
-            {
-                return null;
-            }
-
-            var newUserContactInfo = new UserContactInfoCreateModel
-            {
-                UserId = userId,
-                UserUuid = user.UserUuid ?? Guid.Empty,
-                Username = user.UserName,
-                EmailAddress = user.Email ?? string.Empty,
-                PhoneNumber = phoneNumber,
-            };
-            return await _userContactInfoRepository.CreateUserContactInfo(newUserContactInfo, cancellationToken);
-        }
+        }     
     }
 }

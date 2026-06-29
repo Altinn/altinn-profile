@@ -847,17 +847,10 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersById_AsUser_RegisterAsPrimaryEnabled_RegisterHasSsn_UsesRegisterAndSkipsSbl()
+    public async Task GetUsersById_AsUser_RegisterHasSsn()
     {
         // Arrange
         const int userId = 2516356;
-
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction((request, token) =>
-        {
-            sblRequest = request;
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
-        });
 
         Person registerPerson = Person.Minimal("14836498780") with
         {
@@ -880,7 +873,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             .Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        var client = CreateClientWithRegisterAsPrimary(true);
+        var client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userId}");
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
@@ -890,7 +883,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Null(sblRequest); // register path should not call legacy
 
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(responseContent, _serializerOptionsCamelCase);
@@ -901,54 +893,10 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
     }
 
     [Fact]
-    public async Task GetUsersById_AsUser_RegisterAsPrimaryDisabled_FindsUserAtSbl()
+    public async Task GetUsersById_AsUser_RegisterReturnsSelfIdentified()
     {
         // Arrange
         const int userId = 2516356;
-
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-        {
-            sblRequest = request;
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userId.ToString());
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
-
-        _factory.ProfileSettingsRepositoryMock
-            .Setup(m => m.GetProfileSettings(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ProfileSettings?)null);
-
-        _factory.PersonServiceMock
-            .Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-
-        HttpClient client = CreateClientWithRegisterAsPrimary(false);
-
-        HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userId}");
-        httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
-
-        // Act
-        HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.NotNull(sblRequest); // fallback path must call legacy
-        Assert.EndsWith($"users/{userId}", sblRequest!.RequestUri?.ToString());
-    }
-
-    [Fact]
-    public async Task GetUsersById_AsUser_RegisterAsPrimaryEnabled_RegisterReturnsSelfIdentified()
-    {
-        // Arrange
-        const int userId = 2516356;
-
-        HttpRequestMessage? sblRequest = null;
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction(async (request, token) =>
-        {
-            sblRequest = request;
-            UserProfile userProfile = await TestDataLoader.Load<UserProfile>(userId.ToString());
-            return new HttpResponseMessage() { Content = JsonContent.Create(userProfile) };
-        });
 
         SelfIdentifiedUser selfIdentifiedFromRegister = await TestDataLoader.Load<SelfIdentifiedUser>("siuser-input");
 
@@ -962,7 +910,7 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
             .Setup(m => m.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        HttpClient client = CreateClientWithRegisterAsPrimary(true);
+        HttpClient client = _factory.CreateClient();
 
         HttpRequestMessage httpRequestMessage = CreateGetRequest(userId, $"/profile/api/v1/users/{userId}");
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("ttd", "unittest"));
@@ -972,7 +920,6 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Null(sblRequest); // register path should not call legacy
 
         string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         UserProfile? actualUser = JsonSerializer.Deserialize<UserProfile>(responseContent, _serializerOptionsCamelCase);
@@ -1049,19 +996,5 @@ public class UsersControllerTests : IClassFixture<ProfileWebApplicationFactory<P
         httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         httpRequestMessage.Content = content;
         return httpRequestMessage;
-    }
-
-    private HttpClient CreateClientWithRegisterAsPrimary(bool enabled)
-    {
-        return _factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureAppConfiguration((_, config) =>
-            {
-                config.AddInMemoryCollection(new Dictionary<string, string?>
-                {
-                    ["CoreSettings:RegisterAsPrimaryUserProfileSource"] = enabled ? "true" : "false"
-                });
-            });
-        }).CreateClient();
     }
 }

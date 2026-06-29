@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Integrations.ContactRegister;
+using Altinn.Profile.Integrations.ContactRegister.Models;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Tests.Testdata;
 using Moq;

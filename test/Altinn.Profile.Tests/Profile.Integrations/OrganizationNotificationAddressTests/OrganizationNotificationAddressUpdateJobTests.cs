@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Tests.Testdata;
 using Microsoft.Extensions.Logging;

@@ -2,10 +2,13 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
+
 using Microsoft.EntityFrameworkCore;
 
-namespace Altinn.Profile.Integrations.Entities
+namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities
 {
     /// <summary>
     /// Data Entity model for the notification address of an organization

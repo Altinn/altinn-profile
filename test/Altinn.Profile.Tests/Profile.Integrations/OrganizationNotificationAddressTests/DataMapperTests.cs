@@ -1,8 +1,10 @@
 ﻿using Altinn.Profile.Core.OrganizationNotificationAddresses;
-using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
+
 using Xunit;
+
 using static Altinn.Profile.Models.OrgNotificationAddressesResponse;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddressTests;

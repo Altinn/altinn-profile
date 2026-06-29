@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
 using Microsoft.EntityFrameworkCore;
 
-namespace Altinn.Profile.Integrations.Entities
+namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities
 {
     /// <summary>
     /// Class for organizations connection id and orgNumber

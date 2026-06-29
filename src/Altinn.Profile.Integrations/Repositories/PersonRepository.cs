@@ -7,8 +7,8 @@ using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.ContactRegister;
+using Altinn.Profile.Integrations.ContactRegister.Models;
 using Altinn.Profile.Integrations.Entities;
-using Altinn.Profile.Integrations.Mappings;
 using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;

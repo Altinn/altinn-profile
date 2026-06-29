@@ -1,6 +1,8 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Altinn.Profile.Core.Extensions;
+using Altinn.Profile.Integrations.ContactRegister.Models;
+
 using Microsoft.Extensions.Logging;
 
 namespace Altinn.Profile.Integrations.ContactRegister;
