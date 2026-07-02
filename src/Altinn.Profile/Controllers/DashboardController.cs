@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Mappers;
-using Altinn.Profile.Models;
+using Altinn.Profile.Models.Dashboard;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -89,7 +90,7 @@ namespace Altinn.Profile.Controllers
             if (orgCount == 0)
             {
                 return NotFound();
-            } 
+            }
 
             var addresses = FilterAndMapAddresses(organizations);
 
@@ -111,7 +112,7 @@ namespace Altinn.Profile.Controllers
             [FromRoute(Name = "phoneNumber"), Required] string phoneNumber,
             [FromQuery(Name = "countrycode")] string countryCode = "+47",
             CancellationToken cancellationToken = default)
-        {            
+        {
             if (!ModelState.IsValid)
             {
                 return ValidationProblem(ModelState);
@@ -268,23 +269,23 @@ namespace Altinn.Profile.Controllers
         public async Task<ActionResult<List<DashboardUserContactInformationResponse>>> GetContactInformationByPhoneNumber(
              [FromRoute(Name = "phoneNumber"), Required, RegularExpression(@"^[0-9]{5,15}$", ErrorMessage = "The phone number is not valid. It can only contain digits between 5 to 15 digits")] string phoneNumber,
              [FromQuery(Name = "countrycode")] string countryCode,
-             CancellationToken cancellationToken = default)          
+             CancellationToken cancellationToken = default)
         {
-             if (!ModelState.IsValid)
-             {
+            if (!ModelState.IsValid)
+            {
                 return ValidationProblem(ModelState);
-             }
+            }
 
-             var contactInfosByPhone = await _professionalNotificationsService.GetContactInformationByPhoneNumberAsync(phoneNumber, countryCode, cancellationToken);
+            var contactInfosByPhone = await _professionalNotificationsService.GetContactInformationByPhoneNumberAsync(phoneNumber, countryCode, cancellationToken);
 
-             if (contactInfosByPhone.Count == 0)
-             {
+            if (contactInfosByPhone.Count == 0)
+            {
                 return Ok(new List<DashboardUserContactInformationResponse>());
-             }
+            }
 
-             var responses = MapContactInfosToResponses(contactInfosByPhone);
+            var responses = MapContactInfosToResponses(contactInfosByPhone);
 
-             return Ok(responses);
+            return Ok(responses);
         }
 
         private static List<DashboardUserContactInformationResponse> MapContactInfosToResponses(IEnumerable<UserPartyContactInfoWithIdentity> contactInfos)
@@ -299,6 +300,71 @@ namespace Altinn.Profile.Controllers
                 LastChanged = c.LastChanged,
                 ResourceIncludeList = c.ResourceIncludeList,
             })];
+        }
+    }
+
+    /// <summary>
+    /// Controller for retrieving user contact information for users.
+    /// </summary>
+    /// <param name="userContactPointsService">The service for retrieving user contact points</param>
+    [ApiController]
+    [Authorize(Policy = AuthConstants.SupportDashboardAccess)]
+    [Route("profile/api/v1/dashboard")]
+    [Consumes("application/json")]
+    [Produces("application/json")]
+    public class DashboardUserPrivateContactInformationController(
+        IUserContactPointsService userContactPointsService) : ControllerBase
+    {
+        private readonly IUserContactPointsService _userContactPointsService = userContactPointsService;
+
+        /// <summary>
+        /// Endpoint that can retrieve a list of all user contact information for the given user.
+        /// Returns the contact details that users have registered for acting on behalf of this organization.
+        /// </summary>
+        /// <param name="request">The request containing the social security number (SSN) of the user to retrieve contact information for</param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        /// <returns>Returns the user contact information for the provided user</returns>
+        /// <response code="200">Successfully retrieved user contact information.</response>
+        /// <response code="400">Invalid request parameters (model validation failed).</response>
+        /// <response code="403">Caller does not have the required Dashboard Maskinporten scope (altinn:profile.support.admin).</response>
+        /// <response code="404">User with the provided SSN does not exist.</response>
+        [HttpPost("users/contactinformation")]
+        [ProducesResponseType(typeof(DashboardUserContactPointResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<DashboardUserContactPointResponse>> GetContactInformationBySSN(
+            [FromBody] DashboardContactInformationRequest request,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var contactInfo = await _userContactPointsService.GetContactPoints(request.Ssn, cancellationToken);
+
+            if (contactInfo == null)
+            {
+                return NotFound();
+            }
+
+            var response = MapContactInfosToResponses(contactInfo);
+
+            return Ok(response);
+        }
+
+        private static DashboardUserContactPointResponse MapContactInfosToResponses(DashboardUserContactPoint contactInfo)
+        {
+            return new DashboardUserContactPointResponse
+            {
+                NationalIdentityNumber = contactInfo.NationalIdentityNumber,
+                Email = contactInfo.Email,
+                MobileNumber = contactInfo.MobileNumber,
+                IsReserved = contactInfo.IsReserved,
+                MobileNumberLastTouched = contactInfo.MobileNumberLastTouched,
+                EmailLastTouched = contactInfo.EmailLastTouched,
+            };
         }
     }
 }

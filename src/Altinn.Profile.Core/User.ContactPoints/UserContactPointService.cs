@@ -89,6 +89,36 @@ public class UserContactPointService : IUserContactPointsService
     }
 
     /// <inheritdoc/>
+    public async Task<DashboardUserContactPoint?> GetContactPoints(string nationalIdentityNumber, CancellationToken cancellationToken)
+    {
+        var contactPreferences = await _personService.GetContactPreferencesAsync([nationalIdentityNumber], cancellationToken);
+        if (contactPreferences == null || contactPreferences.Count == 0)
+        {
+            return null;
+        }
+
+        if (contactPreferences.Count > 1)
+        {
+            _logger.LogWarning("Multiple contact preferences found for national identity number {NationalIdentityNumber}. Returning the first one.", nationalIdentityNumber);
+        }
+
+        var contactPreference = contactPreferences[0];
+
+        DashboardUserContactPoint contactPoint = new()
+        {
+            NationalIdentityNumber = contactPreference.NationalIdentityNumber,
+            Email = contactPreference.Email,
+            MobileNumber = contactPreference.MobileNumber,
+            IsReserved = contactPreference.IsReserved,
+            MobileNumberLastTouched = contactPreference.MobileNumberLastTouched,
+            EmailLastTouched = contactPreference.EmailLastTouched
+        };
+
+        return contactPoint;
+
+    }
+
+    /// <inheritdoc/>
     public async Task<SelfIdentifiedUserContactPointsList> GetSiContactPoints(List<string> externalIdentities, CancellationToken cancellationToken)
     {
         SelfIdentifiedUserContactPointsList contactPointsList = new();

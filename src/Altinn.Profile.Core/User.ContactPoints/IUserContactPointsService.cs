@@ -33,4 +33,12 @@ public interface IUserContactPointsService
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>Information on the existense of the users' contact points and reservation status or a boolean if failure.</returns>
     Task<UserContactPointAvailabilityList> GetContactPointAvailability(List<string> nationalIdentityNumbers, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get contact points for a user based on their national identity number.
+    /// </summary>
+    /// <param name="nationalIdentityNumber">The national identity number of the user.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>The contact points of the user, or null if not found.</returns>
+    Task<DashboardUserContactPoint?> GetContactPoints(string nationalIdentityNumber, CancellationToken cancellationToken);
 }
