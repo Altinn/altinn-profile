@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Altinn.Profile.Models
+namespace Altinn.Profile.Models.Dashboard
 {
     /// <summary>
     /// Represents a notification address

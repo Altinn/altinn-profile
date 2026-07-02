@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Altinn.Authorization.ABAC.Xacml.JsonProfile;
 using Altinn.Common.PEP.Interfaces;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
-using Altinn.Profile.Models;
+using Altinn.Profile.Models.Dashboard;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
