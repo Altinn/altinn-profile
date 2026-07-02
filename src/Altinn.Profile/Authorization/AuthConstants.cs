@@ -39,5 +39,10 @@
         /// Policy name for either end user access to the Altinn portal or read access to notification settings
         /// </summary>
         public const string ScopeEnduserOrNotificationSettingsRead = "ScopeEnduserOrNotificationSettingsRead";
+
+        /// <summary>
+        /// Policy name for the policy that checks that the caller has included the correct Correspondence scope.
+        /// </summary>
+        public const string CorrespondenceAccess = "CorrespondenceAccess";
     }
 }

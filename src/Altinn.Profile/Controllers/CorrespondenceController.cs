@@ -1,0 +1,153 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Altinn.Profile.Authorization;
+using Altinn.Profile.Core.OrganizationNotificationAddresses;
+using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Core.Unit.ContactPoints;
+using Altinn.Profile.Models;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+using static Altinn.Profile.Models.OrgNotificationAddressesResponse;
+
+namespace Altinn.Profile.Controllers;
+
+/// <summary>
+/// Controller for handling correspondence-related operations.
+/// </summary>
+[ApiController]
+[Authorize]
+[Authorize(Policy = AuthConstants.CorrespondenceAccess)]
+[Route("profile/api/v1/correspondence/notificationsettings")]
+[Produces("application/json")]
+public class CorrespondenceController : ControllerBase
+{
+    private readonly IUnitContactPointsService _contactPointsService;
+    private readonly IOrganizationNotificationAddressesService _notificationAddressService;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CorrespondenceController"/> class.
+    /// </summary>
+    /// <param name="contactPointsService">
+    /// A service implementation of <see cref="IUnitContactPointsService"/> that handles business logic
+    /// related to professional notification addresses.
+    /// </param>
+    /// <param name="notificationAddressService">
+    /// A service implementation of <see cref="IOrganizationNotificationAddressesService"/> that handles business logic
+    /// related to organization notification addresses.
+    /// </param>
+    public CorrespondenceController(IUnitContactPointsService contactPointsService, IOrganizationNotificationAddressesService notificationAddressService)
+    {
+        _contactPointsService = contactPointsService;
+        _notificationAddressService = notificationAddressService;
+    }
+
+    /// <summary>
+    /// Endpoint for looking up user-registered notification addresses for the provided organizations and the
+    /// given resource id.
+    /// </summary>
+    /// <param name="unitContactPointLookup">The search criteria.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>
+    /// Returns a list of user-registered notification addresses for the provided units.
+    /// </returns>
+    [HttpPost("users/contactpoint/lookup")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<UnitContactPointsList>> PostLookup(
+        [FromBody][Required] UnitContactPointLookup unitContactPointLookup, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            var resourceId = ResourceIdFormatter.GetSanitizedResourceId(unitContactPointLookup.ResourceId);
+            var organizationNumbers = unitContactPointLookup.OrganizationNumbers.Where(o => !string.IsNullOrWhiteSpace(o)).Select(o => o.Trim()).Distinct();
+            if (!organizationNumbers.Any())
+            {
+                return Ok(new UnitContactPointsList { ContactPointsList = [] });
+            }
+
+            var result = await _contactPointsService.GetUserRegisteredContactPoints([.. organizationNumbers], resourceId, cancellationToken);
+            return Ok(result);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return Problem("Could not retrieve contact points");
+        }
+    }
+
+    /// <summary>
+    /// Endpoint looking up the notification addresses for the organization provided in the lookup object in the request body.
+    /// If the organization has no notification addresses registered, the main unit address will be returned if it exists.
+    /// </summary>
+    /// <returns>Returns an overview of the user registered notification addresses for the provided organization</returns>
+    [HttpPost("units/contactpoint/lookup")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<OrgNotificationAddressesResponse>> PostLookup(
+        [FromBody][Required] OrgNotificationAddressRequest orgContactPointLookup, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses(orgContactPointLookup.OrganizationNumbers, cancellationToken, true);
+
+        OrgNotificationAddressesResponse result = MapResult(organizations);
+        return Ok(result);
+    }
+
+    private static OrgNotificationAddressesResponse MapResult(IEnumerable<Organization> organizations)
+    {
+        var orgContacts = new OrgNotificationAddressesResponse();
+        foreach (var organization in organizations)
+        {
+            var contactPoints = new NotificationAddresses
+            {
+                OrganizationNumber = organization.OrganizationNumber,
+                AddressOrigin = organization.AddressOrigin,
+            };
+
+            if (organization.NotificationAddresses?.Count > 0)
+            {
+                foreach (var notificationAddress in organization.NotificationAddresses)
+                {
+                    if (notificationAddress.IsSoftDeleted == true || notificationAddress.HasRegistryAccepted == false)
+                    {
+                        continue;
+                    }
+
+                    switch (notificationAddress.AddressType)
+                    {
+                        case AddressType.Email:
+                            contactPoints.EmailList.Add(notificationAddress.FullAddress);
+                            break;
+                        case AddressType.SMS:
+                            contactPoints.MobileNumberList.Add(notificationAddress.FullAddress);
+                            break;
+                    }
+                }
+            }
+
+            orgContacts.ContactPointsList.Add(contactPoints);
+        }
+
+        return orgContacts;
+    }
+}
