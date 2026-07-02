@@ -144,7 +144,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             HttpClient client = _factory.CreateClient();
-            var requestBody = new { ssn = (string?)null };
+            var requestBody = new { ssn = (string)null };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/dashboard/users/contactinformation");
             httpRequestMessage.Content = JsonContent.Create(requestBody);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);

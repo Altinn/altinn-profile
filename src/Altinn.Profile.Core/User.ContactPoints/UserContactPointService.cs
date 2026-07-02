@@ -89,7 +89,7 @@ public class UserContactPointService : IUserContactPointsService
     }
 
     /// <inheritdoc/>
-    public async Task<DashboardUserContactPoint?> GetContactPoints(string nationalIdentityNumber, CancellationToken cancellationToken)
+    public async Task<DashboardUserContactPoint?> GetContactPointsForDashboard(string nationalIdentityNumber, CancellationToken cancellationToken)
     {
         var contactPreferences = await _personService.GetContactPreferencesAsync([nationalIdentityNumber], cancellationToken);
         if (contactPreferences == null || contactPreferences.Count == 0)
@@ -99,7 +99,7 @@ public class UserContactPointService : IUserContactPointsService
 
         if (contactPreferences.Count > 1)
         {
-            _logger.LogWarning("Multiple contact preferences found for national identity number {NationalIdentityNumber}. Returning the first one.", nationalIdentityNumber);
+            throw new InvalidOperationException("Indecisive contact points result");
         }
 
         var contactPreference = contactPreferences[0];
@@ -115,7 +115,6 @@ public class UserContactPointService : IUserContactPointsService
         };
 
         return contactPoint;
-
     }
 
     /// <inheritdoc/>

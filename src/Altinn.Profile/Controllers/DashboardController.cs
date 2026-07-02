@@ -342,7 +342,7 @@ namespace Altinn.Profile.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var contactInfo = await _userContactPointsService.GetContactPoints(request.Ssn, cancellationToken);
+            var contactInfo = await _userContactPointsService.GetContactPointsForDashboard(request.Ssn, cancellationToken);
 
             if (contactInfo == null)
             {

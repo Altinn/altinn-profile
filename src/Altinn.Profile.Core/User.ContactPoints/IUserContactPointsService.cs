@@ -40,5 +40,5 @@ public interface IUserContactPointsService
     /// <param name="nationalIdentityNumber">The national identity number of the user.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>The contact points of the user, or null if not found.</returns>
-    Task<DashboardUserContactPoint?> GetContactPoints(string nationalIdentityNumber, CancellationToken cancellationToken);
+    Task<DashboardUserContactPoint?> GetContactPointsForDashboard(string nationalIdentityNumber, CancellationToken cancellationToken);
 }
