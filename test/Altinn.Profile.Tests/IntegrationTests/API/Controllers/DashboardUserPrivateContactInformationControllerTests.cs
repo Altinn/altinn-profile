@@ -58,8 +58,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
             var requestBody = new { ssn };
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/dashboard/users/contactinformation");
-            httpRequestMessage.Content = JsonContent.Create(requestBody);
+            HttpRequestMessage httpRequestMessage = CreatePostRequest(requestBody);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -92,8 +91,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
             var requestBody = new { ssn };
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/dashboard/users/contactinformation");
-            httpRequestMessage.Content = JsonContent.Create(requestBody);
+            HttpRequestMessage httpRequestMessage = CreatePostRequest(requestBody);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -111,8 +109,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
             var requestBody = new { ssn };
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/dashboard/users/contactinformation");
-            httpRequestMessage.Content = JsonContent.Create(requestBody);
+            HttpRequestMessage httpRequestMessage = CreatePostRequest(requestBody);
             httpRequestMessage = CreateAuthorizedRequestWithoutScope(httpRequestMessage);
 
             // Act
@@ -128,8 +125,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             HttpClient client = _factory.CreateClient();
             var requestBody = new { ssn = string.Empty };
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/dashboard/users/contactinformation");
-            httpRequestMessage.Content = JsonContent.Create(requestBody);
+            HttpRequestMessage httpRequestMessage = CreatePostRequest(requestBody);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -145,8 +141,27 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             HttpClient client = _factory.CreateClient();
             var requestBody = new { ssn = (string)null };
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/dashboard/users/contactinformation");
-            httpRequestMessage.Content = JsonContent.Create(requestBody);
+            HttpRequestMessage httpRequestMessage = CreatePostRequest(requestBody);
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Theory]
+        [InlineData("123")]
+        [InlineData("abcdefghijk")]
+        [InlineData("1234567890")]
+        [InlineData("123456789012")]
+        public async Task GetContactInformationBySSN_WhenSSNHasWrongFormat_ReturnsBadRequest(string ssn)
+        {
+            // Arrange
+            HttpClient client = _factory.CreateClient();
+            var requestBody = new { ssn };
+            HttpRequestMessage httpRequestMessage = CreatePostRequest(requestBody);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -176,9 +191,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(ImmutableList.Create(contactPreference));
 
             HttpClient client = _factory.CreateClient();
-            var requestBody = new { ssn = ssn };
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/dashboard/users/contactinformation");
-            httpRequestMessage.Content = JsonContent.Create(requestBody);
+            var requestBody = new { ssn };
+            HttpRequestMessage httpRequestMessage = CreatePostRequest(requestBody);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -215,8 +229,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
             var requestBody = new { ssn };
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/dashboard/users/contactinformation");
-            httpRequestMessage.Content = JsonContent.Create(requestBody);
+            HttpRequestMessage httpRequestMessage = CreatePostRequest(requestBody);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -253,8 +266,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
             var requestBody = new { ssn };
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/dashboard/users/contactinformation");
-            httpRequestMessage.Content = JsonContent.Create(requestBody);
+            HttpRequestMessage httpRequestMessage = CreatePostRequest(requestBody);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -290,8 +302,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
             var requestBody = new { ssn };
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/dashboard/users/contactinformation");
-            httpRequestMessage.Content = JsonContent.Create(requestBody);
+            HttpRequestMessage httpRequestMessage = CreatePostRequest(requestBody);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -329,8 +340,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
             var requestBody = new { ssn };
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/dashboard/users/contactinformation");
-            httpRequestMessage.Content = JsonContent.Create(requestBody);
+            HttpRequestMessage httpRequestMessage = CreatePostRequest(requestBody);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -344,6 +354,13 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(result);
             Assert.Null(result.EmailLastTouched);
             Assert.Equal(_testTime, result.MobileNumberLastTouched);
+        }
+
+        private static HttpRequestMessage CreatePostRequest(object requestBody)
+        {
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/dashboard/users/contactinformation");
+            httpRequestMessage.Content = JsonContent.Create(requestBody);
+            return httpRequestMessage;
         }
 
         private static HttpRequestMessage CreateAuthorizedRequestWithoutScope(HttpRequestMessage httpRequestMessage, string org = "ttd")

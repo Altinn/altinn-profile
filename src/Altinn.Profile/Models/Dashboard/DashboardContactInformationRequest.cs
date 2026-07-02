@@ -11,5 +11,6 @@ public class DashboardContactInformationRequest
     /// The social security number (SSN) of the user to retrieve contact information for
     /// </summary>
     [Required]
+    [RegularExpression(@"^\d{11}$", ErrorMessage = "The SSN is not valid. It must contain exactly 11 digits")]
     public string Ssn { get; set; } = string.Empty;
 }
