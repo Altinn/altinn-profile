@@ -17,7 +17,7 @@ namespace Altinn.Profile.Core.Unit.ContactPoints
         /// <inheritdoc/>
         public async Task<UnitContactPointsList> GetUserRegisteredContactPoints(string[] orgNumbers, string resourceId, CancellationToken cancellationToken)
         {
-            var partyList = await _registerClient.GetPartyUuids(orgNumbers, cancellationToken);
+            IReadOnlyList<Party>? partyList = await _registerClient.GetPartyUuids(orgNumbers, cancellationToken);
 
             if (partyList == null)
             {
@@ -33,6 +33,9 @@ namespace Altinn.Profile.Core.Unit.ContactPoints
             {
                 return result;
             }
+
+            // Make sure the resourceId is simplified down to the resource ID by removing any urn:altinn:resource: prefix if it exists
+            resourceId = ResourceIdFormatter.GetSanitizedResourceId(resourceId);
 
             foreach (var party in partyList)
             {
