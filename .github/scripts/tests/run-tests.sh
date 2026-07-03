@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+#
+# Fixture-based tests for the container-scan helper scripts. No Docker or
+# network access required — pure data in, verdicts out.
+#
+# Usage: .github/scripts/tests/run-tests.sh
+
+set -uo pipefail
+
+here="$(cd "$(dirname "$0")" && pwd)"
+scripts="$(cd "$here/.." && pwd)"
+fixtures="$here/fixtures"
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
+pass=0
+fail=0
+
+ok()   { printf '  \033[32mPASS\033[0m %s\n' "$1"; pass=$((pass + 1)); }
+bad()  { printf '  \033[31mFAIL\033[0m %s\n' "$1"; fail=$((fail + 1)); }
+
+# assert_kv <output> <KEY> <expected-value> <label>
+assert_kv() {
+  local out="$1" key="$2" want="$3" label="$4"
+  local got
+  got="$(printf '%s\n' "$out" | sed -n "s/^${key}=//p")"
+  if [ "$got" = "$want" ]; then ok "$label ($key=$got)"; else bad "$label ($key: want '$want', got '$got')"; fi
+}
+
+# assert_contains <haystack> <needle> <label>
+assert_contains() {
+  case "$1" in
+    *"$2"*) ok "$3" ;;
+    *)      bad "$3 (missing: $2)" ;;
+  esac
+}
+
+echo "== derive-base-image.sh =="
+
+df="$tmp/Dockerfile.aspnet"
+cat > "$df" <<'EOF'
+FROM mcr.microsoft.com/dotnet/sdk:10.0.301-alpine3.23@sha256:aaa AS build
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.9-alpine3.23@sha256:bbb AS final
+EOF
+out="$(bash "$scripts/derive-base-image.sh" "$df")"
+assert_kv "$out" BASE_REPO    "mcr.microsoft.com/dotnet/aspnet" "picks the final (last) FROM"
+assert_kv "$out" BASE_TAG     "10.0.9-alpine3.23"               "reads full tag"
+assert_kv "$out" BASE_DIGEST  "sha256:bbb"                      "reads pinned digest"
+assert_kv "$out" BASE_VERSION "10.0.9"                          "extracts version"
+assert_kv "$out" BASE_CHANNEL "10.0"                            "reduces to major.minor"
+assert_kv "$out" OS_SUFFIX    "alpine3.23"                      "extracts OS suffix"
+assert_kv "$out" FLOATING_TAG "10.0-alpine3.23"                 "derives floating tag"
+
+df="$tmp/Dockerfile.future"
+cat > "$df" <<'EOF'
+FROM mcr.microsoft.com/dotnet/aspnet:11.0.3-alpine3.25@sha256:ccc AS final
+EOF
+out="$(bash "$scripts/derive-base-image.sh" "$df")"
+assert_kv "$out" FLOATING_TAG "11.0-alpine3.25" "generalizes to a future major/OS bump"
+
+df="$tmp/Dockerfile.noble"
+cat > "$df" <<'EOF'
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.9-noble@sha256:ddd AS final
+EOF
+out="$(bash "$scripts/derive-base-image.sh" "$df")"
+assert_kv "$out" OS_SUFFIX    "noble"       "handles non-Alpine OS suffix"
+assert_kv "$out" FLOATING_TAG "10.0-noble"  "derives floating tag for non-Alpine"
+
+df="$tmp/Dockerfile.nodigest"
+cat > "$df" <<'EOF'
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.9-alpine3.23 AS final
+EOF
+out="$(bash "$scripts/derive-base-image.sh" "$df")"
+assert_kv "$out" BASE_DIGEST  ""                "tolerates an unpinned FROM"
+assert_kv "$out" FLOATING_TAG "10.0-alpine3.23" "still derives floating tag when unpinned"
+
+echo "== analyze-base-fixes.sh =="
+
+# A newer base exists and was scanned.
+out="$(HAS_NEW_BASE=true FLOATING_TAG=10.0-alpine3.23 LATEST_VERSION=10.0.11-alpine3.23 BASE_TAG=10.0.9-alpine3.23 \
+  bash "$scripts/analyze-base-fixes.sh" "$fixtures/app-findings.json" "$fixtures/base-latest-findings.json")"
+assert_contains "$out" "**4** finding(s): **2** fixable by a base image bump, **1** awaiting an upstream fix, **1** app dependencies." "counts add up with a newer base"
+assert_contains "$out" "CVE-OS-FIXED"      "reports the fixed OS package"
+assert_contains "$out" "CVE-RUNTIME-FIXED" "reports the fixed runtime assembly"
+# OS package absent from latest base -> base bump.
+case "$out" in *"CVE-OS-FIXED"*"Base image bump"*|*"Base image bump"*"CVE-OS-FIXED"*) ok "OS-fixed -> base bump" ;; *) bad "OS-fixed -> base bump" ;; esac
+assert_contains "$out" "Not yet fixed upstream"  "OS-still -> awaiting upstream"
+assert_contains "$out" "App dependency"          "nuget -> app dependency"
+
+# No newer base published: base-origin findings should all read 'already on latest'.
+out="$(HAS_NEW_BASE=false FLOATING_TAG=10.0-alpine3.23 BASE_TAG=10.0.9-alpine3.23 \
+  bash "$scripts/analyze-base-fixes.sh" "$fixtures/app-findings.json")"
+assert_contains "$out" "No newer base image is published" "reports we are on the latest base"
+assert_contains "$out" "Already on latest base"           "base-origin -> already on latest"
+assert_contains "$out" "**0** fixable by a base image bump" "nothing marked as base-bump without a newer base"
+assert_contains "$out" "App dependency"                    "app dep still flagged without a newer base"
+
+echo
+echo "Passed: $pass  Failed: $fail"
+[ "$fail" -eq 0 ]

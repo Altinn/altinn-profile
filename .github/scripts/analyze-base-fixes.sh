@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+#
+# Classify Trivy findings for the application image into actionable mitigations
+# and render a markdown table to the GitHub Actions job summary.
+#
+# For every CRITICAL/HIGH finding it decides one of:
+#   - App dependency          -> fix in the .csproj (not a base-image concern)
+#   - Base image bump         -> a newer base image already ships the fix
+#   - Not yet fixed upstream   -> present in the latest base too; needs a
+#                                 Dockerfile workaround or an upstream fix
+#
+# "Base-origin" (i.e. comes from the base image, not your app) is determined
+# from the app scan alone: OS packages (Class == os-pkgs) and the bundled .NET
+# runtime (Type == dotnet-core, or a package path under the shared framework).
+# Whether a base-origin finding is already fixed is answered by diffing its
+# vulnerability ID against a scan of the latest base image, which the caller
+# supplies only when a newer base actually exists.
+#
+# Usage: analyze-base-fixes.sh <app-trivy.json> [base-latest-trivy.json]
+#
+# Environment (all optional, used for wording only):
+#   HAS_NEW_BASE   "true" when a newer base image was found and scanned
+#   FLOATING_TAG   floating channel tag, e.g. 10.0-alpine3.23
+#   LATEST_VERSION concrete latest patch, e.g. 10.0.11-alpine3.23
+#   BASE_TAG       currently pinned tag, e.g. 10.0.9-alpine3.23
+#
+# Output goes to $GITHUB_STEP_SUMMARY when set, otherwise to stdout.
+
+set -euo pipefail
+
+app_json="${1:?usage: analyze-base-fixes.sh <app-trivy.json> [base-latest-trivy.json]}"
+base_json="${2:-}"
+
+if [ ! -f "$app_json" ]; then
+  echo "analyze-base-fixes.sh: file not found: $app_json" >&2
+  exit 1
+fi
+
+has_new_base="${HAS_NEW_BASE:-false}"
+floating_tag="${FLOATING_TAG:-the latest base image}"
+latest_version="${LATEST_VERSION:-}"
+base_tag="${BASE_TAG:-}"
+
+# Set of vulnerability IDs still present in the latest base image (if scanned).
+declare -A latest_base_ids=()
+if [ -n "$base_json" ] && [ -f "$base_json" ]; then
+  while IFS= read -r id; do
+    [ -n "$id" ] && latest_base_ids["$id"]=1
+  done < <(jq -r '[.Results[]?.Vulnerabilities[]?.VulnerabilityID] | unique[]' "$base_json" | tr -d '\r')
+fi
+
+# Emit each finding as a tab-separated row from the app scan.
+# Fields: id, pkg, installed, fixed, severity, class, type, pkgpath
+extract() {
+  jq -r '
+    .Results[]? as $r
+    | ($r.Class // "")  as $class
+    | ($r.Type  // "")  as $type
+    | ($r.Target // "") as $target
+    | ($r.Vulnerabilities // [])[]
+    | [ .VulnerabilityID,
+        .PkgName,
+        (.InstalledVersion // ""),
+        (.FixedVersion // "-"),
+        (.Severity // ""),
+        $class,
+        $type,
+        (.PkgPath // $target) ]
+    | @tsv
+  ' "$app_json"
+}
+
+is_base_origin() {
+  local class="$1" type="$2" path="$3"
+  [ "$class" = "os-pkgs" ] && return 0
+  [ "$type" = "dotnet-core" ] && return 0
+  case "$path" in
+    usr/share/dotnet/*|/usr/share/dotnet/*|usr/lib/dotnet/*|/usr/lib/dotnet/*) return 0 ;;
+  esac
+  return 1
+}
+
+rows=""
+count_total=0
+count_bump=0
+count_upstream=0
+count_appdep=0
+
+while IFS=$'\t' read -r id pkg installed fixed severity class type path; do
+  [ -z "$id" ] && continue
+  count_total=$((count_total + 1))
+
+  if is_base_origin "$class" "$type" "$path"; then
+    if [ "$has_new_base" = "true" ] && [ -n "${latest_base_ids[$id]:-}" ]; then
+      verdict="⏳ Not yet fixed upstream — Dockerfile workaround or wait"
+      count_upstream=$((count_upstream + 1))
+    elif [ "$has_new_base" = "true" ]; then
+      target="${latest_version:-$floating_tag}"
+      verdict="✅ Base image bump — update Dockerfile to \`$target\`"
+      count_bump=$((count_bump + 1))
+    else
+      verdict="⏳ Already on latest base — Dockerfile workaround or wait"
+      count_upstream=$((count_upstream + 1))
+    fi
+  else
+    verdict="🔧 App dependency — update the package in its .csproj"
+    count_appdep=$((count_appdep + 1))
+  fi
+
+  rows+="| ${severity} | ${id} | \`${pkg}\` | ${installed} | ${fixed} | ${verdict} |"$'\n'
+done < <(extract | tr -d '\r')
+
+# Render.
+{
+  echo "## 🐳 Base image mitigation analysis"
+  echo
+  if [ -n "$base_tag" ]; then
+    echo "Deployed base image: \`${base_tag}\`"
+  fi
+  if [ "$has_new_base" = "true" ]; then
+    echo "A newer base image is available: \`${latest_version:-$floating_tag}\`"
+  else
+    echo "No newer base image is published for \`${floating_tag}\` — you are already on the latest."
+  fi
+  echo
+
+  if [ "$count_total" -eq 0 ]; then
+    echo "No CRITICAL/HIGH findings to analyze. ✅"
+  else
+    echo "**${count_total}** finding(s): **${count_bump}** fixable by a base image bump, **${count_upstream}** awaiting an upstream fix, **${count_appdep}** app dependencies."
+    echo
+    echo "| Severity | CVE | Package | Installed | Fixed in | Mitigation |"
+    echo "| --- | --- | --- | --- | --- | --- |"
+    printf '%s' "$rows"
+  fi
+} >> "${GITHUB_STEP_SUMMARY:-/dev/stdout}"
