@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Core.Unit;
 
-public sealed class UnitContactPointServiceTest
+public sealed class UnitContactPointServiceTests
 {
     private const string _resourcePrefix = "urn:altinn:resource:";
 
