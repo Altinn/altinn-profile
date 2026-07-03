@@ -74,7 +74,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal("user@example.com", result.EmailAddress);
             Assert.Equal("+4798765432", result.PhoneNumber);
             Assert.False(result.IsReserved);
-            Assert.Equal(_testTime, result.MobileNumberLastUpdatedOrVerified);
+            Assert.Equal(_testTime, result.PhoneNumberLastUpdatedOrVerified);
             Assert.Equal(_testTime, result.EmailLastUpdatedOrVerified);
         }
 
@@ -343,7 +343,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             Assert.NotNull(result);
             Assert.Null(result.EmailLastUpdatedOrVerified);
-            Assert.Equal(_testTime, result.MobileNumberLastUpdatedOrVerified);
+            Assert.Equal(_testTime, result.PhoneNumberLastUpdatedOrVerified);
         }
 
         private static HttpRequestMessage CreateGetRequest(string nationalIdentityNumber)

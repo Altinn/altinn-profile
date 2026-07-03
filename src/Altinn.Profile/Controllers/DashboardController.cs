@@ -361,7 +361,7 @@ namespace Altinn.Profile.Controllers
                 EmailAddress = contactInfo.Email,
                 PhoneNumber = contactInfo.MobileNumber,
                 IsReserved = contactInfo.IsReserved,
-                MobileNumberLastUpdatedOrVerified = contactInfo.MobileNumberLastUpdatedOrVerified,
+                PhoneNumberLastUpdatedOrVerified = contactInfo.MobileNumberLastUpdatedOrVerified,
                 EmailLastUpdatedOrVerified = contactInfo.EmailLastUpdatedOrVerified,
             };
         }
