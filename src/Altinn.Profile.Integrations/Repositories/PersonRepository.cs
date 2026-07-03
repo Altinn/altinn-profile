@@ -57,6 +57,26 @@ public class PersonRepository(IDbContextFactory<ProfileDbContext> contextFactory
         return asContactPreferences.ToImmutableList();
     }
 
+    /// <inheritdoc/>
+    public async Task<ImmutableList<PersonContactPreferences>> GetContactPreferencesByEmailAsync(string emailAddress, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNullOrEmpty(emailAddress);
+
+        if (string.IsNullOrWhiteSpace(emailAddress))
+        {
+            return [];
+        }
+
+        var emailAddressLower = emailAddress.ToLower();
+
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        List<Person> people = await databaseContext.People.Where(e => e.EmailAddress.ToLower() == emailAddressLower).ToListAsync(cancellationToken);
+
+        var asContactPreferences = people.Select(PersonContactPreferencesMapper.Map);
+        return asContactPreferences.ToImmutableList();
+    }
+
     /// <summary>
     /// Asynchronously synchronizes the changes in person contact preferences.
     /// </summary>

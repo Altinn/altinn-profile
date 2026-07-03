@@ -153,7 +153,8 @@ public partial class ProfileDbContext : DbContext
                   .HasConstraintName("fk_mailbox_supplier");
 
             entity.HasIndex(e => e.FnumberAk, "ix_person_fnumber_ak").IsUnique();
-
+            entity.HasIndex(e => e.EmailAddress, "ix_person_email_address");
+            entity.HasIndex(e => e.MobilePhoneNumber, "ix_person_mobile_phone_number");
         });
 
         modelBuilder.Entity<NotificationAddressDE>(entity =>
@@ -338,6 +339,9 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.EmailAddress).HasMaxLength(400);
             entity.Property(e => e.PhoneNumber).HasMaxLength(26);
             entity.Property(e => e.PhoneNumberLastChanged);
+
+            entity.HasIndex(e => e.EmailAddress, "ix_email_address");
+            entity.HasIndex(e => e.PhoneNumber, "ix_phone_number");
         });
 
         OnModelCreatingPartial(modelBuilder);

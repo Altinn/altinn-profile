@@ -348,12 +348,49 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
-            var response = MapContactInfosToResponses(contactInfo);
+            var response = MapContactInfoToResponses(contactInfo);
 
             return Ok(response);
         }
 
-        private static DashboardUserContactPointResponse MapContactInfosToResponses(DashboardUserContactPoint contactInfo)
+        /// <summary>
+        /// Endpoint that can retrieve a list of all user contact information for the given email from both KRR and email identified users.
+        /// Returns the contact details that users have registered for acting on behalf of this organization.
+        /// </summary>
+        /// <param name="email">The email of the user to retrieve contact information for</param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        /// <returns>Returns the user contact information for the provided user</returns>
+        /// <response code="200">Successfully retrieved user contact information.</response>
+        /// <response code="400">Invalid request parameters (model validation failed).</response>
+        /// <response code="403">Caller does not have the required Dashboard Maskinporten scope (altinn:profile.support.admin).</response>
+        /// <response code="404">User with the provided email does not exist.</response>
+        [HttpGet("users/contactinformation/email/{email}")]
+        [ProducesResponseType(typeof(List<DashboardUserContactPointResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<DashboardUserContactPointResponse>>> GetContactInformationByEmail(
+            [FromRoute] string email,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var contactInfo = await _userContactPointsService.GetContactPointsForDashboardByEmail(email, cancellationToken);
+
+            if (contactInfo == null)
+            {
+                return NotFound();
+            }
+
+            var response = contactInfo.Select(MapContactInfoToResponses).ToList();
+
+            return Ok(response);
+        }
+
+        private static DashboardUserContactPointResponse MapContactInfoToResponses(DashboardUserContactPoint contactInfo)
         {
             return new DashboardUserContactPointResponse
             {

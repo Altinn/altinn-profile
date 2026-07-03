@@ -346,10 +346,223 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(_testTime, result.PhoneNumberLastUpdatedOrVerified);
         }
 
+        [Fact]
+        public async Task GetContactInformationByEmail_WhenValidEmailProvided_ReturnsOkWithContactInformation()
+        {
+            // Arrange
+            string email = "user@example.com";
+            var contactPreference = new PersonContactPreferences
+            {
+                NationalIdentityNumber = "09861797993",
+                Email = email,
+                MobileNumber = "+4798765432",
+                IsReserved = false,
+                MobileNumberLastUpdatedOrVerified = _testTime,
+                EmailLastUpdatedOrVerified = _testTime
+            };
+
+            _factory.PersonServiceMock
+                .Setup(s => s.GetContactPreferencesByEmailAsync(email, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(ImmutableList.Create(contactPreference));
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateGetEmailRequest(email);
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var result = JsonSerializer.Deserialize<List<DashboardUserContactPointResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+            Assert.Single(result);
+            Assert.Equal("09861797993", result[0].NationalIdentityNumber);
+            Assert.Equal(email, result[0].EmailAddress);
+            Assert.Equal("+4798765432", result[0].PhoneNumber);
+            Assert.False(result[0].IsReserved);
+            Assert.Equal(_testTime, result[0].PhoneNumberLastUpdatedOrVerified);
+            Assert.Equal(_testTime, result[0].EmailLastUpdatedOrVerified);
+        }
+
+        [Fact]
+        public async Task GetContactInformationByEmail_WhenEmailNotFound_ReturnsOKWithEmptyList()
+        {
+            // Arrange
+            string email = "notfound@example.com";
+
+            // The service throws an InvalidOperationException when email is not found
+            _factory.PersonServiceMock
+                .Setup(s => s.GetContactPreferencesByEmailAsync(email, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(ImmutableList<PersonContactPreferences>.Empty);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateGetEmailRequest(email);
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var result = JsonSerializer.Deserialize<List<DashboardUserContactPointResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetContactInformationByEmail_WhenNoAccess_ReturnsForbidden()
+        {
+            // Arrange
+            string email = "user@example.com";
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateGetEmailRequest(email);
+            httpRequestMessage = CreateAuthorizedRequestWithoutScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetContactInformationByEmail_WhenMultipleUsersWithSameEmail_ReturnsListWithAllMatches()
+        {
+            // Arrange
+            string email = "shared@example.com";
+            var contactPreference1 = new PersonContactPreferences
+            {
+                NationalIdentityNumber = "09861797993",
+                Email = email,
+                MobileNumber = "+4798765432",
+                IsReserved = false,
+                MobileNumberLastUpdatedOrVerified = _testTime,
+                EmailLastUpdatedOrVerified = _testTime
+            };
+
+            var contactPreference2 = new PersonContactPreferences
+            {
+                NationalIdentityNumber = "09861797994",
+                Email = email,
+                MobileNumber = "+4798765433",
+                IsReserved = true,
+                MobileNumberLastUpdatedOrVerified = _testTime,
+                EmailLastUpdatedOrVerified = _testTime
+            };
+
+            _factory.PersonServiceMock
+                .Setup(s => s.GetContactPreferencesByEmailAsync(email, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(ImmutableList.Create(contactPreference1, contactPreference2));
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateGetEmailRequest(email);
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var result = JsonSerializer.Deserialize<List<DashboardUserContactPointResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Equal("09861797993", result[0].NationalIdentityNumber);
+            Assert.False(result[0].IsReserved);
+            Assert.Equal("09861797994", result[1].NationalIdentityNumber);
+            Assert.True(result[1].IsReserved);
+        }
+
+        [Fact]
+        public async Task GetContactInformationByEmail_WhenEmailHasNullMobileNumber_ReturnsOkWithNullMobileNumber()
+        {
+            // Arrange
+            string email = "user@example.com";
+            var contactPreference = new PersonContactPreferences
+            {
+                NationalIdentityNumber = "09861797993",
+                Email = email,
+                MobileNumber = null,
+                IsReserved = false,
+                MobileNumberLastUpdatedOrVerified = null,
+                EmailLastUpdatedOrVerified = _testTime
+            };
+
+            _factory.PersonServiceMock
+                .Setup(s => s.GetContactPreferencesByEmailAsync(email, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(ImmutableList.Create(contactPreference));
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateGetEmailRequest(email);
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var result = JsonSerializer.Deserialize<List<DashboardUserContactPointResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+            Assert.Single(result);
+            Assert.Null(result[0].PhoneNumber);
+            Assert.Equal(email, result[0].EmailAddress);
+        }
+
+        [Fact]
+        public async Task GetContactInformationByEmail_WhenUserIsReserved_ReturnsOkWithReservedFlag()
+        {
+            // Arrange
+            string email = "user@example.com";
+            var contactPreference = new PersonContactPreferences
+            {
+                NationalIdentityNumber = "09861797993",
+                Email = email,
+                MobileNumber = "+4798765432",
+                IsReserved = true,
+                MobileNumberLastUpdatedOrVerified = _testTime,
+                EmailLastUpdatedOrVerified = _testTime
+            };
+
+            _factory.PersonServiceMock
+                .Setup(s => s.GetContactPreferencesByEmailAsync(email, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(ImmutableList.Create(contactPreference));
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateGetEmailRequest(email);
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var result = JsonSerializer.Deserialize<List<DashboardUserContactPointResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+            Assert.Single(result);
+            Assert.True(result[0].IsReserved);
+        }
+
         private static HttpRequestMessage CreateGetRequest(string nationalIdentityNumber)
         {
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, "/profile/api/v1/dashboard/users/contactinformation");
             httpRequestMessage.Headers.Add("NationalIdentityNumber", nationalIdentityNumber);
+            return httpRequestMessage;
+        }
+
+        private static HttpRequestMessage CreateGetEmailRequest(string email)
+        {
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/users/contactinformation/email/{Uri.EscapeDataString(email)}");
             return httpRequestMessage;
         }
 

@@ -155,6 +155,94 @@ public class PersonRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task GetContactPreferencesByEmailAsync_WhenEmailFound_ReturnsContactInfo()
+    {
+        // Act
+        var matches = await _personRepository.GetContactPreferencesByEmailAsync("user1@example.com", TestContext.Current.CancellationToken);
+        var matchedPersonContactPreferences = matches[0];
+
+        var expectedPerson = _personContactAndReservationTestData
+            .Find(p => p.EmailAddress == "user1@example.com");
+
+        // Assert
+        Assert.NotNull(matchedPersonContactPreferences);
+        AssertRegisterProperties(expectedPerson.AsPersonContactPreferences(), matchedPersonContactPreferences);
+    }
+
+    [Fact]
+    public async Task GetContactPreferencesByEmailAsync_WhenMultipleContactsWithSameEmail_ReturnsAllMatches()
+    {
+        // Arrange - Add another person with the same email
+        var duplicateEmailPerson = new Person
+        {
+            LanguageCode = "en",
+            Reservation = false,
+            FnumberAk = "31121234567",
+            EmailAddress = "user1@example.com",
+            MobilePhoneNumber = "+4790077900"
+        };
+        _databaseContext.People.Add(duplicateEmailPerson);
+        _databaseContext.SaveChanges();
+
+        // Act
+        var matches = await _personRepository.GetContactPreferencesByEmailAsync("user1@example.com", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(2, matches.Count);
+        var emails = matches.Select(m => m.Email).ToList();
+        Assert.All(emails, email => Assert.Equal("user1@example.com", email));
+    }
+
+    [Fact]
+    public async Task GetContactPreferencesByEmailAsync_WhenEmailNotFound_ReturnsEmpty()
+    {
+        // Act
+        var matches = await _personRepository.GetContactPreferencesByEmailAsync("nonexistent@example.com", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Empty(matches);
+    }
+
+    [Fact]
+    public async Task GetContactPreferencesByEmailAsync_WhenEmailIsNull_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(() =>
+            _personRepository.GetContactPreferencesByEmailAsync(null!, TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
+    public async Task GetContactPreferencesByEmailAsync_WhenEmailIsEmpty_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _personRepository.GetContactPreferencesByEmailAsync(string.Empty, TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
+    public async Task GetContactPreferencesByEmailAsync_WhenEmailHasDifferentCaseInDatabase_ReturnsMatch()
+    {
+        // Arrange - Database has "user1@example.com" in lowercase
+        // Act - Search with different case
+        var matches = await _personRepository.GetContactPreferencesByEmailAsync("USER1@EXAMPLE.COM", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Single(matches);
+        Assert.Equal("user1@example.com", matches[0].Email);
+    }
+
+    [Fact]
+    public async Task GetContactPreferencesByEmailAsync_WhenEmailSearchWithMixedCase_ReturnsMatch()
+    {
+        // Act
+        var matches = await _personRepository.GetContactPreferencesByEmailAsync("UsEr1@ExAmPlE.CoM", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Single(matches);
+        Assert.Equal("user1@example.com", matches[0].Email);
+    }
+
+    [Fact]
     public async Task SyncPersonContactPreferencesAsync_AddsNewPerson_WhenNotExists()
     {
         // Arrange
