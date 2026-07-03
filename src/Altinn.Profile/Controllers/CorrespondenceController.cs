@@ -109,45 +109,7 @@ public class CorrespondenceController : ControllerBase
 
         var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses(orgContactPointLookup.OrganizationNumbers, cancellationToken, true);
 
-        OrgNotificationAddressesResponse result = MapResult(organizations);
+        OrgNotificationAddressesResponse result = OrgNotificationAddressesResponse.Create(organizations);
         return Ok(result);
-    }
-
-    private static OrgNotificationAddressesResponse MapResult(IEnumerable<Organization> organizations)
-    {
-        var orgContacts = new OrgNotificationAddressesResponse();
-        foreach (var organization in organizations)
-        {
-            var contactPoints = new NotificationAddresses
-            {
-                OrganizationNumber = organization.OrganizationNumber,
-                AddressOrigin = organization.AddressOrigin,
-            };
-
-            if (organization.NotificationAddresses?.Count > 0)
-            {
-                foreach (var notificationAddress in organization.NotificationAddresses)
-                {
-                    if (notificationAddress.IsSoftDeleted == true || notificationAddress.HasRegistryAccepted == false)
-                    {
-                        continue;
-                    }
-
-                    switch (notificationAddress.AddressType)
-                    {
-                        case AddressType.Email:
-                            contactPoints.EmailList.Add(notificationAddress.FullAddress);
-                            break;
-                        case AddressType.SMS:
-                            contactPoints.MobileNumberList.Add(notificationAddress.FullAddress);
-                            break;
-                    }
-                }
-            }
-
-            orgContacts.ContactPointsList.Add(contactPoints);
-        }
-
-        return orgContacts;
     }
 }
