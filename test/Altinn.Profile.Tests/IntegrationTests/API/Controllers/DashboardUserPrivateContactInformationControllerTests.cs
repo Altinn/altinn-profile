@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -53,7 +54,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             };
 
             _factory.PersonServiceMock
-                .Setup(s => s.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+                .Setup(s => s.GetContactPreferencesAsync(It.Is<IEnumerable<string>>(n => n.Contains(nin)), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(ImmutableList.Create(contactPreference));
 
             HttpClient client = _factory.CreateClient();

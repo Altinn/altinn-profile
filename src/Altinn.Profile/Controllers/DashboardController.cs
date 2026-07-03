@@ -318,10 +318,9 @@ namespace Altinn.Profile.Controllers
         private readonly IUserContactPointsService _userContactPointsService = userContactPointsService;
 
         /// <summary>
-        /// Endpoint that can retrieve a list of all user contact information for the given user.
-        /// Returns the contact details that users have registered for acting on behalf of this organization.
+        /// Endpoint that can retrieve all user contact information for the given user.
         /// </summary>
-        /// <param name="request">The request containing the National Identity Number of the user to retrieve contact information for</param>
+        /// <param name="request">The request extracted from headers containing the National Identity Number of the user to retrieve contact information for</param>
         /// <param name="cancellationToken">Cancellation token for the operation</param>
         /// <returns>Returns the user contact information for the provided user</returns>
         /// <response code="200">Successfully retrieved user contact information.</response>
