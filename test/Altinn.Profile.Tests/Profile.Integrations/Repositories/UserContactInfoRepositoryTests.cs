@@ -509,4 +509,191 @@ public class UserContactInfoRepositoryTests
         Assert.Equal("+4798765430", result.PhoneNumber);
         Assert.Equal(expectedPhoneNumberLastChanged, result.PhoneNumberLastChanged);
     }
+
+    [Fact]
+    public async Task GetByEmail_WhenNoUsersWithEmailExist_ReturnsEmptyList()
+    {
+        // Arrange
+        var options = CreateOptions(nameof(GetByEmail_WhenNoUsersWithEmailExist_ReturnsEmptyList));
+        var factory = new TestDbContextFactory(options);
+        var repository = new UserContactInfoRepository(factory);
+
+        // Act
+        var result = await repository.GetByEmail("nonexistent@example.com", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetByEmail_WhenSingleUserWithEmailExists_ReturnsSingleUser()
+    {
+        // Arrange
+        var options = CreateOptions(nameof(GetByEmail_WhenSingleUserWithEmailExists_ReturnsSingleUser));
+        var factory = new TestDbContextFactory(options);
+        var repository = new UserContactInfoRepository(factory);
+
+        const string Email = "user@example.com";
+        var expectedUserUuid = Guid.NewGuid();
+        var expectedCreatedAt = DateTime.UtcNow.AddMinutes(-2);
+        var expectedPhoneNumberLastChanged = DateTime.UtcNow.AddMinutes(-1);
+
+        await using var seedContext = new ProfileDbContext(options);
+        seedContext.SelfIdentifiedUsers.Add(new UserContactInfo()
+        {
+            UserId = 15,
+            UserUuid = expectedUserUuid,
+            Username = "singleuser",
+            CreatedAt = expectedCreatedAt,
+            EmailAddress = Email,
+            PhoneNumber = "+4798765430",
+            PhoneNumberLastChanged = expectedPhoneNumberLastChanged
+        });
+        await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await repository.GetByEmail(Email, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.Equal(15, result[0].UserId);
+        Assert.Equal(expectedUserUuid, result[0].UserUuid);
+        Assert.Equal("singleuser", result[0].Username);
+        Assert.Equal(expectedCreatedAt, result[0].CreatedAt);
+        Assert.Equal(Email, result[0].EmailAddress);
+        Assert.Equal("+4798765430", result[0].PhoneNumber);
+        Assert.Equal(expectedPhoneNumberLastChanged, result[0].PhoneNumberLastChanged);
+    }
+
+    [Fact]
+    public async Task GetByEmail_WhenMultipleUsersWithSameEmailExist_ReturnsAllMatches()
+    {
+        // Arrange
+        var options = CreateOptions(nameof(GetByEmail_WhenMultipleUsersWithSameEmailExist_ReturnsAllMatches));
+        var factory = new TestDbContextFactory(options);
+        var repository = new UserContactInfoRepository(factory);
+
+        const string Email = "shared@example.com";
+        var userUuid1 = Guid.NewGuid();
+        var userUuid2 = Guid.NewGuid();
+        var createdAt1 = DateTime.UtcNow.AddMinutes(-5);
+        var createdAt2 = DateTime.UtcNow.AddMinutes(-3);
+
+        await using var seedContext = new ProfileDbContext(options);
+        seedContext.SelfIdentifiedUsers.Add(new UserContactInfo()
+        {
+            UserId = 16,
+            UserUuid = userUuid1,
+            Username = "user1",
+            CreatedAt = createdAt1,
+            EmailAddress = Email,
+            PhoneNumber = "+4798765431",
+            PhoneNumberLastChanged = createdAt1
+        });
+        seedContext.SelfIdentifiedUsers.Add(new UserContactInfo()
+        {
+            UserId = 17,
+            UserUuid = userUuid2,
+            Username = "user2",
+            CreatedAt = createdAt2,
+            EmailAddress = Email,
+            PhoneNumber = "+4798765432",
+            PhoneNumberLastChanged = createdAt2
+        });
+        await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await repository.GetByEmail(Email, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count);
+
+        // Results should be in database order (by UserId)
+        Assert.Equal(16, result[0].UserId);
+        Assert.Equal("user1", result[0].Username);
+        Assert.Equal("+4798765431", result[0].PhoneNumber);
+
+        Assert.Equal(17, result[1].UserId);
+        Assert.Equal("user2", result[1].Username);
+        Assert.Equal("+4798765432", result[1].PhoneNumber);
+    }
+
+    [Fact]
+    public async Task GetByEmail_IsCaseInsensitive()
+    {
+        // Arrange
+        var options = CreateOptions(nameof(GetByEmail_IsCaseInsensitive));
+        var factory = new TestDbContextFactory(options);
+        var repository = new UserContactInfoRepository(factory);
+
+        const string EmailLowercase = "user@example.com";
+        var expectedUserUuid = Guid.NewGuid();
+
+        await using var seedContext = new ProfileDbContext(options);
+        seedContext.SelfIdentifiedUsers.Add(new UserContactInfo()
+        {
+            UserId = 18,
+            UserUuid = expectedUserUuid,
+            Username = "caseinsensitiveuser",
+            CreatedAt = DateTime.UtcNow,
+            EmailAddress = EmailLowercase,
+            PhoneNumber = null,
+            PhoneNumberLastChanged = null
+        });
+        await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act - Query with different cases
+        var resultLowercase = await repository.GetByEmail("user@example.com", CancellationToken.None);
+        var resultUppercase = await repository.GetByEmail("USER@EXAMPLE.COM", CancellationToken.None);
+        var resultMixedCase = await repository.GetByEmail("User@Example.Com", CancellationToken.None);
+
+        // Assert
+        Assert.Single(resultLowercase);
+        Assert.Equal(18, resultLowercase[0].UserId);
+
+        Assert.Single(resultUppercase);
+        Assert.Equal(18, resultUppercase[0].UserId);
+
+        Assert.Single(resultMixedCase);
+        Assert.Equal(18, resultMixedCase[0].UserId);
+    }
+
+    [Fact]
+    public async Task GetByEmail_WhenUserHasNullPhoneNumber_ReturnsUserWithNullPhoneNumber()
+    {
+        // Arrange
+        var options = CreateOptions(nameof(GetByEmail_WhenUserHasNullPhoneNumber_ReturnsUserWithNullPhoneNumber));
+        var factory = new TestDbContextFactory(options);
+        var repository = new UserContactInfoRepository(factory);
+
+        const string Email = "nophone@example.com";
+        var expectedUserUuid = Guid.NewGuid();
+        var expectedCreatedAt = DateTime.UtcNow.AddMinutes(-2);
+
+        await using var seedContext = new ProfileDbContext(options);
+        seedContext.SelfIdentifiedUsers.Add(new UserContactInfo()
+        {
+            UserId = 19,
+            UserUuid = expectedUserUuid,
+            Username = "nophoneuser",
+            CreatedAt = expectedCreatedAt,
+            EmailAddress = Email,
+            PhoneNumber = null,
+            PhoneNumberLastChanged = null
+        });
+        await seedContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await repository.GetByEmail(Email, CancellationToken.None);
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal(19, result[0].UserId);
+        Assert.Equal("nophoneuser", result[0].Username);
+        Assert.Null(result[0].PhoneNumber);
+        Assert.Null(result[0].PhoneNumberLastChanged);
+    }
 }

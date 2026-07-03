@@ -1,3 +1,5 @@
+using Altinn.Profile.Core.User.ContactInfo;
+
 namespace Altinn.Profile.Core.User.ContactPoints;
 
 /// <summary>
@@ -49,4 +51,12 @@ public interface IUserContactPointsService
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A list of contact points for the users associated with the specified email address.</returns>
     Task<List<DashboardUserContactPoint>> GetContactPointsForDashboardByEmail(string email, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get contact points for multiple users based on their email address.
+    /// </summary>
+    /// <param name="email">The email address to look up contact points for.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A list of contact points for the users associated with the specified email address.</returns>
+    Task<IList<UserContactInfo>> GetSIContactPointsForDashboardByEmail(string email, CancellationToken cancellationToken);
 }

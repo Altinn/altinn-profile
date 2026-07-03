@@ -36,5 +36,10 @@ namespace Altinn.Profile.Models.Dashboard
         /// The latest date and time when the email address was updated or verified by the user.
         /// </summary>
         public DateTime? EmailLastUpdatedOrVerified { get; init; }
+        
+        /// <summary>
+        /// Gets or sets the username of the user
+        /// </summary>
+        public string Username { get; set; }
     }
 }

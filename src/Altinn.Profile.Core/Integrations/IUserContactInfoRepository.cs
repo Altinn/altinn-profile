@@ -41,4 +41,12 @@ public interface IUserContactInfoRepository
     /// <returns>A Task containing the <see cref="UserContactInfo"/> if found, or null if no contact information is found for the user.</returns>
     /// <exception cref="InvalidOperationException">Thrown when multiple records exist with the same username.</exception>
     public Task<UserContactInfo?> GetByUsername(string username, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get the contact information for a given user by email. Returns an empty list if no contact information is found for the user.
+    /// </summary>
+    /// <param name="email">The email of the user to retrieve contact information for.</param>
+    /// <param name="cancellationToken">Cancel the current request</param>
+    /// <returns>A Task containing a list of <see cref="UserContactInfo"/> if found, or an empty list if no contact information is found for the user.</returns>
+    public Task<IList<UserContactInfo>> GetByEmail(string email, CancellationToken cancellationToken);
 }

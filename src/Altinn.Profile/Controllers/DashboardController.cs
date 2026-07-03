@@ -8,9 +8,12 @@ using System.Threading.Tasks;
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Mappers;
 using Altinn.Profile.Models.Dashboard;
+
+using Azure.Core;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -355,7 +358,6 @@ namespace Altinn.Profile.Controllers
 
         /// <summary>
         /// Endpoint that can retrieve a list of all user contact information for the given email from both KRR and email identified users.
-        /// Returns the contact details that users have registered for acting on behalf of this organization.
         /// </summary>
         /// <param name="email">The email of the user to retrieve contact information for</param>
         /// <param name="cancellationToken">Cancellation token for the operation</param>
@@ -379,13 +381,10 @@ namespace Altinn.Profile.Controllers
             }
 
             var contactInfo = await _userContactPointsService.GetContactPointsForDashboardByEmail(email, cancellationToken);
-
-            if (contactInfo == null)
-            {
-                return NotFound();
-            }
+            var selfIdentifiedUserContactInfo = await _userContactPointsService.GetSIContactPointsForDashboardByEmail(email, cancellationToken);
 
             var response = contactInfo.Select(MapContactInfoToResponses).ToList();
+            response.AddRange(selfIdentifiedUserContactInfo.Select(MapContactInfoToResponses));
 
             return Ok(response);
         }
@@ -400,6 +399,19 @@ namespace Altinn.Profile.Controllers
                 IsReserved = contactInfo.IsReserved,
                 PhoneNumberLastUpdatedOrVerified = contactInfo.MobileNumberLastUpdatedOrVerified,
                 EmailLastUpdatedOrVerified = contactInfo.EmailLastUpdatedOrVerified,
+            };
+        }
+
+        private static DashboardUserContactPointResponse MapContactInfoToResponses(UserContactInfo contactInfo)
+        {
+            return new DashboardUserContactPointResponse
+            {
+                EmailAddress = contactInfo.EmailAddress,
+                PhoneNumber = contactInfo.PhoneNumber,
+                IsReserved = false,
+                PhoneNumberLastUpdatedOrVerified = contactInfo.PhoneNumberLastChanged,
+                EmailLastUpdatedOrVerified = contactInfo.CreatedAt,
+                Username = contactInfo.Username,
             };
         }
     }

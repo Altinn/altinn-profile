@@ -172,6 +172,12 @@ public class UserContactPointService : IUserContactPointsService
         return contactPointsList;
     }
 
+    /// <inheritdoc/>
+    public Task<IList<UserContactInfo>> GetSIContactPointsForDashboardByEmail(string email, CancellationToken cancellationToken)
+    {
+        return _userContactInfoRepository.GetByEmail(email, cancellationToken);
+    }
+
     private static bool IsContactPointTooOld(DateTime? lastTouched, DateTime cutoffDate)
     {
         return !lastTouched.HasValue || lastTouched.Value < cutoffDate;
