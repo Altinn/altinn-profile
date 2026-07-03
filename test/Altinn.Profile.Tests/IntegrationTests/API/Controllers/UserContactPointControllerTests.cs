@@ -57,8 +57,8 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
                     Email = u.Value.Email, 
                     IsReserved = u.Value.IsReserved,
                     LanguageCode = u.Value.ProfileSettingPreference.Language,
-                    MobileNumberLastTouched = DateTime.UtcNow.AddMonths(-6),
-                    EmailLastTouched = DateTime.UtcNow.AddMonths(-6),
+                    MobileNumberLastUpdatedOrVerified = DateTime.UtcNow.AddMonths(-6),
+                    EmailLastUpdatedOrVerified = DateTime.UtcNow.AddMonths(-6),
                 })]);
     }
 

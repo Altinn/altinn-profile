@@ -20,21 +20,21 @@ namespace Altinn.Profile.Models.Dashboard
         /// <summary>
         /// Gets or sets the mobile number
         /// </summary>
-        public string MobileNumber { get; set; }
+        public string PhoneNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the email address
         /// </summary>
-        public string Email { get; set; }
+        public string EmailAddress { get; set; }
 
         /// <summary>
         /// The latest date and time when the mobile number was updated or verified by the user.
         /// </summary>
-        public DateTime? MobileNumberLastTouched { get; init; }
+        public DateTime? MobileNumberLastUpdatedOrVerified { get; init; }
 
         /// <summary>
         /// The latest date and time when the email address was updated or verified by the user.
         /// </summary>
-        public DateTime? EmailLastTouched { get; init; }
+        public DateTime? EmailLastUpdatedOrVerified { get; init; }
     }
 }

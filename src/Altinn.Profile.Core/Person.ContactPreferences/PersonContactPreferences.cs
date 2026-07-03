@@ -35,10 +35,10 @@ public record PersonContactPreferences
     /// <summary>
     /// The latest date and time when the mobile number was updated or verified by the user.
     /// </summary>
-    public DateTime? MobileNumberLastTouched { get; init; }
+    public DateTime? MobileNumberLastUpdatedOrVerified { get; init; }
 
     /// <summary>
     /// The latest date and time when the email address was updated or verified by the user.
     /// </summary>
-    public DateTime? EmailLastTouched { get; init; }
+    public DateTime? EmailLastUpdatedOrVerified { get; init; }
 }

@@ -1,16 +1,19 @@
 using System.ComponentModel.DataAnnotations;
 
+using Microsoft.AspNetCore.Mvc;
+
 namespace Altinn.Profile.Models.Dashboard;
 
 /// <summary>
-/// Request model for getting contact information by SSN
+/// Request model for getting contact information by National Identity Number
 /// </summary>
 public class DashboardContactInformationRequest
 {
     /// <summary>
-    /// The social security number (SSN) of the user to retrieve contact information for
+    /// The National Identity Number of the user to retrieve contact information for
     /// </summary>
     [Required]
-    [RegularExpression(@"^\d{11}$", ErrorMessage = "The SSN is not valid. It must contain exactly 11 digits")]
-    public string Ssn { get; set; } = string.Empty;
+    [RegularExpression(@"^\d{11}$", ErrorMessage = "The National Identity Number is not valid. It must contain exactly 11 digits")]
+    [FromHeader]
+    public string NationalIdentityNumber { get; set; } = string.Empty;
 }

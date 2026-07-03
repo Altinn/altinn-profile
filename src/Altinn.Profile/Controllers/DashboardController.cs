@@ -321,20 +321,20 @@ namespace Altinn.Profile.Controllers
         /// Endpoint that can retrieve a list of all user contact information for the given user.
         /// Returns the contact details that users have registered for acting on behalf of this organization.
         /// </summary>
-        /// <param name="request">The request containing the social security number (SSN) of the user to retrieve contact information for</param>
+        /// <param name="request">The request containing the National Identity Number of the user to retrieve contact information for</param>
         /// <param name="cancellationToken">Cancellation token for the operation</param>
         /// <returns>Returns the user contact information for the provided user</returns>
         /// <response code="200">Successfully retrieved user contact information.</response>
         /// <response code="400">Invalid request parameters (model validation failed).</response>
         /// <response code="403">Caller does not have the required Dashboard Maskinporten scope (altinn:profile.support.admin).</response>
-        /// <response code="404">User with the provided SSN does not exist.</response>
-        [HttpPost("users/contactinformation")]
+        /// <response code="404">User with the provided National Identity Number does not exist.</response>
+        [HttpGet("users/contactinformation")]
         [ProducesResponseType(typeof(DashboardUserContactPointResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<DashboardUserContactPointResponse>> GetContactInformationBySSN(
-            [FromBody] DashboardContactInformationRequest request,
+        public async Task<ActionResult<DashboardUserContactPointResponse>> GetContactInformationByNationalIdentityNumber(
+            DashboardContactInformationRequest request,
             CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
@@ -342,7 +342,7 @@ namespace Altinn.Profile.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var contactInfo = await _userContactPointsService.GetContactPointsForDashboard(request.Ssn, cancellationToken);
+            var contactInfo = await _userContactPointsService.GetContactPointsForDashboard(request.NationalIdentityNumber, cancellationToken);
 
             if (contactInfo == null)
             {
@@ -359,11 +359,11 @@ namespace Altinn.Profile.Controllers
             return new DashboardUserContactPointResponse
             {
                 NationalIdentityNumber = contactInfo.NationalIdentityNumber,
-                Email = contactInfo.Email,
-                MobileNumber = contactInfo.MobileNumber,
+                EmailAddress = contactInfo.Email,
+                PhoneNumber = contactInfo.MobileNumber,
                 IsReserved = contactInfo.IsReserved,
-                MobileNumberLastTouched = contactInfo.MobileNumberLastTouched,
-                EmailLastTouched = contactInfo.EmailLastTouched,
+                MobileNumberLastUpdatedOrVerified = contactInfo.MobileNumberLastUpdatedOrVerified,
+                EmailLastUpdatedOrVerified = contactInfo.EmailLastUpdatedOrVerified,
             };
         }
     }

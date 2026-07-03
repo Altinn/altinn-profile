@@ -63,8 +63,8 @@ public class UserContactPointService : IUserContactPointsService
 
         foreach (var contactPreference in contactPreferences)
         {
-            bool emailIsOutdated = IsContactPointTooOld(contactPreference.EmailLastTouched, cutoffDate);
-            bool mobileIsOutdated = IsContactPointTooOld(contactPreference.MobileNumberLastTouched, cutoffDate);
+            bool emailIsOutdated = IsContactPointTooOld(contactPreference.EmailLastUpdatedOrVerified, cutoffDate);
+            bool mobileIsOutdated = IsContactPointTooOld(contactPreference.MobileNumberLastUpdatedOrVerified, cutoffDate);
 
             bool bothContactPointsOutdated = emailIsOutdated && mobileIsOutdated;
             if (!includeOutdatedContactInfo && bothContactPointsOutdated)
@@ -110,8 +110,8 @@ public class UserContactPointService : IUserContactPointsService
             Email = contactPreference.Email,
             MobileNumber = contactPreference.MobileNumber,
             IsReserved = contactPreference.IsReserved,
-            MobileNumberLastTouched = contactPreference.MobileNumberLastTouched,
-            EmailLastTouched = contactPreference.EmailLastTouched
+            MobileNumberLastUpdatedOrVerified = contactPreference.MobileNumberLastUpdatedOrVerified,
+            EmailLastUpdatedOrVerified = contactPreference.EmailLastUpdatedOrVerified
         };
 
         return contactPoint;
