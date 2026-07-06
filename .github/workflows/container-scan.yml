@@ -112,7 +112,7 @@ jobs:
           else
             pattern="^${ch}\\.[0-9]+$"
           fi
-          latest_version=$(curl -sfL "https://mcr.microsoft.com/v2/${repo_path}/tags/list" \
+          latest_version=$(curl -sfL --proto '=https' --proto-redir '=https' "https://mcr.microsoft.com/v2/${repo_path}/tags/list" \
             | jq -r --arg p "$pattern" '.tags[]? | select(test($p))' \
             | sort -V | tail -n1 || true)
           echo "latest_version=${latest_version}" >> "$GITHUB_OUTPUT"
