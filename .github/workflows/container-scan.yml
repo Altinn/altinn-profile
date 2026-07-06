@@ -46,6 +46,7 @@ jobs:
         run: |
           trivy image \
             --scanners vuln \
+            --pkg-types os,library \
             --severity CRITICAL,HIGH \
             --ignore-unfixed \
             --ignorefile .trivyignore.yaml \
@@ -126,6 +127,7 @@ jobs:
           set -euo pipefail
           trivy image \
             --scanners vuln \
+            --pkg-types os,library \
             --severity CRITICAL,HIGH \
             --ignore-unfixed \
             --format json \
