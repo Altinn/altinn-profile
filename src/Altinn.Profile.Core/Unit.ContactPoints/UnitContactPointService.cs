@@ -1,6 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
-
-using Altinn.Profile.Core.Integrations;
+﻿using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 
 namespace Altinn.Profile.Core.Unit.ContactPoints

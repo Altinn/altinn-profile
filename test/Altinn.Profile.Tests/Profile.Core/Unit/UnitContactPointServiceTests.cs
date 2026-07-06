@@ -94,4 +94,25 @@ public sealed class UnitContactPointServiceTests
         Assert.Single(actualUnitContactPointsList.ContactPointsList);
         Assert.Equal("navn@navnesen.no", actualUnitContactPointsList.ContactPointsList[0].UserContactPoints[0].Email);
     }
+
+    [Fact]
+    public async Task GetUserRegisteredContactPoints_NoValidOrganizationNumbers_ReturnsEmptyList()
+    {
+        // Arrange
+        const string resourceId = "resourceId";
+        string[] organizationNumbers = [" "];
+
+        Mock<IRegisterClient> registerClient = new();
+        Mock<IProfessionalNotificationsRepository> professionalNotificationsRepository = new();
+
+        UnitContactPointService target = new(professionalNotificationsRepository.Object, registerClient.Object);
+
+        // Act
+        UnitContactPointsList actualUnitContactPointsList = await target.GetUserRegisteredContactPoints(
+            organizationNumbers, _resourcePrefix + resourceId, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(actualUnitContactPointsList);
+        Assert.Empty(actualUnitContactPointsList.ContactPointsList);
+    }
 }
