@@ -72,8 +72,8 @@ extract() {
 
 is_base_origin() {
   local class="$1" type="$2" path="$3"
-  [ "$class" = "os-pkgs" ] && return 0
-  [ "$type" = "dotnet-core" ] && return 0
+  [[ "$class" = "os-pkgs" ]] && return 0
+  [[ "$type" = "dotnet-core" ]] && return 0
   case "$path" in
     usr/share/dotnet/*|/usr/share/dotnet/*|usr/lib/dotnet/*|/usr/lib/dotnet/*) return 0 ;;
   esac
@@ -91,10 +91,10 @@ while IFS=$'\t' read -r id pkg installed fixed severity class type path; do
   count_total=$((count_total + 1))
 
   if is_base_origin "$class" "$type" "$path"; then
-    if [ "$has_new_base" = "true" ] && [ -n "${latest_base_ids[$id]:-}" ]; then
+    if [[ "$has_new_base" = "true" ]] && [[ -n "${latest_base_ids[$id]:-}" ]]; then
       verdict="⏳ Not yet fixed upstream — Dockerfile workaround or wait"
       count_upstream=$((count_upstream + 1))
-    elif [ "$has_new_base" = "true" ]; then
+    elif [[ "$has_new_base" = "true" ]]; then
       target="${latest_version:-$floating_tag}"
       verdict="✅ Base image bump — update Dockerfile to \`$target\`"
       count_bump=$((count_bump + 1))
@@ -114,17 +114,17 @@ done < <(extract | tr -d '\r')
 {
   echo "## 🐳 Base image mitigation analysis"
   echo
-  if [ -n "$base_tag" ]; then
+  if [[ -n "$base_tag" ]]; then
     echo "Deployed base image: \`${base_tag}\`"
   fi
-  if [ "$has_new_base" = "true" ]; then
+  if [[ "$has_new_base" = "true" ]]; then
     echo "A newer base image is available: \`${latest_version:-$floating_tag}\`"
   else
     echo "No newer base image is published for \`${floating_tag}\` — you are already on the latest."
   fi
   echo
 
-  if [ "$count_total" -eq 0 ]; then
+  if [[ "$count_total" -eq 0 ]]; then
     echo "No CRITICAL/HIGH findings to analyze. ✅"
   else
     echo "**${count_total}** finding(s): **${count_bump}** fixable by a base image bump, **${count_upstream}** awaiting an upstream fix, **${count_appdep}** app dependencies."

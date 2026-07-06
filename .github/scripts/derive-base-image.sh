@@ -24,14 +24,14 @@ set -euo pipefail
 
 dockerfile="${1:?usage: derive-base-image.sh <Dockerfile>}"
 
-if [ ! -f "$dockerfile" ]; then
+if [[ ! -f "$dockerfile" ]]; then
   echo "derive-base-image.sh: file not found: $dockerfile" >&2
   exit 1
 fi
 
 # Last FROM line = the final stage = the image that gets tagged and scanned.
 from_line=$(grep -iE '^[[:space:]]*FROM[[:space:]]' "$dockerfile" | tail -n1)
-if [ -z "$from_line" ]; then
+if [[ -z "$from_line" ]]; then
   echo "derive-base-image.sh: no FROM line found in $dockerfile" >&2
   exit 1
 fi
@@ -52,7 +52,7 @@ image_and_tag="${ref%@*}"
 # repo is everything before the last ':', tag is everything after it.
 repo="${image_and_tag%:*}"
 tag="${image_and_tag##*:}"
-if [ "$repo" = "$image_and_tag" ]; then
+if [[ "$repo" = "$image_and_tag" ]]; then
   # No ':' present -> untagged reference; treat the whole thing as the repo.
   repo="$image_and_tag"
   tag=""
@@ -67,7 +67,7 @@ case "$tag" in
 esac
 channel=$(printf '%s\n' "$version" | awk -F. '{ if (NF>=2) print $1"."$2; else print $1 }')
 
-if [ -n "$os_suffix" ]; then
+if [[ -n "$os_suffix" ]]; then
   floating="${channel}-${os_suffix}"
 else
   floating="${channel}"
