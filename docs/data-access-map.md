@@ -5,6 +5,7 @@
 ---
 
 ## Dataset: Organization Notification Addresses
+Norwegian: Virksomhetens varslingsadresser
 
 - **Schema:** `organization_notification_address`
 - **Service:** `OrganizationNotificationAddressesService`
@@ -22,12 +23,13 @@ graph LR
     Notif["Notifications:<br/>organizations/notificationaddresses/lookup"] --> S1
     Dash["Dashboard:<br/>dashboard/organizations/{organizationNumber}/notificationaddresses"] --> S1
     S1 --> T1[(organization_notification_address)]
-    T1 -.sync.-> Brreg[Brreg / Kof]
+    T1 <-.sync.-> Brreg[Brreg / Kof]
 ```
 
 ---
 
 ## Dataset: Professional Notification Settings
+Norwegian: Din kontaktinformajson for virksomheten
 
 - **Schema:** `professional_notification_settings`
 - **Services:** `ProfessionalNotificationsService`, `UnitContactPointsService`
