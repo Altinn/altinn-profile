@@ -69,14 +69,8 @@ public class CorrespondenceController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var organizationNumbers = unitContactPointLookup.OrganizationNumbers.Where(o => !string.IsNullOrWhiteSpace(o)).Select(o => o.Trim()).Distinct();
-        if (!organizationNumbers.Any())
-        {
-            return Ok(new UnitContactPointsList { ContactPointsList = [] });
-        }
-
-        var result = await _contactPointsService.GetUserRegisteredContactPoints(
-            [.. organizationNumbers], unitContactPointLookup.ResourceId, cancellationToken);
+        UnitContactPointsList result = await _contactPointsService.GetUserRegisteredContactPoints(
+            [.. unitContactPointLookup.OrganizationNumbers], unitContactPointLookup.ResourceId, cancellationToken);
 
         return Ok(result);
     }
@@ -98,8 +92,9 @@ public class CorrespondenceController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses(
-            orgContactPointLookup.OrganizationNumbers, cancellationToken, true);
+        IEnumerable<Organization> organizations = 
+            await _notificationAddressService.GetOrganizationNotificationAddresses(
+                orgContactPointLookup.OrganizationNumbers, cancellationToken, true);
 
         OrgNotificationAddressesResponse result = OrgNotificationAddressesResponse.Create(organizations);
         return Ok(result);

@@ -65,14 +65,8 @@ public class UnitContactPointController : ControllerBase
 
         try
         {
-            var organizationNumbers = unitContactPointLookup.OrganizationNumbers.Where(o => !string.IsNullOrWhiteSpace(o)).Select(o => o.Trim()).Distinct();
-            if (!organizationNumbers.Any())
-            {
-                return Ok(new UnitContactPointsList { ContactPointsList = [] });
-            }
-
             var result = await _contactPointsService.GetUserRegisteredContactPoints(
-                [.. organizationNumbers], unitContactPointLookup.ResourceId, cancellationToken);
+                [.. unitContactPointLookup.OrganizationNumbers], unitContactPointLookup.ResourceId, cancellationToken);
             return Ok(result);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

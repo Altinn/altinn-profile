@@ -1,4 +1,6 @@
-﻿using Altinn.Profile.Core.Integrations;
+﻿using System.Reflection.Metadata.Ecma335;
+
+using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 
 namespace Altinn.Profile.Core.Unit.ContactPoints
@@ -15,9 +17,19 @@ namespace Altinn.Profile.Core.Unit.ContactPoints
         private readonly IRegisterClient _registerClient = registerClient;
 
         /// <inheritdoc/>
-        public async Task<UnitContactPointsList> GetUserRegisteredContactPoints(string[] orgNumbers, string resourceId, CancellationToken cancellationToken)
+        public async Task<UnitContactPointsList> GetUserRegisteredContactPoints(
+            string[] orgNumbers, string resourceId, CancellationToken cancellationToken)
         {
-            IReadOnlyList<Party>? partyList = await _registerClient.GetPartyUuids(orgNumbers, cancellationToken);
+            IEnumerable<string> organizationNumbers = orgNumbers.Where(
+                o => !string.IsNullOrWhiteSpace(o)).Select(o => o.Trim()).Distinct();
+
+            if (!organizationNumbers.Any())
+            {
+                return new UnitContactPointsList { ContactPointsList = [] };
+            }
+            
+            IReadOnlyList<Party>? partyList = await _registerClient.GetPartyUuids(
+                [.. organizationNumbers], cancellationToken);
 
             if (partyList == null)
             {
