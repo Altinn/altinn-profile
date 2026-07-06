@@ -69,31 +69,22 @@ public class CorrespondenceController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        try
+        var organizationNumbers = unitContactPointLookup.OrganizationNumbers.Where(o => !string.IsNullOrWhiteSpace(o)).Select(o => o.Trim()).Distinct();
+        if (!organizationNumbers.Any())
         {
-            var organizationNumbers = unitContactPointLookup.OrganizationNumbers.Where(o => !string.IsNullOrWhiteSpace(o)).Select(o => o.Trim()).Distinct();
-            if (!organizationNumbers.Any())
-            {
-                return Ok(new UnitContactPointsList { ContactPointsList = [] });
-            }
+            return Ok(new UnitContactPointsList { ContactPointsList = [] });
+        }
 
-            var result = await _contactPointsService.GetUserRegisteredContactPoints(
-                [.. organizationNumbers], unitContactPointLookup.ResourceId, cancellationToken);
-            return Ok(result);
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw;
-        }
-        catch (Exception)
-        {
-            return Problem("Could not retrieve contact points");
-        }
+        var result = await _contactPointsService.GetUserRegisteredContactPoints(
+            [.. organizationNumbers], unitContactPointLookup.ResourceId, cancellationToken);
+
+        return Ok(result);
     }
 
     /// <summary>
-    /// Endpoint looking up the notification addresses for the organization provided in the lookup object in the request body.
-    /// If the organization has no notification addresses registered, the main unit address will be returned if it exists.
+    /// Endpoint looking up the notification addresses for the organization provided in the lookup object in the
+    /// request body. If the organization has no notification addresses registered, the main unit address will be
+    /// returned if it exists.
     /// </summary>
     /// <returns>Returns an overview of the user registered notification addresses for the provided organization</returns>
     [HttpPost("units/contactpoint/lookup")]
@@ -107,7 +98,8 @@ public class CorrespondenceController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses(orgContactPointLookup.OrganizationNumbers, cancellationToken, true);
+        var organizations = await _notificationAddressService.GetOrganizationNotificationAddresses(
+            orgContactPointLookup.OrganizationNumbers, cancellationToken, true);
 
         OrgNotificationAddressesResponse result = OrgNotificationAddressesResponse.Create(organizations);
         return Ok(result);
