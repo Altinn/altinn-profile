@@ -108,7 +108,7 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
         var userContactInfo = await databaseContext.SelfIdentifiedUsers
             .AsNoTracking()
-            .Where(u => u.EmailAddress.ToLower() == email.ToLower())
+            .Where(u => u.EmailAddress != null && u.EmailAddress.ToLower() == email.ToLower())
             .ToListAsync(cancellationToken);
 
         return userContactInfo;
