@@ -226,61 +226,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
         }
     }
 
-    public class MockedUnitContactPointsService : IClassFixture<ProfileWebApplicationFactory<Program>>
-    {
-        private readonly ProfileWebApplicationFactory<Program> _factory;
-
-        private readonly JsonSerializerOptions _serializerOptions = new()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            PropertyNameCaseInsensitive = true
-        };
-
-        public MockedUnitContactPointsService(ProfileWebApplicationFactory<Program> factory)
-        {
-            _factory = factory;
-            _factory.UnitContactPointsServiceMock ??= new Mock<IUnitContactPointsService>();
-            _factory.UnitContactPointsServiceMock.Reset();
-        }
-
-        [Fact]
-        public async Task PostLookup_RemovesUrnPrefixFromResourceId()
-        {
-            // Arrange
-            var originalResourceId = "urn:altinn:resource:app_ttd_storage-end-to-end";
-            var expectedSanitizedResourceId = "app_ttd_storage-end-to-end";
-            var input = new UnitContactPointLookup
-            {
-                OrganizationNumbers = ["111111111"],
-                ResourceId = originalResourceId
-            };
-
-            string actualResourceId = null;
-
-            _factory.UnitContactPointsServiceMock.Setup(s => s.GetUserRegisteredContactPoints(
-                    It.Is<string[]>(arr => arr.Length == 1 && arr[0] == "111111111"),
-                    It.Is<string>(r => r == expectedSanitizedResourceId),
-                    It.IsAny<CancellationToken>()))
-                .Callback((string[] orgs, string resourceId, CancellationToken _) => actualResourceId = resourceId)
-                .ReturnsAsync(new UnitContactPointsList { ContactPointsList = new List<UnitContactPoints>() });
-
-            var client = _factory.CreateClient();
-
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/profile/api/v1/units/contactpoint/lookup")
-            {
-                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
-            };
-
-            // Act
-            var response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(expectedSanitizedResourceId, actualResourceId);
-        }
-    }
-
-    public static List<Party> GetRegisterResponse(string[] orgNo)
+    private static List<Party> GetRegisterResponse(string[] orgNo)
     {
         var parties = new List<Party>();
         foreach (var org in orgNo)
@@ -295,7 +241,7 @@ public class UnitContactPointControllerTests : IClassFixture<ProfileWebApplicati
         return parties;
     }
 
-    public static Party GetPartyUuidForOrgNo(string orgNo)
+    private static Party GetPartyUuidForOrgNo(string orgNo)
     {
         return orgNo switch
         {
