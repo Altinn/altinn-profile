@@ -152,7 +152,7 @@ public partial class ProfileDbContext : DbContext
                   .WithMany(p => p.People)
                   .HasConstraintName("fk_mailbox_supplier");
 
-            //entity.HasIndex(e => e.EmailAddress, "ix_person_email_address"); This is added manually with lowercasing to avoid case sensitivity issues.
+            // entity.HasIndex(e => e.EmailAddress, "ix_person_email_address"); This is added manually with lowercasing to avoid case sensitivity issues.
 
             entity.HasIndex(e => e.FnumberAk, "ix_person_fnumber_ak").IsUnique();
             entity.HasIndex(e => e.MobilePhoneNumber, "ix_person_mobile_phone_number");
@@ -341,7 +341,7 @@ public partial class ProfileDbContext : DbContext
             entity.Property(e => e.PhoneNumber).HasMaxLength(26);
             entity.Property(e => e.PhoneNumberLastChanged);
 
-            /// entity.HasIndex(e => e.EmailAddress, "ix_email_address"); This is added manually with lowercasing to avoid case sensitivity issues.
+            // entity.HasIndex(e => e.EmailAddress, "ix_email_address"); This is added manually with lowercasing to avoid case sensitivity issues.
             entity.HasIndex(e => e.PhoneNumber, "ix_phone_number");
         });
 
