@@ -22,8 +22,8 @@ public static class PersonContactPreferencesMapper
             LanguageCode = person.LanguageCode,
             MobileNumber = person.MobilePhoneNumber,
             NationalIdentityNumber = person.FnumberAk,
-            MobileNumberLastTouched = GetVerificationDate(person.MobilePhoneNumberLastUpdated, person.MobilePhoneNumberLastVerified),
-            EmailLastTouched = GetVerificationDate(person.EmailAddressLastUpdated, person.EmailAddressLastVerified),
+            MobileNumberLastUpdatedOrVerified = GetVerificationDate(person.MobilePhoneNumberLastUpdated, person.MobilePhoneNumberLastVerified),
+            EmailLastUpdatedOrVerified = GetVerificationDate(person.EmailAddressLastUpdated, person.EmailAddressLastVerified),
         };
     }
 

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 using Altinn.Authorization.ModelUtils;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
-using Altinn.Profile.Models;
+using Altinn.Profile.Models.Dashboard;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 

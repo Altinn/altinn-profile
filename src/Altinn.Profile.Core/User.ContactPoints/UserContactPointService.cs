@@ -63,8 +63,8 @@ public class UserContactPointService : IUserContactPointsService
 
         foreach (var contactPreference in contactPreferences)
         {
-            bool emailIsOutdated = IsContactPointTooOld(contactPreference.EmailLastTouched, cutoffDate);
-            bool mobileIsOutdated = IsContactPointTooOld(contactPreference.MobileNumberLastTouched, cutoffDate);
+            bool emailIsOutdated = IsContactPointTooOld(contactPreference.EmailLastUpdatedOrVerified, cutoffDate);
+            bool mobileIsOutdated = IsContactPointTooOld(contactPreference.MobileNumberLastUpdatedOrVerified, cutoffDate);
 
             bool bothContactPointsOutdated = emailIsOutdated && mobileIsOutdated;
             if (!includeOutdatedContactInfo && bothContactPointsOutdated)
@@ -86,6 +86,35 @@ public class UserContactPointService : IUserContactPointsService
         }
 
         return resultList;
+    }
+
+    /// <inheritdoc/>
+    public async Task<DashboardUserContactPoint?> GetContactPointsForDashboard(string nationalIdentityNumber, CancellationToken cancellationToken)
+    {
+        var contactPreferences = await _personService.GetContactPreferencesAsync([nationalIdentityNumber], cancellationToken);
+        if (contactPreferences.Count == 0)
+        {
+            return null;
+        }
+
+        if (contactPreferences.Count > 1)
+        {
+            throw new InvalidOperationException("Indecisive contact points result");
+        }
+
+        var contactPreference = contactPreferences[0];
+
+        DashboardUserContactPoint contactPoint = new()
+        {
+            NationalIdentityNumber = contactPreference.NationalIdentityNumber,
+            Email = contactPreference.Email,
+            MobileNumber = contactPreference.MobileNumber,
+            IsReserved = contactPreference.IsReserved,
+            MobileNumberLastUpdatedOrVerified = contactPreference.MobileNumberLastUpdatedOrVerified,
+            EmailLastUpdatedOrVerified = contactPreference.EmailLastUpdatedOrVerified
+        };
+
+        return contactPoint;
     }
 
     /// <inheritdoc/>
