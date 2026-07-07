@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Altinn.Profile.Integrations.Migrations
 {
     [DbContext(typeof(ProfileDbContext))]
-    [Migration("20260707073251_AddIndexesForEmailAndPhone")]
+    [Migration("20260707115014_AddIndexesForEmailAndPhone")]
     partial class AddIndexesForEmailAndPhone
     {
         /// <inheritdoc />
@@ -268,9 +268,6 @@ namespace Altinn.Profile.Integrations.Migrations
 
                     b.HasKey("UserId")
                         .HasName("pk_self_identified_users");
-
-                    b.HasIndex(new[] { "EmailAddress" }, "ix_email_address")
-                        .HasDatabaseName("ix_self_identified_users_email_address");
 
                     b.HasIndex(new[] { "PhoneNumber" }, "ix_phone_number")
                         .HasDatabaseName("ix_self_identified_users_phone_number");
@@ -538,9 +535,6 @@ namespace Altinn.Profile.Integrations.Migrations
 
                     b.HasIndex("MailboxSupplierIdFk")
                         .HasDatabaseName("ix_person_mailbox_supplier_id_fk");
-
-                    b.HasIndex(new[] { "EmailAddress" }, "ix_person_email_address")
-                        .HasDatabaseName("ix_person_email_address");
 
                     b.HasIndex(new[] { "FnumberAk" }, "ix_person_fnumber_ak")
                         .IsUnique()

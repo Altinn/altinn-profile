@@ -11,52 +11,45 @@ namespace Altinn.Profile.Integrations.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateIndex(
-                name: "ix_self_identified_users_email_address",
-                schema: "user_preferences",
-                table: "self_identified_users",
-                column: "email_address");
-
-            migrationBuilder.CreateIndex(
                 name: "ix_self_identified_users_phone_number",
                 schema: "user_preferences",
                 table: "self_identified_users",
                 column: "phone_number");
 
             migrationBuilder.CreateIndex(
-                name: "ix_person_email_address",
-                schema: "contact_and_reservation",
-                table: "person",
-                column: "email_address");
-
-            migrationBuilder.CreateIndex(
                 name: "ix_person_mobile_phone_number",
                 schema: "contact_and_reservation",
                 table: "person",
                 column: "mobile_phone_number");
+
+            migrationBuilder.Sql(
+                "CREATE INDEX ix_person_email_address_lower ON  contact_and_reservation.person (lower(email_address));");
+            migrationBuilder.Sql(
+                "CREATE INDEX ix_self_identified_users_email_address_lower ON user_preferences.self_identified_users (lower(email_address));");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropIndex(
-                name: "ix_self_identified_users_email_address",
-                schema: "user_preferences",
-                table: "self_identified_users");
-
-            migrationBuilder.DropIndex(
                 name: "ix_self_identified_users_phone_number",
                 schema: "user_preferences",
                 table: "self_identified_users");
 
             migrationBuilder.DropIndex(
-                name: "ix_person_email_address",
+                name: "ix_person_mobile_phone_number",
                 schema: "contact_and_reservation",
                 table: "person");
 
             migrationBuilder.DropIndex(
-                name: "ix_person_mobile_phone_number",
+                name: "ix_person_email_address_lower",
                 schema: "contact_and_reservation",
                 table: "person");
+
+            migrationBuilder.DropIndex(
+                name: "ix_self_identified_users_email_address_lower",
+                schema: "user_preferences",
+                table: "self_identified_users");
         }
     }
 }
