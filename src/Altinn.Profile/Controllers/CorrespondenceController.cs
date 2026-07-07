@@ -77,6 +77,8 @@ public class CorrespondenceController : ControllerBase
     /// request body. If the organization has no notification addresses registered, the main unit address will be
     /// returned if it exists.
     /// </summary>
+    /// <param name="orgContactPointLookup">The search criteria.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>Returns an overview of the user registered notification addresses for the provided organization</returns>
     [HttpPost("units/contactpoint/lookup")]
     [ProducesResponseType(StatusCodes.Status200OK)]
