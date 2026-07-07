@@ -55,7 +55,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory.PersonServiceMock
                 .Setup(s => s.GetContactPreferencesAsync(It.Is<IEnumerable<string>>(n => n.Contains(nin)), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(ImmutableList.Create(contactPreference));
+                .ReturnsAsync([contactPreference]);
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = CreateGetRequest(nin);
@@ -87,7 +87,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // The mock returns empty list when NIN is not found
             _factory.PersonServiceMock
                 .Setup(s => s.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(ImmutableList<PersonContactPreferences>.Empty);
+                .ReturnsAsync([]);
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = CreateGetRequest(nin);
@@ -101,7 +101,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetContactInformationByNIN_WhenNoAccess_ReturnsForbidden()
+        public async Task GetContactInformationByNIN_WhenRequestLacksScope_ReturnsForbidden()
         {
             // Arrange
             string nin = "09861797993";
@@ -133,7 +133,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetContactInformationByNIN_WhenNINIsNull_ReturnsBadRequest()
+        public async Task GetContactInformationByNIN_WhenRequestLacksNINHeader_ReturnsBadRequest()
         {
             // Arrange
             HttpClient client = _factory.CreateClient();
@@ -183,7 +183,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory.PersonServiceMock
                 .Setup(s => s.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(ImmutableList.Create(contactPreference));
+                .ReturnsAsync([contactPreference]);
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = CreateGetRequest(nin);
@@ -219,7 +219,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory.PersonServiceMock
                 .Setup(s => s.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(ImmutableList.Create(contactPreference));
+                .ReturnsAsync([contactPreference]);
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = CreateGetRequest(nin);
@@ -255,7 +255,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory.PersonServiceMock
                 .Setup(s => s.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(ImmutableList.Create(contactPreference));
+                .ReturnsAsync([contactPreference]);
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = CreateGetRequest(nin);
@@ -290,7 +290,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory.PersonServiceMock
                 .Setup(s => s.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(ImmutableList.Create(contactPreference));
+                .ReturnsAsync([contactPreference]);
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = CreateGetRequest(nin);
@@ -327,7 +327,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             _factory.PersonServiceMock
                 .Setup(s => s.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(ImmutableList.Create(contactPreference));
+                .ReturnsAsync([contactPreference]);
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = CreateGetRequest(nin);

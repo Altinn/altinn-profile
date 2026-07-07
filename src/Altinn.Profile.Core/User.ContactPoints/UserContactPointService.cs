@@ -92,7 +92,7 @@ public class UserContactPointService : IUserContactPointsService
     public async Task<DashboardUserContactPoint?> GetContactPointsForDashboard(string nationalIdentityNumber, CancellationToken cancellationToken)
     {
         var contactPreferences = await _personService.GetContactPreferencesAsync([nationalIdentityNumber], cancellationToken);
-        if (contactPreferences == null || contactPreferences.Count == 0)
+        if (contactPreferences.Count == 0)
         {
             return null;
         }
