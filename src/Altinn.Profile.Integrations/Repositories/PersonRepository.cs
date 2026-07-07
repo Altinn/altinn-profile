@@ -60,8 +60,6 @@ public class PersonRepository(IDbContextFactory<ProfileDbContext> contextFactory
     /// <inheritdoc/>
     public async Task<ImmutableList<PersonContactPreferences>> GetContactPreferencesByEmailAsync(string emailAddress, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNullOrEmpty(emailAddress);
-
         if (string.IsNullOrWhiteSpace(emailAddress))
         {
             return [];

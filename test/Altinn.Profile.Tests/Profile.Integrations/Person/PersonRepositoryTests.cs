@@ -204,22 +204,6 @@ public class PersonRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task GetContactPreferencesByEmailAsync_WhenEmailIsNull_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() =>
-            _personRepository.GetContactPreferencesByEmailAsync(null!, TestContext.Current.CancellationToken));
-    }
-
-    [Fact]
-    public async Task GetContactPreferencesByEmailAsync_WhenEmailIsEmpty_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(() =>
-            _personRepository.GetContactPreferencesByEmailAsync(string.Empty, TestContext.Current.CancellationToken));
-    }
-
-    [Fact]
     public async Task GetContactPreferencesByEmailAsync_WhenEmailHasDifferentCaseInDatabase_ReturnsMatch()
     {
         // Arrange - Database has "user1@example.com" in lowercase

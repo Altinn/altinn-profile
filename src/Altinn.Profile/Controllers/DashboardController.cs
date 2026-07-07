@@ -365,12 +365,10 @@ namespace Altinn.Profile.Controllers
         /// <response code="200">Successfully retrieved user contact information.</response>
         /// <response code="400">Invalid request parameters (model validation failed).</response>
         /// <response code="403">Caller does not have the required Dashboard Maskinporten scope (altinn:profile.support.admin).</response>
-        /// <response code="404">User with the provided email does not exist.</response>
         [HttpGet("users/contactinformation/email/{email}")]
         [ProducesResponseType(typeof(List<DashboardUserContactPointResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<DashboardUserContactPointResponse>>> GetContactInformationByEmail(
             [FromRoute] string email,
             CancellationToken cancellationToken)

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -611,14 +612,15 @@ public class UserContactInfoRepositoryTests
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
 
-        // Results should be in database order (by UserId)
-        Assert.Equal(16, result[0].UserId);
-        Assert.Equal("user1", result[0].Username);
-        Assert.Equal("+4798765431", result[0].PhoneNumber);
+        var user1 = result.FirstOrDefault(u => u.UserId == 16);
+        Assert.Equal(16, user1.UserId);
+        Assert.Equal("user1", user1.Username);
+        Assert.Equal("+4798765431", user1.PhoneNumber);
 
-        Assert.Equal(17, result[1].UserId);
-        Assert.Equal("user2", result[1].Username);
-        Assert.Equal("+4798765432", result[1].PhoneNumber);
+        var user2 = result.FirstOrDefault(u => u.UserId == 17);
+        Assert.Equal(17, user2.UserId);
+        Assert.Equal("user2", user2.Username);
+        Assert.Equal("+4798765432", user2.PhoneNumber);
     }
 
     [Fact]

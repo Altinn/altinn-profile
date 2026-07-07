@@ -425,6 +425,23 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
+        public async Task GetContactInformationByEmail_WhenEmailRouteSegmentIsEmpty_ReturnsNotFound()
+        {
+            // Arrange
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, "/profile/api/v1/dashboard/users/contactinformation/email/");
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            _factory.PersonServiceMock.Verify(s => s.GetContactPreferencesByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+            _factory.UserContactInfoRepositoryMock.Verify(r => r.GetByEmail(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Fact]
         public async Task GetContactInformationByEmail_WhenNoAccess_ReturnsForbidden()
         {
             // Arrange
