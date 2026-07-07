@@ -1,21 +1,18 @@
-﻿using System;
+﻿#nullable enable
+
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
-using Altinn.Profile.Core.ProfessionalNotificationAddresses;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Models;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
-using static Altinn.Profile.Models.OrgNotificationAddressesResponse;
 
 namespace Altinn.Profile.Controllers;
 
@@ -25,7 +22,7 @@ namespace Altinn.Profile.Controllers;
 [ApiController]
 [Authorize]
 [Authorize(Policy = AuthConstants.CorrespondenceAccess)]
-[Route("profile/api/v1/correspondence/notificationsettings")]
+[Route("profile/api/v1/correspondence")]
 [Produces("application/json")]
 public class CorrespondenceController : ControllerBase
 {
@@ -58,15 +55,15 @@ public class CorrespondenceController : ControllerBase
     /// <returns>
     /// Returns a list of user-registered notification addresses for the provided units.
     /// </returns>
-    [HttpPost("users/contactpoint/lookup")]
+    [HttpPost("organizations/notificationaddresses/lookup")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<UnitContactPointsList>> PostLookup(
+    public async Task<ActionResult<UnitContactPointsList>> GetUserRegisteredContactPoints(
         [FromBody][Required] UnitContactPointLookup unitContactPointLookup, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return ValidationProblem(ModelState);
         }
 
         UnitContactPointsList result = await _contactPointsService.GetUserRegisteredContactPoints(
@@ -84,7 +81,7 @@ public class CorrespondenceController : ControllerBase
     [HttpPost("units/contactpoint/lookup")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<OrgNotificationAddressesResponse>> PostLookup(
+    public async Task<ActionResult<OrgNotificationAddressesResponse>> GetOrganizationRegisteredContactPoints(
         [FromBody][Required] OrgNotificationAddressRequest orgContactPointLookup, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
