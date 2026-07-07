@@ -378,8 +378,12 @@ namespace Altinn.Profile.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var contactInfo = await _userContactPointsService.GetContactPointsForDashboardByEmail(email, cancellationToken);
-            var selfIdentifiedUserContactInfo = await _userContactPointsService.GetSIContactPointsForDashboardByEmail(email, cancellationToken);
+            var contactInfoTask = _userContactPointsService.GetContactPointsForDashboardByEmail(email, cancellationToken);
+            var selfIdentifiedUserContactInfoTask = _userContactPointsService.GetSIContactPointsForDashboardByEmail(email, cancellationToken);
+            await Task.WhenAll(contactInfoTask, selfIdentifiedUserContactInfoTask);
+
+            var contactInfo = await contactInfoTask;
+            var selfIdentifiedUserContactInfo = await selfIdentifiedUserContactInfoTask;
 
             var response = contactInfo.Select(MapContactInfoToResponses).ToList();
             response.AddRange(selfIdentifiedUserContactInfo.Select(MapContactInfoToResponses));

@@ -20,7 +20,7 @@ public interface IPersonService
     Task<ImmutableList<PersonContactPreferences>> GetContactPreferencesAsync(IEnumerable<string> nationalIdentityNumbers, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Asynchronously retrieves the contact details for persons by their email address.
+    /// Asynchronously retrieves the contact details for persons by their email address (case-insensitive).
     /// </summary>
     /// <param name="emailAddress">The email address to look up.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>

@@ -45,7 +45,7 @@ public interface IUserContactPointsService
     Task<DashboardUserContactPoint?> GetContactPointsForDashboard(string nationalIdentityNumber, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Get contact points for multiple users based on their email address.
+    /// Get contact points from KRR for multiple users based on their email address.
     /// </summary>
     /// <param name="email">The email address to look up contact points for.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
@@ -53,7 +53,7 @@ public interface IUserContactPointsService
     Task<List<DashboardUserContactPoint>> GetContactPointsForDashboardByEmail(string email, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Get contact points for multiple users based on their email address.
+    /// Get contact points for multiple self identified users based on their email address.
     /// </summary>
     /// <param name="email">The email address to look up contact points for.</param>
     /// <param name="cancellationToken">A cancellation token.</param>

@@ -43,7 +43,7 @@ public interface IUserContactInfoRepository
     public Task<UserContactInfo?> GetByUsername(string username, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Get the contact information for a given user by email. Returns an empty list if no contact information is found for the user.
+    /// Get the contact information for a given user by email (case-insensitive). Returns an empty list if no contact information is found for the user.
     /// </summary>
     /// <param name="email">The email of the user to retrieve contact information for.</param>
     /// <param name="cancellationToken">Cancel the current request</param>
