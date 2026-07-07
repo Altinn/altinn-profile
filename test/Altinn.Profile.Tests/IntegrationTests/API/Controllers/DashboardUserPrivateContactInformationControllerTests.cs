@@ -38,6 +38,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             _factory = factory;
             _factory.MemoryCache.Clear();
+            _factory.UserContactInfoRepositoryMock.Reset();
+            _factory.PersonServiceMock.Reset();
         }
 
         [Fact]
