@@ -38,7 +38,7 @@ tests {
     expect(contact).to.have.property('emailLastUpdatedOrVerified');
     expect(contact).to.have.property('phoneNumber');
     expect(contact).to.have.property('phoneNumberLastUpdatedOrVerified');
-    // emailAddress and phoneNumber should have either null or string value, and when there's a value the ..LastUpdatedOrVerified field should be string (actually datetime)
+    // emailAddress and phoneNumber should have either null or string value, and when there's a value the ..LastUpdatedOrVerified field should be string (actually datetime).
     if (contact.emailAddress !== null) {
       expect(contact.emailAddress).to.be.a('string');
       expect(contact.emailLastUpdatedOrVerified).to.be.a('string');
@@ -83,7 +83,7 @@ docs {
     "nationalIdentityNumber": "01010112345",
     "isReserved": true,
     "emailAddress": null,
-    "emailLastUpdatedOrVerified": null,
+    "emailLastUpdatedOrVerified": "2025-01-10T11:30:00Z",
     "phoneNumber": "+4798765432",
     "phoneNumberLastUpdatedOrVerified": "2025-01-15T14:20:00Z"
   }
@@ -96,7 +96,7 @@ docs {
     "emailAddress": "jane.smith@example.com",
     "emailLastUpdatedOrVerified": "2025-01-10T11:30:00Z",
     "phoneNumber": null,
-    "phoneNumberLastUpdatedOrVerified": "2025-01-15T15:30:00Z"
+    "phoneNumberLastUpdatedOrVerified": null
   }
   ```
   
@@ -107,6 +107,8 @@ docs {
     - equivalent for email
     - holds `null` if the user has not yet registered a value for that address type
     - may have a value for cases where the user has added and then removed the address
+  - `emailLastUpdatedOrVerified` may have a value even though `emailAddress` is null, if the user has intentionally removed a previous email address from their contact information settings
+    - Does not apply for `phoneNumber`, as that field cannot be removed once set (only updated to a different valid number)
   
   ## Status Codes
   
