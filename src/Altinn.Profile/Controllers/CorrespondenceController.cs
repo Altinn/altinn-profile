@@ -55,7 +55,7 @@ public class CorrespondenceController : ControllerBase
     /// <returns>
     /// Returns a list of user-registered notification addresses for the provided units.
     /// </returns>
-    [HttpPost("organizations/notificationaddresses/lookup")]
+    [HttpPost("units/contactpoint/lookup")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<UnitContactPointsList>> GetUserRegisteredContactPoints(
@@ -80,7 +80,7 @@ public class CorrespondenceController : ControllerBase
     /// <param name="orgContactPointLookup">The search criteria.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>Returns an overview of the user registered notification addresses for the provided organization</returns>
-    [HttpPost("units/contactpoint/lookup")]
+    [HttpPost("organizations/notificationaddresses/lookup")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<OrgNotificationAddressesResponse>> GetOrganizationRegisteredContactPoints(

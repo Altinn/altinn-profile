@@ -55,7 +55,7 @@ public class CorrespondenceControllerTests : IClassFixture<ProfileWebApplication
         // Arrange
         string token = PrincipalUtil.GetOrgToken("digdir", 4, "altinn:profile/correspondence.notificationsettings.read");
 
-        HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/correspondence/organizations/notificationaddresses/lookup")
+        HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/correspondence/units/contactpoint/lookup")
         {
             Content = new StringContent(input, System.Text.Encoding.UTF8, "application/json")
         };
@@ -82,7 +82,7 @@ public class CorrespondenceControllerTests : IClassFixture<ProfileWebApplication
 
         string token = PrincipalUtil.GetOrgToken("digdir", 4, "altinn:profile/correspondence.notificationsettings.read");
 
-        HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/correspondence/organizations/notificationaddresses/lookup")
+        HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/correspondence/units/contactpoint/lookup")
         {
             Content = JsonContent.Create(input)
         };
@@ -111,7 +111,7 @@ public class CorrespondenceControllerTests : IClassFixture<ProfileWebApplication
         // Arrange
         string token = PrincipalUtil.GetOrgToken("digdir", 4, "altinn:profile/correspondence.notificationsettings.read");
 
-        HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/correspondence/units/contactpoint/lookup")
+        HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/correspondence/organizations/notificationaddresses/lookup")
         {
             Content = new StringContent(input, System.Text.Encoding.UTF8, "application/json")
         };
@@ -137,7 +137,7 @@ public class CorrespondenceControllerTests : IClassFixture<ProfileWebApplication
 
         string token = PrincipalUtil.GetOrgToken("digdir", 4, "altinn:profile/correspondence.notificationsettings.read");
 
-        HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/correspondence/units/contactpoint/lookup")
+        HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "/profile/api/v1/correspondence/organizations/notificationaddresses/lookup")
         {
             Content = JsonContent.Create(input)
         };
