@@ -31,7 +31,7 @@ set -euo pipefail
 app_json="${1:?usage: analyze-base-fixes.sh <app-trivy.json> [base-latest-trivy.json]}"
 base_json="${2:-}"
 
-if [ ! -f "$app_json" ]; then
+if [[ ! -f "$app_json" ]]; then
   echo "analyze-base-fixes.sh: file not found: $app_json" >&2
   exit 1
 fi
@@ -43,9 +43,9 @@ base_tag="${BASE_TAG:-}"
 
 # Set of vulnerability IDs still present in the latest base image (if scanned).
 declare -A latest_base_ids=()
-if [ -n "$base_json" ] && [ -f "$base_json" ]; then
+if [[ -n "$base_json" ]] && [[ -f "$base_json" ]]; then
   while IFS= read -r id; do
-    [ -n "$id" ] && latest_base_ids["$id"]=1
+    [[ -n "$id" ]] && latest_base_ids["$id"]=1
   done < <(jq -r '[.Results[]?.Vulnerabilities[]?.VulnerabilityID] | unique[]' "$base_json" | tr -d '\r')
 fi
 
@@ -76,8 +76,8 @@ is_base_origin() {
   [[ "$type" = "dotnet-core" ]] && return 0
   case "$path" in
     usr/share/dotnet/*|/usr/share/dotnet/*|usr/lib/dotnet/*|/usr/lib/dotnet/*) return 0 ;;
+    *) return 1 ;;  # anything else is an app-level dependency
   esac
-  return 1
 }
 
 rows=""
@@ -87,7 +87,7 @@ count_upstream=0
 count_appdep=0
 
 while IFS=$'\t' read -r id pkg installed fixed severity class type path; do
-  [ -z "$id" ] && continue
+  [[ -z "$id" ]] && continue
   count_total=$((count_total + 1))
 
   if is_base_origin "$class" "$type" "$path"; then

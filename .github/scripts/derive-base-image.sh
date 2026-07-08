@@ -43,9 +43,9 @@ ref=$(printf '%s\n' "$from_line" \
   | tr -d '[:space:]')
 
 # Split off the optional @sha256:... digest.
-digest=""
 case "$ref" in
   *@*) digest="${ref#*@}" ;;
+  *)   digest="" ;;  # reference is not pinned by digest
 esac
 image_and_tag="${ref%@*}"
 
@@ -61,9 +61,9 @@ fi
 # Derive the floating channel tag: reduce the version to major.minor and keep
 # the OS suffix verbatim.  10.0.9-alpine3.23 -> 10.0-alpine3.23
 version="${tag%%-*}"
-os_suffix=""
 case "$tag" in
-  *-*) os_suffix="${tag#*-}" ;;
+  *-*) os_suffix="${tag#*-}" ;;   # e.g. 10.0.9-alpine3.23 -> alpine3.23
+  *)   os_suffix="" ;;            # tag has no OS suffix, e.g. 10.0.9
 esac
 channel=$(printf '%s\n' "$version" | awk -F. '{ if (NF>=2) print $1"."$2; else print $1 }')
 
