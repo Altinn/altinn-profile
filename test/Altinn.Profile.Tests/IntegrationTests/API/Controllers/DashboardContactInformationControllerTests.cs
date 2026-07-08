@@ -155,7 +155,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             string orgNumber = "888888888";
-            
+
             SetupPartyQueryLookup(new Dictionary<Guid, string> { { Guid.NewGuid(), orgNumber } }, HttpStatusCode.PartialContent);
 
             HttpClient client = _factory.CreateClient();
@@ -164,7 +164,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
-           
+
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -814,7 +814,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string encodedCountryCode = Uri.EscapeDataString(countryCode);
 
             HttpClient client = _factory.CreateClient();
-            
+
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}?countrycode={encodedCountryCode}");
             httpRequestMessage = CreateAuthorizedRequestWithoutScope(httpRequestMessage);
 
@@ -940,7 +940,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                     LastChanged = _testTime.AddDays(-1)
                 }
             };
-            
+
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(r => r.GetAllContactInfoByPhoneNumberAsync(phoneNumber, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(contactInfosFromRepo);
@@ -1014,7 +1014,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData("004798765432", null)] // Number with 00 prefix
         [InlineData("12345", "+47")] // 5 digits with country code added
         [InlineData("987654321234546", "0047")] // 15 digits with country code
-        [InlineData("8798765432", null)]        
+        [InlineData("8798765432", null)]
         public async Task GetContactInformationByPhoneNumber_WithVariousPhoneNumberFormats_ReturnsOkWithUsers(string phoneNumber, string countryCode)
         {
             // Arrange
@@ -1059,7 +1059,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             new Dictionary<int, Party>
             {
                 [1001] = registerPerson
-            }, 
+            },
             new Dictionary<Guid, string>
             {
                 [partyUuid] = orgNumber
@@ -1108,7 +1108,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 ? $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{searchPhoneNumber}"
                 : $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{searchPhoneNumber}?countrycode={Uri.EscapeDataString(countryCode)}";
 
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{searchPhoneNumber}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, requestUrl);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
