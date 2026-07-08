@@ -11,15 +11,15 @@ namespace Altinn.Profile.Integrations.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql(
-                "CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_self_identified_users_phone_number ON user_preferences.self_identified_users (phone_number);");
+                "CREATE INDEX IF NOT EXISTS ix_self_identified_users_phone_number ON user_preferences.self_identified_users (phone_number);");
 
             migrationBuilder.Sql(
-                "CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_person_mobile_phone_number ON contact_and_reservation.person (mobile_phone_number);");
+                "CREATE INDEX IF NOT EXISTS ix_person_mobile_phone_number ON contact_and_reservation.person (mobile_phone_number);");
 
             migrationBuilder.Sql(
-                "CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_person_email_address_lower ON  contact_and_reservation.person (lower(email_address));");
+                "CREATE INDEX IF NOT EXISTS ix_person_email_address_lower ON  contact_and_reservation.person (lower(email_address));");
             migrationBuilder.Sql(
-                "CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_self_identified_users_email_address_lower ON user_preferences.self_identified_users (lower(email_address));");
+                "CREATE INDEX IF NOT EXISTS ix_self_identified_users_email_address_lower ON user_preferences.self_identified_users (lower(email_address));");
         }
 
         /// <inheritdoc />
