@@ -106,10 +106,12 @@ docs {
   - `phoneNumberLastUpdatedOrVerified` reflects the last time that the user updated or verified their phone number (whichever operation was performed most recently).
     - equivalent for email
     - holds `null` if the user has not yet registered a value for that address type
+    - may have a value for cases where the user has added and then removed the address
   
   ## Status Codes
   
   - **200 OK**: Successfully retrieved user contact information
+  - **400 Bad Request**: Invalid request parameters (invalid NIN header value)
   - **403 Forbidden**: Missing required scope
   - **404 Not Found**: User with the provided National Identity Number does not exist
   
