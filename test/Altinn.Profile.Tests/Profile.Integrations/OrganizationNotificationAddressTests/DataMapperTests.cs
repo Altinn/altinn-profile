@@ -5,8 +5,6 @@ using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models
 
 using Xunit;
 
-using static Altinn.Profile.Models.OrgNotificationAddressesResponse;
-
 namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddressTests;
 
 public class DataMapperTests

@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Common.AccessToken;
@@ -196,6 +195,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddAuthorizationBuilder()
         .AddPolicy(AuthConstants.PlatformAccess, policy => policy.Requirements.Add(new AccessTokenRequirement()))
         .AddPolicy(AuthConstants.SupportDashboardAccess, policy => policy.Requirements.Add(new ScopeAccessRequirement("altinn:profile.support.admin")))
+        .AddPolicy(AuthConstants.CorrespondenceAccess, policy => policy.Requirements.Add(new ScopeAccessRequirement("altinn:profile/correspondence.notificationsettings.read")))
         .AddPolicy(AuthConstants.OrgNotificationAddress_Read, policy => policy.Requirements.Add(new ResourceAccessRequirement("read", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
         .AddPolicy(AuthConstants.OrgNotificationAddress_Write, policy => policy.Requirements.Add(new ResourceAccessRequirement("write", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
         .AddPolicy(AuthConstants.UserPartyAccess, policy => policy.Requirements.Add(new PartyAccessRequirement()))
