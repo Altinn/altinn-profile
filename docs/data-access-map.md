@@ -16,11 +16,13 @@ Norwegian: Virksomhetens varslingsadresser
 | GUI | `organizations/{organizationNumber}/notificationaddresses/mandatory` |
 | Notifications | `organizations/notificationaddresses/lookup` |
 | Dashboard | `dashboard/organizations/{organizationNumber}/notificationaddresses` |
+| Correspondence | `correspondence/organizations/notificationaddresses/lookup` |
 
 ```mermaid
 graph LR
     GUI["GUI:<br/>organizations/{organizationNumber}/notificationaddresses/mandatory"] --> S1[OrganizationNotificationAddressesService]
     Notif["Notifications:<br/>organizations/notificationaddresses/lookup"] --> S1
+    Corr["Correspondence:<br/>correspondence/organizations/notificationaddresses/lookup"] --> S1
     Dash["Dashboard:<br/>dashboard/organizations/{organizationNumber}/notificationaddresses"] --> S1
     S1 --> T1[(organization_notification_address)]
     T1 <-.sync.-> Brreg[Brreg / Kof]
@@ -40,11 +42,13 @@ Norwegian: Din kontaktinformajson for virksomheten
 | GUI | `users/current/notificationsettings/parties` | ProfessionalNotificationsService |
 | Notifications | `units/contactpoint/lookup` | UnitContactPointsService |
 | Dashboard | `dashboard/organizations/{organizationNumber}/contactinformation` | ProfessionalNotificationsService |
+| Correspondence | `correspondence/units/contactpoint/lookup` | UnitContactPointsService |
 
 ```mermaid
 graph LR
     GUI["GUI:<br/>users/current/notificationsettings/parties"] --> S2[ProfessionalNotificationsService]
     Notif["Notifications:<br/>units/contactpoint/lookup"] --> S4[UnitContactPointsService]
+    Corr["Correspondence:<br/>correspondence/units/contactpoint/lookup"] --> S4[UnitContactPointsService]
     Dash["Dashboard:<br/>dashboard/organizations/{organizationNumber}/contactinformation"] --> S2
     S2 --> T2[(professional_notification_settings)]
     S4 --> T2
@@ -84,9 +88,11 @@ graph LR
 |---|---|---|---|---|---|
 | Org Notification Addresses | GUI | `.../notificationaddresses/mandatory` | OrganizationNotificationAddressesService | organization_notification_address | Brreg (Kof) |
 | Org Notification Addresses | Notifications | `.../notificationaddresses/lookup` | OrganizationNotificationAddressesService | organization_notification_address | Brreg (Kof) |
+| Org Notification Addresses | Correspondence| `.../notificationaddresses/lookup` | OrganizationNotificationAddressesService | organization_notification_address | Brreg (Kof) |
 | Org Notification Addresses | Dashboard | `.../notificationaddresses` | OrganizationNotificationAddressesService | organization_notification_address | Brreg (Kof) |
 | Professional Notification Settings | GUI | `.../notificationsettings/parties` | ProfessionalNotificationsService | professional_notification_settings | — |
 | Professional Notification Settings | Notifications | `units/contactpoint/lookup` | UnitContactPointsService | professional_notification_settings | — |
+| Professional Notification Settings | Correspondence | `correspondence/units/contactpoint/lookup` | UnitContactPointsService | professional_notification_settings | — |
 | Professional Notification Settings | Dashboard | `.../contactinformation` | ProfessionalNotificationsService | professional_notification_settings | — |
 | Private Notification Settings | GUI | `users/current` | UserProfileService | contact_and_reservation, user_preferences.self_identified_users | KRR (contact_and_reservation only) |
 | Private Notification Settings | Notifications | `users/contactpoint/lookup` | UserContactPointService | contact_and_reservation| KRR (contact_and_reservation only) |
