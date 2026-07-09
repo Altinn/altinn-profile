@@ -22,7 +22,15 @@
 #   HAS_NEW_BASE   "true" when a newer base image was found and scanned
 #   FLOATING_TAG   floating channel tag, e.g. 10.0-alpine3.23
 #   LATEST_VERSION concrete latest patch, e.g. 10.0.11-alpine3.23
+#   LATEST_DIGEST  digest the floating tag currently resolves to, e.g. sha256:...
 #   BASE_TAG       currently pinned tag, e.g. 10.0.9-alpine3.23
+#   BASE_DIGEST    digest currently pinned in the Dockerfile, e.g. sha256:...
+#
+# The report shows the full tag@digest for the deployed and available images
+# (so the digest can be copied straight into the Dockerfile) because a rebuilt
+# base is often published under an unchanged version tag -- the digest is then
+# the only thing that changed. Table cells use the short (12-char) digest to
+# stay narrow.
 #
 # Output goes to $GITHUB_STEP_SUMMARY when set, otherwise to stdout.
 
@@ -40,6 +48,33 @@ has_new_base="${HAS_NEW_BASE:-false}"
 floating_tag="${FLOATING_TAG:-the latest base image}"
 latest_version="${LATEST_VERSION:-}"
 base_tag="${BASE_TAG:-}"
+base_digest="${BASE_DIGEST:-}"
+latest_digest="${LATEST_DIGEST:-}"
+
+# Join a tag/version with its digest for display: "tag@sha256:..." (or just
+# "tag" when the digest is unknown). The digest is the only thing that
+# distinguishes a rebuilt image published under an unchanged version tag.
+ref_with_digest() {
+  local ref="$1" digest="$2"
+  if [[ -n "$digest" ]]; then
+    printf '%s@%s' "$ref" "$digest"
+  else
+    printf '%s' "$ref"
+  fi
+}
+
+# Abbreviate a digest to its first 12 hex chars (docker-style), e.g.
+# sha256:f03685b2735e... -> sha256:f03685b2735e. Used in the table so cells
+# stay narrow; the header keeps the full, copy-pasteable digest.
+short_digest() {
+  local digest="$1"
+  if [[ "$digest" == sha256:* ]]; then
+    local hex="${digest#sha256:}"
+    printf 'sha256:%s' "${hex:0:12}"
+  else
+    printf '%s' "$digest"
+  fi
+}
 
 # Set of vulnerability IDs still present in the latest base image (if scanned).
 declare -A latest_base_ids=()
@@ -95,7 +130,7 @@ while IFS=$'\t' read -r id pkg installed fixed severity class type path; do
       verdict="⏳ Not yet fixed upstream — Dockerfile workaround or wait"
       count_upstream=$((count_upstream + 1))
     elif [[ "$has_new_base" = "true" ]]; then
-      target="${latest_version:-$floating_tag}"
+      target="$(ref_with_digest "${latest_version:-$floating_tag}" "$(short_digest "$latest_digest")")"
       verdict="✅ Base image bump — update Dockerfile to \`$target\`"
       count_bump=$((count_bump + 1))
     else
@@ -115,10 +150,10 @@ done < <(extract | tr -d '\r')
   echo "## 🐳 Base image mitigation analysis"
   echo
   if [[ -n "$base_tag" ]]; then
-    echo "Deployed base image: \`${base_tag}\`"
+    echo "Deployed base image: \`$(ref_with_digest "$base_tag" "$base_digest")\`"
   fi
   if [[ "$has_new_base" = "true" ]]; then
-    echo "A newer base image is available: \`${latest_version:-$floating_tag}\`"
+    echo "A newer base image is available: \`$(ref_with_digest "${latest_version:-$floating_tag}" "$latest_digest")\`"
   else
     echo "No newer base image is published for \`${floating_tag}\` — you are already on the latest."
   fi

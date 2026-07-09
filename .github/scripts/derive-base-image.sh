@@ -19,6 +19,10 @@
 #   BASE_CHANNEL  e.g. 10.0
 #   OS_SUFFIX     e.g. alpine3.23            (empty if the tag has no OS suffix)
 #   FLOATING_TAG  e.g. 10.0-alpine3.23
+#
+# BASE_DIGEST is both compared against the floating tag's live digest (to decide
+# whether a newer base exists) and shown in the mitigation report, so a rebuild
+# published under an unchanged version tag is still detected and surfaced.
 
 set -euo pipefail
 

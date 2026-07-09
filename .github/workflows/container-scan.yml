@@ -100,6 +100,7 @@ jobs:
           echo "Floating ${FLOATING_TAG} -> ${latest_digest}"
           echo "Pinned in Dockerfile -> ${PINNED_DIGEST:-<none>}"
 
+          echo "latest_digest=${latest_digest}" >> "$GITHUB_OUTPUT"
           if [ -n "${PINNED_DIGEST}" ] && [ "${latest_digest}" = "${PINNED_DIGEST}" ]; then
             echo "has_new_base=false" >> "$GITHUB_OUTPUT"
           else
@@ -143,7 +144,9 @@ jobs:
           HAS_NEW_BASE: ${{ steps.newbase.outputs.has_new_base }}
           FLOATING_TAG: ${{ steps.base.outputs.FLOATING_TAG }}
           LATEST_VERSION: ${{ steps.newbase.outputs.latest_version }}
+          LATEST_DIGEST: ${{ steps.newbase.outputs.latest_digest }}
           BASE_TAG: ${{ steps.base.outputs.BASE_TAG }}
+          BASE_DIGEST: ${{ steps.base.outputs.BASE_DIGEST }}
         run: |
           set -euo pipefail
           base_arg=""

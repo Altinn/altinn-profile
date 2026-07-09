@@ -76,8 +76,13 @@ assert_kv "$out" FLOATING_TAG "10.0-alpine3.23" "still derives floating tag when
 
 echo "== analyze-base-fixes.sh =="
 
-# A newer base exists and was scanned.
-out="$(HAS_NEW_BASE=true FLOATING_TAG=10.0-alpine3.23 LATEST_VERSION=10.0.11-alpine3.23 BASE_TAG=10.0.9-alpine3.23 \
+# A newer base exists and was scanned. Mirror the real "same version tag, new
+# digest" case: the digest is the only thing that changed.
+new_digest="sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
+old_digest="sha256:1111111111111111111111111111111111111111111111111111111111111111"
+out="$(HAS_NEW_BASE=true FLOATING_TAG=10.0-alpine3.23 \
+  LATEST_VERSION=10.0.9-alpine3.23 LATEST_DIGEST="$new_digest" \
+  BASE_TAG=10.0.9-alpine3.23 BASE_DIGEST="$old_digest" \
   bash "$scripts/analyze-base-fixes.sh" "$fixtures/app-findings.json" "$fixtures/base-latest-findings.json")"
 assert_contains "$out" "**4** finding(s): **2** fixable by a base image bump, **1** awaiting an upstream fix, **1** app dependencies." "counts add up with a newer base"
 assert_contains "$out" "CVE-OS-FIXED"      "reports the fixed OS package"
@@ -86,6 +91,10 @@ assert_contains "$out" "CVE-RUNTIME-FIXED" "reports the fixed runtime assembly"
 case "$out" in *"CVE-OS-FIXED"*"Base image bump"*|*"Base image bump"*"CVE-OS-FIXED"*) ok "OS-fixed -> base bump" ;; *) bad "OS-fixed -> base bump" ;; esac
 assert_contains "$out" "Not yet fixed upstream"  "OS-still -> awaiting upstream"
 assert_contains "$out" "App dependency"          "nuget -> app dependency"
+assert_contains "$out" "Deployed base image: \`10.0.9-alpine3.23@${old_digest}\`"          "deployed line shows full pinned digest"
+assert_contains "$out" "A newer base image is available: \`10.0.9-alpine3.23@${new_digest}\`" "available line shows full latest digest"
+assert_contains "$out" "update Dockerfile to \`10.0.9-alpine3.23@sha256:abcdef012345\`"    "bump verdict shows the short target digest"
+case "$out" in *"update Dockerfile to \`10.0.9-alpine3.23@${new_digest}\`"*) bad "verdict must NOT carry the full digest" ;; *) ok "verdict omits the full digest" ;; esac
 
 # No newer base published: base-origin findings should all read 'already on latest'.
 out="$(HAS_NEW_BASE=false FLOATING_TAG=10.0-alpine3.23 BASE_TAG=10.0.9-alpine3.23 \
