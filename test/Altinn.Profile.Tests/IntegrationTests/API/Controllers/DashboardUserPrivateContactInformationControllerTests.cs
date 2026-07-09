@@ -712,7 +712,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         private static HttpRequestMessage CreateGetEmailRequest(string email)
         {
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/users/contactinformation/email");
-            httpRequestMessage.Headers.Add("Email", email);
+            httpRequestMessage.Headers.Add("EmailAddress", email);
 
             return httpRequestMessage;
         }

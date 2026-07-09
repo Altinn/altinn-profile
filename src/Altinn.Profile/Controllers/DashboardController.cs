@@ -359,7 +359,7 @@ namespace Altinn.Profile.Controllers
         /// <summary>
         /// Endpoint that can retrieve a list of all user contact information for the given email from both KRR and email identified users.
         /// </summary>
-        /// <param name="email">The email of the user to retrieve contact information for</param>
+        /// <param name="emailAddress">The email of the user to retrieve contact information for</param>
         /// <param name="cancellationToken">Cancellation token for the operation</param>
         /// <returns>Returns the user contact information for the provided user</returns>
         /// <response code="200">Successfully retrieved user contact information.</response>
@@ -370,16 +370,16 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<List<DashboardUserContactPointResponse>>> GetContactInformationByEmail(
-            [FromHeader][Required] string email,
+            [FromHeader][Required] string emailAddress,
             CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return ValidationProblem(ModelState);
             }
-
-            var contactInfoTask = _userContactPointsService.GetContactPointsForDashboardByEmail(email, cancellationToken);
-            var selfIdentifiedUserContactInfoTask = _userContactPointsService.GetSIContactPointsForDashboardByEmail(email, cancellationToken);
+                
+            var contactInfoTask = _userContactPointsService.GetContactPointsForDashboardByEmail(emailAddress, cancellationToken);
+            var selfIdentifiedUserContactInfoTask = _userContactPointsService.GetSIContactPointsForDashboardByEmail(emailAddress, cancellationToken);
             await Task.WhenAll(contactInfoTask, selfIdentifiedUserContactInfoTask);
 
             var contactInfo = await contactInfoTask;
