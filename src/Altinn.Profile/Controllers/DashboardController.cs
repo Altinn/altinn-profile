@@ -8,9 +8,12 @@ using System.Threading.Tasks;
 using Altinn.Profile.Authorization;
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
+using Altinn.Profile.Core.User.ContactInfo;
 using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Mappers;
 using Altinn.Profile.Models.Dashboard;
+
+using Azure.Core;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -348,12 +351,47 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
-            var response = MapContactInfosToResponses(contactInfo);
+            var response = MapContactInfoToResponse(contactInfo);
 
             return Ok(response);
         }
 
-        private static DashboardUserContactPointResponse MapContactInfosToResponses(DashboardUserContactPoint contactInfo)
+        /// <summary>
+        /// Endpoint that can retrieve a list of all user contact information for the given email from both KRR and email identified users.
+        /// </summary>
+        /// <param name="emailAddress">The email of the user to retrieve contact information for</param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        /// <returns>Returns the user contact information for the provided user</returns>
+        /// <response code="200">Successfully retrieved user contact information.</response>
+        /// <response code="400">Invalid request parameters (model validation failed).</response>
+        /// <response code="403">Caller does not have the required Dashboard Maskinporten scope (altinn:profile.support.admin).</response>
+        [HttpGet("users/contactinformation/email")]
+        [ProducesResponseType(typeof(List<DashboardUserContactPointResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<List<DashboardUserContactPointResponse>>> GetContactInformationByEmail(
+            [FromHeader][Required] string emailAddress,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+                
+            var contactInfoTask = _userContactPointsService.GetContactPointsForDashboardByEmail(emailAddress, cancellationToken);
+            var selfIdentifiedUserContactInfoTask = _userContactPointsService.GetSIContactPointsForDashboardByEmail(emailAddress, cancellationToken);
+            await Task.WhenAll(contactInfoTask, selfIdentifiedUserContactInfoTask);
+
+            var contactInfo = await contactInfoTask;
+            var selfIdentifiedUserContactInfo = await selfIdentifiedUserContactInfoTask;
+
+            var response = contactInfo.Select(MapContactInfoToResponse).ToList();
+            response.AddRange(selfIdentifiedUserContactInfo.Select(MapContactInfoToResponse));
+
+            return Ok(response);
+        }
+
+        private static DashboardUserContactPointResponse MapContactInfoToResponse(DashboardUserContactPoint contactInfo)
         {
             return new DashboardUserContactPointResponse
             {
@@ -363,6 +401,19 @@ namespace Altinn.Profile.Controllers
                 IsReserved = contactInfo.IsReserved,
                 PhoneNumberLastUpdatedOrVerified = contactInfo.MobileNumberLastUpdatedOrVerified,
                 EmailLastUpdatedOrVerified = contactInfo.EmailLastUpdatedOrVerified,
+            };
+        }
+
+        private static DashboardUserContactPointResponse MapContactInfoToResponse(UserContactInfo contactInfo)
+        {
+            return new DashboardUserContactPointResponse
+            {
+                EmailAddress = contactInfo.EmailAddress,
+                PhoneNumber = contactInfo.PhoneNumber,
+                IsReserved = false,
+                PhoneNumberLastUpdatedOrVerified = contactInfo.PhoneNumberLastChanged,
+                EmailLastUpdatedOrVerified = contactInfo.CreatedAt,
+                Username = contactInfo.Username,
             };
         }
     }

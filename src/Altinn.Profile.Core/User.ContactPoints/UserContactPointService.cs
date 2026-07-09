@@ -118,6 +118,33 @@ public class UserContactPointService : IUserContactPointsService
     }
 
     /// <inheritdoc/>
+    public async Task<List<DashboardUserContactPoint>> GetContactPointsForDashboardByEmail(string email, CancellationToken cancellationToken)
+    {
+        var result = new List<DashboardUserContactPoint>(); 
+        var contactPreferences = await _personService.GetContactPreferencesByEmailAsync(email, cancellationToken);
+        if (contactPreferences == null || contactPreferences.Count == 0)
+        {
+            return result;
+        }
+
+        foreach (var contactPreference in contactPreferences)
+        {
+            DashboardUserContactPoint contactPoint = new()
+            {
+                NationalIdentityNumber = contactPreference.NationalIdentityNumber,
+                Email = contactPreference.Email,
+                MobileNumber = contactPreference.MobileNumber,
+                IsReserved = contactPreference.IsReserved,
+                MobileNumberLastUpdatedOrVerified = contactPreference.MobileNumberLastUpdatedOrVerified,
+                EmailLastUpdatedOrVerified = contactPreference.EmailLastUpdatedOrVerified
+            };
+            result.Add(contactPoint);
+        }
+
+        return result;
+    }
+
+    /// <inheritdoc/>
     public async Task<SelfIdentifiedUserContactPointsList> GetSiContactPoints(List<string> externalIdentities, CancellationToken cancellationToken)
     {
         SelfIdentifiedUserContactPointsList contactPointsList = new();
@@ -143,6 +170,12 @@ public class UserContactPointService : IUserContactPointsService
         }
 
         return contactPointsList;
+    }
+
+    /// <inheritdoc/>
+    public Task<IList<UserContactInfo>> GetSIContactPointsForDashboardByEmail(string email, CancellationToken cancellationToken)
+    {
+        return _userContactInfoRepository.GetByEmail(email, cancellationToken);
     }
 
     private static bool IsContactPointTooOld(DateTime? lastTouched, DateTime cutoffDate)
