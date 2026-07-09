@@ -7,7 +7,7 @@ on:
       - 'src/**'
       - '.github/workflows/**'
   pull_request:
-    branches: [main]
+    branches: [x]
     types: [opened, synchronize, reopened]
     paths:
       - 'src/**'

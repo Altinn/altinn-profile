@@ -6,7 +6,7 @@ on:
       - 'test/k6/**'
       - '.github/**'
   pull_request:
-    branches: [main]
+    branches: [x]
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 jobs:
