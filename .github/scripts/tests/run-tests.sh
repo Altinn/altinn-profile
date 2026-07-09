@@ -16,8 +16,19 @@ trap 'rm -rf "$tmp"' EXIT
 pass=0
 fail=0
 
-ok()   { printf '  \033[32mPASS\033[0m %s\n' "$1"; pass=$((pass + 1)); }
-bad()  { printf '  \033[31mFAIL\033[0m %s\n' "$1"; fail=$((fail + 1)); }
+ok() {
+  local label="$1"
+  printf '  \033[32mPASS\033[0m %s\n' "$label"
+  pass=$((pass + 1))
+  return 0
+}
+
+bad() {
+  local label="$1"
+  printf '  \033[31mFAIL\033[0m %s\n' "$label"
+  fail=$((fail + 1))
+  return 0
+}
 
 # assert_kv <output> <KEY> <expected-value> <label>
 assert_kv() {
@@ -25,26 +36,31 @@ assert_kv() {
   local got
   got="$(printf '%s\n' "$out" | sed -n "s/^${key}=//p")"
   if [[ "$got" = "$want" ]]; then ok "$label ($key=$got)"; else bad "$label ($key: want '$want', got '$got')"; fi
+  return 0
 }
 
 # assert_contains <haystack> <needle> <label>
 assert_contains() {
-  case "$1" in
-    *"$2"*) ok "$3" ;;
-    *)      bad "$3 (missing: $2)" ;;
+  local haystack="$1" needle="$2" label="$3"
+  case "$haystack" in
+    *"$needle"*) ok "$label" ;;
+    *)           bad "$label (missing: $needle)" ;;
   esac
+  return 0
 }
 
 # assert_row <output> <cve> <verdict-substring> <label>
 # Isolates the table row for <cve> and checks its verdict, so a verdict from a
 # different row can't accidentally satisfy the assertion.
 assert_row() {
+  local out="$1" cve="$2" verdict="$3" label="$4"
   local row
-  row="$(printf '%s\n' "$1" | grep -F "| $2 |")"
+  row="$(printf '%s\n' "$out" | grep -F "| $cve |")"
   case "$row" in
-    *"$3"*) ok "$4" ;;
-    *)      bad "$4 (row: ${row:-<none>})" ;;
+    *"$verdict"*) ok "$label" ;;
+    *)            bad "$label (row: ${row:-<none>})" ;;
   esac
+  return 0
 }
 
 echo "== derive-base-image.sh =="
@@ -118,4 +134,4 @@ assert_contains "$out" "App dependency"                    "app dep still flagge
 
 echo
 echo "Passed: $pass  Failed: $fail"
-[ "$fail" -eq 0 ]
+[[ "$fail" -eq 0 ]]
