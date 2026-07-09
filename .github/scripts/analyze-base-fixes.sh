@@ -173,6 +173,6 @@ done < <(extract | tr -d '\r')
     echo "- For exploitable vulnerabilities, patch and release ASAP."
     echo "- For non-exploitable vulnerabilities:"
     echo "  - When there is an upstream fix for the base image or an app dependency, merge the patch to main and let the release follow the normal cadence cycle."
-    echo "  - When awaiting the upstream fix, silence the finding by adding the CVE to \`.trivyignore.yaml\` and merge to main."
+    echo "  - When awaiting the upstream fix, silence the finding by adding the CVE to \`.trivyignore.yaml\`. Include a reason that summarizes why it's not exploitable, add a reasonable expiry time, and merge to main."
   fi
 } >> "${GITHUB_STEP_SUMMARY:-/dev/stdout}"
