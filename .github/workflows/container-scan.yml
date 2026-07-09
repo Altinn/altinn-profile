@@ -158,7 +158,7 @@ jobs:
       - name: Fail the build on CRITICAL/HIGH findings
         if: steps.findings.outputs.count != '0'
         run: |
-          echo "::error::Trivy found ${{ steps.findings.outputs.count }} CRITICAL/HIGH vulnerabilities. See the job summary for mitigation guidance."
+          echo "::error::Trivy found one or more CRITICAL/HIGH vulnerabilities. See the job summary for mitigation guidance."
           exit 1
 
   upload-sarif:
