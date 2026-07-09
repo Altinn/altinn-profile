@@ -351,7 +351,7 @@ namespace Altinn.Profile.Controllers
                 return NotFound();
             }
 
-            var response = MapContactInfoToResponses(contactInfo);
+            var response = MapContactInfoToResponse(contactInfo);
 
             return Ok(response);
         }
@@ -365,12 +365,12 @@ namespace Altinn.Profile.Controllers
         /// <response code="200">Successfully retrieved user contact information.</response>
         /// <response code="400">Invalid request parameters (model validation failed).</response>
         /// <response code="403">Caller does not have the required Dashboard Maskinporten scope (altinn:profile.support.admin).</response>
-        [HttpGet("users/contactinformation/email/{email}")]
+        [HttpGet("users/contactinformation/email")]
         [ProducesResponseType(typeof(List<DashboardUserContactPointResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<List<DashboardUserContactPointResponse>>> GetContactInformationByEmail(
-            [FromRoute] string email,
+            [FromHeader][Required] string email,
             CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
@@ -385,13 +385,13 @@ namespace Altinn.Profile.Controllers
             var contactInfo = await contactInfoTask;
             var selfIdentifiedUserContactInfo = await selfIdentifiedUserContactInfoTask;
 
-            var response = contactInfo.Select(MapContactInfoToResponses).ToList();
-            response.AddRange(selfIdentifiedUserContactInfo.Select(MapContactInfoToResponses));
+            var response = contactInfo.Select(MapContactInfoToResponse).ToList();
+            response.AddRange(selfIdentifiedUserContactInfo.Select(MapContactInfoToResponse));
 
             return Ok(response);
         }
 
-        private static DashboardUserContactPointResponse MapContactInfoToResponses(DashboardUserContactPoint contactInfo)
+        private static DashboardUserContactPointResponse MapContactInfoToResponse(DashboardUserContactPoint contactInfo)
         {
             return new DashboardUserContactPointResponse
             {
@@ -404,7 +404,7 @@ namespace Altinn.Profile.Controllers
             };
         }
 
-        private static DashboardUserContactPointResponse MapContactInfoToResponses(UserContactInfo contactInfo)
+        private static DashboardUserContactPointResponse MapContactInfoToResponse(UserContactInfo contactInfo)
         {
             return new DashboardUserContactPointResponse
             {

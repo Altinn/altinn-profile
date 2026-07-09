@@ -427,7 +427,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetContactInformationByEmail_WhenEmailRouteSegmentIsEmpty_ReturnsNotFound()
+        public async Task GetContactInformationByEmail_WhenEmailHeaderIsEmpty_ReturnsBadRequest()
         {
             // Arrange
             HttpClient client = _factory.CreateClient();
@@ -438,7 +438,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             _factory.PersonServiceMock.Verify(s => s.GetContactPreferencesByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
             _factory.UserContactInfoRepositoryMock.Verify(r => r.GetByEmail(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         }
@@ -711,7 +711,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
         private static HttpRequestMessage CreateGetEmailRequest(string email)
         {
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/users/contactinformation/email/{Uri.EscapeDataString(email)}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/users/contactinformation/email");
+            httpRequestMessage.Headers.Add("Email", email);
+
             return httpRequestMessage;
         }
 
