@@ -10,8 +10,11 @@
 #                                 Dockerfile workaround or an upstream fix
 #
 # "Base-origin" (i.e. comes from the base image, not your app) is determined
-# from the app scan alone: OS packages (Class == os-pkgs) and the bundled .NET
-# runtime (Type == dotnet-core, or a package path under the shared framework).
+# from the app scan alone: OS packages (Class == os-pkgs) and .NET assemblies
+# under the shared framework path (usr/share/dotnet/...). The app's own NuGet
+# packages -- whose deps.json Target is under app/ -- are app dependencies.
+# (Trivy labels both the runtime and the app's deps.json as Type dotnet-core,
+# so the location, not the type, is what discriminates them.)
 # Whether a base-origin finding is already fixed is answered by diffing its
 # vulnerability ID against a scan of the latest base image, which the caller
 # supplies only when a newer base actually exists.
@@ -85,12 +88,14 @@ if [[ -n "$base_json" ]] && [[ -f "$base_json" ]]; then
 fi
 
 # Emit each finding as a tab-separated row from the app scan.
-# Fields: id, pkg, installed, fixed, severity, class, type, pkgpath
+# Fields: id, pkg, installed, fixed, severity, class, location
+# `location` is the package path when Trivy provides one, otherwise the result
+# Target. For .deps.json findings PkgPath is null, so the Target is what tells
+# the runtime shared framework apart from the app's own packages.
 extract() {
   jq -r '
     .Results[]? as $r
     | ($r.Class // "")  as $class
-    | ($r.Type  // "")  as $type
     | ($r.Target // "") as $target
     | ($r.Vulnerabilities // [])[]
     | [ .VulnerabilityID,
@@ -99,19 +104,17 @@ extract() {
         (.FixedVersion // "-"),
         (.Severity // ""),
         $class,
-        $type,
         (.PkgPath // $target) ]
     | @tsv
   ' "$app_json"
 }
 
 is_base_origin() {
-  local class="$1" type="$2" path="$3"
+  local class="$1" location="$2"
   [[ "$class" = "os-pkgs" ]] && return 0
-  [[ "$type" = "dotnet-core" ]] && return 0
-  case "$path" in
+  case "$location" in
     usr/share/dotnet/*|/usr/share/dotnet/*|usr/lib/dotnet/*|/usr/lib/dotnet/*) return 0 ;;
-    *) return 1 ;;  # anything else is an app-level dependency
+    *) return 1 ;;  # app-level dependency, e.g. app/Altinn.Profile.deps.json
   esac
 }
 
@@ -121,11 +124,11 @@ count_bump=0
 count_upstream=0
 count_appdep=0
 
-while IFS=$'\t' read -r id pkg installed fixed severity class type path; do
+while IFS=$'\t' read -r id pkg installed fixed severity class location; do
   [[ -z "$id" ]] && continue
   count_total=$((count_total + 1))
 
-  if is_base_origin "$class" "$type" "$path"; then
+  if is_base_origin "$class" "$location"; then
     if [[ "$has_new_base" = "true" ]] && [[ -n "${latest_base_ids[$id]:-}" ]]; then
       verdict="⏳ Not yet fixed upstream — Dockerfile workaround or wait"
       count_upstream=$((count_upstream + 1))

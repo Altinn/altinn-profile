@@ -35,6 +35,18 @@ assert_contains() {
   esac
 }
 
+# assert_row <output> <cve> <verdict-substring> <label>
+# Isolates the table row for <cve> and checks its verdict, so a verdict from a
+# different row can't accidentally satisfy the assertion.
+assert_row() {
+  local row
+  row="$(printf '%s\n' "$1" | grep -F "| $2 |")"
+  case "$row" in
+    *"$3"*) ok "$4" ;;
+    *)      bad "$4 (row: ${row:-<none>})" ;;
+  esac
+}
+
 echo "== derive-base-image.sh =="
 
 df="$tmp/Dockerfile.aspnet"
@@ -85,12 +97,12 @@ out="$(HAS_NEW_BASE=true FLOATING_TAG=10.0-alpine3.23 \
   BASE_TAG=10.0.9-alpine3.23 BASE_DIGEST="$old_digest" \
   bash "$scripts/analyze-base-fixes.sh" "$fixtures/app-findings.json" "$fixtures/base-latest-findings.json")"
 assert_contains "$out" "**4** finding(s): **2** fixable by a base image bump, **1** awaiting an upstream fix, **1** app dependencies." "counts add up with a newer base"
-assert_contains "$out" "CVE-OS-FIXED"      "reports the fixed OS package"
-assert_contains "$out" "CVE-RUNTIME-FIXED" "reports the fixed runtime assembly"
-# OS package absent from latest base -> base bump.
-case "$out" in *"CVE-OS-FIXED"*"Base image bump"*|*"Base image bump"*"CVE-OS-FIXED"*) ok "OS-fixed -> base bump" ;; *) bad "OS-fixed -> base bump" ;; esac
-assert_contains "$out" "Not yet fixed upstream"  "OS-still -> awaiting upstream"
-assert_contains "$out" "App dependency"          "nuget -> app dependency"
+assert_row "$out" CVE-OS-FIXED      "Base image bump"        "OS pkg absent from latest base -> base bump"
+assert_row "$out" CVE-OS-STILL      "Not yet fixed upstream" "OS pkg present in latest base -> awaiting upstream"
+assert_row "$out" CVE-RUNTIME-FIXED "Base image bump"        "runtime assembly (usr/share/dotnet) is base-origin -> base bump"
+# Regression: an app NuGet package is reported by Trivy as Type dotnet-core with
+# a null PkgPath (Target under app/). It must NOT be mistaken for base-origin.
+assert_row "$out" CVE-APP-DEP       "App dependency"         "app dep (dotnet-core, app/ target) -> app dependency, not base"
 assert_contains "$out" "Deployed base image: \`10.0.9-alpine3.23@${old_digest}\`"          "deployed line shows full pinned digest"
 assert_contains "$out" "A newer base image is available: \`10.0.9-alpine3.23@${new_digest}\`" "available line shows full latest digest"
 assert_contains "$out" "update Dockerfile to \`10.0.9-alpine3.23@sha256:abcdef012345\`"    "bump verdict shows the short target digest"

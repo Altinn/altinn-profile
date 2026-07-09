@@ -74,7 +74,6 @@ jobs:
         id: findings
         run: |
           count=$(jq '[.Results[]?.Vulnerabilities[]?] | length' trivy-results.json)
-          jq '[.Results[] | {Target, Class, Type, pkgPaths: ([.Vulnerabilities[]?.PkgPath] | unique)}]' trivy-results.json
           echo "count=$count" >> "$GITHUB_OUTPUT"
           echo "Trivy reported $count CRITICAL/HIGH finding(s)."
 
