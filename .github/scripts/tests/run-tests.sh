@@ -24,7 +24,7 @@ assert_kv() {
   local out="$1" key="$2" want="$3" label="$4"
   local got
   got="$(printf '%s\n' "$out" | sed -n "s/^${key}=//p")"
-  if [ "$got" = "$want" ]; then ok "$label ($key=$got)"; else bad "$label ($key: want '$want', got '$got')"; fi
+  if [[ "$got" = "$want" ]]; then ok "$label ($key=$got)"; else bad "$label ($key: want '$want', got '$got')"; fi
 }
 
 # assert_contains <haystack> <needle> <label>
