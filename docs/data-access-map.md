@@ -67,12 +67,14 @@ graph LR
 | GUI | `users/current` | UserProfileService |
 | Notifications | `users/contactpoint/lookup` | UserContactPointService |
 | Notifications | `users/contactpoint/lookupsi` | UserContactPointService |
+| Dashboard | `dashboard/users/contactinformation` | UserContactPointService | 
 
 ```mermaid
 graph LR
     GUI["GUI:<br/>users/current"] --> S3[UserProfileService]
     Notif1["Notifications:<br/>users/contactpoint/lookup"] --> S5[UserContactPointService]
     Notif2["Notifications:<br/>users/contactpoint/lookupsi"] --> S5
+    Dash["Dashboard:<br/>dashboard/users/contactinformation"] --> S5
     S3 --> T3C[(contact_and_reservation)]
     S3 --> T3D[(user_preferences.self_identified_users)]
     S5 --> T3C
@@ -97,6 +99,7 @@ graph LR
 | Private Notification Settings | GUI | `users/current` | UserProfileService | contact_and_reservation, user_preferences.self_identified_users | KRR (contact_and_reservation only) |
 | Private Notification Settings | Notifications | `users/contactpoint/lookup` | UserContactPointService | contact_and_reservation| KRR (contact_and_reservation only) |
 | Private Notification Settings | Notifications | `users/contactpoint/lookupsi` | UserContactPointService |  user_preferences.self_identified_users | — |
+| Private Notification Settings | Dashboard | `dashboard/users/contactinformation` | UserContactPointService | contact_and_reservation, user_preferences.self_identified_users | KRR (contact_and_reservation only) |
 
 ---
 
