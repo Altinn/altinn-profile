@@ -10,6 +10,7 @@ on:
       - 'Dockerfile'
       - '.trivyignore.yaml'
       - '.github/workflows/container-scan.yml'
+      - '.github/scripts/**'
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
@@ -18,33 +19,47 @@ on:
       - 'Dockerfile'
       - '.trivyignore.yaml'
       - '.github/workflows/container-scan.yml'
+      - '.github/scripts/**'
 permissions: {}
 jobs:
   scan:
     runs-on: ubuntu-latest
     permissions:
       contents: read # Required to checkout and read repo files
+    env:
+      # Mirror registries so a single-registry outage doesn't fail the scan.
+      TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db,aquasec/trivy-db,ghcr.io/aquasecurity/trivy-db
+      TRIVY_JAVA_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-java-db,aquasec/trivy-java-db,ghcr.io/aquasecurity/trivy-java-db
+      TRIVY_SHOW_SUPPRESSED: true
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      # setup-trivy defaults to installing the latest version of trivy, ref. https://github.com/aquasecurity/trivy/releases
+      - name: Install Trivy
+        uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567 # v0.3.1
+
       - name: Build the Docker image
-        run: docker build . --tag altinn-profile:${{github.sha}}
+        run: docker build . --tag altinn-profile:${{ github.sha }}
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with:
-          image-ref: 'altinn-profile:${{ github.sha }}'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-          trivyignores: '.trivyignore.yaml'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          limit-severities-for-sarif: true
-        env:
-          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db,aquasec/trivy-db,ghcr.io/aquasecurity/trivy-db
-          TRIVY_JAVA_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-java-db,aquasec/trivy-java-db,ghcr.io/aquasecurity/trivy-java-db
-          TRIVY_SHOW_SUPPRESSED: true
+        # exit-code 0: never fail here so the SARIF upload and mitigation
+        # analysis always run; the build is failed explicitly at the end.
+        run: |
+          trivy image \
+            --scanners vuln \
+            --pkg-types os,library \
+            --severity CRITICAL,HIGH \
+            --ignore-unfixed \
+            --ignorefile .trivyignore.yaml \
+            --format json \
+            --output trivy-results.json \
+            --exit-code 0 \
+            "altinn-profile:${{ github.sha }}"
+
+      - name: Convert results to SARIF
+        run: trivy convert --format sarif --output trivy-results.sarif trivy-results.json
+
       - name: Upload SARIF as artifact
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -52,6 +67,99 @@ jobs:
           name: trivy-sarif
           path: 'trivy-results.sarif'
           retention-days: 1
+
+      # ---- Everything below only runs when the app image has findings ----
+
+      - name: Count findings
+        id: findings
+        run: |
+          count=$(jq '[.Results[]?.Vulnerabilities[]?] | length' trivy-results.json)
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "Trivy reported $count CRITICAL/HIGH finding(s)."
+
+      - name: Derive base image reference from Dockerfile
+        if: steps.findings.outputs.count != '0'
+        id: base
+        run: bash .github/scripts/derive-base-image.sh Dockerfile >> "$GITHUB_OUTPUT"
+
+      - name: Check for a newer base image
+        if: steps.findings.outputs.count != '0'
+        id: newbase
+        env:
+          BASE_REPO: ${{ steps.base.outputs.BASE_REPO }}
+          BASE_CHANNEL: ${{ steps.base.outputs.BASE_CHANNEL }}
+          OS_SUFFIX: ${{ steps.base.outputs.OS_SUFFIX }}
+          FLOATING_TAG: ${{ steps.base.outputs.FLOATING_TAG }}
+          PINNED_DIGEST: ${{ steps.base.outputs.BASE_DIGEST }}
+        run: |
+          set -euo pipefail
+          # Resolve the digest the floating tag points at right now (manifest
+          # metadata only -- no image layers are pulled).
+          latest_digest=$(docker buildx imagetools inspect \
+            "${BASE_REPO}:${FLOATING_TAG}" --format '{{.Manifest.Digest}}')
+          echo "Floating ${FLOATING_TAG} -> ${latest_digest}"
+          echo "Pinned in Dockerfile -> ${PINNED_DIGEST:-<none>}"
+
+          echo "latest_digest=${latest_digest}" >> "$GITHUB_OUTPUT"
+          if [ -n "${PINNED_DIGEST}" ] && [ "${latest_digest}" = "${PINNED_DIGEST}" ]; then
+            echo "has_new_base=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_new_base=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Best-effort human-readable latest patch, for the report only.
+          repo_path="${BASE_REPO#mcr.microsoft.com/}"
+          ch=$(printf '%s' "${BASE_CHANNEL}" | sed 's/\./\\./g')
+          if [ -n "${OS_SUFFIX}" ]; then
+            sf=$(printf '%s' "${OS_SUFFIX}" | sed 's/\./\\./g')
+            pattern="^${ch}\\.[0-9]+-${sf}$"
+          else
+            pattern="^${ch}\\.[0-9]+$"
+          fi
+          latest_version=$(curl -sfL --proto '=https' --proto-redir '=https' "https://mcr.microsoft.com/v2/${repo_path}/tags/list" \
+            | jq -r --arg p "$pattern" '.tags[]? | select(test($p))' \
+            | sort -V | tail -n1 || true)
+          echo "latest_version=${latest_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Scan the latest base image
+        if: steps.findings.outputs.count != '0' && steps.newbase.outputs.has_new_base == 'true'
+        env:
+          BASE_REPO: ${{ steps.base.outputs.BASE_REPO }}
+          FLOATING_TAG: ${{ steps.base.outputs.FLOATING_TAG }}
+        run: |
+          set -euo pipefail
+          trivy image \
+            --scanners vuln \
+            --pkg-types os,library \
+            --severity CRITICAL,HIGH \
+            --ignore-unfixed \
+            --format json \
+            --output base-latest.json \
+            --exit-code 0 \
+            "${BASE_REPO}:${FLOATING_TAG}"
+
+      - name: Analyze base image mitigations
+        if: steps.findings.outputs.count != '0'
+        env:
+          HAS_NEW_BASE: ${{ steps.newbase.outputs.has_new_base }}
+          FLOATING_TAG: ${{ steps.base.outputs.FLOATING_TAG }}
+          LATEST_VERSION: ${{ steps.newbase.outputs.latest_version }}
+          LATEST_DIGEST: ${{ steps.newbase.outputs.latest_digest }}
+          BASE_TAG: ${{ steps.base.outputs.BASE_TAG }}
+          BASE_DIGEST: ${{ steps.base.outputs.BASE_DIGEST }}
+        run: |
+          set -euo pipefail
+          base_arg=""
+          if [ "${HAS_NEW_BASE}" = "true" ] && [ -f base-latest.json ]; then
+            base_arg="base-latest.json"
+          fi
+          bash .github/scripts/analyze-base-fixes.sh trivy-results.json "$base_arg"
+
+      - name: Fail the build on CRITICAL/HIGH findings
+        if: steps.findings.outputs.count != '0'
+        run: |
+          echo "::error::Trivy found one or more CRITICAL/HIGH vulnerabilities. See the job summary for mitigation guidance."
+          exit 1
 
   upload-sarif:
     needs: scan
@@ -68,3 +176,5 @@ jobs:
         uses: github/codeql-action/upload-sarif@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a # v4.36.3
         with:
           sarif_file: 'trivy-results.sarif'
+          sha: ${{ github.sha }}
+          ref: ${{ github.ref }}
