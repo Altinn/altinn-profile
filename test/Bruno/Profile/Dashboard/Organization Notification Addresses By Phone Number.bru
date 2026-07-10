@@ -5,46 +5,51 @@ meta {
 }
 
 get {
-  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/notificationaddresses/phonenumber/{{phoneNumber}}?countrycode={{countryCode}}
+  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/notificationaddresses/phonenumber
   body: none
   auth: inherit
 }
 
-params:query {
-  countrycode: {{countryCode}}
+headers {
+  PhoneNumber: {{phoneNumber}}
+  CountryCode: {{countryCode}}
+}
+
+script:pre-request {
+  await bru.runRequest("TokenGenerator/Application Owner Profile scope")
 }
 
 docs {
-  # Get Notification Addresses by Phone Number
-
+  # Get Notification Addresses by PhoneNumber
+  
   Searches for all organizations that have registered a specific phone number in the external business registry.
-
+  
   ## Purpose
-
+  
   Used by the Support Dashboard to find which organizations use a specific phone number for notifications.
-
+  
   ## Authentication
-
+  
   Requires Dashboard Maskinporten scope: `altinn:profile.support.admin`
-
+  
   ## Setup
-
+  
   This request uses variables automatically loaded from your `.env` file:
   
   ```env
-  PHONE_NUMBER_TEST=99999999
-  COUNTRY_CODE_TEST=%2B47
+  {{process.env.PHONE_NUMBER_TEST}}=99999999
+  {{process.env.COUNTRY_CODE_TEST}}=+47
   ```
-
-  Use a phone number that exists in your test environment. The country code should be URL-encoded (e.g., `%2B47` for +47).
-
+  
+  Use a phone number that exists in your test environment.
+  
   ## Parameters
-
-  - `phoneNumber` (path): The phone number to search for
-  - `countrycode` (query): Country code prefix (default: "+47")
-
+  
+  - `phoneNumber` (header): The phone number to search for
+  - `countryCode` (header): The country code to include in the phone number searc
+  
   ## Response Example
-
+  
   ```json
   [
     {
@@ -59,35 +64,31 @@ docs {
     {
       "notificationAddressId": 2,
       "countryCode": "+47",
-      "email": "info@example.com",
-      "phone": "98765432",
+      "email": "contact@example.com",
+      "phone": "87654321",
       "sourceOrgNumber": "987654321",
       "requestedOrgNumber": "987654321",
       "lastChanged": "2025-01-14T09:15:00Z"
     }
   ]
   ```
-
+  
   ## Features
-
+  
+  - Phone number search, with optional country code. Default is +47
   - Returns all organizations with matching phone number
   - Can return multiple organizations
-  - Supports country code filtering
-
+  
   ## Field Explanation
-
+  
   - **sourceOrgNumber**: The organization where this address is actually registered (owner of the data)
   - **requestedOrgNumber**: The organization number you requested (may inherit from parent if no direct registration)
-
+  
   In most cases these are the same, but they differ when a child organization inherits contact information from its parent.
-
+  
   ## Status Codes
-
+  
   - **200 OK**: Successfully retrieved notification addresses
   - **403 Forbidden**: Missing required scope
   - **404 Not Found**: No organizations found with that phone number
-}
-
-script:pre-request {
-  await bru.runRequest("TokenGenerator/Application Owner Profile scope")
 }

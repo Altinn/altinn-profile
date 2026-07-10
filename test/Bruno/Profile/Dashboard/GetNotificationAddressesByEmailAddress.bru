@@ -5,40 +5,48 @@ meta {
 }
 
 get {
-  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/notificationaddresses/email/{{emailAddress}}
+  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/notificationaddresses/email
   body: none
   auth: inherit
 }
 
+headers {
+  EmailAddress: {{emailAddress}}
+}
+
+script:pre-request {
+  await bru.runRequest("TokenGenerator/Application Owner Profile scope")
+}
+
 docs {
   # Get Notification Addresses by Email Address
-
+  
   Searches for all organizations that have registered a specific email address in the external business registry.
-
+  
   ## Purpose
-
+  
   Used by the Support Dashboard to find which organizations use a specific email address for notifications.
-
+  
   ## Authentication
-
+  
   Requires Dashboard Maskinporten scope: `altinn:profile.support.admin`
-
+  
   ## Setup
-
+  
   This request uses variables automatically loaded from your `.env` file:
   
   ```env
   EMAIL_ADDRESS_TEST=testdashboard@test.com
   ```
-
+  
   Use an email address that exists in your test environment.
-
+  
   ## Parameters
-
-  - `emailAddress` (path): The email address to search for
-
+  
+  - `emailAddress` (header): The email address to search for
+  
   ## Response Example
-
+  
   ```json
   [
     {
@@ -61,27 +69,23 @@ docs {
     }
   ]
   ```
-
+  
   ## Features
-
+  
   - Case-insensitive email search
   - Returns all organizations with matching email
   - Can return multiple organizations
-
+  
   ## Field Explanation
-
+  
   - **sourceOrgNumber**: The organization where this address is actually registered (owner of the data)
   - **requestedOrgNumber**: The organization number you requested (may inherit from parent if no direct registration)
-
+  
   In most cases these are the same, but they differ when a child organization inherits contact information from its parent.
-
+  
   ## Status Codes
-
+  
   - **200 OK**: Successfully retrieved notification addresses
   - **403 Forbidden**: Missing required scope
   - **404 Not Found**: No organizations found with that email
-}
-
-script:pre-request {
-  await bru.runRequest("TokenGenerator/Application Owner Profile scope")
 }

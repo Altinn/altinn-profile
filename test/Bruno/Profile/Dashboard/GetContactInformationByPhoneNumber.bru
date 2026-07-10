@@ -5,13 +5,14 @@ meta {
 }
 
 get {
-  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/contactinformation/phoneNumber/{{phoneNumber}}?countrycode={{countryCode}}
+  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/contactinformation/phoneNumber
   body: none
   auth: inherit
 }
 
-params:query {
-  countrycode: {{countryCode}}
+headers {
+  PhoneNumber: {{phoneNumber}}
+  CountryCode: {{countryCode}}
 }
 
 script:pre-request {
@@ -43,8 +44,8 @@ docs {
   
   ## Parameters
   
-  - `phoneNumber` (path): URL-encoded phone number to look up contact information for
-  - `countrycode` (query): Country code prefix (default: "+47")
+  - `phoneNumber` (header): phone number to look up contact information for
+  - `countrycode` (header): Country code prefix (optional)
   
   ## Response Example
   

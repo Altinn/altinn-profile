@@ -1,13 +1,17 @@
 meta {
   name: Organization Contact Information By Email Address
   type: http
-  seq: 4
+  seq: 5
 }
 
 get {
-  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/contactinformation/email/{{emailAddress}}
+  url: {{ProfileBaseAddress}}/api/v1/dashboard/organizations/contactinformation/email
   body: none
   auth: inherit
+}
+
+headers {
+  EmailAddress: {{emailAddress}}
 }
 
 script:pre-request {
@@ -39,7 +43,7 @@ docs {
   
   ## Parameters
   
-  - `emailAddress` (path): URL-encoded email address to look up contact information for
+  - `emailAddress` (header): email address to look up contact information for
   
   ## Response Example
   
