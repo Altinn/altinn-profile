@@ -88,7 +88,7 @@ if [[ -n "$base_json" ]] && [[ -f "$base_json" ]]; then
   fi
   while IFS= read -r id; do
     [[ -n "$id" ]] && latest_base_ids["$id"]=1
-  done < <(printf '%s' "$base_ids" | tr -d '\r')
+  done < <(printf '%s\n' "$base_ids" | tr -d '\r')
 elif [[ "$has_new_base" = "true" ]]; then
   echo "analyze-base-fixes.sh: HAS_NEW_BASE=true but no base scan file provided" >&2
   exit 1
