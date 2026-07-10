@@ -107,7 +107,7 @@ namespace Altinn.Profile.Controllers
         /// <param name="emailAddress">The email address to search for</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Returns the notification addresses for the provided email address</returns> 
-        [HttpGet("organizations/notificationaddresses/email/")]
+        [HttpGet("organizations/notificationaddresses/email")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
