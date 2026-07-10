@@ -40,11 +40,19 @@ if [[ -z "$from_line" ]]; then
   exit 1
 fi
 
-# Strip the leading "FROM" keyword and any trailing "AS <stage>" alias, then the
-# only remaining token is the image reference (repo:tag@digest).
-ref=$(printf '%s\n' "$from_line" \
-  | sed -E 's/^[[:space:]]*[Ff][Rr][Oo][Mm][[:space:]]+//; s/[[:space:]]+[Aa][Ss][[:space:]]+.*$//' \
-  | tr -d '[:space:]')
+# Extract the image reference (repo:tag@digest) from the FROM line. A FROM line
+# may carry flags, e.g. `FROM --platform=$BUILDPLATFORM image AS build`, so we
+# tokenise: skip the FROM keyword and any --flag tokens, then take the first
+# remaining token -- the image reference. The optional `AS <stage>` alias comes
+# after the image, so it is never reached.
+ref=$(printf '%s\n' "$from_line" | awk '{
+  for (i = 1; i <= NF; i++) {
+    if (toupper($i) == "FROM") continue   # the FROM keyword
+    if ($i ~ /^--/)            continue   # a flag, e.g. --platform=linux/amd64
+    print $i                              # first non-flag token = image reference
+    exit
+  }
+}')
 
 # Split off the optional @sha256:... digest.
 case "$ref" in
