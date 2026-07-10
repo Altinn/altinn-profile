@@ -19,34 +19,47 @@ script:pre-request {
 }
 
 tests {
+  function isNullOrString(s){
+    return s === null || typeof s == 'string'; 
+  }
+  
   test("should return 200 OK", function() {
     expect(res.getStatus()).to.equal(200);
   });
   
-  test("should return a single object", function() {
+  test("should return a single array", function() {
     const body = res.getBody();
-    expect(body).to.be.an('object');
+    expect(body).to.be.an('array');
   });
   
   test("each contact should have required fields", function() {
-    const contact = res.getBody();
-    expect(contact).to.have.property('nationalIdentityNumber');
-    expect(contact.nationalIdentityNumber).to.be.a('string');
-    expect(contact).to.have.property('isReserved');
-    expect(contact.isReserved).to.be.a('boolean');
-    expect(contact).to.have.property('emailAddress');
-    expect(contact).to.have.property('emailLastUpdatedOrVerified');
-    expect(contact).to.have.property('phoneNumber');
-    expect(contact).to.have.property('phoneNumberLastUpdatedOrVerified');
-    // emailAddress and phoneNumber should have either null or string value, and when there's a value the ..LastUpdatedOrVerified field should be string (actually datetime).
-    if (contact.emailAddress !== null) {
-      expect(contact.emailAddress).to.be.a('string');
-      expect(contact.emailLastUpdatedOrVerified).to.be.a('string');
-    }
-    if (contact.phoneNumber !== null) {
-      expect(contact.phoneNumber).to.be.a('string');
-      expect(contact.phoneNumberLastUpdatedOrVerified).to.be.a('string');
-    }
+    const responseBody = res.getBody();
+    responseBody.forEach(contact => {
+      expect(contact).to.have.property('nationalIdentityNumber');
+      expect(contact.nationalIdentityNumber).to.satisfy(isNullOrString);
+      expect(contact).to.have.property('isReserved');
+      expect(contact.isReserved).to.be.a('boolean');
+      expect(contact).to.have.property('emailAddress');
+      expect(contact).to.have.property('emailLastUpdatedOrVerified');
+      expect(contact).to.have.property('phoneNumber');
+      expect(contact).to.have.property('phoneNumberLastUpdatedOrVerified');
+      
+      // emailAddress and phoneNumber should be null or string; when non-null, the corresponding LastUpdatedOrVerified should be string
+      expect(contact.emailAddress).to.satisfy(isNullOrString);
+      expect(contact.phoneNumber).to.satisfy(isNullOrString);
+      expect(contact.emailLastUpdatedOrVerified).to.satisfy(isNullOrString);
+      expect(contact.phoneNumberLastUpdatedOrVerified).to.satisfy(isNullOrString);
+
+      if (contact.emailAddress !== null) {
+        expect(contact.emailLastUpdatedOrVerified).to.be.a('string');
+      }
+      if (contact.phoneNumber !== null) {
+        expect(contact.phoneNumberLastUpdatedOrVerified).to.be.a('string');
+      }
+
+      expect(contact).to.have.property('username');
+      expect(contact.username).to.satisfy(isNullOrString);
+    });
   });
 }
 
