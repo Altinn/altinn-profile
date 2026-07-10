@@ -82,9 +82,16 @@ short_digest() {
 # Set of vulnerability IDs still present in the latest base image (if scanned).
 declare -A latest_base_ids=()
 if [[ -n "$base_json" ]] && [[ -f "$base_json" ]]; then
+  if ! base_ids="$(jq -r '[.Results[]?.Vulnerabilities[]?.VulnerabilityID] | unique[]' "$base_json")"; then
+    echo "analyze-base-fixes.sh: invalid JSON in $base_json" >&2
+    exit 1
+  fi
   while IFS= read -r id; do
     [[ -n "$id" ]] && latest_base_ids["$id"]=1
-  done < <(jq -r '[.Results[]?.Vulnerabilities[]?.VulnerabilityID] | unique[]' "$base_json" | tr -d '\r')
+  done < <(printf '%s' "$base_ids" | tr -d '\r')
+elif [[ "$has_new_base" = "true" ]]; then
+  echo "analyze-base-fixes.sh: HAS_NEW_BASE=true but no base scan file provided" >&2
+  exit 1
 fi
 
 # Emit each finding as a tab-separated row from the app scan.
