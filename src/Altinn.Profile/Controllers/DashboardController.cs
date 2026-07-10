@@ -377,7 +377,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<List<DashboardUserContactInformationResponse>>> GetContactInformationByPhoneNumber(
-             [FromHeader(Name = "phoneNumber"), Required, RegularExpression(@"^[0-9]{5,15}$", ErrorMessage = "The phone number is not valid. It can only contain digits between 5 to 15 digits")] string phoneNumber,
+             [FromHeader(Name = "phoneNumber"), Required, RegularExpression(@"^[0-9]{5,15}$", ErrorMessage = "The phone number is not valid. It can only contain between 5 to 15 digits")] string phoneNumber,
              [FromHeader(Name = "countryCode")] string countryCode,
              CancellationToken cancellationToken = default)
         {
