@@ -102,6 +102,16 @@ out="$(bash "$scripts/derive-base-image.sh" "$df")"
 assert_kv "$out" BASE_DIGEST  ""                "tolerates an unpinned FROM"
 assert_kv "$out" FLOATING_TAG "10.0-alpine3.23" "still derives floating tag when unpinned"
 
+df="$tmp/Dockerfile.platform"
+cat > "$df" <<'EOF'
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:10.0.9-alpine3.23@sha256:eee AS final
+EOF
+out="$(bash "$scripts/derive-base-image.sh" "$df")"
+assert_kv "$out" BASE_REPO    "mcr.microsoft.com/dotnet/aspnet" "skips a --platform flag to find the image"
+assert_kv "$out" BASE_TAG     "10.0.9-alpine3.23"               "reads tag past a FROM flag"
+assert_kv "$out" BASE_DIGEST  "sha256:eee"                      "reads digest past a FROM flag"
+assert_kv "$out" FLOATING_TAG "10.0-alpine3.23"                 "derives floating tag past a FROM flag"
+
 echo "== analyze-base-fixes.sh =="
 
 # A newer base exists and was scanned. Mirror the real "same version tag, new
