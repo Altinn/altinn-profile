@@ -13,7 +13,7 @@ namespace Altinn.Profile.Authorization;
 /// </summary>
 public class DenyAuthenticationMethodHandler : AuthorizationHandler<DenyAuthenticationMethodRequirement>
 {
-    private const string AuthenticationMethodClaimName = "urn:altinn:authenticatemethod";
+    private const string _authenticationMethodClaimName = "urn:altinn:authenticatemethod";
 
     /// <summary>
     /// This method authorizes access based on context and requirement.
@@ -26,7 +26,7 @@ public class DenyAuthenticationMethodHandler : AuthorizationHandler<DenyAuthenti
         AuthorizationHandlerContext context, DenyAuthenticationMethodRequirement requirement)
     {
         string? userAuthenticationMethod = context.User.Claims.Where(
-            c => c.Type.Equals(AuthenticationMethodClaimName)).Select(c => c.Value).FirstOrDefault();
+            c => c.Type.Equals(_authenticationMethodClaimName)).Select(c => c.Value).FirstOrDefault();
 
         if (string.IsNullOrWhiteSpace(userAuthenticationMethod))
         {
