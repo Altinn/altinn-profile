@@ -200,12 +200,14 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         .AddPolicy(AuthConstants.OrgNotificationAddress_Write, policy => policy.Requirements.Add(new ResourceAccessRequirement("write", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
         .AddPolicy(AuthConstants.UserPartyAccess, policy => policy.Requirements.Add(new PartyAccessRequirement()))
         .AddPolicy(AuthConstants.PortalEndUserAccess, policy => policy.Requirements.Add(new FeatureToggledScopeAccessRequirement("altinn:portal/enduser")))
-        .AddPolicy(AuthConstants.ScopeEnduserOrNotificationSettingsRead, policy => policy.Requirements.Add(new ScopeAccessRequirement(["altinn:portal/enduser", "altinn:profile/enduser:notificationsettings.read"])));
+        .AddPolicy(AuthConstants.ScopeEnduserOrNotificationSettingsRead, policy => policy.Requirements.Add(new ScopeAccessRequirement(["altinn:portal/enduser", "altinn:profile/enduser:notificationsettings.read"])))
+        .AddPolicy(AuthConstants.DenyIdportenEpostAuthentication, policy => policy.Requirements.Add(new DenyAuthenticationMethodRequirement("IdportenEpost")));
 
     services.AddScoped<IAuthorizationHandler, OrgResourceAccessHandler>();
     services.AddScoped<IAuthorizationHandler, PartyAccessHandler>();
     services.AddScoped<IAuthorizationHandler, ScopeAccessHandler>();
     services.AddScoped<IAuthorizationHandler, FeatureToggledScopeAccessHandler>();
+    services.AddScoped<IAuthorizationHandler, DenyAuthenticationMethodHandler>();
 
     services.AddCoreServices(config);
     services.AddRegisterService(config);
