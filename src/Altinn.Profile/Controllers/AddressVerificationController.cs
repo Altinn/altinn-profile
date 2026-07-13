@@ -77,6 +77,7 @@ namespace Altinn.Profile.Controllers
         /// https://devblogs.microsoft.com/dotnet/announcing-rate-limiting-for-dotnet/#sliding-window-limit
         /// </remarks>
         [HttpPost("verify")]
+        [Authorize(Policy = AuthConstants.DenyIdportenEpostAuthentication)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -119,6 +120,7 @@ namespace Altinn.Profile.Controllers
         /// <response code="429">Indicates that a code has already been sent for the address and is still within its cooldown period, thus a new code cannot be sent until the cooldown expires. The response includes information about when the user can attempt to resend.</response>
         /// <response code="500">Indicates that an unexpected error occurred on the server while processing the request, such as being unable to send the verification code</response>
         [HttpPost("send")]
+        [Authorize(Policy = AuthConstants.DenyIdportenEpostAuthentication)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]

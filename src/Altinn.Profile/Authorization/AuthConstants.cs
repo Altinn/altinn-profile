@@ -44,5 +44,10 @@
         /// Policy name for the policy that checks that the caller has included the correct Correspondence scope.
         /// </summary>
         public const string CorrespondenceAccess = "CorrespondenceAccess";
+
+        /// <summary>
+        /// Policy name for the policy that denies access to users authenticated with Idporten e-post.
+        /// </summary>
+        public const string DenyIdportenEpostAuthentication = "DenyIdportenEpostAuthentication";
     }
 }
