@@ -147,7 +147,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<DashboardNotificationAddressResponse>>> GetNotificationAddressesByPhoneNumber(
             [FromHeader(Name = "phoneNumber"), Required] string phoneNumber,
-            [FromHeader(Name = "countrycode")] string countryCode = "+47",
+            [FromHeader(Name = "countrycode"), RegularExpression(@"(^\+([0-9]{1,3}))", ErrorMessage = "Invalid country code.")] string countryCode = "+47",
             CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
