@@ -364,7 +364,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             _factory.OrganizationNotificationAddressRepositoryMock
                 .Setup(r => r.GetOrganizationNotificationAddressesByFullAddressAsync(fullPhoneNumber, AddressType.SMS, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_testdata.Where(o => o.NotificationAddresses != null &&
-                    o.NotificationAddresses.Any(n => n.FullAddress == fullPhoneNumber && n.AddressType == AddressType.SMS)));            
+                    o.NotificationAddresses.Any(n => n.FullAddress == fullPhoneNumber && n.AddressType == AddressType.SMS)));
 
             HttpClient client = _factory.CreateClient();
 
@@ -416,15 +416,11 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task GetNotificationAddressesByPhoneNumber_WhenNoAccess_ReturnsForbidden()
+        public async Task GetNotificationAddressesByPhoneNumber_WhenCountryCodeHasInvalidPlusEncoding_ReturnsBadRequest()
         {
             // Arrange
             string phoneNumber = "91919191";
-            string countryCode = "+47";
-
-            _factory.OrganizationNotificationAddressRepositoryMock
-          .Setup(r => r.GetOrganizationNotificationAddressesByFullAddressAsync(It.IsAny<string>(), It.IsAny<AddressType>(), It.IsAny<CancellationToken>()))
-          .ReturnsAsync(Enumerable.Empty<Organization>());
+            string countryCode = "%2B47";
 
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/notificationaddresses/phonenumber");
@@ -436,7 +432,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
 
             // Assert
-            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
