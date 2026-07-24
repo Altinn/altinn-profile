@@ -66,7 +66,7 @@ tests {
 docs {
   # Get Contact Information by Phone number
   
-  Retrieves personal contact information that the user has registered in the national registry (KRR) and from SI users private contact information
+  Retrieves personal contact information that the user has registered in the national registry (KRR). (Email identified users does not have phone numbers.)
   
   ## Authentication
   
@@ -81,27 +81,15 @@ docs {
   ```json
   {
     "nationalIdentityNumber": "01010112345",
-    "isReserved": true,
-    "emailAddress": null,
+    "isReserved": false,
+    "emailAddress": "hvasomhelst@altinn.xyz",
     "emailLastUpdatedOrVerified": "2025-01-10T11:30:00Z",
     "phoneNumber": "+4798765432",
     "phoneNumberLastUpdatedOrVerified": "2025-01-15T14:20:00Z",
     "username": null  
   }
   ```
-  
-  ```json
-  {
-    "nationalIdentityNumber": null,
-    "isReserved": false,
-    "emailAddress": "jane.smith@example.com",
-    "emailLastUpdatedOrVerified": "2025-01-10T11:30:00Z",
-    "phoneNumber": null,
-    "phoneNumberLastUpdatedOrVerified": null,
-    "username": "epost:jane.smith@example.com"
-  }
-  ```
-  
+    
   ## Features
   
   - Returns the contact information that the given user (identified by NIN) has registered in the national common contact register (KRR)
@@ -117,6 +105,5 @@ docs {
   - **200 OK**: Successfully retrieved user contact information
   - **400 Bad Request**: Invalid request parameters (invalid Email header value)
   - **403 Forbidden**: Missing required scope
-  - **404 Not Found**: User with the provided National Identity Number does not exist
   
 }
