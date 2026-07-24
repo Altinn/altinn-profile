@@ -226,6 +226,19 @@ public class PersonRepositoryTests : IDisposable
         Assert.Equal("user1@example.com", matches[0].Email);
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task GetContactPreferencesByEmailAsync_WhenEmailIsNullOrWhitespace_ReturnsEmpty(string email)
+    {
+        // Act
+        var matches = await _personRepository.GetContactPreferencesByEmailAsync(email, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Empty(matches);
+    }
+
     [Fact]
     public async Task GetContactPreferencesByPhoneNumberAsync_WhenPhoneNumberFound_ReturnsContactInfo()
     {
@@ -270,6 +283,19 @@ public class PersonRepositoryTests : IDisposable
     {
         // Act
         var matches = await _personRepository.GetContactPreferencesByPhoneNumberAsync("42564543", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Empty(matches);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task GetContactPreferencesByPhoneNumberAsync_WhenPhoneNumberIsNullOrWhitespace_ReturnsEmpty(string phoneNumber)
+    {
+        // Act
+        var matches = await _personRepository.GetContactPreferencesByPhoneNumberAsync(phoneNumber, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Empty(matches);
