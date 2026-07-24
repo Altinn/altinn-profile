@@ -31,16 +31,9 @@ public class PersonRepository(IDbContextFactory<ProfileDbContext> contextFactory
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
     private readonly Telemetry? _telemetry = telemetry;
 
-    /// <summary>
-    /// Asynchronously retrieves the contact details for multiple persons by their national identity numbers.
-    /// </summary>
-    /// <param name="nationalIdentityNumbers">A collection of national identity numbers to look up.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a an <see cref="ImmutableList{T}"/> of <see cref="PersonContactPreferences"/> objects representing the contact details of the persons.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="nationalIdentityNumbers"/> is null.</exception>
-    public async Task<ImmutableList<PersonContactPreferences>> GetContactPreferencesAsync(IEnumerable<string> nationalIdentityNumbers, CancellationToken cancellationToken)
+    /// <inheritdoc/>
+    public async Task<ImmutableList<PersonContactPreferences>> GetContactPreferencesAsync(
+        IEnumerable<string> nationalIdentityNumbers, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(nationalIdentityNumbers);
 
@@ -58,7 +51,8 @@ public class PersonRepository(IDbContextFactory<ProfileDbContext> contextFactory
     }
 
     /// <inheritdoc/>
-    public async Task<ImmutableList<PersonContactPreferences>> GetContactPreferencesByEmailAsync(string emailAddress, CancellationToken cancellationToken)
+    public async Task<ImmutableList<PersonContactPreferences>> GetContactPreferencesByEmailAsync(
+        string emailAddress, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(emailAddress))
         {
@@ -75,13 +69,26 @@ public class PersonRepository(IDbContextFactory<ProfileDbContext> contextFactory
         return asContactPreferences.ToImmutableList();
     }
 
-    /// <summary>
-    /// Asynchronously synchronizes the changes in person contact preferences.
-    /// </summary>
-    /// <param name="personContactPreferencesSnapshots">The snapshots of person contact preferences to be synchronized.</param>
-    /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{TValue, TError}"/> object with a <see cref="bool"/> indicating success or failure.
-    /// </returns>
+    /// <inheritdoc/>
+    public async Task<ImmutableList<PersonContactPreferences>> GetContactPreferencesByPhoneNumberAsync(
+        string phoneNumber, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(phoneNumber))
+        {
+            return [];
+        }
+
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        List<Person> people = await databaseContext.People
+            .Where(e => e.MobilePhoneNumber.Contains(phoneNumber))
+            .ToListAsync(cancellationToken);
+
+        var asContactPreferences = people.Select(PersonContactPreferencesMapper.Map);
+        return asContactPreferences.ToImmutableList();
+    }
+
+    /// <inheritdoc/>
     public async Task<int> SyncPersonContactPreferencesAsync(ContactRegisterChangesLog personContactPreferencesSnapshots)
     {
         ArgumentNullException.ThrowIfNull(personContactPreferencesSnapshots);

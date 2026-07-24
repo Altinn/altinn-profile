@@ -1,17 +1,17 @@
 meta {
-  name: User Contact Information By Email
+  name: User Contact Information By PhoneNumber
   type: http
-  seq: 8
+  seq: 9
 }
 
 get {
-  url: {{ProfileBaseAddress}}/api/v1/dashboard/users/contactinformation/email
+  url: {{ProfileBaseAddress}}/api/v1/dashboard/users/contactinformation/phonenumber
   body: none
   auth: inherit
 }
 
 headers {
-  EmailAddress: {{emailAddress}}
+  PhoneNumber: {{phoneNumber}}
 }
 
 script:pre-request {
@@ -64,7 +64,7 @@ tests {
 }
 
 docs {
-  # Get Contact Information by Email
+  # Get Contact Information by Phone number
   
   Retrieves personal contact information that the user has registered in the national registry (KRR) and from SI users private contact information
   
@@ -74,7 +74,7 @@ docs {
   
   ## Parameters
   
-  - `EmailAddress` (header): Email address to search for
+  - `PhoneNumber` (header): Phone number to search for
   
   ## Response Examples
   

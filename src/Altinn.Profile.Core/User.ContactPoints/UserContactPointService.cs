@@ -145,6 +145,33 @@ public class UserContactPointService : IUserContactPointsService
     }
 
     /// <inheritdoc/>
+    public async Task<List<DashboardUserContactPoint>> GetContactPointsForDashboardByPhoneNumber(string phoneNumber, CancellationToken cancellationToken)
+    {
+        var result = new List<DashboardUserContactPoint>();
+        var contactPreferences = await _personService.GetContactPreferencesByPhoneNumberAsync(phoneNumber, cancellationToken);
+        if (contactPreferences == null || contactPreferences.Count == 0)
+        {
+            return result;
+        }
+
+        foreach (var contactPreference in contactPreferences)
+        {
+            DashboardUserContactPoint contactPoint = new()
+            {
+                NationalIdentityNumber = contactPreference.NationalIdentityNumber,
+                Email = contactPreference.Email,
+                MobileNumber = contactPreference.MobileNumber,
+                IsReserved = contactPreference.IsReserved,
+                MobileNumberLastUpdatedOrVerified = contactPreference.MobileNumberLastUpdatedOrVerified,
+                EmailLastUpdatedOrVerified = contactPreference.EmailLastUpdatedOrVerified
+            };
+            result.Add(contactPoint);
+        }
+
+        return result;
+    }
+
+    /// <inheritdoc/>
     public async Task<SelfIdentifiedUserContactPointsList> GetSiContactPoints(List<string> externalIdentities, CancellationToken cancellationToken)
     {
         SelfIdentifiedUserContactPointsList contactPointsList = new();
