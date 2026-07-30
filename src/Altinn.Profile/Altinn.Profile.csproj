@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Altinn.Common.AccessToken" Version="5.1.9" />
-    <PackageReference Include="Altinn.Urn" Version="4.3.0" />
+    <PackageReference Include="Altinn.Urn" Version="5.0.0" />
     <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.5.1" />
     <PackageReference Include="JWTCookieAuthentication" Version="4.0.4" />
     <PackageReference Include="Altinn.Common.PEP" Version="4.2.3" />
