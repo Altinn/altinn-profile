@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+
 using Altinn.Authorization.ABAC;
 using Altinn.Authorization.ABAC.Constants;
 using Altinn.Authorization.ABAC.Utils;
@@ -14,7 +16,6 @@ using Altinn.Authorization.ABAC.Xacml.JsonProfile;
 using Altinn.Common.PEP.Helpers;
 using Altinn.Common.PEP.Interfaces;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
-using Newtonsoft.Json;
 
 namespace Altinn.Profile.Tests.IntegrationTests.Mocks
 {
@@ -231,7 +232,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.Mocks
             if (File.Exists(rolesPath))
             {
                 string content = File.ReadAllText(rolesPath);
-                roles = JsonConvert.DeserializeObject<List<Role>>(content);
+                roles = JsonSerializer.Deserialize<List<Role>>(content);
             }
 
             return Task.FromResult(roles);
