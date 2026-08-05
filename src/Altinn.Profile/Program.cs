@@ -224,7 +224,7 @@ static void AddAzureMonitorTelemetryExporters(IServiceCollection services, IConf
 {
     var applicationInsightsConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");
 
-    if (string.IsNullOrEmpty(applicationInsightsConnectionString))
+    if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
     {
         return;
     }
