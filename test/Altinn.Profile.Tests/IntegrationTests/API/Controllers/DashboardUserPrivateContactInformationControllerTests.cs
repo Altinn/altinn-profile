@@ -461,6 +461,80 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
+        public async Task GetContactInformationByPhoneNumber_WhenValidPhoneNumberProvided_ReturnsOkWithContactInformation()
+        {
+            // Arrange
+            string phoneNumber = "98765432";
+            var contactPreference = new PersonContactPreferences
+            {
+                NationalIdentityNumber = "09861797993",
+                Email = "test@test.no",
+                MobileNumber = phoneNumber,
+                IsReserved = false,
+                MobileNumberLastUpdatedOrVerified = _testTime,
+                EmailLastUpdatedOrVerified = _testTime
+            };
+
+            _factory.PersonServiceMock
+                .Setup(s => s.GetContactPreferencesByPhoneNumberAsync(phoneNumber, It.IsAny<CancellationToken>()))
+                .ReturnsAsync([contactPreference]);
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateGetPhoneNumberRequest(phoneNumber);
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var result = JsonSerializer.Deserialize<List<DashboardUserContactPointResponse>>(responseContent, _serializerOptions);
+
+            Assert.NotNull(result);
+            Assert.Single(result);
+            Assert.Equal("09861797993", result[0].NationalIdentityNumber);
+            Assert.Equal("test@test.no", result[0].EmailAddress);
+            Assert.Equal(phoneNumber, result[0].PhoneNumber);
+            Assert.False(result[0].IsReserved);
+            Assert.Equal(_testTime, result[0].PhoneNumberLastUpdatedOrVerified);
+            Assert.Equal(_testTime, result[0].EmailLastUpdatedOrVerified);
+        }
+
+        [Fact]
+        public async Task GetContactInformationByPhoneNumber_WhenPhoneNumberHeaderIsEmpty_ReturnsBadRequest()
+        {
+            // Arrange
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, "/profile/api/v1/dashboard/users/contactinformation/phonenumber");
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            _factory.PersonServiceMock.Verify(s => s.GetContactPreferencesByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task GetContactInformationByPhoneNumber_WhenNoAccess_ReturnsForbidden()
+        {
+            // Arrange
+            string phoneNumber = "12345678";
+
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateGetPhoneNumberRequest(phoneNumber);
+            httpRequestMessage = CreateAuthorizedRequestWithoutScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+
+        [Fact]
         public async Task GetContactInformationByEmail_WhenMultipleUsersWithSameEmail_ReturnsListWithAllMatches()
         {
             // Arrange
@@ -713,6 +787,14 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/users/contactinformation/email");
             httpRequestMessage.Headers.Add("EmailAddress", email);
+
+            return httpRequestMessage;
+        }
+
+        private HttpRequestMessage CreateGetPhoneNumberRequest(string phoneNumber)
+        {
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/users/contactinformation/phonenumber");
+            httpRequestMessage.Headers.Add("PhoneNumber", phoneNumber);
 
             return httpRequestMessage;
         }
