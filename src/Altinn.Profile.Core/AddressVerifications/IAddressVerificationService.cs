@@ -38,17 +38,6 @@ namespace Altinn.Profile.Core.AddressVerifications
         Task<bool> IsAddressVerified(int userId, AddressType addressType, string address, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Generates a verification code, saves it to the database and sends it to the user via email or sms depending on the address type. The code is valid for 15 minutes.
-        /// Language resolution and notification delivery are delegated to <see cref="Integrations.IUserNotifier"/>.
-        /// </summary>
-        /// <param name="userid">The id of the user</param>
-        /// <param name="address">The address to verify</param>
-        /// <param name="addressType">The addresstype, sms or email</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, CancellationToken cancellationToken);
-
-        /// <summary>
         /// Gets the verified addresses for a given user.
         /// </summary>
         /// <param name="userId">The ID of the user whose verified addresses are to be retrieved.</param>

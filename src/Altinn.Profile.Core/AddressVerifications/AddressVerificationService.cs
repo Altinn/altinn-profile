@@ -52,31 +52,6 @@ namespace Altinn.Profile.Core.AddressVerifications
         }
 
         /// <inheritdoc/>
-        /// This method might be deleted at a later time when all callers have migrated to using SendVerificationCodeAsync, which includes cooldown logic and resend functionality.
-        public async Task GenerateAndSendVerificationCodeAsync(int userid, string address, AddressType addressType, CancellationToken cancellationToken)
-        {
-            var existingVerification = await _addressVerificationRepository.GetVerificationStatusAsync(userid, addressType, address, cancellationToken);
-            if (existingVerification == VerificationType.Verified)
-            {
-                // If the address is already verified, we don't need to generate a new code or send a notification.
-                return;
-            }
-
-            var code = _verificationCodeService.GenerateRawCode();
-            var verificationCodeModel = _verificationCodeService.CreateVerificationCode(userid, address, addressType, code);
-
-            bool added = await _addressVerificationRepository.AddNewVerificationCodeAsync(verificationCodeModel);
-            if (!added)
-            {
-                // A concurrent request already inserted a verification code for this user/address/type.
-                // Discard this code and skip sending the notification.
-                return;
-            }
-
-            await _userNotifier.SendVerificationCodeAsync(userid, verificationCodeModel.Address, addressType, code, cancellationToken);
-        }
-
-        /// <inheritdoc/>
         public async Task<List<VerifiedAddress>> GetVerifiedAddressesAsync(int userId, CancellationToken cancellationToken)
         {
             var response = await _addressVerificationRepository.GetVerifiedAddressesAsync(userId, cancellationToken);
