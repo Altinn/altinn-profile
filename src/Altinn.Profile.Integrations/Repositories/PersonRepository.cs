@@ -7,8 +7,8 @@ using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Core.Telemetry;
 using Altinn.Profile.Integrations.ContactRegister;
+using Altinn.Profile.Integrations.ContactRegister.Models;
 using Altinn.Profile.Integrations.Entities;
-using Altinn.Profile.Integrations.Mappings;
 using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;
@@ -52,6 +52,24 @@ public class PersonRepository(IDbContextFactory<ProfileDbContext> contextFactory
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
         List<Person> people = await databaseContext.People.Where(e => nationalIdentityNumbers.Contains(e.FnumberAk)).ToListAsync(cancellationToken);
+
+        var asContactPreferences = people.Select(PersonContactPreferencesMapper.Map);
+        return asContactPreferences.ToImmutableList();
+    }
+
+    /// <inheritdoc/>
+    public async Task<ImmutableList<PersonContactPreferences>> GetContactPreferencesByEmailAsync(string emailAddress, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(emailAddress))
+        {
+            return [];
+        }
+
+        var emailAddressLower = emailAddress.ToLower();
+
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        List<Person> people = await databaseContext.People.Where(e => e.EmailAddress.ToLower() == emailAddressLower).ToListAsync(cancellationToken);
 
         var asContactPreferences = people.Select(PersonContactPreferencesMapper.Map);
         return asContactPreferences.ToImmutableList();

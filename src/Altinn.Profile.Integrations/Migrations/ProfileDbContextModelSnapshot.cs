@@ -266,6 +266,9 @@ namespace Altinn.Profile.Integrations.Migrations
                     b.HasKey("UserId")
                         .HasName("pk_self_identified_users");
 
+                    b.HasIndex(new[] { "PhoneNumber" }, "ix_phone_number")
+                        .HasDatabaseName("ix_self_identified_users_phone_number");
+
                     b.ToTable("self_identified_users", "user_preferences");
                 });
 
@@ -454,7 +457,125 @@ namespace Altinn.Profile.Integrations.Migrations
                     b.ToTable("metadata", "contact_and_reservation");
                 });
 
-            modelBuilder.Entity("Altinn.Profile.Integrations.Entities.NotificationAddressDE", b =>
+            modelBuilder.Entity("Altinn.Profile.Integrations.Entities.Person", b =>
+                {
+                    b.Property<int>("ContactAndReservationUserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("contact_and_reservation_user_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("ContactAndReservationUserId"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("EmailAddress")
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)")
+                        .HasColumnName("email_address");
+
+                    b.Property<DateTime?>("EmailAddressLastUpdated")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("email_address_last_updated");
+
+                    b.Property<DateTime?>("EmailAddressLastVerified")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("email_address_last_verified");
+
+                    b.Property<string>("FnumberAk")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character(11)")
+                        .HasColumnName("fnumber_ak")
+                        .IsFixedLength();
+
+                    b.Property<string>("LanguageCode")
+                        .HasMaxLength(2)
+                        .HasColumnType("character(2)")
+                        .HasColumnName("language_code")
+                        .IsFixedLength();
+
+                    b.Property<string>("MailboxAddress")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("mailbox_address");
+
+                    b.Property<int?>("MailboxSupplierIdFk")
+                        .HasColumnType("integer")
+                        .HasColumnName("mailbox_supplier_id_fk");
+
+                    b.Property<string>("MobilePhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("mobile_phone_number");
+
+                    b.Property<DateTime?>("MobilePhoneNumberLastUpdated")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("mobile_phone_number_last_updated");
+
+                    b.Property<DateTime?>("MobilePhoneNumberLastVerified")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("mobile_phone_number_last_verified");
+
+                    b.Property<bool?>("Reservation")
+                        .HasColumnType("boolean")
+                        .HasColumnName("reservation");
+
+                    b.Property<string>("X509Certificate")
+                        .HasColumnType("text")
+                        .HasColumnName("x509_certificate");
+
+                    b.HasKey("ContactAndReservationUserId")
+                        .HasName("person_pkey");
+
+                    b.HasIndex("MailboxSupplierIdFk")
+                        .HasDatabaseName("ix_person_mailbox_supplier_id_fk");
+
+                    b.HasIndex(new[] { "FnumberAk" }, "ix_person_fnumber_ak")
+                        .IsUnique()
+                        .HasDatabaseName("ix_person_fnumber_ak");
+
+                    b.HasIndex(new[] { "MobilePhoneNumber" }, "ix_person_mobile_phone_number")
+                        .HasDatabaseName("ix_person_mobile_phone_number");
+
+                    b.ToTable("person", "contact_and_reservation");
+                });
+
+            modelBuilder.Entity("Altinn.Profile.Integrations.Leases.Lease", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("Acquired")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("acquired");
+
+                    b.Property<DateTimeOffset>("Expires")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires");
+
+                    b.Property<DateTimeOffset?>("Released")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("released");
+
+                    b.Property<Guid>("Token")
+                        .HasColumnType("uuid")
+                        .HasColumnName("token");
+
+                    b.HasKey("Id")
+                        .HasName("lease_id_pkey");
+
+                    b.HasIndex(new[] { "Id" }, "ix_lease_id")
+                        .IsUnique()
+                        .HasDatabaseName("ix_lease_id");
+
+                    b.ToTable("lease", "lease");
+                });
+
+            modelBuilder.Entity("Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities.NotificationAddressDE", b =>
                 {
                     b.Property<int>("NotificationAddressID")
                         .ValueGeneratedOnAdd()
@@ -537,7 +658,7 @@ namespace Altinn.Profile.Integrations.Migrations
                     b.ToTable("notifications_address", "organization_notification_address");
                 });
 
-            modelBuilder.Entity("Altinn.Profile.Integrations.Entities.OrganizationDE", b =>
+            modelBuilder.Entity("Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities.OrganizationDE", b =>
                 {
                     b.Property<int>("RegistryOrganizationId")
                         .ValueGeneratedOnAdd()
@@ -562,90 +683,7 @@ namespace Altinn.Profile.Integrations.Migrations
                     b.ToTable("organizations", "organization_notification_address");
                 });
 
-            modelBuilder.Entity("Altinn.Profile.Integrations.Entities.Person", b =>
-                {
-                    b.Property<int>("ContactAndReservationUserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("contact_and_reservation_user_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("ContactAndReservationUserId"));
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("description");
-
-                    b.Property<string>("EmailAddress")
-                        .HasMaxLength(400)
-                        .HasColumnType("character varying(400)")
-                        .HasColumnName("email_address");
-
-                    b.Property<DateTime?>("EmailAddressLastUpdated")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("email_address_last_updated");
-
-                    b.Property<DateTime?>("EmailAddressLastVerified")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("email_address_last_verified");
-
-                    b.Property<string>("FnumberAk")
-                        .IsRequired()
-                        .HasMaxLength(11)
-                        .HasColumnType("character(11)")
-                        .HasColumnName("fnumber_ak")
-                        .IsFixedLength();
-
-                    b.Property<string>("LanguageCode")
-                        .HasMaxLength(2)
-                        .HasColumnType("character(2)")
-                        .HasColumnName("language_code")
-                        .IsFixedLength();
-
-                    b.Property<string>("MailboxAddress")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("mailbox_address");
-
-                    b.Property<int?>("MailboxSupplierIdFk")
-                        .HasColumnType("integer")
-                        .HasColumnName("mailbox_supplier_id_fk");
-
-                    b.Property<string>("MobilePhoneNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("mobile_phone_number");
-
-                    b.Property<DateTime?>("MobilePhoneNumberLastUpdated")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("mobile_phone_number_last_updated");
-
-                    b.Property<DateTime?>("MobilePhoneNumberLastVerified")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("mobile_phone_number_last_verified");
-
-                    b.Property<bool?>("Reservation")
-                        .HasColumnType("boolean")
-                        .HasColumnName("reservation");
-
-                    b.Property<string>("X509Certificate")
-                        .HasColumnType("text")
-                        .HasColumnName("x509_certificate");
-
-                    b.HasKey("ContactAndReservationUserId")
-                        .HasName("person_pkey");
-
-                    b.HasIndex("MailboxSupplierIdFk")
-                        .HasDatabaseName("ix_person_mailbox_supplier_id_fk");
-
-                    b.HasIndex(new[] { "FnumberAk" }, "ix_person_fnumber_ak")
-                        .IsUnique()
-                        .HasDatabaseName("ix_person_fnumber_ak");
-
-                    b.ToTable("person", "contact_and_reservation");
-                });
-
-            modelBuilder.Entity("Altinn.Profile.Integrations.Entities.RegistrySyncMetadata", b =>
+            modelBuilder.Entity("Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities.RegistrySyncMetadata", b =>
                 {
                     b.Property<string>("LastChangedId")
                         .HasMaxLength(32)
@@ -660,38 +698,6 @@ namespace Altinn.Profile.Integrations.Migrations
                         .HasName("registry_sync_metadata_pkey");
 
                     b.ToTable("registry_sync_metadata", "organization_notification_address");
-                });
-
-            modelBuilder.Entity("Altinn.Profile.Integrations.Leases.Lease", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset?>("Acquired")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("acquired");
-
-                    b.Property<DateTimeOffset>("Expires")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("expires");
-
-                    b.Property<DateTimeOffset?>("Released")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("released");
-
-                    b.Property<Guid>("Token")
-                        .HasColumnType("uuid")
-                        .HasColumnName("token");
-
-                    b.HasKey("Id")
-                        .HasName("lease_id_pkey");
-
-                    b.HasIndex(new[] { "Id" }, "ix_lease_id")
-                        .IsUnique()
-                        .HasDatabaseName("ix_lease_id");
-
-                    b.ToTable("lease", "lease");
                 });
 
             modelBuilder.Entity("Altinn.Profile.Core.ProfessionalNotificationAddresses.UserPartyContactInfoResource", b =>
@@ -718,18 +724,6 @@ namespace Altinn.Profile.Integrations.Migrations
                     b.Navigation("Group");
                 });
 
-            modelBuilder.Entity("Altinn.Profile.Integrations.Entities.NotificationAddressDE", b =>
-                {
-                    b.HasOne("Altinn.Profile.Integrations.Entities.OrganizationDE", "Organization")
-                        .WithMany("NotificationAddresses")
-                        .HasForeignKey("RegistryOrganizationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_organization_id");
-
-                    b.Navigation("Organization");
-                });
-
             modelBuilder.Entity("Altinn.Profile.Integrations.Entities.Person", b =>
                 {
                     b.HasOne("Altinn.Profile.Integrations.Entities.MailboxSupplier", "MailboxSupplierIdFkNavigation")
@@ -738,6 +732,18 @@ namespace Altinn.Profile.Integrations.Migrations
                         .HasConstraintName("fk_mailbox_supplier");
 
                     b.Navigation("MailboxSupplierIdFkNavigation");
+                });
+
+            modelBuilder.Entity("Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities.NotificationAddressDE", b =>
+                {
+                    b.HasOne("Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities.OrganizationDE", "Organization")
+                        .WithMany("NotificationAddresses")
+                        .HasForeignKey("RegistryOrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_organization_id");
+
+                    b.Navigation("Organization");
                 });
 
             modelBuilder.Entity("Altinn.Profile.Core.ProfessionalNotificationAddresses.UserPartyContactInfo", b =>
@@ -755,7 +761,7 @@ namespace Altinn.Profile.Integrations.Migrations
                     b.Navigation("People");
                 });
 
-            modelBuilder.Entity("Altinn.Profile.Integrations.Entities.OrganizationDE", b =>
+            modelBuilder.Entity("Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities.OrganizationDE", b =>
                 {
                     b.Navigation("NotificationAddresses");
                 });

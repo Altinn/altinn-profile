@@ -40,8 +40,8 @@ public class UserContactPointServiceTest
             Email = userProfileA.Email,
             IsReserved = userProfileA.IsReserved,
             MobileNumber = userProfileA.PhoneNumber,
-            MobileNumberLastTouched = DateTime.UtcNow.AddMonths(-6),
-            EmailLastTouched = DateTime.UtcNow.AddMonths(-6),
+            MobileNumberLastUpdatedOrVerified = DateTime.UtcNow.AddMonths(-6),
+            EmailLastUpdatedOrVerified = DateTime.UtcNow.AddMonths(-6),
         };
         var expectedUserContactPointA = new UserContactPoints()
         {
@@ -58,8 +58,8 @@ public class UserContactPointServiceTest
             Email = userProfileB.Email,
             IsReserved = userProfileB.IsReserved,
             MobileNumber = userProfileB.PhoneNumber,
-            MobileNumberLastTouched = DateTime.UtcNow.AddMonths(-6),
-            EmailLastTouched = DateTime.UtcNow.AddMonths(-26),
+            MobileNumberLastUpdatedOrVerified = DateTime.UtcNow.AddMonths(-6),
+            EmailLastUpdatedOrVerified = DateTime.UtcNow.AddMonths(-26),
         };
         var expectedUserContactPointB = new UserContactPoints()
         {
@@ -77,8 +77,8 @@ public class UserContactPointServiceTest
             Email = userProfileC.Email,
             IsReserved = userProfileC.IsReserved,
             MobileNumber = userProfileC.PhoneNumber,
-            MobileNumberLastTouched = DateTime.UtcNow.AddMonths(-26),
-            EmailLastTouched = DateTime.UtcNow.AddMonths(-26),
+            MobileNumberLastUpdatedOrVerified = DateTime.UtcNow.AddMonths(-26),
+            EmailLastUpdatedOrVerified = DateTime.UtcNow.AddMonths(-26),
         };
         var expectedUserContactPointC = new UserContactPoints()
         {

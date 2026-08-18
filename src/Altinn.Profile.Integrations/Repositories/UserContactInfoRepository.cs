@@ -101,4 +101,16 @@ public class UserContactInfoRepository(IDbContextFactory<ProfileDbContext> conte
 
         return userContactInfo;
     }
+
+    /// <inheritdoc/>
+    public async Task<IList<UserContactInfo>> GetByEmail(string email, CancellationToken cancellationToken)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        var userContactInfo = await databaseContext.SelfIdentifiedUsers
+            .AsNoTracking()
+            .Where(u => u.EmailAddress != null && u.EmailAddress.ToLower() == email.ToLower())
+            .ToListAsync(cancellationToken);
+
+        return userContactInfo;
+    }
 }

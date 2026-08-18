@@ -1,6 +1,7 @@
 ﻿using Altinn.Profile.Core.OrganizationNotificationAddresses;
-using Altinn.Profile.Integrations.Entities;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
+
 using static Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models.DigitalContactPointModel;
 
 namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry

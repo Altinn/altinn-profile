@@ -18,4 +18,15 @@ public interface IPersonService
     /// A task that represents the asynchronous operation. The task result contains a an <see cref="ImmutableList{T}"/> of <see cref="PersonContactPreferences"/> objects representing the contact details of the persons.
     /// </returns>
     Task<ImmutableList<PersonContactPreferences>> GetContactPreferencesAsync(IEnumerable<string> nationalIdentityNumbers, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Asynchronously retrieves the contact details for persons by their email address (case-insensitive).
+    /// </summary>
+    /// <param name="emailAddress">The email address to look up.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains a an <see cref="ImmutableList{T}"/> of <see cref="PersonContactPreferences"/> objects representing the contact details of the persons.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="emailAddress"/> is null.</exception>
+    Task<ImmutableList<PersonContactPreferences>> GetContactPreferencesByEmailAsync(string emailAddress, CancellationToken cancellationToken);
 }

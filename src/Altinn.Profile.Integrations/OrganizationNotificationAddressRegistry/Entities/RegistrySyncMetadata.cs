@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Altinn.Profile.Integrations.Entities
+namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities
 {
     /// <summary>
     /// Table of metadata for last brreg kof sync batch

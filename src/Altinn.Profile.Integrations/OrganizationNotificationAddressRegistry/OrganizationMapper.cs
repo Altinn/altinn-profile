@@ -1,7 +1,8 @@
 ﻿using Altinn.Profile.Core.OrganizationNotificationAddresses;
-using Altinn.Profile.Integrations.Entities;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 
-namespace Altinn.Profile.Integrations.Mappings;
+namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
 /// <summary>
 /// Provides mapping methods for converting data entities to core models related to organizations and their notification addresses.

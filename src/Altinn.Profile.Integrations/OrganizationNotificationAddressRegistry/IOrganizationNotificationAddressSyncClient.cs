@@ -1,4 +1,6 @@
-﻿namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
+﻿using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
+
+namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 
 /// <summary>
 /// Defines an HTTP client to sync with a source registry for organizational notification addresses.

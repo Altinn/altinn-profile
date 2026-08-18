@@ -1,6 +1,7 @@
 using System;
+
 using Altinn.Profile.Integrations.ContactRegister;
-using Altinn.Profile.Integrations.Mappings;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.Mappings

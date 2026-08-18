@@ -1,4 +1,6 @@
-﻿using Altinn.Profile.Integrations.Persistence;
+﻿using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities;
+using Altinn.Profile.Integrations.Persistence;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Altinn.Profile.Integrations.Repositories;
@@ -31,7 +33,7 @@ public class RegistrySyncMetadataRepository(IDbContextFactory<ProfileDbContext> 
         var lastSync = await databaseContext.RegistrySyncMetadata.FirstOrDefaultAsync();
         if (lastSync == null)
         {
-            lastSync = new Entities.RegistrySyncMetadata
+            lastSync = new RegistrySyncMetadata
             {
                 LastChangedId = Guid.NewGuid().ToString("N"),
                 LastChangedDateTime = updated

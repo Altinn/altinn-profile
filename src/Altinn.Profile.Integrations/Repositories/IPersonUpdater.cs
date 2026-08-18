@@ -1,5 +1,5 @@
 ﻿using Altinn.Profile.Core;
-using Altinn.Profile.Integrations.ContactRegister;
+using Altinn.Profile.Integrations.ContactRegister.Models;
 
 namespace Altinn.Profile.Integrations.Repositories;
 

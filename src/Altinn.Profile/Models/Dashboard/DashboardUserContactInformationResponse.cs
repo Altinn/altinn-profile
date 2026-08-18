@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Altinn.Profile.Models
+namespace Altinn.Profile.Models.Dashboard
 {
     /// <summary>
     /// Response model for user contact information registered for an organization in the Support Dashboard.

@@ -1,5 +1,4 @@
 ﻿using Altinn.Profile.Core.AddressVerifications;
-using Altinn.Profile.Core.AddressVerifications.Models;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.User;
 

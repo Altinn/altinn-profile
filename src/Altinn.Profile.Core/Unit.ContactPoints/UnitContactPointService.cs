@@ -15,9 +15,19 @@ namespace Altinn.Profile.Core.Unit.ContactPoints
         private readonly IRegisterClient _registerClient = registerClient;
 
         /// <inheritdoc/>
-        public async Task<UnitContactPointsList> GetUserRegisteredContactPoints(string[] orgNumbers, string resourceId, CancellationToken cancellationToken)
+        public async Task<UnitContactPointsList> GetUserRegisteredContactPoints(
+            string[] orgNumbers, string resourceId, CancellationToken cancellationToken)
         {
-            var partyList = await _registerClient.GetPartyUuids(orgNumbers, cancellationToken);
+            IEnumerable<string> organizationNumbers = orgNumbers.Where(
+                o => !string.IsNullOrWhiteSpace(o)).Select(o => o.Trim()).Distinct();
+
+            if (!organizationNumbers.Any())
+            {
+                return new UnitContactPointsList { ContactPointsList = [] };
+            }
+            
+            IReadOnlyList<Party>? partyList = await _registerClient.GetPartyUuids(
+                [.. organizationNumbers], cancellationToken);
 
             if (partyList == null)
             {
@@ -33,6 +43,9 @@ namespace Altinn.Profile.Core.Unit.ContactPoints
             {
                 return result;
             }
+
+            // Make sure the resourceId is simplified down to the resource ID by removing any urn:altinn:resource: prefix if it exists
+            resourceId = ResourceIdFormatter.GetSanitizedResourceId(resourceId);
 
             foreach (var party in partyList)
             {

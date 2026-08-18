@@ -1,4 +1,5 @@
 ﻿using Altinn.Profile.Core.Telemetry;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Integrations.Repositories;
 using Microsoft.Extensions.Logging;
 

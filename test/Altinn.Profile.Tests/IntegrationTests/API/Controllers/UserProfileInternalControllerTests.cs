@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
-using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -18,14 +15,9 @@ using Altinn.Profile.Tests.Testdata;
 using Altinn.Register.Contracts;
 using Altinn.Register.Contracts.Testing;
 
-using Microsoft.Extensions.Configuration;
-
 using Moq;
 
 using Xunit;
-
-using static Altinn.Register.Contracts.PartyUrn;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers;
 
@@ -46,8 +38,6 @@ public class UserProfileInternalControllerTests : IClassFixture<ProfileWebApplic
         _factory.InMemoryConfigurationCollection.Clear();
         _factory.ProfileSettingsRepositoryMock.Reset();
 
-        _factory.SblBridgeHttpMessageHandler.ChangeHandlerFunction((request, token) =>
-            Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)));
         _factory.RegisterHttpMessageHandler.ChangeHandlerFunction((request, token) =>
             Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)));
     }

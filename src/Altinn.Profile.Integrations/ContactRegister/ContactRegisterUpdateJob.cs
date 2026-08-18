@@ -1,4 +1,5 @@
 ﻿using Altinn.Profile.Core.Telemetry;
+using Altinn.Profile.Integrations.ContactRegister.Models;
 using Altinn.Profile.Integrations.Repositories;
 
 namespace Altinn.Profile.Integrations.ContactRegister;

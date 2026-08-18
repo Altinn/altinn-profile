@@ -65,14 +65,8 @@ public class UnitContactPointController : ControllerBase
 
         try
         {
-            var resourceId = GetSanitizedResourceId(unitContactPointLookup.ResourceId);
-            var organizationNumbers = unitContactPointLookup.OrganizationNumbers.Where(o => !string.IsNullOrWhiteSpace(o)).Select(o => o.Trim()).Distinct();
-            if (!organizationNumbers.Any())
-            {
-                return Ok(new UnitContactPointsList { ContactPointsList = [] });
-            }
-
-            var result = await _contactPointsService.GetUserRegisteredContactPoints([.. organizationNumbers], resourceId, cancellationToken);
+            var result = await _contactPointsService.GetUserRegisteredContactPoints(
+                [.. unitContactPointLookup.OrganizationNumbers], unitContactPointLookup.ResourceId, cancellationToken);
             return Ok(result);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -83,31 +77,5 @@ public class UnitContactPointController : ControllerBase
         {
             return Problem("Could not retrieve contact points");
         }
-    }
-
-    /// <summary>
-    /// Normalizes a resource identifier value by removing the leading
-    /// 'urn:altinn:resource:' prefix if it is present.
-    /// </summary>
-    /// <param name="resourceId">
-    /// The raw resource identifier (may be a plain slug like 'tax-report', or
-    /// a full attribute value starting with 'urn:altinn:resource:').
-    /// Can be <c>null</c> or whitespace.
-    /// </param>
-    /// <returns>
-    /// The resource identifier without the 'urn:altinn:resource:' prefix, or
-    /// <see cref="string.Empty"/> when the input is <c>null</c> or whitespace.
-    /// </returns>
-    private static string GetSanitizedResourceId(string resourceId)
-    {
-        var trimmedResourceId = resourceId?.Trim();
-        if (string.IsNullOrWhiteSpace(trimmedResourceId))
-        {
-            return string.Empty;
-        }
-
-        const string prefix = "urn:altinn:resource:";
-
-        return trimmedResourceId.StartsWith(prefix, StringComparison.Ordinal) ? trimmedResourceId[prefix.Length..] : trimmedResourceId;
     }
 }

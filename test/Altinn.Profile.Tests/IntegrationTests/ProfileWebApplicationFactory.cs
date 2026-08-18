@@ -18,8 +18,6 @@ using Altinn.Profile.Integrations.Authorization;
 using Altinn.Profile.Integrations.ContactRegister;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.Register;
-using Altinn.Profile.Integrations.SblBridge;
-using Altinn.Profile.Integrations.SblBridge.User.Profile;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Mocks.Authentication;
 
@@ -70,15 +68,9 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
 
     public DelegatingHandlerStub RegisterHttpMessageHandler { get; set; } = new();
 
-    public DelegatingHandlerStub SblBridgeHttpMessageHandler { get; set; } = new();
-
     public Mock<IOptions<RegisterSettings>> RegisterSettingsOptions { get; set; } = new();
 
-    public Mock<IOptions<SblBridgeSettings>> SblBridgeSettingsOptions { get; set; } = new();
-
     public Mock<ILogger<RegisterClient>> RegisterClientLogger { get; set; } = new();
-
-    public Mock<ILogger<UserProfileClient>> UserProfileClientLogger { get; set; } = new();
 
     public Mock<IProfileSettingsRepository> ProfileSettingsRepositoryMock { get; set; } = new();
 
@@ -98,12 +90,6 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
             new RegisterSettings
             {
                 ApiRegisterEndpoint = "https://at22.altinn.cloud/register/"
-            });
-
-        SblBridgeSettingsOptions.Setup(gso => gso.Value).Returns(
-            new SblBridgeSettings
-            {
-                ApiProfileEndpoint = "https://at22.altinn.cloud/sblbridge/profile/api/"
             });
 
         AccessTokenGeneratorMock.Setup(atg => atg.GenerateAccessToken("platform", "profile"))
@@ -180,12 +166,6 @@ public sealed class ProfileWebApplicationFactory<TProgram> : WebApplicationFacto
                     RegisterSettingsOptions.Object,
                     AccessTokenGeneratorMock.Object,
                     RegisterClientLogger.Object));
-
-            services.AddSingleton<IUserProfileClient>(
-                new UserProfileClient(
-                    new HttpClient(SblBridgeHttpMessageHandler),
-                    UserProfileClientLogger.Object,
-                    SblBridgeSettingsOptions.Object));
         });
     }
 

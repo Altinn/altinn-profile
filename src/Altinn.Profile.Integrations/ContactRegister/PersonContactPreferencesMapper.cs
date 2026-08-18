@@ -1,7 +1,7 @@
 ﻿using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Integrations.Entities;
 
-namespace Altinn.Profile.Integrations.Mappings;
+namespace Altinn.Profile.Integrations.ContactRegister;
 
 /// <summary>
 /// Provides mapping functionality from <see cref="Person"/> to <see cref="PersonContactPreferences"/>.
@@ -22,8 +22,8 @@ public static class PersonContactPreferencesMapper
             LanguageCode = person.LanguageCode,
             MobileNumber = person.MobilePhoneNumber,
             NationalIdentityNumber = person.FnumberAk,
-            MobileNumberLastTouched = GetVerificationDate(person.MobilePhoneNumberLastUpdated, person.MobilePhoneNumberLastVerified),
-            EmailLastTouched = GetVerificationDate(person.EmailAddressLastUpdated, person.EmailAddressLastVerified),
+            MobileNumberLastUpdatedOrVerified = GetVerificationDate(person.MobilePhoneNumberLastUpdated, person.MobilePhoneNumberLastVerified),
+            EmailLastUpdatedOrVerified = GetVerificationDate(person.EmailAddressLastUpdated, person.EmailAddressLastVerified),
         };
     }
 

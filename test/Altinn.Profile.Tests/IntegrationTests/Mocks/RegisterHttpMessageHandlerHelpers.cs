@@ -185,6 +185,11 @@ internal static class RegisterHttpMessageHandlerHelpers
         HttpStatusCode statusCode,
         CancellationToken cancellationToken)
     {
+        if (statusCode == HttpStatusCode.PartialContent)
+        {
+            return new HttpResponseMessage(statusCode) { Content = JsonContent.Create(new QueryPartiesResponse()) };
+        }
+
         if (statusCode != HttpStatusCode.OK)
         {
             return new HttpResponseMessage(statusCode);

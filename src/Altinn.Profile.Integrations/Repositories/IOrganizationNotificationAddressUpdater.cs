@@ -1,5 +1,5 @@
 ﻿using Altinn.Profile.Core;
-using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 
 namespace Altinn.Profile.Integrations.Repositories;
 

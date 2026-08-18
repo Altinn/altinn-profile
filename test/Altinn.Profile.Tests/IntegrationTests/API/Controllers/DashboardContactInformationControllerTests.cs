@@ -4,14 +4,13 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Authorization.ModelUtils;
 using Altinn.Profile.Core.ProfessionalNotificationAddresses;
-using Altinn.Profile.Models;
+using Altinn.Profile.Models.Dashboard;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
@@ -155,7 +154,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         {
             // Arrange
             string orgNumber = "888888888";
-            
+
             SetupPartyQueryLookup(new Dictionary<Guid, string> { { Guid.NewGuid(), orgNumber } }, HttpStatusCode.PartialContent);
 
             HttpClient client = _factory.CreateClient();
@@ -164,7 +163,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             // Act
             HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
-           
+
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -533,8 +532,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(contactInfosFromRepo);
 
             HttpClient client = _factory.CreateClient();
-            string encodedEmail = Uri.EscapeDataString(email);
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/email/{encodedEmail}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/email");
+            httpRequestMessage.Headers.Add("emailAddress", email);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -581,7 +580,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
             string encodedEmail = Uri.EscapeDataString(email);
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/email/{encodedEmail}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/email");
+            httpRequestMessage.Headers.Add("emailAddress", encodedEmail);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -604,7 +604,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
             string encodedEmail = Uri.EscapeDataString(email);
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/email/{encodedEmail}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/email");
+            httpRequestMessage.Headers.Add("emailAddress", encodedEmail);
             httpRequestMessage = CreateAuthorizedRequestWithoutScope(httpRequestMessage);
 
             // Act
@@ -660,8 +661,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(contactInfosFromRepo);
 
             HttpClient client = _factory.CreateClient();
-            string encodedEmail = Uri.EscapeDataString(email);
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/email/{encodedEmail}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/email");
+            httpRequestMessage.Headers.Add("emailAddress", email);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -690,7 +691,6 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             string phoneNumber = "98765432";
             string countryCode = "+47";
-            string encodedCountryCode = Uri.EscapeDataString(countryCode);
             string fullPhoneNumber = $"{countryCode}{phoneNumber}";
 
             string orgNumber1 = "341341341";
@@ -741,8 +741,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(contactInfosFromRepo);
 
             HttpClient client = _factory.CreateClient();
-            string encodedPhoneNumber = Uri.EscapeDataString(phoneNumber);
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}?countrycode={encodedCountryCode}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber");
+            httpRequestMessage.Headers.Add("phoneNumber", phoneNumber);
+            httpRequestMessage.Headers.Add("countryCode", countryCode);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -790,7 +791,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}?countrycode={encodedCountryCode}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber");
+            httpRequestMessage.Headers.Add("phoneNumber", phoneNumber);
+            httpRequestMessage.Headers.Add("countryCode", countryCode);
+
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -814,8 +818,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             string encodedCountryCode = Uri.EscapeDataString(countryCode);
 
             HttpClient client = _factory.CreateClient();
-            
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}?countrycode={encodedCountryCode}");
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber");
+            httpRequestMessage.Headers.Add("phoneNumber", phoneNumber);
+            httpRequestMessage.Headers.Add("countryCode", countryCode);
             httpRequestMessage = CreateAuthorizedRequestWithoutScope(httpRequestMessage);
 
             // Act
@@ -875,7 +881,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync(contactInfosFromRepo);
 
             HttpClient client = _factory.CreateClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}?countrycode={encodedCountryCode}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber");
+            httpRequestMessage.Headers.Add("phoneNumber", phoneNumber);
+            httpRequestMessage.Headers.Add("countryCode", countryCode);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -940,13 +948,14 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                     LastChanged = _testTime.AddDays(-1)
                 }
             };
-            
+
             _factory.ProfessionalNotificationsRepositoryMock
                 .Setup(r => r.GetAllContactInfoByPhoneNumberAsync(phoneNumber, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(contactInfosFromRepo);
 
             HttpClient client = _factory.CreateClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber");
+            httpRequestMessage.Headers.Add("phoneNumber", phoneNumber);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -989,7 +998,9 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 .ReturnsAsync([]);
 
             HttpClient client = _factory.CreateClient();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}?countrycode={encodedCountryCode}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber");
+            httpRequestMessage.Headers.Add("phoneNumber", phoneNumber);
+            httpRequestMessage.Headers.Add("countryCode", countryCode);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -1014,7 +1025,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData("004798765432", null)] // Number with 00 prefix
         [InlineData("12345", "+47")] // 5 digits with country code added
         [InlineData("987654321234546", "0047")] // 15 digits with country code
-        [InlineData("8798765432", null)]        
+        [InlineData("8798765432", null)]
         public async Task GetContactInformationByPhoneNumber_WithVariousPhoneNumberFormats_ReturnsOkWithUsers(string phoneNumber, string countryCode)
         {
             // Arrange
@@ -1059,7 +1070,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             new Dictionary<int, Party>
             {
                 [1001] = registerPerson
-            }, 
+            },
             new Dictionary<Guid, string>
             {
                 [partyUuid] = orgNumber
@@ -1067,11 +1078,15 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            string requestUrl = string.IsNullOrEmpty(countryCode)
-                ? $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}"
-                : $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{phoneNumber}?countrycode={Uri.EscapeDataString(countryCode)}";
+            string requestUrl = $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber";
 
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, requestUrl);
+            httpRequestMessage.Headers.Add("phoneNumber", phoneNumber);
+            if (!string.IsNullOrEmpty(countryCode))
+            {
+                httpRequestMessage.Headers.Add("countryCode", countryCode);
+            }
+
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
@@ -1104,11 +1119,15 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             HttpClient client = _factory.CreateClient();
 
-            string requestUrl = string.IsNullOrEmpty(countryCode)
-                ? $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{searchPhoneNumber}"
-                : $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{searchPhoneNumber}?countrycode={Uri.EscapeDataString(countryCode)}";
+            string requestUrl = $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber";
 
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/organizations/contactinformation/phoneNumber/{searchPhoneNumber}");
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, requestUrl);
+            httpRequestMessage.Headers.Add("phoneNumber", searchPhoneNumber);
+            if (!string.IsNullOrEmpty(countryCode))
+            {
+                httpRequestMessage.Headers.Add("countryCode", countryCode);
+            }
+
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
