@@ -2,7 +2,6 @@
 
 using System.Collections.Immutable;
 
-using Altinn.Profile.Core;
 using Altinn.Profile.Core.Integrations;
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Core.Telemetry;
