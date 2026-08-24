@@ -596,6 +596,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData("urn:altinn:resource:example", "example")]
         [InlineData("urn:altinn:resource:app_other_vale", "app_other_vale")]
         [InlineData("urn:altinn:resource:ttd-resource-1", "ttd-resource-1")]
+        [InlineData("urn:altinn:resource:FOOBAR", "FOOBAR")]
 
         public async Task PutNotificationAddress_WhenContactInfoIsNew_ReturnsCreatedAndOrdersNotificationWithCountryCode(string resourceUrn, string sanitizedResourceId)
         {
@@ -1067,7 +1068,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData("urn:altinn:resource:example", "example")]
         [InlineData("urn:altinn:resource:app_other_vale", "app_other_vale")]
         [InlineData("urn:altinn:resource:ttd-resource-1", "ttd-resource-1")]
-        public async Task PatchNotificationAddress_WhenVerified_ReturnsCreated(string resourceUrn, string sanitizedResourceId)
+        [InlineData("urn:altinn:resource:FOOBAR", "FOOBAR")]
+        public async Task PatchNotificationAddress_WhenVerifiedAddressAndValidResource_ReturnsCreated(string resourceUrn, string sanitizedResourceId)
         {
             // Arrange
             const int UserId = 2516356;

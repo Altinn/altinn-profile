@@ -17,7 +17,7 @@ namespace Altinn.Profile.Models
     /// </summary>
     public partial class NotificationSettingsPatchRequest : IValidatableObject
     {
-        private const string _resourceIdRegex = "^urn:altinn:resource:[a-z0-9_-]{4,}$";
+        private const string _resourceIdRegex = "^urn:altinn:resource:[a-zA-Z0-9_-]{4,}$";
 
         /// <summary>
         /// The email address. May be null if no email address is set. If not null, the address must be verified.

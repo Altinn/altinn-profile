@@ -15,7 +15,7 @@ namespace Altinn.Profile.Models.ProfessionalNotificationSettings
     /// </summary>
     public abstract partial class ProfessionalNotificationSettings : IValidatableObject
     {
-        private const string _resourceIdRegex = "^urn:altinn:resource:[a-z0-9_-]{4,}$";
+        private const string _resourceIdRegex = "^urn:altinn:resource:[a-zA-Z0-9_-]{4,}$";
 
         /// <summary>
         /// The email address. May be null if no email address is set.
