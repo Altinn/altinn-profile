@@ -791,7 +791,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             return httpRequestMessage;
         }
 
-        private HttpRequestMessage CreateGetPhoneNumberRequest(string phoneNumber)
+        private static HttpRequestMessage CreateGetPhoneNumberRequest(string phoneNumber)
         {
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"/profile/api/v1/dashboard/users/contactinformation/phonenumber");
             httpRequestMessage.Headers.Add("PhoneNumber", phoneNumber);
