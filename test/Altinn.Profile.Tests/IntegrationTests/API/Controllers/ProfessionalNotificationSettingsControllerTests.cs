@@ -548,7 +548,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Single(actual.Errors);
             Assert.NotNull(actual.Errors["ResourceIncludeList"]);
             Assert.True(actual.Errors.TryGetValue("ResourceIncludeList", out var message));
-            Assert.Contains("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 4 or more characters of lowercase letter, number, underscore or hyphen", message[0]);
+            Assert.Contains("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 4 or more characters of letter, number, underscore or hyphen", message[0]);
         }
 
         [Fact]
@@ -596,6 +596,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData("urn:altinn:resource:example", "example")]
         [InlineData("urn:altinn:resource:app_other_vale", "app_other_vale")]
         [InlineData("urn:altinn:resource:ttd-resource-1", "ttd-resource-1")]
+        [InlineData("urn:altinn:resource:FOOBAR", "FOOBAR")]
 
         public async Task PutNotificationAddress_WhenContactInfoIsNew_ReturnsCreatedAndOrdersNotificationWithCountryCode(string resourceUrn, string sanitizedResourceId)
         {
@@ -972,7 +973,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal("One or more validation errors occurred.", actual.Title);
             Assert.Single(actual.Errors);
             Assert.True(actual.Errors.TryGetValue("ResourceIncludeList", out var message));
-            Assert.Contains("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 4 or more characters of lowercase letter, number, underscore or hyphen", message[0]);
+            Assert.Contains("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 4 or more characters of letter, number, underscore or hyphen", message[0]);
         }
 
         [Fact]
@@ -1067,7 +1068,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         [InlineData("urn:altinn:resource:example", "example")]
         [InlineData("urn:altinn:resource:app_other_vale", "app_other_vale")]
         [InlineData("urn:altinn:resource:ttd-resource-1", "ttd-resource-1")]
-        public async Task PatchNotificationAddress_WhenVerified_ReturnsCreated(string resourceUrn, string sanitizedResourceId)
+        [InlineData("urn:altinn:resource:FOOBAR", "FOOBAR")]
+        public async Task PatchNotificationAddress_WhenVerifiedAddressAndValidResource_ReturnsCreated(string resourceUrn, string sanitizedResourceId)
         {
             // Arrange
             const int UserId = 2516356;
