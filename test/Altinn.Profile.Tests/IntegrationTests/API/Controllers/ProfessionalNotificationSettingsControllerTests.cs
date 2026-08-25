@@ -548,7 +548,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Single(actual.Errors);
             Assert.NotNull(actual.Errors["ResourceIncludeList"]);
             Assert.True(actual.Errors.TryGetValue("ResourceIncludeList", out var message));
-            Assert.Contains("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 4 or more characters of lowercase letter, number, underscore or hyphen", message[0]);
+            Assert.Contains("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 4 or more characters of letter, number, underscore or hyphen", message[0]);
         }
 
         [Fact]
@@ -973,7 +973,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal("One or more validation errors occurred.", actual.Title);
             Assert.Single(actual.Errors);
             Assert.True(actual.Errors.TryGetValue("ResourceIncludeList", out var message));
-            Assert.Contains("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 4 or more characters of lowercase letter, number, underscore or hyphen", message[0]);
+            Assert.Contains("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 4 or more characters of letter, number, underscore or hyphen", message[0]);
         }
 
         [Fact]
