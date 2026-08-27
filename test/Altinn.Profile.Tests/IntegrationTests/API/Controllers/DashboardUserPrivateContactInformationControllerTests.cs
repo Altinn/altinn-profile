@@ -5,14 +5,12 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Core.User.ContactInfo;
-using Altinn.Profile.Core.User.ContactPoints;
 using Altinn.Profile.Models.Dashboard;
 using Altinn.Profile.Tests.IntegrationTests.Utils;
 
@@ -507,6 +505,27 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, "/profile/api/v1/dashboard/users/contactinformation/phonenumber");
+            httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            _factory.PersonServiceMock.Verify(s => s.GetContactPreferencesByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(" ")]
+        [InlineData("ghdyg")]
+        [InlineData("1234567")]
+        [InlineData("1234567890123456")]
+        public async Task GetContactInformationByPhoneNumber_WhenPhoneNumberHeaderIsInvalid_ReturnsBadRequest(string phoneNumber)
+        {
+            // Arrange
+            HttpClient client = _factory.CreateClient();
+            HttpRequestMessage httpRequestMessage = CreateGetPhoneNumberRequest(phoneNumber);
             httpRequestMessage = CreateAuthorizedRequestWithScope(httpRequestMessage);
 
             // Act
