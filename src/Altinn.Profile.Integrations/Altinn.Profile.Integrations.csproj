@@ -7,9 +7,9 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Altinn.Common.AccessTokenClient" Version="3.2.10" />
+    <PackageReference Include="Altinn.Common.AccessTokenClient" Version="3.2.11" />
     <PackageReference Include="EFCore.NamingConventions" Version="10.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11">
 	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
 	<!-- Keep dependency on Npgsql 10.0.0 until the bug leading to ObjectDisposedException is fixed (hopefully in 10.0.3). Last attempted version was v10.0.2 - still buggy -->
