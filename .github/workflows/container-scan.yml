@@ -157,8 +157,19 @@ jobs:
 
       - name: Fail the build on CRITICAL/HIGH findings
         if: steps.findings.outputs.count != '0'
+        # A PR check always links to the job, never to the run summary -- that
+        # is fixed by GitHub and not configurable. GitHub does auto-expand the
+        # failed step, though, so printing the summary URL here puts a
+        # clickable link to the mitigation report one hop from the PR check.
+        env:
+          SUMMARY_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
         run: |
-          echo "::error::Trivy found one or more CRITICAL/HIGH vulnerabilities. See the job summary for mitigation guidance."
+          echo "Trivy found one or more CRITICAL/HIGH vulnerabilities."
+          echo "Mitigation guidance for each finding is in the run summary:"
+          echo ""
+          echo "    ${SUMMARY_URL}"
+          echo ""
+          echo "::error title=Container scan::CRITICAL/HIGH vulnerabilities found. Mitigation guidance: ${SUMMARY_URL}"
           exit 1
 
   upload-sarif:
