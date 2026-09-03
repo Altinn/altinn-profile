@@ -200,6 +200,6 @@ jobs:
     uses: ./.github/workflows/send-slack-warning.yml
     permissions: {}
     with:
-      warning-message: 'Profile scan failed or found potenial vulnerabilities - inspect workflow log for more details'
+      warning-message: 'Profile scan failed or found potential vulnerabilities - inspect workflow log for more details'
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_CORE_ALERTS }}
