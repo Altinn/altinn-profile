@@ -2,7 +2,7 @@ name: Profile Scan
 
 on:
   schedule:
-    - cron: '0 8 * * 1,4'
+    - cron: '0 6 * * 1-5'
   push:
     branches: [main]
     paths:
@@ -26,6 +26,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read # Required to checkout and read repo files
+    outputs:
+      findings-count: ${{ steps.findings.outputs.count }}
     env:
       # Mirror registries so a single-registry outage doesn't fail the scan.
       TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db,aquasec/trivy-db,ghcr.io/aquasecurity/trivy-db
@@ -189,3 +191,15 @@ jobs:
           sarif_file: 'trivy-results.sarif'
           sha: ${{ github.sha }}
           ref: ${{ github.ref }}
+
+  slack-notify:
+    needs: scan
+    # scan exits 1 on findings, so this must not be gated on scan succeeding.
+    # An empty count means scan broke before counting -- also worth an alert.
+    if: ${{ github.event_name != 'pull_request' && !cancelled() && needs.scan.outputs.findings-count != '0' }}
+    uses: ./.github/workflows/send-slack-warning.yml
+    permissions: {}
+    with:
+      warning-message: 'Profile scan failed or found potenial vulnerabilities - inspect workflow log for more details'
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_CORE_ALERTS }}
