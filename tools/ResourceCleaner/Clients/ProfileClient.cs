@@ -1,3 +1,5 @@
+using Npgsql;
+
 namespace ResourceCleaner.ProfileClient;
 
 internal class ProfileClient
@@ -34,7 +36,27 @@ internal class ProfileClient
         _commandTimeoutSeconds = commandTimeoutSeconds;
     }
 
-    internal async Task<List<UserPartyResource>> GetUserPartyResourcesAsync()
+    internal async Task<List<string>> GetDistinctUserPartyResourceIdsAsync()
+    {
+        await using NpgsqlCommand pgcom = _dataSource.CreateCommand(_getDistinctUserPartyContactInfoResourceIds);
+        pgcom.CommandTimeout = _commandTimeoutSeconds;
+        List<string> distinctResourceIds = [];
+        await using NpgsqlDataReader reader = await pgcom.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            distinctResourceIds.Add(reader.GetString(0));
+        }
+
+        return distinctResourceIds;
+
+        // Read all rows from DB
+        // Init different lists:
+        //   resourcesMatchingIdentifier
+        //   otherResourcesNotMatchingIdentifier
+
+    }
+
+    internal async Task<List<UserPartyContactInfoResource>> GetUserPartyResourcesAsync()
     {
         await using NpgsqlCommand pgcom = _dataSource.CreateCommand(_getUserPartyContactInfoResources);
         pgcom.CommandTimeout = _commandTimeoutSeconds;
@@ -50,25 +72,6 @@ internal class ProfileClient
         }
 
         return userPartyContactInfoResources;
-
-        // Read all rows from DB
-        // Init different lists:
-        //   resourcesMatchingIdentifier
-        //   otherResourcesNotMatchingIdentifier
-
-    }
-    internal async Task<List<UserPartyResource>> GetDistinctUserPartyResourceIdsAsync()
-    {
-        await using NpgsqlCommand pgcom = _dataSource.CreateCommand(_getDistinctUserPartyContactInfoResourceIds);
-        pgcom.CommandTimeout = _commandTimeoutSeconds;
-        List<string> distinctResourceIds = [];
-        await using NpgsqlDataReader reader = await pgcom.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
-        {
-            distinctResourceIds.Add(reader.GetString(0));
-        }
-
-        return distinctResourceIds;
 
         // Read all rows from DB
         // Init different lists:
