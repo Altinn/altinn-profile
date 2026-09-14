@@ -50,11 +50,12 @@ distinctProfileResourceIds.ForEach(pr =>
 });
 
 StringBuilder resultStringBuilder = new();
-resultStringBuilder.Append($"Count of distinct ProfileDB resource-IDs: {distinctProfileResourceIds.Count,10:C}");
-resultStringBuilder.AppendLine($"Count of ProfileDB resource-IDs that match AFs include-list: {profileResourceIdsMatchingAFIncludeList.Count,10:C}");
-resultStringBuilder.AppendLine($"Count of ProfileDB resource-IDs that match AFs exclude-list: {profileResourceIdsMatchingAFExcludeList.Count,10:C}");
-resultStringBuilder.AppendLine($"Count of ProfileDB resource-IDs that have no match in RRs resourcelist: {profileResourceIdsWithoutRRMatch.Count,10:C}");
-
+resultStringBuilder.AppendLine($"{"Count of distinct ProfileDB resource-IDs: ", -80}{distinctProfileResourceIds.Count,10:D}");
+resultStringBuilder.AppendLine($"{"Count of ProfileDB resource-IDs that match AFs include-list: ", -80}{profileResourceIdsMatchingAFIncludeList.Count,10:D}");
+resultStringBuilder.AppendLine($"{"Count of ProfileDB resource-IDs that match AFs exclude-list: ", -80}{profileResourceIdsMatchingAFExcludeList.Count,10:D}");
+resultStringBuilder.AppendLine($"{"Count of ProfileDB resource-IDs that have no match in RRs resourcelist (*): ", -80}{profileResourceIdsWithoutRRMatch.Count,10:D}");
+resultStringBuilder.AppendLine();
+resultStringBuilder.AppendLine("* likely A2 service codes");
 Console.Write(resultStringBuilder);
 
 //  rrResourceList.Any(r => r.Identifier == profileResourceId)
