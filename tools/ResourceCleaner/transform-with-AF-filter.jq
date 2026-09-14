@@ -1,13 +1,7 @@
 # Cleans up the Altinn resource list (resourceregistry .../resource/resourcelist).
 #
-# Keeps only resources that are backed by an Altinn 2 service code and are
-# actually in use, then reshapes them into a slimmer structure.
-
-def hasAltinn2ServiceCode:
-  any(
-    (.resourceReferences // [])[];
-    .referenceSource == "Altinn2" and .referenceType == "ServiceCode"
-  );
+# Keeps only resources that are in active use, then reshapes them into a slimmer
+# structure.
 
 def isTestOrg:
   # orgcode casing is inconsistent in the source data (both "acn" and "ACN" occur)
@@ -21,8 +15,7 @@ def isRelevantResourceType:
 
 map(
   select(
-    hasAltinn2ServiceCode
-    and (isTestOrg | not)
+    (isTestOrg | not)
     and isRelevantResourceType
     and .visible == true
     and .delegable == true
@@ -33,7 +26,7 @@ map(
       norwegianTitle: .title.nb,
       status,
       contactPoints,
-      resourceReferences,
+      resourceReferences: (.resourceReferences // []),
       delegable,
       visible,
       competentAuthority: (
