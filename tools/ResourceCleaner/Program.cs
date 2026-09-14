@@ -49,13 +49,24 @@ distinctProfileResourceIds.ForEach(pr =>
     }
 });
 
+string bold = "\x1b[1m";
+string reset = "\x1b[0m";
+
 StringBuilder resultStringBuilder = new();
-resultStringBuilder.AppendLine($"{"Count of distinct ProfileDB resource-IDs: ", -80}{distinctProfileResourceIds.Count,10:D}");
-resultStringBuilder.AppendLine($"{"Count of ProfileDB resource-IDs that match AFs include-list: ", -80}{profileResourceIdsMatchingAFIncludeList.Count,10:D}");
-resultStringBuilder.AppendLine($"{"Count of ProfileDB resource-IDs that match AFs exclude-list: ", -80}{profileResourceIdsMatchingAFExcludeList.Count,10:D}");
-resultStringBuilder.AppendLine($"{"Count of ProfileDB resource-IDs that have no match in RRs resourcelist (*): ", -80}{profileResourceIdsWithoutRRMatch.Count,10:D}");
+resultStringBuilder.AppendLine($"{bold}{"Count of distinct ProfileDB resource-IDs: ", -80}{reset}{distinctProfileResourceIds.Count,10:D}");
+resultStringBuilder.AppendLine($"{bold}{"Count of ProfileDB resource-IDs that match AFs include-list: ", -80}{reset}{profileResourceIdsMatchingAFIncludeList.Count,10:D}");
+resultStringBuilder.AppendLine($"{bold}{"Count of ProfileDB resource-IDs that match AFs exclude-list: ", -80}{reset}{profileResourceIdsMatchingAFExcludeList.Count,10:D}");
+resultStringBuilder.AppendLine($"{bold}{"Count of ProfileDB resource-IDs that have no match in RRs resourcelist (*): ", -80}{reset}{profileResourceIdsWithoutRRMatch.Count,10:D}");
 resultStringBuilder.AppendLine();
 resultStringBuilder.AppendLine("* likely A2 service codes");
 Console.Write(resultStringBuilder);
+
+Console.WriteLine();
+Console.WriteLine($"{bold}Profile-stored resource-IDs in AFs exclude list:{reset}");
+profileResourceIdsMatchingAFExcludeList.Sort();
+profileResourceIdsMatchingAFExcludeList.ForEach(r =>
+{
+   Console.WriteLine(r);
+});
 
 //  rrResourceList.Any(r => r.Identifier == profileResourceId)
