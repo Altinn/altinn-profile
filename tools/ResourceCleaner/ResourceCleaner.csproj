@@ -5,7 +5,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <UserSecretsId>3397a47c-4c6b-4357-a11b-d31b7cedac77</UserSecretsId>
+    <UserSecretsId>eb6385ce-7ac9-489f-8f92-f4f469cd7e83</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +16,18 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.11" />
     <PackageReference Include="Npgsql" Version="10.0.3" />
     <PackageReference Include="Npgsql.DependencyInjection" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="original_resourcelist.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="resourcelist.af-included.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="resourcelist.af-excluded.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
