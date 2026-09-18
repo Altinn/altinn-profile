@@ -1,0 +1,19 @@
+{
+  "title": "Kofuvi digital alert address fragments as json",
+  "updated": "2025-03-05T12:00:00Z",
+  "nextPage": "http://someurl.no/tiedpage2",
+  "entries": [
+    {
+      "title": "first@test.no",
+      "id": "112233445566778899001122aabbccdd",
+      "updated": "2025-03-05T10:00:00Z",
+      "isdeleted": true
+    },
+    {
+      "title": "second@test.no",
+      "id": "223344556677889900112233aabbccdd",
+      "updated": "2025-03-05T10:00:00Z",
+      "isdeleted": true
+    }
+  ]
+}

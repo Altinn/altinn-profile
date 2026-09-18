@@ -289,6 +289,73 @@ public class OrganizationNotificationAddressUpdateJobTests()
         _httpClient.Verify(h => h.GetAddressChangesAsync(It.IsAny<string>()), Times.Exactly(2));
     }
 
+    /// <summary>
+    /// Entries can share an updated timestamp, and such a group can be split across a page boundary. Since
+    /// "since" is exclusive, committing the last timestamp of a page that has more pages behind it would make an
+    /// interrupted run resume past the group and never read the rest of it.
+    /// </summary>
+    [Fact]
+    public async Task SyncNotificationAddressesAsync_WhenPageEndsWithTiedTimestampsAndMorePagesFollow_DoesNotCommitPastTheGroup()
+    {
+        // Arrange
+        const string InitialUrl = "https://kof.test/changes?pageSize=100";
+        const string NextPageUrl = "http://someurl.no/tiedpage2";
+
+        _metadataRepository.Setup(m => m.GetLatestSyncTimestampAsync())
+            .ReturnsAsync(new DateTime(2025, 3, 1, 0, 0, 0, DateTimeKind.Utc));
+        _httpClient.Setup(h => h.GetInitialUrl(It.IsAny<DateTime?>())).Returns(InitialUrl);
+
+        _httpClient.Setup(h => h.GetAddressChangesAsync(InitialUrl))
+            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_tied_tail_with_next_page"));
+        _httpClient.Setup(h => h.GetAddressChangesAsync(NextPageUrl))
+            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_0"));
+
+        _organizationNotificationAddressUpdater.Setup(p => p.SyncNotificationAddressesAsync(It.IsAny<NotificationAddressChangesLog>()))
+            .ReturnsAsync(3);
+
+        OrganizationNotificationAddressUpdateJob target =
+            new(_httpClient.Object, _metadataRepository.Object, _organizationNotificationAddressUpdater.Object, _logger.Object);
+
+        // Act
+        await target.SyncNotificationAddressesAsync();
+
+        // Assert - the last two entries share 09:00, so only 08:00 is known to be complete
+        _metadataRepository.Verify(
+            m => m.UpdateLatestChangeTimestampAsync(new DateTime(2025, 3, 4, 8, 0, 0, DateTimeKind.Utc)),
+            Times.Once);
+        _metadataRepository.Verify(m => m.UpdateLatestChangeTimestampAsync(It.IsAny<DateTime>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task SyncNotificationAddressesAsync_WhenAllEntriesInPageShareTimestampAndMorePagesFollow_DoesNotAdvanceWatermark()
+    {
+        // Arrange
+        const string InitialUrl = "https://kof.test/changes?pageSize=100";
+        const string NextPageUrl = "http://someurl.no/tiedpage2";
+
+        _metadataRepository.Setup(m => m.GetLatestSyncTimestampAsync())
+            .ReturnsAsync(new DateTime(2025, 3, 1, 0, 0, 0, DateTimeKind.Utc));
+        _httpClient.Setup(h => h.GetInitialUrl(It.IsAny<DateTime?>())).Returns(InitialUrl);
+
+        _httpClient.Setup(h => h.GetAddressChangesAsync(InitialUrl))
+            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_all_tied_with_next_page"));
+        _httpClient.Setup(h => h.GetAddressChangesAsync(NextPageUrl))
+            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_0"));
+
+        _organizationNotificationAddressUpdater.Setup(p => p.SyncNotificationAddressesAsync(It.IsAny<NotificationAddressChangesLog>()))
+            .ReturnsAsync(2);
+
+        OrganizationNotificationAddressUpdateJob target =
+            new(_httpClient.Object, _metadataRepository.Object, _organizationNotificationAddressUpdater.Object, _logger.Object);
+
+        // Act
+        await target.SyncNotificationAddressesAsync();
+
+        // Assert - no part of this page is known to be complete, so the run continues without committing it
+        _metadataRepository.Verify(m => m.UpdateLatestChangeTimestampAsync(It.IsAny<DateTime>()), Times.Never);
+        _httpClient.Verify(h => h.GetAddressChangesAsync(NextPageUrl), Times.Once);
+    }
+
     [Fact]
     public async Task SyncNotificationAddressesAsync_WhenPageIsEmpty_DoesNotAdvanceWatermark()
     {
