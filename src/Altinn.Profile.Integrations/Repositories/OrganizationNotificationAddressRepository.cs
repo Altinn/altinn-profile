@@ -7,13 +7,18 @@ using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models
 using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Altinn.Profile.Integrations.Repositories;
 
 /// <inheritdoc />
-public class OrganizationNotificationAddressRepository(IDbContextFactory<ProfileDbContext> contextFactory, Telemetry? telemetry) : IOrganizationNotificationAddressUpdater, IOrganizationNotificationAddressRepository
+public class OrganizationNotificationAddressRepository(
+    IDbContextFactory<ProfileDbContext> contextFactory,
+    ILogger<OrganizationNotificationAddressRepository> logger,
+    Telemetry? telemetry) : IOrganizationNotificationAddressUpdater, IOrganizationNotificationAddressRepository
 {
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
+    private readonly ILogger<OrganizationNotificationAddressRepository> _logger = logger;
     private readonly Telemetry? _telemetry = telemetry;
 
     /// <inheritdoc />
@@ -23,13 +28,24 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
         var updates = 0;
         foreach (var address in addresses) 
         {
-            if (address.IsDeleted == true)
+            try
             {
-                updates += await DeleteNotificationAddressAsync(address.Id);
+                if (address.IsDeleted == true)
+                {
+                    updates += await DeleteNotificationAddressAsync(address.Id);
+                }
+                else
+                {
+                    updates += await UpsertOrganizationWithNotificationAddressAsync(address);
+                }
             }
-            else
+            catch (OrganizationNotificationAddressChangesException ex)
             {
-                updates += await UpsertOrganizationWithNotificationAddressAsync(address);
+                // A single entry we cannot make sense of must not stop the page. The watermark is only moved
+                // forward for a page that was processed, so rethrowing here would make the sync re-read and fail
+                // on the same entry on every later run, blocking all subsequent changes indefinitely.
+                _logger.LogError(ex, "Skipped notification address entry {RegistryId} that could not be processed", address.Id);
+                _telemetry?.AddressSkipped();
             }
         }
 
