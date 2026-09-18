@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
@@ -162,7 +163,7 @@ public class OrganizationNotificationAddressUpdateJobTests()
             new(_httpClient.Object, _metadataRepository.Object, _organizationNotificationAddressUpdater.Object, _logger.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(target.SyncNotificationAddressesAsync);
+        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(() => target.SyncNotificationAddressesAsync());
 
         // A page that could not be persisted must be retried from the same point on the next run.
         _metadataRepository.Verify(m => m.UpdateLatestChangeTimestampAsync(It.IsAny<DateTime>()), Times.Never);
@@ -354,6 +355,40 @@ public class OrganizationNotificationAddressUpdateJobTests()
         // Assert - no part of this page is known to be complete, so the run continues without committing it
         _metadataRepository.Verify(m => m.UpdateLatestChangeTimestampAsync(It.IsAny<DateTime>()), Times.Never);
         _httpClient.Verify(h => h.GetAddressChangesAsync(NextPageUrl), Times.Once);
+    }
+
+    /// <summary>
+    /// The token passed to the job is the lease token. If the lease is lost the run has to stop, otherwise
+    /// another instance can acquire the lease and process the same feed at the same time.
+    /// </summary>
+    [Fact]
+    public async Task SyncNotificationAddressesAsync_WhenCancelled_StopsBeforeFetchingTheNextPage()
+    {
+        // Arrange
+        const string InitialUrl = "https://kof.test/changes?pageSize=100";
+        const string NextPageUrl = "http://someurl.no/next";
+
+        using var cts = new CancellationTokenSource();
+
+        _metadataRepository.Setup(m => m.GetLatestSyncTimestampAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        _httpClient.Setup(h => h.GetInitialUrl(It.IsAny<DateTime?>())).Returns(InitialUrl);
+
+        _httpClient.Setup(h => h.GetAddressChangesAsync(InitialUrl, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_1"));
+
+        // Cancel while the first page is being written, as a lost lease would
+        _organizationNotificationAddressUpdater.Setup(p => p.SyncNotificationAddressesAsync(It.IsAny<NotificationAddressChangesLog>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(2)
+            .Callback(() => cts.Cancel());
+
+        OrganizationNotificationAddressUpdateJob target =
+            new(_httpClient.Object, _metadataRepository.Object, _organizationNotificationAddressUpdater.Object, _logger.Object);
+
+        // Act and Assert
+        await Assert.ThrowsAsync<OperationCanceledException>(() => target.SyncNotificationAddressesAsync(cts.Token));
+
+        _httpClient.Verify(h => h.GetAddressChangesAsync(NextPageUrl, It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

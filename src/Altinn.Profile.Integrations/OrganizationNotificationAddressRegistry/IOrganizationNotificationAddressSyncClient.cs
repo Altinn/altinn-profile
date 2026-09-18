@@ -11,10 +11,11 @@ public interface IOrganizationNotificationAddressSyncClient
     /// Retrieves changes to organizational notification addresses
     /// </summary>
     /// <param name="endpointUrl">The URL of the endpoint to retrieve contact details changes from.</param>
+    /// <param name="cancellationToken">A token used to cancel the request.</param>
     /// <returns>
     /// A task that represents the asynchronous operation with the returned values.
     /// </returns>
-    Task<NotificationAddressChangesLog?> GetAddressChangesAsync(string endpointUrl);
+    Task<NotificationAddressChangesLog?> GetAddressChangesAsync(string endpointUrl, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Formats the url to get the initial dataload - either from the last changed timestamp or from the beginning.

@@ -30,19 +30,21 @@ public class OrganizationNotificationAddressUpdateJob(
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Thrown when the endpoint URL is null or empty.</exception>
-    public async Task SyncNotificationAddressesAsync()
+    public async Task SyncNotificationAddressesAsync(CancellationToken cancellationToken = default)
     {
         using var activity = _telemetry?.StartOrganizationNotificationAddressUpdateJob();
 
-        DateTime? lastUpdated = await _metadataRepository.GetLatestSyncTimestampAsync();
+        DateTime? lastUpdated = await _metadataRepository.GetLatestSyncTimestampAsync(cancellationToken);
 
         var fullUrl = _organizationNotificationAddressHttpClient.GetInitialUrl(lastUpdated);
 
         do
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             _logger.LogInformation("Fetch data from brreg at url: {FullUrl}", fullUrl);
 
-            NotificationAddressChangesLog? changesLog = await _organizationNotificationAddressHttpClient.GetAddressChangesAsync(fullUrl);
+            NotificationAddressChangesLog? changesLog = await _organizationNotificationAddressHttpClient.GetAddressChangesAsync(fullUrl, cancellationToken);
 
             var entries = changesLog?.OrganizationNotificationAddressList;
             if (entries is null || entries.Count == 0)
@@ -51,7 +53,7 @@ public class OrganizationNotificationAddressUpdateJob(
                 break;
             }
 
-            int updatedRowsCount = await _notificationAddressUpdater.SyncNotificationAddressesAsync(changesLog!);
+            int updatedRowsCount = await _notificationAddressUpdater.SyncNotificationAddressesAsync(changesLog!, cancellationToken);
 
             fullUrl = changesLog!.NextPage?.ToString();
 
@@ -62,7 +64,7 @@ public class OrganizationNotificationAddressUpdateJob(
             var watermark = GetCommittableWatermark(entries, hasMorePages: !string.IsNullOrEmpty(fullUrl));
             if (watermark.HasValue)
             {
-                await _metadataRepository.UpdateLatestChangeTimestampAsync(watermark.Value);
+                await _metadataRepository.UpdateLatestChangeTimestampAsync(watermark.Value, cancellationToken);
             }
 
             _logger.LogInformation(
