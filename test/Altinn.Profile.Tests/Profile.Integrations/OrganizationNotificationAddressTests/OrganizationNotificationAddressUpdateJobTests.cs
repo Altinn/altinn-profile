@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Tests.Testdata;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 using Xunit;
@@ -146,19 +149,40 @@ public class OrganizationNotificationAddressUpdateJobTests()
     }
 
     [Fact]
-    public async Task SyncNotificationAddressesAsync_WhenFailingToUpdateAddresses_DoNotUpdateSyncTime()
+    public async Task SyncNotificationAddressesAsync_WhenUpdaterThrows_DoesNotAdvanceWatermark()
     {
         // Arrange
-        _metadataRepository.SetupSequence(m => m.GetLatestSyncTimestampAsync())
-    .ReturnsAsync(DateTime.Now.AddDays(-1));
+        _metadataRepository.Setup(m => m.GetLatestSyncTimestampAsync())
+            .ReturnsAsync(new DateTime(2025, 2, 1, 0, 0, 0, DateTimeKind.Utc));
 
-        _httpClient.SetupSequence(h => h.GetAddressChangesAsync(It.IsAny<string>()))
-            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_1"))
+        _httpClient.Setup(h => h.GetAddressChangesAsync(It.IsAny<string>()))
+            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_1"));
+
+        _organizationNotificationAddressUpdater.Setup(p => p.SyncNotificationAddressesAsync(It.IsAny<NotificationAddressChangesLog>()))
+            .ThrowsAsync(new OrganizationNotificationAddressChangesException("boom"));
+
+        OrganizationNotificationAddressUpdateJob target =
+            new(_httpClient.Object, _metadataRepository.Object, _organizationNotificationAddressUpdater.Object, _logger.Object);
+
+        // Act and Assert
+        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(target.SyncNotificationAddressesAsync);
+
+        // A page that could not be persisted must be retried from the same point on the next run.
+        _metadataRepository.Verify(m => m.UpdateLatestChangeTimestampAsync(It.IsAny<DateTime>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SyncNotificationAddressesAsync_AdvancesWatermarkToUpdatedOfLastEntryInPage()
+    {
+        // Arrange
+        _metadataRepository.Setup(m => m.GetLatestSyncTimestampAsync())
+            .ReturnsAsync(new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+
+        _httpClient.Setup(h => h.GetAddressChangesAsync(It.IsAny<string>()))
             .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_2"));
 
-        _organizationNotificationAddressUpdater.SetupSequence(p => p.SyncNotificationAddressesAsync(It.IsAny<NotificationAddressChangesLog>()))
-            .ReturnsAsync(0)
-            .ReturnsAsync(0);
+        _organizationNotificationAddressUpdater.Setup(p => p.SyncNotificationAddressesAsync(It.IsAny<NotificationAddressChangesLog>()))
+            .ReturnsAsync(4);
 
         OrganizationNotificationAddressUpdateJob target =
             new(_httpClient.Object, _metadataRepository.Object, _organizationNotificationAddressUpdater.Object, _logger.Object);
@@ -166,12 +190,62 @@ public class OrganizationNotificationAddressUpdateJobTests()
         // Act
         await target.SyncNotificationAddressesAsync();
 
-        // Assert
-        _httpClient.VerifyAll();
-        _organizationNotificationAddressUpdater.VerifyAll();
+        // Assert - the feed is sorted ascending, so the last entry of the page is the new watermark
+        _metadataRepository.Verify(
+            m => m.UpdateLatestChangeTimestampAsync(new DateTime(2025, 1, 16, 9, 7, 11, DateTimeKind.Utc)),
+            Times.Once); // Verify that the method is called exacly once with the given argument
+        _metadataRepository.Verify(m => m.UpdateLatestChangeTimestampAsync(It.IsAny<DateTime>()), Times.Once); // Verify that the method is called exactly once in total with _any_ input - i.e., the method is not called with any other input than what is verified above
+    }
 
-        // Verify that metadataRepository.UpdateLatestChangeTimestampAsync() is not called
-        _metadataRepository.VerifyAll();
-        _metadataRepository.VerifyNoOtherCalls();
+    [Fact]
+    public async Task SyncNotificationAddressesAsync_WhenPageHasNextPage_RequestsThatExactUrl()
+    {
+        // Arrange
+        const string InitialUrl = "https://kof.test/changes?pageSize=100";
+        const string NextPageUrl = "http://someurl.no/next";
+
+        _metadataRepository.Setup(m => m.GetLatestSyncTimestampAsync())
+            .ReturnsAsync(new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        _httpClient.Setup(h => h.GetInitialUrl(It.IsAny<DateTime?>())).Returns(InitialUrl);
+
+        _httpClient.Setup(h => h.GetAddressChangesAsync(InitialUrl))
+            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_1"));
+        _httpClient.Setup(h => h.GetAddressChangesAsync(NextPageUrl))
+            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_2"));
+
+        _organizationNotificationAddressUpdater.Setup(p => p.SyncNotificationAddressesAsync(It.IsAny<NotificationAddressChangesLog>()))
+            .ReturnsAsync(2);
+
+        OrganizationNotificationAddressUpdateJob target =
+            new(_httpClient.Object, _metadataRepository.Object, _organizationNotificationAddressUpdater.Object, _logger.Object);
+
+        // Act
+        await target.SyncNotificationAddressesAsync();
+
+        // Assert - pagination must follow the link from the feed, not re-request the initial url
+        _httpClient.Verify(h => h.GetAddressChangesAsync(InitialUrl), Times.Once);
+        _httpClient.Verify(h => h.GetAddressChangesAsync(NextPageUrl), Times.Once);
+        _httpClient.Verify(h => h.GetAddressChangesAsync(It.IsAny<string>()), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task SyncNotificationAddressesAsync_WhenPageIsEmpty_DoesNotAdvanceWatermark()
+    {
+        // Arrange
+        _metadataRepository.Setup(m => m.GetLatestSyncTimestampAsync())
+            .ReturnsAsync(new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+
+        _httpClient.Setup(h => h.GetAddressChangesAsync(It.IsAny<string>()))
+            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_0"));
+
+        OrganizationNotificationAddressUpdateJob target =
+            new(_httpClient.Object, _metadataRepository.Object, _organizationNotificationAddressUpdater.Object, _logger.Object);
+
+        // Act
+        await target.SyncNotificationAddressesAsync();
+
+        // Assert - an empty page means we are caught up; there is nothing to move the watermark to
+        _metadataRepository.Verify(m => m.UpdateLatestChangeTimestampAsync(It.IsAny<DateTime>()), Times.Never);
+        _organizationNotificationAddressUpdater.VerifyNoOtherCalls();
     }
 }
