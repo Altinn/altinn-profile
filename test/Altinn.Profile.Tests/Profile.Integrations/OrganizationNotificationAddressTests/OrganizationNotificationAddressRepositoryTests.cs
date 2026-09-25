@@ -327,6 +327,32 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
     }
 
     /// <summary>
+    /// An address that was soft deleted in Altinn but still exists in the registry must become visible again when
+    /// the registry reports a change for it, otherwise the row stays hidden forever.
+    /// </summary>
+    [Fact]
+    public async Task SyncNotificationAddressesAsync_WhenSoftDeletedAddressIsUpdatedInRegistry_IsRestored()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        var softDeletedRegistryId = "27ae0c8bea1f4f02a974c10429c32759";
+        Assert.True(notificationAddresses.Find(a => a.RegistryID == softDeletedRegistryId).IsSoftDeleted);
+
+        var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_soft_deleted_address_updated");
+
+        // Act
+        await _repository.SyncNotificationAddressesAsync(changes);
+
+        // Assert
+        var updatedOrg = await _repository.GetOrganizationDEAsync("999999999", TestContext.Current.CancellationToken);
+        var restored = updatedOrg.NotificationAddresses.Find(a => a.RegistryID == softDeletedRegistryId);
+        Assert.NotNull(restored);
+        Assert.False(restored.IsSoftDeleted);
+    }
+
+    /// <summary>
     /// Processing the same page twice must be a no-op the second time. This is what makes it safe to re-read a
     /// page after an interrupted run, and it is a prerequisite for any overlap when requesting changes.
     /// </summary>
