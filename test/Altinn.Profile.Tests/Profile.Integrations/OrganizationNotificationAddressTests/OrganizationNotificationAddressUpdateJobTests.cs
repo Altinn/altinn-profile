@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Tests.Testdata;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 using Xunit;
@@ -190,8 +193,8 @@ public class OrganizationNotificationAddressUpdateJobTests()
         // Assert - the feed is sorted ascending, so the last entry of the page is the new watermark
         _metadataRepository.Verify(
             m => m.UpdateLatestChangeTimestampAsync(new DateTime(2025, 1, 16, 9, 7, 11, DateTimeKind.Utc)),
-            Times.Once);
-        _metadataRepository.Verify(m => m.UpdateLatestChangeTimestampAsync(It.IsAny<DateTime>()), Times.Once);
+            Times.Once); // Verify that the method is called exacly once with the given argument
+        _metadataRepository.Verify(m => m.UpdateLatestChangeTimestampAsync(It.IsAny<DateTime>()), Times.Once); // Verify that the method is called exactly once in total with _any_ input - i.e., the method is not called with any other input than what is verified above
     }
 
     [Fact]
