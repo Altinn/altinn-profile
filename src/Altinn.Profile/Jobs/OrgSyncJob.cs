@@ -24,7 +24,7 @@ namespace Altinn.Profile.Jobs
         {
             try
             {
-                await _orgUpdateJob.SyncNotificationAddressesAsync();
+                await _orgUpdateJob.SyncNotificationAddressesAsync(cancellationToken);
             }
             catch (Exception ex)
             {
