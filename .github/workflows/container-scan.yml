@@ -22,6 +22,18 @@ on:
       - '.github/scripts/**'
 permissions: {}
 jobs:
+  test-scripts:
+    name: Test scan scripts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Run script tests
+        run: bash .github/scripts/tests/run-tests.sh
+
   scan:
     runs-on: ubuntu-latest
     permissions:
