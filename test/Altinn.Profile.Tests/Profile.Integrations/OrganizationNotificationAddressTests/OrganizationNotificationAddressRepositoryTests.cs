@@ -296,6 +296,34 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         Assert.True(numberOfUpdatedAddresses > 0);
     }
 
+    /// <summary>
+    /// Processing the same page twice must be a no-op the second time. This is what makes it safe to re-read a
+    /// page after an interrupted run, and it is a prerequisite for any overlap when requesting changes.
+    /// </summary>
+    [Fact]
+    public async Task SyncNotificationAddressesAsync_WhenSamePageProcessedTwice_IsIdempotent()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_1");
+
+        // Act
+        await _repository.SyncNotificationAddressesAsync(changes);
+        var orgAfterFirstRun = await _repository.GetOrganizationDEAsync("123456789", TestContext.Current.CancellationToken);
+        var addressCountAfterFirstRun = orgAfterFirstRun.NotificationAddresses.Count;
+
+        await _repository.SyncNotificationAddressesAsync(changes);
+
+        // Assert
+        var orgAfterSecondRun = await _repository.GetOrganizationDEAsync("123456789", TestContext.Current.CancellationToken);
+        Assert.Equal(addressCountAfterFirstRun, orgAfterSecondRun.NotificationAddresses.Count);
+
+        var newOrg = await _repository.GetOrganizationDEAsync("920212345", TestContext.Current.CancellationToken);
+        Assert.Single(newOrg.NotificationAddresses);
+    }
+
     [Fact]
     public async Task GetSingleOrganization_WhenFound_ReturnsWithNotificationAddresses()
     {
