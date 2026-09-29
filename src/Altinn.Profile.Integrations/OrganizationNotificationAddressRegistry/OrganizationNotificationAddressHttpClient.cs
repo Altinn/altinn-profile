@@ -48,7 +48,7 @@ public class OrganizationNotificationAddressHttpClient(
     }
 
     /// <inheritdoc/>
-    public async Task<NotificationAddressChangesLog?> GetAddressChangesAsync(string endpointUrl)
+    public async Task<NotificationAddressChangesLog?> GetAddressChangesAsync(string endpointUrl, CancellationToken cancellationToken = default)
     {
         if (!endpointUrl.IsValidUrl())
         {
@@ -57,7 +57,7 @@ public class OrganizationNotificationAddressHttpClient(
 
         var request = new HttpRequestMessage(HttpMethod.Get, endpointUrl);
 
-        var response = await _httpClient.SendAsync(request);
+        var response = await _httpClient.SendAsync(request, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -65,7 +65,7 @@ public class OrganizationNotificationAddressHttpClient(
             return null;
         }
 
-        var responseData = await response.Content.ReadAsStringAsync();
+        var responseData = await response.Content.ReadAsStringAsync(cancellationToken);
 
         var responseObject = JsonSerializer.Deserialize<NotificationAddressChangesLog>(responseData);
 

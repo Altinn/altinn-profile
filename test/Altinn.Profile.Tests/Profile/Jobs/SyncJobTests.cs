@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Authorization.ServiceDefaults.Jobs;
@@ -77,7 +78,7 @@ public class OrgSyncJobTests
         // Arrange
         var updateJob = new Mock<IOrganizationNotificationAddressSyncJob>();
         updateJob
-            .Setup(j => j.SyncNotificationAddressesAsync())
+            .Setup(j => j.SyncNotificationAddressesAsync(It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         var logger = new Mock<ILogger<OrgSyncJob>>();
@@ -87,7 +88,7 @@ public class OrgSyncJobTests
         await ((IJob)target).RunAsync(TestContext.Current.CancellationToken);
 
         // Assert
-        updateJob.Verify(j => j.SyncNotificationAddressesAsync(), Times.Once);
+        updateJob.Verify(j => j.SyncNotificationAddressesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -98,7 +99,7 @@ public class OrgSyncJobTests
 
         var updateJob = new Mock<IOrganizationNotificationAddressSyncJob>();
         updateJob
-            .Setup(j => j.SyncNotificationAddressesAsync())
+            .Setup(j => j.SyncNotificationAddressesAsync(It.IsAny<CancellationToken>()))
             .ThrowsAsync(expectedException);
 
         var logger = new Mock<ILogger<OrgSyncJob>>();
