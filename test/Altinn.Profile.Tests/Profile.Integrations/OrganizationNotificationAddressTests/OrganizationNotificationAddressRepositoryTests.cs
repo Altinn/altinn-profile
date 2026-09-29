@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Integrations.Persistence;
@@ -29,6 +30,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
     private readonly ProfileDbContext _databaseContext;
     private readonly OrganizationNotificationAddressRepository _repository;
     private readonly Mock<IDbContextFactory<ProfileDbContext>> _databaseContextFactory;
+    private readonly Mock<ILogger<OrganizationNotificationAddressRepository>> _logger = new();
 
     public OrganizationNotificationAddressRepositoryTests()
     {
@@ -46,7 +48,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
 
         _repository = new OrganizationNotificationAddressRepository(
             _databaseContextFactory.Object,
-            new Mock<ILogger<OrganizationNotificationAddressRepository>>().Object,
+            _logger.Object,
             null);
 
         _databaseContext = _databaseContextFactory.Object.CreateDbContext();
@@ -324,6 +326,16 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         Assert.Contains(updatedOrg.NotificationAddresses, a => a.RegistryID == "dd11ee22ff3300445566778899aabbcc");
         Assert.DoesNotContain(updatedOrg.NotificationAddresses, a => a.RegistryID == "cc11dd22ee33ff44005566778899aabb");
         Assert.Equal(1, numberOfUpdatedRows);
+
+        // The skipped entry must be logged with its registry id, so it can be traced and alerted on
+        _logger.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((value, _) => value.ToString()!.Contains("cc11dd22ee33ff44005566778899aabb", StringComparison.Ordinal)),
+                It.IsAny<OrganizationNotificationAddressChangesException>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
     }
 
     /// <summary>
