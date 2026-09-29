@@ -82,6 +82,21 @@ public class OrganizationNotificationAddressHttpClientTests
     }
 
     [Fact]
+    public void GetInitialUrl_WhenLastChangedDateIsNotUtc_ConvertsToUtcBeforeFormatting()
+    {
+        // Arrange
+        var client = CreateHttpClient();
+        var utc = new DateTime(2025, 2, 24, 9, 42, 58, DateTimeKind.Utc);
+        var local = utc.ToLocalTime();
+
+        // Act
+        var url = client.GetInitialUrl(local);
+
+        // Assert - a local timestamp stamped with Z would shift the exclusive lower bound by the local offset
+        Assert.Contains("since=2025-02-24T09:42:58.0000000Z", url);
+    }
+
+    [Fact]
     public async Task GetAddressChangesAsync_WhenMissingEndpointUrl_Throws()
     {
         // Arrange
