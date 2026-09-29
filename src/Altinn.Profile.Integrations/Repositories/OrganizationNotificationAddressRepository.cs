@@ -26,7 +26,7 @@ public class OrganizationNotificationAddressRepository(
     {
         var addresses = organizationNotificationAddressChanges.OrganizationNotificationAddressList!;
         var updates = 0;
-        foreach (var address in addresses) 
+        foreach (var address in addresses)
         {
             try
             {
@@ -45,7 +45,7 @@ public class OrganizationNotificationAddressRepository(
                 // forward for a page that was processed, so rethrowing here would make the sync re-read and fail
                 // on the same entry on every later run, blocking all subsequent changes indefinitely.
                 _logger.LogError(ex, "Skipped notification address entry {RegistryId} that could not be processed", address.Id);
-                _telemetry?.AddressSkipped();
+                _telemetry?.AddressUnprocessable();
             }
         }
 
@@ -73,7 +73,7 @@ public class OrganizationNotificationAddressRepository(
 
         return await databaseContext.SaveChangesAsync();
     }
-    
+
     /// <summary>
     /// Updates or creates notification addresses in the DB for organizations
     /// </summary>
@@ -139,7 +139,7 @@ public class OrganizationNotificationAddressRepository(
                 .Include(o => o.NotificationAddresses)
                 .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == orgNumber, cancellationToken);
     }
-    
+
     private async Task<int> CreateOrganizationWithNotificationAddress(string orgNumber, Entry address)
     {
         using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
@@ -184,7 +184,7 @@ public class OrganizationNotificationAddressRepository(
 
         return foundOrganizations.Select(OrganizationMapper.MapFromDataEntity).Where(org => org != null)!;
     }
-    
+
     /// <inheritdoc/>
     public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByFullAddressAsync(string fullAddress, AddressType addressType, CancellationToken cancellationToken)
     {
@@ -213,10 +213,10 @@ public class OrganizationNotificationAddressRepository(
             .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == organizationNumber);
 
         orgDE ??= new OrganizationDE
-            {
-                RegistryOrganizationNumber = organizationNumber,
-                NotificationAddresses = [],
-            };
+        {
+            RegistryOrganizationNumber = organizationNumber,
+            NotificationAddresses = [],
+        };
 
         var organizationNotificationAddress = DataMapper.MapFromCoreModelForNewNotificationAddress(orgDE, notificationAddress, registryId);
 
@@ -247,7 +247,7 @@ public class OrganizationNotificationAddressRepository(
 
         return OrganizationMapper.MapFromDataEntity(notificationAddressDE);
     }
-    
+
     /// <inheritdoc/>
     public async Task<NotificationAddress> DeleteNotificationAddressAsync(int notificationAddressId)
     {
