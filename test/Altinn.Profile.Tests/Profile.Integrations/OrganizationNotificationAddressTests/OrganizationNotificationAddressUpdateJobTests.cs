@@ -44,6 +44,28 @@ public class OrganizationNotificationAddressUpdateJobTests()
     }
 
     [Fact]
+    public async Task SyncNotificationAddressesAsync_WhenClientReturnsNoChangesLog_DoesNotAdvanceWatermark()
+    {
+        // Arrange
+        _metadataRepository.Setup(m => m.GetLatestSyncTimestampAsync())
+            .ReturnsAsync(new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+
+        _httpClient.Setup(h => h.GetAddressChangesAsync(It.IsAny<string>()))
+            .ReturnsAsync((NotificationAddressChangesLog)null);
+
+        OrganizationNotificationAddressUpdateJob target =
+            new(_httpClient.Object, _metadataRepository.Object, _organizationNotificationAddressUpdater.Object, _logger.Object);
+
+        // Act
+        await target.SyncNotificationAddressesAsync();
+
+        // Assert
+        _httpClient.Verify(h => h.GetAddressChangesAsync(It.IsAny<string>()), Times.Once);
+        _metadataRepository.Verify(m => m.UpdateLatestChangeTimestampAsync(It.IsAny<DateTime>()), Times.Never);
+        _organizationNotificationAddressUpdater.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task SyncNotificationAddressesAsync_IfNoChanges_DoNothing()
     {
         // Arrange
@@ -293,7 +315,7 @@ public class OrganizationNotificationAddressUpdateJobTests()
     }
 
     /// <summary>
-    /// Entries can share an updated timestamp, and such a group can be split across a page boundary. Since
+    /// Entries can share an updated timestamp, and such a group can be split across a page boundary. Because
     /// "since" is exclusive, committing the last timestamp of a page that has more pages behind it would make an
     /// interrupted run resume past the group and never read the rest of it.
     /// </summary>
@@ -311,7 +333,7 @@ public class OrganizationNotificationAddressUpdateJobTests()
         _httpClient.Setup(h => h.GetAddressChangesAsync(InitialUrl))
             .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_tied_tail_with_next_page"));
         _httpClient.Setup(h => h.GetAddressChangesAsync(NextPageUrl))
-            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_0"));
+            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_tied_tail_continued"));
 
         _organizationNotificationAddressUpdater.Setup(p => p.SyncNotificationAddressesAsync(It.IsAny<NotificationAddressChangesLog>()))
             .ReturnsAsync(3);
@@ -322,11 +344,18 @@ public class OrganizationNotificationAddressUpdateJobTests()
         // Act
         await target.SyncNotificationAddressesAsync();
 
-        // Assert - the last two entries share 09:00, so only 08:00 is known to be complete
+        // Assert - the 09:00 group continues on the next page, so the first page only commits 08:00 and the
+        // group is never committed on its own. The final page then commits its last entry.
         _metadataRepository.Verify(
             m => m.UpdateLatestChangeTimestampAsync(new DateTime(2025, 3, 4, 8, 0, 0, DateTimeKind.Utc)),
             Times.Once);
-        _metadataRepository.Verify(m => m.UpdateLatestChangeTimestampAsync(It.IsAny<DateTime>()), Times.Once);
+        _metadataRepository.Verify(
+            m => m.UpdateLatestChangeTimestampAsync(new DateTime(2025, 3, 4, 9, 0, 0, DateTimeKind.Utc)),
+            Times.Never);
+        _metadataRepository.Verify(
+            m => m.UpdateLatestChangeTimestampAsync(new DateTime(2025, 3, 4, 10, 0, 0, DateTimeKind.Utc)),
+            Times.Once);
+        _metadataRepository.Verify(m => m.UpdateLatestChangeTimestampAsync(It.IsAny<DateTime>()), Times.Exactly(2));
     }
 
     [Fact]
@@ -343,7 +372,7 @@ public class OrganizationNotificationAddressUpdateJobTests()
         _httpClient.Setup(h => h.GetAddressChangesAsync(InitialUrl))
             .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_all_tied_with_next_page"));
         _httpClient.Setup(h => h.GetAddressChangesAsync(NextPageUrl))
-            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_0"));
+            .ReturnsAsync(await TestDataLoader.Load<NotificationAddressChangesLog>("changes_all_tied_continued"));
 
         _organizationNotificationAddressUpdater.Setup(p => p.SyncNotificationAddressesAsync(It.IsAny<NotificationAddressChangesLog>()))
             .ReturnsAsync(2);
@@ -354,8 +383,15 @@ public class OrganizationNotificationAddressUpdateJobTests()
         // Act
         await target.SyncNotificationAddressesAsync();
 
-        // Assert - no part of this page is known to be complete, so the run continues without committing it
-        _metadataRepository.Verify(m => m.UpdateLatestChangeTimestampAsync(It.IsAny<DateTime>()), Times.Never);
+        // Assert - no part of the first page is known to be complete, so it is not committed. The 10:00 group
+        // continues on the next page, and only that final page moves the watermark, past the group.
+        _metadataRepository.Verify(
+            m => m.UpdateLatestChangeTimestampAsync(new DateTime(2025, 3, 5, 10, 0, 0, DateTimeKind.Utc)),
+            Times.Never);
+        _metadataRepository.Verify(
+            m => m.UpdateLatestChangeTimestampAsync(new DateTime(2025, 3, 5, 11, 0, 0, DateTimeKind.Utc)),
+            Times.Once);
+        _metadataRepository.Verify(m => m.UpdateLatestChangeTimestampAsync(It.IsAny<DateTime>()), Times.Once);
         _httpClient.Verify(h => h.GetAddressChangesAsync(NextPageUrl), Times.Once);
     }
 
