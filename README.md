@@ -82,7 +82,7 @@ podman compose up -d --build
 ```
 
 The API is available at http://localhost:5030/swagger. To stop it, run `podman compose down`.
-See [tools/local-dev/README.md](tools/local-dev/README.md) for how to get tokens, the available test data and how to change the mocks.
+See [local-dev/README.md](local-dev/README.md) for how to get tokens, the available test data and how to change the mocks.
 
 
 ### Running the application with .NET

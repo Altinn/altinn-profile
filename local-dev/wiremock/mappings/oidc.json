@@ -1,0 +1,26 @@
+{
+  "mappings": [
+    {
+      "name": "Platform authentication: OpenID configuration",
+      "request": { "method": "GET", "urlPathPattern": "/authentication/api/v1/openid/+[.]well-known/openid-configuration" },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": {
+          "issuer": "http://mocks:8080/authentication/api/v1/openid/",
+          "jwks_uri": "http://mocks:8080/authentication/api/v1/openid/.well-known/openid-configuration/jwks",
+          "id_token_signing_alg_values_supported": ["RS256"]
+        }
+      }
+    },
+    {
+      "name": "Platform authentication: JWKS (public key of test/Altinn.Profile.Tests/jwtselfsignedcert.pfx)",
+      "request": { "method": "GET", "urlPath": "/authentication/api/v1/openid/.well-known/openid-configuration/jwks" },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "bodyFileName": "jwks.json"
+      }
+    }
+  ]
+}

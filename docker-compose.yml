@@ -5,7 +5,7 @@
 # Starts Postgres, runs the EF Core migrations, starts the API on http://localhost:5030
 # and a WireMock container that stands in for every external dependency
 # (platform authentication, authorization, register, notifications and Brreg KoF).
-# See tools/local-dev/README.md for tokens, test data and how to add mock responses.
+# See local-dev/README.md for tokens, test data and how to add mock responses.
 name: altinn-profile
 
 x-profile-env: &profile-env
@@ -25,7 +25,7 @@ services:
       - "127.0.0.1:${PROFILE_DB_PORT:-5435}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./tools/local-dev/postgres:/docker-entrypoint-initdb.d:ro
+      - ./local-dev/postgres:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U platform_profile_admin -d profiledb"]
       interval: 2s
@@ -50,7 +50,7 @@ services:
     ports:
       - "127.0.0.1:${PROFILE_MOCKS_PORT:-5039}:8080"
     volumes:
-      - ./tools/local-dev/wiremock:/home/wiremock:ro
+      - ./local-dev/wiremock:/home/wiremock:ro
     healthcheck:
       test: ["CMD-SHELL", "curl -fs http://localhost:8080/__admin/health || exit 1"]
       interval: 2s

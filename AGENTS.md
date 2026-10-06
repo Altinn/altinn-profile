@@ -55,7 +55,7 @@ podman compose up -d --build
 podman compose down
 ```
 
-See `tools/local-dev/README.md` for generating tokens (`dotnet run tools/local-dev/token.cs`), test data and the WireMock mappings.
+See `local-dev/README.md` for generating tokens (`dotnet run local-dev/token.cs`), test data and the WireMock mappings.
 
 ## Architecture & Patterns
 
