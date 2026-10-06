@@ -1,23 +1,88 @@
-version: '3.4'
+# Self-contained local environment for Altinn Profile.
+#
+#   docker compose up -d --build
+#
+# Starts Postgres, runs the EF Core migrations, starts the API on http://localhost:5030
+# and a WireMock container that stands in for every external dependency
+# (platform authentication, authorization, register, notifications and Brreg KoF).
+# See tools/local-dev/README.md for tokens, test data and how to add mock responses.
+name: altinn-profile
 
-networks:
-  altinnplatform_network:
-    external: false
+x-profile-env: &profile-env
+  ASPNETCORE_ENVIRONMENT: Development
+  PostgreSqlSettings__AdminConnectionString: Host=postgres;Port=5432;Username=platform_profile_admin;Password={0};Database=profiledb;Pooling=false
+  PostgreSqlSettings__ConnectionString: Host=postgres;Port=5432;Username=platform_profile;Password={0};Database=profiledb;Maximum Pool Size=4
 
 services:
-  altinn_platform_profile:
-    container_name: altinn-platform-profile
-    image: altinnplatformprofile:latest
-    restart: always
-    networks:
-      - altinnplatform_network
+  postgres:
+    image: postgres:17
+    command: ["postgres", "-c", "max_connections=200"]
     environment:
-      - ASPNETCORE_ENVIRONMENT=Docker
-      - ASPNETCORE_URLS=http://+:5030
-      - PostgreSqlSettings__AdminConnectionString=Host=host.docker.internal;Port=5432;Username=platform_profile_admin;Password={0};Database=profiledb
-      - PostgreSqlSettings__ConnectionString=Host=host.docker.internal;Port=5432;Username=platform_profile;Password={0};Database=profiledb
+      POSTGRES_USER: platform_profile_admin
+      POSTGRES_PASSWORD: Password
+      POSTGRES_DB: profiledb
     ports:
-      - "5030:5030"
+      - "127.0.0.1:${PROFILE_DB_PORT:-5435}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./tools/local-dev/postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U platform_profile_admin -d profiledb"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  migrations:
+    image: altinn-profile:local
     build:
       context: .
       dockerfile: Dockerfile
+    command: ["--run-db-migrations"]
+    environment: *profile-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  mocks:
+    image: wiremock/wiremock:3.13.1
+    command: ["--global-response-templating", "--disable-banner"]
+    ports:
+      - "127.0.0.1:${PROFILE_MOCKS_PORT:-5039}:8080"
+    volumes:
+      - ./tools/local-dev/wiremock:/home/wiremock:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8080/__admin/health || exit 1"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  profile:
+    image: altinn-profile:local
+    environment:
+      <<: *profile-env
+      ASPNETCORE_URLS: http://+:5030
+      GeneralSettings__OpenIdWellKnownEndpoint: http://mocks:8080/authentication/api/v1/openid/
+      PlatformSettings__ApiAuthorizationEndpoint: http://mocks:8080/authorization/api/v1/
+      RegisterSettings__ApiRegisterEndpoint: http://mocks:8080/register/api/
+      NotificationsSettings__ApiNotificationsEndpoint: http://mocks:8080/notifications/api/
+      OrganizationNotificationAddressSettings__UpdateEndpoint: http://mocks:8080/brreg
+      OrganizationNotificationAddressSettings__ChangesLogEndpoint: http://mocks:8080/brreg/varslingsadresser/fragments/json/v1
+      # Incoming PlatformAccessToken: without Key Vault the public certs are read from {folder}/{issuer}-org.pem.
+      GeneralSettings__AccessTokenPublicCertsFolder: /certs/public
+      # Outgoing PlatformAccessToken (to Register/Notifications): sign with a test cert from the test project.
+      AccessTokenSettings__AccessTokenSigningCertificateFullPath: /certs/accesstoken.pfx
+    ports:
+      - "127.0.0.1:${PROFILE_API_PORT:-5030}:5030"
+    volumes:
+      - ./test/Altinn.Profile.Tests/ttd-org.pfx:/certs/accesstoken.pfx:ro
+      - ./test/Altinn.Profile.Tests/ttd-org.pem:/certs/public/platform-org.pem:ro
+      - ./test/Altinn.Profile.Tests/ttd-org.pem:/certs/public/ttd-org.pem:ro
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+      mocks:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
