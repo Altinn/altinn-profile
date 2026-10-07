@@ -26,10 +26,10 @@ namespace Altinn.Profile.Jobs
             {
                 await _orgUpdateJob.SyncNotificationAddressesAsync(cancellationToken);
             }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
             {
                 // Do not rethrow: the job host stops scheduling this job on this instance when it sees a cancelled lease token.
-                _logger.LogInformation("The background synchronization was cancelled before it completed.");
+                _logger.LogInformation(ex, "The background synchronization was cancelled before it completed.");
             }
             catch (Exception ex)
             {
