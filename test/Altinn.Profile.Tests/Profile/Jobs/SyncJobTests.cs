@@ -118,6 +118,63 @@ public class OrgSyncJobTests
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task RunAsync_WhenCancelled_LogsInformationAndDoesNotThrow()
+    {
+        // Arrange
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+
+        var updateJob = new Mock<IOrganizationNotificationAddressSyncJob>();
+        updateJob
+            .Setup(j => j.SyncNotificationAddressesAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException(cts.Token));
+
+        var logger = new Mock<ILogger<OrgSyncJob>>();
+        var target = new OrgSyncJob(updateJob.Object, logger.Object);
+
+        // Act
+        await ((IJob)target).RunAsync(cts.Token);
+
+        // Assert
+        logger.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task RunAsync_WhenOperationCanceledWithoutCancellation_LogsErrorAndDoesNotThrow()
+    {
+        // Arrange - for instance an HTTP timeout, which is not a request from the host to stop
+        var expectedException = new TaskCanceledException("request timed out");
+
+        var updateJob = new Mock<IOrganizationNotificationAddressSyncJob>();
+        updateJob
+            .Setup(j => j.SyncNotificationAddressesAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(expectedException);
+
+        var logger = new Mock<ILogger<OrgSyncJob>>();
+        var target = new OrgSyncJob(updateJob.Object, logger.Object);
+
+        // Act
+        await ((IJob)target).RunAsync(TestContext.Current.CancellationToken);
+
+        // Assert
+        logger.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.Is<Exception>(ex => ex == expectedException),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
 }
 
 public class JobsServiceCollectionExtensionsTests
