@@ -44,25 +44,29 @@ public class OrganizationNotificationAddressUpdateJob(
 
             NotificationAddressChangesLog? changesLog = await _organizationNotificationAddressHttpClient.GetAddressChangesAsync(fullUrl);
 
-            var noChangesSinceLastCheck = changesLog?.OrganizationNotificationAddressList == null || changesLog.OrganizationNotificationAddressList?.Count == 0;
-            if (noChangesSinceLastCheck)
+            var entries = changesLog?.OrganizationNotificationAddressList;
+            if (entries is null || entries.Count == 0)
             {
+                // We have caught up with the feed, so there is nothing to move the watermark to.
                 break;
             }
 
             int updatedRowsCount = await _notificationAddressUpdater.SyncNotificationAddressesAsync(changesLog!);
 
-            if (updatedRowsCount > 0)
-            {
-                var lastUpdatedTimestamp = changesLog!.OrganizationNotificationAddressList![^1].Updated;
-                await _metadataRepository.UpdateLatestChangeTimestampAsync(lastUpdatedTimestamp);
-            }
-            else
-            {
-                break;
-            }
+            // The feed is sorted ascending on "updated" and "since" is exclusive, so a processed page is
+            // committed by storing the timestamp of its last entry. This has to happen even when the page
+            // caused no database writes, for instance when every entry has an identifier type we ignore.
+            // Otherwise the exact same page is requested on every later run and the sync never progresses.
+            var lastUpdatedTimestamp = entries[^1].Updated;
+            await _metadataRepository.UpdateLatestChangeTimestampAsync(lastUpdatedTimestamp);
 
-            fullUrl = changesLog.NextPage?.ToString();
+            _logger.LogInformation(
+                "Processed {EntryCount} entries from brreg up to {LastUpdated}, {UpdatedRowsCount} rows written",
+                entries.Count,
+                lastUpdatedTimestamp,
+                updatedRowsCount);
+
+            fullUrl = changesLog!.NextPage?.ToString();
         }
         while (!string.IsNullOrEmpty(fullUrl));
     }
