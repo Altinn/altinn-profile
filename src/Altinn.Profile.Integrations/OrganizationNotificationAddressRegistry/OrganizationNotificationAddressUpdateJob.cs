@@ -53,21 +53,59 @@ public class OrganizationNotificationAddressUpdateJob(
 
             int updatedRowsCount = await _notificationAddressUpdater.SyncNotificationAddressesAsync(changesLog!);
 
+            fullUrl = changesLog!.NextPage?.ToString();
+
             // The feed is sorted ascending on "updated" and "since" is exclusive, so a processed page is
-            // committed by storing the timestamp of its last entry. This has to happen even when the page
-            // caused no database writes, for instance when every entry has an identifier type we ignore.
-            // Otherwise the exact same page is requested on every later run and the sync never progresses.
-            var lastUpdatedTimestamp = entries[^1].Updated;
-            await _metadataRepository.UpdateLatestChangeTimestampAsync(lastUpdatedTimestamp);
+            // committed by storing a timestamp from it. This has to happen even when the page caused no
+            // database writes, for instance when every entry has an identifier type we ignore. Otherwise the
+            // exact same page is requested on every later run and the sync never progresses.
+            var watermark = GetCommittableWatermark(entries, hasMorePages: !string.IsNullOrEmpty(fullUrl));
+            if (watermark.HasValue)
+            {
+                await _metadataRepository.UpdateLatestChangeTimestampAsync(watermark.Value);
+            }
 
             _logger.LogInformation(
                 "Processed {EntryCount} entries from brreg up to {LastUpdated}, {UpdatedRowsCount} rows written",
                 entries.Count,
-                lastUpdatedTimestamp,
+                watermark,
                 updatedRowsCount);
-
-            fullUrl = changesLog!.NextPage?.ToString();
         }
         while (!string.IsNullOrEmpty(fullUrl));
+    }
+
+    /// <summary>
+    /// Picks the timestamp that can safely be stored as the new watermark for a processed page.
+    /// </summary>
+    /// <param name="entries">The entries of the page, sorted ascending on their updated timestamp.</param>
+    /// <param name="hasMorePages">Whether the feed has further pages after this one.</param>
+    /// <returns>The timestamp to store, or null when this page must not move the watermark.</returns>
+    /// <remarks>
+    /// Several entries can share the same updated timestamp, and such a group can be split across a page
+    /// boundary. Because "since" is exclusive, storing the last timestamp of a page that has more pages behind
+    /// it would make an interrupted run resume after that group, and the remainder of the group would never be
+    /// read again. While more pages follow we therefore only commit up to the last timestamp we know is
+    /// complete. On the final page there is nothing left to split, so the last entry is committed as is.
+    /// </remarks>
+    private static DateTime? GetCommittableWatermark(List<Entry> entries, bool hasMorePages)
+    {
+        var lastUpdated = entries[^1].Updated;
+
+        if (!hasMorePages)
+        {
+            return lastUpdated;
+        }
+
+        for (var i = entries.Count - 1; i >= 0; i--)
+        {
+            if (entries[i].Updated < lastUpdated)
+            {
+                return entries[i].Updated;
+            }
+        }
+
+        // Every entry on this page shares one timestamp, so no part of it is known to be complete. The run
+        // continues on the next page, which will move the watermark past this group.
+        return null;
     }
 }
