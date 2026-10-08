@@ -37,7 +37,11 @@ public class OrganizationNotificationAddressHttpClient(
         string? fullUrl = _organizationNotificationAddressSettings.ChangesLogEndpoint + $"?pageSize={_organizationNotificationAddressSettings.ChangesLogPageSize}";
         if (lastUpdated != null)
         {
-            fullUrl += $"&since={lastUpdated:yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ}";
+            // The trailing Z in the format is a literal, so the value has to be in UTC before it is rendered.
+            // Since is an exclusive lower bound, and a value that is off by the local offset would silently
+            // skip or repeat every change inside that window.
+            var lastUpdatedUtc = lastUpdated.Value.ToUniversalTime();
+            fullUrl += $"&since={lastUpdatedUtc:yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ}";
         }
 
         return fullUrl;
