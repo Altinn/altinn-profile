@@ -3,12 +3,16 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddressTests;
@@ -103,7 +107,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var client = CreateHttpClient();
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync(null));
+        await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync(null, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -113,7 +117,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var client = CreateHttpClient();
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync(string.Empty));
+        await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync(string.Empty, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -123,7 +127,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var client = CreateHttpClient();
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync("notAnUrl"));
+        await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync("notAnUrl", TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -140,7 +144,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var client = CreateHttpClient(mockResponse);
 
         // Act and Assert
-        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.GetAddressChangesAsync("http://example.com"));
+        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.GetAddressChangesAsync("http://example.com", TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -155,7 +159,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var client = CreateHttpClient(mockResponse);
 
         // Act
-        var changelog = await client.GetAddressChangesAsync("http://example.com");
+        var changelog = await client.GetAddressChangesAsync("http://example.com", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Null(changelog);
@@ -175,7 +179,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var client = CreateHttpClient(mockResponse);
 
         // Act
-        _ = await client.GetAddressChangesAsync("http://example.com");
+        _ = await client.GetAddressChangesAsync("http://example.com", TestContext.Current.CancellationToken);
 
         // Assert
         _messageHandler.VerifyAll();

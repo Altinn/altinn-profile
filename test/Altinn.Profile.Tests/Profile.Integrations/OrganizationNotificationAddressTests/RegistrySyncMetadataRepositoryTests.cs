@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Integrations.Entities;
 using Altinn.Profile.Integrations.Persistence;
 using Altinn.Profile.Integrations.Repositories;
+
 using Microsoft.EntityFrameworkCore;
+
 using Moq;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddressTests;
@@ -66,10 +70,10 @@ public class RegistrySyncMetadataRepositoryTests : IDisposable
     {
         // Arrange
         var timestamp = DateTime.UtcNow;
-        var oldTime = await _repository.GetLatestSyncTimestampAsync();
+        var oldTime = await _repository.GetLatestSyncTimestampAsync(TestContext.Current.CancellationToken);
 
         // Act
-        var updatedTime = await _repository.UpdateLatestChangeTimestampAsync(timestamp);
+        var updatedTime = await _repository.UpdateLatestChangeTimestampAsync(timestamp, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(timestamp, updatedTime);
@@ -80,7 +84,7 @@ public class RegistrySyncMetadataRepositoryTests : IDisposable
     public async Task GetLatestSyncTimestampAsync_WhenNoEntries_ReturnsNull()
     {
         // Act
-        var timestamp = await _repository.GetLatestSyncTimestampAsync();
+        var timestamp = await _repository.GetLatestSyncTimestampAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Null(timestamp);
@@ -91,11 +95,11 @@ public class RegistrySyncMetadataRepositoryTests : IDisposable
     {
         // Arrange
         var timestamp = DateTime.UtcNow;
-        var oldTime = await _repository.GetLatestSyncTimestampAsync();
+        var oldTime = await _repository.GetLatestSyncTimestampAsync(TestContext.Current.CancellationToken);
 
         // Act
-        await _repository.UpdateLatestChangeTimestampAsync(timestamp);
-        var updatedTime = await _repository.GetLatestSyncTimestampAsync();
+        await _repository.UpdateLatestChangeTimestampAsync(timestamp, TestContext.Current.CancellationToken);
+        var updatedTime = await _repository.GetLatestSyncTimestampAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(timestamp, updatedTime);

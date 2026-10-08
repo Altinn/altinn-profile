@@ -11,14 +11,15 @@ public interface IRegistrySyncMetadataRepository
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    Task<DateTime?> GetLatestSyncTimestampAsync();
+    Task<DateTime?> GetLatestSyncTimestampAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Asynchronously updates the latest sync timestamp in the metadata repository.
     /// </summary>
     /// <param name="updated">The new timestamp for last sync.</param>
+    /// <param name="cancellationToken">A token used to cancel the operation.</param>
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    Task<DateTime> UpdateLatestChangeTimestampAsync(DateTime updated);
+    Task<DateTime> UpdateLatestChangeTimestampAsync(DateTime updated, CancellationToken cancellationToken = default);
 }

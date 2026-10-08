@@ -196,7 +196,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_1");
 
         // Act
-        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes);
+        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
         var updatedOrg1 = await _repository.GetOrganizationDEAsync("123456789", TestContext.Current.CancellationToken);
         var updatedOrg2 = await _repository.GetOrganizationDEAsync("920212345", TestContext.Current.CancellationToken);
 
@@ -214,7 +214,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_6");
 
         // Act
-        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes);
+        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(0, numberOfUpdatedRows);
@@ -227,7 +227,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var changesIncludingMissingPhonePrefix = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_2");
 
         // Act
-        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changesIncludingMissingPhonePrefix);
+        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changesIncludingMissingPhonePrefix, TestContext.Current.CancellationToken);
         var updatedOrg1 = await _repository.GetOrganizationDEAsync("920254321", TestContext.Current.CancellationToken);
         var updatedOrg2 = await _repository.GetOrganizationDEAsync("920212345", TestContext.Current.CancellationToken);
 
@@ -251,7 +251,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var orgToUpdate = "987654321";
 
         // Act
-        var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changeWithDelete);
+        var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changeWithDelete, TestContext.Current.CancellationToken);
         var updatedOrg = await _repository.GetOrganizationDEAsync(orgToUpdate, TestContext.Current.CancellationToken);
 
         // Assert
@@ -269,8 +269,8 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_4");
 
         // Act - call delete twice
-        await _repository.SyncNotificationAddressesAsync(changes);
-        var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changes);
+        await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
+        var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
         var updatedOrg = await _repository.GetOrganizationDEAsync("987654321", TestContext.Current.CancellationToken);
 
         // Assert
@@ -290,7 +290,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var addressToReplace = notificationAddresses.Find(address => address.RegistryID == identifierForAddressToUpdate);
 
         // Act
-        var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changes);
+        var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
 
         // Assert
         var actualOrg = await _repository.GetOrganizationDEAsync("987654321", TestContext.Current.CancellationToken);
@@ -320,7 +320,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_unmappable_contact_point");
 
         // Act
-        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes);
+        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
 
         // Assert
         var updatedOrg = await _repository.GetOrganizationDEAsync("123456789", TestContext.Current.CancellationToken);
@@ -379,7 +379,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_unmappable_contact_point");
 
         // Act
-        await repository.SyncNotificationAddressesAsync(changes);
+        await repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(1, skippedCount);
@@ -402,7 +402,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_soft_deleted_address_updated");
 
         // Act
-        await _repository.SyncNotificationAddressesAsync(changes);
+        await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
 
         // Assert
         var updatedOrg = await _repository.GetOrganizationDEAsync("999999999", TestContext.Current.CancellationToken);
@@ -425,11 +425,11 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_1");
 
         // Act
-        await _repository.SyncNotificationAddressesAsync(changes);
+        await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
         var orgAfterFirstRun = await _repository.GetOrganizationDEAsync("123456789", TestContext.Current.CancellationToken);
         var addressCountAfterFirstRun = orgAfterFirstRun.NotificationAddresses.Count;
 
-        await _repository.SyncNotificationAddressesAsync(changes);
+        await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
 
         // Assert
         var orgAfterSecondRun = await _repository.GetOrganizationDEAsync("123456789", TestContext.Current.CancellationToken);
