@@ -17,7 +17,7 @@ namespace Altinn.Profile.Models
     /// </summary>
     public partial class NotificationSettingsPatchRequest : IValidatableObject
     {
-        private const string _resourceIdRegex = "^urn:altinn:resource:[a-z0-9_-]{4,}$";
+        private const string _resourceIdRegex = "^urn:altinn:resource:[ØÅa-zA-Z0-9_-]{2,}$";
 
         /// <summary>
         /// The email address. May be null if no email address is set. If not null, the address must be verified.
@@ -61,7 +61,7 @@ namespace Altinn.Profile.Models
 
             if (hasResourceIncludeList && resourceIncludeList?.Any(r => string.IsNullOrWhiteSpace(r) || !ResourceIdRegex().IsMatch(r)) == true)
             {
-                yield return new ValidationResult("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 4 or more characters of lowercase letter, number, underscore or hyphen", [nameof(ResourceIncludeList)]);
+                yield return new ValidationResult("ResourceIncludeList must contain valid URN values of the format 'urn:altinn:resource:{resourceId}' where resourceId has 2 or more characters of letter, number, underscore or hyphen", [nameof(ResourceIncludeList)]);
             }
 
             if (hasResourceIncludeList && resourceIncludeList != null && resourceIncludeList.Count > resourceIncludeList.Distinct().Count())

@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Authorization.ServiceDefaults.Jobs;
@@ -77,7 +78,7 @@ public class OrgSyncJobTests
         // Arrange
         var updateJob = new Mock<IOrganizationNotificationAddressSyncJob>();
         updateJob
-            .Setup(j => j.SyncNotificationAddressesAsync())
+            .Setup(j => j.SyncNotificationAddressesAsync(It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         var logger = new Mock<ILogger<OrgSyncJob>>();
@@ -87,7 +88,7 @@ public class OrgSyncJobTests
         await ((IJob)target).RunAsync(TestContext.Current.CancellationToken);
 
         // Assert
-        updateJob.Verify(j => j.SyncNotificationAddressesAsync(), Times.Once);
+        updateJob.Verify(j => j.SyncNotificationAddressesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -98,7 +99,7 @@ public class OrgSyncJobTests
 
         var updateJob = new Mock<IOrganizationNotificationAddressSyncJob>();
         updateJob
-            .Setup(j => j.SyncNotificationAddressesAsync())
+            .Setup(j => j.SyncNotificationAddressesAsync(It.IsAny<CancellationToken>()))
             .ThrowsAsync(expectedException);
 
         var logger = new Mock<ILogger<OrgSyncJob>>();
@@ -113,6 +114,63 @@ public class OrgSyncJobTests
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((value, _) => value.ToString()!.Contains("An error occurred during the background synchronization.", StringComparison.Ordinal)),
+                It.Is<Exception>(ex => ex == expectedException),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task RunAsync_WhenCancelled_LogsInformationAndDoesNotThrow()
+    {
+        // Arrange
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+
+        var updateJob = new Mock<IOrganizationNotificationAddressSyncJob>();
+        updateJob
+            .Setup(j => j.SyncNotificationAddressesAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException(cts.Token));
+
+        var logger = new Mock<ILogger<OrgSyncJob>>();
+        var target = new OrgSyncJob(updateJob.Object, logger.Object);
+
+        // Act
+        await ((IJob)target).RunAsync(cts.Token);
+
+        // Assert
+        logger.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task RunAsync_WhenOperationCanceledWithoutCancellation_LogsErrorAndDoesNotThrow()
+    {
+        // Arrange - for instance an HTTP timeout, which is not a request from the host to stop
+        var expectedException = new TaskCanceledException("request timed out");
+
+        var updateJob = new Mock<IOrganizationNotificationAddressSyncJob>();
+        updateJob
+            .Setup(j => j.SyncNotificationAddressesAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(expectedException);
+
+        var logger = new Mock<ILogger<OrgSyncJob>>();
+        var target = new OrgSyncJob(updateJob.Object, logger.Object);
+
+        // Act
+        await ((IJob)target).RunAsync(TestContext.Current.CancellationToken);
+
+        // Assert
+        logger.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
                 It.Is<Exception>(ex => ex == expectedException),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);

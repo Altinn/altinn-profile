@@ -1,4 +1,7 @@
-﻿using Altinn.Profile.Core.Integrations;
+﻿using System.Collections.Immutable;
+
+using Altinn.Profile.Core.Integrations;
+using Altinn.Profile.Core.Person.ContactPreferences;
 using Altinn.Profile.Core.Unit.ContactPoints;
 using Altinn.Profile.Core.User.ContactInfo;
 
@@ -120,12 +123,36 @@ public class UserContactPointService : IUserContactPointsService
     /// <inheritdoc/>
     public async Task<List<DashboardUserContactPoint>> GetContactPointsForDashboardByEmail(string email, CancellationToken cancellationToken)
     {
-        var result = new List<DashboardUserContactPoint>(); 
-        var contactPreferences = await _personService.GetContactPreferencesByEmailAsync(email, cancellationToken);
-        if (contactPreferences == null || contactPreferences.Count == 0)
+        List<DashboardUserContactPoint> result = [];
+
+        ImmutableList<PersonContactPreferences> contactPreferences = 
+            await _personService.GetContactPreferencesByEmailAsync(email, cancellationToken);
+
+        foreach (var contactPreference in contactPreferences)
         {
-            return result;
+            DashboardUserContactPoint contactPoint = new()
+            {
+                NationalIdentityNumber = contactPreference.NationalIdentityNumber,
+                Email = contactPreference.Email,
+                MobileNumber = contactPreference.MobileNumber,
+                IsReserved = contactPreference.IsReserved,
+                MobileNumberLastUpdatedOrVerified = contactPreference.MobileNumberLastUpdatedOrVerified,
+                EmailLastUpdatedOrVerified = contactPreference.EmailLastUpdatedOrVerified
+            };
+            result.Add(contactPoint);
         }
+
+        return result;
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<DashboardUserContactPoint>> GetContactPointsForDashboardByPhoneNumber(
+        string phoneNumber, CancellationToken cancellationToken)
+    {
+        List<DashboardUserContactPoint> result = [];
+
+        ImmutableList<PersonContactPreferences> contactPreferences = 
+            await _personService.GetContactPreferencesByPhoneNumberAsync(phoneNumber, cancellationToken);
 
         foreach (var contactPreference in contactPreferences)
         {

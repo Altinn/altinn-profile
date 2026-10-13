@@ -13,11 +13,11 @@ public class RegistrySyncMetadataRepository(IDbContextFactory<ProfileDbContext> 
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
 
     /// <inheritdoc />
-    public async Task<DateTime?> GetLatestSyncTimestampAsync()
+    public async Task<DateTime?> GetLatestSyncTimestampAsync(CancellationToken cancellationToken = default)
     {
-        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var lastSync = await databaseContext.RegistrySyncMetadata.FirstOrDefaultAsync();
+        var lastSync = await databaseContext.RegistrySyncMetadata.FirstOrDefaultAsync(cancellationToken);
         if (lastSync == null)
         {
             return null;
@@ -27,10 +27,10 @@ public class RegistrySyncMetadataRepository(IDbContextFactory<ProfileDbContext> 
     }
 
     /// <inheritdoc />
-    public async Task<DateTime> UpdateLatestChangeTimestampAsync(DateTime updated)
+    public async Task<DateTime> UpdateLatestChangeTimestampAsync(DateTime updated, CancellationToken cancellationToken = default)
     {
-        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
-        var lastSync = await databaseContext.RegistrySyncMetadata.FirstOrDefaultAsync();
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        var lastSync = await databaseContext.RegistrySyncMetadata.FirstOrDefaultAsync(cancellationToken);
         if (lastSync == null)
         {
             lastSync = new RegistrySyncMetadata
@@ -47,7 +47,7 @@ public class RegistrySyncMetadataRepository(IDbContextFactory<ProfileDbContext> 
             databaseContext.RegistrySyncMetadata.Update(lastSync);
         }
 
-        await databaseContext.SaveChangesAsync();
+        await databaseContext.SaveChangesAsync(cancellationToken);
         return updated;
     }
 }

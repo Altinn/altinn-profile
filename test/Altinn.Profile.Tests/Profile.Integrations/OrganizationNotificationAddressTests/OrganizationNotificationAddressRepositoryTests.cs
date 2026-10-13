@@ -1,10 +1,13 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
+using Altinn.Profile.Core.Telemetry;
+using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Entities;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Integrations.Persistence;
@@ -12,6 +15,7 @@ using Altinn.Profile.Integrations.Repositories;
 using Altinn.Profile.Tests.Testdata;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using Moq;
 
@@ -28,6 +32,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
     private readonly ProfileDbContext _databaseContext;
     private readonly OrganizationNotificationAddressRepository _repository;
     private readonly Mock<IDbContextFactory<ProfileDbContext>> _databaseContextFactory;
+    private readonly Mock<ILogger<OrganizationNotificationAddressRepository>> _logger = new();
 
     public OrganizationNotificationAddressRepositoryTests()
     {
@@ -43,7 +48,10 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         _databaseContextFactory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new ProfileDbContext(databaseContextOptions));
 
-        _repository = new OrganizationNotificationAddressRepository(_databaseContextFactory.Object, null);
+        _repository = new OrganizationNotificationAddressRepository(
+            _databaseContextFactory.Object,
+            _logger.Object,
+            null);
 
         _databaseContext = _databaseContextFactory.Object.CreateDbContext();
     }
@@ -106,8 +114,8 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task GetOrganizationNotificationAddressByEmailAddress_WhenFound_ReturnsWithNotificationAddresses() 
-    { 
+    public async Task GetOrganizationNotificationAddressByEmailAddress_WhenFound_ReturnsWithNotificationAddresses()
+    {
         // Arrange
         var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
         SeedDatabase(organizations, notificationAddresses);
@@ -132,18 +140,18 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         // Arrange
         var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
         SeedDatabase(organizations, notificationAddresses);
-        
+
         // Act
         var result = await _repository.GetOrganizationNotificationAddressesByFullAddressAsync("doesnotexist@test.com", AddressType.Email, TestContext.Current.CancellationToken);
         var list = result.ToList();
-        
+
         // Assert
         Assert.Empty(list);
     }
 
     [Fact]
-    public async Task GetOrganizationNotificationAddressByPhoneNumber_WhenFound_ReturnsWithNotificationAddresses() 
-    { 
+    public async Task GetOrganizationNotificationAddressByPhoneNumber_WhenFound_ReturnsWithNotificationAddresses()
+    {
         // Arrange
         var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
         SeedDatabase(organizations, notificationAddresses);
@@ -173,7 +181,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         // Act
         var result = await _repository.GetOrganizationNotificationAddressesByFullAddressAsync("+4799999991", AddressType.SMS, TestContext.Current.CancellationToken);
         var list = result.ToList();
-        
+
         // Assert
         Assert.Empty(list);
     }
@@ -188,7 +196,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_1");
 
         // Act
-        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes);
+        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
         var updatedOrg1 = await _repository.GetOrganizationDEAsync("123456789", TestContext.Current.CancellationToken);
         var updatedOrg2 = await _repository.GetOrganizationDEAsync("920212345", TestContext.Current.CancellationToken);
 
@@ -206,7 +214,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_6");
 
         // Act
-        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes);
+        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(0, numberOfUpdatedRows);
@@ -219,7 +227,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var changesIncludingMissingPhonePrefix = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_2");
 
         // Act
-        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changesIncludingMissingPhonePrefix);
+        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changesIncludingMissingPhonePrefix, TestContext.Current.CancellationToken);
         var updatedOrg1 = await _repository.GetOrganizationDEAsync("920254321", TestContext.Current.CancellationToken);
         var updatedOrg2 = await _repository.GetOrganizationDEAsync("920212345", TestContext.Current.CancellationToken);
 
@@ -243,7 +251,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var orgToUpdate = "987654321";
 
         // Act
-        var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changeWithDelete);
+        var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changeWithDelete, TestContext.Current.CancellationToken);
         var updatedOrg = await _repository.GetOrganizationDEAsync(orgToUpdate, TestContext.Current.CancellationToken);
 
         // Assert
@@ -261,8 +269,8 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_4");
 
         // Act - call delete twice
-        await _repository.SyncNotificationAddressesAsync(changes);
-        var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changes);
+        await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
+        var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
         var updatedOrg = await _repository.GetOrganizationDEAsync("987654321", TestContext.Current.CancellationToken);
 
         // Assert
@@ -282,7 +290,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         var addressToReplace = notificationAddresses.Find(address => address.RegistryID == identifierForAddressToUpdate);
 
         // Act
-        var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changes);
+        var numberOfUpdatedAddresses = await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
 
         // Assert
         var actualOrg = await _repository.GetOrganizationDEAsync("987654321", TestContext.Current.CancellationToken);
@@ -294,6 +302,141 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         Assert.True(actualUpdatedAddress.HasRegistryAccepted);
         Assert.Equal(UpdateSource.KoFuVi, actualUpdatedAddress.UpdateSource);
         Assert.True(numberOfUpdatedAddresses > 0);
+    }
+
+    /// <summary>
+    /// A single entry that cannot be mapped must not abort the rest of the page. Because the watermark is only
+    /// moved forward for a page that was processed, an entry that throws would otherwise be re-read and throw
+    /// again on every following run, blocking all later changes indefinitely.
+    /// </summary>
+    [Fact]
+    public async Task SyncNotificationAddressesAsync_WhenEntryCannotBeMapped_SkipsEntryAndProcessesRemainderOfPage()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        // The first entry has a valid organization number but a contact point that is neither email nor phone
+        var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_unmappable_contact_point");
+
+        // Act
+        var numberOfUpdatedRows = await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
+
+        // Assert
+        var updatedOrg = await _repository.GetOrganizationDEAsync("123456789", TestContext.Current.CancellationToken);
+        Assert.NotNull(updatedOrg);
+        Assert.Contains(updatedOrg.NotificationAddresses, a => a.RegistryID == "dd11ee22ff3300445566778899aabbcc");
+        Assert.DoesNotContain(updatedOrg.NotificationAddresses, a => a.RegistryID == "cc11dd22ee33ff44005566778899aabb");
+        Assert.Equal(1, numberOfUpdatedRows);
+
+        // The skipped entry must be logged with its registry id, so it can be traced and alerted on
+        _logger.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((value, _) => value.ToString()!.Contains("cc11dd22ee33ff44005566778899aabb", StringComparison.Ordinal)),
+                It.IsAny<OrganizationNotificationAddressChangesException>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task SyncNotificationAddressesAsync_WhenEntryCannotBeMapped_EmitsSkippedMetric()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        using var telemetry = new Telemetry();
+        var skippedMetricName = Telemetry.Metrics.CreateName("organizationnotificationaddress.address.unprocessable");
+        long skippedCount = 0;
+
+        using var meterListener = new MeterListener
+        {
+            InstrumentPublished = (instrument, listener) =>
+            {
+                // Only listen to this test's instance, so that parallel tests cannot affect the count
+                if (instrument.Meter == telemetry.Meter)
+                {
+                    listener.EnableMeasurementEvents(instrument);
+                }
+            }
+        };
+        meterListener.SetMeasurementEventCallback<long>((instrument, measurement, tags, state) =>
+        {
+            if (instrument.Name == skippedMetricName)
+            {
+                skippedCount += measurement;
+            }
+        });
+        meterListener.Start();
+
+        var repository = new OrganizationNotificationAddressRepository(
+            _databaseContextFactory.Object,
+            new Mock<ILogger<OrganizationNotificationAddressRepository>>().Object,
+            telemetry);
+
+        var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_unmappable_contact_point");
+
+        // Act
+        await repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(1, skippedCount);
+    }
+
+    /// <summary>
+    /// An address that was soft deleted in Altinn but still exists in the registry must become visible again when
+    /// the registry reports a change for it, otherwise the row stays hidden forever.
+    /// </summary>
+    [Fact]
+    public async Task SyncNotificationAddressesAsync_WhenSoftDeletedAddressIsUpdatedInRegistry_IsRestored()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        var softDeletedRegistryId = "27ae0c8bea1f4f02a974c10429c32759";
+        Assert.True(notificationAddresses.Find(a => a.RegistryID == softDeletedRegistryId).IsSoftDeleted);
+
+        var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_soft_deleted_address_updated");
+
+        // Act
+        await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
+
+        // Assert
+        var updatedOrg = await _repository.GetOrganizationDEAsync("999999999", TestContext.Current.CancellationToken);
+        var restored = updatedOrg.NotificationAddresses.Find(a => a.RegistryID == softDeletedRegistryId);
+        Assert.NotNull(restored);
+        Assert.False(restored.IsSoftDeleted);
+    }
+
+    /// <summary>
+    /// Processing the same page twice must be a no-op the second time. This is what makes it safe to re-read a
+    /// page after an interrupted run, and it is a prerequisite for any overlap when requesting changes.
+    /// </summary>
+    [Fact]
+    public async Task SyncNotificationAddressesAsync_WhenSamePageProcessedTwice_IsIdempotent()
+    {
+        // Arrange
+        var (organizations, notificationAddresses) = OrganizationNotificationAddressTestData.GetNotificationAddresses();
+        SeedDatabase(organizations, notificationAddresses);
+
+        var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_1");
+
+        // Act
+        await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
+        var orgAfterFirstRun = await _repository.GetOrganizationDEAsync("123456789", TestContext.Current.CancellationToken);
+        var addressCountAfterFirstRun = orgAfterFirstRun.NotificationAddresses.Count;
+
+        await _repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
+
+        // Assert
+        var orgAfterSecondRun = await _repository.GetOrganizationDEAsync("123456789", TestContext.Current.CancellationToken);
+        Assert.Equal(addressCountAfterFirstRun, orgAfterSecondRun.NotificationAddresses.Count);
+
+        var newOrg = await _repository.GetOrganizationDEAsync("920212345", TestContext.Current.CancellationToken);
+        Assert.Single(newOrg.NotificationAddresses);
     }
 
     [Fact]

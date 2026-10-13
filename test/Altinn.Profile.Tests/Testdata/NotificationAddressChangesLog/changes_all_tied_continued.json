@@ -1,0 +1,18 @@
+{
+  "title": "Kofuvi digital alert address fragments as json",
+  "updated": "2025-03-05T12:00:00Z",
+  "entries": [
+    {
+      "title": "third@test.no",
+      "id": "334455667788990011223344aabbccdd",
+      "updated": "2025-03-05T10:00:00Z",
+      "isdeleted": true
+    },
+    {
+      "title": "fourth@test.no",
+      "id": "445566778899001122334455aabbccdd",
+      "updated": "2025-03-05T11:00:00Z",
+      "isdeleted": true
+    }
+  ]
+}

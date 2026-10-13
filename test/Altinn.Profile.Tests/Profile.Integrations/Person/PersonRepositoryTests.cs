@@ -226,6 +226,81 @@ public class PersonRepositoryTests : IDisposable
         Assert.Equal("user1@example.com", matches[0].Email);
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task GetContactPreferencesByEmailAsync_WhenEmailIsNullOrWhitespace_ReturnsEmpty(string email)
+    {
+        // Act
+        var matches = await _personRepository.GetContactPreferencesByEmailAsync(email, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Empty(matches);
+    }
+
+    [Fact]
+    public async Task GetContactPreferencesByPhoneNumberAsync_WhenPhoneNumberFound_ReturnsContactInfo()
+    {
+        // Act
+        var matches = await _personRepository.GetContactPreferencesByPhoneNumberAsync("90077853", TestContext.Current.CancellationToken);
+        var matchedPersonContactPreferences = matches[0];
+
+        var expectedPerson = _personContactAndReservationTestData
+            .Find(p => p.MobilePhoneNumber == "+4790077853");
+
+        // Assert
+        Assert.NotNull(matchedPersonContactPreferences);
+        AssertRegisterProperties(expectedPerson.AsPersonContactPreferences(), matchedPersonContactPreferences);
+    }
+
+    [Fact]
+    public async Task GetContactPreferencesByPhoneNumberAsync_WhenMultipleContactsWithSamePhoneNumber_ReturnsAllMatches()
+    {
+        // Arrange - Add another person with the same phone number
+        var duplicatePhoneNumberPerson = new Person
+        {
+            LanguageCode = "en",
+            Reservation = false,
+            FnumberAk = "31121234567",
+            EmailAddress = "user1@example.com",
+            MobilePhoneNumber = "+4790077853"
+        };
+        _databaseContext.People.Add(duplicatePhoneNumberPerson);
+        _databaseContext.SaveChanges();
+
+        // Act
+        var matches = await _personRepository.GetContactPreferencesByPhoneNumberAsync("+4790077853", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(2, matches.Count);
+        var phoneNumbers = matches.Select(m => m.MobileNumber).ToList();
+        Assert.All(phoneNumbers, phoneNumber => Assert.Equal("+4790077853", phoneNumber));
+    }
+
+    [Fact]
+    public async Task GetContactPreferencesByPhoneNumberAsync_WhenPhoneNumberNotFound_ReturnsEmpty()
+    {
+        // Act
+        var matches = await _personRepository.GetContactPreferencesByPhoneNumberAsync("42564543", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Empty(matches);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task GetContactPreferencesByPhoneNumberAsync_WhenPhoneNumberIsNullOrWhitespace_ReturnsEmpty(string phoneNumber)
+    {
+        // Act
+        var matches = await _personRepository.GetContactPreferencesByPhoneNumberAsync(phoneNumber, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Empty(matches);
+    }
+
     [Fact]
     public async Task SyncPersonContactPreferencesAsync_AddsNewPerson_WhenNotExists()
     {

@@ -7,29 +7,47 @@ using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models
 using Altinn.Profile.Integrations.Persistence;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Altinn.Profile.Integrations.Repositories;
 
 /// <inheritdoc />
-public class OrganizationNotificationAddressRepository(IDbContextFactory<ProfileDbContext> contextFactory, Telemetry? telemetry) : IOrganizationNotificationAddressUpdater, IOrganizationNotificationAddressRepository
+public class OrganizationNotificationAddressRepository(
+    IDbContextFactory<ProfileDbContext> contextFactory,
+    ILogger<OrganizationNotificationAddressRepository> logger,
+    Telemetry? telemetry) : IOrganizationNotificationAddressUpdater, IOrganizationNotificationAddressRepository
 {
     private readonly IDbContextFactory<ProfileDbContext> _contextFactory = contextFactory;
+    private readonly ILogger<OrganizationNotificationAddressRepository> _logger = logger;
     private readonly Telemetry? _telemetry = telemetry;
 
     /// <inheritdoc />
-    public async Task<int> SyncNotificationAddressesAsync(NotificationAddressChangesLog organizationNotificationAddressChanges)
+    public async Task<int> SyncNotificationAddressesAsync(NotificationAddressChangesLog organizationNotificationAddressChanges, CancellationToken cancellationToken = default)
     {
         var addresses = organizationNotificationAddressChanges.OrganizationNotificationAddressList!;
         var updates = 0;
-        foreach (var address in addresses) 
+        foreach (var address in addresses)
         {
-            if (address.IsDeleted == true)
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
             {
-                updates += await DeleteNotificationAddressAsync(address.Id);
+                if (address.IsDeleted == true)
+                {
+                    updates += await DeleteNotificationAddressAsync(address.Id, cancellationToken);
+                }
+                else
+                {
+                    updates += await UpsertOrganizationWithNotificationAddressAsync(address, cancellationToken);
+                }
             }
-            else
+            catch (OrganizationNotificationAddressChangesException ex)
             {
-                updates += await UpsertOrganizationWithNotificationAddressAsync(address);
+                // A single entry we cannot make sense of must not stop the page. The watermark is only moved
+                // forward for a page that was processed, so rethrowing here would make the sync re-read and fail
+                // on the same entry on every later run, blocking all subsequent changes indefinitely.
+                _logger.LogError(ex, "Skipped notification address entry {RegistryId} that could not be processed", address.Id);
+                _telemetry?.AddressUnprocessable();
             }
         }
 
@@ -42,11 +60,11 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    private async Task<int> DeleteNotificationAddressAsync(string? addressId)
+    private async Task<int> DeleteNotificationAddressAsync(string? addressId, CancellationToken cancellationToken)
     {
-        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var entry = await databaseContext.NotificationAddresses.FirstOrDefaultAsync(a => a.RegistryID == addressId);
+        var entry = await databaseContext.NotificationAddresses.FirstOrDefaultAsync(a => a.RegistryID == addressId, cancellationToken);
         if (entry == null)
         {
             return 0;
@@ -55,16 +73,16 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
         databaseContext.Remove(entry);
         _telemetry?.AddressDeleted();
 
-        return await databaseContext.SaveChangesAsync();
+        return await databaseContext.SaveChangesAsync(cancellationToken);
     }
-    
+
     /// <summary>
     /// Updates or creates notification addresses in the DB for organizations
     /// </summary>
     /// <returns>
     /// A task that represents the asynchronous operation with the number of written rows. 
     /// </returns>
-    private async Task<int> UpsertOrganizationWithNotificationAddressAsync(Entry address)
+    private async Task<int> UpsertOrganizationWithNotificationAddressAsync(Entry address, CancellationToken cancellationToken)
     {
         var orgNumber = address.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Value;
         if (orgNumber == null || address.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Type != DataMapper.OrganizationNumberType)
@@ -72,13 +90,13 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             return 0;
         }
 
-        var organization = await GetOrganizationDEAsync(orgNumber, CancellationToken.None);
+        var organization = await GetOrganizationDEAsync(orgNumber, cancellationToken);
         if (organization is null)
         {
-            return await CreateOrganizationWithNotificationAddress(orgNumber, address);
+            return await CreateOrganizationWithNotificationAddress(orgNumber, address, cancellationToken);
         }
 
-        return await UpdateNotificationAddressAsync(address, organization);
+        return await UpdateNotificationAddressAsync(address, organization, cancellationToken);
     }
 
     /// <summary>
@@ -87,9 +105,9 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
     /// <returns>
     /// A task that represents the asynchronous operation.  The result contains a bit (1 or 0) indicating whether the address was updated.
     /// </returns>
-    private async Task<int> UpdateNotificationAddressAsync(Entry address, OrganizationDE organization)
+    private async Task<int> UpdateNotificationAddressAsync(Entry address, OrganizationDE organization, CancellationToken cancellationToken)
     {
-        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
         var existingAddress = organization.NotificationAddresses?.FirstOrDefault(a => a.RegistryID == address.Id);
 
@@ -106,7 +124,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             _telemetry?.AddressUpdated();
         }
 
-        return await databaseContext.SaveChangesAsync();
+        return await databaseContext.SaveChangesAsync(cancellationToken);
     }
 
     /// <summary>
@@ -123,10 +141,10 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
                 .Include(o => o.NotificationAddresses)
                 .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == orgNumber, cancellationToken);
     }
-    
-    private async Task<int> CreateOrganizationWithNotificationAddress(string orgNumber, Entry address)
+
+    private async Task<int> CreateOrganizationWithNotificationAddress(string orgNumber, Entry address, CancellationToken cancellationToken)
     {
-        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
         var organization = new OrganizationDE
         {
@@ -136,11 +154,11 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
         var organizationNotificationAddress = DataMapper.PopulateOrganizationNotificationAddress(organization, address);
         organization.NotificationAddresses.Add(organizationNotificationAddress);
 
-        await databaseContext.Organizations.AddAsync(organization);
+        await databaseContext.Organizations.AddAsync(organization, cancellationToken);
         _telemetry?.OrganizationAdded();
         _telemetry?.AddressAdded();
 
-        return await databaseContext.SaveChangesAsync();
+        return await databaseContext.SaveChangesAsync(cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -168,7 +186,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         return foundOrganizations.Select(OrganizationMapper.MapFromDataEntity).Where(org => org != null)!;
     }
-    
+
     /// <inheritdoc/>
     public async Task<IEnumerable<Organization>> GetOrganizationNotificationAddressesByFullAddressAsync(string fullAddress, AddressType addressType, CancellationToken cancellationToken)
     {
@@ -197,10 +215,10 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
             .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == organizationNumber);
 
         orgDE ??= new OrganizationDE
-            {
-                RegistryOrganizationNumber = organizationNumber,
-                NotificationAddresses = [],
-            };
+        {
+            RegistryOrganizationNumber = organizationNumber,
+            NotificationAddresses = [],
+        };
 
         var organizationNotificationAddress = DataMapper.MapFromCoreModelForNewNotificationAddress(orgDE, notificationAddress, registryId);
 
@@ -231,7 +249,7 @@ public class OrganizationNotificationAddressRepository(IDbContextFactory<Profile
 
         return OrganizationMapper.MapFromDataEntity(notificationAddressDE);
     }
-    
+
     /// <inheritdoc/>
     public async Task<NotificationAddress> DeleteNotificationAddressAsync(int notificationAddressId)
     {

@@ -200,12 +200,14 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         .AddPolicy(AuthConstants.OrgNotificationAddress_Write, policy => policy.Requirements.Add(new ResourceAccessRequirement("write", "altinn-profil-api-varslingsdaresser-for-virksomheter")))
         .AddPolicy(AuthConstants.UserPartyAccess, policy => policy.Requirements.Add(new PartyAccessRequirement()))
         .AddPolicy(AuthConstants.PortalEndUserAccess, policy => policy.Requirements.Add(new FeatureToggledScopeAccessRequirement("altinn:portal/enduser")))
-        .AddPolicy(AuthConstants.ScopeEnduserOrNotificationSettingsRead, policy => policy.Requirements.Add(new ScopeAccessRequirement(["altinn:portal/enduser", "altinn:profile/enduser:notificationsettings.read"])));
+        .AddPolicy(AuthConstants.ScopeEnduserOrNotificationSettingsRead, policy => policy.Requirements.Add(new ScopeAccessRequirement(["altinn:portal/enduser", "altinn:profile/enduser:notificationsettings.read"])))
+        .AddPolicy(AuthConstants.DenyIdportenEpostAuthentication, policy => policy.Requirements.Add(new DenyAuthenticationMethodRequirement("IdportenEpost")));
 
     services.AddScoped<IAuthorizationHandler, OrgResourceAccessHandler>();
     services.AddScoped<IAuthorizationHandler, PartyAccessHandler>();
     services.AddScoped<IAuthorizationHandler, ScopeAccessHandler>();
     services.AddScoped<IAuthorizationHandler, FeatureToggledScopeAccessHandler>();
+    services.AddScoped<IAuthorizationHandler, DenyAuthenticationMethodHandler>();
 
     services.AddCoreServices(config);
     services.AddRegisterService(config);
@@ -220,26 +222,30 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
 static void AddAzureMonitorTelemetryExporters(IServiceCollection services, IConfiguration config)
 {
-    var instrumentationKey = config.GetValue<string>("ApplicationInsights:InstrumentationKey");
+    var applicationInsightsConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");
 
-    if (string.IsNullOrEmpty(instrumentationKey))
+    if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
     {
         return;
     }
 
-    var applicationInsightsConnectionString = string.Format("InstrumentationKey={0}", instrumentationKey);
-
     services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddAzureMonitorLogExporter(o =>
     {
         o.ConnectionString = applicationInsightsConnectionString;
+        o.SamplingRatio = 1.0f;
+        o.TracesPerSecond = null;
     }));
     services.ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddAzureMonitorMetricExporter(o =>
     {
         o.ConnectionString = applicationInsightsConnectionString;
+        o.SamplingRatio = 1.0f;
+        o.TracesPerSecond = null;
     }));
     services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddAzureMonitorTraceExporter(o =>
     {
         o.ConnectionString = applicationInsightsConnectionString;
+        o.SamplingRatio = 1.0f;
+        o.TracesPerSecond = null;
     }));
 }
 

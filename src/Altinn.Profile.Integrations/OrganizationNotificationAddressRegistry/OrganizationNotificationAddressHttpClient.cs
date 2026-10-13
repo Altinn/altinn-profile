@@ -37,14 +37,18 @@ public class OrganizationNotificationAddressHttpClient(
         string? fullUrl = _organizationNotificationAddressSettings.ChangesLogEndpoint + $"?pageSize={_organizationNotificationAddressSettings.ChangesLogPageSize}";
         if (lastUpdated != null)
         {
-            fullUrl += $"&since={lastUpdated:yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ}";
+            // The trailing Z in the format is a literal, so the value has to be in UTC before it is rendered.
+            // Since is an exclusive lower bound, and a value that is off by the local offset would silently
+            // skip or repeat every change inside that window.
+            var lastUpdatedUtc = lastUpdated.Value.ToUniversalTime();
+            fullUrl += $"&since={lastUpdatedUtc:yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ}";
         }
 
         return fullUrl;
     }
 
     /// <inheritdoc/>
-    public async Task<NotificationAddressChangesLog?> GetAddressChangesAsync(string endpointUrl)
+    public async Task<NotificationAddressChangesLog?> GetAddressChangesAsync(string endpointUrl, CancellationToken cancellationToken = default)
     {
         if (!endpointUrl.IsValidUrl())
         {
@@ -53,7 +57,7 @@ public class OrganizationNotificationAddressHttpClient(
 
         var request = new HttpRequestMessage(HttpMethod.Get, endpointUrl);
 
-        var response = await _httpClient.SendAsync(request);
+        var response = await _httpClient.SendAsync(request, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -61,7 +65,7 @@ public class OrganizationNotificationAddressHttpClient(
             return null;
         }
 
-        var responseData = await response.Content.ReadAsStringAsync();
+        var responseData = await response.Content.ReadAsStringAsync(cancellationToken);
 
         var responseObject = JsonSerializer.Deserialize<NotificationAddressChangesLog>(responseData);
 

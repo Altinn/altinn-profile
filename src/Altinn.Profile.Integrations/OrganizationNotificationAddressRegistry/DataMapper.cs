@@ -26,6 +26,10 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry
             existingAddress.HasRegistryAccepted = true;
             existingAddress.NotificationName = entry.Title;
 
+            // The registry reports the address as live, so it must be visible again even if it was previously
+            // soft deleted in Altinn. A deletion that reached the registry arrives as a separate deleted entry.
+            existingAddress.IsSoftDeleted = false;
+
             PopulateFromDigitalContactPoint(existingAddress, entry);
 
             return existingAddress;

@@ -241,6 +241,55 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
 
+        [Theory]
+        [InlineData("IdportenEpost", HttpStatusCode.Forbidden)]
+        [InlineData("IdPortenBankId", HttpStatusCode.NoContent)]
+        public async Task VerifyAddress_WithDifferentAuthenticateMethods_ReturnsExpectedStatus(string authenticateMethod, HttpStatusCode expectedStatus)
+        {
+            // Arrange
+            const int userId = 2516351;
+            var request = new AddressVerificationRequest
+            {
+                Value = "Address@example.com",
+                Type = AddressType.Email,
+                VerificationCode = "123456"
+            };
+
+            var hash = BCrypt.Net.BCrypt.HashPassword(request.VerificationCode);
+
+            var verificationCode = new VerificationCode
+            {
+                UserId = userId,
+                AddressType = AddressType.Email,
+                Address = "address@example.com",
+                VerificationCodeHash = hash,
+                Expires = DateTime.UtcNow.AddHours(1),
+            };
+
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, verificationCode.Address, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(verificationCode);
+
+            _factory.AddressVerificationRepositoryMock.Setup(repo => repo.CompleteAddressVerificationAsync(It.IsAny<int>(), AddressType.Email, "address@example.com", userId))
+                .Returns(Task.CompletedTask);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"profile/api/v1/users/current/verification/verify")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            string token = PrincipalUtil.GetToken(userId, authenticateMethod, 0);
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(expectedStatus, response.StatusCode);
+        }
+
         [Fact]
         public async Task VerifyAddress_WhenCodeIsWrong_ReturnsUnprocessableEntity()
         {
@@ -518,6 +567,53 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Assert
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+
+        [Theory]
+        [InlineData("IdportenEpost", HttpStatusCode.Forbidden)]
+        [InlineData("IdPortenBankId", HttpStatusCode.NoContent)]
+        public async Task SendCode_WithDifferentAuthenticateMethods_ReturnsExpectedStatus(string authenticateMethod, HttpStatusCode expectedStatus)
+        {
+            // Arrange
+            const int userId = 2516363;
+            var request = new AddressCodeSendRequest
+            {
+                Value = "send-success@altinn.xyz",
+                Type = AddressType.Email
+            };
+
+            _factory.AddressVerificationRepositoryMock
+                .Setup(repo => repo.GetVerificationStatusAsync(userId, AddressType.Email, request.Value, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(VerificationType.Legacy);
+
+            _factory.AddressVerificationRepositoryMock
+                .Setup(repo => repo.GetVerificationCodeAsync(userId, AddressType.Email, request.Value, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((VerificationCode)null);
+
+            _factory.AddressVerificationRepositoryMock
+                .Setup(repo => repo.AddNewVerificationCodeAsync(It.IsAny<VerificationCode>()))
+                .ReturnsAsync(true);
+
+            _factory.NotificationsClientMock
+                .Setup(client => client.OrderEmailAsync(request.Value, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            HttpClient client = _factory.CreateClient();
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, "profile/api/v1/users/current/verification/send")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request, _serializerOptionsCamelCase), System.Text.Encoding.UTF8, "application/json")
+            };
+
+            string token = PrincipalUtil.GetToken(userId, authenticateMethod, 0);
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(expectedStatus, response.StatusCode);
         }
 
         [Theory]

@@ -1,0 +1,20 @@
+{
+  "title": "Kofuvi digital alert address fragments as json",
+  "updated": "2025-03-02T12:00:00Z",
+  "entries": [
+    {
+      "title": "unknown contact point type",
+      "id": "cc11dd22ee33ff44005566778899aabb",
+      "updated": "2025-03-02T08:00:00Z",
+      "isdeleted": false,
+      "content": "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"telefaks\":{\"navn\":\"22334455\"}},\"identifikator\":\"cc11dd22ee33ff44005566778899aabb\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"123456789\",\"type\":\"ORGANISASJONSNUMMER\"}}}}"
+    },
+    {
+      "title": "valid.after.poison@test.no",
+      "id": "dd11ee22ff3300445566778899aabbcc",
+      "updated": "2025-03-02T09:00:00Z",
+      "isdeleted": false,
+      "content": "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"epostadresse\":{\"navn\":\"valid.after.poison@test.no\",\"domenenavn\":\"test.no\",\"brukernavn\":\"valid.after.poison\"}},\"identifikator\":\"dd11ee22ff3300445566778899aabbcc\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"123456789\",\"type\":\"ORGANISASJONSNUMMER\"}}}}"
+    }
+  ]
+}

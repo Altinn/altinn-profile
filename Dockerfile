@@ -11,7 +11,7 @@ RUN dotnet restore ./src/Altinn.Profile/Altinn.Profile.csproj
 COPY src ./src
 RUN dotnet publish -c Release -o /app_output ./src/Altinn.Profile/Altinn.Profile.csproj
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0.9-alpine3.23@sha256:57bd717ac18ff6c8a39cc0ee4a76c1f15adc46df50434c73eff0c3f1df4c88f0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.12-alpine3.23@sha256:68eeb5922e4737a0f4657e3a631e566c38186f910c7155fb7c377414ce58a64d AS final
 EXPOSE 5030
 WORKDIR /app
 
