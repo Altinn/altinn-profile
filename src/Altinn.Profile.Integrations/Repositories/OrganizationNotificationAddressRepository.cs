@@ -86,8 +86,7 @@ public class OrganizationNotificationAddressRepository(
     private async Task<int> UpsertOrganizationWithNotificationAddressAsync(Entry address, CancellationToken cancellationToken)
     {
         var unitIdentifier = address.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier;
-        var orgNumber = unitIdentifier?.Value;
-        if (orgNumber == null || unitIdentifier?.Type != DataMapper.OrganizationNumberType)
+        if (unitIdentifier == null || unitIdentifier.Value == null || unitIdentifier.Type != DataMapper.OrganizationNumberType)
         {
             _logger.LogWarning(
                 "Ignored notification address entry {RegistryId} without a recognizable organization number. Has content: {HasContent}, identifier type: {IdentifierType}",
@@ -98,6 +97,8 @@ public class OrganizationNotificationAddressRepository(
 
             return 0;
         }
+
+        var orgNumber = unitIdentifier.Value;
 
         var organization = await GetOrganizationDEAsync(orgNumber, cancellationToken);
         if (organization is null)
