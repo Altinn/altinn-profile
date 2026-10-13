@@ -386,6 +386,66 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
     }
 
     /// <summary>
+    /// Entries without a recognizable organization number are ignored. They must be logged and counted separately
+    /// from unprocessable entries, so that they are visible without raising the unprocessable alarm.
+    /// </summary>
+    [Fact]
+    public async Task SyncNotificationAddressesAsync_WithoutOrgNumber_LogsWarningAndEmitsIgnoredMetric()
+    {
+        // Arrange
+        using var telemetry = new Telemetry();
+        var ignoredMetricName = Telemetry.Metrics.CreateName("organizationnotificationaddress.address.ignored");
+        var unprocessableMetricName = Telemetry.Metrics.CreateName("organizationnotificationaddress.address.unprocessable");
+        long ignoredCount = 0;
+        long unprocessableCount = 0;
+
+        using var meterListener = new MeterListener
+        {
+            InstrumentPublished = (instrument, listener) =>
+            {
+                // Only listen to this test's instance, so that parallel tests cannot affect the count
+                if (instrument.Meter == telemetry.Meter)
+                {
+                    listener.EnableMeasurementEvents(instrument);
+                }
+            }
+        };
+        meterListener.SetMeasurementEventCallback<long>((instrument, measurement, tags, state) =>
+        {
+            if (instrument.Name == ignoredMetricName)
+            {
+                ignoredCount += measurement;
+            }
+            else if (instrument.Name == unprocessableMetricName)
+            {
+                unprocessableCount += measurement;
+            }
+        });
+        meterListener.Start();
+
+        var logger = new Mock<ILogger<OrganizationNotificationAddressRepository>>();
+        var repository = new OrganizationNotificationAddressRepository(_databaseContextFactory.Object, logger.Object, telemetry);
+
+        // Every entry lacks an organization number, or has an identifier type other than organization number
+        var changes = await TestDataLoader.Load<NotificationAddressChangesLog>("changes_6");
+
+        // Act
+        await repository.SyncNotificationAddressesAsync(changes, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(5, ignoredCount);
+        Assert.Equal(0, unprocessableCount);
+        logger.Verify(
+            x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((value, _) => value.ToString()!.Contains("27ae0c8bea1f4f02a974c10429c32758", StringComparison.Ordinal)),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Exactly(5));
+    }
+
+    /// <summary>
     /// An address that was soft deleted in Altinn but still exists in the registry must become visible again when
     /// the registry reports a change for it, otherwise the row stays hidden forever.
     /// </summary>

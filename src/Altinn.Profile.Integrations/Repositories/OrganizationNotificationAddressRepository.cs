@@ -34,7 +34,8 @@ public class OrganizationNotificationAddressRepository(
             {
                 if (address.IsDeleted == true)
                 {
-                    updates += await DeleteNotificationAddressAsync(address.Id, cancellationToken);
+                    var deletedRowsCount = await DeleteNotificationAddressAsync(address.Id, cancellationToken);
+                    updates += deletedRowsCount;
                 }
                 else
                 {
@@ -84,9 +85,17 @@ public class OrganizationNotificationAddressRepository(
     /// </returns>
     private async Task<int> UpsertOrganizationWithNotificationAddressAsync(Entry address, CancellationToken cancellationToken)
     {
-        var orgNumber = address.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Value;
-        if (orgNumber == null || address.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier?.Type != DataMapper.OrganizationNumberType)
+        var unitIdentifier = address.Content?.ContactPoint?.UnitContactInfo?.UnitIdentifier;
+        var orgNumber = unitIdentifier?.Value;
+        if (orgNumber == null || unitIdentifier?.Type != DataMapper.OrganizationNumberType)
         {
+            _logger.LogWarning(
+                "Ignored notification address entry {RegistryId} without a recognizable organization number. Has content: {HasContent}, identifier type: {IdentifierType}",
+                address.Id,
+                address.ContentStringified != null,
+                unitIdentifier?.Type);
+            _telemetry?.AddressIgnored();
+
             return 0;
         }
 
