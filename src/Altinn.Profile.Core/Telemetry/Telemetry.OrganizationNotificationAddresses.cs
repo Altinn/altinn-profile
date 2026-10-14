@@ -16,6 +16,7 @@ partial class Telemetry
         InitMetricCounter(context, MetricNameAddressUpdated, init: static m => m.Add(0));
         InitMetricCounter(context, MetricNameAddressDeleted, init: static m => m.Add(0));
         InitMetricCounter(context, MetricNameAddressUnprocessable, init: static m => m.Add(0));
+        InitMetricCounter(context, MetricNameAddressIgnored, init: static m => m.Add(0));
     }
 
     /// <summary>
@@ -42,6 +43,11 @@ partial class Telemetry
     /// Increments the counter for the number of feed entries that were skipped because they could not be processed.
     /// </summary>
     public void AddressUnprocessable() => _counters[MetricNameAddressUnprocessable].Add(1);
+
+    /// <summary>
+    /// Increments the counter for the number of feed entries that were ignored because they do not identify an organization by organization number.
+    /// </summary>
+    public void AddressIgnored() => _counters[MetricNameAddressIgnored].Add(1);
 
     /// <summary>
     /// Starts a telemetry activity for the organization notification address update job.
@@ -87,6 +93,11 @@ partial class Telemetry
         /// The name of the metric for the number of feed entries skipped by the sync job.
         /// </summary>
         internal static readonly string MetricNameAddressUnprocessable = MetricName("address.unprocessable");
+
+        /// <summary>
+        /// The name of the metric for the number of feed entries ignored by the sync job because they lack an organization number.
+        /// </summary>
+        internal static readonly string MetricNameAddressIgnored = MetricName("address.ignored");
 
         private static string MetricName(string name) => Metrics.CreateName($"organizationnotificationaddress.{name}");
     }
