@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0.301-alpine3.23@sha256:940f919ae84dd92ccd4aab7686fa5b777870b006c9360351039e16bcaad73d89 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0.402-alpine3.24@sha256:230c3fbae0ceedc70bca04eed2bfb5694e8b248cadbb81010f41b7a993601f55 AS build
 WORKDIR /app
 
 COPY src/Altinn.Profile/*.csproj ./src/Altinn.Profile/
@@ -11,7 +11,7 @@ RUN dotnet restore ./src/Altinn.Profile/Altinn.Profile.csproj
 COPY src ./src
 RUN dotnet publish -c Release -o /app_output ./src/Altinn.Profile/Altinn.Profile.csproj
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0.12-alpine3.23@sha256:68eeb5922e4737a0f4657e3a631e566c38186f910c7155fb7c377414ce58a64d AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.13-alpine3.24@sha256:819bd3649d8bf53f35527c68d62e17b348ef6f24ae73073f497f00a878348062 AS final
 EXPOSE 5030
 WORKDIR /app
 
