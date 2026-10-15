@@ -1,0 +1,400 @@
+# Reference YAML for altinn-profile in the AT24 environment
+---
+# ApplicationIdentity for altinn-profile
+# dis-identity-operator: creates a user-assigned managed identity in Azure, a
+# federated credential, and a ServiceAccount with the same name as this object.
+apiVersion: application.dis.altinn.cloud/v1alpha1
+kind: ApplicationIdentity
+metadata:
+  name: altinn-profile
+spec: {}
+
+---
+# Service for altinn-profile
+apiVersion: v1
+kind: Service
+metadata:
+  name: altinn-profile
+  labels:
+    app.kubernetes.io/name: altinn-profile
+    app.kubernetes.io/instance: altinn-profile
+    app: altinn-profile
+    release: altinn-profile
+    team: core
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 5030
+      protocol: TCP
+      name: http
+      appProtocol: http
+  selector:
+    app: altinn-profile
+    release: altinn-profile
+  ipFamilyPolicy: DualStack
+  ipFamilies:
+    - IPv4
+    - IPv6
+
+---
+# Deployment config for altinn-profile
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: altinn-profile
+  labels:
+    app.kubernetes.io/name: altinn-profile
+    app.kubernetes.io/instance: altinn-profile
+    app: altinn-profile
+    release: altinn-profile
+    team: core
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: altinn-profile
+      app.kubernetes.io/instance: altinn-profile
+      app: altinn-profile
+      release: altinn-profile
+      team: core
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+        config.linkerd.io/skip-outbound-ports: "9092,10255,9093,443"
+        azure.workload.identity/skip-containers: linkerd-proxy;linkerd-init
+      labels:
+        app.kubernetes.io/name: altinn-profile
+        app.kubernetes.io/instance: altinn-profile
+        app: altinn-profile
+        release: altinn-profile
+        team: core
+        azure.workload.identity/use: "true"
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - altinn-profile
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+      serviceAccountName: altinn-profile
+      containers:
+        - name: altinn-profile
+          image: "altinntjenesterregistry.azurecr.io/altinn-profile:IMAGE_TAG"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 3000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - containerPort: 5030
+              name: http
+
+          env:
+            - name: ASPNETCORE_URLS
+              value: "http://+:5030"
+            - name: PLATFORM_KEYVAULT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: platform-keyvault-uri
+                  key: platform-keyvault-uri
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Staging"
+            - name: GeneralSettings__OpenIdWellKnownEndpoint
+              value: "https://platform.at24.altinn.cloud/authentication/api/v1/openid/"
+            - name: PostgreSQLSettings__EnableDBConnection
+              value: "true"
+            - name: ContactAndReservationSettings__ChangesLogEndpoint
+              value: "https://test.kontaktregisteret.no/rest/v2/krr/hentEndringer"
+            - name: ContactAndReservationSettings__MaskinportenSettings__Environment
+              value: "test"
+            - name: OrganizationNotificationAddressSettings__ChangesLogEndpoint
+              value: "https://kof-sync.ppe.brreg.no/varslingsadresser/fragments/json/v1"
+            - name: OrganizationNotificationAddressSettings__UpdateEndpoint
+              value: "https://kof-reception.ppe.brreg.no"
+            - name: OrganizationNotificationAddressSettings__ChangesLogPageSize
+              value: "5000"
+            - name: PlatformSettings__ApiAuthorizationEndpoint
+              value: "http://altinn-authorization.default.svc.cluster.local/authorization/api/v1/"
+            - name: RegisterSettings__ApiRegisterEndpoint
+              value: "http://altinn-register.default.svc.cluster.local/register/api/"
+            - name: NotificationsSettings__ApiNotificationsEndpoint
+              value: "http://altinn-notifications.default.svc.cluster.local/notifications/api/"
+            - name: JobSettings__KrrSyncEnabled
+              value: "true"
+            - name: JobSettings__OrgSyncEnabled
+              value: "true"
+            - name: PortalAccessSettings__EnforceAccessCheck
+              value: "true"
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 5030
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5030
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 3
+            timeoutSeconds: 1
+            failureThreshold: 3
+            successThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5030
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+            successThreshold: 1
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: altinn-appsettings
+              mountPath: /altinn-appsettings
+            - name: accesstoken
+              mountPath: /accesstoken
+      volumes:
+        - name: altinn-appsettings
+          secret:
+            secretName: altinn-appsettings-secret
+        - name: accesstoken
+          secret:
+            secretName: accesstoken
+
+---
+# Horizontal Pod Autoscaler for altinn-profile
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: altinn-profile
+  labels:
+    app.kubernetes.io/name: altinn-profile
+    app.kubernetes.io/instance: altinn-profile
+    app: altinn-profile
+    release: altinn-profile
+    team: core
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: altinn-profile
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+---
+# HTTPRoute for altinn-profile (instead of IngressRoute)
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: access-management
+  labels:
+    app.kubernetes.io/name: access-management
+    app.kubernetes.io/part-of: access-management
+spec:
+  hostnames:
+    - profile.at24.dis-core.altinn.cloud
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: traefik-gateway
+      namespace: traefik
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /profile
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: l5d-dst-override
+                value: altinn-profile.product-profile.svc.cluster.local:80
+              - name: Strict-Transport-Security
+                value: "max-age=31536000; includeSubDomains"
+      backendRefs:
+        - name: altinn-profile
+          port: 80
+
+---
+# Linkerd Server for altinn-profile
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata:
+  name: altinn-profile
+  labels:
+    app.kubernetes.io/name: altinn-profile
+    app.kubernetes.io/instance: altinn-profile
+    app: altinn-profile
+    release: altinn-profile
+    team: core
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: altinn-profile
+      app.kubernetes.io/instance: altinn-profile
+      app: altinn-profile
+      release: altinn-profile
+      team: core
+  port: http
+  proxyProtocol: HTTP/1
+  accessPolicy: all-unauthenticated
+
+---
+# Linkerd Server Authorization for altinn-profile
+apiVersion: policy.linkerd.io/v1beta1
+kind: ServerAuthorization
+metadata:
+  name: altinn-profile
+  labels:
+    app.kubernetes.io/name: altinn-profile
+    app.kubernetes.io/instance: altinn-profile
+    app: altinn-profile
+    release: altinn-profile
+    team: core
+spec:
+  server:
+    name: altinn-profile
+  client:
+    meshTLS:
+      identities:
+        - "*"
+---
+# Database Migration Job for altinn-profile
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: altinn-profile-db-migrations
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+      labels:
+        app: altinn-profile
+        release: altinn-profile
+        team: core
+        azure.workload.identity/use: "true"
+      annotations:
+        linkerd.io/inject: disabled
+        # Allows eviction when emptyDir volumes are present
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+    spec:
+      serviceAccountName: altinn-profile
+      restartPolicy: Never
+      # Prevent privilege escalation at pod level
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: db-migrations
+          image: "altinntjenesterregistry.azurecr.io/altinn-profile:IMAGE_TAG"
+          imagePullPolicy: IfNotPresent
+          args: ["--run-db-migrations"]
+          # Harden at container level
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          # Prevent runaway resource usage
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          env:
+            - name: ASPNETCORE_URLS
+              value: "http://+:5030"
+            - name: PLATFORM_KEYVAULT_URI
+              valueFrom:
+                secretKeyRef:
+                  key: platform-keyvault-uri
+                  name: platform-keyvault-uri
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Staging"
+            - name: GeneralSettings__OpenIdWellKnownEndpoint
+              value: "https://platform.at24.altinn.cloud/authentication/api/v1/openid/"
+            - name: PostgreSQLSettings__EnableDBConnection
+              value: "true"
+            - name: ContactAndReservationSettings__ChangesLogEndpoint
+              value: "https://test.kontaktregisteret.no/rest/v2/krr/hentEndringer"
+            - name: ContactAndReservationSettings__MaskinportenSettings__Environment
+              value: "test"
+            - name: OrganizationNotificationAddressSettings__ChangesLogEndpoint
+              value: "https://kof-sync.ppe.brreg.no/varslingsadresser/fragments/json/v1"
+            - name: OrganizationNotificationAddressSettings__UpdateEndpoint
+              value: "https://kof-reception.ppe.brreg.no"
+            - name: OrganizationNotificationAddressSettings__ChangesLogPageSize
+              value: "5000"
+            - name: PlatformSettings__ApiAuthorizationEndpoint
+              value: "http://altinn-authorization.default.svc.cluster.local/authorization/api/v1/"
+            - name: RegisterSettings__ApiRegisterEndpoint
+              value: "http://altinn-register.default.svc.cluster.local/register/api/"
+            - name: NotificationsSettings__ApiNotificationsEndpoint
+              value: "http://altinn-notifications.default.svc.cluster.local/notifications/api/"
+            - name: JobSettings__KrrSyncEnabled
+              value: "true"
+            - name: JobSettings__OrgSyncEnabled
+              value: "true"
+            - name: PortalAccessSettings__EnforceAccessCheck
+              value: "true"
+          volumeMounts:
+            - name: altinn-appsettings
+              mountPath: /altinn-appsettings
+            - name: accesstoken
+              mountPath: /accesstoken
+      volumes:
+        - name: altinn-appsettings
+          secret:
+            secretName: altinn-appsettings-secret
+            defaultMode: 0440
+        - name: accesstoken
+          secret:
+            secretName: accesstoken
+            defaultMode: 0440
