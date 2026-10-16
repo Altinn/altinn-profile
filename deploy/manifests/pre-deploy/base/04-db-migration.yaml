@@ -56,12 +56,6 @@ spec:
                 name: profile-config
             - secretRef:
                 name: profile-secrets
-          env:
-            - name: PLATFORM_KEYVAULT_URI
-              valueFrom:
-                secretKeyRef:
-                  name: platform-keyvault-uri
-                  key: platform-keyvault-uri
           volumeMounts:
             - name: altinn-appsettings
               mountPath: /altinn-appsettings
