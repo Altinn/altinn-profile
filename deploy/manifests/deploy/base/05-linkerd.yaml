@@ -1,0 +1,40 @@
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata:
+  name: altinn-profile
+  labels:
+    app.kubernetes.io/name: altinn-profile
+    app.kubernetes.io/instance: altinn-profile
+    app: altinn-profile
+    release: altinn-profile
+    team: core
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: altinn-profile
+      app.kubernetes.io/instance: altinn-profile
+      app: altinn-profile
+      release: altinn-profile
+      team: core
+  port: http
+  proxyProtocol: HTTP/1
+  accessPolicy: all-unauthenticated
+
+---
+apiVersion: policy.linkerd.io/v1beta1
+kind: ServerAuthorization
+metadata:
+  name: altinn-profile
+  labels:
+    app.kubernetes.io/name: altinn-profile
+    app.kubernetes.io/instance: altinn-profile
+    app: altinn-profile
+    release: altinn-profile
+    team: core
+spec:
+  server:
+    name: altinn-profile
+  client:
+    meshTLS:
+      identities:
+        - "*"

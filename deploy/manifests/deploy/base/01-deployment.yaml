@@ -1,0 +1,119 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: altinn-profile
+  labels:
+    app.kubernetes.io/name: altinn-profile
+    app.kubernetes.io/instance: altinn-profile
+    app: altinn-profile
+    release: altinn-profile
+    team: core
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: altinn-profile
+      app.kubernetes.io/instance: altinn-profile
+      app: altinn-profile
+      release: altinn-profile
+      team: core
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+        config.linkerd.io/skip-outbound-ports: "9092,10255,9093,443"
+        azure.workload.identity/skip-containers: linkerd-proxy;linkerd-init
+      labels:
+        app.kubernetes.io/name: altinn-profile
+        app.kubernetes.io/instance: altinn-profile
+        app: altinn-profile
+        release: altinn-profile
+        team: core
+        azure.workload.identity/use: "true"
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - altinn-profile
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+      serviceAccountName: altinn-profile
+      containers:
+        - name: altinn-profile
+          image: "altinntjenesterregistry.azurecr.io/altinn-profile:{{GIT_SHA}}"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 3000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - containerPort: 5030
+              name: http
+          envFrom:
+            - configMapRef:
+                name: environment
+          env:
+            - name: PLATFORM_KEYVAULT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: platform-keyvault-uri
+                  key: platform-keyvault-uri
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 5030
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5030
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 3
+            timeoutSeconds: 1
+            failureThreshold: 3
+            successThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5030
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+            successThreshold: 1
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: altinn-appsettings
+              mountPath: /altinn-appsettings
+            - name: accesstoken
+              mountPath: /accesstoken
+      volumes:
+        - name: altinn-appsettings
+          secret:
+            secretName: altinn-appsettings-secret
+        - name: accesstoken
+          secret:
+            secretName: accesstoken
