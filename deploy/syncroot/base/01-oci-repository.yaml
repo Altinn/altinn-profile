@@ -4,7 +4,7 @@ metadata:
   name: manifests
 spec:
   interval: 10m
-  # TODO: confirm registry/path once the publish workflow exists
-  url: oci://ghcr.io/altinn/altinn-profile/manifests
+  provider: azure
+  url: oci://altinncr.azurecr.io/profile/manifests
   ref:
     tag: fake

@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - 01-oci-repository.yaml
   - 02-pre-deployment.yaml
-  - 03-deployment.yaml
+  # - 03-deployment.yaml # uncomment this when identity is created

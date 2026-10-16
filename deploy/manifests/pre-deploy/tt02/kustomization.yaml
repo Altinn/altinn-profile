@@ -5,7 +5,7 @@ resources:
   - ../base
 
 configMapGenerator:
-  - name: environment
+  - name: profile-config
     behavior: merge
     envs:
       - ./config/environment.env
