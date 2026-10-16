@@ -20,8 +20,8 @@ spec:
     metadata:
       annotations:
         linkerd.io/inject: enabled
-        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
-        config.linkerd.io/skip-outbound-ports: "9092,10255,9093,443"
+        cluster-autoscaler.kubernetes.io/safe-to-evict: 'true'
+        config.linkerd.io/skip-outbound-ports: '9092,10255,9093,443'
         azure.workload.identity/skip-containers: linkerd-proxy;linkerd-init
       labels:
         app.kubernetes.io/name: altinn-profile
@@ -29,24 +29,24 @@ spec:
         app: altinn-profile
         release: altinn-profile
         team: core
-        azure.workload.identity/use: "true"
+        azure.workload.identity/use: 'true'
     spec:
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-          - podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - altinn-profile
-              topologyKey: kubernetes.io/hostname
-            weight: 100
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - altinn-profile
+                topologyKey: kubernetes.io/hostname
+              weight: 100
       serviceAccountName: altinn-profile
       containers:
         - name: altinn-profile
-          image: "altinncr.azurecr.io/ghcr.io/altinn/altinn-profile:{{GIT_SHA}}"
+          image: 'altinncr.azurecr.io/ghcr.io/altinn/altinn-profile:{{GIT_SHA}}'
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 1000
@@ -64,7 +64,9 @@ spec:
               name: http
           envFrom:
             - configMapRef:
-                name: profile-config
+              name: profile-config
+            - secretRef:
+              name: profile-secrets
           env:
             - name: PLATFORM_KEYVAULT_URI
               valueFrom:
