@@ -1,0 +1,155 @@
+name: Publish to Flux (reusable)
+
+# Generic publish flow for the Flux deployment setup in deploy/. Called by one thin
+# workflow per environment (publish-flux-<env>.yml), which only decides the trigger and
+# passes the environment. For the given environment it:
+#   1. builds the app image and pushes it to GHCR, tagged with the short commit sha
+#   2. pushes deploy/manifests as an OCI artifact to ACR, tagged with the short commit sha
+#      and the moving tag <environment> (the syncroot's OCIRepository follows that tag)
+#   3. pushes deploy/syncroot as an OCI artifact to ACR, tagged with the short commit sha
+#      and <environment>
+# Platform chain: syncroot:<env> -> OCIRepository + Flux Kustomizations -> manifests:<env>.
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: Environment to publish to (at22, at23, tt02, yt01, prod). Must have overlays in deploy/syncroot and deploy/manifests.
+        type: string
+        required: true
+
+env:
+  ACR_NAME: altinncr
+  ENVIRONMENT: ${{ inputs.environment }}
+  IMAGE_NAME: altinn/altinn-profile
+  MANIFESTS_ARTIFACT_NAME: profile/manifests
+  SYNCROOT_ARTIFACT_NAME: profile/syncroot
+
+permissions: {}
+
+concurrency:
+  group: publish-flux-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  build-image:
+    name: Build and push app image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Compute image tag
+        id: tag
+        run: echo "tag=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Login to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+          image="ghcr.io/${IMAGE_NAME}:${TAG}"
+          docker build --tag "${image}" --label "org.opencontainers.image.revision=${GITHUB_SHA}" .
+          docker push "${image}"
+
+  publish-manifests:
+    name: Publish manifests artifact
+    needs: build-image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set the image tag in the manifests
+        env:
+          IMAGE_TAG: ${{ needs.build-image.outputs.tag }}
+        run: |
+          set -euo pipefail
+          # build-push-image tags the artifact with `git rev-parse --short HEAD`; the image
+          # tag has to be the same value so manifests:<sha> deploys image:<sha>.
+          [ "${IMAGE_TAG}" = "$(git rev-parse --short HEAD)" ] \
+            || { echo "::error::Image tag ${IMAGE_TAG} differs from the short sha of this checkout"; exit 1; }
+
+          grep -rlF '{{GIT_SHA}}' deploy/manifests | xargs sed -i "s/{{GIT_SHA}}/${IMAGE_TAG}/g"
+
+          if grep -rF '{{GIT_SHA}}' deploy/manifests; then
+            echo "::error::Unreplaced {{GIT_SHA}} placeholder left in deploy/manifests"
+            exit 1
+          fi
+
+          echo "::group::Rendered deploy/manifests/${ENVIRONMENT} (what Flux applies)"
+          for stage in pre-deploy deploy; do
+            kustomize build "deploy/manifests/${stage}/${ENVIRONMENT}"
+          done
+          echo "::endgroup::"
+
+      - name: Build and push manifests artifact
+        uses: Altinn/altinn-platform/actions/flux/build-push-image@523f141da4f116fdd7331585396d83a5d7ade7ea # main
+        with:
+          image_name: ${{ env.MANIFESTS_ARTIFACT_NAME }}
+          tag: ${{ env.ENVIRONMENT }}
+          workdir: ./deploy/manifests
+          acr_name: ${{ env.ACR_NAME }}
+          azure_subscription_id: ${{ secrets.DIS_SYNCROOT_AZURE_SUBSCRIPTION_ID }}
+          azure_app_id: ${{ secrets.DIS_SYNCROOT_AZURE_CLIENT_ID }}
+          azure_tenant_id: ${{ secrets.DIS_SYNCROOT_AZURE_TENANT_ID }}
+
+  publish-syncroot:
+    name: Publish syncroot artifact
+    # After the manifests, so the OCIRepository never points at an artifact that doesn't exist yet.
+    needs: publish-manifests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build and push syncroot artifact
+        uses: Altinn/altinn-platform/actions/flux/build-push-image@523f141da4f116fdd7331585396d83a5d7ade7ea # main
+        with:
+          image_name: ${{ env.SYNCROOT_ARTIFACT_NAME }}
+          tag: ${{ env.ENVIRONMENT }}
+          workdir: ./deploy/syncroot
+          acr_name: ${{ env.ACR_NAME }}
+          azure_subscription_id: ${{ secrets.DIS_SYNCROOT_AZURE_SUBSCRIPTION_ID }}
+          azure_app_id: ${{ secrets.DIS_SYNCROOT_AZURE_CLIENT_ID }}
+          azure_tenant_id: ${{ secrets.DIS_SYNCROOT_AZURE_TENANT_ID }}
+
+      - name: Summary
+        run: |
+          short_sha="$(git rev-parse --short HEAD)"
+          {
+            echo "### Published ${short_sha} to ${ENVIRONMENT}"
+            echo "- App image: \`ghcr.io/${IMAGE_NAME}:${short_sha}\`"
+            echo "- Manifests: \`${ACR_NAME}.azurecr.io/${MANIFESTS_ARTIFACT_NAME}:${short_sha}\` (also \`:${ENVIRONMENT}\`)"
+            echo "- Syncroot: \`${ACR_NAME}.azurecr.io/${SYNCROOT_ARTIFACT_NAME}:${short_sha}\` (also \`:${ENVIRONMENT}\`)"
+            echo
+            echo "Follow Flux with:"
+            echo '```sh'
+            echo "flux reconcile source oci manifests -n product-profile"
+            echo "flux get kustomizations -n product-profile"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
