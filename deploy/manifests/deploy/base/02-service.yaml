@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: altinn-profile
+  labels:
+    app.kubernetes.io/name: altinn-profile
+    app.kubernetes.io/instance: altinn-profile
+    app: altinn-profile
+    release: altinn-profile
+    team: core
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 5030
+      protocol: TCP
+      name: http
+      appProtocol: http
+  selector:
+    app: altinn-profile
+    release: altinn-profile
+  ipFamilyPolicy: DualStack
+  ipFamilies:
+    - IPv4
+    - IPv6
