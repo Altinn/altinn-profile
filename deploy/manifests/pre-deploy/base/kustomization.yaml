@@ -3,7 +3,8 @@ kind: Kustomization
 namespace: product-profile
 resources:
   - 01-identity.yaml
-  # - 02-db-migration.yaml # uncomment this when identity is created
+  - 02-vault.yaml
+  # - 03-db-migration.yaml # uncomment this when identity is created
 
 # The environment ConfigMap is created here (pre-deploy) and consumed by both the
 # migration job and the runtime deployment, which is applied after this stage.
