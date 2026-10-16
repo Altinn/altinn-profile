@@ -19,7 +19,7 @@ spec:
   selector:
     app: altinn-profile
     release: altinn-profile
-  ipFamilyPolicy: DualStack
+  ipFamilyPolicy: PreferDualStack
   ipFamilies:
     - IPv4
     - IPv6
