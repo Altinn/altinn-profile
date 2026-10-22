@@ -1,0 +1,10 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: manifests
+spec:
+  interval: 10m
+  provider: azure
+  url: oci://altinncr.azurecr.io/profile/manifests
+  ref:
+    tag: fake

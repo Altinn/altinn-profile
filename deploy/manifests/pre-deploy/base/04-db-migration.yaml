@@ -1,0 +1,72 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: altinn-profile-db-migrations
+  labels:
+    app.kubernetes.io/name: altinn-profile-db-migrations
+    app.kubernetes.io/part-of: altinn-profile
+spec:
+  # No ttlSecondsAfterFinished: Flux would recreate the job (and rerun the
+  # migrations) at the next reconcile after the TTL deleted it.
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: altinn-profile
+        release: altinn-profile
+        team: core
+        azure.workload.identity/use: 'true'
+      annotations:
+        linkerd.io/inject: disabled
+        # Allows eviction when emptyDir volumes are present
+        cluster-autoscaler.kubernetes.io/safe-to-evict: 'true'
+    spec:
+      serviceAccountName: altinn-profile
+      restartPolicy: Never
+      # Prevent privilege escalation at pod level
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: db-migrations
+          image: 'altinncr.azurecr.io/ghcr.io/altinn/altinn-profile:{{GIT_SHA}}'
+          imagePullPolicy: IfNotPresent
+          args: ['--run-db-migrations']
+          # Harden at container level
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          # Prevent runaway resource usage
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          envFrom:
+            - configMapRef:
+                name: profile-config
+            - secretRef:
+                name: profile-secrets
+          volumeMounts:
+            - name: altinn-appsettings
+              mountPath: /altinn-appsettings
+            - name: accesstoken
+              mountPath: /accesstoken
+      volumes:
+        - name: altinn-appsettings
+          secret:
+            secretName: altinn-appsettings-secret
+            defaultMode: 0440
+        - name: accesstoken
+          secret:
+            secretName: accesstoken
+            defaultMode: 0440
