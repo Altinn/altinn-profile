@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 const string ProfileProject = "../../src/Altinn.Profile/Altinn.Profile.csproj";
 
@@ -18,7 +19,7 @@ var migrations = builder.AddProject("migrations", ProfileProject, launchProfileN
     .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development");
 
 // Fixed, unproxied port so the URLs used by Bruno and other local services keep working.
-builder.AddProject("profile", ProfileProject, launchProfileName: null)
+var profile = builder.AddProject("profile", ProfileProject, launchProfileName: null)
     .WithHttpEndpoint(port: 5030, targetPort: 5030, isProxied: false)
     .WithUrl("http://localhost:5030/swagger", "Swagger")
     .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
@@ -37,7 +38,12 @@ if (builder.Configuration.GetValue("Postgres:UsePodman", true))
     migrations.WaitFor(postgres).WithParentRelationship(postgres);
 }
 
-builder.Build().Run();
+var app = builder.Build();
+
+HashSet<string> pendingRestarts = [];
+using var watcher = WatchSource(app.Services, "../../src", profile);
+
+app.Run();
 
 int RunPodman(string workingDirectory, params string[] podmanArgs)
 {
@@ -61,4 +67,56 @@ void WaitForPostgres()
     }
 
     throw new InvalidOperationException("profile-db did not become ready within 30 seconds");
+}
+
+FileSystemWatcher WatchSource(IServiceProvider services, string folder, IResourceBuilder<ProjectResource> service)
+{
+    string[] extensions = [".cs", ".csproj", ".json"];
+    var watcher = new FileSystemWatcher(Path.Combine(builder.AppHostDirectory, folder)) { IncludeSubdirectories = true };
+
+    FileSystemEventHandler onChange = (_, e) =>
+    {
+        string separator = Path.DirectorySeparatorChar.ToString();
+        if (!extensions.Contains(Path.GetExtension(e.FullPath)) || e.FullPath.Contains($"{separator}bin{separator}") || e.FullPath.Contains($"{separator}obj{separator}"))
+        {
+            return;
+        }
+
+        _ = NotifyChangedAsync(services, service.Resource);
+    };
+
+    watcher.Changed += onChange;
+    watcher.Created += onChange;
+    watcher.Deleted += onChange;
+    watcher.Renamed += (sender, e) => onChange(sender, e);
+    watcher.EnableRaisingEvents = true;
+    return watcher;
+}
+
+async Task NotifyChangedAsync(IServiceProvider services, ProjectResource service)
+{
+    lock (pendingRestarts)
+    {
+        if (!pendingRestarts.Add(service.Name))
+        {
+            return;
+        }
+    }
+
+    await Task.Delay(TimeSpan.FromSeconds(2));
+
+    var result = await services.GetRequiredService<IInteractionService>().PromptNotificationAsync(
+        $"{service.Name} has changed",
+        "Restart it to pick up the changes.",
+        new NotificationInteractionOptions { Intent = MessageIntent.Warning, PrimaryButtonText = "Restart" });
+
+    lock (pendingRestarts)
+    {
+        pendingRestarts.Remove(service.Name);
+    }
+
+    if (!result.Canceled && result.Data)
+    {
+        await services.GetRequiredService<ResourceCommandService>().ExecuteCommandAsync(service, KnownResourceCommands.RestartCommand);
+    }
 }
