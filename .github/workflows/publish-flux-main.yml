@@ -1,5 +1,5 @@
 name: Publish main to AT22 and AT23 (Flux)
-run-name: Publish main ${{ github.sha }} to AT22 and AT23
+run-name: Publish ${{ github.ref_name }} ${{ github.sha }} to AT22 and AT23
 
 # Every merge to main that changes something that ends up deployed is built once and deployed
 # to the test environments AT22 and AT23, which are copies of each other with slightly
@@ -8,6 +8,9 @@ on:
   push:
     branches:
       - main
+      # TEMPORARY: bootstrap the new environments from the feature branch, which still has an
+      # Azure credential. Remove when merging.
+      - feat/workshop-dis
     # Only what ends up in the image or in the Flux artifacts. Tests (test/), docs and
     # markdown anywhere don't change what runs, so they don't trigger a deploy.
     # Keep in sync with release-cut.yml.
@@ -24,9 +27,9 @@ jobs:
     name: Build
     uses: ./.github/workflows/build-flux.yml
     with:
-      ref_type: branch
-      ref_name: main
-      # The pushed commit, not whatever main points at when the jobs get to run.
+      ref_type: ${{ github.ref_type }}
+      ref_name: ${{ github.ref_name }}
+      # The pushed commit, not whatever the branch points at when the jobs get to run.
       sha: ${{ github.sha }}
     permissions:
       contents: read
@@ -34,17 +37,20 @@ jobs:
       id-token: write
     secrets: inherit
 
-  at22:
-    name: Deploy to AT22
-    needs: build
-    uses: ./.github/workflows/promote-flux.yml
-    with:
-      environment: at22
-      tag: ${{ needs.build.outputs.image_tag }}
-    permissions:
-      contents: read
-      id-token: write
-    secrets: inherit
+  # TEMPORARY: AT22 is left out while the new environments are bootstrapped with identity, vault
+  # and external secret only (the deployment and migration job are commented out in deploy/).
+  # Promoting AT22 now would remove its running app. Restore this job together with those lines.
+  # at22:
+  #   name: Deploy to AT22
+  #   needs: build
+  #   uses: ./.github/workflows/promote-flux.yml
+  #   with:
+  #     environment: at22
+  #     tag: ${{ needs.build.outputs.image_tag }}
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+  #   secrets: inherit
 
   at23:
     name: Deploy to AT23
