@@ -32,6 +32,8 @@ on:
       - 'src/**'
       - 'Dockerfile'
       - 'deploy/**'
+      # Editing this temporary workflow reruns it, so it can be triggered without a dummy change.
+      - '.github/workflows/publish-flux-selected.yml'
       - '!**/*.md'
 
 permissions: {}
