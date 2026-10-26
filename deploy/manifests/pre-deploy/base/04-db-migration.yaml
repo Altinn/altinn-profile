@@ -33,7 +33,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: db-migrations
-          image: 'altinncr.azurecr.io/ghcr.io/altinn/altinn-profile:{{GIT_SHA}}'
+          image: 'altinncr.azurecr.io/ghcr.io/altinn/altinn-profile:{{IMAGE_TAG}}'
           imagePullPolicy: IfNotPresent
           args: ['--run-db-migrations']
           # Harden at container level
