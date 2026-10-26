@@ -5,6 +5,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 const string ProfileProject = "../../src/Altinn.Profile/Altinn.Profile.csproj";
 
@@ -39,6 +40,7 @@ if (builder.Configuration.GetValue("Postgres:UsePodman", true))
     migrations.WaitFor(postgres).WithParentRelationship(postgres);
 }
 
+AddClusterSwitch(profile, "altinn-profile", 5030);
 AddTests("tests", profile, "../../Altinn.Profile.sln");
 
 var app = builder.Build();
@@ -70,6 +72,73 @@ void WaitForPostgres()
     }
 
     throw new InvalidOperationException("profile-db did not become ready within 30 seconds");
+}
+
+void AddClusterSwitch(IResourceBuilder<ProjectResource> service, string clusterService, int port)
+{
+    Process? forward = null;
+
+    service.WithCommand(
+        "use-cluster",
+        "Use cluster",
+        async context =>
+        {
+            await context.Services.GetRequiredService<ResourceCommandService>().ExecuteCommandAsync(service.Resource, KnownResourceCommands.StopCommand, context.CancellationToken);
+
+            var logger = context.Services.GetRequiredService<ResourceLoggerService>().GetLogger(service.Resource);
+            forward = StartPortForward(clusterService, port, logger);
+            var started = forward;
+            context.Services.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping.Register(() => started.Kill());
+
+            await context.Services.GetRequiredService<ResourceNotificationService>().PublishUpdateAsync(service.Resource, s => s with { State = new ResourceStateSnapshot("Cluster", KnownResourceStateStyles.Info) });
+            return CommandResults.Success();
+        },
+        new CommandOptions { IconName = "Cloud", UpdateState = _ => forward is null ? ResourceCommandState.Enabled : ResourceCommandState.Hidden });
+
+    service.WithCommand(
+        "use-local",
+        "Use local",
+        async context =>
+        {
+            forward?.Kill();
+            forward = null;
+            return await context.Services.GetRequiredService<ResourceCommandService>().ExecuteCommandAsync(service.Resource, KnownResourceCommands.StartCommand, context.CancellationToken);
+        },
+        new CommandOptions { IconName = "Desktop", UpdateState = _ => forward is null ? ResourceCommandState.Hidden : ResourceCommandState.Enabled });
+}
+
+static Process StartPortForward(string clusterService, int port, ILogger logger)
+{
+    var process = new Process
+    {
+        StartInfo = new ProcessStartInfo("kubectl", ["port-forward", $"service/{clusterService}", $"{port}:80"])
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+        },
+        EnableRaisingEvents = true,
+    };
+
+    process.OutputDataReceived += (_, e) =>
+    {
+        if (e.Data is not null)
+        {
+            logger.LogInformation("{Line}", e.Data);
+        }
+    };
+    process.ErrorDataReceived += (_, e) =>
+    {
+        if (e.Data is not null)
+        {
+            logger.LogError("{Line}", e.Data);
+        }
+    };
+    process.Exited += (_, _) => logger.LogWarning("kubectl port-forward exited with code {ExitCode}", process.ExitCode);
+
+    process.Start();
+    process.BeginOutputReadLine();
+    process.BeginErrorReadLine();
+    return process;
 }
 
 void AddTests(string name, IResourceBuilder<ProjectResource> service, string solution)
