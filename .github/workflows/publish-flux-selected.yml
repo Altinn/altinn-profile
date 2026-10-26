@@ -1,0 +1,69 @@
+name: Publish to selected environments (Flux, feature branch)
+run-name: Publish ${{ github.ref_name }} ${{ github.sha }} to selected environments
+
+# TEMPORARY. Publishes the feature branch to a chosen list of environments, to set up the new
+# environments before the normal flow on main takes over. Delete this file when they are set up.
+# It runs only for pushes to the feature branch, which still has an Azure credential, and never
+# on main.
+#
+# Every push to the branch (that changes src, Dockerfile or deploy) builds once and moves the
+# environment tag of each environment in the list below onto that build. What the cluster then
+# applies is decided by the kustomize config in deploy/:
+#
+#   1. Setup: with 04-db-migration.yaml (pre-deploy/base) and 03-deployment.yaml (syncroot/base)
+#      commented out, each environment only gets the identity, vault and external secret, so the
+#      service account and the vault exist before the first real deploy.
+#      Environments: at23, yt01, tt02, prod.
+#   2. Deployment: after adding the secrets to each vault, uncomment those two lines and edit the
+#      list below to yt01 only. TT02 and PROD get their first deploy through the release flow
+#      (deploy.yml from main), which is where they are meant to be deployed from.
+#
+# AT22 is left out of the setup stage: it already has the setup and a running app, and the trimmed
+# config would remove that app. Add it only for the deployment stage if you want it.
+#
+# This skips the release-only rules and the approval gates of TT02 and PROD: nothing here runs
+# in a GitHub environment, so nobody is asked to approve. Do not leave this file on main.
+on:
+  push:
+    branches:
+      - feat/workshop-dis
+    # Keep in sync with publish-flux-main.yml.
+    paths:
+      - 'src/**'
+      - 'Dockerfile'
+      - 'deploy/**'
+      - '!**/*.md'
+
+permissions: {}
+
+jobs:
+  build:
+    name: Build
+    uses: ./.github/workflows/build-flux.yml
+    with:
+      ref_type: ${{ github.ref_type }}
+      ref_name: ${{ github.ref_name }}
+      # The pushed commit, not whatever the branch points at when the jobs get to run.
+      sha: ${{ github.sha }}
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    secrets: inherit
+
+  promote:
+    name: Deploy to ${{ matrix.environment }}
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        # Edit this list between the stages (see above).
+        environment: [at23, yt01]
+    uses: ./.github/workflows/promote-flux.yml
+    with:
+      environment: ${{ matrix.environment }}
+      tag: ${{ needs.build.outputs.image_tag }}
+    permissions:
+      contents: read
+      id-token: write
+    secrets: inherit
