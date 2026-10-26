@@ -373,4 +373,9 @@ nb-configuration.xml
 src/Altinn.Apps/AppTemplates/AspNet/App/Properties/launchSettings.json
 *.iml
 
+# Re-include the Aspire app host; git cannot re-include a folder whose parent is ignored by [Tt]ools/
+!/tools/
+/tools/*
+!/tools/aspire/
+
 **/appsettings.Local.json
