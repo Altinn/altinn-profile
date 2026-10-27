@@ -94,6 +94,20 @@ void SetConfigurationProviders(ConfigurationManager config)
 
     var keyVaultUri = config.GetValue<string>("kvSetting:SecretUri");
 
+    // The mounted settings file above is the legacy way to provide the vault address. When it is not
+    // there, use the PLATFORM_KEYVAULT_URI environment variable.
+    if (string.IsNullOrEmpty(keyVaultUri))
+    {
+        keyVaultUri = config.GetValue<string>("PLATFORM_KEYVAULT_URI");
+
+        // KeyVaultSettings is bound from kvSetting, and the platform access token validation reads the
+        // public certificates from that vault, so the address has to be set there as well.
+        if (!string.IsNullOrEmpty(keyVaultUri))
+        {
+            config["kvSetting:SecretUri"] = keyVaultUri;
+        }
+    }
+
     if (!string.IsNullOrEmpty(keyVaultUri))
     {
         config.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential());

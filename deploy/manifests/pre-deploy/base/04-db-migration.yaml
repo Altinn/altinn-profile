@@ -57,15 +57,9 @@ spec:
             - secretRef:
                 name: profile-secrets
           volumeMounts:
-            - name: altinn-appsettings
-              mountPath: /altinn-appsettings
             - name: accesstoken
               mountPath: /accesstoken
       volumes:
-        - name: altinn-appsettings
-          secret:
-            secretName: altinn-appsettings-secret
-            defaultMode: 0440
         - name: accesstoken
           secret:
             secretName: accesstoken
