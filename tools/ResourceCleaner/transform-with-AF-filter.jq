@@ -7,7 +7,7 @@ def isTestOrg:
   # orgcode casing is inconsistent in the source data (both "acn" and "ACN" occur)
   (.hasCompetentAuthority.orgcode // "")
   | ascii_downcase
-  | IN("acn", "bft", "ttd");
+  | IN("acn", "bft");
 
 def isRelevantResourceType:
   .resourceType
@@ -17,8 +17,6 @@ map(
   select(
     (isTestOrg | not)
     and isRelevantResourceType
-    and .visible == true
-    and .delegable == true
   )
   | {
       identifier,
@@ -27,8 +25,6 @@ map(
       status,
       contactPoints,
       resourceReferences: (.resourceReferences // []),
-      delegable,
-      visible,
       competentAuthority: (
         .hasCompetentAuthority
         | { name: .name.nb, organization, orgcode }

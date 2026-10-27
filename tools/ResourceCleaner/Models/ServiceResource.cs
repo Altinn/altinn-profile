@@ -48,18 +48,6 @@ public class ServiceResource
     public List<ResourceReference> ResourceReferences { get; set; } = [];
 
     /// <summary>
-    /// Whether rights to the resource can be delegated.
-    /// </summary>
-    [JsonPropertyName("delegable")]
-    public bool Delegable { get; set; }
-
-    /// <summary>
-    /// Whether the resource is visible to end users.
-    /// </summary>
-    [JsonPropertyName("visible")]
-    public bool Visible { get; set; }
-
-    /// <summary>
     /// The organization that owns the resource.
     /// </summary>
     [JsonPropertyName("competentAuthority")]
