@@ -1,11 +1,9 @@
-name: profile
-
 services:
   profile-db:
     image: docker.io/library/postgres:17
-    container_name: profile-db
+    container_name: ${POSTGRES_CONTAINER_NAME:-profile-db}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     environment:
       POSTGRES_USER: platform_profile_admin
       POSTGRES_PASSWORD: Password

@@ -1,4 +1,4 @@
-#:sdk Aspire.AppHost.Sdk@13.6.1
+#:sdk Aspire.AppHost.Sdk@13.6.4
 #:property AspireUseCliBundle=true
 
 using System.Diagnostics;
@@ -27,17 +27,40 @@ var profile = builder.AddProject("profile", ProfileProject, launchProfileName: n
     .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
     .WaitForCompletion(migrations);
 
+// podman or docker. Both take the same compose, exec and logs commands.
+var containerRuntime = builder.Configuration["ContainerRuntime"] ?? "podman";
+var postgresPort = builder.Configuration.GetValue("Postgres:Port", 5432);
+
 // The container is started outside Aspire so it keeps running when it stops; the resource only tails its logs.
-if (builder.Configuration.GetValue("Postgres:UsePodman", true))
+if (builder.Configuration.GetValue("Postgres:UseContainer", true))
 {
-    if (RunPodman("profile-db", "compose", "up", "-d") != 0)
+    var postgresContainer = builder.Configuration["Postgres:ContainerName"] ?? "profile-db";
+
+    // Compose tracks containers by project, so the project is named after the container to give each name its own container and volume.
+    var composeEnvironment = new Dictionary<string, string>
     {
-        throw new InvalidOperationException("podman compose up failed for profile-db");
+        ["POSTGRES_CONTAINER_NAME"] = postgresContainer,
+        ["POSTGRES_PORT"] = postgresPort.ToString(),
+    };
+    if (RunContainerRuntime("profile-db", ["compose", "-p", postgresContainer, "up", "-d"], composeEnvironment) != 0)
+    {
+        throw new InvalidOperationException($"{containerRuntime} compose up failed for {postgresContainer}");
     }
 
-    WaitForPostgres();
-    var postgres = builder.AddExecutable("postgres", "podman", ".", "logs", "-f", "profile-db");
+    WaitForPostgres(postgresContainer);
+    var postgres = builder.AddExecutable("postgres", containerRuntime, ".", "logs", "-f", postgresContainer);
     migrations.WaitFor(postgres).WithParentRelationship(postgres);
+}
+
+// The connection strings in appsettings.json point to 5432. Another port lets the app host use its own database next to an existing one.
+if (postgresPort != 5432)
+{
+    string connectionString = "Host=localhost;Port=" + postgresPort + ";Username={0};Password={{0}};Database=profiledb;{1}";
+    foreach (var service in new[] { migrations, profile })
+    {
+        service.WithEnvironment("PostgreSqlSettings__AdminConnectionString", string.Format(connectionString, "platform_profile_admin", "Pooling=false"))
+            .WithEnvironment("PostgreSqlSettings__ConnectionString", string.Format(connectionString, "platform_profile", "Maximum Pool Size=4"));
+    }
 }
 
 AddClusterSwitch(profile, "altinn-profile", 5030);
@@ -50,20 +73,25 @@ using var watcher = WatchSource(app.Services, "../../src", profile);
 
 app.Run();
 
-int RunPodman(string workingDirectory, params string[] podmanArgs)
+int RunContainerRuntime(string workingDirectory, string[] runtimeArgs, Dictionary<string, string>? environment = null)
 {
-    var startInfo = new ProcessStartInfo("podman", podmanArgs) { WorkingDirectory = Path.Combine(builder.AppHostDirectory, workingDirectory) };
-    using var podman = Process.Start(startInfo)!;
-    podman.WaitForExit();
-    return podman.ExitCode;
+    var startInfo = new ProcessStartInfo(containerRuntime, runtimeArgs) { WorkingDirectory = Path.Combine(builder.AppHostDirectory, workingDirectory) };
+    foreach (var (key, value) in environment ?? [])
+    {
+        startInfo.Environment[key] = value;
+    }
+
+    using var runtime = Process.Start(startInfo)!;
+    runtime.WaitForExit();
+    return runtime.ExitCode;
 }
 
 // A new container runs its init scripts on a socket-only server first, so wait until Postgres accepts TCP connections.
-void WaitForPostgres()
+void WaitForPostgres(string container)
 {
     for (int attempt = 0; attempt < 30; attempt++)
     {
-        if (RunPodman(".", "exec", "profile-db", "pg_isready", "-h", "localhost", "-U", "platform_profile_admin", "-d", "profiledb") == 0)
+        if (RunContainerRuntime(".", ["exec", container, "pg_isready", "-h", "localhost", "-U", "platform_profile_admin", "-d", "profiledb"]) == 0)
         {
             return;
         }
@@ -71,7 +99,7 @@ void WaitForPostgres()
         Thread.Sleep(TimeSpan.FromSeconds(1));
     }
 
-    throw new InvalidOperationException("profile-db did not become ready within 30 seconds");
+    throw new InvalidOperationException($"{container} did not become ready within 30 seconds");
 }
 
 void AddClusterSwitch(IResourceBuilder<ProjectResource> service, string clusterService, int port)
