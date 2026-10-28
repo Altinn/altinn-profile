@@ -70,6 +70,11 @@ if (args.Contains("--run-db-migrations"))
     return;
 }
 
+if (app.Configuration.GetValue<bool>("PostgreSqlSettings:MigrateOnStartup"))
+{
+    await Migrate();
+}
+
 Configure();
 
 await app.RunAsync();
