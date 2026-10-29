@@ -29,7 +29,9 @@ var profile = builder.AddProject("profile", ProfileProject, launchProfileName: n
 
 // podman or docker. Both take the same compose, exec and logs commands.
 var containerRuntime = builder.Configuration["ContainerRuntime"] ?? "podman";
-var postgresPort = builder.Configuration.GetValue("Postgres:Port", 5432);
+
+// Not 5432, so the app host can run next to a local PostgreSQL or the notifications app host.
+var postgresPort = builder.Configuration.GetValue("Postgres:Port", 5442);
 
 // The container is started outside Aspire so it keeps running when it stops; the resource only tails its logs.
 if (builder.Configuration.GetValue("Postgres:UseContainer", true))
