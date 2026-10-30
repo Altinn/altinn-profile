@@ -3,7 +3,8 @@ services:
     image: docker.io/library/postgres:17
     container_name: ${POSTGRES_CONTAINER_NAME:-profile-db}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      # Only reachable from this machine; the superuser has a well-known password.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     environment:
       POSTGRES_USER: platform_profile_admin
       POSTGRES_PASSWORD: Password
