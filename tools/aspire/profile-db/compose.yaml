@@ -1,0 +1,16 @@
+services:
+  profile-db:
+    image: docker.io/library/postgres:17
+    container_name: ${POSTGRES_CONTAINER_NAME:-profile-db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: platform_profile_admin
+      POSTGRES_PASSWORD: Password
+      POSTGRES_DB: profiledb
+    volumes:
+      - profile-db-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+volumes:
+  profile-db-data:
