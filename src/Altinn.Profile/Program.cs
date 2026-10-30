@@ -41,6 +41,7 @@ using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 
+using OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -222,6 +223,11 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
 static void AddAzureMonitorTelemetryExporters(IServiceCollection services, IConfiguration config)
 {
+    if (!string.IsNullOrEmpty(config["OTEL_EXPORTER_OTLP_ENDPOINT"]))
+    {
+        services.AddOpenTelemetry().UseOtlpExporter();
+    }
+
     var applicationInsightsConnectionString = config.GetValue<string>("ApplicationInsights:ConnectionString");
 
     if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
