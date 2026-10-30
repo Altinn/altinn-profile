@@ -8,7 +8,8 @@
       "applicationUrl": "http://localhost:5030",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_URLS": "http://localhost:5030"
+        "ASPNETCORE_URLS": "http://localhost:5030",
+        "PostgreSqlSettings__MigrateOnStartup": "true"
       }
     }
   }
