@@ -1,6 +1,7 @@
 #:sdk Aspire.AppHost.Sdk@13.6.4
 #:property AspireUseCliBundle=true
 
+using System.ComponentModel;
 using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +29,7 @@ var profile = builder.AddProject("profile", ProfileProject, launchProfileName: n
     .WaitForCompletion(migrations);
 
 // podman or docker. Both take the same compose, exec and logs commands.
-var containerRuntime = builder.Configuration["ContainerRuntime"] ?? "podman";
+string containerRuntime;
 
 // Not 5432, so the app host can run next to a local PostgreSQL or the notifications app host.
 var postgresPort = builder.Configuration.GetValue("Postgres:Port", 5442);
@@ -38,6 +39,10 @@ if (builder.Configuration.GetValue("Postgres:UseContainer", true))
 {
     var postgresContainer = builder.Configuration["Postgres:ContainerName"] ?? "profile-db";
 
+    // Without a setting, use the runtime Aspire is set to, or else whichever of docker and podman is running.
+    containerRuntime = new[] { builder.Configuration["ContainerRuntime"], builder.Configuration["ASPIRE_CONTAINER_RUNTIME"] }
+        .FirstOrDefault(runtime => !string.IsNullOrEmpty(runtime)) ?? DetectContainerRuntime();
+
     // Compose tracks containers by project, so the project is named after the container to give each name its own container and volume.
     var composeEnvironment = new Dictionary<string, string>
     {
@@ -46,7 +51,7 @@ if (builder.Configuration.GetValue("Postgres:UseContainer", true))
     };
     if (RunContainerRuntime("profile-db", ["compose", "-p", postgresContainer, "up", "-d"], composeEnvironment) != 0)
     {
-        throw new InvalidOperationException($"{containerRuntime} compose up failed for {postgresContainer}");
+        throw new InvalidOperationException($"{containerRuntime} compose up failed for {postgresContainer}. Check that {containerRuntime} is installed and running, or set ContainerRuntime.");
     }
 
     WaitForPostgres(postgresContainer);
@@ -83,9 +88,60 @@ int RunContainerRuntime(string workingDirectory, string[] runtimeArgs, Dictionar
         startInfo.Environment[key] = value;
     }
 
-    using var runtime = Process.Start(startInfo)!;
-    runtime.WaitForExit();
-    return runtime.ExitCode;
+    try
+    {
+        using var runtime = Process.Start(startInfo)!;
+        runtime.WaitForExit();
+        return runtime.ExitCode;
+    }
+    catch (Win32Exception)
+    {
+        // The runtime is not installed.
+        return -1;
+    }
+}
+
+// docker first, like Aspire.
+static string DetectContainerRuntime()
+{
+    foreach (var runtime in new[] { "docker", "podman" })
+    {
+        if (IsRunning(runtime))
+        {
+            return runtime;
+        }
+    }
+
+    throw new InvalidOperationException("Neither docker nor podman is running. Start one of them, or set ContainerRuntime in appsettings.Local.json.");
+}
+
+static bool IsRunning(string runtime)
+{
+    using var process = new Process
+    {
+        StartInfo = new ProcessStartInfo(runtime, ["info"]) { RedirectStandardOutput = true, RedirectStandardError = true },
+    };
+    process.OutputDataReceived += (_, _) => { };
+    process.ErrorDataReceived += (_, _) => { };
+
+    try
+    {
+        process.Start();
+    }
+    catch (Win32Exception)
+    {
+        return false;
+    }
+
+    process.BeginOutputReadLine();
+    process.BeginErrorReadLine();
+    if (!process.WaitForExit(TimeSpan.FromSeconds(15)))
+    {
+        process.Kill();
+        return false;
+    }
+
+    return process.ExitCode == 0;
 }
 
 // A new container runs its init scripts on a socket-only server first, so wait until Postgres accepts TCP connections.

@@ -2,7 +2,7 @@
 
 Starts the `profile-db` Postgres container, runs the database migrations, then starts Profile (port 5030), with logs, traces and metrics in the Aspire dashboard.
 
-Requires the [Aspire CLI](https://aspire.dev/get-started/install-cli/) and Podman or Docker. `profile-db` is created from `profile-db/compose.yaml` if it does not exist.
+Requires the [Aspire CLI](https://aspire.dev/get-started/install-cli/) and Docker or Podman. The app host uses whichever is running. `profile-db` is created from `profile-db/compose.yaml` if it does not exist.
 
 ```bash
 cd tools/aspire
@@ -28,7 +28,7 @@ Override `appsettings.json` in a git-ignored `appsettings.Local.json`.
 
 | Setting | Default | Description |
 | :--- | :--- | :--- |
-| `ContainerRuntime` | `podman` | `podman` or `docker` |
+| `ContainerRuntime` | (none) | `docker` or `podman`. Without it, `ASPIRE_CONTAINER_RUNTIME` is used if set, or else the first of `docker` and `podman` that is running |
 | `Postgres:UseContainer` | `true` | `false` uses a local PostgreSQL instead of the container. Set `Postgres:Port` to its port, usually `5432` |
 | `Postgres:ContainerName` | `profile-db` | Another name creates a separate container and volume |
 | `Postgres:Port` | `5442` | Host port for the database |
