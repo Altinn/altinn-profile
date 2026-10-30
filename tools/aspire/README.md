@@ -9,7 +9,18 @@ cd tools/aspire
 aspire run
 ```
 
-Without a trusted .NET development certificate, run `aspire run -lp http` to get the dashboard on `http://localhost:15193` with no login token. Use it on your own machine only.
+The dashboard is on `https://localhost:17230`. Without a trusted .NET development certificate, run `aspire run -lp http --non-interactive` to get the dashboard on `http://localhost:15230` with no login token (`--non-interactive` stops the CLI from asking to trust the certificate). Use it on your own machine only.
+
+## Running next to other app hosts
+
+The ports are chosen so this app host can run at the same time as the one in altinn-notifications:
+
+| What | Port |
+| :--- | :--- |
+| Profile | `5030`, the same as `dotnet run` |
+| Postgres (`profile-db`) | `5442` |
+| Dashboard | `17230` (https), `15230` (http) |
+| OTLP and resource service | `21230` and `22230` (https), `19230` and `20230` (http) |
 
 ## Settings
 
@@ -18,6 +29,6 @@ Override `appsettings.json` in a git-ignored `appsettings.Local.json`.
 | Setting | Default | Description |
 | :--- | :--- | :--- |
 | `ContainerRuntime` | `podman` | `podman` or `docker` |
-| `Postgres:UseContainer` | `true` | `false` uses a local PostgreSQL instead of the container |
+| `Postgres:UseContainer` | `true` | `false` uses a local PostgreSQL instead of the container. Set `Postgres:Port` to its port, usually `5432` |
 | `Postgres:ContainerName` | `profile-db` | Another name creates a separate container and volume |
-| `Postgres:Port` | `5432` | Host port for the database, e.g. to run next to an existing one |
+| `Postgres:Port` | `5442` | Host port for the database |
