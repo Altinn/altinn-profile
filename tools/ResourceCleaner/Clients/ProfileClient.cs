@@ -1,6 +1,6 @@
 using Npgsql;
 
-namespace ResourceCleaner.ProfileClient;
+namespace ResourceCleaner.Clients;
 
 internal class ProfileClient
 {
@@ -13,6 +13,7 @@ internal class ProfileClient
     private const string _getDistinctUserPartyContactInfoResourceIds = """
         SELECT DISTINCT resource_id
         FROM professional_notification_settings.user_party_contact_info_resources
+        ORDER BY resource_id
     """;
 
     private const string _getUserPartyContactInfoResources = """
