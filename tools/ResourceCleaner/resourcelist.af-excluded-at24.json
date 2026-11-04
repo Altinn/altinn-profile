@@ -1,0 +1,3615 @@
+[
+  {
+    "identifier": "acn_3181_120803",
+    "version": "1.0",
+    "norwegianTitle": "LookUp Security Level 3 120803",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "3181",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "120803",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "23",
+        "referenceType": "ServiceEditionVersion"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "91",
+        "referenceType": "ServiceEditionVersion"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "94",
+        "referenceType": "ServiceEditionVersion"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "326",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_3181_120803"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_3181_120804",
+    "version": "1.0",
+    "norwegianTitle": "LookUp Security Level 1 120804",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "3181",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "120804",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "56",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_3181_120804"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_4485_1793",
+    "version": "1.0",
+    "norwegianTitle": "Ebevis_Samtykkemal_Test",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "4485",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1793",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "408",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_4485_1793"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_4485_3300",
+    "version": "1.0",
+    "norwegianTitle": "Samtykke mal test",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "4485",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "3300",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "95",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_4485_3300"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_5565_1111",
+    "version": "1.0",
+    "norwegianTitle": "ACN Fullmakt service Automation_Test",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5565",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1111",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "272",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_5565_1111"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_5607_2",
+    "version": "1.0",
+    "norwegianTitle": "consent with overridden rm template",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5607",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "2",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "298",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_5607_2"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_u5346_2",
+    "version": "1.0",
+    "norwegianTitle": "Sensitive Role SAmtykke",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "u5346",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "2",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "80",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_u5346_2"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_u6362_1",
+    "version": "1.0",
+    "norwegianTitle": "Link_Service_SRR",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "u6362",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "424",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_u6362_1"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_access_management",
+    "version": "5",
+    "norwegianTitle": "Tilgangsstyring",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "digdir"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_access_management"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_access_management_hovedadmin",
+    "version": "1",
+    "norwegianTitle": "Hovedadministrator",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "digdir"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_access_management_hovedadmin"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_automation_test_lv4",
+    "version": null,
+    "norwegianTitle": "Automation test - innloggingsnivå 4",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [
+      {
+        "referenceSource": "ExternalPlatform",
+        "reference": "test:am:automlv4.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "ExternalPlatform",
+        "reference": "test:am:automlv4.write",
+        "referenceType": "MaskinportenScope"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartement",
+      "organization": "991825827",
+      "orgcode": "TTD"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_automation_test_lv4"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_client_administration",
+    "version": "v1",
+    "norwegianTitle": "Klientadministrering",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "digdir"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_client_administration"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_enduser_access_management",
+    "version": null,
+    "norwegianTitle": "Tilgangsstyring",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": null,
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_enduser_access_management"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_instance_delegation",
+    "version": "2",
+    "norwegianTitle": "Tilgangsstyring av enkeltmeldinger, -skjema og -dialoger",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "digdir"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_instance_delegation"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_keyrole_access",
+    "version": null,
+    "norwegianTitle": "Nøkkelrolle ressurs",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": null,
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_keyrole_access"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_maskinporten_scope_delegation",
+    "version": "v1",
+    "norwegianTitle": "Maskinporten Scope Delegation",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "digdir"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_maskinporten_scope_delegation"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn-profil-api-varslingsdaresser-for-virksomheter",
+    "version": "v0.04",
+    "norwegianTitle": "Altinn Profil-API: varslingsadresser for virksomheter",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "support@altinn.no",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "digdir"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": [
+      "PrivatePerson"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn-profil-api-varslingsdaresser-for-virksomheter"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_system_user_overview",
+    "version": "1",
+    "norwegianTitle": "Systembrukeroversikt",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "digdir"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_system_user_overview"
+      }
+    ]
+  },
+  {
+    "identifier": "asf_4629_1",
+    "version": "1.0",
+    "norwegianTitle": "Ligningsdata fra Skatteetaten TEST",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "4629",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "55",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "974706121",
+      "orgcode": "ASF"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "asf_4629_1"
+      }
+    ]
+  },
+  {
+    "identifier": "authentication-e2e-test",
+    "version": "1",
+    "norwegianTitle": "authentication-e2e-test",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Test",
+        "email": "vegard@altinn.no",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "authentication-e2e-test"
+      }
+    ]
+  },
+  {
+    "identifier": "brg_5065_1111",
+    "version": "1.0",
+    "norwegianTitle": "BRG engangssamtykke",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5065",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1111",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "260",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "974760673",
+      "orgcode": "BRG"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "brg_5065_1111"
+      }
+    ]
+  },
+  {
+    "identifier": "brg_5065_23",
+    "version": "1.0",
+    "norwegianTitle": "BRG samtykke standard mal",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5065",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "23",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "93",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "974760673",
+      "orgcode": "BRG"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "brg_5065_23"
+      }
+    ]
+  },
+  {
+    "identifier": "brg-maskinportenschemaid-2",
+    "version": null,
+    "norwegianTitle": "Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "94b9d402-7a9b-4397-a52e-883b9dd8a229",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:2",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Brønnøysundregistrene",
+      "organization": "974760673",
+      "orgcode": "BRG"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "brg-maskinportenschemaid-2"
+      }
+    ]
+  },
+  {
+    "identifier": "brg-maskinportenschemaid-3",
+    "version": null,
+    "norwegianTitle": "Automation test",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "48b456f0-7898-45be-b47a-0f709a538478",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:3",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Brønnøysundregistrene",
+      "organization": "974760673",
+      "orgcode": "BRG"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "brg-maskinportenschemaid-3"
+      }
+    ]
+  },
+  {
+    "identifier": "brg-maskinportenschemaid-33",
+    "version": null,
+    "norwegianTitle": "JK's Sikkerhetsnivå 3 Scheme",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "d6a212f9-3852-46ec-8a8f-79d95f4cb80b",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:test/seclvl3.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:test/seclvl3.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:33",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Brønnøysundregistrene",
+      "organization": "974760673",
+      "orgcode": "BRG"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "brg-maskinportenschemaid-33"
+      }
+    ]
+  },
+  {
+    "identifier": "brg-maskinportenschemaid-34",
+    "version": null,
+    "norwegianTitle": "JK's Sikkerhetsnivå 2 Scheme",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "ea57c2c4-3943-422c-a62b-d80a26b3b650",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:test/seclvl2.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:test/seclvl2.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:34",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Brønnøysundregistrene",
+      "organization": "974760673",
+      "orgcode": "BRG"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "brg-maskinportenschemaid-34"
+      }
+    ]
+  },
+  {
+    "identifier": "brg-maskinportenschemaid-37",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "6c03afd9-0b51-4fce-a946-d38dbf58d840",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:37",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Brønnøysundregistrene",
+      "organization": "974760673",
+      "orgcode": "BRG"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "brg-maskinportenschemaid-37"
+      }
+    ]
+  },
+  {
+    "identifier": "brg-maskinportenschemaid-38",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "6eaa8bc0-5a9d-4e43-bfb3-759b2e1fd65d",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:38",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Brønnøysundregistrene",
+      "organization": "974760673",
+      "orgcode": "BRG"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "brg-maskinportenschemaid-38"
+      }
+    ]
+  },
+  {
+    "identifier": "brg-maskinportenschemaid-39",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "df9b6e3e-8896-4cf3-b3f3-49b4d60ebf29",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:39",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Brønnøysundregistrene",
+      "organization": "974760673",
+      "orgcode": "BRG"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "brg-maskinportenschemaid-39"
+      }
+    ]
+  },
+  {
+    "identifier": "brg-maskinportenschemaid-58",
+    "version": null,
+    "norwegianTitle": "Automation Test Delegation Scheme",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "f14bad76-ef20-4f6d-a4b9-e8872e9dfaf7",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:58",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Brønnøysundregistrene",
+      "organization": "974760673",
+      "orgcode": "BRG"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "brg-maskinportenschemaid-58"
+      }
+    ]
+  },
+  {
+    "identifier": "brg-maskinportenschemaid-61",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "883471be-6f84-404e-861c-caa55a3fd1a6",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:61",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Brønnøysundregistrene",
+      "organization": "974760673",
+      "orgcode": "BRG"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "brg-maskinportenschemaid-61"
+      }
+    ]
+  },
+  {
+    "identifier": "brg-maskinportenschemaid-62",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "21481f2b-86c8-4e8b-8c3b-0d1e9fbc19e2",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:62",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Brønnøysundregistrene",
+      "organization": "974760673",
+      "orgcode": "BRG"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "brg-maskinportenschemaid-62"
+      }
+    ]
+  },
+  {
+    "identifier": "brokebackresource",
+    "version": "1",
+    "norwegianTitle": "brokebackresource",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "BrokerService",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "brokebackresource"
+      }
+    ]
+  },
+  {
+    "identifier": "demo-samtykke-qa",
+    "version": "1",
+    "norwegianTitle": "demo-samtykke-qa",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Test",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "Consent",
+    "availableForType": [
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "demo-samtykke-qa"
+      }
+    ]
+  },
+  {
+    "identifier": "devtest_mps_authparties-main-to-org",
+    "version": null,
+    "norwegianTitle": "AuthorizedParties: Mainunit to Organization Maskinporten Schema for utviklingstester",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [
+      {
+        "referenceSource": "ExternalPlatform",
+        "reference": "ttd:mps/authparties-main-to-org.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "ExternalPlatform",
+        "reference": "ttd:mps/authparties-main-to-org.write",
+        "referenceType": "MaskinportenScope"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartement",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "devtest_mps_authparties-main-to-org"
+      }
+    ]
+  },
+  {
+    "identifier": "devtest_mps_authparties-sub-to-org",
+    "version": null,
+    "norwegianTitle": "AuthorizedParties: Subunit to Organization Maskinporten Schema for utviklingstester",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [
+      {
+        "referenceSource": "ExternalPlatform",
+        "reference": "ttd:mps/authparties-sub-to-org.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "ExternalPlatform",
+        "reference": "ttd:mps/authparties-sub-to-org.write",
+        "referenceType": "MaskinportenScope"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartement",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "devtest_mps_authparties-sub-to-org"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir_5576_1111",
+    "version": "1.0",
+    "norwegianTitle": "DIGDIR samtykke test",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5576",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1111",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "274",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir_5576_1111"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir_5618_1010",
+    "version": "1.0",
+    "norwegianTitle": "Samtykke test for DIGDIR",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5618",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1010",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "300",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir_5618_1010"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-104",
+    "version": null,
+    "norwegianTitle": "Automation Test Delegation Scheme Requires Level 3",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "fb66f620-4b1c-4ca5-8c66-13dab869fb98",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:bjorn/theworld.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:bjorn/theworld.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:104",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-104"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-105",
+    "version": null,
+    "norwegianTitle": "Automation Test Delegation Scheme Requires Level 3",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "13113385-6dab-4e94-8d81-5ae3b6cd0833",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:bjorn/theworld.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:bjorn/theworld.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:105",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-105"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-126",
+    "version": null,
+    "norwegianTitle": "Tilgang til å administrere samtykkeforespørsler og samtykketokens",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "bc974993-c9a5-49af-a636-cfc0c0ed7569",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:consentrequests.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:consentrequests.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:consenttokens",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:126",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-126"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-344",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1b75ed20-5388-4b24-9e0c-865fa7fa62ac",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:344",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-344"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-358",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "89b81df5-e317-4487-9e1a-8ce5f19a9535",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:358",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-358"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-379",
+    "version": null,
+    "norwegianTitle": "Test DelegationScheme12",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "0213e4dc-6299-41a6-b4f0-b9da9aad6b3c",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:379",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-379"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-386",
+    "version": null,
+    "norwegianTitle": "Test DelegationScheme1",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dacb2836-b99b-4fb3-8ec7-d3816b52ecb2",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:386",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-386"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-389",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "84055014-6694-480a-aac3-0ba59eab2fdd",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:389",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-389"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-396",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "b3897725-b6cd-4c11-a8fd-f6319fc27f55",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:396",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-396"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-397",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "ed94d626-49e4-4ae2-8183-26d4a72f82d9",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:397",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-397"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-398",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "e2a06dd2-44fc-41f5-853c-c2b4ab687cd0",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:398",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-398"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-409",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "b27c0d5b-b34f-41c4-848f-b69a0bebbfa5",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:409",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-409"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-413",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "8a8c337f-ded8-4c99-af36-ec70459bc5e0",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:413",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-413"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-419",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "6866dfed-7eb1-4de7-9ece-e50bf50f5435",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:419",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-419"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-427",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "cfbb9066-bb72-492f-8dc1-08444d86fca6",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:427",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-427"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-437",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1a1e1e1f-1290-405b-98d2-65e38ed973a8",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:437",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-437"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-440",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "7e2aff64-60af-435c-84c6-cf2355d1fff8",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:test/theworld.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:test/theworld.admin",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:440",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-440"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-456",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "12b0feaa-5e7e-4ea0-9d9a-eda27eefe079",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:456",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-456"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-460",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "8e37b91c-44e9-4ffb-90f9-aa9780634e7a",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:460",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-460"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-461",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "b00ce496-6464-471c-bdfc-1029fd04617c",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:461",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-461"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-464",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "e88bde47-6b41-4109-b2a1-cc3774ab1bed",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:test/theworld.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:test/theworld.admin",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:464",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-464"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-478",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "901182f4-5e04-411c-8541-5f44599e491c",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:478",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-478"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-489",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dedfdccf-7ecf-4f9f-a9da-bedb82825f1d",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:489",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-489"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-493",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "afbb0f4d-9728-4f2a-9d2e-10c1dbdcd293",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:493",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-493"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-494",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "c87290d6-f417-4dd3-bdd8-baee1bcb2552",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:494",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-494"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-495",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "d9880ed4-d1de-478a-99b2-d882fd2855da",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:495",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-495"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-497",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "02da782f-95a1-4cda-8d9a-dfc710bc099f",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:497",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-497"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-498",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "03ce164d-451e-49de-a0ac-1c0fce436d88",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:498",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-498"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-503",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "a0d59547-20e5-4f23-bf4e-6ce1638927ea",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:503",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-503"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-513",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "c3171433-c331-4942-92d7-4c965fe3fd45",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:513",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-513"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-514",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1f2d778b-c5f0-4be1-9612-7ece780d5773",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:514",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-514"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-516",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "3740dfbc-53a8-4faa-be51-674a7a676a7c",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:516",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-516"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-519",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "15b22c64-daa5-4971-a498-f20f8ca877ba",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:test/theworld.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:test/theworld.admin",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:519",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-519"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-557",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1e452be4-21e0-4c88-b682-2a4a1eb1b65e",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:557",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-557"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-575",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "995eb0af-4e39-47af-9dd5-ab2a29a34463",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:575",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-575"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-576",
+    "version": null,
+    "norwegianTitle": "Automation Regression",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5e4c421e-0a64-456f-bb1f-6a921acb2ce6",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegationschemes.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:576",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-576"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir_u5356_2",
+    "version": "1.0",
+    "norwegianTitle": "consent with SRR",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "u5356",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "2",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "319",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "991825827",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir_u5356_2"
+      }
+    ]
+  },
+  {
+    "identifier": "enkelt-samtykke",
+    "version": "11",
+    "norwegianTitle": "Enkelt samtykke",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Test",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "Consent",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "enkelt-samtykke"
+      }
+    ]
+  },
+  {
+    "identifier": "rtlregsamtykke",
+    "version": "1",
+    "norwegianTitle": "rtlregsamtykke",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "epost@epostkongen2.no",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "Consent",
+    "availableForType": [
+      "PrivatePerson"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "rtlregsamtykke"
+      }
+    ]
+  },
+  {
+    "identifier": "samtykke-brukerstyrt-tilgang",
+    "version": "4",
+    "norwegianTitle": "Brukerstyrt tilgang",
+    "status": "Withdrawn",
+    "contactPoints": [
+      {
+        "category": "Test",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "Consent",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "samtykke-brukerstyrt-tilgang"
+      }
+    ]
+  },
+  {
+    "identifier": "samtykke-forhaandsgodkjenning",
+    "version": "4",
+    "norwegianTitle": "samtykke-kravoversikt",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "ads",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "Consent",
+    "availableForType": [
+      "PrivatePerson"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "samtykke-forhaandsgodkjenning"
+      }
+    ]
+  },
+  {
+    "identifier": "samtykke-fullmakt-utfoere-tjeneste",
+    "version": "7",
+    "norwegianTitle": "Samtykke fullmakt utføre tjeneste",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Test",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "Consent",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "PrivatePerson",
+      "Company",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "samtykke-fullmakt-utfoere-tjeneste"
+      }
+    ]
+  },
+  {
+    "identifier": "samtykke-laanesoeknad",
+    "version": "8",
+    "norwegianTitle": "samtykke-laanesoeknad",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Test",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "Consent",
+    "availableForType": [
+      "PrivatePerson",
+      "BankruptcyEstate",
+      "LegalEntityEnterprise",
+      "Company",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "samtykke-laanesoeknad"
+      }
+    ]
+  },
+  {
+    "identifier": "samtykkeressurs-med-tilgangsliste",
+    "version": "12",
+    "norwegianTitle": "Samtykkeressurs med tilgangsliste",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Test",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "Consent",
+    "availableForType": [
+      "PrivatePerson",
+      "Company",
+      "LegalEntityEnterprise",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "samtykkeressurs-med-tilgangsliste"
+      }
+    ]
+  },
+  {
+    "identifier": "standard-samtykke-for-dele-data",
+    "version": "4",
+    "norwegianTitle": "Standard samtykke for å dele data",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Test",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "Consent",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "standard-samtykke-for-dele-data"
+      }
+    ]
+  },
+  {
+    "identifier": "ttd-altinn-events-automated-tests",
+    "version": null,
+    "norwegianTitle": null,
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": null,
+      "organization": "991825827",
+      "orgcode": "TTD"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "ttd-altinn-events-automated-tests"
+      }
+    ]
+  },
+  {
+    "identifier": "ttd-am-k6",
+    "version": null,
+    "norwegianTitle": "Maskinporten Schema - AM - K6",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "ExternalPlatform",
+        "reference": "test:am/k6.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "ExternalPlatform",
+        "reference": "test:am/k6.write",
+        "referenceType": "MaskinportenScope"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartement",
+      "organization": "991825827",
+      "orgcode": "TTD"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "ttd-am-k6"
+      }
+    ]
+  },
+  {
+    "identifier": "ttd-am-k6-nuf",
+    "version": "1",
+    "norwegianTitle": "Maskinporten Schema - AM - K6 - NUF",
+    "status": "Active",
+    "contactPoints": [
+      {
+        "category": "Brukerstøtte",
+        "email": "",
+        "telephone": "12345678",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "ExternalPlatform",
+        "reference": "test:am/k6nuf.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "ExternalPlatform",
+        "reference": "test:am/k6nuf.write",
+        "referenceType": "MaskinportenScope"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "ttd-am-k6-nuf"
+      }
+    ]
+  },
+  {
+    "identifier": "ttd-formidlingstjeneste-test",
+    "version": "1",
+    "norwegianTitle": "Formidlings-tjeneste  test",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Test",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "BrokerService",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "ttd-formidlingstjeneste-test"
+      }
+    ]
+  }
+]

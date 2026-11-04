@@ -1,0 +1,3148 @@
+[
+  {
+    "identifier": "abctest",
+    "version": "2",
+    "norwegianTitle": "ABCtest",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "Martin ABCtest",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5602",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "https://www.vg.no",
+        "referenceType": "Uri"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "abctest"
+      }
+    ]
+  },
+  {
+    "identifier": "access-operation-link-service-test",
+    "version": "Access operation Link service",
+    "norwegianTitle": "Access operation Link service",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "test@email.com",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5565",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "2222",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "https://schemas.altinn.no/authorization/administration/operation/access/2020/05/",
+        "referenceType": "Uri"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "access-operation-link-service-test"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn2-link-service-with-access--operation",
+    "version": "Altinn2 link service with Access operation",
+    "norwegianTitle": "Altinn2 link service with Access operation",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "test@email.com",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5997",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "2222",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "https://schemas.altinn.no/authorization/administration/operation/access/2020/05/",
+        "referenceType": "Uri"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn2-link-service-with-access--operation"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn2--link-service-with-srr-and-consent",
+    "version": "Altinn2 Link service with SRR and consent",
+    "norwegianTitle": "Altinn2 Link service with SRR and consent",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "test@gmail.com",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5997",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1111",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "https://altinn.no",
+        "referenceType": "Uri"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn2--link-service-with-srr-and-consent"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn2--test--link-service-with-srr-and-consent",
+    "version": "Altinn2 Link service with SRR and consent",
+    "norwegianTitle": "Altinn2 Link service with SRR and consent",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "test@email.com",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5997",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1111",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "https://altinn.no",
+        "referenceType": "Uri"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn2--test--link-service-with-srr-and-consent"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn-correspondence-test-resource",
+    "version": "2.26",
+    "norwegianTitle": "altinn-correspondence-test-resource",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Tilbakemeldinger",
+        "email": "axel.ytteras@digdir.no",
+        "telephone": "91702158",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "Company",
+      "LegalEntityEnterprise",
+      "PrivatePerson"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn-correspondence-test-resource"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_kurs-01-2025-mats",
+    "version": null,
+    "norwegianTitle": "bokmål-fra-innstillinger",
+    "status": null,
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "mats.jorgensen@digdir.no",
+        "telephone": "12351241298",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/kurs-01-2025-mats",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "kurs-01-2025-mats"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_redirect-inbox-simple-app-v3-3",
+    "version": null,
+    "norwegianTitle": "redirect-inbox-simple-app-v3-3",
+    "status": null,
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "test@test.com",
+        "telephone": "44444444",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/redirect-inbox-simple-app-v3-3",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "redirect-inbox-simple-app-v3-3"
+      }
+    ]
+  },
+  {
+    "identifier": "change-request-jordbruk",
+    "version": "1",
+    "norwegianTitle": "change-request-jordbruk",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "change-request-jordbruk",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "change-request-jordbruk"
+      }
+    ]
+  },
+  {
+    "identifier": "correspondence-bruksmonstertester-ressurs",
+    "version": "2.83",
+    "norwegianTitle": "Correspondence bruksmønstertester ressurs",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "axel.ytteras@digdir.no",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "CorrespondenceService",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "correspondence-bruksmonstertester-ressurs"
+      }
+    ]
+  },
+  {
+    "identifier": "dagl-correspondence",
+    "version": null,
+    "norwegianTitle": "Altinn Correspondence - Test",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": null,
+      "organization": "991825827",
+      "orgcode": "TTD"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "dagl-correspondence"
+      }
+    ]
+  },
+  {
+    "identifier": "delegation_batch_link_service",
+    "version": "delegation_batch_link_service- new version without read",
+    "norwegianTitle": "Delegation_batch_Link_service",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "test@email.com",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5997",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "8759",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "https://altinn.no",
+        "referenceType": "Uri"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "delegation_batch_link_service"
+      }
+    ]
+  },
+  {
+    "identifier": "delegation_batch_link_service_gui",
+    "version": "Delegation_batch_Link_service_gui_versjon",
+    "norwegianTitle": "Delegation_batch_Link_service",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "test@email.com",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5997",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "8759",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "https://altinn.no",
+        "referenceType": "Uri"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "delegation_batch_link_service_gui"
+      }
+    ]
+  },
+  {
+    "identifier": "devtest_gar_authparties-main-to-org",
+    "version": null,
+    "norwegianTitle": "AuthorizedParties: Mainunit to Organization Generisk Tilgangsressurs for Utviklingstester",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartement",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "devtest_gar_authparties-main-to-org"
+      }
+    ]
+  },
+  {
+    "identifier": "devtest_gar_authparties-main-to-person",
+    "version": null,
+    "norwegianTitle": "AuthorizedParties: Mainunit to Person Generisk Tilgangsressurs for Utviklingstester",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartement",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "devtest_gar_authparties-main-to-person"
+      }
+    ]
+  },
+  {
+    "identifier": "devtest_gar_authparties-person-to-org",
+    "version": null,
+    "norwegianTitle": "AuthorizedParties: Person to Organization Generisk Tilgangsressurs for Utviklingstester",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartement",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "devtest_gar_authparties-person-to-org"
+      }
+    ]
+  },
+  {
+    "identifier": "devtest_gar_authparties-person-to-person",
+    "version": null,
+    "norwegianTitle": "AuthorizedParties: Person to Person Generisk Tilgangsressurs for Utviklingstester",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartement",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "devtest_gar_authparties-person-to-person"
+      }
+    ]
+  },
+  {
+    "identifier": "devtest_gar_authparties-sub-to-org",
+    "version": null,
+    "norwegianTitle": "AuthorizedParties: Subunit to Organization Generisk Tilgangsressurs for Utviklingstester",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartement",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "devtest_gar_authparties-sub-to-org"
+      }
+    ]
+  },
+  {
+    "identifier": "devtest_gar_authparties-sub-to-person",
+    "version": null,
+    "norwegianTitle": "AuthorizedParties: Subunit to Person Generisk Tilgangsressurs for Utviklingstester",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartement",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "devtest_gar_authparties-sub-to-person"
+      }
+    ]
+  },
+  {
+    "identifier": "emptypolicyresource",
+    "version": null,
+    "norwegianTitle": "JKs Empty Policy Resource",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": null,
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "emptypolicyresource"
+      }
+    ]
+  },
+  {
+    "identifier": "generisk-bindestrekressurs",
+    "version": "1",
+    "norwegianTitle": "generisk-bindestrekressurs",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "generisk-bindestrekressurs",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "generisk-bindestrekressurs"
+      }
+    ]
+  },
+  {
+    "identifier": "generisk-dialogporteressurs",
+    "version": "1",
+    "norwegianTitle": "generisk-dialogporteressurs",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Test",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "generisk-dialogporteressurs"
+      }
+    ]
+  },
+  {
+    "identifier": "link_access_utinn",
+    "version": "link_access_utinn",
+    "norwegianTitle": "Link_Access_UTINN",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "test@email.com",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "u5348",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1111",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "https://schemas.altinn.no/authorization/administration/operation/access/2020/05/",
+        "referenceType": "Uri"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "link_access_utinn"
+      }
+    ]
+  },
+  {
+    "identifier": "link-service-exoprt--delegations",
+    "version": "link-service-exoprt--delegations-new version",
+    "norwegianTitle": "Link service exoprt delegations",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "test@email.com",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5997",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "6396",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "https://schemas.altinn.no/authorization/administration/operation/access/2020/05/",
+        "referenceType": "Uri"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "link-service-exoprt--delegations"
+      }
+    ]
+  },
+  {
+    "identifier": "link-service-for-test-consent",
+    "version": "Link service for consent -new version",
+    "norwegianTitle": "Link service for consent",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "teat@email.com",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "4021",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1601",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "https://www.google.no",
+        "referenceType": "Uri"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "link-service-for-test-consent"
+      }
+    ]
+  },
+  {
+    "identifier": "link_service_srr",
+    "version": "Link_Service_SRR",
+    "norwegianTitle": "Link_Service_SRR",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "test@email.com",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "u6362",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "https://www.vg.no/",
+        "referenceType": "Uri"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "link_service_srr"
+      }
+    ]
+  },
+  {
+    "identifier": "link-test_delegation_batch-service",
+    "version": "Delegation-batch-test",
+    "norwegianTitle": "Link test_delegation_batch service",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "test@email.com",
+        "telephone": "",
+        "contactPage": "345678976"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5997",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "989",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "https://schemas.altinn.no/authorization/administration/operation/access/2020/05/",
+        "referenceType": "Uri"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "link-test_delegation_batch-service"
+      }
+    ]
+  },
+  {
+    "identifier": "med-tilgangspakke-sjofart",
+    "version": "1",
+    "norwegianTitle": "med-tilgangspakke-sjofart",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "med-tilgangspakke-sjofart",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "med-tilgangspakke-sjofart"
+      }
+    ]
+  },
+  {
+    "identifier": "resource_enkeltrettighet",
+    "version": null,
+    "norwegianTitle": "Ressurs for enkeltrettigheter testing",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartement",
+      "organization": "991825827",
+      "orgcode": "TTD"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "resource_enkeltrettighet"
+      }
+    ]
+  },
+  {
+    "identifier": "resource_nonDelegable_enkeltrettighet",
+    "version": null,
+    "norwegianTitle": "Non delegable ressurs for enkeltrettigheter testing",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartement",
+      "organization": "991825827",
+      "orgcode": "TTD"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "resource_nonDelegable_enkeltrettighet"
+      }
+    ]
+  },
+  {
+    "identifier": "resource_nonVisible_enkeltrettighet",
+    "version": null,
+    "norwegianTitle": "Non visible ressurs for enkeltrettigheter testing",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartement",
+      "organization": "991825827",
+      "orgcode": "TTD"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "resource_nonVisible_enkeltrettighet"
+      }
+    ]
+  },
+  {
+    "identifier": "se_5829_1",
+    "version": "4",
+    "norwegianTitle": "Martins delegation migration test",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "test",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5240",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "3",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "PrivatePerson"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "se_5829_1"
+      }
+    ]
+  },
+  {
+    "identifier": "testressursprivatperson",
+    "version": "1",
+    "norwegianTitle": "TestRessursPrivatperson",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Testbehov",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "PrivatePerson"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "testressursprivatperson"
+      }
+    ]
+  },
+  {
+    "identifier": "test_tilgangsliste_ressurs",
+    "version": "Test_tilgangsliste_ressurs_V3",
+    "norwegianTitle": "Test_tilgangsliste_ressurs",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "test@email.com",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "test_tilgangsliste_ressurs"
+      }
+    ]
+  },
+  {
+    "identifier": "tilgangsliste-systembruker",
+    "version": "2",
+    "norwegianTitle": "tilgangsliste-systembruker",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Test",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "tilgangsliste-systembruker"
+      }
+    ]
+  },
+  {
+    "identifier": "tilgangsliste_test_ressurs",
+    "version": "tilgangsliste_test_ressurs_versjon3",
+    "norwegianTitle": "Tilgangsliste_test_ressurs",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "test@email.com",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "PrivatePerson"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "tilgangsliste_test_ressurs"
+      }
+    ]
+  },
+  {
+    "identifier": "tilgansstyrer-spesifikk",
+    "version": "2",
+    "norwegianTitle": "tilgansstyrer-spesifikk",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Test",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "tilgansstyrer-spesifikk"
+      }
+    ]
+  },
+  {
+    "identifier": "ttd-dialogporten-dummy",
+    "version": "1",
+    "norwegianTitle": "dialogporten-dummy",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Test",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "ttd-dialogporten-dummy"
+      }
+    ]
+  },
+  {
+    "identifier": "ttd-jordbruk-ikke-dagl",
+    "version": "1",
+    "norwegianTitle": "Jordbruk",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Jordbruk",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "ttd-jordbruk-ikke-dagl"
+      }
+    ]
+  },
+  {
+    "identifier": "ttd-migratedcorrespondence-1112-10403",
+    "version": null,
+    "norwegianTitle": "Test1 - migrert fra Altinn 2",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1112",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "10403",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartement",
+      "organization": "910419560",
+      "orgcode": "TTD"
+    },
+    "resourceType": "CorrespondenceService",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "ttd-migratedcorrespondence-1112-10403"
+      }
+    ]
+  },
+  {
+    "identifier": "ttd-migratedcorrespondence-4471-1",
+    "version": "3",
+    "norwegianTitle": "Correspondence Migrering Brøytetest 4471-1",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "ragnar.fatland@digdir.no",
+        "telephone": "95916262",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "Company",
+      "BankruptcyEstate",
+      "LegalEntityEnterprise"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "ttd-migratedcorrespondence-4471-1"
+      }
+    ]
+  },
+  {
+    "identifier": "ttd-systembruker-spesifikk",
+    "version": "1",
+    "norwegianTitle": "forretningsfører",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "asd",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "ttd-systembruker-spesifikk"
+      }
+    ]
+  },
+  {
+    "identifier": "vegardtestressurs",
+    "version": "Versjon7",
+    "norwegianTitle": "vegardendetilende",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Testbehov - for å kjøre ende til ende-test",
+        "email": "",
+        "telephone": "97634078",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "GenericAccessResource",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "vegardtestressurs"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_demo-nsm-13-11",
+    "version": null,
+    "norwegianTitle": "demo-nsm-13-11",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/demo-nsm-13-11",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "demo-nsm-13-11"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_endring-av-navn-v2",
+    "version": null,
+    "norwegianTitle": "Endring av navn",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/endring-av-navn-v2",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "endring-av-navn-v2"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_level1-app",
+    "version": null,
+    "norwegianTitle": "level1-app",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/level1-app",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "level1-app"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_two-task-app",
+    "version": null,
+    "norwegianTitle": "two-task-app",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/two-task-app",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "two-task-app"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_secret",
+    "version": null,
+    "norwegianTitle": "secret",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/secret",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "secret"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_ui-components",
+    "version": null,
+    "norwegianTitle": "App frontend komponenter",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/ui-components",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "ui-components"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_security-level3-app",
+    "version": null,
+    "norwegianTitle": "security-level3-app",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/security-level3-app",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "security-level3-app"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_issue-5636",
+    "version": null,
+    "norwegianTitle": "Søknadsskjema",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/issue-5636",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "issue-5636"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_issue-6573",
+    "version": null,
+    "norwegianTitle": "issue-6573",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/issue-6573",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "issue-6573"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_security-level0-app",
+    "version": null,
+    "norwegianTitle": "security-level0-app",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/security-level0-app",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "security-level0-app"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_issue-5641",
+    "version": null,
+    "norwegianTitle": "Artistundersøkelse",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/issue-5641",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "issue-5641"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_stateless-app",
+    "version": null,
+    "norwegianTitle": "stateless-app",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/stateless-app",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "stateless-app"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_valgkort",
+    "version": null,
+    "norwegianTitle": "Valgkort",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/valgkort",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "valgkort"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_vga-staging",
+    "version": null,
+    "norwegianTitle": "vga-staging",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/vga-staging",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "vga-staging"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_new-pdf-load-test",
+    "version": null,
+    "norwegianTitle": "PDF Load Testing Application",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/new-pdf-load-test",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "new-pdf-load-test"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_headers",
+    "version": null,
+    "norwegianTitle": "headers",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/headers",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "headers"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_vga-dev-stateless-anon",
+    "version": null,
+    "norwegianTitle": "vga-dev-stateless-anon",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/vga-dev-stateless-anon",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "vga-dev-stateless-anon"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_bestille-enkeltopplysning",
+    "version": null,
+    "norwegianTitle": "bestille-enkeltopplysning",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/bestille-enkeltopplysning",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "bestille-enkeltopplysning"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_testtest-deploy",
+    "version": null,
+    "norwegianTitle": "testtest-deploy",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/testtest-deploy",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "testtest-deploy"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_deploy-260523",
+    "version": null,
+    "norwegianTitle": "deploy-260523",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/deploy-260523",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "deploy-260523"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_testskjema-ikke-endre",
+    "version": null,
+    "norwegianTitle": "DIGDIR-BOD Testskjema",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/testskjema-ikke-endre",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "testskjema-ikke-endre"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_ttd-backuptest-02",
+    "version": null,
+    "norwegianTitle": "ttd-backuptest-02",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/ttd-backuptest-02",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "ttd-backuptest-02"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_am-test-lowercase-rolecode",
+    "version": null,
+    "norwegianTitle": "am-test-lowercase-rolecode",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/am-test-lowercase-rolecode",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "am-test-lowercase-rolecode"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_am-test-ipaddress",
+    "version": null,
+    "norwegianTitle": "am-test-ipaddress",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/am-test-ipaddress",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "am-test-ipaddress"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_auto-delete-dataelements",
+    "version": null,
+    "norwegianTitle": "auto-delete-dataelements",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/auto-delete-dataelements",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "auto-delete-dataelements"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_am-automation-test-generic-app",
+    "version": null,
+    "norwegianTitle": "Automatiseringstest for Access Management",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/am-automation-test-generic-app",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "am-automation-test-generic-app"
+      }
+    ]
+  },
+  {
+    "identifier": "app_hdir_app-test-hdir",
+    "version": null,
+    "norwegianTitle": "HELFO-04-Test109",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "hdir/app-test-hdir",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Helsedirektoratet",
+      "organization": "983544622",
+      "orgcode": "hdir"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "hdir"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "app-test-hdir"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_vga-dev-v8",
+    "version": null,
+    "norwegianTitle": "vga-dev-v8",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/vga-dev-v8",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "vga-dev-v8"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_test-bot-deploy",
+    "version": null,
+    "norwegianTitle": "test-bot-deploy",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/test-bot-deploy",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "test-bot-deploy"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_apps-test",
+    "version": null,
+    "norwegianTitle": "test applikasjon (enkel)",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/apps-test",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "apps-test"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_testapp44",
+    "version": null,
+    "norwegianTitle": "testapp44",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/testapp44",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "testapp44"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_filescan-end-to-end",
+    "version": null,
+    "norwegianTitle": "Test application for file scan functionality",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/filescan-end-to-end",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "filescan-end-to-end"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_autorisasjon-automatisert-app",
+    "version": null,
+    "norwegianTitle": "autorisasjon-automatisert-app",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/autorisasjon-automatisert-app",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "autorisasjon-automatisert-app"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_receipt-test-app-core",
+    "version": null,
+    "norwegianTitle": "Testing av Receipt (CORE)",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/receipt-test-app-core",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "receipt-test-app-core"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_autorisasjon-autotest-app",
+    "version": null,
+    "norwegianTitle": "autorisasjon-autotest-app",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/autorisasjon-autotest-app",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "autorisasjon-autotest-app"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_autorisasjon-autotest-app-2",
+    "version": null,
+    "norwegianTitle": "autorisasjon-autotest-app-2",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/autorisasjon-autotest-app-2",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "autorisasjon-autotest-app-2"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_test-innlogging-app-ny",
+    "version": null,
+    "norwegianTitle": "test-innlogging-app-ny",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/test-innlogging-app-ny",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "test-innlogging-app-ny"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_altinn-studio-kurs-demo",
+    "version": null,
+    "norwegianTitle": "Velkommen til Sogndal!",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/altinn-studio-kurs-demo",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "altinn-studio-kurs-demo"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_app-test-1",
+    "version": null,
+    "norwegianTitle": "app-test-1",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/app-test-1",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "app-test-1"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_test-publisering-erling",
+    "version": null,
+    "norwegianTitle": "test-publisering-erling",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/test-publisering-erling",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "test-publisering-erling"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_redirect-inbox-simple-app-a3",
+    "version": null,
+    "norwegianTitle": "redirect-inbox-simple-app",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/redirect-inbox-simple-app-a3",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "redirect-inbox-simple-app-a3"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_test-mirko",
+    "version": null,
+    "norwegianTitle": "test-mirko",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/test-mirko",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "test-mirko"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_subform-test",
+    "version": null,
+    "norwegianTitle": "Underskjema Test",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/subform-test",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "subform-test"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_app-vegard-test",
+    "version": null,
+    "norwegianTitle": "app-vegard-test",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/app-vegard-test",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "app-vegard-test"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_redirect-inbox-simple-app-v3-2",
+    "version": null,
+    "norwegianTitle": "redirect-inbox-simple-app-v3-2",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/redirect-inbox-simple-app-v3-2",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "redirect-inbox-simple-app-v3-2"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_martinotest",
+    "version": null,
+    "norwegianTitle": "martinotest",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/martinotest",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "martinotest"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_test-for-ki-norge",
+    "version": null,
+    "norwegianTitle": "test-for-ki-norge",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/test-for-ki-norge",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "test-for-ki-norge"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_testdriver-for-arbeidsflate",
+    "version": null,
+    "norwegianTitle": "Testdriver for Arbeidsflate - Bokmålsvarianten",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/testdriver-for-arbeidsflate",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "testdriver-for-arbeidsflate"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_authz-bruno-instancedelegation",
+    "version": null,
+    "norwegianTitle": "Authorization Bruno Automatisert Testing - Apps Instansdelegering Test Applikasjon",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/authz-bruno-instancedelegation",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "authz-bruno-instancedelegation"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_redirect-inbox-simple-app",
+    "version": null,
+    "norwegianTitle": "redirect-inbox-simple-app",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/redirect-inbox-simple-app",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "redirect-inbox-simple-app"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_component-library",
+    "version": null,
+    "norwegianTitle": "Altinn komponentbibliotek",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/component-library",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "component-library"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_frontend-test",
+    "version": null,
+    "norwegianTitle": "frontend-test",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/frontend-test",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "frontend-test"
+      }
+    ]
+  },
+  {
+    "identifier": "app_ttd_storage-end-to-end",
+    "version": null,
+    "norwegianTitle": "storage-end-to-end",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "ttd/storage-end-to-end",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "991825827",
+      "orgcode": "ttd"
+    },
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "ttd"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "storage-end-to-end"
+      }
+    ]
+  }
+]

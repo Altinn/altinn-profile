@@ -1,0 +1,17 @@
+ProfileDB resource-IDs that have no match in RRs resourcelist, neither as identifier nor as a2-servicecode-ref:
+1046
+1049
+2437
+2497
+2690
+2802
+3045
+3082
+3657
+3743
+4225
+5062
+5680
+5995
+SMGODK
+urn:altinn:resource:app_ttd_storage-end-to-end

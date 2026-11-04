@@ -1,0 +1,2836 @@
+[
+  {
+    "identifier": "acn-migratedcorrespondence-3008-102",
+    "version": null,
+    "norwegianTitle": "Correspondence Sanity PROD - migrert fra Altinn 2",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "3008",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "102",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testetat for Accenture",
+      "organization": "492037605",
+      "orgcode": "ACN"
+    },
+    "resourceType": "CorrespondenceService",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn-migratedcorrespondence-3008-102"
+      }
+    ]
+  },
+  {
+    "identifier": "acn-migratedcorrespondence-3008-103",
+    "version": null,
+    "norwegianTitle": "Correspondence Sanity NoConf - migrert fra Altinn 2",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "3008",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "103",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testetat for Accenture",
+      "organization": "492037605",
+      "orgcode": "ACN"
+    },
+    "resourceType": "CorrespondenceService",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn-migratedcorrespondence-3008-103"
+      }
+    ]
+  },
+  {
+    "identifier": "acn-migratedcorrespondence-5738-1111",
+    "version": null,
+    "norwegianTitle": "Valgkort Test - migrert fra Altinn 2",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5738",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1111",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Testetat for Accenture",
+      "organization": "492037605",
+      "orgcode": "ACN"
+    },
+    "resourceType": "CorrespondenceService",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn-migratedcorrespondence-5738-1111"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_x4256a_123456",
+    "version": "1.0",
+    "norwegianTitle": "SamtykkeLink5_Ed1",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "x4256a",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "123456",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5828",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_x4256a_123456"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_x4256b_123456",
+    "version": "1.0",
+    "norwegianTitle": "SamtykkeLink5_Ed1",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "x4256b",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "123456",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5819",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_x4256b_123456"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_x4256c_123456",
+    "version": "1.0",
+    "norwegianTitle": "SamtykkeLink5_Ed1",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "x4256c",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "123456",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5820",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_x4256c_123456"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_x4256d_123456",
+    "version": "1.0",
+    "norwegianTitle": "SamtykkeLink5_Ed1",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "x4256d",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "123456",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5821",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_x4256d_123456"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_x4256e_123456",
+    "version": "1.0",
+    "norwegianTitle": "SamtykkeLink5_Ed1",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "x4256e",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "123456",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5822",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_x4256e_123456"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_x4256f_123456",
+    "version": "1.0",
+    "norwegianTitle": "SamtykkeLink5_Ed1",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "x4256f",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "123456",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5823",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_x4256f_123456"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_x4256g_123456",
+    "version": "1.0",
+    "norwegianTitle": "SamtykkeLink5_Ed1",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "x4256g",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "123456",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5824",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_x4256g_123456"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_x4256h_123456",
+    "version": "1.0",
+    "norwegianTitle": "SamtykkeLink5_Ed1",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "x4256h",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "123456",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5825",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_x4256h_123456"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_x4256i_123456",
+    "version": "1.0",
+    "norwegianTitle": "SamtykkeLink5_Ed1",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "x4256i",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "123456",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5826",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_x4256i_123456"
+      }
+    ]
+  },
+  {
+    "identifier": "acn_x4256j_123456",
+    "version": "1.0",
+    "norwegianTitle": "SamtykkeLink5_Ed1",
+    "status": "Discontinued",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no"
+      }
+    ],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "x4256j",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "123456",
+        "referenceType": "ServiceEditionCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "5827",
+        "referenceType": "ServiceEditionVersion"
+      }
+    ],
+    "competentAuthority": {
+      "name": null,
+      "organization": "999999990",
+      "orgcode": "ACN"
+    },
+    "resourceType": "Consent",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "acn_x4256j_123456"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_access_management",
+    "version": "5",
+    "norwegianTitle": "Tilgangsstyring",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "digdir"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_access_management"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_access_management_hovedadmin",
+    "version": null,
+    "norwegianTitle": "Hovedadministrator",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": null,
+      "organization": "713431400",
+      "orgcode": "digdir"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_access_management_hovedadmin"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_client_administration",
+    "version": null,
+    "norwegianTitle": "Klientadministrering",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": null,
+      "organization": "713431400",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_client_administration"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_enduser_access_management",
+    "version": null,
+    "norwegianTitle": "Tilgangsstyring",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": null,
+      "organization": "713431400",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_enduser_access_management"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_instance_delegation",
+    "version": "2",
+    "norwegianTitle": "Tilgangsstyring av enkeltmeldinger, -skjema og -dialoger",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "digdir"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_instance_delegation"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_keyrole_access",
+    "version": null,
+    "norwegianTitle": "Nøkkelrolle ressurs",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": null,
+      "organization": "713431400",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_keyrole_access"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_maskinporten_scope_delegation",
+    "version": null,
+    "norwegianTitle": "Maskinporten Scope Delegation",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "DIGITALISERINGSDIREKTORATET",
+      "organization": "713431400",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_maskinporten_scope_delegation"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn-profil-api-varslingsdaresser-for-virksomheter",
+    "version": "v0.01",
+    "norwegianTitle": "Altinn Profil-API: varslingsdaresser for virksomheter",
+    "status": "UnderDevelopment",
+    "contactPoints": [],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "713431400",
+      "orgcode": "digdir"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": [],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn-profil-api-varslingsdaresser-for-virksomheter"
+      }
+    ]
+  },
+  {
+    "identifier": "altinn_system_user_overview",
+    "version": "1",
+    "norwegianTitle": "Systembrukeroversikt",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Support",
+        "email": "servicedesk@altinn.no",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "991825827",
+      "orgcode": "digdir"
+    },
+    "resourceType": "Systemresource",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "altinn_system_user_overview"
+      }
+    ]
+  },
+  {
+    "identifier": "bft-migratedcorrespondence-3831-2",
+    "version": null,
+    "norwegianTitle": "BruksmønsterF - migrert fra Altinn 2",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "3831",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "2",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Basefarm TEST",
+      "organization": "703924123",
+      "orgcode": "BFT"
+    },
+    "resourceType": "CorrespondenceService",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "bft-migratedcorrespondence-3831-2"
+      }
+    ]
+  },
+  {
+    "identifier": "bft-migratedcorrespondence-3833-1",
+    "version": null,
+    "norwegianTitle": "CRD IV – Store engasjementer – ikke konsolidert (KRT-1076) - migrert fra Altinn 2",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "3833",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Basefarm TEST",
+      "organization": "703924123",
+      "orgcode": "BFT"
+    },
+    "resourceType": "CorrespondenceService",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "bft-migratedcorrespondence-3833-1"
+      }
+    ]
+  },
+  {
+    "identifier": "bft-migratedcorrespondence-3964-1",
+    "version": null,
+    "norwegianTitle": "BruksmønsterC - migrert fra Altinn 2",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "3964",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Basefarm TEST",
+      "organization": "703924123",
+      "orgcode": "BFT"
+    },
+    "resourceType": "CorrespondenceService",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "bft-migratedcorrespondence-3964-1"
+      }
+    ]
+  },
+  {
+    "identifier": "bft-migratedcorrespondence-3965-1",
+    "version": null,
+    "norwegianTitle": "BruksmønsterF - migrert fra Altinn 2",
+    "status": "Active",
+    "contactPoints": [],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "3965",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Basefarm TEST",
+      "organization": "703924123",
+      "orgcode": "BFT"
+    },
+    "resourceType": "CorrespondenceService",
+    "availableForType": [
+      "LegalEntityEnterprise",
+      "Company",
+      "PrivatePerson",
+      "BankruptcyEstate"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "bft-migratedcorrespondence-3965-1"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-1103",
+    "version": null,
+    "norwegianTitle": "Tilgang til å administrere samtykkeforespørsler og samtykketokens",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "be3ce188-b218-4454-9182-f6fcc6c35260",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:consentrequests.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:consentrequests.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:consenttokens",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:1103",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "713431400",
+      "orgcode": "DIGDIR"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-1103"
+      }
+    ]
+  },
+  {
+    "identifier": "digdir-maskinportenschemaid-39",
+    "version": "1",
+    "norwegianTitle": "Tilgang til å administrere samtykkeforespørsler og samtykketokens",
+    "status": "Completed",
+    "contactPoints": [],
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "77b6ba03-b0e0-4b38-8477-0928f4a2131c",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:consentrequests.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:consentrequests.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:consenttokens",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:39",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Digitaliseringsdirektoratet",
+      "organization": "713431400",
+      "orgcode": "digdir"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "digdir-maskinportenschemaid-39"
+      }
+    ]
+  },
+  {
+    "identifier": "enkelt-samtykke",
+    "version": "11",
+    "norwegianTitle": "Enkelt samtykke",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Test",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "Consent",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "enkelt-samtykke"
+      }
+    ]
+  },
+  {
+    "identifier": "samtykke-performance-test",
+    "version": "1",
+    "norwegianTitle": "samtykke-performance-test",
+    "status": "UnderDevelopment",
+    "contactPoints": [
+      {
+        "category": "k6",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "Consent",
+    "availableForType": [
+      "PrivatePerson"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "samtykke-performance-test"
+      }
+    ]
+  },
+  {
+    "identifier": "skd-maskinportenschemaid-100",
+    "version": null,
+    "norwegianTitle": "Test App 10",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "3a353d95-1342-46f9-b819-143bf47f4fe1",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp10.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp10.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegations",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:100",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Skatteetaten",
+      "organization": "974760673",
+      "orgcode": "SKD"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "skd-maskinportenschemaid-100"
+      }
+    ]
+  },
+  {
+    "identifier": "skd-maskinportenschemaid-91",
+    "version": null,
+    "norwegianTitle": "Test App 1",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "40d1ecdb-f19b-4b1a-928b-d49a4af365ed",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp1.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp1.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegations",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:91",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Skatteetaten",
+      "organization": "974760673",
+      "orgcode": "SKD"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "skd-maskinportenschemaid-91"
+      }
+    ]
+  },
+  {
+    "identifier": "skd-maskinportenschemaid-92",
+    "version": null,
+    "norwegianTitle": "Test App 2",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "6c57139a-1971-42aa-9ec6-43a4cebf6687",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp2.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp2.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegations",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:92",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Skatteetaten",
+      "organization": "974760673",
+      "orgcode": "SKD"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "skd-maskinportenschemaid-92"
+      }
+    ]
+  },
+  {
+    "identifier": "skd-maskinportenschemaid-93",
+    "version": null,
+    "norwegianTitle": "Test App 3",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "70dc7aa5-12cf-494f-8814-a86602a57a0a",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp3.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp3.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegations",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:93",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Skatteetaten",
+      "organization": "974760673",
+      "orgcode": "SKD"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "skd-maskinportenschemaid-93"
+      }
+    ]
+  },
+  {
+    "identifier": "skd-maskinportenschemaid-94",
+    "version": null,
+    "norwegianTitle": "Test App 4",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "83bf6936-f793-4db8-b9ae-cedac2ad9b80",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp4.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp4.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegations",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:94",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Skatteetaten",
+      "organization": "974760673",
+      "orgcode": "SKD"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "skd-maskinportenschemaid-94"
+      }
+    ]
+  },
+  {
+    "identifier": "skd-maskinportenschemaid-95",
+    "version": null,
+    "norwegianTitle": "Test App 5",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "f79ffc47-02a9-4368-8ce3-f07810c35bca",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp5.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp5.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegations",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:95",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Skatteetaten",
+      "organization": "974760673",
+      "orgcode": "SKD"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "skd-maskinportenschemaid-95"
+      }
+    ]
+  },
+  {
+    "identifier": "skd-maskinportenschemaid-96",
+    "version": null,
+    "norwegianTitle": "Test App 6",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1091aa33-c779-44cd-be0c-b83a78961676",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp6.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp6.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegations",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:96",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Skatteetaten",
+      "organization": "974760673",
+      "orgcode": "SKD"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "skd-maskinportenschemaid-96"
+      }
+    ]
+  },
+  {
+    "identifier": "skd-maskinportenschemaid-97",
+    "version": null,
+    "norwegianTitle": "Test App 7",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "120921b3-1e97-421b-b2c8-78869faf076e",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp7.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp7.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegations",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:97",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Skatteetaten",
+      "organization": "974760673",
+      "orgcode": "SKD"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "skd-maskinportenschemaid-97"
+      }
+    ]
+  },
+  {
+    "identifier": "skd-maskinportenschemaid-98",
+    "version": null,
+    "norwegianTitle": "Test App 8",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1c2220d1-590f-4dcf-b094-e3b04fee0bb7",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp8.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp8.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegations",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:98",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Skatteetaten",
+      "organization": "974760673",
+      "orgcode": "SKD"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "skd-maskinportenschemaid-98"
+      }
+    ]
+  },
+  {
+    "identifier": "skd-maskinportenschemaid-99",
+    "version": null,
+    "norwegianTitle": "Test App 9",
+    "status": "Active",
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn2",
+        "reference": "61bb0e1a-883d-4209-a2f2-bc11df10f31a",
+        "referenceType": "DelegationSchemeId"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp9.read",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "dev:maskinporten/testapp9.write",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "altinn:maskinporten/delegations",
+        "referenceType": "MaskinportenScope"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "AppId:99",
+        "referenceType": "ServiceCode"
+      },
+      {
+        "referenceSource": "Altinn2",
+        "reference": "1",
+        "referenceType": "ServiceEditionCode"
+      }
+    ],
+    "competentAuthority": {
+      "name": "Skatteetaten",
+      "organization": "974760673",
+      "orgcode": "SKD"
+    },
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "skd-maskinportenschemaid-99"
+      }
+    ]
+  },
+  {
+    "identifier": "ske-samtykke-sbl-inntekt",
+    "version": "1",
+    "norwegianTitle": "Samtykke - Inntektsopplysninger",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Brukerstøtte",
+        "email": "",
+        "telephone": "",
+        "contactPage": "https://www.skatteetaten.no/skjema/kontaktskjema-person/"
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "713431400",
+      "orgcode": "ttd"
+    },
+    "resourceType": "Consent",
+    "availableForType": [
+      "PrivatePerson"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "ske-samtykke-sbl-inntekt"
+      }
+    ]
+  },
+  {
+    "identifier": "ske-samtykke-sbl-summert-skattegrunnlag",
+    "version": "1",
+    "norwegianTitle": "Summert skattegrunnlag fra Skatteetaten",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Brukerstøtte",
+        "email": "",
+        "telephone": "",
+        "contactPage": "https://www.skatteetaten.no/skjema/kontaktskjema-person/"
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "713431400",
+      "orgcode": "ttd"
+    },
+    "resourceType": "Consent",
+    "availableForType": [
+      "PrivatePerson"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "ske-samtykke-sbl-summert-skattegrunnlag"
+      }
+    ]
+  },
+  {
+    "identifier": "ttd-broker-performance-test",
+    "version": "1",
+    "norwegianTitle": "Broker ytelsestest",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Send mail",
+        "email": "roar.mjelde@digdir.no",
+        "telephone": "",
+        "contactPage": "https://altinn.no"
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "BrokerService",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise",
+      "Company",
+      "BankruptcyEstate",
+      "SelfRegisteredUser"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "ttd-broker-performance-test"
+      }
+    ]
+  },
+  {
+    "identifier": "ttd-formidlingstjeneste-test",
+    "version": "1",
+    "norwegianTitle": "Formidlings-tjeneste  test",
+    "status": "Completed",
+    "contactPoints": [
+      {
+        "category": "Test",
+        "email": "",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "resourceReferences": [],
+    "competentAuthority": {
+      "name": "Testdepartementet",
+      "organization": "",
+      "orgcode": "ttd"
+    },
+    "resourceType": "BrokerService",
+    "availableForType": [
+      "PrivatePerson",
+      "LegalEntityEnterprise"
+    ],
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "ttd-formidlingstjeneste-test"
+      }
+    ]
+  },
+  {
+    "identifier": "app_bft_a2-3835-1",
+    "version": null,
+    "norwegianTitle": "CRD IV – Store engasjementer – konsolidert (KRT-1077)",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "bft/a2-3835-1",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "BFT Test org",
+      "organization": "999999991",
+      "orgcode": "bft"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "bft"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-3835-1"
+      }
+    ]
+  },
+  {
+    "identifier": "app_bft_a2-3830-1",
+    "version": null,
+    "norwegianTitle": "CRD IV – Uvektet kjernekapitalandel - konsolidert (KRT-1073)",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "bft/a2-3830-1",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "BFT Test org",
+      "organization": "999999991",
+      "orgcode": "bft"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "bft"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-3830-1"
+      }
+    ]
+  },
+  {
+    "identifier": "app_bft_a2-3832-1",
+    "version": null,
+    "norwegianTitle": "CRD IV – Likviditet NSFR – ikke konsolidert (KRT-1074)",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "bft/a2-3832-1",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "BFT Test org",
+      "organization": "999999991",
+      "orgcode": "bft"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "bft"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-3832-1"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-2802-890890",
+    "version": null,
+    "norwegianTitle": "ACN Stor Vedlegg testing",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-2802-890890",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2802-890890"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-3314-1212",
+    "version": null,
+    "norwegianTitle": "Sensitive role Reporting",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-3314-1212",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-3314-1212"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-3314-2345",
+    "version": null,
+    "norwegianTitle": "test automatic migrering",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-3314-2345",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-3314-2345"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-3225-111111",
+    "version": null,
+    "norwegianTitle": "test",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-3225-111111",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-3225-111111"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-3314-2121",
+    "version": null,
+    "norwegianTitle": "Test automatic migration with upcoming date",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-3314-2121",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-3314-2121"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-2802-120802",
+    "version": null,
+    "norwegianTitle": "ACC Security Level 1 120802",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-2802-120802",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2802-120802"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-4481-1",
+    "version": null,
+    "norwegianTitle": "ACN_SHIP_01",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-4481-1",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-4481-1"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-4481-2",
+    "version": null,
+    "norwegianTitle": "ACN_SHIP_02",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-4481-2",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-4481-2"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-2802-120801",
+    "version": null,
+    "norwegianTitle": "ACC Security Level 3 120801",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-2802-120801",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2802-120801"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-3948-8888",
+    "version": null,
+    "norwegianTitle": "Automatic_Parallel_Signing",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-3948-8888",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-3948-8888"
+      }
+    ]
+  },
+  {
+    "identifier": "app_bft_a2-2810-10",
+    "version": null,
+    "norwegianTitle": "InstallasjonstestBF",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "bft/a2-2810-10",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "BFT Test org",
+      "organization": "999999991",
+      "orgcode": "bft"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "bft"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2810-10"
+      }
+    ]
+  },
+  {
+    "identifier": "app_bft_a2-3935-1",
+    "version": null,
+    "norwegianTitle": "Bruksmønster G",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "bft/a2-3935-1",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "BFT Test org",
+      "organization": "999999991",
+      "orgcode": "bft"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "bft"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-3935-1"
+      }
+    ]
+  },
+  {
+    "identifier": "app_bft_a2-3966-1",
+    "version": null,
+    "norwegianTitle": "BruksmønsterJ",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "bft/a2-3966-1",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "BFT Test org",
+      "organization": "999999991",
+      "orgcode": "bft"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "bft"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-3966-1"
+      }
+    ]
+  },
+  {
+    "identifier": "app_bft_a2-3997-1",
+    "version": null,
+    "norwegianTitle": "BruksmønsterD",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "bft/a2-3997-1",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "BFT Test org",
+      "organization": "999999991",
+      "orgcode": "bft"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "bft"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-3997-1"
+      }
+    ]
+  },
+  {
+    "identifier": "app_bft_a2-3991-1",
+    "version": null,
+    "norwegianTitle": "BruksmønsterH",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "bft/a2-3991-1",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "BFT Test org",
+      "organization": "999999991",
+      "orgcode": "bft"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "bft"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-3991-1"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-2802-3",
+    "version": null,
+    "norwegianTitle": "ACC Security Level 4 111215",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-2802-3",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2802-3"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-2802-111215",
+    "version": null,
+    "norwegianTitle": "ACC Security Level 0 111215",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-2802-111215",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2802-111215"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-3225-250760",
+    "version": null,
+    "norwegianTitle": "TestCheckin",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-3225-250760",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-3225-250760"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-2802-111211",
+    "version": null,
+    "norwegianTitle": "ACC Special Rights 111211",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-2802-111211",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2802-111211"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-2802-2203",
+    "version": null,
+    "norwegianTitle": "TS0202_1AT_xml20",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-2802-2203",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2802-2203"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-2802-130612",
+    "version": null,
+    "norwegianTitle": "TS0204_AttachServiceMultipleTypesBothPages_Cycle01",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-2802-130612",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2802-130612"
+      }
+    ]
+  },
+  {
+    "identifier": "app_bft_a2-2810-1",
+    "version": null,
+    "norwegianTitle": "Bruksmoenster1",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "bft/a2-2810-1",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "BFT Test org",
+      "organization": "999999991",
+      "orgcode": "bft"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "bft"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2810-1"
+      }
+    ]
+  },
+  {
+    "identifier": "app_bft_a2-3422-130213",
+    "version": null,
+    "norwegianTitle": "Nivå0_tjeneste",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "bft/a2-3422-130213",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "BFT Test org",
+      "organization": "999999991",
+      "orgcode": "bft"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "bft"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-3422-130213"
+      }
+    ]
+  },
+  {
+    "identifier": "app_bft_a2-3418-130211",
+    "version": null,
+    "norwegianTitle": "RegTest innsending",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "bft/a2-3418-130211",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "BFT Test org",
+      "organization": "999999991",
+      "orgcode": "bft"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "bft"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-3418-130211"
+      }
+    ]
+  },
+  {
+    "identifier": "app_bft_a2-2810-2",
+    "version": null,
+    "norwegianTitle": "Bruksmoenster",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "bft/a2-2810-2",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "BFT Test org",
+      "organization": "999999991",
+      "orgcode": "bft"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "bft"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2810-2"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-2802-111214",
+    "version": null,
+    "norwegianTitle": "ACC Security Level 2 111214",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-2802-111214",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2802-111214"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-2802-111212",
+    "version": null,
+    "norwegianTitle": "ACC Security Level 4 111212",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-2802-111212",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2802-111212"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-2903-111129",
+    "version": null,
+    "norwegianTitle": "ACC RF-1086 Aksjonærregister oppgaven",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-2903-111129",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2903-111129"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-2839-4",
+    "version": null,
+    "norwegianTitle": "RF-0004_ACC",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-2839-4",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2839-4"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-2848-1",
+    "version": null,
+    "norwegianTitle": "RF-1291_ACC_Pod",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-2848-1",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2848-1"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-2802-563478",
+    "version": null,
+    "norwegianTitle": "ACC Stor vedlegg with submit workflow",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-2802-563478",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2802-563478"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-2839-1",
+    "version": null,
+    "norwegianTitle": "RF-1015_ACC3",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-2839-1",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-2839-1"
+      }
+    ]
+  },
+  {
+    "identifier": "app_acn_a2-5995-2222",
+    "version": null,
+    "norwegianTitle": "Altinn2 sensitive reporting service for Authorizaion tests",
+    "status": null,
+    "contactPoints": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "acn/a2-5995-2222",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "competentAuthority": {
+      "name": "ACN Test org",
+      "organization": "999999990",
+      "orgcode": "acn"
+    },
+    "resourceType": "MigratedApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "acn"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "a2-5995-2222"
+      }
+    ]
+  }
+]

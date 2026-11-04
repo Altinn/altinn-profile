@@ -1,0 +1,186 @@
+3310 - spk-min-virksomhet
+3394 - hb-mitt-kundeforhold-i-husbanken
+3403 - nav_forebygge-og-redusere-sykefravar_sykefravarsstatistikk
+3414 - nve-damdatabasen-siv
+3433 - slf-webskas
+3482 - udi-visum-sponsor-og-invitasjon
+3489 - nve--okonomisk-og-teknisk-rapportering
+3505 - mat-mattilsynets-skjematjenester
+3624 - udi-advokater
+3698 - mdir-klifinn, mdir-klifinn-landbasert
+3700 - kjemikaliedeklarering-til-produktregisteret, mdir-kjemikaliedeklarering-til-produktregisteret
+3765 - innrapportering-valutaregisteret
+4004 - nkom-prioritet-i-mobilnett-soknad
+4005 - nkom-prioritet-i-mobilnett-oppsigelse
+4074 - slf-skogsvirke
+4197 - slf-skade
+4198 - pt-prod, slf-pt
+4241 - slf-rmp
+4302 - slf-obb
+4333 - slf-takstmann
+4396 - nve-teknisk-anleggsregister
+4423 - nkom-frekvenstilllatelse-profesjonell-privat-mobil-radio-pmr-nett-soknad
+4424 - nkom-frekvenstilllatelse-profesjonell-privat-mobil-radio-pmr-nett-endring
+4425 - nkom-frekvenstilllatelse-profesjonell-privat-mobil-radio-pmr-nett-oppsigelse
+4495 - brg-faktura-fra-brreg
+4499 - nkom-personlig-nodpeilesender-plb-soknad
+4500 - nkom-personlig-nodpeilesender-plb-endring
+4597 - nkom-frekvenstillatelse-kringkastingsnett-soknad
+4598 - nkom-frekvenstillatelse-kringkastingsnett-endring
+4599 - nkom-frekvenstillatelse-kringkastingsnett-oppsigelse
+4628 - skd_4628_1, skd_4628_210607
+4801 - nkom-frekvenstillatelse-radiolinje-soknad
+4802 - nkom-frekvenstillatelse-radiolinje-endring, nkom-frekvenstillatelse-radiolinje-oppsigelse
+4804 - skd_4804_170223, skd_4804_210607
+4831 - nkom-frekvenstillatelse-radiolinje-punkt-til-punkt-forenklet-lisensiering-soknad
+4832 - nkom-frekvenstillatelse-radiolinje-punkt-til-punkt-forenklet-lisensiering-fornyelse
+4833 - nkom-frekvenstillatelse-radiolinje-punkt-til-punkt-forenklet-lisensiering-oppsigelse
+4837 - hdir-tbr-kommune
+4906 - hdir-tbr-statsforvalter
+4907 - hdir-tbr-skatteetaten
+4908 - hdir-tbr-helsedirektoratet
+4909 - hdir-tbr-innehaver
+4940 - slf-lokalmelk
+4952 - slf-klima-og-miljo, slf-klimamiljoe
+4987 - nve-nettleie-innrapportering
+4989 - slf-syk, slf-sykavl
+4990 - slf-bio, slf-bio-prod, slf-biogass
+5041 - hdir-tbr-kontrollselskap
+5066 - nkom-tillitstjenester-sikkerhetshendelser-varsel
+5099 - slf-slakt
+5117 - slf-klima-og-miljo-sentralt, slf-kmpsentralt
+5119 - slf-plantevern
+5120 - slf-genressurs
+5121 - slf-okologisk, slf-okologisk-sentralt
+5122 - slf-landbruksvikar
+5244 - slf-drenering
+5245 - slf-smil
+5252 - nav_5252_1, nav_5252_2
+5299 - asf_5299_1
+5326 - hb-lan-og-tilskuddstjenester-i-husbanken
+5330 - daq_admin_od, daq_godkjenner_fdir, daq_godkjenner_hi, daq_godkjenner_od, daq_innmelder_od, daq_innmelder_selskap, daq_saksbehandler_fdir, daq_saksbehandler_od
+5332 - nav_tiltak_arbeidstrening
+5341 - stami_5341_1
+5343 - slf-beit, slf-beite, slf-beite-prod
+5344 - slf-fou
+5345 - slf-ukl
+5346 - slf-stim
+5384 - nav_tiltak_ekspertbistand
+5414 - udir_5414_1
+5438 - slf-arv, slf-arv-prod
+5439 - slf-nt
+5441 - nav_arbeidsforhold_aa-registeret-brukerstotte, nav_arbeidsforhold_aa-registeret-innsyn-arbeidsgiver
+5447 - slf-bris-prod, slf-bris2
+5462 - slf-pelskomp
+5463 - slf-pelskostav
+5498 - slk_5498_1
+5567 - aark-prod
+5577 - ske-oppslag-offentligmedhjemmel-folkeregisteret
+5578 - ske-oppslag-finansforetak-folkeregisteret
+5579 - ske-oppslag-offentligutenhjemmel-folkeregisteret
+5580 - ske-oppslag-privatutenhjemmel-folkeregisteret
+5581 - ske-oppslag-presse-folkeregisteret
+5582 - ske-oppslag-privatvirksomhet-folkeregisteret
+5594 - slf-pelsarb
+5600 - slf-disko
+5613 - digdir-selvbetjening-klienter
+5614 - nav_hjelpemidler_behovsmelding
+5616 - digdir_5616_1, digdir_5616_2, digdir_5616_3, digdir_5616_4, digdir_5616_5, digdir_5616_6
+5619 - nkom-oppdatering-kundeinformasjon
+5621 - digdir-selvbetjening-api-maskinporten
+5622 - digdir-selvbetjening-leverandorer
+5632 - slf-diskosamtykke
+5633 - nkom-ekomportalen-administrator, nkom-ekomportalen-import
+5636 - helseid-selvbetjening-administrate-api
+5641 - ske-brukerstoette-brukeradministrasjon
+5655 - nkom-tillatelse-for-radioutstyr-i-norskregistrert-luftfartoy-soknad
+5656 - nkom-tillatelse-for-radioutstyr-i-norskregistrert-luftfartoy-endring
+5661 - hdir-vedtaksok-blaresept
+5671 - hb-kobo-boliger-og-leietakere
+5691 - mitt-kontonummer-prod, slf-mitt-kontonummer
+5706 - dsb_5706_1
+5719 - nav_arbeidsforhold_aa-registeret-sok-tilgang
+5723 - nav_arbeidsforhold_aa-registeret-oppslag-samarbeidspartnere
+5732 - dsb_5732_1
+5733 - dsb_5733_1
+5735 - stami_5735_1, stami_5735_3
+5743 - hb-kobo-saker-og-personer
+5747 - nve-innmelding-av-naturfareutredninger
+5748 - nav_dolly_tilgang-samarbeidspartnere
+5749 - slf-radakt
+5752 - ok-soksys-oslo-kommune
+5755 - datanorge-skrivetilgang
+5756 - datanorge-lesetilgang
+5783 - innsyn-i-driftsplaner-for-akvakulturanlegg-i-sj-vann, saksbehandling-av-driftsplaner-for-akvakulturanlegg-i-sjo
+5785 - slf-despla
+5787 - slf-vkraft
+5794 - slf-reinmrk
+5796 - afs-avfall-s-r-min-side
+5798 - fd-soknads-og-rapporteringsportal-for-akvakultur
+5799 - slf-pelsav2
+5810 - nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger
+5816 - slf-reinmerker-innsyn
+5819 - dsb-tilgang-til-fast
+5822 - kv-nasjonalt-register-over-luftfartshindre
+5829 - nhn-helseid-selvbetjening-administrere-klientsystemer
+5835 - udir-elevundersokelsen-administrator
+5849 - nav_barnebriller_opprette-avtale
+5850 - nav_barnebriller_utbetalingsrapport
+5852 - ske-oppslag-privatvirksomhetutenfid-folkeregisteret
+5853 - ske-oppslag-presseuten-folkeregisteret
+5858 - nav_tiltaksarrangor_deltakeroversikt-koordinator
+5859 - nav_tiltaksarrangor_deltakeroversikt-veileder
+5867 - nav_sosialtjenester_digisos-avtale
+5890 - fd-fangstkorrigering-kvoter
+5899 - brg-dse-autorisasjon
+5900 - nokut-soknad-og-meldeskjema-hyu
+5902 - nav_yrkesskade_skademelding
+5910 - udir-foreldreundersokelsen-barnehage-administrator
+5920 - innsending-av-ekomopplysninger
+5926 - udir-tilgangsportalen
+5928 - skd_5928_202301
+5934 - nav_forebygge-og-redusere-sykefravar_samarbeid
+5936 - slf-psvikm
+5937 - slf-psvik
+5940 - nve-plannett
+5942 - nav_institusjonsopphold_rapportering
+5945 - udir-tavla-les-og-skriv
+5950 - udir-tavla-les
+5955 - udir-tilsyn-les-og-skriv
+5960 - remidt-min-side
+5961 - udir-basil-administrasjon
+5967 - udir-stastedsanalysen-skole-og-sfo-administrator
+5970 - slf-cwd
+5974 - k5001-trondheim-kommune-min-side-entreprenoerrapport
+5977 - datanorge-virksomhetsadministrator
+5978 - nve-min-side-konsesjoner
+5979 - nve-nettkart
+5982 - udir-laerlingundersokelsen-administrator
+5984 - kwt-prod, slf-kwt2
+5990 - udir-gsi-administrasjon
+5993 - slf-rein-admin
+6001 - fd-akvakulturregisteret
+6006 - hb-kobo-kunnskap
+6007 - hb-kobo-adressesperre
+6008 - hb-kobo-innstillinger
+6017 - mna-min-side---midtre-namdal-avfallsselskap
+6018 - dsb-tilgang-til-dle-portalen
+6025 - slf-oko2
+6026 - slf-klima-og-miljo-oremerkede-midler, slf-kmp2
+6027 - slf-plv2
+6029 - udir-nasjonalt-register-for-pp-tjenester-les-og-skriv
+6038 - slf-jegerpro
+6040 - slf-viltbarn
+6043 - ske-oppslag-sametingetsvalgmanntall-folkeregisteret
+6044 - ske-oppslag-utstederaveid-folkeregisteret
+6047 - udir-nasjonalt-register-for-skolefritidsordningen-les-og-skriv
+6048 - udir-nasjonalt-skoleregister-les-og-skriv
+6050 - slf-tvilt
+6052 - udir-nasjonalt-barnehageregister-les-og-skriv
+6056 - lts-tilgang-publiseringslosning-tilskudd-no, lts-tilgang-tilskudd-no
+6063 - udir-statistikkbank-barnehagedata
+6064 - udir-statistikkbank-barnehagemyndighet
+6065 - udir-statistikkbank-opplaeringskontor
+6069 - udir-korreksjonsordningen-private-grunnskoler-rapportering
+HB_ÅRS - hb-migratedcorrespondence-hb_aars-1
+HB_SØK - hb-migratedcorrespondence-hb_soek-1

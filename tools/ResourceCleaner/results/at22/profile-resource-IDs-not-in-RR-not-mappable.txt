@@ -1,0 +1,11 @@
+ProfileDB resource-IDs that have no match in RRs resourcelist, neither as identifier nor as a2-servicecode-ref:
+1046
+2802
+3743
+3906
+4222
+4223
+4795
+5995
+app_apps-test
+example

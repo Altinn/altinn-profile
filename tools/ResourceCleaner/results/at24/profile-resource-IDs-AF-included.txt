@@ -1,0 +1,4 @@
+ProfileDB resource-IDs that match AFs include-list
+app_ttd_am-automation-test-generic-app
+app_ttd_apps-test
+app_ttd_storage-end-to-end

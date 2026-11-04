@@ -1,0 +1,18 @@
+ProfileDB resource-IDs that match AFs include-list
+app_asf_a2-4627-1
+app_brg_a2-3045-1
+app_brg_a2-3078-10
+app_skd_a2-3743-140516
+app_skd_a2-3814-140602
+app_skd_a2-3906-141205
+app_skd_a2-3906-210506
+app_ttd_abcdefg
+app_ttd_abcdefghi
+app_ttd_affis-test-i-ttd
+app_ttd_apps-test
+app_ttd_filescan-end-to-end
+app_ttd_stateless-app
+app_ttd_storage-end-to-end
+devtest_gar_authparties-main-to-person
+nav-migratedcorrespondence-4503-2
+nav_syfo_oppgi-narmesteleder
