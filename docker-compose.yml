@@ -16,6 +16,7 @@ services:
       - ASPNETCORE_URLS=http://+:5030
       - PostgreSqlSettings__AdminConnectionString=Host=host.docker.internal;Port=5432;Username=platform_profile_admin;Password={0};Database=profiledb
       - PostgreSqlSettings__ConnectionString=Host=host.docker.internal;Port=5432;Username=platform_profile;Password={0};Database=profiledb
+      - PostgreSqlSettings__MigrateOnStartup=true
     ports:
       - "5030:5030"
     build:

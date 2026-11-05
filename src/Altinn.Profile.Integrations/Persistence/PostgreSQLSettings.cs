@@ -11,6 +11,12 @@ public class PostgreSqlSettings
     public bool EnableDBConnection { get; set; } = true;
 
     /// <summary>
+    /// Boolean indicating if pending database migrations should be applied when the application starts,
+    /// for local development. Deployments apply them with --run-db-migrations before the upgrade instead.
+    /// </summary>
+    public bool MigrateOnStartup { get; set; } = false;
+
+    /// <summary>
     /// Path to migration scripts
     /// </summary>
     public string MigrationScriptPath { get; set; } = string.Empty;
