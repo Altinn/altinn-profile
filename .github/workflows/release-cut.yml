@@ -1,0 +1,94 @@
+name: Cut release
+run-name: Cut release (${{ inputs.bump || 'minor' }} bump)
+
+# Creates a draft GitHub release from main for review. Runs every Wednesday and can be run
+# manually. Nothing is deployed from here: reviewing and publishing the draft creates the tag
+# vX.Y.Z, and TT02 is then deployed by running deploy.yml for tt02 with that tag as the ref.
+#
+# No release is cut when nothing deployable changed since the last release (same paths as the
+# deploy trigger: src, Dockerfile, deploy; markdown ignored), or while an earlier draft is
+# still waiting for review.
+on:
+  schedule:
+    - cron: '0 6 * * 3' # Wednesday 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Which part of the version to increase.
+        type: choice
+        options:
+          - minor
+          - major
+          - patch
+        default: minor
+
+permissions: {}
+
+concurrency:
+  group: release-cut
+  cancel-in-progress: false
+
+jobs:
+  cut:
+    name: Cut draft release from main
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Always cut from main, whichever branch the manual run was started from.
+          ref: main
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUMP: ${{ inputs.bump || 'minor' }}
+        run: |
+          set -euo pipefail
+          sha="$(git rev-parse HEAD)"
+
+          drafts="$(gh release list --json isDraft --jq '[.[] | select(.isDraft)] | length')"
+          if [ "${drafts}" -gt 0 ]; then
+            echo "::notice::A draft release is already waiting for review, not cutting another."
+            echo "A draft release is already waiting for review, so no new release was cut." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          last="$(git tag --list 'v[0-9]*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1 || true)"
+
+          if [ -n "${last}" ]; then
+            # Keep these paths in sync with the push filter in publish-flux-main.yml.
+            if git diff --quiet "${last}" "${sha}" -- src Dockerfile deploy ':(exclude,glob)**/*.md'; then
+              echo "::notice::Nothing deployable changed since ${last}, not cutting a release."
+              echo "Nothing deployable changed since \`${last}\`, so no new release was cut." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            IFS=. read -r major minor patch <<<"${last#v}"
+            case "${BUMP}" in
+              major) next="v$((major + 1)).0.0" ;;
+              minor) next="v${major}.$((minor + 1)).0" ;;
+              patch) next="v${major}.${minor}.$((patch + 1))" ;;
+              *) echo "::error::Unknown bump '${BUMP}'"; exit 1 ;;
+            esac
+          else
+            next=v1.0.0
+          fi
+
+          args=(--draft --target "${sha}" --title "${next}" --generate-notes)
+          if [ -n "${last}" ]; then
+            args+=(--notes-start-tag "${last}")
+          fi
+          gh release create "${next}" "${args[@]}"
+
+          {
+            echo "### Drafted ${next}"
+            echo "From \`${sha:0:7}\` on main${last:+, changes since \`${last}\`}."
+            echo
+            echo "Review the draft and publish it to create the tag, then run the TT02 workflow from that tag:"
+            echo "$(gh release view "${next}" --json url --jq '.url')"
+          } >> "$GITHUB_STEP_SUMMARY"

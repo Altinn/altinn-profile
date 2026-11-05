@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: product-profile
+resources:
+  - 01-identity.yaml
+  - 02-vault.yaml
+  - 03-externalsecret.yaml
+  # - 04-db-migration.yaml # uncomment this when identity is created
+
+# The environment ConfigMap is created here (pre-deploy) and consumed by both the
+# migration job and the runtime deployment, which is applied after this stage.
+configMapGenerator:
+  - name: profile-config
+    envs:
+      - ./config/environment.env
+
+generatorOptions:
+  disableNameSuffixHash: true
