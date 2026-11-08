@@ -1,0 +1,20 @@
+{
+  "title": "Kofuvi digital alert address fragments as json",
+  "updated": "2025-03-01T12:00:00Z",
+  "nextPage": "http://someurl.no/page2",
+  "entries": [
+    {
+      "title": "4798765432",
+      "id": "aa11bb22cc33dd44ee55ff6677889900",
+      "updated": "2025-02-28T08:00:00Z",
+      "isdeleted": false,
+      "content": "{\"Kontaktinformasjon\":{\"digitalVarslingsinformasjon\":{\"mobiltelefon\":{\"navn\":\"4798765432\",\"internasjonaltPrefiks\":\"47\",\"nasjonaltNummer\":\"98765432\"}},\"identifikator\":\"aa11bb22cc33dd44ee55ff6677889900\",\"kontaktinformasjonForEnhet\":{\"enhetsidentifikator\":{\"verdi\":\"987654321\",\"type\":\"SOMETHINGELSE\"}}}}"
+    },
+    {
+      "title": "4798765433",
+      "id": "bb11cc22dd33ee44ff55006677889900",
+      "updated": "2025-03-01T09:30:00Z",
+      "isdeleted": true
+    }
+  ]
+}

@@ -8,6 +8,7 @@ public interface IOrganizationNotificationAddressSyncJob
     /// <summary>
     /// Retrieves all changes from the source registry and updates the local contact information.
     /// </summary>
+    /// <param name="cancellationToken">A token used to stop the synchronization, for instance when the lease that guards the job is lost.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task SyncNotificationAddressesAsync();
+    Task SyncNotificationAddressesAsync(CancellationToken cancellationToken = default);
 }

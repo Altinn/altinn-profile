@@ -89,6 +89,24 @@ public class TelemetryTests : IDisposable
         Assert.Equal(1, counter.Value);
     }
 
+    [Fact]
+    public void AddressSkipped_WhenCalled_EmitsOrganizationNotificationAddressSkippedMetric()
+    {
+        _telemetry.AddressUnprocessable();
+
+        var counter = Assert.Single(_recordedCounters, item => item.InstrumentName == Telemetry.Metrics.CreateName("organizationnotificationaddress.address.unprocessable"));
+        Assert.Equal(1, counter.Value);
+    }
+
+    [Fact]
+    public void AddressIgnored_WhenCalled_EmitsOrganizationNotificationAddressIgnoredMetric()
+    {
+        _telemetry.AddressIgnored();
+
+        var counter = Assert.Single(_recordedCounters, item => item.InstrumentName == Telemetry.Metrics.CreateName("organizationnotificationaddress.address.ignored"));
+        Assert.Equal(1, counter.Value);
+    }
+
     public void Dispose()
     {
         _meterListener.Dispose();

@@ -3,12 +3,16 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+
 using Altinn.Profile.Core.OrganizationNotificationAddresses;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry;
 using Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.Models;
 using Altinn.Profile.Tests.IntegrationTests.Mocks;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddressTests;
@@ -62,6 +66,40 @@ public class OrganizationNotificationAddressHttpClientTests
         Assert.Contains("since=", url);
     }
 
+    /// <summary>
+    /// The watermark is sent to KoFuVi as an exclusive lower bound, so the exact rendering of the value decides
+    /// which changes we get. The trailing Z is a literal in the format string, which means a value that is not
+    /// already in UTC would be labelled as UTC without being converted.
+    /// </summary>
+    [Fact]
+    public void GetInitialUrl_WhenLastChangedDate_FormatsSinceAsIso8601UtcWithSubSecondPrecision()
+    {
+        // Arrange
+        var client = CreateHttpClient();
+        var lastUpdated = new DateTime(2025, 2, 24, 9, 42, 58, DateTimeKind.Utc).AddTicks(2711429);
+
+        // Act
+        var url = client.GetInitialUrl(lastUpdated);
+
+        // Assert
+        Assert.Contains("since=2025-02-24T09:42:58.2711429Z", url);
+    }
+
+    [Fact]
+    public void GetInitialUrl_WhenLastChangedDateIsNotUtc_ConvertsToUtcBeforeFormatting()
+    {
+        // Arrange
+        var client = CreateHttpClient();
+        var utc = new DateTime(2025, 2, 24, 9, 42, 58, DateTimeKind.Utc);
+        var local = utc.ToLocalTime();
+
+        // Act
+        var url = client.GetInitialUrl(local);
+
+        // Assert - a local timestamp stamped with Z would shift the exclusive lower bound by the local offset
+        Assert.Contains("since=2025-02-24T09:42:58.0000000Z", url);
+    }
+
     [Fact]
     public async Task GetAddressChangesAsync_WhenMissingEndpointUrl_Throws()
     {
@@ -69,7 +107,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var client = CreateHttpClient();
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync(null));
+        await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync(null, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -79,7 +117,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var client = CreateHttpClient();
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync(string.Empty));
+        await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync(string.Empty, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -89,7 +127,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var client = CreateHttpClient();
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync("notAnUrl"));
+        await Assert.ThrowsAsync<ArgumentException>(async () => await client.GetAddressChangesAsync("notAnUrl", TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -106,7 +144,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var client = CreateHttpClient(mockResponse);
 
         // Act and Assert
-        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.GetAddressChangesAsync("http://example.com"));
+        await Assert.ThrowsAsync<OrganizationNotificationAddressChangesException>(async () => await client.GetAddressChangesAsync("http://example.com", TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -121,7 +159,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var client = CreateHttpClient(mockResponse);
 
         // Act
-        var changelog = await client.GetAddressChangesAsync("http://example.com");
+        var changelog = await client.GetAddressChangesAsync("http://example.com", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Null(changelog);
@@ -141,7 +179,7 @@ public class OrganizationNotificationAddressHttpClientTests
         var client = CreateHttpClient(mockResponse);
 
         // Act
-        _ = await client.GetAddressChangesAsync("http://example.com");
+        _ = await client.GetAddressChangesAsync("http://example.com", TestContext.Current.CancellationToken);
 
         // Assert
         _messageHandler.VerifyAll();

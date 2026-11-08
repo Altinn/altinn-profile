@@ -20,7 +20,7 @@ jobs:
       checks: write
     services:
       postgres:
-        image: postgres:17.11@sha256:f4c66b820c6f974249089d3d16d86a3698eae11e8746eb6644b2271031e91232
+        image: postgres:17.11@sha256:3b0cda93be7c8dba2ed484d19393d93845dc3dafb88973e248ba8e6d99d784e1
         env:
           POSTGRES_USER: platform_profile_admin
           POSTGRES_PASSWORD: Password
@@ -36,7 +36,7 @@ jobs:
           dotnet-version: |
             10.0.x
       - name: Set up Java
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: 'temurin'
           java-version: 17
@@ -56,7 +56,6 @@ jobs:
           dotnet tool install --global dotnet-sonarscanner
       - name: Build & Test
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           dotnet-sonarscanner begin /k:"Altinn_altinn-profile" /o:"altinn" /d:sonar.login="$SONAR_TOKEN" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vstest.reportsPaths="**/*.trx" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/ServiceDefaults.**, src/Altinn.Profile.Integrations/Migrations/*" /d:sonar.coverage.exclusions="test/k6/**/*"
@@ -75,13 +74,12 @@ jobs:
       - name: Complete sonar analysis
         if: always()
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           dotnet-sonarscanner end /d:sonar.token="$SONAR_TOKEN"
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: TestResults
           path: '**/TestResults/*.trx'
