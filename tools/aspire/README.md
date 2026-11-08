@@ -1,6 +1,8 @@
 # Aspire app host
 
-Starts the `profile-db` Postgres container, runs the database migrations, then starts Profile (port 5030), with logs, traces and metrics in the Aspire dashboard.
+Starts the `profile-db` Postgres container and a WireMock container (`mocks`) for the external dependencies, runs the database migrations, then starts Profile (port 5030), with logs, traces and metrics in the Aspire dashboard.
+
+The mocks and the test certificates are the same as for docker compose, so authenticated calls work with tokens from `local-dev/token.cs`. See [local-dev/README.md](../../local-dev/README.md) for tokens, test data and the mocked services.
 
 Requires the [Aspire CLI](https://aspire.dev/get-started/install-cli/) and Docker or Podman. The app host uses whichever is running. `profile-db` is created from `profile-db/compose.yaml` if it does not exist.
 
@@ -19,6 +21,7 @@ The ports are chosen so this app host can run at the same time as the one in alt
 | :--- | :--- |
 | Profile | `5030`, the same as `dotnet run` |
 | Postgres (`profile-db`) | `5442` |
+| WireMock (`mocks`) | `5039`, the same as docker compose |
 | Dashboard | `17230` (https), `15230` (http) |
 | OTLP and resource service | `21230` and `22230` (https), `19230` and `20230` (http) |
 
@@ -32,3 +35,9 @@ Override `appsettings.json` in a git-ignored `appsettings.Local.json`.
 | `Postgres:UseContainer` | `true` | `false` uses a local PostgreSQL instead of the container. Set `Postgres:Port` to its port, usually `5432` |
 | `Postgres:ContainerName` | `profile-db` | Another name creates a separate container and volume |
 | `Postgres:Port` | `5442` | Host port for the database |
+| `Mocks:UseContainer` | `true` | `false` skips WireMock, so Profile uses the endpoints in its `appsettings.json` (locally running Altinn services) |
+| `Mocks:Port` | `5039` | Host port for WireMock |
+
+## Access tokens without Key Vault
+
+Profile validates incoming platform access tokens with the public certificates in `GeneralSettings:AccessTokenPublicCertsFolder` when `kvSetting:SecretUri` is not set. The app host copies `test/Altinn.Profile.Tests/ttd-org.pem` to a temporary folder as `platform-org.pem` and `ttd-org.pem`, and signs outgoing platform access tokens with `ttd-org.pfx`.

@@ -7,8 +7,8 @@
         "status": 200,
         "headers": { "Content-Type": "application/json" },
         "jsonBody": {
-          "issuer": "http://mocks:8080/authentication/api/v1/openid/",
-          "jwks_uri": "http://mocks:8080/authentication/api/v1/openid/.well-known/openid-configuration/jwks",
+          "issuer": "{{request.baseUrl}}/authentication/api/v1/openid/",
+          "jwks_uri": "{{request.baseUrl}}/authentication/api/v1/openid/.well-known/openid-configuration/jwks",
           "id_token_signing_alg_values_supported": ["RS256"]
         }
       }

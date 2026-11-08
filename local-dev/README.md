@@ -1,7 +1,8 @@
 # Running Altinn Profile locally with Docker
 
 The `docker-compose.yml` in the repository root starts a self-contained environment, with no
-dependencies on other Altinn services or Azure:
+dependencies on other Altinn services or Azure. The Aspire app host in `tools/aspire` uses the same mocks,
+certificates and tokens, with Profile running on the host instead of in a container (see its README).
 
 | Service      | What it is                                                                 | Host port                         |
 |--------------|-----------------------------------------------------------------------------|-----------------------------------|
@@ -86,5 +87,5 @@ curl -s "http://localhost:5039/__admin/requests" | grep -o 'Oppgi koden [0-9]*'
 ### Adding or changing mock responses
 
 Edit or add JSON files in `wiremock/mappings` (see the [WireMock stubbing docs](https://wiremock.org/docs/stubbing/)),
-then run `docker compose restart mocks`. Mappings with a lower `priority` number win, which is how the specific
+then run `docker compose restart mocks` (or restart `mocks` in the Aspire dashboard). Mappings with a lower `priority` number win, which is how the specific
 Register stubs take precedence over the "unknown party" fallbacks.
