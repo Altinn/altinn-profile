@@ -74,17 +74,15 @@ cd altinn-profile
 
 ### Running the application in a docker container
 
-- Start Altinn Profile docker container by running the command
+The compose file starts a self-contained environment: PostgreSQL (with migrations applied), the Profile API and
+WireMock stubs for all external dependencies. No local PostgreSQL setup is needed.
 
 ```cmd
 podman compose up -d --build
 ```
 
-- To stop the container running Altinn Profile run the command
-
-```cmd
-podman stop altinn-platform-profile
-```
+The API is available at http://localhost:5030/swagger. To stop it, run `podman compose down`.
+See [local-dev/README.md](local-dev/README.md) for how to get tokens, the available test data and how to change the mocks.
 
 
 ### Running the application with .NET

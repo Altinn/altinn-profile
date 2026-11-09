@@ -166,7 +166,16 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
     services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-    services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProvider>();
+
+    if (string.IsNullOrEmpty(config.GetValue<string>("kvSetting:SecretUri")))
+    {
+        // No Key Vault (local development): read the access token public certificates from disk.
+        services.AddSingleton<IPublicSigningKeyProvider, FilePublicSigningKeyProvider>();
+    }
+    else
+    {
+        services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProvider>();
+    }
 
     services.AddHttpClient<AuthorizationApiClient>();
     services.AddSingleton<IPDP, PDPAppSI>();

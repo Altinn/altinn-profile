@@ -1,0 +1,16 @@
+{
+  "mappings": [
+    {
+      "name": "Notifications: instant SMS or email order accepted",
+      "request": { "method": "POST", "urlPathPattern": "/notifications/api/v1/future/orders/instant/(sms|email)" },
+      "response": {
+        "status": 201,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": {
+          "orderChainId": "{{randomValue type='UUID'}}",
+          "notification": { "shipmentId": "{{randomValue type='UUID'}}", "sendersReference": "local-dev" }
+        }
+      }
+    }
+  ]
+}
