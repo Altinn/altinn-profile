@@ -496,12 +496,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task CreateMandatory_TooLongEmail_ReturnsBadRequest()
+        public async Task CreateMandatory_WhenTooLongEmail_ReturnsBadRequest()
         {
             // Arrange
             var orgNo = "123456789";
             const int UserId = 2516356;
-            var tooLongEmail = new string('a', 189) + "@example.com"; // 201 chars
+            var tooLongEmail = new string('a', 243) + "@example.com"; // 255 chars
 
             _factory.PdpMock
                 .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
@@ -532,7 +532,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(actual.Errors["Email"]);
             Assert.True(actual.Errors.TryGetValue("Email", out var message));
 
-            Assert.Equal("The field Email must be a string or array type with a maximum length of '200'.", message[0]);
+            Assert.Equal("The field Email must be a string or array type with a maximum length of '254'.", message[0]);
         }
 
         [Theory]
@@ -586,7 +586,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             var orgNo = "123456789";
             const int UserId = 2516356;
-            var tooLongPhone = new string('9', 197); // 197 chars + 4 chars from domain -> exceeds 200 chars for full address
+            var tooLongPhone = new string('9', 15);
 
             _factory.PdpMock
                 .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
@@ -617,7 +617,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             Assert.NotNull(actual.Errors["Phone"]);
             Assert.True(actual.Errors.TryGetValue("Phone", out var phoneMessage));
-            Assert.Equal("The field Phone must be a string or array type with a maximum length of '196'.", phoneMessage[0]);
+            Assert.Equal("The field Phone must be a string or array type with a maximum length of '14'.", phoneMessage[0]);
         }
 
         [Fact]
@@ -956,12 +956,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task UpdateMandatory_WheTooLongEmail_ReturnsBadRequest()
+        public async Task UpdateMandatory_WhenTooLongEmail_ReturnsBadRequest()
         {
             // Arrange
             var orgNo = "123456789";
             const int UserId = 2516356;
-            var tooLongEmail = new string('a', 189) + "@example.com"; // 201 chars
+            var tooLongEmail = new string('a', 243) + "@example.com"; // 255 chars
 
             _factory.PdpMock
                 .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
@@ -991,7 +991,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Single(actual.Errors);
             Assert.NotNull(actual.Errors["Email"]);
             Assert.True(actual.Errors.TryGetValue("Email", out var message));
-            Assert.Equal("The field Email must be a string or array type with a maximum length of '200'.", message[0]);
+            Assert.Equal("The field Email must be a string or array type with a maximum length of '254'.", message[0]);
         }
 
         [Theory]
@@ -1045,7 +1045,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             var orgNo = "123456789";
             const int UserId = 2516356;
-            var tooLongPhone = new string('9', 197); // 197 chars + 4 chars from domain -> exceeds 200 chars for full address
+            var tooLongPhone = new string('9', 15);
 
             _factory.PdpMock
                 .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
@@ -1080,7 +1080,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             Assert.NotNull(actual.Errors["Phone"]);
             Assert.True(actual.Errors.TryGetValue("Phone", out var phoneMessage));
-            Assert.Equal("The field Phone must be a string or array type with a maximum length of '196'.", phoneMessage[0]);
+            Assert.Equal("The field Phone must be a string or array type with a maximum length of '14'.", phoneMessage[0]);
         }
 
         [Fact]

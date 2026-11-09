@@ -10,26 +10,26 @@ namespace Altinn.Profile.Models.OrganizationNotificationAddresses
     public abstract class NotificationAddressModel
     {
         /// <summary>
-        /// Country code for phone number
+        /// Country code for phone number.
         /// </summary>
         /// <example>+47</example>
         [CustomRegexForNotificationAddresses(ValidationRule.OrganizationCountryCode)]
         public string CountryCode { get; set; }
 
         /// <summary>
-        /// Email address
+        /// Email address.
         /// </summary>
         /// <example>user@example.com</example>
         [CustomRegexForNotificationAddresses(ValidationRule.OrganizationEmail)]
-        [MaxLength(200)]
+        [MaxLength(254)]
         public string Email { get; set; }
 
         /// <summary>
-        /// Phone number
+        /// Phone number.
         /// </summary>
         /// <example>98765432</example>        
         [CustomRegexForNotificationAddresses(ValidationRule.OrganizationPhone)]
-        [MaxLength(196)]
+        [MaxLength(14)] // Ref. the E.164 standard
         public string Phone { get; set; }
     }
 }
