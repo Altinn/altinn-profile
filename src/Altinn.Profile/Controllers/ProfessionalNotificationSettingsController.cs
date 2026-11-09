@@ -303,7 +303,7 @@ namespace Altinn.Profile.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<NotificationSettingsResponse>> Delete([FromRoute] Guid partyUuid, CancellationToken cancellationToken)
+        public async Task<ActionResult> Delete([FromRoute] Guid partyUuid, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {

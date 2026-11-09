@@ -91,8 +91,8 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                         },
                     ]
                 }
-            ]; 
-            
+            ];
+
             _factory = factory;
             _factory.PdpMock ??= new Mock<IPDP>();
             _factory.PdpMock.Reset();
@@ -140,7 +140,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             var orgNo = "error-org";
             const int UserId = 2516356;
-            
+
             _factory.PdpMock
                 .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
                 .ReturnsAsync(new XacmlJsonResponse { Response = [new XacmlJsonResult { Decision = "Permit" }] });
@@ -495,6 +495,46 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Contains("The field Email must match the regular expression", message[0]);
         }
 
+        [Fact]
+        public async Task CreateMandatory_TooLongEmail_ReturnsBadRequest()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+            var tooLongEmail = new string('a', 189) + "@example.com"; // 201 chars
+
+            _factory.PdpMock
+                .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
+                .ReturnsAsync(new XacmlJsonResponse { Response = [new XacmlJsonResult { Decision = "Permit" }] });
+
+            HttpClient client = _factory.CreateClient();
+
+            var input = new NotificationAddressRequest { Email = tooLongEmail };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(responseContent, _serializerOptions);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal(400, actual.Status);
+            Assert.Equal("One or more validation errors occurred.", actual.Title);
+
+            Assert.Single(actual.Errors);
+            Assert.NotNull(actual.Errors["Email"]);
+            Assert.True(actual.Errors.TryGetValue("Email", out var message));
+
+            Assert.Equal("The field Email must be a string or array type with a maximum length of '200'.", message[0]);
+        }
+
         [Theory]
         [InlineData("invalid", "++47")]
         [InlineData("invalid", "47")]
@@ -538,6 +578,46 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(actual.Errors["Phone"]);
             Assert.True(actual.Errors.TryGetValue("Phone", out var phoneMessage));
             Assert.Contains("The field Phone must match the regular expression", phoneMessage[0]);
+        }
+
+        [Fact]
+        public async Task CreateMandatory_WhenTooLongPhone_ReturnsBadRequest()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+            var tooLongPhone = new string('9', 197); // 197 chars + 4 chars from domain -> exceeds 200 chars for full address
+
+            _factory.PdpMock
+                .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
+                .ReturnsAsync(new XacmlJsonResponse { Response = [new XacmlJsonResult { Decision = "Permit" }] });
+
+            HttpClient client = _factory.CreateClient();
+
+            var input = new NotificationAddressRequest { Phone = tooLongPhone, CountryCode = "+245" };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(responseContent, _serializerOptions);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal(400, actual.Status);
+            Assert.Equal("One or more validation errors occurred.", actual.Title);
+
+            Assert.Single(actual.Errors);
+
+            Assert.NotNull(actual.Errors["Phone"]);
+            Assert.True(actual.Errors.TryGetValue("Phone", out var phoneMessage));
+            Assert.Equal("The field Phone must be a string or array type with a maximum length of '196'.", phoneMessage[0]);
         }
 
         [Fact]
@@ -875,6 +955,45 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Contains("The field Email must match the regular expression", message[0]);
         }
 
+        [Fact]
+        public async Task UpdateMandatory_WheTooLongEmail_ReturnsBadRequest()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+            var tooLongEmail = new string('a', 189) + "@example.com"; // 201 chars
+
+            _factory.PdpMock
+                .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
+                .ReturnsAsync(new XacmlJsonResponse { Response = [new XacmlJsonResult { Decision = "Permit" }] });
+
+            HttpClient client = _factory.CreateClient();
+
+            var input = new NotificationAddressRequest { Email = tooLongEmail };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(responseContent, _serializerOptions);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal(400, actual.Status);
+            Assert.Equal("One or more validation errors occurred.", actual.Title);
+
+            Assert.Single(actual.Errors);
+            Assert.NotNull(actual.Errors["Email"]);
+            Assert.True(actual.Errors.TryGetValue("Email", out var message));
+            Assert.Equal("The field Email must be a string or array type with a maximum length of '200'.", message[0]);
+        }
+
         [Theory]
         [InlineData("invalid", "++47")]
         [InlineData("invalid", "47")]
@@ -918,6 +1037,50 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(actual.Errors["Phone"]);
             Assert.True(actual.Errors.TryGetValue("Phone", out var phoneMessage));
             Assert.Contains("The field Phone must match the regular expression", phoneMessage[0]);
+        }
+
+        [Fact]
+        public async Task UpdateMandatory_WhenTooLongPhone_ReturnsBadRequest()
+        {
+            // Arrange
+            var orgNo = "123456789";
+            const int UserId = 2516356;
+            var tooLongPhone = new string('9', 197); // 197 chars + 4 chars from domain -> exceeds 200 chars for full address
+
+            _factory.PdpMock
+                .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
+                .ReturnsAsync(new XacmlJsonResponse { Response = [new XacmlJsonResult { Decision = "Permit" }] });
+
+            HttpClient client = _factory.CreateClient();
+
+            var input = new NotificationAddressRequest
+            {
+                Phone = tooLongPhone,
+                CountryCode = "+247"
+            };
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage = CreateAuthorizedRequest(UserId, httpRequestMessage);
+
+            // Act
+            HttpResponseMessage response = await client.SendAsync(httpRequestMessage, TestContext.Current.CancellationToken);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+            var actual = JsonSerializer.Deserialize<HttpValidationProblemDetails>(responseContent, _serializerOptions);
+
+            Assert.IsType<HttpValidationProblemDetails>(actual);
+            Assert.Equal(400, actual.Status);
+            Assert.Equal("One or more validation errors occurred.", actual.Title);
+
+            Assert.Single(actual.Errors);
+
+            Assert.NotNull(actual.Errors["Phone"]);
+            Assert.True(actual.Errors.TryGetValue("Phone", out var phoneMessage));
+            Assert.Equal("The field Phone must be a string or array type with a maximum length of '196'.", phoneMessage[0]);
         }
 
         [Fact]

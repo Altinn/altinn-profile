@@ -101,6 +101,10 @@ dotnet run
 The profile solution is now available locally at http://localhost:5030/.
 To access swagger use http://localhost:5030/swagger.
 
+### Running the application with Aspire
+
+See [tools/aspire/README.md](tools/aspire/README.md).
+
 ### Populate the Profile DB with KRR data
 
 1. Set up required user secrets for Maskinporten integration in the ASP.NET Core Secret Manager, e.g. via CLI by running the following commands from `src/Altinn.Profile`

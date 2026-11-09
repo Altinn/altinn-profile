@@ -1,4 +1,6 @@
-﻿using Altinn.Profile.Validators;
+﻿using System.ComponentModel.DataAnnotations;
+
+using Altinn.Profile.Validators;
 
 namespace Altinn.Profile.Models.OrganizationNotificationAddresses
 {
@@ -19,6 +21,7 @@ namespace Altinn.Profile.Models.OrganizationNotificationAddresses
         /// </summary>
         /// <example>user@example.com</example>
         [CustomRegexForNotificationAddresses(ValidationRule.OrganizationEmail)]
+        [MaxLength(200)]
         public string Email { get; set; }
 
         /// <summary>
@@ -26,6 +29,7 @@ namespace Altinn.Profile.Models.OrganizationNotificationAddresses
         /// </summary>
         /// <example>98765432</example>        
         [CustomRegexForNotificationAddresses(ValidationRule.OrganizationPhone)]
+        [MaxLength(196)]
         public string Phone { get; set; }
     }
 }

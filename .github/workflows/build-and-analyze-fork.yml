@@ -15,7 +15,7 @@ jobs:
       contents: read
     services:
       postgres:
-        image: postgres:17.11@sha256:f4c66b820c6f974249089d3d16d86a3698eae11e8746eb6644b2271031e91232
+        image: postgres:17.11@sha256:3b0cda93be7c8dba2ed484d19393d93845dc3dafb88973e248ba8e6d99d784e1
         env:
           POSTGRES_USER: platform_profile_admin
           POSTGRES_PASSWORD: Password
