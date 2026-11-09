@@ -5,7 +5,7 @@ resources:
   - 01-identity.yaml
   - 02-vault.yaml
   - 03-externalsecret.yaml
-  # - 04-db-migration.yaml # uncomment this when identity is created
+  - 04-db-migration.yaml
 
 # The environment ConfigMap is created here (pre-deploy) and consumed by both the
 # migration job and the runtime deployment, which is applied after this stage.
