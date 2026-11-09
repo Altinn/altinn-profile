@@ -292,8 +292,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
-        [Fact]
-        public async Task CreateMandatory_WhenSuccessWithEmail_ReturnsCreatedResult()
+        [Theory]
+        [InlineData("unique@test.com")]
+        [InlineData("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc.ddddddddddddddddddddddddddddddddddddddddddddddddddddddddd.com")]
+        public async Task CreateMandatory_WhenSuccessWithEmail_ReturnsCreatedResult(string email)
         {
             // Arrange
             var orgNo = "123456789";
@@ -314,7 +316,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressRequest { Email = "unique@test.com" };
+            var input = new NotificationAddressRequest { Email = email };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -691,8 +693,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(500, actual.Status);
         }
 
-        [Fact]
-        public async Task UpdateMandatory_WhenSuccessWithEmail_ReturnsUpdatedResult()
+        [Theory]
+        [InlineData("unique@test.com")]
+        [InlineData("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc.ddddddddddddddddddddddddddddddddddddddddddddddddddddddddd.com")]
+        public async Task UpdateMandatory_WhenSuccessWithEmail_ReturnsUpdatedResult(string email)
         {
             // Arrange
             var orgNo = "123456789";
@@ -713,7 +717,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressRequest { Email = "unique@test.com" };
+            var input = new NotificationAddressRequest { Email = email };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
