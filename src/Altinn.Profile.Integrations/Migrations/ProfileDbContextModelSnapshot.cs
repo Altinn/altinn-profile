@@ -620,8 +620,8 @@ namespace Altinn.Profile.Integrations.Migrations
                         .HasColumnName("is_soft_deleted");
 
                     b.Property<string>("NotificationName")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)")
                         .HasColumnName("notification_name");
 
                     b.Property<string>("RegistryID")
