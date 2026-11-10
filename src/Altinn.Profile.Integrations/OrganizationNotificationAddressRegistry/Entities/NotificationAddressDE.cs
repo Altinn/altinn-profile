@@ -86,7 +86,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.En
         /// <summary>
         /// Name of the contact point 
         /// </summary>
-        [StringLength(200)]
+        [StringLength(254)]
         public string NotificationName { get; set; }
 
         /// <summary>
