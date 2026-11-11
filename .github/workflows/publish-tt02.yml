@@ -31,7 +31,7 @@ on:
       - '.github/workflows/publish-tt02.yml'
 
 env:
-  ARMED: 'false'
+  ARMED: 'true'
   # What this publishes. Anything that differs from the pins fails the plan job.
   SOURCE_TAG: v1.0.0
   EXPECTED_SHA: 6aac077
