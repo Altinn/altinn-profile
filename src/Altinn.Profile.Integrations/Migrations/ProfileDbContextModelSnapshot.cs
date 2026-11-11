@@ -17,7 +17,7 @@ namespace Altinn.Profile.Integrations.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.9")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -586,8 +586,8 @@ namespace Altinn.Profile.Integrations.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)")
                         .HasColumnName("address");
 
                     b.Property<int>("AddressType")
@@ -601,14 +601,14 @@ namespace Altinn.Profile.Integrations.Migrations
                         .HasDefaultValueSql("now()");
 
                     b.Property<string>("Domain")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)")
                         .HasColumnName("domain");
 
                     b.Property<string>("FullAddress")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)")
                         .HasColumnName("full_address");
 
                     b.Property<bool?>("HasRegistryAccepted")
@@ -620,8 +620,8 @@ namespace Altinn.Profile.Integrations.Migrations
                         .HasColumnName("is_soft_deleted");
 
                     b.Property<string>("NotificationName")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)")
                         .HasColumnName("notification_name");
 
                     b.Property<string>("RegistryID")

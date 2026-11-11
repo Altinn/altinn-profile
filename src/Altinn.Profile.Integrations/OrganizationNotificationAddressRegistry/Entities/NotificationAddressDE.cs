@@ -39,20 +39,20 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.En
         /// <summary>
         /// The domain part of the Address. In case of phone numbers the country code, in case of email the domain address
         /// </summary>
-        [StringLength(200)]
+        [StringLength(254)]
         public string Domain { get; set; }
 
         /// <summary>
         /// The address, email address if address type is email, phone number if type is SMS
         /// </summary>
-        [StringLength(200)]
+        [StringLength(254)]
         [Required]
         public string Address { get; set; }
 
         /// <summary>
         /// FullAddress, either full email address or international country prefix and phone number
         /// </summary>
-        [StringLength(200)]
+        [StringLength(254)]
         [Required]
         public string FullAddress { get; set; }
 
@@ -86,7 +86,7 @@ namespace Altinn.Profile.Integrations.OrganizationNotificationAddressRegistry.En
         /// <summary>
         /// Name of the contact point 
         /// </summary>
-        [StringLength(200)]
+        [StringLength(254)]
         public string NotificationName { get; set; }
 
         /// <summary>

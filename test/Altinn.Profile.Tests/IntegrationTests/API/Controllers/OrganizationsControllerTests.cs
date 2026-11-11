@@ -292,8 +292,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
-        [Fact]
-        public async Task CreateMandatory_WhenSuccessWithEmail_ReturnsCreatedResult()
+        [Theory]
+        [InlineData("unique@test.com")]
+        [InlineData("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc.ddddddddddddddddddddddddddddddddddddddddddddddddddddddddd.com")]
+        public async Task CreateMandatory_WhenSuccessWithEmail_ReturnsCreatedResult(string email)
         {
             // Arrange
             var orgNo = "123456789";
@@ -314,7 +316,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressRequest { Email = "unique@test.com" };
+            var input = new NotificationAddressRequest { Email = email };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -496,12 +498,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task CreateMandatory_TooLongEmail_ReturnsBadRequest()
+        public async Task CreateMandatory_WhenTooLongEmail_ReturnsBadRequest()
         {
             // Arrange
             var orgNo = "123456789";
             const int UserId = 2516356;
-            var tooLongEmail = new string('a', 189) + "@example.com"; // 201 chars
+            var tooLongEmail = new string('a', 243) + "@example.com"; // 255 chars
 
             _factory.PdpMock
                 .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
@@ -532,7 +534,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.NotNull(actual.Errors["Email"]);
             Assert.True(actual.Errors.TryGetValue("Email", out var message));
 
-            Assert.Equal("The field Email must be a string or array type with a maximum length of '200'.", message[0]);
+            Assert.Equal("The field Email must be a string or array type with a maximum length of '254'.", message[0]);
         }
 
         [Theory]
@@ -586,7 +588,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             var orgNo = "123456789";
             const int UserId = 2516356;
-            var tooLongPhone = new string('9', 197); // 197 chars + 4 chars from domain -> exceeds 200 chars for full address
+            var tooLongPhone = new string('9', 15);
 
             _factory.PdpMock
                 .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
@@ -617,7 +619,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             Assert.NotNull(actual.Errors["Phone"]);
             Assert.True(actual.Errors.TryGetValue("Phone", out var phoneMessage));
-            Assert.Equal("The field Phone must be a string or array type with a maximum length of '196'.", phoneMessage[0]);
+            Assert.Equal("The field Phone must be a string or array type with a maximum length of '14'.", phoneMessage[0]);
         }
 
         [Fact]
@@ -691,8 +693,10 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Equal(500, actual.Status);
         }
 
-        [Fact]
-        public async Task UpdateMandatory_WhenSuccessWithEmail_ReturnsUpdatedResult()
+        [Theory]
+        [InlineData("unique@test.com")]
+        [InlineData("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc.ddddddddddddddddddddddddddddddddddddddddddddddddddddddddd.com")]
+        public async Task UpdateMandatory_WhenSuccessWithEmail_ReturnsUpdatedResult(string email)
         {
             // Arrange
             var orgNo = "123456789";
@@ -713,7 +717,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             HttpClient client = _factory.CreateClient();
 
-            var input = new NotificationAddressRequest { Email = "unique@test.com" };
+            var input = new NotificationAddressRequest { Email = email };
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, $"/profile/api/v1/organizations/{orgNo}/notificationaddresses/mandatory/1")
             {
                 Content = new StringContent(JsonSerializer.Serialize(input, _serializerOptions), System.Text.Encoding.UTF8, "application/json")
@@ -956,12 +960,12 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
         }
 
         [Fact]
-        public async Task UpdateMandatory_WheTooLongEmail_ReturnsBadRequest()
+        public async Task UpdateMandatory_WhenTooLongEmail_ReturnsBadRequest()
         {
             // Arrange
             var orgNo = "123456789";
             const int UserId = 2516356;
-            var tooLongEmail = new string('a', 189) + "@example.com"; // 201 chars
+            var tooLongEmail = new string('a', 243) + "@example.com"; // 255 chars
 
             _factory.PdpMock
                 .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
@@ -991,7 +995,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             Assert.Single(actual.Errors);
             Assert.NotNull(actual.Errors["Email"]);
             Assert.True(actual.Errors.TryGetValue("Email", out var message));
-            Assert.Equal("The field Email must be a string or array type with a maximum length of '200'.", message[0]);
+            Assert.Equal("The field Email must be a string or array type with a maximum length of '254'.", message[0]);
         }
 
         [Theory]
@@ -1045,7 +1049,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
             // Arrange
             var orgNo = "123456789";
             const int UserId = 2516356;
-            var tooLongPhone = new string('9', 197); // 197 chars + 4 chars from domain -> exceeds 200 chars for full address
+            var tooLongPhone = new string('9', 15);
 
             _factory.PdpMock
                 .Setup(pdp => pdp.GetDecisionForRequest(It.IsAny<XacmlJsonRequestRoot>()))
@@ -1080,7 +1084,7 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
 
             Assert.NotNull(actual.Errors["Phone"]);
             Assert.True(actual.Errors.TryGetValue("Phone", out var phoneMessage));
-            Assert.Equal("The field Phone must be a string or array type with a maximum length of '196'.", phoneMessage[0]);
+            Assert.Equal("The field Phone must be a string or array type with a maximum length of '14'.", phoneMessage[0]);
         }
 
         [Fact]
