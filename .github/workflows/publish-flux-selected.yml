@@ -13,16 +13,24 @@ run-name: Publish ${{ github.ref_name }} ${{ github.sha }} to selected environme
 #   1. Setup: with 04-db-migration.yaml (pre-deploy/base) and 03-deployment.yaml (syncroot/base)
 #      commented out, each environment only gets the identity, vault and external secret, so the
 #      service account and the vault exist before the first real deploy.
-#      Environments: at23, yt01, tt02, prod.
-#   2. Deployment: after adding the secrets to each vault, uncomment those two lines and edit the
-#      list below to yt01 only. TT02 and PROD get their first deploy through the release flow
-#      (deploy.yml from main), which is where they are meant to be deployed from.
+#   2. Deployment: after adding the secrets to each vault, uncomment those two lines.
+#
+# The list of environments is ENVIRONMENTS in the plan job below, and it is empty: a push that
+# changes this file or the app builds and deploys nothing. Fill it in to deploy the branch to those
+# environments. Only at22, at23 and yt01 are allowed, comma separated, spaces are ignored:
+#
+#   ENVIRONMENTS: ''                   nothing is built or deployed (the default)
+#   ENVIRONMENTS: 'at23'               only AT23
+#   ENVIRONMENTS: 'at22, at23, yt01'   all three
 #
 # AT22 is left out of the setup stage: it already has the setup and a running app, and the trimmed
-# config would remove that app. Add it only for the deployment stage if you want it.
+# config would remove that app.
 #
-# This skips the release-only rules and the approval gates of TT02 and PROD: nothing here runs
-# in a GitHub environment, so nobody is asked to approve. Do not leave this file on main.
+# TT02 and PROD are not here. They have their own workflows, publish-tt02.yml and
+# publish-prod.yml, which pin the exact version that goes to each.
+#
+# This skips the release-only rules and the approval gates: nothing here runs in a GitHub
+# environment, so nobody is asked to approve. Do not leave this file on main.
 on:
   push:
     branches:
@@ -39,8 +47,44 @@ on:
 permissions: {}
 
 jobs:
+  # An empty matrix fails a job, so the list is turned into JSON here and the jobs below are
+  # skipped when it is empty.
+  plan:
+    name: Which environments
+    runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      environments: ${{ steps.list.outputs.environments }}
+    steps:
+      - name: List the environments
+        id: list
+        env:
+          # Edit this list between the stages. Examples: 'at23' or 'at22, at23, yt01'.
+          # Empty means nothing is built or deployed.
+          ENVIRONMENTS: ''
+        run: |
+          set -euo pipefail
+          json='[]'
+          if [ -n "${ENVIRONMENTS//[[:space:]]/}" ]; then
+            IFS=',' read -r -a envs <<<"${ENVIRONMENTS//[[:space:]]/}"
+            for env in "${envs[@]}"; do
+              case "${env}" in
+                at22|at23|yt01) ;;
+                tt02|prod) echo "::error::${env} has its own workflow (publish-${env}.yml)."; exit 1 ;;
+                *) echo "::error::Unknown environment '${env}'."; exit 1 ;;
+              esac
+            done
+            json="$(printf '%s\n' "${envs[@]}" | jq -R . | jq -sc .)"
+          fi
+          echo "environments=${json}" >> "$GITHUB_OUTPUT"
+          if [ "${json}" = '[]' ]; then
+            echo "No environments are listed, so nothing is built or deployed." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   build:
     name: Build
+    needs: plan
+    if: needs.plan.outputs.environments != '[]'
     uses: ./.github/workflows/build-flux.yml
     with:
       ref_type: ${{ github.ref_type }}
@@ -55,12 +99,12 @@ jobs:
 
   promote:
     name: Deploy to ${{ matrix.environment }}
-    needs: build
+    needs: [plan, build]
+    if: needs.plan.outputs.environments != '[]'
     strategy:
       fail-fast: false
       matrix:
-        # Edit this list between the stages (see above).
-        environment: [at22, at23, yt01]
+        environment: ${{ fromJSON(needs.plan.outputs.environments) }}
     uses: ./.github/workflows/promote-flux.yml
     with:
       environment: ${{ matrix.environment }}

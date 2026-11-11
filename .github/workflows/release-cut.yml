@@ -1,16 +1,17 @@
 name: Cut release
 run-name: Cut release (${{ inputs.bump || 'minor' }} bump)
 
-# Creates a draft GitHub release from main for review. Runs every Wednesday and can be run
-# manually. Nothing is deployed from here: reviewing and publishing the draft creates the tag
-# vX.Y.Z, and TT02 is then deployed by running deploy.yml for tt02 with that tag as the ref.
+# Creates a draft GitHub release from main for review: from the tip of main, or from an earlier
+# commit on main when 'sha' is given. Run it manually when a release is wanted. Nothing is built
+# or deployed from here. Publishing the draft creates the tag vX.Y.Z,
+# which starts build-image.yml: it gives the image already built from that commit the tag X.Y.Z.
+# The release is then deployed to TT02 and PROD by running Deploy in
+# Altinn/altinn-profile-manifests with image_tag X.Y.Z.
 #
-# No release is cut when nothing deployable changed since the last release (same paths as the
-# deploy trigger: src, Dockerfile, deploy; markdown ignored), or while an earlier draft is
+# No release is cut when nothing that ends up in the image changed since the last release (same
+# paths as build-image.yml: src and Dockerfile; markdown ignored), or while an earlier draft is
 # still waiting for review.
 on:
-  schedule:
-    - cron: '0 6 * * 3' # Wednesday 06:00 UTC
   workflow_dispatch:
     inputs:
       bump:
@@ -21,6 +22,10 @@ on:
           - major
           - patch
         default: minor
+      sha:
+        description: Optional. Commit on main to release, as a sha. Empty means the tip of main.
+        type: string
+        required: false
 
 permissions: {}
 
@@ -48,9 +53,22 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           BUMP: ${{ inputs.bump || 'minor' }}
+          INPUT_SHA: ${{ inputs.sha }}
         run: |
           set -euo pipefail
-          sha="$(git rev-parse HEAD)"
+          fail() { echo "::error::$*"; exit 1; }
+
+          if [ -n "${INPUT_SHA}" ]; then
+            [[ "${INPUT_SHA}" =~ ^[0-9a-fA-F]{7,40}$ ]] \
+              || fail "'sha' must be a commit sha of at least 7 characters."
+            sha="$(git rev-parse --verify --quiet "${INPUT_SHA}^{commit}")" \
+              || fail "'${INPUT_SHA}' is not a commit in this repository."
+            # Only commits on main: that is what is reviewed and tested in the test environments.
+            git merge-base --is-ancestor "${sha}" HEAD \
+              || fail "${sha:0:7} is not on main."
+          else
+            sha="$(git rev-parse HEAD)"
+          fi
 
           drafts="$(gh release list --json isDraft --jq '[.[] | select(.isDraft)] | length')"
           if [ "${drafts}" -gt 0 ]; then
@@ -62,10 +80,13 @@ jobs:
           last="$(git tag --list 'v[0-9]*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1 || true)"
 
           if [ -n "${last}" ]; then
-            # Keep these paths in sync with the push filter in publish-flux-main.yml.
-            if git diff --quiet "${last}" "${sha}" -- src Dockerfile deploy ':(exclude,glob)**/*.md'; then
-              echo "::notice::Nothing deployable changed since ${last}, not cutting a release."
-              echo "Nothing deployable changed since \`${last}\`, so no new release was cut." >> "$GITHUB_STEP_SUMMARY"
+            # Versions only go forward: the commit has to come after the last release.
+            git merge-base --is-ancestor "${last}" "${sha}" \
+              || fail "${sha:0:7} is older than the last release ${last}."
+            # Keep these paths in sync with the change check in build-image.yml.
+            if git diff --quiet "${last}" "${sha}" -- src Dockerfile ':(exclude,glob)**/*.md'; then
+              echo "::notice::Nothing that ends up in the image changed since ${last}, not cutting a release."
+              echo "Nothing that ends up in the image changed since \`${last}\`, so no new release was cut." >> "$GITHUB_STEP_SUMMARY"
               exit 0
             fi
             IFS=. read -r major minor patch <<<"${last#v}"
@@ -73,7 +94,7 @@ jobs:
               major) next="v$((major + 1)).0.0" ;;
               minor) next="v${major}.$((minor + 1)).0" ;;
               patch) next="v${major}.${minor}.$((patch + 1))" ;;
-              *) echo "::error::Unknown bump '${BUMP}'"; exit 1 ;;
+              *) fail "Unknown bump '${BUMP}'." ;;
             esac
           else
             next=v1.0.0
@@ -89,6 +110,6 @@ jobs:
             echo "### Drafted ${next}"
             echo "From \`${sha:0:7}\` on main${last:+, changes since \`${last}\`}."
             echo
-            echo "Review the draft and publish it to create the tag, then run the TT02 workflow from that tag:"
+            echo "Review the draft and publish it to create the tag. Then run Deploy in altinn-profile-manifests with image_tag ${next#v}:"
             echo "$(gh release view "${next}" --json url --jq '.url')"
           } >> "$GITHUB_STEP_SUMMARY"
