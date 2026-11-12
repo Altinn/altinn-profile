@@ -35,7 +35,7 @@ on:
       - '.github/workflows/publish-tt02.yml'
 
 env:
-  ARMED: 'true'
+  ARMED: 'false'
   # What this publishes. Anything that differs from the pins fails the plan job.
   SOURCE_TAG: v1.0.1
   EXPECTED_SHA: 45a05c6
@@ -182,8 +182,8 @@ jobs:
           azure_app_id: ${{ secrets.DIS_SYNCROOT_AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.DIS_SYNCROOT_AZURE_TENANT_ID }}
 
-      # The artifacts are pushed under the image tag only. build-push-image would also tag them
-      # with the short sha of this commit, which TT02 and PROD would share with different content.
+      # The artifacts are pushed under the image tag only, so the same release gives the same tags in
+      # TT02 and PROD. The reproducible push gives identical content when both workflows push it.
       - name: Push the artifacts
         env:
           IMAGE_TAG: ${{ needs.plan.outputs.image_tag }}

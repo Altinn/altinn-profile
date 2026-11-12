@@ -1,27 +1,29 @@
 name: Publish PROD (temporary, feature branch)
-run-name: Publish hotfix/aspnet-10.0.15-prod to PROD
+run-name: Publish release 1.0.1 to PROD
 
-# TEMPORARY. Puts the hotfix that the old PROD cluster runs onto DIS PROD, so the new platform
+# TEMPORARY. Puts the release that the old PROD cluster runs onto DIS PROD, so the new platform
 # starts from the same version as the old one. Delete this file when PROD is deployed from
 # Altinn/altinn-profile-manifests, which is where the approval gates will be. It lives only on the
 # feature branch, which still has the Azure credential and the syncroot, and it does nothing on main.
 #
-#   what runs in the old PROD    hotfix/aspnet-10.0.15-prod at a91a3ce ("Patch runtime sha to 10.0.15")
-#   app image                    ghcr.io/altinn/altinn-profile:hotfix-aspnet-10.0.15-prod-a91a3ce
+#   release                      v1.0.1, main at 45a05c6 ("Add DIS fallback URI for keyvault")
+#   app image                    ghcr.io/altinn/altinn-profile:1.0.1
 #
-# The app is built from the hotfix branch, pinned to the commit below. The flux config (deploy/) is
-# the one on this branch. The two are separate on purpose: the hotfix branch has no deploy/ directory.
+# The same release as publish-tt02.yml, so the image is already built and is not built again.
 #
-#   1. plan         checks that the branch is at the commit pinned below and gives the image tag
-#   2. build-image  app image -> GHCR (not rebuilt if that tag already exists)
-#   3. publish      deploy/manifests and deploy/syncroot -> ACR, tagged with the image tag, then the
-#                   tag prod is moved onto both. Moving the tag is the deploy: the cluster follows it.
+# The app is built from the release tag. The flux config (deploy/) is the one on this branch. The
+# two are separate on purpose: the tag on main has no deploy/ directory.
 #
-# The image tag is the one build-image.yml gives a build of a hotfix branch (hotfix-<name>-<sha7>),
-# so the manifests repo can pin it later and finds the image already built.
+#   1. plan         checks that the tag points at the commit pinned below and is on main
+#   2. build-image  app image -> GHCR 1.0.1 (not rebuilt if that tag already exists)
+#   3. publish      deploy/manifests and deploy/syncroot -> ACR, tagged 1.0.1, then the tag prod is
+#                   moved onto both. Moving the tag is the deploy: the cluster follows it.
 #
-# PROD shares its database with the old platform. The hotfix has none of the migrations that main
-# got after it branched, so the migration job finds nothing new to apply there.
+# The image tag is the same one build-image.yml gives a release, so the manifests repo can pin
+# 1.0.1 later and finds the image already built.
+#
+# PROD shares its database with the old platform. The migration job runs on every publish and finds
+# nothing new to apply when the old PROD already runs the same release.
 #
 # Publish TT02 first (publish-tt02.yml) and look at it before this one.
 #
@@ -38,9 +40,9 @@ on:
 env:
   ARMED: 'false'
   # What this publishes. Anything that differs from the pins fails the plan job.
-  SOURCE_BRANCH: hotfix/aspnet-10.0.15-prod
-  EXPECTED_SHA: a91a3ce
-  EXPECTED_IMAGE_TAG: hotfix-aspnet-10.0.15-prod-a91a3ce
+  SOURCE_TAG: v1.0.1
+  EXPECTED_SHA: 45a05c6
+  EXPECTED_IMAGE_TAG: 1.0.1
   ENVIRONMENT: prod
   ACR_NAME: altinncr
   IMAGE_NAME: altinn/altinn-profile
@@ -72,38 +74,43 @@ jobs:
             echo "Publishing to PROD is switched off (ARMED is '${ARMED}'). Nothing is built or deployed." >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      - name: Checkout the hotfix branch
+      - name: Checkout the release tag
         if: steps.arm.outputs.armed == 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: refs/heads/${{ env.SOURCE_BRANCH }}
+          ref: refs/tags/${{ env.SOURCE_TAG }}
           persist-credentials: false
 
-      - name: Check the branch against the pins
+      - name: Check the tag against the pins
         id: resolve
         if: steps.arm.outputs.armed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           fail() { echo "::error::$*"; exit 1; }
 
-          [[ "${SOURCE_BRANCH}" =~ ^hotfix/.+ ]] \
-            || fail "'${SOURCE_BRANCH}' is not a hotfix branch (hotfix/*)."
+          [[ "${SOURCE_TAG}" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]] \
+            || fail "'${SOURCE_TAG}' is not a release tag (vMAJOR.MINOR.PATCH)."
+          image_tag="${BASH_REMATCH[1]}"
+          [ "${image_tag}" = "${EXPECTED_IMAGE_TAG}" ] \
+            || fail "${SOURCE_TAG} gives image tag ${image_tag}, expected ${EXPECTED_IMAGE_TAG}."
 
           sha="$(git rev-parse HEAD)"
           [[ "${sha}" == "${EXPECTED_SHA}"* ]] \
-            || fail "${SOURCE_BRANCH} is at ${sha:0:7}, expected ${EXPECTED_SHA}. The branch has moved from the commit the old PROD runs."
+            || fail "${SOURCE_TAG} points at ${sha:0:7}, expected ${EXPECTED_SHA}. The tag is not on the commit this workflow expects."
 
-          # Same rule as build-image.yml: OCI tags allow [A-Za-z0-9_.-] only, so slashes and other
-          # characters become hyphens.
-          slug="$(printf '%s' "${SOURCE_BRANCH}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9._-]+/-/g' | cut -c1-60 | sed -E 's/^[-.]+//; s/[-.]+$//')"
-          [ -n "${slug}" ] || slug=ref
-          image_tag="${slug}-$(git rev-parse --short=7 HEAD)"
-          [ "${image_tag}" = "${EXPECTED_IMAGE_TAG}" ] \
-            || fail "${SOURCE_BRANCH} gives image tag ${image_tag}, expected ${EXPECTED_IMAGE_TAG}."
+          # The release lives on main: its commit is main itself or an ancestor of it.
+          status="$(gh api "repos/${REPO}/compare/main...${sha}" --jq .status)"
+          case "${status}" in
+            identical|behind) ;;
+            *) fail "${sha:0:7} is not on main (compare status '${status}')." ;;
+          esac
 
           echo "image_tag=${image_tag}" >> "$GITHUB_OUTPUT"
           echo "sha=${sha}" >> "$GITHUB_OUTPUT"
-          echo "${SOURCE_BRANCH} is at ${sha:0:7}, image tag ${image_tag}."
+          echo "${SOURCE_TAG} is ${sha:0:7} on main, image tag ${image_tag}."
 
   build-image:
     name: Build and push app image
@@ -118,7 +125,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      - name: Checkout the hotfix commit
+      - name: Checkout the release commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.plan.outputs.sha }}
@@ -178,8 +185,8 @@ jobs:
           azure_app_id: ${{ secrets.DIS_SYNCROOT_AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.DIS_SYNCROOT_AZURE_TENANT_ID }}
 
-      # The artifacts are pushed under the image tag only. build-push-image would also tag them
-      # with the short sha of this commit, which TT02 and PROD would share with different content.
+      # The artifacts are pushed under the image tag only, so the same release gives the same tags in
+      # TT02 and PROD. The reproducible push gives identical content when both workflows push it.
       - name: Push the artifacts
         env:
           IMAGE_TAG: ${{ needs.plan.outputs.image_tag }}
@@ -218,7 +225,7 @@ jobs:
         run: |
           {
             echo "### Published ${IMAGE_TAG} to ${ENVIRONMENT}"
-            echo "- App: \`${SOURCE_BRANCH}\` at \`${SOURCE_SHA:0:7}\`, image \`ghcr.io/${IMAGE_NAME}:${IMAGE_TAG}\`"
+            echo "- App: \`${SOURCE_TAG}\` at \`${SOURCE_SHA:0:7}\`, image \`ghcr.io/${IMAGE_NAME}:${IMAGE_TAG}\`"
             echo "- Flux config: \`${GITHUB_REF_NAME}\` at \`${GITHUB_SHA:0:7}\`"
             echo "- Manifests: \`${ACR_NAME}.azurecr.io/${MANIFESTS_ARTIFACT_NAME}\` tags \`${IMAGE_TAG}\`, \`${ENVIRONMENT}\`"
             echo "- Syncroot: \`${ACR_NAME}.azurecr.io/${SYNCROOT_ARTIFACT_NAME}\` tags \`${IMAGE_TAG}\`, \`${ENVIRONMENT}\`"
