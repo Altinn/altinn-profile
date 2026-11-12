@@ -226,17 +226,14 @@ public class OrganizationNotificationAddressRepository(
             .Include(o => o.NotificationAddresses)
             .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == organizationNumber);
 
-        // TODO: When the org already exists, Organizations.Update(orgDE) marks every loaded address as Modified and sends needless UPDATEs. Adding just the address in that path, and Organizations.Add in the new-org path, is cleaner.
-        orgDE ??= new OrganizationDE
+        if (orgDE is null)
         {
-            RegistryOrganizationNumber = organizationNumber,
-            NotificationAddresses = [],
-        };
+            orgDE = new OrganizationDE { RegistryOrganizationNumber = organizationNumber };
+            databaseContext.Organizations.Add(orgDE);
+        }
 
         var organizationNotificationAddress = DataMapper.MapFromCoreModelForNewNotificationAddress(orgDE, notificationAddress, registryId);
-
-        orgDE.NotificationAddresses!.Add(organizationNotificationAddress);
-        databaseContext.Organizations.Update(orgDE);
+        orgDE.NotificationAddresses.Add(organizationNotificationAddress);
 
         try
         {
