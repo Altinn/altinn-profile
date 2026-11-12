@@ -38,7 +38,7 @@ on:
       - '.github/workflows/publish-prod.yml'
 
 env:
-  ARMED: 'true'
+  ARMED: 'false'
   # What this publishes. Anything that differs from the pins fails the plan job.
   SOURCE_TAG: v1.0.1
   EXPECTED_SHA: 45a05c6
