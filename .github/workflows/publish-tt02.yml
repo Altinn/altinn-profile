@@ -9,10 +9,6 @@ run-name: Publish release 1.0.1 to TT02
 #   release                      v1.0.1, main at 45a05c6 ("Add DIS fallback URI for keyvault")
 #   app image                    ghcr.io/altinn/altinn-profile:1.0.1
 #
-# v1.0.0 (main at 6aac077) is what the old TT02 runs, but it does not work on DIS: it only finds the
-# Key Vault through the mounted settings file, which DIS does not have. v1.0.1 adds the
-# PLATFORM_KEYVAULT_URI fallback and is otherwise the same app.
-#
 # The app is built from the release tag. The flux config (deploy/) is the one on this branch. The
 # two are separate on purpose: the tag on main has no deploy/ directory.
 #
