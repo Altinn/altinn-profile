@@ -1,0 +1,97 @@
+name: Promote to Flux (reusable)
+
+# Deploys an environment by moving its tag onto artifacts that already exist: the manifests and
+# syncroot artifacts that build-flux.yml created for <tag>. Nothing is built, so the
+# environment runs exactly what that build contains, whether it is a release (1.4.0) or a
+# branch build (main-abc1234, hotfix-fix-x-abc1234). The environment tag is what the cluster's
+# Flux follows; the other tags on the artifacts stay put and tell what is deployed.
+# Callers always run from main, so the Azure login is the existing main-branch credential.
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: Environment to deploy to (at22, at23, yt01, tt02, prod).
+        type: string
+        required: true
+      tag:
+        description: Tag of the artifacts to deploy, as produced by build-flux.yml (1.4.0, main-abc1234).
+        type: string
+        required: true
+
+env:
+  ACR_NAME: altinncr
+  ENVIRONMENT: ${{ inputs.environment }}
+  MANIFESTS_ARTIFACT_NAME: profile/manifests
+  SYNCROOT_ARTIFACT_NAME: profile/syncroot
+
+permissions: {}
+
+concurrency:
+  # One deploy per environment at a time. A newer queued run replaces an older queued one.
+  group: publish-flux-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    name: Deploy ${{ inputs.tag }} to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Validate tag
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          [[ "${TAG}" =~ ^[A-Za-z0-9_][A-Za-z0-9._-]{0,127}$ ]] \
+            || { echo "::error::'${TAG}' is not a valid artifact tag"; exit 1; }
+
+      - name: Move the environment tag onto the manifests
+        uses: Altinn/altinn-platform/actions/flux/retag-image@523f141da4f116fdd7331585396d83a5d7ade7ea # main
+        with:
+          image_name: ${{ env.MANIFESTS_ARTIFACT_NAME }}
+          from_tag: ${{ inputs.tag }}
+          tag: ${{ env.ENVIRONMENT }}
+          workdir: ./deploy/manifests
+          acr_name: ${{ env.ACR_NAME }}
+          azure_subscription_id: ${{ secrets.DIS_SYNCROOT_AZURE_SUBSCRIPTION_ID }}
+          azure_app_id: ${{ secrets.DIS_SYNCROOT_AZURE_CLIENT_ID }}
+          azure_tenant_id: ${{ secrets.DIS_SYNCROOT_AZURE_TENANT_ID }}
+
+      # After the manifests, so the OCIRepository never points at an artifact that doesn't exist yet.
+      - name: Move the environment tag onto the syncroot
+        uses: Altinn/altinn-platform/actions/flux/retag-image@523f141da4f116fdd7331585396d83a5d7ade7ea # main
+        with:
+          image_name: ${{ env.SYNCROOT_ARTIFACT_NAME }}
+          from_tag: ${{ inputs.tag }}
+          tag: ${{ env.ENVIRONMENT }}
+          workdir: ./deploy/syncroot
+          acr_name: ${{ env.ACR_NAME }}
+          azure_subscription_id: ${{ secrets.DIS_SYNCROOT_AZURE_SUBSCRIPTION_ID }}
+          azure_app_id: ${{ secrets.DIS_SYNCROOT_AZURE_CLIENT_ID }}
+          azure_tenant_id: ${{ secrets.DIS_SYNCROOT_AZURE_TENANT_ID }}
+
+      - name: Hint on failure
+        if: failure()
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          echo "::error::If the artifacts for ${TAG} were not found: only tags that build-flux.yml has produced can be deployed, e.g. a release that was built for TT02, or a build of that branch."
+
+      - name: Summary
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          {
+            echo "### Deployed ${TAG} to ${ENVIRONMENT}"
+            echo "- Manifests: \`${ACR_NAME}.azurecr.io/${MANIFESTS_ARTIFACT_NAME}:${TAG}\` now also tagged \`${ENVIRONMENT}\`"
+            echo "- Syncroot: \`${ACR_NAME}.azurecr.io/${SYNCROOT_ARTIFACT_NAME}:${TAG}\` now also tagged \`${ENVIRONMENT}\`"
+            echo
+            echo "Follow Flux with:"
+            echo '```sh'
+            echo "flux reconcile source oci manifests -n product-profile"
+            echo "flux get kustomizations -n product-profile"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

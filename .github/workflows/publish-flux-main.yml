@@ -1,0 +1,59 @@
+name: Publish main to AT22 and AT23 (Flux)
+run-name: Publish main ${{ github.sha }} to AT22 and AT23
+
+# Every merge to main that changes something that ends up deployed is built once and deployed
+# to the test environments AT22 and AT23, which are copies of each other with slightly
+# different config. To deploy a different branch to one of them, run deploy.yml manually.
+on:
+  push:
+    branches:
+      - main
+    # Only what ends up in the image or in the Flux artifacts. Tests (test/), docs and
+    # markdown anywhere don't change what runs, so they don't trigger a deploy.
+    # Keep in sync with release-cut.yml.
+    paths:
+      - 'src/**'
+      - 'Dockerfile'
+      - 'deploy/**'
+      - '!**/*.md'
+
+permissions: {}
+
+jobs:
+  build:
+    name: Build
+    uses: ./.github/workflows/build-flux.yml
+    with:
+      ref_type: branch
+      ref_name: main
+      # The pushed commit, not whatever main points at when the jobs get to run.
+      sha: ${{ github.sha }}
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    secrets: inherit
+
+  at22:
+    name: Deploy to AT22
+    needs: build
+    uses: ./.github/workflows/promote-flux.yml
+    with:
+      environment: at22
+      tag: ${{ needs.build.outputs.image_tag }}
+    permissions:
+      contents: read
+      id-token: write
+    secrets: inherit
+
+  at23:
+    name: Deploy to AT23
+    needs: build
+    uses: ./.github/workflows/promote-flux.yml
+    with:
+      environment: at23
+      tag: ${{ needs.build.outputs.image_tag }}
+    permissions:
+      contents: read
+      id-token: write
+    secrets: inherit

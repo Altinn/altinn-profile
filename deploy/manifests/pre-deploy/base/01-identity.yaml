@@ -1,0 +1,11 @@
+# dis-identity-operator: creates a user-assigned managed identity in Azure, a
+# federated credential, and a ServiceAccount with the same name as this object.
+# Shared by the migration job (pre-deploy) and the runtime deployment (deploy).
+apiVersion: application.dis.altinn.cloud/v1alpha1
+kind: ApplicationIdentity
+metadata:
+  name: altinn-profile
+  labels:
+    app.kubernetes.io/name: altinn-profile
+    app.kubernetes.io/part-of: altinn-profile
+spec: {}

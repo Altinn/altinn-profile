@@ -1,0 +1,115 @@
+name: Publish to selected environments (Flux, feature branch)
+run-name: Publish ${{ github.ref_name }} ${{ github.sha }} to selected environments
+
+# TEMPORARY. Publishes the feature branch to a chosen list of environments, to set up the new
+# environments before the normal flow on main takes over. Delete this file when they are set up.
+# It runs only for pushes to the feature branch, which still has an Azure credential, and never
+# on main.
+#
+# Every push to the branch (that changes src, Dockerfile or deploy) builds once and moves the
+# environment tag of each environment in the list below onto that build. What the cluster then
+# applies is decided by the kustomize config in deploy/:
+#
+#   1. Setup: with 04-db-migration.yaml (pre-deploy/base) and 03-deployment.yaml (syncroot/base)
+#      commented out, each environment only gets the identity, vault and external secret, so the
+#      service account and the vault exist before the first real deploy.
+#   2. Deployment: after adding the secrets to each vault, uncomment those two lines.
+#
+# The list of environments is ENVIRONMENTS in the plan job below, and it is empty: a push that
+# changes this file or the app builds and deploys nothing. Fill it in to deploy the branch to those
+# environments. Only at22, at23 and yt01 are allowed, comma separated, spaces are ignored:
+#
+#   ENVIRONMENTS: ''                   nothing is built or deployed (the default)
+#   ENVIRONMENTS: 'at23'               only AT23
+#   ENVIRONMENTS: 'at22, at23, yt01'   all three
+#
+# AT22 is left out of the setup stage: it already has the setup and a running app, and the trimmed
+# config would remove that app.
+#
+# TT02 and PROD are not here. They have their own workflows, publish-tt02.yml and
+# publish-prod.yml, which pin the exact version that goes to each.
+#
+# This skips the release-only rules and the approval gates: nothing here runs in a GitHub
+# environment, so nobody is asked to approve. Do not leave this file on main.
+on:
+  push:
+    branches:
+      - feat/workshop-dis
+    # Keep in sync with publish-flux-main.yml.
+    paths:
+      - 'src/**'
+      - 'Dockerfile'
+      - 'deploy/**'
+      # Editing this temporary workflow reruns it, so it can be triggered without a dummy change.
+      - '.github/workflows/publish-flux-selected.yml'
+      - '!**/*.md'
+
+permissions: {}
+
+jobs:
+  # An empty matrix fails a job, so the list is turned into JSON here and the jobs below are
+  # skipped when it is empty.
+  plan:
+    name: Which environments
+    runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      environments: ${{ steps.list.outputs.environments }}
+    steps:
+      - name: List the environments
+        id: list
+        env:
+          # Edit this list between the stages. Examples: 'at23' or 'at22, at23, yt01'.
+          # Empty means nothing is built or deployed.
+          ENVIRONMENTS: ''
+        run: |
+          set -euo pipefail
+          json='[]'
+          if [ -n "${ENVIRONMENTS//[[:space:]]/}" ]; then
+            IFS=',' read -r -a envs <<<"${ENVIRONMENTS//[[:space:]]/}"
+            for env in "${envs[@]}"; do
+              case "${env}" in
+                at22|at23|yt01) ;;
+                tt02|prod) echo "::error::${env} has its own workflow (publish-${env}.yml)."; exit 1 ;;
+                *) echo "::error::Unknown environment '${env}'."; exit 1 ;;
+              esac
+            done
+            json="$(printf '%s\n' "${envs[@]}" | jq -R . | jq -sc .)"
+          fi
+          echo "environments=${json}" >> "$GITHUB_OUTPUT"
+          if [ "${json}" = '[]' ]; then
+            echo "No environments are listed, so nothing is built or deployed." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  build:
+    name: Build
+    needs: plan
+    if: needs.plan.outputs.environments != '[]'
+    uses: ./.github/workflows/build-flux.yml
+    with:
+      ref_type: ${{ github.ref_type }}
+      ref_name: ${{ github.ref_name }}
+      # The pushed commit, not whatever the branch points at when the jobs get to run.
+      sha: ${{ github.sha }}
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    secrets: inherit
+
+  promote:
+    name: Deploy to ${{ matrix.environment }}
+    needs: [plan, build]
+    if: needs.plan.outputs.environments != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: ${{ fromJSON(needs.plan.outputs.environments) }}
+    uses: ./.github/workflows/promote-flux.yml
+    with:
+      environment: ${{ matrix.environment }}
+      tag: ${{ needs.build.outputs.image_tag }}
+    permissions:
+      contents: read
+      id-token: write
+    secrets: inherit
