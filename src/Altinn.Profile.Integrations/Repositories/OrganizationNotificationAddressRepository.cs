@@ -9,6 +9,8 @@ using Altinn.Profile.Integrations.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
+using Npgsql;
+
 namespace Altinn.Profile.Integrations.Repositories;
 
 /// <inheritdoc />
@@ -218,26 +220,15 @@ public class OrganizationNotificationAddressRepository(
     /// <inheritdoc/>
     public async Task<NotificationAddress> CreateNotificationAddressAsync(string organizationNumber, NotificationAddress notificationAddress, string registryId)
     {
-        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
-
-        var orgDE = await databaseContext.Organizations
-            .Include(o => o.NotificationAddresses)
-            .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == organizationNumber);
-
-        orgDE ??= new OrganizationDE
+        try
         {
-            RegistryOrganizationNumber = organizationNumber,
-            NotificationAddresses = [],
-        };
-
-        var organizationNotificationAddress = DataMapper.MapFromCoreModelForNewNotificationAddress(orgDE, notificationAddress, registryId);
-
-        orgDE.NotificationAddresses!.Add(organizationNotificationAddress);
-        databaseContext.Organizations.Update(orgDE);
-
-        await databaseContext.SaveChangesAsync();
-
-        return OrganizationMapper.MapFromDataEntity(organizationNotificationAddress);
+            return await AddNotificationAddressAsync(organizationNumber, notificationAddress, registryId);
+        }
+        catch (DbUpdateException ex) when (IsOrganizationNumberConflict(ex))
+        {
+            // A concurrent request created the organization between our lookup and save. It exists now, so a second attempt adds the address to it
+            return await AddNotificationAddressAsync(organizationNumber, notificationAddress, registryId);
+        }
     }
 
     /// <inheritdoc/>
@@ -291,5 +282,37 @@ public class OrganizationNotificationAddressRepository(
         await databaseContext.SaveChangesAsync();
 
         return OrganizationMapper.MapFromDataEntity(notificationAddressDE);
+    }
+
+    /// <summary>
+    /// Determines whether or not the given DbUpdateException arises from a violation of the unique org no index
+    /// </summary>
+    /// <param name="ex">The DbUpdateException to check.</param>
+    /// <returns>true if the inner exception is '23505: duplicate key value violates unique constraint "ix_organizations_registry_organization_number"', otherwise false.</returns>
+    internal static bool IsOrganizationNumberConflict(DbUpdateException ex)
+    {
+        return ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: "ix_organizations_registry_organization_number" };
+    }
+
+    private async Task<NotificationAddress> AddNotificationAddressAsync(string organizationNumber, NotificationAddress notificationAddress, string registryId)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+
+        var orgDE = await databaseContext.Organizations
+            .Include(o => o.NotificationAddresses)
+            .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == organizationNumber);
+
+        if (orgDE is null)
+        {
+            orgDE = new OrganizationDE { RegistryOrganizationNumber = organizationNumber };
+            databaseContext.Organizations.Add(orgDE);
+        }
+
+        var organizationNotificationAddress = DataMapper.MapFromCoreModelForNewNotificationAddress(orgDE, notificationAddress, registryId);
+        orgDE.NotificationAddresses.Add(organizationNotificationAddress);
+
+        await databaseContext.SaveChangesAsync();
+
+        return OrganizationMapper.MapFromDataEntity(organizationNotificationAddress);
     }
 }
