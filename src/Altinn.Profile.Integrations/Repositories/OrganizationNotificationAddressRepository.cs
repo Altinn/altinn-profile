@@ -220,40 +220,15 @@ public class OrganizationNotificationAddressRepository(
     /// <inheritdoc/>
     public async Task<NotificationAddress> CreateNotificationAddressAsync(string organizationNumber, NotificationAddress notificationAddress, string registryId)
     {
-        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
-
-        var orgDE = await databaseContext.Organizations
-            .Include(o => o.NotificationAddresses)
-            .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == organizationNumber);
-
-        if (orgDE is null)
-        {
-            orgDE = new OrganizationDE { RegistryOrganizationNumber = organizationNumber };
-            databaseContext.Organizations.Add(orgDE);
-        }
-
-        var organizationNotificationAddress = DataMapper.MapFromCoreModelForNewNotificationAddress(orgDE, notificationAddress, registryId);
-        orgDE.NotificationAddresses.Add(organizationNotificationAddress);
-
         try
         {
-            await databaseContext.SaveChangesAsync();
+            return await AddNotificationAddressAsync(organizationNumber, notificationAddress, registryId);
         }
         catch (DbUpdateException ex) when (IsOrganizationNumberConflict(ex))
         {
-            // A concurrent request created the organization between our lookup and save. Attach the address to that organization instead.
-            databaseContext.ChangeTracker.Clear();
-
-            var existingOrg = await databaseContext.Organizations
-                .FirstAsync(o => o.RegistryOrganizationNumber == organizationNumber);
-
-            organizationNotificationAddress = DataMapper.MapFromCoreModelForNewNotificationAddress(existingOrg, notificationAddress, registryId);
-            databaseContext.NotificationAddresses.Add(organizationNotificationAddress);
-
-            await databaseContext.SaveChangesAsync();
+            // A concurrent request created the organization between our lookup and save. It exists now, so a second attempt adds the address to it
+            return await AddNotificationAddressAsync(organizationNumber, notificationAddress, registryId);
         }
-
-        return OrganizationMapper.MapFromDataEntity(organizationNotificationAddress);
     }
 
     /// <inheritdoc/>
@@ -314,8 +289,30 @@ public class OrganizationNotificationAddressRepository(
     /// </summary>
     /// <param name="ex">The DbUpdateException to check.</param>
     /// <returns>true if the inner exception is '23505: duplicate key value violates unique constraint "ix_organizations_registry_organization_number"', otherwise false.</returns>
-    private static bool IsOrganizationNumberConflict(DbUpdateException ex)
+    internal static bool IsOrganizationNumberConflict(DbUpdateException ex)
     {
         return ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: "ix_organizations_registry_organization_number" };
+    }
+
+    private async Task<NotificationAddress> AddNotificationAddressAsync(string organizationNumber, NotificationAddress notificationAddress, string registryId)
+    {
+        using ProfileDbContext databaseContext = await _contextFactory.CreateDbContextAsync();
+
+        var orgDE = await databaseContext.Organizations
+            .Include(o => o.NotificationAddresses)
+            .FirstOrDefaultAsync(o => o.RegistryOrganizationNumber == organizationNumber);
+
+        if (orgDE is null)
+        {
+            orgDE = new OrganizationDE { RegistryOrganizationNumber = organizationNumber };
+            databaseContext.Organizations.Add(orgDE);
+        }
+
+        var organizationNotificationAddress = DataMapper.MapFromCoreModelForNewNotificationAddress(orgDE, notificationAddress, registryId);
+        orgDE.NotificationAddresses.Add(organizationNotificationAddress);
+
+        await databaseContext.SaveChangesAsync();
+
+        return OrganizationMapper.MapFromDataEntity(organizationNotificationAddress);
     }
 }
