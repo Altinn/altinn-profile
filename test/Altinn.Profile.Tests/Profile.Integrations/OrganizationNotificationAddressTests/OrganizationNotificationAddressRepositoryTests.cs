@@ -19,6 +19,8 @@ using Microsoft.Extensions.Logging;
 
 using Moq;
 
+using Npgsql;
+
 using Xunit;
 
 namespace Altinn.Profile.Tests.Profile.Integrations.OrganizationNotificationAddressTests;
@@ -587,10 +589,64 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         // Act
         var na = await _repository.CreateNotificationAddressAsync(orgNumber, new NotificationAddress { AddressType = AddressType.Email, FullAddress = "test@test.com", Address = "test" }, "1");
 
-        // Assert;
+        // Assert
         Assert.IsType<NotificationAddress>(na);
         Assert.NotNull(na.RegistryID);
         Assert.NotEqual(default, na.NotificationAddressID);
+        Assert.Equal("test@test.com", na.FullAddress);
+    }
+
+    [Theory]
+    [InlineData(PostgresErrorCodes.UniqueViolation, "ix_organizations_registry_organization_number", true)]
+    [InlineData(PostgresErrorCodes.UniqueViolation, "ix_notifications_address_registry_id", false)]
+    [InlineData(PostgresErrorCodes.CheckViolation, "ix_organizations_registry_organization_number", false)]
+    public void IsOrganizationNumberConflict_ForPostgresError_ReturnsExpected(string code, string constraint, bool expectedResult)
+    {
+        // Arrange
+        var ex = new DbUpdateException("Simulated failure", new PostgresException("Simulated error", "ERROR", "ERROR", code, constraintName: constraint));
+
+        // Act
+        var result = OrganizationNotificationAddressRepository.IsOrganizationNumberConflict(ex);
+
+        // Assert
+        Assert.Equal(expectedResult, result);
+    }
+
+    [Fact]
+    public void IsOrganizationNumberConflict_WhenInnerExceptionIsNotPostgres_ReturnsFalse()
+    {
+        Assert.False(OrganizationNotificationAddressRepository.IsOrganizationNumberConflict(new DbUpdateException("No inner exception")));
+        Assert.False(OrganizationNotificationAddressRepository.IsOrganizationNumberConflict(new DbUpdateException("Other inner", new InvalidOperationException())));
+    }
+
+    [Fact]
+    public async Task CreateNotificationAddressAsync_WhenOrganizationCreatedConcurrently_AttachesAddressToExistingOrganization()
+    {
+        // Arrange
+        var orgNumber = "000000000";
+        var databaseContextOptions = new DbContextOptionsBuilder<ProfileDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        _databaseContextFactory.SetupSequence(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new ConflictOnSaveDbContext(databaseContextOptions, orgNumber))
+            .ReturnsAsync(() => new ProfileDbContext(databaseContextOptions));
+
+        // Act
+        var na = await _repository.CreateNotificationAddressAsync(orgNumber, new NotificationAddress { AddressType = AddressType.Email, FullAddress = "test@test.com", Address = "test" }, "1");
+
+        // Assert
+        await using var assertContext = new ProfileDbContext(databaseContextOptions);
+        var storedOrg = await assertContext.Organizations
+            .Where(o => o.RegistryOrganizationNumber == orgNumber)
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Single(storedOrg);
+
+        var storedOrgAddress = await assertContext.NotificationAddresses
+            .FirstOrDefaultAsync(a => a.FullAddress == "test@test.com" && a.Organization.RegistryOrganizationNumber == orgNumber, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.NotNull(storedOrgAddress);
+        Assert.Equal(storedOrgAddress.NotificationAddressID, na.NotificationAddressID);
     }
 
     [Fact]
@@ -609,6 +665,7 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
         Assert.IsType<NotificationAddress>(na);
         Assert.NotNull(na.RegistryID);
         Assert.NotEqual(default, na.NotificationAddressID);
+        Assert.Equal("test@test.com", na.FullAddress);
     }
 
     [Fact]
@@ -735,5 +792,23 @@ public class OrganizationNotificationAddressRepositoryTests : IDisposable
     {
         Assert.Equal(expected.RegistryOrganizationNumber, actual.RegistryOrganizationNumber);
         Assert.Equal(expected.RegistryOrganizationId, actual.RegistryOrganizationId);
+    }
+
+    private sealed class ConflictOnSaveDbContext(DbContextOptions<ProfileDbContext> options, string orgNumber) : ProfileDbContext(options)
+    {
+        private readonly DbContextOptions<ProfileDbContext> _options = options;
+        private readonly string _orgNumber = orgNumber;
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            // Play the request that wins the race: it commits the organization first.
+            using (var winner = new ProfileDbContext(_options))
+            {
+                winner.Organizations.Add(new OrganizationDE { RegistryOrganizationNumber = _orgNumber });
+                await winner.SaveChangesAsync(cancellationToken);
+            }
+
+            throw new DbUpdateException("Simulated conflict", new PostgresException("duplicate key", "ERROR", "ERROR", PostgresErrorCodes.UniqueViolation, constraintName: "ix_organizations_registry_organization_number"));
+        }
     }
 }
