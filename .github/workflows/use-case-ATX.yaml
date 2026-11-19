@@ -30,7 +30,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Set up K6
-        uses: grafana/setup-k6-action@43b9fc21641a76002687994433dd586f56e791b1 # v1.2.2
+        uses: grafana/setup-k6-action@c47136d33d365efbeb9ae7266908b5dcf98cdece # v1.3.0
       - name: Create k6 secrets file
         id: k6-secrets
         env:
@@ -43,25 +43,25 @@ jobs:
           printf 'tokenGeneratorUserPwd=%s\n' "$TOKEN_GENERATOR_USERPASSWORD" >> "$SECRETS_FILE"
           echo "file=$SECRETS_FILE" >> "$GITHUB_OUTPUT"
       - name: Run favorites use case tests
-        uses: grafana/run-k6-action@4082a08c7e40cf6d65863911077dfb60ae0a4f04 # v1.5.0
+        uses: grafana/run-k6-action@54385d2a25c222a08b4a3aec6b653b8fb370a1ed # v1.6.0
         with:
           path: test/k6/src/tests/favorites.js
           flags: --secret-source=file=${{ steps.k6-secrets.outputs.file }} -e partyUuid=${{ secrets.PARTYUUID }}
           inspect-flags: -e altinn_env=${{ env.altinn_env }} # Supplies the value for pre-run validation, when env vars / flags are not yet defined
       - name: Run groups use case tests
-        uses: grafana/run-k6-action@4082a08c7e40cf6d65863911077dfb60ae0a4f04 # v1.5.0
+        uses: grafana/run-k6-action@54385d2a25c222a08b4a3aec6b653b8fb370a1ed # v1.6.0
         with:
           path: test/k6/src/tests/groups.js
           flags: --secret-source=file=${{ steps.k6-secrets.outputs.file }} -e partyUuid=${{ secrets.PARTYUUID }}
           inspect-flags: -e altinn_env=${{ env.altinn_env }} # Supplies the value for pre-run validation, when env vars / flags are not yet defined
       - name: Run notification settings use case tests
-        uses: grafana/run-k6-action@4082a08c7e40cf6d65863911077dfb60ae0a4f04 # v1.5.0
+        uses: grafana/run-k6-action@54385d2a25c222a08b4a3aec6b653b8fb370a1ed # v1.6.0
         with:
           path: test/k6/src/tests/notification-settings.js
           flags: --secret-source=file=${{ steps.k6-secrets.outputs.file }} -e partyUuid=${{ secrets.PARTYUUID }}
           inspect-flags: -e altinn_env=${{ env.altinn_env }} # Supplies the value for pre-run validation, when env vars / flags are not yet defined
       - name: Run org notification addresses use case tests
-        uses: grafana/run-k6-action@4082a08c7e40cf6d65863911077dfb60ae0a4f04 # v1.5.0
+        uses: grafana/run-k6-action@54385d2a25c222a08b4a3aec6b653b8fb370a1ed # v1.6.0
         with:
           path: test/k6/src/tests/org-notification-addresses.js
           flags: --secret-source=file=${{ steps.k6-secrets.outputs.file }} -e orgNo=${{ secrets.ORGNO }}
