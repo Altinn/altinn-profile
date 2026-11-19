@@ -1,0 +1,9 @@
+info:
+  name: Profile
+  type: folder
+  seq: 11
+
+request:
+  auth:
+    type: bearer
+    token: "{{BearerToken}}"

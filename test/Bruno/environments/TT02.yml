@@ -1,0 +1,11 @@
+variables:
+  - name: Environment
+    value: tt02
+  - name: BaseUrl
+    value: https://platform.{{Environment}}.altinn.no
+  - name: ProfileBaseAddress
+    value: "{{BaseUrl}}/profile"
+  - name: CurrentTestUser
+    value: user1
+  - secret: true
+    name: BearerToken

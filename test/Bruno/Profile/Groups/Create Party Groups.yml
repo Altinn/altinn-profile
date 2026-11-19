@@ -1,0 +1,32 @@
+info:
+  name: Create Party Groups
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{ProfileBaseAddress}}/api/v1/users/current/party-groups"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "New test"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: await bru.runRequest("TokenGenerator/portal user")
+    - type: after-response
+      code: |-
+        let data = res.getBody();
+
+        bru.setEnvVar("GroupId", data.groupId);
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

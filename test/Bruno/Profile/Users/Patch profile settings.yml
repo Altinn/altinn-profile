@@ -1,0 +1,29 @@
+info:
+  name: Patch profile settings
+  type: http
+  seq: 3
+
+http:
+  method: PATCH
+  url: "{{ProfileBaseAddress}}/api/v1/users/current/profilesettings"
+  body:
+    type: json
+    data: |-
+      {
+          "language": "nn",
+          "doNotPromptForParty": true,
+          "preselectedPartyUuid": null
+        }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: await bru.runRequest("TokenGenerator/portal user")
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

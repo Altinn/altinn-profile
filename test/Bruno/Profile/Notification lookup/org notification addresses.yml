@@ -1,0 +1,27 @@
+info:
+  name: org notification addresses
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{ProfileBaseAddress}}/api/v1/organizations/notificationaddresses/lookup"
+  body:
+    type: json
+    data: |-
+      {
+        "organizationNumbers": [
+          "313605590",
+          "987654321"
+        ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+docs: Notification addresses for the organization

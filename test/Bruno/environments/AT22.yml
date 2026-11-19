@@ -1,0 +1,13 @@
+variables:
+  - name: Environment
+    value: at22
+  - name: BaseUrl
+    value: https://platform.{{Environment}}.altinn.cloud
+  - name: ProfileBaseAddress
+    value: "{{BaseUrl}}/profile"
+  - name: CurrentTestUser
+    value: user1
+  - name: GroupId
+    value: ""
+  - secret: true
+    name: BearerToken

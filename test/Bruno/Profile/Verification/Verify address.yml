@@ -1,0 +1,24 @@
+info:
+  name: Verify address
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{ProfileBaseAddress}}/api/v1/users/current/verification/verify"
+  body:
+    type: json
+    data: |-
+      {
+        "verificationCode": "479516",
+        "value": "terje.holene@digdir.no",
+        "type": "Email"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

@@ -1,0 +1,27 @@
+info:
+  name: Email address
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{ProfileBaseAddress}}/api/v1/organizations/{{Party_OrgNo}}/notificationaddresses/mandatory"
+  body:
+    type: json
+    data: |-
+      {
+          "email": "wvjckqug@sharklasers.com"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: await bru.runRequest("TokenGenerator/portal user")
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

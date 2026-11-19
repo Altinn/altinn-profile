@@ -1,0 +1,27 @@
+info:
+  name: Update org notificationAddresses
+  type: http
+  seq: 5
+
+http:
+  method: PUT
+  url: "{{ProfileBaseAddress}}/api/v1/organizations/{{Party_OrgNo}}/notificationaddresses/mandatory/120695"
+  body:
+    type: json
+    data: |-
+      {
+          "email": "wvjckqug@sharklasers.com"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: await bru.runRequest("TokenGenerator/portal user")
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

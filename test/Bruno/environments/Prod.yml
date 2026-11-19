@@ -1,0 +1,23 @@
+variables:
+  - name: Environment
+    value: none
+  - name: BaseUrl
+    value: https://platform.altinn.no
+  - name: ProfileBaseAddress
+    value: "{{BaseUrl}}/profile"
+  - secret: true
+    name: AuthN_UserId
+  - secret: true
+    name: AuthN_PartyId
+  - secret: true
+    name: AuthN_Pid
+  - secret: true
+    name: AuthN_PartyUuid
+  - secret: true
+    name: Party_OrgNo
+  - secret: true
+    name: Party_PartyId
+  - secret: true
+    name: Party_PartyUuid
+  - secret: true
+    name: BearerToken

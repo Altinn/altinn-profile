@@ -1,0 +1,32 @@
+info:
+  name: Update profile settings
+  type: http
+  seq: 2
+
+http:
+  method: PUT
+  url: "{{ProfileBaseAddress}}/api/v1/users/current/profilesettings"
+  body:
+    type: json
+    data: |-
+      {
+          "language": "en",
+          "doNotPromptForParty": false,
+          "preselectedPartyUuid": null,
+          "showClientUnits": false,
+          "shouldShowSubEntities": false,
+          "shouldShowDeletedEntities": false
+        }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: await bru.runRequest("TokenGenerator/portal user")
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
