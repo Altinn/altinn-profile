@@ -4,6 +4,7 @@ info:
   seq: 1
 
 request:
+  auth: inherit
   variables:
     - name: emailAddress
       value: "{{process.env.EMAIL_ADDRESS_TEST}}"

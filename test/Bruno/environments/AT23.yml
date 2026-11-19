@@ -1,13 +1,44 @@
+name: AT23
 variables:
   - name: Environment
     value: at23
+    description: ""
   - name: BaseUrl
     value: https://platform.{{Environment}}.altinn.cloud
+    description: ""
   - name: ProfileBaseAddress
     value: "{{BaseUrl}}/profile"
+    description: ""
   - name: CurrentTestUser
     value: user1
+    description: ""
   - name: GroupId
     value: ""
+    description: ""
+  - name: AuthN_UserId
+    value: "20462603"
+    description: ""
+  - name: AuthN_PartyId
+    value: "50891883"
+    description: ""
+  - name: AuthN_Pid
+    value: "17902349936"
+    description: ""
+  - name: AuthN_PartyUuid
+    value: 629fa2c0-27cd-40a2-ac6a-99bdf374dba2
+    description: ""
+  - name: Party_OrgNo
+    value: "313605590"
+    description: ""
+  - name: Party_PartyId
+    value: "51519644"
+    description: ""
+  - name: Party_PartyUuid
+    value: 4a1cfef9-82e1-4be9-96b9-b99f116f8350
+    description: ""
   - secret: true
     name: BearerToken
+    description: ""
+  - secret: true
+    name: AccessToken
+    description: ""

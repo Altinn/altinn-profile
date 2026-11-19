@@ -1,3 +1,4 @@
+name: AT24
 variables:
   - name: Environment
     value: at24
@@ -11,3 +12,7 @@ variables:
     value: ""
   - secret: true
     name: BearerToken
+    description: ""
+  - secret: true
+    name: AccessToken
+    description: ""

@@ -3,4 +3,5 @@ info:
   type: folder
   seq: 11
 
-request: {}
+request:
+  auth: inherit

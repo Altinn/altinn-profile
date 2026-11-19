@@ -1,3 +1,4 @@
+name: Prod
 variables:
   - name: Environment
     value: none
@@ -7,17 +8,28 @@ variables:
     value: "{{BaseUrl}}/profile"
   - secret: true
     name: AuthN_UserId
+    description: ""
   - secret: true
     name: AuthN_PartyId
+    description: ""
   - secret: true
     name: AuthN_Pid
+    description: ""
   - secret: true
     name: AuthN_PartyUuid
+    description: ""
   - secret: true
     name: Party_OrgNo
+    description: ""
   - secret: true
     name: Party_PartyId
+    description: ""
   - secret: true
     name: Party_PartyUuid
+    description: ""
   - secret: true
     name: BearerToken
+    description: ""
+  - secret: true
+    name: AccessToken
+    description: ""

@@ -1,3 +1,4 @@
+name: AT22
 variables:
   - name: Environment
     value: at22
@@ -11,3 +12,19 @@ variables:
     value: ""
   - secret: true
     name: BearerToken
+  - secret: true
+    name: AccessToken
+  - name: AuthN_UserId
+    value: "20885478"
+  - name: AuthN_PartyId
+    value: "51118947"
+  - name: AuthN_Pid
+    value: "17902349936"
+  - name: AuthN_PartyUuid
+    value: b8a3981b-9948-4109-88a9-679d90c4ab37
+  - name: Party_OrgNo
+    value: "313605590"
+  - name: Party_PartyId
+    value: "51643854"
+  - name: Party_PartyUuid
+    value: 8027a287-e3f1-42ad-bb50-57b4c4584f13
