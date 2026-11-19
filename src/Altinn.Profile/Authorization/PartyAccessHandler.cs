@@ -27,7 +27,8 @@ namespace Altinn.Profile.Authorization
     /// <param name="registerClient">The client to access register api</param>
     public class PartyAccessHandler(
         IHttpContextAccessor httpContextAccessor,
-        IAuthorizationClient authClient, IRegisterClient registerClient) : AuthorizationHandler<PartyAccessRequirement>
+        IAuthorizationClient authClient,
+        IRegisterClient registerClient) : AuthorizationHandler<PartyAccessRequirement>
     {
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
         private readonly IAuthorizationClient _authorizationClient = authClient;

@@ -296,16 +296,19 @@ public class DashboardUserContactInformationController(
 
     private static List<DashboardUserContactInformationResponse> MapContactInfosToResponses(IEnumerable<UserPartyContactInfoWithIdentity> contactInfos)
     {
-        return [.. contactInfos.Select(c => new DashboardUserContactInformationResponse
-        {
-            NationalIdentityNumber = c.NationalIdentityNumber,
-            Name = c.Name,
-            Email = c.EmailAddress,
-            Phone = c.PhoneNumber,
-            OrganizationNumber = c.OrganizationNumber,
-            LastChanged = c.LastChanged,
-            ResourceIncludeList = c.ResourceIncludeList,
-        })];
+        return
+        [
+            .. contactInfos.Select(c => new DashboardUserContactInformationResponse
+            {
+                NationalIdentityNumber = c.NationalIdentityNumber,
+                Name = c.Name,
+                Email = c.EmailAddress,
+                Phone = c.PhoneNumber,
+                OrganizationNumber = c.OrganizationNumber,
+                LastChanged = c.LastChanged,
+                ResourceIncludeList = c.ResourceIncludeList,
+            })
+        ];
     }
 }
 
