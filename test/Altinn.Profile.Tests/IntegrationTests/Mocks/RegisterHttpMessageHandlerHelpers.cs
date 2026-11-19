@@ -292,10 +292,13 @@ internal static class RegisterHttpMessageHandlerHelpers
             return [];
         }
 
-        return [.. uuidQueryValues
-            .SelectMany(value => value.Split(',', StringSplitOptions.RemoveEmptyEntries))
-            .Select(value => Guid.TryParse(value, out Guid parsed) ? parsed : Guid.Empty)
-            .Where(value => value != Guid.Empty)];
+        return
+        [
+            .. uuidQueryValues
+                .SelectMany(value => value.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                .Select(value => Guid.TryParse(value, out Guid parsed) ? parsed : Guid.Empty)
+                .Where(value => value != Guid.Empty)
+        ];
     }
 
     private static async Task<string[]> GetRequestedOrganizationNumbersFromQueryAsync(HttpRequestMessage request, CancellationToken token)

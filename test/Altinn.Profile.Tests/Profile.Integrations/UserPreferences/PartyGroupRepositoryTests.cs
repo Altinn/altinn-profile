@@ -116,9 +116,11 @@ namespace Altinn.Profile.Tests.Profile.Integrations.UserPreferences
                     GroupId = 1,
                     IsFavorite = true,
                     UserId = userId,
-                    Parties = [
-                    new PartyGroupAssociation { PartyUuid = partyUuid, AssociationId = 1, Created = DateTime.Now, GroupId = 1 },
-                    new PartyGroupAssociation { PartyUuid = Guid.NewGuid(), AssociationId = 2, Created = DateTime.Now, GroupId = 1 }]
+                    Parties =
+                    [
+                        new PartyGroupAssociation { PartyUuid = partyUuid, AssociationId = 1, Created = DateTime.Now, GroupId = 1 },
+                        new PartyGroupAssociation { PartyUuid = Guid.NewGuid(), AssociationId = 2, Created = DateTime.Now, GroupId = 1 }
+                    ]
                 },
                 new Group { Name = "Group B", GroupId = 2, IsFavorite = false, UserId = userId },
                 new Group { Name = "Group C", GroupId = 3, IsFavorite = false, UserId = 2 });

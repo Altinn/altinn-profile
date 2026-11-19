@@ -51,15 +51,18 @@ public class UserContactPointControllerTests : IClassFixture<ProfileWebApplicati
 
         _factory.PersonServiceMock
                 .Setup(s => s.GetContactPreferencesAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync([.. users.Select(u => new PersonContactPreferences
-                {
-                    NationalIdentityNumber = u.Key,
-                    Email = u.Value.Email, 
-                    IsReserved = u.Value.IsReserved,
-                    LanguageCode = u.Value.ProfileSettingPreference.Language,
-                    MobileNumberLastUpdatedOrVerified = DateTime.UtcNow.AddMonths(-6),
-                    EmailLastUpdatedOrVerified = DateTime.UtcNow.AddMonths(-6),
-                })]);
+                .ReturnsAsync(
+                [
+                    .. users.Select(u => new PersonContactPreferences
+                    {
+                        NationalIdentityNumber = u.Key,
+                        Email = u.Value.Email,
+                        IsReserved = u.Value.IsReserved,
+                        LanguageCode = u.Value.ProfileSettingPreference.Language,
+                        MobileNumberLastUpdatedOrVerified = DateTime.UtcNow.AddMonths(-6),
+                        EmailLastUpdatedOrVerified = DateTime.UtcNow.AddMonths(-6),
+                    })
+                ]);
     }
 
     [Fact]

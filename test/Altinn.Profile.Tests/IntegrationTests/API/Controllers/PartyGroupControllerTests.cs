@@ -82,18 +82,22 @@ namespace Altinn.Profile.Tests.IntegrationTests.API.Controllers
                 [
                     new Group
                     {
-                        Parties = [
+                        Parties =
+                        [
                             new PartyGroupAssociation { PartyUuid = Guid.NewGuid() },
-                            new PartyGroupAssociation { PartyUuid = Guid.NewGuid() }],
+                            new PartyGroupAssociation { PartyUuid = Guid.NewGuid() }
+                        ],
                         Name = "__group0__",
                         GroupId = 1,
                     },
                     new Group
                     {
-                        Parties = [new PartyGroupAssociation { PartyUuid = Guid.NewGuid() },
-                                   new PartyGroupAssociation { PartyUuid = Guid.NewGuid() },
-                                   new PartyGroupAssociation { PartyUuid = Guid.NewGuid() },
-                                   new PartyGroupAssociation { PartyUuid = Guid.NewGuid() }
+                        Parties =
+                        [
+                            new PartyGroupAssociation { PartyUuid = Guid.NewGuid() },
+                            new PartyGroupAssociation { PartyUuid = Guid.NewGuid() },
+                            new PartyGroupAssociation { PartyUuid = Guid.NewGuid() },
+                            new PartyGroupAssociation { PartyUuid = Guid.NewGuid() }
                         ],
                         Name = "__group1__",
                         GroupId = 2,

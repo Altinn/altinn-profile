@@ -19,7 +19,11 @@
         /// </summary>
         public T? Value
         {
-            get => _value;
+            get
+            {
+                return _value;
+            }
+
             set
             {
                 HasValue = true;
