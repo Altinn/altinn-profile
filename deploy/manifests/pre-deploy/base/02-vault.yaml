@@ -1,0 +1,17 @@
+# dis-vault-operator: creates an Azure Key Vault owned by the identity above.
+# The Azure name is computed by the operator: kubectl get vault <name> -o jsonpath='{.status.azureName}'
+# externalSecrets: true makes the operator create a SecretStore named <vault-name>-secret-store.
+apiVersion: vault.dis.altinn.cloud/v1alpha1
+kind: Vault
+metadata:
+  name: altinn-profile
+spec:
+  identityRef:
+    name: altinn-profile
+  # Entra group for the training participants: lets you create secrets with `az keyvault secret set`.
+  groupObjectId: 976581b7-f9ab-4a5e-add4-3a3be36ef2af
+  externalSecrets: true
+  # Training vaults are short-lived. The Azure name is deterministic, so purge protection
+  # would block re-creating a deleted vault with the same name for the retention period.
+  purgeProtectionEnabled: true
+  softDeleteRetentionDays: 7

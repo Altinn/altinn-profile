@@ -1,0 +1,231 @@
+name: Publish TT02 (temporary, feature branch)
+run-name: Publish release 1.0.1 to TT02
+
+# TEMPORARY. Puts the release from main onto DIS TT02, so the new platform starts from a released
+# version of the app. Delete this file when TT02 is deployed from
+# Altinn/altinn-profile-manifests, which is where the approval gates will be. It lives only on the
+# feature branch, which still has the Azure credential and the syncroot, and it does nothing on main.
+#
+#   release                      v1.0.1, main at 45a05c6 ("Add DIS fallback URI for keyvault")
+#   app image                    ghcr.io/altinn/altinn-profile:1.0.1
+#
+# The app is built from the release tag. The flux config (deploy/) is the one on this branch. The
+# two are separate on purpose: the tag on main has no deploy/ directory.
+#
+#   1. plan         checks that the tag points at the commit pinned below and is on main
+#   2. build-image  app image -> GHCR 1.0.1 (not rebuilt if that tag already exists)
+#   3. publish      deploy/manifests and deploy/syncroot -> ACR, tagged 1.0.1, then the tag tt02 is
+#                   moved onto both. Moving the tag is the deploy: the cluster follows it.
+#
+# The image tag is the same one build-image.yml gives a release, so the manifests repo can pin
+# 1.0.1 later and finds the image already built.
+#
+# ARMED is the switch. Committing this file with ARMED false builds and deploys nothing. Set it to
+# 'true' in a commit to deploy. Pushes that don't change this file never run it, so editing deploy/
+# does not redeploy TT02. Running it again for the same pins changes nothing.
+on:
+  push:
+    branches:
+      - feat/workshop-dis
+    paths:
+      - '.github/workflows/publish-tt02.yml'
+
+env:
+  ARMED: 'false'
+  # What this publishes. Anything that differs from the pins fails the plan job.
+  SOURCE_TAG: v1.0.1
+  EXPECTED_SHA: 45a05c6
+  EXPECTED_IMAGE_TAG: 1.0.1
+  ENVIRONMENT: tt02
+  ACR_NAME: altinncr
+  IMAGE_NAME: altinn/altinn-profile
+  MANIFESTS_ARTIFACT_NAME: profile/manifests
+  SYNCROOT_ARTIFACT_NAME: profile/syncroot
+
+permissions: {}
+
+concurrency:
+  group: publish-tt02
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Check what is published
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      armed: ${{ steps.arm.outputs.armed }}
+      image_tag: ${{ steps.resolve.outputs.image_tag }}
+      sha: ${{ steps.resolve.outputs.sha }}
+    steps:
+      - name: Check that publishing is switched on
+        id: arm
+        run: |
+          echo "armed=${ARMED}" >> "$GITHUB_OUTPUT"
+          if [ "${ARMED}" != true ]; then
+            echo "Publishing to TT02 is switched off (ARMED is '${ARMED}'). Nothing is built or deployed." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Checkout the release tag
+        if: steps.arm.outputs.armed == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: refs/tags/${{ env.SOURCE_TAG }}
+          persist-credentials: false
+
+      - name: Check the tag against the pins
+        id: resolve
+        if: steps.arm.outputs.armed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$*"; exit 1; }
+
+          [[ "${SOURCE_TAG}" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]] \
+            || fail "'${SOURCE_TAG}' is not a release tag (vMAJOR.MINOR.PATCH)."
+          image_tag="${BASH_REMATCH[1]}"
+          [ "${image_tag}" = "${EXPECTED_IMAGE_TAG}" ] \
+            || fail "${SOURCE_TAG} gives image tag ${image_tag}, expected ${EXPECTED_IMAGE_TAG}."
+
+          sha="$(git rev-parse HEAD)"
+          [[ "${sha}" == "${EXPECTED_SHA}"* ]] \
+            || fail "${SOURCE_TAG} points at ${sha:0:7}, expected ${EXPECTED_SHA}. The tag is not on the commit this workflow expects."
+
+          # The release lives on main: its commit is main itself or an ancestor of it.
+          status="$(gh api "repos/${REPO}/compare/main...${sha}" --jq .status)"
+          case "${status}" in
+            identical|behind) ;;
+            *) fail "${sha:0:7} is not on main (compare status '${status}')." ;;
+          esac
+
+          echo "image_tag=${image_tag}" >> "$GITHUB_OUTPUT"
+          echo "sha=${sha}" >> "$GITHUB_OUTPUT"
+          echo "${SOURCE_TAG} is ${sha:0:7} on main, image tag ${image_tag}."
+
+  build-image:
+    name: Build and push app image
+    needs: plan
+    if: needs.plan.outputs.armed == 'true'
+    # One build per image tag at a time: a later job finds the image and skips.
+    concurrency:
+      group: build-image-${{ needs.plan.outputs.image_tag }}
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout the release commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
+          persist-credentials: false
+
+      - name: Login to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        env:
+          IMAGE_TAG: ${{ needs.plan.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+          image="ghcr.io/${IMAGE_NAME}:${IMAGE_TAG}"
+          # A tag is built once. Running this again must not replace an image that may already be
+          # deployed somewhere.
+          if docker manifest inspect "${image}" >/dev/null 2>&1; then
+            echo "::notice::${image} already exists, not building it again"
+            exit 0
+          fi
+          docker build --tag "${image}" --label "org.opencontainers.image.revision=$(git rev-parse HEAD)" .
+          docker push "${image}"
+
+  publish:
+    name: Publish to TT02
+    needs: [plan, build-image]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      # The commit that started this run: the flux config on the feature branch, not the app source.
+      - name: Checkout the flux config
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set the image tag in the manifests
+        env:
+          IMAGE_TAG: ${{ needs.plan.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+          grep -rlF '{{IMAGE_TAG}}' deploy/manifests | xargs sed -i "s/{{IMAGE_TAG}}/${IMAGE_TAG}/g"
+          if grep -rF '{{IMAGE_TAG}}' deploy/manifests; then
+            echo "::error::Unreplaced {{IMAGE_TAG}} placeholder left in deploy/manifests"
+            exit 1
+          fi
+
+      - name: Log in to Azure and set up flux
+        uses: Altinn/altinn-platform/actions/flux/setup-flux-acr@b0c9762442f2f97346d8b115c30903df903fc010 # main
+        with:
+          azure_subscription_id: ${{ secrets.DIS_SYNCROOT_AZURE_SUBSCRIPTION_ID }}
+          azure_app_id: ${{ secrets.DIS_SYNCROOT_AZURE_CLIENT_ID }}
+          azure_tenant_id: ${{ secrets.DIS_SYNCROOT_AZURE_TENANT_ID }}
+
+      # The artifacts are pushed under the image tag only, so the same release gives the same tags in
+      # TT02 and PROD. The reproducible push gives identical content when both workflows push it.
+      - name: Push the artifacts
+        env:
+          IMAGE_TAG: ${{ needs.plan.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+          registry="${ACR_NAME}.azurecr.io"
+          source_url="$(git config --get remote.origin.url)"
+          revision="${GITHUB_REF_NAME}@sha1:$(git rev-parse HEAD)"
+
+          # --reproducible: the same content gives the same digest, so a rerun changes nothing.
+          # The manifests first, so the syncroot never points at a manifests artifact that does
+          # not exist yet.
+          flux push artifact "oci://${registry}/${MANIFESTS_ARTIFACT_NAME}:${IMAGE_TAG}" \
+            --provider=azure --reproducible --path=./deploy/manifests \
+            --source="${source_url}" --revision="${revision}"
+          flux push artifact "oci://${registry}/${SYNCROOT_ARTIFACT_NAME}:${IMAGE_TAG}" \
+            --provider=azure --reproducible --path=./deploy/syncroot \
+            --source="${source_url}" --revision="${revision}"
+
+      # The deploy: the cluster's Flux follows the tag with the name of the environment.
+      - name: Move the environment tag
+        env:
+          IMAGE_TAG: ${{ needs.plan.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+          registry="${ACR_NAME}.azurecr.io"
+          flux tag artifact "oci://${registry}/${MANIFESTS_ARTIFACT_NAME}:${IMAGE_TAG}" \
+            --provider=azure --tag "${ENVIRONMENT}"
+          flux tag artifact "oci://${registry}/${SYNCROOT_ARTIFACT_NAME}:${IMAGE_TAG}" \
+            --provider=azure --tag "${ENVIRONMENT}"
+
+      - name: Summary
+        env:
+          IMAGE_TAG: ${{ needs.plan.outputs.image_tag }}
+          SOURCE_SHA: ${{ needs.plan.outputs.sha }}
+        run: |
+          {
+            echo "### Published ${IMAGE_TAG} to ${ENVIRONMENT}"
+            echo "- App: \`${SOURCE_TAG}\` at \`${SOURCE_SHA:0:7}\`, image \`ghcr.io/${IMAGE_NAME}:${IMAGE_TAG}\`"
+            echo "- Flux config: \`${GITHUB_REF_NAME}\` at \`${GITHUB_SHA:0:7}\`"
+            echo "- Manifests: \`${ACR_NAME}.azurecr.io/${MANIFESTS_ARTIFACT_NAME}\` tags \`${IMAGE_TAG}\`, \`${ENVIRONMENT}\`"
+            echo "- Syncroot: \`${ACR_NAME}.azurecr.io/${SYNCROOT_ARTIFACT_NAME}\` tags \`${IMAGE_TAG}\`, \`${ENVIRONMENT}\`"
+            echo
+            echo "Follow Flux with:"
+            echo '```sh'
+            echo "flux reconcile source oci manifests -n product-profile"
+            echo "flux get kustomizations -n product-profile"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
