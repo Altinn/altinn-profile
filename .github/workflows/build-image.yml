@@ -89,11 +89,11 @@ jobs:
           if [ "${EVENT_NAME}" = push ] && [ "${REF_TYPE}" = branch ] && [ "${REF_NAME}" = main ]; then
             environments="at22,at23"
             # Only what ends up in the image rebuilds it. Tests, docs and markdown don't.
-            if [[ -n "${BEFORE_SHA}" && ! "${BEFORE_SHA}" =~ ^0+$ ]] && git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null; then
-              if ! git diff --name-only "${BEFORE_SHA}" HEAD | grep -E '^(src/|Dockerfile$)' | grep -qvE '\.md$'; then
-                build=false
-                echo "Nothing that ends up in the image changed, so nothing is built."
-              fi
+            if [[ -n "${BEFORE_SHA}" && ! "${BEFORE_SHA}" =~ ^0+$ ]] \
+              && git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null \
+              && ! git diff --name-only "${BEFORE_SHA}" HEAD | grep -E '^(src/|Dockerfile$)' | grep -qvE '\.md$'; then
+              build=false
+              echo "Nothing that ends up in the image changed, so nothing is built."
             fi
           fi
 
