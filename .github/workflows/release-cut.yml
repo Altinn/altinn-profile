@@ -111,5 +111,5 @@ jobs:
             echo "From \`${sha:0:7}\` on main${last:+, changes since \`${last}\`}."
             echo
             echo "Review the draft and publish it to create the tag. Then run Deploy in altinn-profile-manifests with image_tag ${next#v}:"
-            echo "$(gh release view "${next}" --json url --jq '.url')"
+            gh release view "${next}" --json url --jq '.url'
           } >> "$GITHUB_STEP_SUMMARY"
