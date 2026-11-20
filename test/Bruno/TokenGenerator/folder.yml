@@ -1,0 +1,12 @@
+info:
+  name: TokenGenerator
+  type: folder
+
+request:
+  variables:
+    - name: TokenGeneratorBaseUrl
+      value: "{{process.env.TOKEN_URL}}"
+    - name: TokenGeneratorUserName
+      value: "{{process.env.TOKEN_BASIC_AUTH_USER}}"
+    - name: TokenGeneratorPassword
+      value: "{{process.env.TOKEN_BASIC_AUTH_PW}}"

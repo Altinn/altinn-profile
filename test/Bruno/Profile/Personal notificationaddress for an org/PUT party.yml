@@ -1,0 +1,33 @@
+info:
+  name: Put party
+  type: http
+  seq: 2
+
+http:
+  method: PUT
+  url: "{{ProfileBaseAddress}}/api/v1/users/current/notificationsettings/parties/{{Party_PartyUuid}}"
+  body:
+    type: json
+    data: |-
+      {
+        "emailAddress": "nullstilt@altinn.xyz",
+        "phoneNumber": "+4799999999",
+        "resourceIncludeList": [
+          "urn:altinn:resource:app_ttd_storage-end-to-end"
+        ]
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: await bru.runRequest("TokenGenerator/portal user")
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+docs: Sets all properties of the notification settings for a party for the user

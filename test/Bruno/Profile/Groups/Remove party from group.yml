@@ -1,0 +1,21 @@
+info:
+  name: Remove party from group
+  type: http
+  seq: 6
+
+http:
+  method: DELETE
+  url: "{{ProfileBaseAddress}}/api/v1/users/current/party-groups/{{GroupId}}/associations/{{Party_PartyUuid}}"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: await bru.runRequest("TokenGenerator/portal user")
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

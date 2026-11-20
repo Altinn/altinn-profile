@@ -1,0 +1,39 @@
+name: TT02
+variables:
+  - name: Environment
+    value: tt02
+    description: ""
+  - name: BaseUrl
+    value: https://platform.{{Environment}}.altinn.no
+    description: ""
+  - name: ProfileBaseAddress
+    value: "{{BaseUrl}}/profile"
+    description: ""
+  - name: CurrentTestUser
+    value: user1
+    description: ""
+  - name: AuthN_UserId
+    value: "1597896"
+    description: ""
+  - name: AuthN_PartyId
+    value: "51368167"
+    description: ""
+  - name: AuthN_Pid
+    value: "17902349936"
+    description: ""
+  - name: AuthN_PartyUuid
+    value: 200718e3-ab43-4d34-86ee-4cd8a975a55c
+    description: ""
+  - name: Party_OrgNo
+    value: "313605590"
+    description: ""
+  - name: Party_PartyId
+    value: "51857221"
+    description: ""
+  - name: Party_PartyUuid
+    value: bb439b66-b467-4d9a-985f-e86738f93055
+    description: ""
+  - secret: true
+    name: BearerToken
+  - secret: true
+    name: AccessToken

@@ -1,0 +1,26 @@
+info:
+  name: user by id
+  type: http
+  seq: 5
+
+http:
+  method: GET
+  url: "{{ProfileBaseAddress}}/api/v1/users/{{AuthN_UserId}}"
+  headers:
+    - name: PlatformAccessToken
+      value: "{{AccessToken}}"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        await bru.runRequest("TokenGenerator/portal user")
+        await bru.runRequest("TokenGenerator/platform access token")
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

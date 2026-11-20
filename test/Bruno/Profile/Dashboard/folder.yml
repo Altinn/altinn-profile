@@ -1,0 +1,35 @@
+info:
+  name: Dashboard
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit
+  variables:
+    - name: emailAddress
+      value: "{{process.env.EMAIL_ADDRESS_TEST}}"
+    - name: phoneNumber
+      value: "{{process.env.PHONE_NUMBER_TEST}}"
+    - name: countryCode
+      value: "{{process.env.COUNTRY_CODE_TEST}}"
+
+docs:
+  content: |-
+    # Dashboard API Tests
+
+    This folder contains tests for the Support Dashboard endpoints.
+
+    ## Environment Variables Required
+
+    Set the following environment variables in your `.env` file:
+
+    ```
+    EMAIL_ADDRESS_TEST=your-test-email@example.com
+    PHONE_NUMBER_TEST=99999999
+    COUNTRY_CODE_TEST=+47
+    ```
+
+    - **EMAIL_ADDRESS_TEST**: Email address for notification lookup tests
+    - **PHONE_NUMBER_TEST**: Phone number used in phone number search tests
+    - **COUNTRY_CODE_TEST**: Country code for phone number testing
+  type: text/markdown

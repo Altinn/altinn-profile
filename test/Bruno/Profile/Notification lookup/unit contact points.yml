@@ -1,0 +1,28 @@
+info:
+  name: unit contact points
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{ProfileBaseAddress}}/api/v1/units/contactpoint/lookup"
+  body:
+    type: json
+    data: |-
+      {
+        "organizationNumbers": [
+          "313605590",
+          "987654321"
+        ],
+        "resourceId": "app_ttd_filescan-end-to-end"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+docs: Optional contact points

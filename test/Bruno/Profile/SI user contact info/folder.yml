@@ -1,0 +1,7 @@
+info:
+  name: SI user contact info
+  type: folder
+  seq: 11
+
+request:
+  auth: inherit

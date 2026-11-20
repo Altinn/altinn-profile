@@ -1,0 +1,23 @@
+info:
+  name: Send verification code
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{ProfileBaseAddress}}/api/v1/users/current/verification/send"
+  body:
+    type: json
+    data: |-
+      {
+        "value": "terje.holene@digdir.no",
+        "type": "Email"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

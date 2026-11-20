@@ -1,0 +1,33 @@
+info:
+  name: Patch party
+  type: http
+  seq: 5
+
+http:
+  method: PATCH
+  url: "{{ProfileBaseAddress}}/api/v1/users/current/notificationsettings/parties/{{Party_PartyUuid}}"
+  body:
+    type: json
+    data: |-
+      {
+        "emailAddress": "nullstilt@altinn.xyz",
+        "phoneNumber": "+4799999999",
+        "resourceIncludeList": [
+          "urn:altinn:resource:app_ttd_storage-end-to-end"
+        ]
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: await bru.runRequest("TokenGenerator/portal user")
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+docs: Update some of the settings for the user
