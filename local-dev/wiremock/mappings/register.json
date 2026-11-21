@@ -1,0 +1,87 @@
+{
+  "mappings": [
+    {
+      "name": "Register: party query for the test person (user id, party uuid or national identity number)",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/register/api/v2/internal/parties/query",
+        "bodyPatterns": [ { "matches": ".*(urn:altinn:user:id:20462603|629fa2c0-27cd-40a2-ac6a-99bdf374dba2|17902349936).*" } ]
+      },
+      "response": { "status": 200, "headers": { "Content-Type": "application/json" }, "bodyFileName": "register-person.json" }
+    },
+    {
+      "name": "Register: party query for the test organization",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/register/api/v2/internal/parties/query",
+        "bodyPatterns": [ { "contains": "313605590" } ]
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "data": [ { "partyId": 51118947, "partyUuid": "7aa1d1e2-0f4b-4c55-9b0a-3f5e0c2d9a11", "organizationIdentifier": "313605590" } ] }
+      }
+    },
+    {
+      "name": "Register: party query, unknown party",
+      "priority": 10,
+      "request": { "method": "POST", "urlPath": "/register/api/v2/internal/parties/query" },
+      "response": { "status": 200, "headers": { "Content-Type": "application/json" }, "jsonBody": { "data": [] } }
+    },
+    {
+      "name": "Register: main units, none (every organization is its own main unit)",
+      "request": { "method": "POST", "urlPath": "/register/api/v2/internal/parties/main-units" },
+      "response": { "status": 200, "headers": { "Content-Type": "application/json" }, "jsonBody": { "data": [] } }
+    },
+    {
+      "name": "Register: identifiers for the test person",
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/register/api/v1/parties/identifiers",
+        "queryParameters": { "uuids": { "equalTo": "629fa2c0-27cd-40a2-ac6a-99bdf374dba2" } }
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": [ { "partyId": 50891883, "partyUuid": "629fa2c0-27cd-40a2-ac6a-99bdf374dba2", "orgNumber": "" } ]
+      }
+    },
+    {
+      "name": "Register: identifiers for the test organization (by org number or party uuid)",
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/register/api/v1/parties/identifiers",
+        "queryParameters": { "orgs": { "equalTo": "313605590" } }
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": [ { "partyId": 51118947, "partyUuid": "7aa1d1e2-0f4b-4c55-9b0a-3f5e0c2d9a11", "orgNumber": "313605590" } ]
+      }
+    },
+    {
+      "name": "Register: identifiers for the test organization by party uuid",
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/register/api/v1/parties/identifiers",
+        "queryParameters": { "uuids": { "equalTo": "7aa1d1e2-0f4b-4c55-9b0a-3f5e0c2d9a11" } }
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": [ { "partyId": 51118947, "partyUuid": "7aa1d1e2-0f4b-4c55-9b0a-3f5e0c2d9a11", "orgNumber": "313605590" } ]
+      }
+    },
+    {
+      "name": "Register: identifiers, unknown party",
+      "priority": 10,
+      "request": { "method": "GET", "urlPath": "/register/api/v1/parties/identifiers" },
+      "response": { "status": 200, "headers": { "Content-Type": "application/json" }, "jsonBody": [] }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "mappings": [
+    {
+      "name": "Brreg KoF: create or replace a notification address",
+      "request": { "method": "POST", "urlPathPattern": "/brreg/(define|replace/.+)" },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "boolResult": true, "addressId": "{{randomValue length=32 type='HEXADECIMAL' lowercase=true}}", "status": "OK", "details": "local-dev mock" }
+      }
+    },
+    {
+      "name": "Brreg KoF: change log, always empty (only used when JobSettings__OrgSyncEnabled=true)",
+      "request": { "method": "GET", "urlPath": "/brreg/varslingsadresser/fragments/json/v1" },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "entries": [] }
+      }
+    }
+  ]
+}

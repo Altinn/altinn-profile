@@ -1,0 +1,22 @@
+{
+  "mappings": [
+    {
+      "name": "Authorization: PDP decision, always Permit",
+      "request": { "method": "POST", "urlPath": "/authorization/api/v1/decision" },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "Response": [ { "Decision": "Permit" } ] }
+      }
+    },
+    {
+      "name": "Authorization: user may act for any party",
+      "request": { "method": "GET", "urlPathPattern": "/authorization/api/v1/parties/[0-9]+/validate" },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "body": "true"
+      }
+    }
+  ]
+}
