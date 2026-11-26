@@ -1,0 +1,209 @@
+name: Deploy (Flux)
+run-name: Deploy ${{ inputs.tag || inputs.ref }} to ${{ inputs.environment }}
+
+# Manual deploy to any environment. Always run this workflow from main ("Use workflow from":
+# main): the Azure login is then the main-branch credential, and the deploy logic is always the
+# reviewed version on main. What to deploy is chosen with the inputs:
+#
+#   - "ref": a branch or release tag, e.g. main, feat/x, hotfix/fix-x or v1.4.0. It is built and deployed.
+#   - "tag": instead of "ref", an existing build to deploy as it is, e.g. 1.4.0 or main-abc1234.
+#
+# AT22, AT23 and YT01 take any branch or release tag. TT02 and PROD are treated as production
+# and have extra rules, applied by the plan job:
+#
+#   TT02  release tags and hotfix/* branches. A release tag is built here, which creates the
+#         release artifacts that PROD later takes.
+#   PROD  a release tag deploys that release without building anything, so it only works for
+#         releases that were built for TT02. A hotfix/* branch is built and deployed.
+#         "tag" accepts releases and hotfix builds (hotfix-...) only.
+#
+# TT02 and PROD also pass an approval gate: a job that runs in the GitHub environment of the same
+# name and does nothing else, so required reviewers can be added there without the environment
+# having anything to do with the Azure login.
+#
+# Merges to main are deployed to AT22 and AT23 automatically by publish-flux-main.yml.
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to deploy to. Needs overlays in deploy/syncroot and deploy/manifests.
+        type: choice
+        required: true
+        options:
+          - at22
+          - at23
+          - yt01
+          - tt02
+          - prod
+      ref:
+        description: Branch or release tag to build and deploy, e.g. main, feat/x, hotfix/fix-x, v1.4.0. Not needed when "tag" is set.
+        type: string
+        required: false
+      tag:
+        description: Optional. Deploy this existing build as it is (1.4.0, main-abc1234) instead of building "ref".
+        type: string
+        required: false
+
+permissions: {}
+
+jobs:
+  plan:
+    name: Plan
+    runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      mode: ${{ steps.plan.outputs.mode }}
+      tag: ${{ steps.plan.outputs.tag }}
+      ref_type: ${{ steps.plan.outputs.ref_type }}
+      ref_name: ${{ steps.plan.outputs.ref_name }}
+      sha: ${{ steps.plan.outputs.sha }}
+      restrict_ref: ${{ steps.plan.outputs.restrict_ref }}
+    steps:
+      - name: Decide what to do
+        id: plan
+        env:
+          # Via env, not interpolated into the script, so crafted input can't inject commands.
+          ENVIRONMENT: ${{ inputs.environment }}
+          INPUT_REF: ${{ inputs.ref }}
+          INPUT_TAG: ${{ inputs.tag }}
+          WORKFLOW_REF: ${{ github.ref }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$*"; exit 1; }
+
+          [ "${WORKFLOW_REF}" = refs/heads/main ] \
+            || fail "Run this workflow from main (it is '${WORKFLOW_REF}'). The branch or tag to deploy goes in the 'ref' input."
+
+          case "${ENVIRONMENT}" in
+            at22|at23|yt01|tt02|prod) ;;
+            *) fail "Unknown environment '${ENVIRONMENT}'." ;;
+          esac
+
+          # TT02 and PROD are production: only releases and hotfixes, no plain hash builds.
+          restrict_ref=false
+          case "${ENVIRONMENT}" in tt02|prod) restrict_ref=true ;; esac
+
+          release_re='^[0-9]+\.[0-9]+\.[0-9]+$'
+          tag=""
+          ref_type=""
+          ref_name=""
+          sha=""
+
+          if [ -n "${INPUT_TAG}" ]; then
+            # An existing build: nothing is built, the environment tag moves onto it.
+            if [[ "${INPUT_TAG}" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+              tag="${BASH_REMATCH[1]}"
+            else
+              tag="${INPUT_TAG}"
+            fi
+            [[ "${tag}" =~ ^[A-Za-z0-9_][A-Za-z0-9._-]{0,127}$ ]] || fail "'${INPUT_TAG}' is not a valid build tag."
+            if [ "${restrict_ref}" = true ] && [[ ! "${tag}" =~ ${release_re} ]] && [[ ! "${tag}" =~ ^hotfix-.+ ]]; then
+              fail "${ENVIRONMENT} only takes releases (X.Y.Z) and hotfix builds (hotfix-...), not '${tag}'."
+            fi
+            mode=promote
+
+          else
+            [ -n "${INPUT_REF}" ] || fail "Set 'ref' (a branch or release tag) or 'tag' (an existing build)."
+            git check-ref-format "refs/heads/${INPUT_REF}" || fail "'${INPUT_REF}' is not a valid branch or tag name."
+
+            # Only named branches and tags of this repository can be deployed. Creating one needs
+            # write access, whereas a raw sha can point at a fork PR commit that is fetchable
+            # from this repository without it. The commit is pinned here, so every job builds
+            # the same one even if the branch moves during the run.
+            remote="$(git ls-remote "https://github.com/${REPO}" "refs/heads/${INPUT_REF}" "refs/tags/${INPUT_REF}" "refs/tags/${INPUT_REF}^{}")"
+            branch_sha="$(awk -v r="refs/heads/${INPUT_REF}" '$2 == r { print $1 }' <<<"${remote}")"
+            tag_sha="$(awk -v r="refs/tags/${INPUT_REF}^{}" '$2 == r { print $1 }' <<<"${remote}")"
+            [ -n "${tag_sha}" ] || tag_sha="$(awk -v r="refs/tags/${INPUT_REF}" '$2 == r { print $1 }' <<<"${remote}")"
+
+            if [ -n "${branch_sha}" ] && [ -n "${tag_sha}" ]; then
+              fail "'${INPUT_REF}' is both a branch and a tag, rename one of them."
+            elif [ -n "${branch_sha}" ]; then
+              ref_type=branch; sha="${branch_sha}"
+            elif [ -n "${tag_sha}" ]; then
+              ref_type=tag; sha="${tag_sha}"
+            else
+              fail "'${INPUT_REF}' is not a branch or tag in ${REPO}."
+            fi
+            ref_name="${INPUT_REF}"
+
+            if [ "${ref_type}" = tag ]; then
+              [[ "${ref_name}" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]] \
+                || fail "Only release tags (vMAJOR.MINOR.PATCH) can be deployed, not '${ref_name}'."
+              if [ "${ENVIRONMENT}" = prod ]; then
+                # PROD only gets releases that already exist as a build from TT02.
+                tag="${BASH_REMATCH[1]}"
+                mode=promote
+              else
+                mode=build
+              fi
+            else
+              if [ "${restrict_ref}" = true ] && [[ ! "${ref_name}" =~ ^hotfix/.+ ]]; then
+                fail "${ENVIRONMENT} only accepts release tags and hotfix/* branches, not '${ref_name}'."
+              fi
+              mode=build
+            fi
+          fi
+
+          echo "Environment ${ENVIRONMENT}, mode ${mode}${tag:+, tag ${tag}}${ref_name:+, ${ref_type} ${ref_name} at ${sha:0:7}}"
+          {
+            echo "mode=${mode}"
+            echo "tag=${tag}"
+            echo "ref_type=${ref_type}"
+            echo "ref_name=${ref_name}"
+            echo "sha=${sha}"
+            echo "restrict_ref=${restrict_ref}"
+          } >> "$GITHUB_OUTPUT"
+
+  # Approval gates. These jobs do nothing but run in the GitHub environment of the same name, so
+  # required reviewers on TT02 and PROD hold the deploy until someone approves. They never log in
+  # to Azure, so the environment does not change the Azure credential that is used.
+  gate-tt02:
+    name: Approve TT02 deploy
+    needs: plan
+    if: inputs.environment == 'tt02'
+    runs-on: ubuntu-latest
+    environment: TT02
+    permissions: {}
+    steps:
+      - run: echo "Approved for TT02"
+
+  gate-prod:
+    name: Approve PROD deploy
+    needs: plan
+    if: inputs.environment == 'prod'
+    runs-on: ubuntu-latest
+    environment: PROD
+    permissions: {}
+    steps:
+      - run: echo "Approved for PROD"
+
+  build:
+    name: Build
+    needs: [plan, gate-tt02, gate-prod]
+    # Skipped when an existing build is deployed, and gates that don't apply are skipped too.
+    if: ${{ !cancelled() && needs.plan.result == 'success' && needs.plan.outputs.mode == 'build' && contains(fromJSON('["success","skipped"]'), needs.gate-tt02.result) && contains(fromJSON('["success","skipped"]'), needs.gate-prod.result) }}
+    uses: ./.github/workflows/build-flux.yml
+    with:
+      ref_type: ${{ needs.plan.outputs.ref_type }}
+      ref_name: ${{ needs.plan.outputs.ref_name }}
+      sha: ${{ needs.plan.outputs.sha }}
+      restrict_ref: ${{ needs.plan.outputs.restrict_ref == 'true' }}
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    secrets: inherit
+
+  deploy:
+    name: Deploy
+    needs: [plan, gate-tt02, gate-prod, build]
+    if: ${{ !cancelled() && needs.plan.result == 'success' && contains(fromJSON('["success","skipped"]'), needs.gate-tt02.result) && contains(fromJSON('["success","skipped"]'), needs.gate-prod.result) && contains(fromJSON('["success","skipped"]'), needs.build.result) }}
+    uses: ./.github/workflows/promote-flux.yml
+    with:
+      environment: ${{ inputs.environment }}
+      tag: ${{ needs.plan.outputs.mode == 'build' && needs.build.outputs.image_tag || needs.plan.outputs.tag }}
+    permissions:
+      contents: read
+      id-token: write
+    secrets: inherit

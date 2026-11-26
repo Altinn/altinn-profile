@@ -1,0 +1,213 @@
+name: Build image
+run-name: Build image for ${{ github.ref_name }}
+
+# Builds the app image and pushes it to GHCR. What runs where is decided in
+# Altinn/altinn-profile-manifests, which pins an image tag per environment. This workflow only
+# builds, and tells that repo when AT22, AT23 or YT01 should move to a new build.
+#
+#   merge to main        ->  main-<sha7>               pushed, then AT22 and AT23 are bumped
+#   release tag vX.Y.Z   ->  X.Y.Z                     pushed (the image of that commit if it was built on main)
+#   manual run           ->  <branch>-<sha7> or X.Y.Z, and the environments you choose are bumped
+#
+# Only main and release tags build by themselves. Any other branch, a hotfix branch included, is
+# built with a manual run, which gives hotfix/<name> the tag hotfix-<name>-<sha7>. Leave
+# 'environments' empty to only build.
+#
+# TT02 and PROD are never bumped from here. They are deployed from the manifests repo, with the
+# Deploy workflow, which takes the image tag and has the approval gates.
+#
+# A manual run builds the branch or tag it is started on ("Use workflow from").
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      environments:
+        description: Optional. Environments to bump to this build, comma separated, from at22, at23 and yt01.
+        type: string
+        required: false
+
+permissions: {}
+
+env:
+  IMAGE_NAME: altinn/altinn-profile
+
+jobs:
+  prepare:
+    name: Resolve what to build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      build: ${{ steps.resolve.outputs.build }}
+      image_tag: ${{ steps.resolve.outputs.image_tag }}
+      retag_from: ${{ steps.resolve.outputs.retag_from }}
+      environments: ${{ steps.resolve.outputs.environments }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The full history: the diff of a push to main and the hotfix check both need it.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Resolve image tag
+        id: resolve
+        env:
+          # Via env, not interpolated into the script, so a crafted ref name can't inject commands.
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+          DISPATCH_ENVIRONMENTS: ${{ inputs.environments }}
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$*"; exit 1; }
+
+          sha7="$(git rev-parse --short=7 HEAD)"
+          build=true
+          environments=""
+          retag_from=""
+
+          if [ "${REF_TYPE}" = tag ]; then
+            [[ "${REF_NAME}" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]] \
+              || fail "Only release tags (vMAJOR.MINOR.PATCH) are built, not '${REF_NAME}'."
+            image_tag="${BASH_REMATCH[1]}"
+            # A release is the image that was already built from main, when there is one.
+            retag_from="main-${sha7}"
+          else
+            # OCI tags allow [A-Za-z0-9_.-] only (max 128), so slashes and other characters become hyphens.
+            slug="$(printf '%s' "${REF_NAME}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9._-]+/-/g' | cut -c1-60 | sed -E 's/^[-.]+//; s/[-.]+$//')"
+            [ -n "${slug}" ] || slug=ref
+            image_tag="${slug}-${sha7}"
+          fi
+
+          if [ "${EVENT_NAME}" = push ] && [ "${REF_TYPE}" = branch ] && [ "${REF_NAME}" = main ]; then
+            environments="at22,at23"
+            # Only what ends up in the image rebuilds it. Tests, docs and markdown don't.
+            if [[ -n "${BEFORE_SHA}" && ! "${BEFORE_SHA}" =~ ^0+$ ]] && git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null; then
+              if ! git diff --name-only "${BEFORE_SHA}" HEAD | grep -E '^(src/|Dockerfile$)' | grep -qvE '\.md$'; then
+                build=false
+                echo "Nothing that ends up in the image changed, so nothing is built."
+              fi
+            fi
+          fi
+
+          if [ "${EVENT_NAME}" = workflow_dispatch ] && [ -n "${DISPATCH_ENVIRONMENTS}" ]; then
+            IFS=',' read -r -a envs <<<"${DISPATCH_ENVIRONMENTS}"
+            for env in "${envs[@]}"; do
+              case "${env}" in
+                at22|at23|yt01) ;;
+                tt02|prod) fail "${env} is not bumped from here. Run Deploy in altinn-profile-manifests with image_tag." ;;
+                *) fail "Unknown environment '${env}'." ;;
+              esac
+            done
+            environments="${DISPATCH_ENVIRONMENTS}"
+          fi
+
+          echo "Image tag ${image_tag}, build ${build}${environments:+, bump ${environments}}"
+          {
+            echo "build=${build}"
+            echo "image_tag=${image_tag}"
+            echo "retag_from=${retag_from}"
+            echo "environments=${environments}"
+          } >> "$GITHUB_OUTPUT"
+
+      # Only a warning, never a failure.
+      - name: Warn if the hotfix branch was not cut from a release
+        if: github.ref_type == 'branch' && startsWith(github.ref_name, 'hotfix/')
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -uo pipefail
+          base="$(git merge-base HEAD refs/remotes/origin/main 2>/dev/null || true)"
+          if [ -z "${base}" ]; then
+            echo "::warning::${REF_NAME} shares no history with main."
+            exit 0
+          fi
+          if git tag --points-at "${base}" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "${REF_NAME} was cut from release $(git tag --points-at "${base}" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)."
+          else
+            nearest="$(git describe --tags --match 'v[0-9]*' "${base}" 2>/dev/null || echo 'no release found')"
+            echo "::warning::${REF_NAME} was not cut from a release tag: it branches off main at $(git rev-parse --short "${base}") (${nearest}). It includes everything merged to main up to there, not only the fix. Cut hotfixes from the release running in prod: git switch -c hotfix/<name> vX.Y.Z"
+          fi
+
+  build:
+    name: Build and push image
+    needs: prepare
+    if: needs.prepare.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    # The same image tag can be requested by several runs at once. They take turns, so a later
+    # run finds the image and skips.
+    concurrency:
+      group: build-image-${{ needs.prepare.outputs.image_tag }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Login to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        env:
+          IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+          RETAG_FROM: ${{ needs.prepare.outputs.retag_from }}
+        run: |
+          set -euo pipefail
+          image="ghcr.io/${IMAGE_NAME}:${IMAGE_TAG}"
+
+          # A tag is built once. Running this again must not replace an image that may already be
+          # deployed somewhere.
+          if docker manifest inspect "${image}" >/dev/null 2>&1; then
+            echo "::notice::${image} already exists, not building it again"
+            exit 0
+          fi
+
+          # A release gets the tag of the image that was already built from main, so what was
+          # tested in the test environments is what ships.
+          if [ -n "${RETAG_FROM}" ] && docker manifest inspect "ghcr.io/${IMAGE_NAME}:${RETAG_FROM}" >/dev/null 2>&1; then
+            docker buildx imagetools create --tag "${image}" "ghcr.io/${IMAGE_NAME}:${RETAG_FROM}"
+            echo "Tagged ${image} from ${RETAG_FROM}, nothing was rebuilt."
+            exit 0
+          fi
+
+          docker build --tag "${image}" --label "org.opencontainers.image.revision=$(git rev-parse HEAD)" .
+          docker push "${image}"
+
+  bump:
+    name: Update the image tag in the manifests repo
+    needs: [prepare, build]
+    if: needs.prepare.outputs.environments != '' && needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      # The token of this repo can't dispatch to another repo. MANIFESTS_REPO_TOKEN has to be a
+      # token that can write to Altinn/altinn-profile-manifests.
+      - name: Dispatch the new image tag
+        env:
+          GH_TOKEN: ${{ secrets.MANIFESTS_REPO_TOKEN }}
+          ENVIRONMENTS: ${{ needs.prepare.outputs.environments }}
+          IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+          [ -n "${GH_TOKEN}" ] || { echo "::error::The MANIFESTS_REPO_TOKEN secret is not set."; exit 1; }
+
+          gh api repos/Altinn/altinn-profile-manifests/dispatches \
+            -f event_type=update_image_tag \
+            -f "client_payload[environments]=${ENVIRONMENTS}" \
+            -f "client_payload[image_tag]=${IMAGE_TAG}"
+
+          echo "Asked the manifests repo to bump ${ENVIRONMENTS} to ${IMAGE_TAG}." >> "$GITHUB_STEP_SUMMARY"
