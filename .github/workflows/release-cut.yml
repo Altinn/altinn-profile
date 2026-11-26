@@ -70,7 +70,7 @@ jobs:
             sha="$(git rev-parse HEAD)"
           fi
 
-          drafts="$(gh release list --json isDraft --jq '[.[] | select(.isDraft)] | length')"
+          drafts="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/releases" --jq '.[] | select(.draft) | .id' | wc -l)"
           if [ "${drafts}" -gt 0 ]; then
             echo "::notice::A draft release is already waiting for review, not cutting another."
             echo "A draft release is already waiting for review, so no new release was cut." >> "$GITHUB_STEP_SUMMARY"

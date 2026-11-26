@@ -88,16 +88,18 @@ jobs:
 
           if [ "${EVENT_NAME}" = push ] && [ "${REF_TYPE}" = branch ] && [ "${REF_NAME}" = main ]; then
             environments="at22,at23"
-            # Only what ends up in the image rebuilds it. Tests, docs and markdown don't.
+            # Only what ends up in the image rebuilds it (same paths as release-cut.yml).
             if [[ -n "${BEFORE_SHA}" && ! "${BEFORE_SHA}" =~ ^0+$ ]] \
               && git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null \
-              && ! git diff --name-only "${BEFORE_SHA}" HEAD | grep -E '^(src/|Dockerfile$)' | grep -qvE '\.md$'; then
+              && git diff --quiet "${BEFORE_SHA}" HEAD -- src Dockerfile ':(exclude,glob)**/*.md'; then
               build=false
               echo "Nothing that ends up in the image changed, so nothing is built."
             fi
           fi
 
           if [ "${EVENT_NAME}" = workflow_dispatch ] && [ -n "${DISPATCH_ENVIRONMENTS}" ]; then
+            [[ "${DISPATCH_ENVIRONMENTS}" =~ ^[a-z0-9]+(,[a-z0-9]+)*$ ]] \
+              || fail "'environments' must be a comma separated list, for example at22,at23."
             IFS=',' read -r -a envs <<<"${DISPATCH_ENVIRONMENTS}"
             for env in "${envs[@]}"; do
               case "${env}" in
@@ -106,7 +108,7 @@ jobs:
                 *) fail "Unknown environment '${env}'." ;;
               esac
             done
-            environments="${DISPATCH_ENVIRONMENTS}"
+            environments="$(IFS=,; printf '%s' "${envs[*]}")"
           fi
 
           echo "Image tag ${image_tag}, build ${build}${environments:+, bump ${environments}}"
@@ -166,20 +168,38 @@ jobs:
         env:
           IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
           RETAG_FROM: ${{ needs.prepare.outputs.retag_from }}
+          REGISTRY_USER: ${{ github.actor }}
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           image="ghcr.io/${IMAGE_NAME}:${IMAGE_TAG}"
 
+          # Returns 1 only when the registry says the tag is missing. Any other answer stops the job.
+          image_exists() {
+            local token code
+            token="$(curl -fsS -u "${REGISTRY_USER}:${REGISTRY_TOKEN}" "https://ghcr.io/token?scope=repository:${IMAGE_NAME}:pull" | jq -er .token)" \
+              || { echo "::error::Could not get a registry token"; exit 1; }
+            code="$(curl -sS -o /dev/null -w '%{http_code}' -H "Authorization: Bearer ${token}" \
+              -H "Accept: application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json" \
+              "https://ghcr.io/v2/${IMAGE_NAME}/manifests/$1")" \
+              || { echo "::error::Could not reach the registry"; exit 1; }
+            case "${code}" in
+              200) return 0 ;;
+              404) return 1 ;;
+              *) echo "::error::Could not check ghcr.io/${IMAGE_NAME}:$1 (HTTP ${code})"; exit 1 ;;
+            esac
+          }
+
           # A tag is built once. Running this again must not replace an image that may already be
           # deployed somewhere.
-          if docker manifest inspect "${image}" >/dev/null 2>&1; then
+          if image_exists "${IMAGE_TAG}"; then
             echo "::notice::${image} already exists, not building it again"
             exit 0
           fi
 
           # A release gets the tag of the image that was already built from main, so what was
           # tested in the test environments is what ships.
-          if [ -n "${RETAG_FROM}" ] && docker manifest inspect "ghcr.io/${IMAGE_NAME}:${RETAG_FROM}" >/dev/null 2>&1; then
+          if [ -n "${RETAG_FROM}" ] && image_exists "${RETAG_FROM}"; then
             docker buildx imagetools create --tag "${image}" "ghcr.io/${IMAGE_NAME}:${RETAG_FROM}"
             echo "Tagged ${image} from ${RETAG_FROM}, nothing was rebuilt."
             exit 0
