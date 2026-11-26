@@ -176,17 +176,17 @@ jobs:
 
           # Returns 1 only when the registry says the tag is missing. Any other answer stops the job.
           image_exists() {
-            local token code
+            local tag="$1" token code
             token="$(curl -fsS -u "${REGISTRY_USER}:${REGISTRY_TOKEN}" "https://ghcr.io/token?scope=repository:${IMAGE_NAME}:pull" | jq -er .token)" \
               || { echo "::error::Could not get a registry token"; exit 1; }
             code="$(curl -sS -o /dev/null -w '%{http_code}' -H "Authorization: Bearer ${token}" \
               -H "Accept: application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json" \
-              "https://ghcr.io/v2/${IMAGE_NAME}/manifests/$1")" \
+              "https://ghcr.io/v2/${IMAGE_NAME}/manifests/${tag}")" \
               || { echo "::error::Could not reach the registry"; exit 1; }
             case "${code}" in
               200) return 0 ;;
               404) return 1 ;;
-              *) echo "::error::Could not check ghcr.io/${IMAGE_NAME}:$1 (HTTP ${code})"; exit 1 ;;
+              *) echo "::error::Could not check ghcr.io/${IMAGE_NAME}:${tag} (HTTP ${code})"; exit 1 ;;
             esac
           }
 
