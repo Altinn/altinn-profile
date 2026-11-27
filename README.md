@@ -56,7 +56,8 @@ In pgAdmin
   - platform_profile_admin (superuser, canlogin)
   - platform_profile (canlogin)
 
-To apply the migration to the database, navigate to the src/Altinn.Profile folder and run the following command:
+`dotnet run` from the src/Altinn.Profile folder applies pending migrations at startup, because the launch profile sets
+`PostgreSqlSettings__MigrateOnStartup=true`. To apply them without starting the application, run the following command:
 
 `dotnet run --run-db-migrations`
 
