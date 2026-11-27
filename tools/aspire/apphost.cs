@@ -28,20 +28,28 @@ var profile = builder.AddProject("profile", ProfileProject, launchProfileName: n
     .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
     .WaitForCompletion(migrations);
 
+var usePostgresContainer = builder.Configuration.GetValue("Postgres:UseContainer", true);
+var useMocks = builder.Configuration.GetValue("Mocks:UseContainer", true);
+
 // podman or docker. Both take the same compose, exec and logs commands.
-string containerRuntime;
+string containerRuntime = string.Empty;
+if (usePostgresContainer || useMocks)
+{
+    // Without a setting, use the runtime Aspire is set to, or else whichever of docker and podman is running.
+    containerRuntime = new[] { builder.Configuration["ContainerRuntime"], builder.Configuration["ASPIRE_CONTAINER_RUNTIME"] }
+        .FirstOrDefault(runtime => !string.IsNullOrEmpty(runtime)) ?? DetectContainerRuntime();
+
+    // Aspire runs the mocks container, so it has to use the same runtime.
+    builder.Configuration["ASPIRE_CONTAINER_RUNTIME"] = containerRuntime;
+}
 
 // Not 5432, so the app host can run next to a local PostgreSQL or the notifications app host.
 var postgresPort = builder.Configuration.GetValue("Postgres:Port", 5442);
 
 // The container is started outside Aspire so it keeps running when it stops; the resource only tails its logs.
-if (builder.Configuration.GetValue("Postgres:UseContainer", true))
+if (usePostgresContainer)
 {
     var postgresContainer = builder.Configuration["Postgres:ContainerName"] ?? "profile-db";
-
-    // Without a setting, use the runtime Aspire is set to, or else whichever of docker and podman is running.
-    containerRuntime = new[] { builder.Configuration["ContainerRuntime"], builder.Configuration["ASPIRE_CONTAINER_RUNTIME"] }
-        .FirstOrDefault(runtime => !string.IsNullOrEmpty(runtime)) ?? DetectContainerRuntime();
 
     // Compose tracks containers by project, so the project is named after the container to give each name its own container and volume.
     var composeEnvironment = new Dictionary<string, string>
@@ -68,6 +76,40 @@ if (postgresPort != 5432)
         service.WithEnvironment("PostgreSqlSettings__AdminConnectionString", string.Format(connectionString, "platform_profile_admin", "Pooling=false"))
             .WithEnvironment("PostgreSqlSettings__ConnectionString", string.Format(connectionString, "platform_profile", "Maximum Pool Size=4"));
     }
+}
+
+// Without Key Vault, Profile reads the public certs for incoming platform access tokens from {folder}/{issuer}-org.pem.
+// The test cert stands in for both issuers that local-dev/token.cs uses, and also signs outgoing platform access tokens.
+string testCerts = Path.GetFullPath(Path.Combine(builder.AppHostDirectory, "../../test/Altinn.Profile.Tests"));
+string publicCerts = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "altinn-profile-aspire", "certs")).FullName;
+foreach (var issuer in new[] { "platform", "ttd" })
+{
+    File.Copy(Path.Combine(testCerts, "ttd-org.pem"), Path.Combine(publicCerts, $"{issuer}-org.pem"), overwrite: true);
+}
+
+profile.WithEnvironment("GeneralSettings__AccessTokenPublicCertsFolder", publicCerts)
+    .WithEnvironment("AccessTokenSettings__AccessTokenSigningCertificateFullPath", Path.Combine(testCerts, "ttd-org.pfx"));
+
+// WireMock stands in for platform authentication, authorization, register, notifications and Brreg, as in docker-compose.yml.
+// Without it, appsettings.json points to the ports of locally running Altinn services.
+if (useMocks)
+{
+    var mocksPort = builder.Configuration.GetValue("Mocks:Port", 5039);
+    var mocks = builder.AddContainer("mocks", "wiremock/wiremock", "3.13.1")
+        .WithImageRegistry("docker.io")
+        .WithBindMount(Path.GetFullPath(Path.Combine(builder.AppHostDirectory, "../../local-dev/wiremock")), "/home/wiremock", isReadOnly: true)
+        .WithArgs("--global-response-templating", "--disable-banner")
+        .WithHttpEndpoint(port: mocksPort, targetPort: 8080, isProxied: false)
+        .WithHttpHealthCheck("/__admin/health");
+
+    string mocksUrl = $"http://localhost:{mocksPort}";
+    profile.WaitFor(mocks)
+        .WithEnvironment("GeneralSettings__OpenIdWellKnownEndpoint", $"{mocksUrl}/authentication/api/v1/openid/")
+        .WithEnvironment("PlatformSettings__ApiAuthorizationEndpoint", $"{mocksUrl}/authorization/api/v1/")
+        .WithEnvironment("RegisterSettings__ApiRegisterEndpoint", $"{mocksUrl}/register/api/")
+        .WithEnvironment("NotificationsSettings__ApiNotificationsEndpoint", $"{mocksUrl}/notifications/api/")
+        .WithEnvironment("OrganizationNotificationAddressSettings__UpdateEndpoint", $"{mocksUrl}/brreg")
+        .WithEnvironment("OrganizationNotificationAddressSettings__ChangesLogEndpoint", $"{mocksUrl}/brreg/varslingsadresser/fragments/json/v1");
 }
 
 AddClusterSwitch(profile, "altinn-profile", 5030);

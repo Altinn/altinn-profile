@@ -50,10 +50,12 @@ cd src/Altinn.Profile
 dotnet run
 # Access at http://localhost:5030 or http://localhost:5030/swagger
 
-# With Docker/Podman
+# With Docker/Podman: self-contained (PostgreSQL, migrations, API and WireMock stubs for external services)
 podman compose up -d --build
-podman stop altinn-platform-profile
+podman compose down
 ```
+
+See `local-dev/README.md` for generating tokens (`dotnet run local-dev/token.cs`), test data and the WireMock mappings.
 
 ## Architecture & Patterns
 
